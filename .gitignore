@@ -1,0 +1,8 @@
+# Shader dumps and everything built from them contain AMD's shader code: never commit them.
+dump*/
+override*/
+build/
+*.spv
+*.spvasm
+*.dxil
+*.dxbc
