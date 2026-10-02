@@ -7,6 +7,10 @@ It is three ready-made shader files plus the small scripts that build them. vkd3
 replacements through one launch option. Nothing in the game, in OptiScaler or in AMD's DLLs is
 modified.
 
+**Windows:** there is an experimental ReShade add-on for Windows in [`windows/`](windows). It has
+been verified under Proton on Linux but not yet on Windows itself, and it is not known whether
+Windows has this slowdown to begin with. See [`windows/README.md`](windows/README.md).
+
 ## Results
 
 OptiScaler's upscaler time on a Radeon RX 7800 XT (Mesa 26.2, RADV), 4K output:
