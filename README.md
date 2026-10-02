@@ -131,11 +131,11 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
 ## Example images
 Before
 
-<img src="before.jpg" width="1080" alt="Before">
+<img src="before.jpg" width="800" alt="Before">
 
 After
 
-<img src="after.jpg" width="1080" alt="After">
+<img src="after.jpg" width="800" alt="After">
 
 
 ## Credits and licence
