@@ -1,11 +1,11 @@
-# fsr4-shader-overrides
+# fsr4-shader-performance-overrides
 
 Makes AMD FSR 4.1.1 upscaling cheaper on Radeon RX 7000 (RDNA3) cards under Linux and Proton, by
 replacing two of FSR's compute shaders with faster versions that produce the same output.
 
-It is a small set of scripts. You run a game once to dump its shaders, the scripts rewrite the two
-FSR shaders they recognise, and vkd3d-proton loads the rewritten ones from then on. Nothing in the
-game, in OptiScaler or in AMD's DLLs is modified.
+It is three ready-made shader files plus the small scripts that build them. vkd3d-proton loads the
+replacements through one launch option. Nothing in the game, in OptiScaler or in AMD's DLLs is
+modified.
 
 ## Results
 
@@ -29,9 +29,30 @@ The saving varies by game. Only this one GPU has been tested.
   find nothing they recognise.
 - An RDNA3 card on the RADV driver. The slow pattern these rewrites remove was measured there.
   Other cards are untested, and RDNA4 runs a different FSR 4 model that this does not touch.
-- `python3` and SPIRV-Tools (`spirv-dis`, `spirv-as`, `spirv-val`).
+- Only if you build your own files: `python3` and SPIRV-Tools (`spirv-dis`, `spirv-as`,
+  `spirv-val`).
 
-## How to use it
+## Quick start: the prebuilt files
+
+The [`prebuilt/`](prebuilt) folder holds the overrides for the common case: AMD's DLL version
+4.1.1.2740, output above 1080p, and any preset except Ultra Performance.
+
+1. Clone or download this repository.
+2. Add this to the game's launch options in Steam (keep anything already there in front of
+   `%command%`):
+
+   ```
+   VKD3D_SHADER_OVERRIDE='Z:/path/to/fsr4-shader-performance-overrides/prebuilt' %command%
+   ```
+
+   `Z:` is how Proton sees your Linux root, so `Z:/home/you/...` is `/home/you/...`.
+3. Compare OptiScaler's upscaler time with and without the variable, standing at the same spot. In
+   some games that number is only reliable with the frame rate uncapped.
+
+If the time does not drop, your game uses a shader variant that is not in `prebuilt/`. Build your
+own as described next.
+
+## Building your own
 
 1. **Dump the game's shaders once.** Create an empty folder, then add this to the game's launch
    options in Steam (keep anything already there in front of `%command%`):
@@ -41,8 +62,7 @@ The saving varies by game. Only this one GPU has been tested.
    ```
 
    Start the game with FSR 4 enabled at the output resolution you play at, load into gameplay, and
-   quit. The folder fills with a few thousand files. `Z:` is how Proton sees your Linux root, so
-   `Z:/home/you/...` is `/home/you/...`.
+   quit. The folder fills with a few thousand files.
 
 2. **Build the overrides.**
 
@@ -56,22 +76,22 @@ The saving varies by game. Only this one GPU has been tested.
 3. **Switch the launch option** from the dump variable to the one the script printed:
 
    ```
-   VKD3D_SHADER_OVERRIDE='Z:/path/to/fsr4-shader-overrides/override' %command%
+   VKD3D_SHADER_OVERRIDE='Z:/path/to/fsr4-shader-performance-overrides/override' %command%
    ```
 
    The dump folder can be deleted now.
 
-4. **Check it.** Compare OptiScaler's upscaler time with and without the variable, standing at the
-   same spot. In some games that number is only reliable with the frame rate uncapped.
+4. **Check it** the same way as in the quick start.
 
 One `override/` folder serves every game. Files are named by shader hash, so if a second game uses
 the same shaders it needs only the launch option, and if it uses different ones you repeat steps 1
-and 2 and the new files are added alongside.
+and 2 and the new files are added alongside. To have everything in one place, copy the files from
+`prebuilt/` into `override/` as well.
 
-## When you need to dump again
+## When the prebuilt files are not enough
 
 The overrides match exact shaders. A game silently falls back to AMD's originals, with no error,
-when it uses a shader you have not built yet. That happens with:
+when it uses a shader you do not have a file for. That happens with:
 
 - a different FSR DLL version;
 - output at 1080p or below versus above 1080p (two different shader sets);
@@ -96,9 +116,12 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
 
 ## Things to know
 
-- **No shader files are included, on purpose.** The dumped and rewritten shaders contain AMD's
-  code, so you build them from your own copy and should not redistribute them. `.gitignore` keeps
-  them out of the repository.
+- **The prebuilt files are modified AMD shaders.** They come from AMD's
+  `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740, which AMD's FidelityFX SDK licence lists under MIT
+  terms. [`prebuilt/NOTICE.md`](prebuilt/NOTICE.md) says exactly where they come from and carries
+  AMD's notice. Running `build_override.sh` on a matching dump reproduces them byte for byte.
+- **Dumps stay out of the repository.** A raw dump contains every shader of the game you ran, so
+  `.gitignore` excludes dumps and your own `override/` folder.
 - **Set the variable per game.** With `VKD3D_SHADER_OVERRIDE` set, vkd3d-proton stops using the
   SPIR-V stored in its pipeline caches for that game, which can lengthen the first loads.
 - **Online games.** This only sets an environment variable for vkd3d-proton, but it does change
@@ -123,5 +146,7 @@ author found the slow store pattern and wrote the original rewrite for that proj
 runtime. This repository ports it to the shaders vkd3d-proton generates, so it works in ordinary
 games.
 
-Licensed under the GNU GPL v2 or later, like the project it derives from. See [LICENSE](LICENSE).
-Not affiliated with AMD.
+The scripts are licensed under the GNU GPL v2 or later, like the project they derive from. See
+[LICENSE](LICENSE). The prebuilt shaders are modified versions of AMD's, distributed under the same
+licence together with AMD's notice; see [`prebuilt/NOTICE.md`](prebuilt/NOTICE.md). Not affiliated
+with or endorsed by AMD.

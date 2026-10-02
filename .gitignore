@@ -6,3 +6,7 @@ build/
 *.spvasm
 *.dxil
 *.dxbc
+
+# The prebuilt overrides are meant to be shared (see prebuilt/NOTICE.md).
+!prebuilt/
+!prebuilt/*.spv
