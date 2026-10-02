@@ -22,7 +22,8 @@ The saving varies by game. Only this one GPU has been tested.
 
 ## What you need
 
-- A D3D12 game running through Proton (vkd3d-proton). DX11 and Vulkan games are not covered.
+- Linux, and a D3D12 game running through Proton (vkd3d-proton). DX11 and Vulkan games are not
+  covered. For Windows see the [Windows](#windows) section.
 - FSR 4.1.1 with the INT8 model actually running, for example through
   [OptiScaler](https://github.com/optiscaler/OptiScaler) with `amd_fidelityfx_upscaler_dx12.dll`
   version 4.1.1.2740. Other FSR versions have different shaders; the scripts will tell you if they
@@ -87,6 +88,13 @@ One `override/` folder serves every game. Files are named by shader hash, so if 
 the same shaders it needs only the launch option, and if it uses different ones you repeat steps 1
 and 2 and the new files are added alongside. To have everything in one place, copy the files from
 `prebuilt/` into `override/` as well.
+
+## Windows
+
+There is an experimental route for Windows in [`windows/`](windows): a ReShade add-on that swaps
+the same two shaders when AMD's DLL creates them. It has been verified under Proton on Linux but
+**not on Windows itself**, and it is not known whether Windows has the slowdown to begin with. See
+[`windows/README.md`](windows/README.md).
 
 ## When the prebuilt files are not enough
 

@@ -10,3 +10,6 @@ build/
 # The prebuilt overrides are meant to be shared (see prebuilt/NOTICE.md).
 !prebuilt/
 !prebuilt/*.spv
+
+# Windows: the prebuilt add-on and its DXIL replacements are shared too (see windows/prebuilt/NOTICE.md).
+!windows/prebuilt/fsr4-overrides/*.dxil
