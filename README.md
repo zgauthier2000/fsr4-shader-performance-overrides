@@ -105,6 +105,12 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
   what the game renders with. Use your own judgement in games with anti-cheat.
 - **To undo it,** remove the launch option.
 
+## Example images
+
+![Alt Text]([URL_OR_PATH_TO_IMAGE](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/before.jpg))
+
+![Alt Text]([URL_OR_PATH_TO_IMAGE](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/after.jpg))
+
 ## Credits and licence
 
 The postpass rewrite is adapted from `tools/fsr4cap/postpass_lds.py` in
