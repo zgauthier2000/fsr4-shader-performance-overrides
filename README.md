@@ -46,8 +46,8 @@ The [`prebuilt/`](prebuilt) folder holds the overrides for the common case: AMD'
    ```
 
    `Z:` is how Proton sees your Linux root, so `Z:/home/you/...` is `/home/you/...`.
-3. Compare OptiScaler's upscaler time with and without the variable, standing at the same spot. In
-   some games that number is only reliable with the frame rate uncapped.
+3. Compare OptiScaler's upscaler time with and without the variable, standing at the same spot. ***In
+   some games that number is only reliable with the frame rate uncapped.***
 
 If the time does not drop, your game uses a shader variant that is not in `prebuilt/`. Build your
 own as described next.
