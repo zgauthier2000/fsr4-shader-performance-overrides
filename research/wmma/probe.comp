@@ -1,0 +1,31 @@
+#version 460
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Throughput probe, not a real pass: the arithmetic of pass 1's 3x3 16->16 convolution done with
+// WMMA (9 matrix products per 16 pixels), reading the input tensor and weights straight from the
+// buffers and writing 16 bytes per pixel, to compare with the dot-product pass on the same grid.
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_EXT_shader_explicit_arithmetic_types : require
+#extension GL_EXT_nonuniform_qualifier : require
+layout(local_size_x = 64) in;
+layout(push_constant) uniform R { uvec2 cbv; uint uav; uint srv; } reg;
+layout(set = 2, binding = 0) buffer B8 { int8_t d[]; } heap[];
+#ifndef TAPS
+#define TAPS 9
+#endif
+void main() {
+    uint row = gl_WorkGroupID.y, x0 = gl_WorkGroupID.x * 64u;
+    for (uint tile = 0u; tile < 4u; tile++) {
+        coopmat<int32_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator> acc = coopmat<int32_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>(0);
+        for (uint tap = 0u; tap < uint(TAPS); tap++) {
+            uint dy = tap / 3u, dx = tap % 3u;
+            coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA> a;
+            coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB> b;
+            coopMatLoad(a, heap[reg.uav + 11u].d, ((row + dy) * 1922u + x0 + tile * 16u + dx) * 16u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+            coopMatLoad(b, heap[reg.srv + 18u].d, tap * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+            acc = coopMatMulAdd(a, b, acc);
+        }
+        coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator> o = coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>(acc);
+        coopMatStore(o, heap[reg.uav + 11u].d, 41616128u + ((row + 1u) * 1922u + x0 + tile * 16u + 1u) * 16u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    }
+}

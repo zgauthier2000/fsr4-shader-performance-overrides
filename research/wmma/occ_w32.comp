@@ -1,0 +1,67 @@
+#version 460
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Throughput probe variants (see probe2.comp). MODE 0: weights view read-only (loads shared by
+// the four tiles). MODE 1: operands loaded once per tile, nine products (cost of WMMA alone).
+// MODE 2: nine pairs of loads per tile, one product (cost of the loads alone).
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_EXT_shader_explicit_arithmetic_types : require
+#extension GL_EXT_nonuniform_qualifier : require
+layout(local_size_x = 32) in;
+layout(push_constant) uniform R { uvec2 cbv; uint uav; uint srv; } reg;
+layout(set = 2, binding = 0) buffer B32 { uint d[]; } heap[];
+layout(set = 2, binding = 0) readonly buffer W32 { uint d[]; } wheap[];
+#define ACC coopmat<int32_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define MA coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA>
+#define MB coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB>
+#ifndef K
+#define K 0
+#endif
+void main() {
+    uint row = gl_WorkGroupID.y, x0 = gl_WorkGroupID.x * 64u;
+#if K > 0
+    uint keep[K];
+    for (uint k = 0u; k < uint(K); k++)
+        keep[k] = heap[reg.uav + 11u].d[(row * 1922u + x0 + gl_LocalInvocationIndex) * 4u + k * 7u];
+#endif
+    for (uint tile = 0u; tile < 4u; tile++) {
+        ACC acc = ACC(0);
+#if MODE == 0
+        for (uint tap = 0u; tap < 9u; tap++) {
+            uint dy = tap / 3u, dx = tap % 3u;
+            MA a; MB b;
+            coopMatLoad(a, wheap[reg.srv + 18u].d, tap * 64u, 4u, gl_CooperativeMatrixLayoutRowMajor);
+            coopMatLoad(b, heap[reg.uav + 11u].d, ((row + dy) * 1922u + x0 + tile * 16u + dx) * 4u, 4u, gl_CooperativeMatrixLayoutColumnMajor);
+            acc = coopMatMulAdd(a, b, acc);
+        }
+#elif MODE == 1
+        MA a; MB b;
+        coopMatLoad(a, wheap[reg.srv + 18u].d, 0u, 4u, gl_CooperativeMatrixLayoutRowMajor);
+        coopMatLoad(b, heap[reg.uav + 11u].d, (row * 1922u + x0 + tile * 16u) * 4u, 4u, gl_CooperativeMatrixLayoutColumnMajor);
+        for (uint tap = 0u; tap < 9u; tap++) acc = coopMatMulAdd(a, b, acc);
+#else
+        MA a; MB b;
+        coopMatLoad(a, wheap[reg.srv + 18u].d, 0u, 4u, gl_CooperativeMatrixLayoutRowMajor);
+        coopMatLoad(b, heap[reg.uav + 11u].d, (row * 1922u + x0 + tile * 16u) * 4u, 4u, gl_CooperativeMatrixLayoutColumnMajor);
+        for (uint tap = 1u; tap < 9u; tap++) {
+            uint dy = tap / 3u, dx = tap % 3u;
+            MA a2; MB b2;
+            coopMatLoad(a2, wheap[reg.srv + 18u].d, tap * 64u, 4u, gl_CooperativeMatrixLayoutRowMajor);
+            coopMatLoad(b2, heap[reg.uav + 11u].d, ((row + dy) * 1922u + x0 + tile * 16u + dx) * 4u, 4u, gl_CooperativeMatrixLayoutColumnMajor);
+            a = a + a2; b = b + b2;
+        }
+        acc = coopMatMulAdd(a, b, acc);
+#endif
+        coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator> o = coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>(acc);
+        coopMatStore(o, heap[reg.uav + 11u].d, (41616128u >> 2) + ((row + 1u) * 1922u + x0 + tile * 16u + 1u) * 4u, 4u, gl_CooperativeMatrixLayoutColumnMajor);
+    }
+#if K > 0
+    // the multiplier is read back from what the last tile just stored, so the kept values cannot be
+    // folded together early and really stay in registers until here
+    const uint late = heap[reg.uav + 11u].d[(41616128u >> 2) + ((row + 1u) * 1922u + x0 + 49u) * 4u] | 1u;
+    uint sum = 0u;
+    for (uint k = 0u; k < uint(K); k++)
+        sum ^= (keep[k] + k) * late;
+    heap[reg.uav + 11u].d[(60000000u >> 2) + row * 2048u + x0 + gl_LocalInvocationIndex] = sum;
+#endif
+}

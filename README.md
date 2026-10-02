@@ -140,6 +140,14 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
   what the game renders with. Use your own judgement in games with anti-cheat.
 - **To undo it,** remove the launch option.
 
+## What else was tried
+
+- **WMMA (matrix multiply instructions) for the model passes.** A bit-exact WMMA version of model
+  pass 1 was built and measured: 0.41 ms against 0.29 ms for AMD's shader, so it is not used. The
+  full write-up, data and sources are in [`research/wmma/`](research/wmma).
+- **The other model passes and the prepass.** Benchmarked individually; apart from pass 11 they
+  compile to little more than the arithmetic itself, and nothing worth rewriting was found.
+
 ## Example images
 Before
 
