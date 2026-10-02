@@ -107,10 +107,12 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
 
 ## Example images
 Before
-<img src="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/before.jpg" width="800" alt="Before">
+
+<img src="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/before.jpg" width="1080" alt="Before">
 
 After
-<img src="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/after.jpg" width="800" alt="After">
+
+<img src="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/after.jpg" width="1080" alt="After">
 
 
 ## Credits and licence
