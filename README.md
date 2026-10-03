@@ -7,6 +7,14 @@ It is three ready-made shader files plus the small scripts that build them. vkd3
 replacements through one launch option. Nothing in the game, in OptiScaler or in AMD's DLLs is
 modified.
 
+**New in October 2026: a faster postpass.** The postpass rewrite now writes its three images one
+at a time, which lets four times as many waves run at once. Same output, byte for byte. In Shadow
+of the Tomb Raider at 4K the upscaler time dropped from 3.42 ms (first rewrite) to 3.09 ms, 26%
+below AMD's 4.16 ms, and the frame rate rose from 116.6 to 120.7 FPS. The files in
+[`prebuilt/`](prebuilt) are already the new version; if you built your own, run
+`build_override.sh` again. Details and measurements:
+[`results/phased-postpass`](results/phased-postpass).
+
 **Windows:** there is an experimental ReShade add-on for Windows in [`windows/`](windows). It has
 been verified under Proton on Linux but not yet on Windows itself, and it is not known whether
 Windows has this slowdown to begin with. See [`windows/README.md`](windows/README.md).
@@ -27,10 +35,10 @@ OptiScaler's upscaler time on a Radeon RX 7800 XT (Mesa 26.2, RADV), 4K output:
 
 The saving varies by game. Only this one GPU has been tested.
 
-The table was measured with the first version of the postpass rewrite. The current version (see
-[What the two rewrites do](#what-the-two-rewrites-do)) is faster again: in Shadow of the Tomb
-Raider at 4K the upscaler time went from 3.42 ms to 3.09 ms with it, 26% below AMD's 4.16 ms, and
-the frame rate from 116.6 to 120.7 FPS. The other games have not been re-measured yet.
+The table was measured with the first version of the postpass rewrite. The current, phased
+version is faster again; in Shadow of the Tomb Raider at 4K it brings the upscaler time to
+3.09 ms, 1.07 ms (26%) below AMD's (see [`results/phased-postpass`](results/phased-postpass)). The
+other games have not been re-measured yet.
 
 Both Tomb Raider games were also run through their built-in benchmarks, where the frame time
 saved matches the upscaler time saved:
