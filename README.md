@@ -143,6 +143,39 @@ Two ways to use them on Windows:
 Both were verified byte for byte against AMD's output under Proton. On integrated GPUs, see the
 next section.
 
+### Why the phased version gains more on Linux than on Windows
+
+Mostly because the two first versions were different; the phased change itself does the same
+thing on both.
+
+- **The Linux first version started from a worse place.** It moved all three of the postpass's
+  images through workgroup memory at once: 10 values per pixel for a 32x32 block, 40 KB per
+  workgroup. Only a few such workgroups fit in a WGP's 128 KB, so the shader ran just 4 waves per
+  SIMD. The postpass waits a lot on memory (about 40 texture reads per thread, plus the model's
+  output), and with 4 waves there is little other work to run meanwhile.
+- **The Windows first version was forced into a better design.** D3D12 allows a workgroup only
+  32 KB, so the DXIL version moved just the two float images (24 KB) and wrote the
+  half-precision one directly. That already ran 8 waves per SIMD (measured under vkd3d-proton).
+- **Both phased versions end at 16 waves per SIMD**, so Linux had much more to gain:
+
+  | Postpass at 4K, standalone benchmark | First version | Phased |
+  |---|---|---|
+  | Linux (SPIR-V) | 40 KB, 4 waves, 0.83 ms | 16 KB, 16 waves, 0.60 ms |
+  | Windows (DXIL, run under vkd3d-proton) | 24 KB, 8 waves, 0.72 ms | 12 KB, 16 waves, 0.67 ms |
+
+- **On Windows itself, AMD's own shader compiler** decides the wave size (it often runs compute
+  shaders as wave32), the registers and the occupancy. If it already ran the first version at good
+  occupancy, phasing had almost nothing left to fix, which fits the RX 7800 XT tester seeing no
+  change.
+- **The DXIL version is slightly slower even on Linux** (0.67 ms against 0.60 ms phased), because
+  vkd3d-proton's translation of DXIL gives slightly worse code than the hand-written SPIR-V. That
+  is not a Windows effect, but it means the Windows file was never quite as fast as the Linux one.
+
+On both systems the big gain comes from the first version, which fixed the scattered stores (AMD's
+postpass: 2.06 ms in the same benchmark). The phased version mostly repairs the Linux first
+version's low occupancy, a problem the Windows version had largely avoided. A Radeon GPU Profiler
+capture on Windows would show what AMD's Windows compiler actually does with each version.
+
 ## Patched DLL
 
 Instead of a launch option or the add-on, [`dll/patch_upscaler_dll.py`](dll) writes a copy of
