@@ -145,10 +145,11 @@ slightly slower code than the hand-written SPIR-V. A ready-made patched DLL is a
 
 ## Integrated GPUs (Radeon 780M and similar)
 
-People testing on RDNA3 integrated GPUs have reported that FSR 4 gets slower, not faster. This
-has not been reproduced here (only a Radeon RX 7800 XT was available), so it is not yet known
-which of the two rewrites is responsible, or whether the newer phased postpass still has the
-problem:
+People testing on RDNA3 integrated GPUs have reported that FSR 4 gets slower, not faster. All of
+those reports so far were with the first version of the postpass rewrite; results with the phased
+postpass are still to come. This has not been reproduced here (only a Radeon RX 7800 XT was
+available), so it is not yet known which rewrite is responsible, or whether the phased postpass
+still has the problem:
 
 - **The first postpass rewrite** (before 2026-10-03 14:40 EDT, and the DLLs other people built
   from it) left only 4 waves per SIMD to hide memory latency. An integrated GPU reads system
