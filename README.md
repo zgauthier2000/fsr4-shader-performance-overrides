@@ -143,6 +143,36 @@ postpass: 0.60 ms against 0.67 ms at 4K), because vkd3d-proton translates the DL
 slightly slower code than the hand-written SPIR-V. A ready-made patched DLL is attached to the
 [release `dll-2026-10-03`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03). See [`dll/README.md`](dll/README.md).
 
+## Integrated GPUs (Radeon 780M and similar)
+
+People testing on RDNA3 integrated GPUs have reported that FSR 4 gets slower, not faster. This
+has not been reproduced here (only a Radeon RX 7800 XT was available), so it is not yet known
+which of the two rewrites is responsible, or whether the newer phased postpass still has the
+problem:
+
+- **The first postpass rewrite** (before 2026-10-03 14:40 EDT, and the DLLs other people built
+  from it) left only 4 waves per SIMD to hide memory latency. An integrated GPU reads system
+  memory, with much higher latency and no Infinity Cache, so that version may well be slower there.
+  The phased postpass runs 16 waves per SIMD.
+- **The integrated GPU may not suffer from the scattered stores at all,** in which case the
+  postpass rewrite only adds work there, and only pass 11 is worth keeping (or neither).
+
+To find out, compare OptiScaler's upscaler time, frame rate uncapped, in four runs:
+
+| Run | Linux (launch option) | Patched DLL |
+|---|---|---|
+| AMD's shaders | no `VKD3D_SHADER_OVERRIDE` | AMD's original DLL |
+| Both rewrites | the `prebuilt/` folder | `patch_upscaler_dll.py` |
+| Pass 11 only | a copy of `prebuilt/` without `683038df6272d4db.spv` and `4d657fb0eed077d6.spv` | `patch_upscaler_dll.py --only pass11` |
+| Postpass only | a copy of `prebuilt/` without `e29847a84b6f746f.spv` | `patch_upscaler_dll.py --only postpass` |
+
+At 1080p output or below, the files in `prebuilt/` do not apply; build your own with
+`build_override.sh`, using `PASS11=0` or `POSTPASS=0` to leave one rewrite out. Until there is
+more data, use whichever run is fastest on your GPU.
+
+Please report the results with the GPU, the operating system and driver (Mesa version or AMD
+driver), the game, the output resolution and FSR mode.
+
 ## When the prebuilt files are not enough
 
 The overrides match exact shaders. A game silently falls back to AMD's originals, with no error,

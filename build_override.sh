@@ -7,7 +7,7 @@
 # (default: override/ next to this script), ready for VKD3D_SHADER_OVERRIDE.
 #
 #   postpass       image stores go through workgroup memory and are written in contiguous rows
-#                  (postpass_lds_vkd3d.py)
+#                  (postpass_lds_vkd3d.py). POSTPASS=0 skips it.
 #   model pass 11  the always-zero z coordinate becomes a constant, so the driver can unroll the
 #                  pass's loops (zconst.py). PASS11=0 skips it.
 #
@@ -47,7 +47,7 @@ for f in sorted(glob.glob(os.environ['DUMP_DIR'] + '/*.spv')):
         i += n
     name = os.path.basename(f)[:-4]
     # 12 image writes, or 13 in the variants that also store the exposure value
-    if compute and local == (256, 1, 1) and writes in (12, 13) and dots == 960:
+    if os.environ.get('POSTPASS', '1') == '1' and compute and local == (256, 1, 1) and writes in (12, 13) and dots == 960:
         print('postpass', name)
     if os.environ.get('PASS11', '1') == '1' and compute and local == (64, 1, 1) and writes == 0 and dots == 272 and loops == 6:
         print('pass11', name)

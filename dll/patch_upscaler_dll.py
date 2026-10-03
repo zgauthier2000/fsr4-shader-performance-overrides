@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# patch_upscaler_dll.py <amd_fidelityfx_upscaler_dx12.dll> <output.dll> [replacement-dir]
+# patch_upscaler_dll.py [--only postpass|pass11] <amd_fidelityfx_upscaler_dx12.dll> <output.dll> [replacement-dir]
 #
 # Writes a copy of AMD's FSR 4.1.1 upscaler DLL that carries the faster shaders itself, so no
 # launch option, add-on or override folder is needed. The replacements are the DXIL files the
 # Windows add-on uses (default: ../windows/prebuilt/fsr4-overrides), each named after the hash in
-# the header of the AMD shader it replaces.
+# the header of the AMD shader it replaces. --only builds in just one of the two rewrites, to find
+# out which one helps on a given GPU.
 #
 # The DLL keeps its shaders as plain DXIL containers in .rdata, each described by an entry in
 # .data: a 64-bit size followed by a 64-bit pointer. A replacement that fits is written in place;
@@ -21,11 +22,17 @@ import os
 import struct
 import sys
 
-if len(sys.argv) not in (3, 4):
-    sys.exit(__doc__ if __doc__ else open(__file__).read().split('\nimport')[0])
-src, dst = sys.argv[1], sys.argv[2]
+args = sys.argv[1:]
+only = None
+if args[:1] == ['--only']:
+    if len(args) < 2 or args[1] not in ('postpass', 'pass11'):
+        sys.exit('--only takes postpass or pass11')
+    only, args = args[1], args[2:]
+if len(args) not in (2, 3):
+    sys.exit('\n'.join(l[2:] for l in open(__file__).read().split('\nimport')[0].split('\n')[2:]))
+src, dst = args[0], args[1]
 here = os.path.dirname(os.path.abspath(__file__))
-rdir = sys.argv[3] if len(sys.argv) == 4 else os.path.join(here, '..', 'windows', 'prebuilt', 'fsr4-overrides')
+rdir = args[2] if len(args) == 3 else os.path.join(here, '..', 'windows', 'prebuilt', 'fsr4-overrides')
 
 
 def die(msg):
@@ -34,8 +41,10 @@ def die(msg):
 
 d = bytearray(open(src, 'rb').read())
 repl = {f[:-5]: open(os.path.join(rdir, f), 'rb').read() for f in sorted(os.listdir(rdir)) if f.endswith('.dxil')}
+if only:
+    repl = {h: b for h, b in repl.items() if f'fsr4_model_v07_fp8_no_scale_{only}'.encode() in b}
 if not repl:
-    die(f'no replacement .dxil files in {rdir}')
+    die(f'no replacement .dxil files in {rdir}' + (f' for {only}' if only else ''))
 for h, blob in repl.items():
     if blob[:4] != b'DXBC' or struct.unpack_from('<I', blob, 24)[0] != len(blob):
         die(f'{h}.dxil is not a DXIL container')
@@ -99,7 +108,7 @@ while (pos := d.find(b'DXBC', pos)) >= 0:
     pos += 4
 missing = sorted(set(repl) - {f[0] for f in found})
 if missing:
-    die('shaders not found in this DLL (another FSR version?): ' + ', '.join(missing))
+    die('shaders not found in this DLL (another FSR version, or already patched?): ' + ', '.join(missing))
 
 # --- patch
 appended = bytearray()

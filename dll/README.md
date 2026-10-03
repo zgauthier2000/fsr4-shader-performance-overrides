@@ -23,7 +23,11 @@ this folder; on Linux, from a terminal:
 python3 patch_upscaler_dll.py amd_fidelityfx_upscaler_dx12.dll amd_fidelityfx_upscaler_dx12.patched.dll
 ```
 
-It prints each shader it replaced. Then, in the game folder (wherever
+It prints each shader it replaced. `--only pass11` or `--only postpass` (before the file names)
+builds in just one of the two rewrites, to find out which one helps on your GPU; see
+[Integrated GPUs](../README.md#integrated-gpus-radeon-780m-and-similar).
+
+Then, in the game folder (wherever
 `amd_fidelityfx_upscaler_dx12.dll` is, often next to OptiScaler):
 
 1. Rename the original to `amd_fidelityfx_upscaler_dx12.dll.orig` and keep it.
