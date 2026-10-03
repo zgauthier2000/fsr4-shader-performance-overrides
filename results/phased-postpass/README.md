@@ -1,7 +1,15 @@
 # The phased postpass
 
-The second version of the postpass rewrite, added in October 2026. It produces the same output,
-byte for byte, and makes FSR 4.1.1 noticeably cheaper again.
+The second version of the postpass rewrite. It produces the same output, byte for byte, and
+makes FSR 4.1.1 noticeably cheaper again.
+
+- **Linux overrides:** added on 2026-10-03 at 14:40 EDT (UTC−4), commit `896d7f0`
+  (`postpass_lds_vkd3d.py` and the two postpass files in `prebuilt/`).
+- **Windows add-on:** added on 2026-10-03 at 14:56 EDT (UTC−4), commit `74afa2b`
+  (`windows/dxil/postpass_lds_dxil.py` and the six postpass files in
+  `windows/prebuilt/fsr4-overrides/`).
+
+Files from before those commits are the first version.
 
 ## What changed
 

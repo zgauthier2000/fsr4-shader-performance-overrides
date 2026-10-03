@@ -7,12 +7,13 @@ It is three ready-made shader files plus the small scripts that build them. vkd3
 replacements through one launch option. Nothing in the game, in OptiScaler or in AMD's DLLs is
 modified.
 
-**New in October 2026: a faster postpass.** The postpass rewrite now writes its three images one
+**New on 2026-10-03 at 14:40 EDT (UTC−4), commit `896d7f0`: a faster postpass.** The postpass rewrite now writes its three images one
 at a time, which lets four times as many waves run at once. Same output, byte for byte. In Shadow
 of the Tomb Raider at 4K the upscaler time dropped from 3.42 ms (first rewrite) to 3.09 ms, 26%
 below AMD's 4.16 ms, and the frame rate rose from 116.6 to 120.7 FPS. The files in
 [`prebuilt/`](prebuilt) are already the new version; if you built your own, run
-`build_override.sh` again. Details and measurements:
+`build_override.sh` again; anything built or downloaded before that commit is the first
+version. Details and measurements:
 [`results/phased-postpass`](results/phased-postpass).
 
 **Windows:** there is an experimental ReShade add-on for Windows in [`windows/`](windows). It has
