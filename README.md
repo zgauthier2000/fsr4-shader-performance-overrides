@@ -18,7 +18,9 @@ version. Details and measurements:
 
 **Patched DLL:** [`dll/`](dll) has a script that builds the same shaders straight into AMD's
 `amd_fidelityfx_upscaler_dx12.dll`, so a game needs no launch option or add-on: replace the DLL
-and you are done. Verified byte for byte under Proton; not yet tried on Windows.
+and you are done. A ready-made patched DLL is attached to the
+[release `dll-2026-10-03`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03). Verified byte for byte under Proton; not yet tried on
+Windows.
 
 **Windows:** there is an experimental ReShade add-on for Windows in [`windows/`](windows). It has
 been verified under Proton on Linux but not yet on Windows itself, and it is not known whether
@@ -137,7 +139,8 @@ Instead of a launch option or the add-on, [`dll/patch_upscaler_dll.py`](dll) wri
 AMD's `amd_fidelityfx_upscaler_dx12.dll` (4.1.1.2740) with the faster shaders built in; it works
 on Windows and under Proton alike. On Linux the launch option is still slightly faster (the
 postpass: 0.60 ms against 0.67 ms at 4K), because vkd3d-proton translates the DLL's DXIL into
-slightly slower code than the hand-written SPIR-V. See [`dll/README.md`](dll/README.md).
+slightly slower code than the hand-written SPIR-V. A ready-made patched DLL is attached to the
+[release `dll-2026-10-03`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03). See [`dll/README.md`](dll/README.md).
 
 ## When the prebuilt files are not enough
 

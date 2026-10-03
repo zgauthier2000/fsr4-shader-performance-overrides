@@ -5,6 +5,14 @@ version 4.1.1.2740) with the faster shaders built in. Drop it in place of the or
 uses them, with no launch option, no add-on and no override folder, on Windows and under Proton
 alike.
 
+## Download it
+
+A patched DLL is attached to the [release `dll-2026-10-03`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03), with AMD's notice and
+SHA-256 checksums. It was made by this script from AMD's original (SHA-256
+`d0dcccc74a43c44ba435b7a369b456e0970d8a4464e4bd683119b374f2c9fb46`), and running the script on that
+file reproduces it exactly. Install it as described below, from step 1 under "Then, in the game
+folder".
+
 ## Make the DLL
 
 You need Python 3 and AMD's DLL, version 4.1.1.2740 (for example the one that ships with
