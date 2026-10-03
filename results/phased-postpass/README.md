@@ -45,7 +45,22 @@ Phased postpass:
 
 <img src="sottr-4k-phased.png" width="500" alt="OptiScaler overlay with the phased postpass: 120.7 FPS, upscaler time 3.09 ms">
 
-## Where FSR 4's time goes in that game
+## Rise of the Tomb Raider
+
+The game's built-in benchmark at 4K, FSR 4.1.1 Balanced, one run each
+([full results](../rise-of-the-tomb-raider#4k-with-the-phased-postpass)):
+
+| Shaders | Upscaler time | Overall score |
+|---|---|---|
+| AMD's original | 4.30 ms | 97.59 FPS |
+| First rewrite | 3.33 ms | 107.89 FPS |
+| **Phased postpass** | **3.02 ms** | **108.60 FPS** |
+
+The phased postpass saves another 0.31 ms (−9.3%) of upscaler time over the first rewrite, 1.28 ms
+(−29.8%) below AMD's. The overall score barely moved, because one scene (Syria) had a hitch in the
+phased run; the other two scenes were 1.4% and 2.7% faster.
+
+## Where FSR 4's time goes in Shadow of the Tomb Raider
 
 Measured just before the phased version, by replacing parts of FSR 4 with empty shaders (same
 game, settings and spot; first rewrite in place):

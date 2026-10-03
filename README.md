@@ -44,8 +44,9 @@ The saving varies by game. Only this one GPU has been tested.
 
 The table was measured with the first version of the postpass rewrite. The current, phased
 version is faster again; in Shadow of the Tomb Raider at 4K it brings the upscaler time to
-3.09 ms, 1.07 ms (26%) below AMD's (see [`results/phased-postpass`](results/phased-postpass)). The
-other games have not been re-measured yet.
+3.09 ms, 1.07 ms (26%) below AMD's, and in Rise of the Tomb Raider's benchmark at 4K to 3.02 ms,
+1.28 ms (30%) below AMD's (see [`results/phased-postpass`](results/phased-postpass)). The other
+games have not been re-measured yet.
 
 Both Tomb Raider games were also run through their built-in benchmarks, where the frame time
 saved matches the upscaler time saved:
