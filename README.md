@@ -145,18 +145,27 @@ slightly slower code than the hand-written SPIR-V. A ready-made patched DLL is a
 
 ## Integrated GPUs (Radeon 780M and similar)
 
-People testing on RDNA3 integrated GPUs have reported that FSR 4 gets slower, not faster. All of
-those reports so far were with the first version of the postpass rewrite; results with the phased
-postpass are still to come. This has not been reproduced here (only a Radeon RX 7800 XT was
-available), so it is not yet known which rewrite is responsible, or whether the phased postpass
-still has the problem:
+People testing on RDNA3 integrated GPUs have reported that FSR 4 gets slower, not faster, with
+the first version of the postpass rewrite and with the phased version too. This has not been
+reproduced here (only a Radeon RX 7800 XT was available), and it is not yet known which of the
+two rewrites is responsible. The likely one is the postpass: an integrated GPU's memory system
+may not suffer from the scattered stores at all, so rewriting them only adds work. Pass 11 only
+lets the driver unroll loops, which is unlikely to cost anything. Until the runs below show
+otherwise, **on an integrated GPU, use pass 11 only, or nothing**.
 
-- **The first postpass rewrite** (before 2026-10-03 14:40 EDT, and the DLLs other people built
-  from it) left only 4 waves per SIMD to hide memory latency. An integrated GPU reads system
-  memory, with much higher latency and no Infinity Cache, so that version may well be slower there.
-  The phased postpass runs 16 waves per SIMD.
-- **The integrated GPU may not suffer from the scattered stores at all,** in which case the
-  postpass rewrite only adds work there, and only pass 11 is worth keeping (or neither).
+The two possibilities the reports have narrowed down:
+
+- **Low occupancy** in the first postpass rewrite (4 waves per SIMD to hide memory latency) was the
+  first suspect, but the phased postpass (16 waves per SIMD) is reported slower too.
+- **No store penalty to remove:** if the integrated GPU's memory system handles the scattered
+  stores well, the postpass rewrite only adds barriers and workgroup-memory traffic, and bunches
+  the writes at the end of each workgroup. This is the current suspect.
+
+On Windows with a Radeon RX 7800 XT, a tester saw no difference between the first and the phased
+version. That is expected: the DXIL version the add-on and the patched DLL use was never limited
+the same way (it already ran 8 waves per SIMD), and under vkd3d-proton its postpass only went from
+0.72 ms to 0.67 ms. Whether AMD's Windows driver has the store penalty at all, so whether either
+version beats AMD's original there, is still open.
 
 To find out, compare OptiScaler's upscaler time, frame rate uncapped, in four runs:
 
