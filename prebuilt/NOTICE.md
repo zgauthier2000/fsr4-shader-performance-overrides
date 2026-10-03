@@ -17,8 +17,8 @@ upscaler. They are not AMD's originals and are not provided or endorsed by AMD.
 
 | File | Shader | Change |
 |---|---|---|
-| `683038df6272d4db.spv` | FSR 4.1.1 postpass | stores through workgroup memory |
-| `4d657fb0eed077d6.spv` | FSR 4.1.1 postpass, variant that also stores the exposure value | stores through workgroup memory |
+| `683038df6272d4db.spv` | FSR 4.1.1 postpass | stores written in rows through workgroup memory, one image at a time |
+| `4d657fb0eed077d6.spv` | FSR 4.1.1 postpass, variant that also stores the exposure value | stores written in rows through workgroup memory, one image at a time |
 | `e29847a84b6f746f.spv` | FSR 4.1.1 model pass 11 | always-zero z coordinate replaced by a constant |
 
 ## Licences

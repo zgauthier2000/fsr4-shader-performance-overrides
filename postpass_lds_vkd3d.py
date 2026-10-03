@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Rewrites the FSR 4.1.1 (INT8) postpass as dumped by vkd3d-proton (VKD3D_SHADER_DUMP_PATH) so
-# that its image stores go through workgroup memory.
+# that its image stores are written in contiguous rows through workgroup memory.
 #
 #   spirv-dis <hash>.spv | postpass_lds_vkd3d.py > out.spvasm ; spirv-as --target-env spv1.3
 #
 # Each invocation computes a 2x2 block of output pixels (the workgroup: 32x32) and writes it into
 # three images one pixel per store; on RDNA3 those scattered stores cost most of the pass. Here
-# every store saves its value in workgroup memory (10 floats per pixel: two images' xyz, with x
-# repeated in alpha, and the recurrent state's xyzw), and after the pass's bounds check the
-# workgroup writes its 32x32 block in contiguous rows. Nothing else in the shader changes, so the
-# output is bit-exact.
+# every store keeps its value in registers instead, and after the pass's bounds check the
+# workgroup writes the three images one after another: the invocations put one image's 32x32 block
+# into workgroup memory, and the workgroup writes it out in contiguous rows. One image at a time
+# needs 16 KB of workgroup memory instead of 40 KB for all three, which lets four times as many
+# waves run per SIMD. Nothing else in the shader changes, so the output is bit-exact.
 #
 # Adapted from tools/fsr4cap/postpass_lds.py of bbport (https://github.com/deadinside28/bloodborne_pc,
 # GPL-2.0-or-later), which expects dxil-spirv command-line output with reflection names.
@@ -19,6 +20,7 @@
 import re
 import sys
 
+ROWS = 32   # rows of the 32x32 block per flush; smaller buffers measured no faster
 lines = sys.stdin.read().split('\n')
 out = []
 
@@ -57,7 +59,7 @@ for i in range(main_i, len(lines)):
     b = re.match(r'\s*OpBranchConditional (%\w+) (%\w+) (%\w+)', lines[i + 1])
     lor = b and re.match(r'OpLogicalOr %bool (%\w+) (%\w+)$', defs.get(b[1], ''))
     if lor and b[2] == m[1] and all(defs.get(v, '').startswith('OpUGreaterThanEqual %bool') for v in lor.groups()):
-        sel_i, merge = i, m[1]
+        sel_i, merge, oob = i, m[1], b[1]
         gx = re.match(r'OpUGreaterThanEqual %bool (%\w+) (%\w+)$', defs[lor[1]])
         gy = re.match(r'OpUGreaterThanEqual %bool (%\w+) (%\w+)$', defs[lor[2]])
         break
@@ -85,14 +87,18 @@ def new(prefix):
 decl = [
     '%bb_u5 = OpConstant %uint 5', '%bb_u31 = OpConstant %uint 31', '%bb_u10 = OpConstant %uint 10',
     '%bb_u2 = OpConstant %uint 2', '%bb_u264 = OpConstant %uint 264',
-    '%bb_u10240 = OpConstant %uint 10240',
-] + [f'%bb_c{c} = OpConstant %uint {c}' for c in range(10)] + [
+    f'%bb_usize = OpConstant %uint {32 * ROWS * 4}', f'%bb_urows = OpConstant %uint {ROWS}',
+    '%bb_u3 = OpConstant %uint 3', '%bb_u4 = OpConstant %uint 4',
+] + [f'%bb_c{c} = OpConstant %uint {c}' for c in range(4)] + [
     f'%bb_k{k} = OpConstant %uint {256 * k}' for k in range(4)] + [
-    '%bb_arr = OpTypeArray %float %bb_u10240',
+    f'%bb_h{h} = OpConstant %uint {ROWS * h}' for h in range(32 // ROWS)] + [
+    '%bb_arr = OpTypeArray %float %bb_usize',
     '%bb_ptr_arr = OpTypePointer Workgroup %bb_arr',
     '%bb_ptr_f = OpTypePointer Workgroup %float',
     '%bb_lds = OpVariable %bb_ptr_arr Workgroup',
+    '%bb_pff = OpTypePointer Function %float', '%bb_pfu = OpTypePointer Function %uint',
 ]
+fvars = []   # Function variables holding the stored values until the flush
 preamble = [
     '%bb_wgx_p = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_0',
     '%bb_wgx = OpLoad %uint %bb_wgx_p',
@@ -125,7 +131,7 @@ def clone(v, code, done):
     return r
 
 def flush():
-    code = ['OpControlBarrier %bb_u2 %bb_u2 %bb_u264']
+    code = []
     images = {}
     for tgt in slots:
         image_t, ptr_t, heap, (reg_t, reg_var, reg_member), offset = tgt
@@ -142,46 +148,62 @@ def flush():
             code.append(f'{inv} = OpLogicalNot %bool {v}')
             v = inv
         flags[tgt] = v
-    for k in range(4):
-        i, lx, ly, px, py = new('i'), new('lx'), new('ly'), new('px'), new('py')
-        code += [
-            f'{i} = OpIAdd %uint %bb_lid %bb_k{k}',
-            f'{lx} = OpBitwiseAnd %uint {i} %bb_u31',
-            f'{ly} = OpShiftRightLogical %uint {i} %bb_u5',
-            f'{px} = OpIAdd %uint %bb_x0 {lx}',
-            f'{py} = OpIAdd %uint %bb_y0 {ly}',
-        ]
-        tx, ty, cx, cy, c = new('tx'), new('ty'), new('cx'), new('cy'), new('c')
-        code += [
-            f'{tx} = OpShiftRightLogical %uint {px} %uint_1',
-            f'{ty} = OpShiftRightLogical %uint {py} %uint_1',
-            f'{cx} = OpULessThan %bool {tx} {w2}',
-            f'{cy} = OpULessThan %bool {ty} {h2}',
-            f'{c} = OpLogicalAnd %bool {cx} {cy}',
-        ]
-        then, done = f'%bb_then{k}', f'%bb_done{k}'
-        code += [f'OpSelectionMerge {done} None', f'OpBranchConditional {c} {then} {done}', f'{then} = OpLabel']
-        base = new('base')
-        code.append(f'{base} = OpIMul %uint {i} %bb_u10')
-        vals = []
-        for comp in range(10):
-            e, p, v = new('e'), new('p'), new('v')
-            code += [f'{e} = OpIAdd %uint {base} %bb_c{comp}', f'{p} = OpAccessChain %bb_ptr_f %bb_lds {e}',
-                     f'{v} = OpLoad %float {p}']
-            vals.append(v)
-        coord = new('coord')
-        code.append(f'{coord} = OpCompositeConstruct %v2uint {px} {py}')
-        for tgt, (first, kind) in slots.items():
-            comps = vals[first:first + 3] + [vals[first] if kind == 'xyzx' else vals[first + 3]]
-            tex = new('tex')
-            write = [f'{tex} = OpCompositeConstruct %v4float ' + ' '.join(comps),
-                     f'OpImageWrite {images[tgt]} {coord} {tex}']
-            if tgt in flags:
-                yes, after = new('wthen'), new('wdone')
-                write = [f'OpSelectionMerge {after} None', f'OpBranchConditional {flags[tgt]} {yes} {after}',
-                         f'{yes} = OpLabel'] + write + [f'OpBranch {after}', f'{after} = OpLabel']
-            code += write
-        code += [f'OpBranch {done}', f'{done} = OpLabel']
+    ok = new('ok')
+    code.append(f'{ok} = OpLogicalNot %bool {oob}')
+    for tgt, (t, kind) in slots.items():
+        nc = 4 if kind == 'xyzw' else 3
+        ncc = '%bb_u4' if nc == 4 else '%bb_u3'
+        for h in range(32 // ROWS):
+            # 1. the invocations that computed pixels of these rows put them in workgroup memory
+            code.append('OpControlBarrier %bb_u2 %bb_u2 %bb_u264')
+            put, putd = new('put'), new('putd')
+            code += [f'OpSelectionMerge {putd} None', f'OpBranchConditional {ok} {put} {putd}', f'{put} = OpLabel']
+            for k in range(4):
+                x, y, d, lx, c = new('x'), new('y'), new('d'), new('lx'), new('in')
+                code += [f'{x} = OpLoad %uint %bb_fx{t}_{k}', f'{y} = OpLoad %uint %bb_fy{t}_{k}',
+                         f'{d} = OpISub %uint {y} %bb_y0', f'{d}h = OpISub %uint {d} %bb_h{h}',
+                         f'{lx} = OpISub %uint {x} %bb_x0', f'{c} = OpULessThan %bool {d}h %bb_urows']
+                yes, no = new('kin'), new('kdone')
+                pix, base = new('pix'), new('base')
+                code += [f'OpSelectionMerge {no} None', f'OpBranchConditional {c} {yes} {no}', f'{yes} = OpLabel',
+                         f'{pix}r = OpShiftLeftLogical %uint {d}h %bb_u5', f'{pix} = OpIAdd %uint {pix}r {lx}',
+                         f'{base} = OpIMul %uint {pix} {ncc}']
+                for comp in range(nc):
+                    e, ptr, v = new('e'), new('p'), new('v')
+                    code += [f'{v} = OpLoad %float %bb_fv{t}_{k}_{comp}',
+                             f'{e} = OpIAdd %uint {base} %bb_c{comp}',
+                             f'{ptr} = OpAccessChain %bb_ptr_f %bb_lds {e}', f'OpStore {ptr} {v}']
+                code += [f'OpBranch {no}', f'{no} = OpLabel']
+            code += [f'OpBranch {putd}', f'{putd} = OpLabel', 'OpControlBarrier %bb_u2 %bb_u2 %bb_u264']
+            # 2. the workgroup writes those rows of the image, one row of 32 pixels per 32 invocations
+            for k in range(ROWS // 8):
+                i, lx, ly, px, py = new('i'), new('lx'), new('ly'), new('px'), new('py')
+                code += [f'{i} = OpIAdd %uint %bb_lid %bb_k{k}', f'{lx} = OpBitwiseAnd %uint {i} %bb_u31',
+                         f'{ly} = OpShiftRightLogical %uint {i} %bb_u5', f'{px} = OpIAdd %uint %bb_x0 {lx}',
+                         f'{py}r = OpIAdd %uint %bb_y0 {ly}', f'{py} = OpIAdd %uint {py}r %bb_h{h}']
+                tx, ty, cx, cy, c = new('tx'), new('ty'), new('cx'), new('cy'), new('c')
+                code += [f'{tx} = OpShiftRightLogical %uint {px} %uint_1',
+                         f'{ty} = OpShiftRightLogical %uint {py} %uint_1',
+                         f'{cx} = OpULessThan %bool {tx} {w2}', f'{cy} = OpULessThan %bool {ty} {h2}',
+                         f'{c} = OpLogicalAnd %bool {cx} {cy}']
+                if tgt in flags:
+                    c2 = new('c')
+                    code.append(f'{c2} = OpLogicalAnd %bool {c} {flags[tgt]}')
+                    c = c2
+                then, done, base = new('then'), new('done'), new('base')
+                code += [f'OpSelectionMerge {done} None', f'OpBranchConditional {c} {then} {done}', f'{then} = OpLabel',
+                         f'{base} = OpIMul %uint {i} {ncc}']
+                vals = []
+                for comp in range(nc):
+                    e, ptr, v = new('e'), new('p'), new('v')
+                    code += [f'{e} = OpIAdd %uint {base} %bb_c{comp}', f'{ptr} = OpAccessChain %bb_ptr_f %bb_lds {e}',
+                             f'{v} = OpLoad %float {ptr}']
+                    vals.append(v)
+                comps = vals[:3] + [vals[0] if kind == 'xyzx' else vals[3]]
+                coord, tex = new('coord'), new('tex')
+                code += [f'{coord} = OpCompositeConstruct %v2uint {px} {py}',
+                         f'{tex} = OpCompositeConstruct %v4float ' + ' '.join(comps),
+                         f'OpImageWrite {images[tgt]} {coord} {tex}', f'OpBranch {done}', f'{done} = OpLabel']
     return code
 
 stores = {}
@@ -213,6 +235,7 @@ for number, line in enumerate(lines):
         continue
     if in_main and re.match(r'%\w+ = OpLabel$', s) and preamble:
         out.append(line)
+        out.append('@@FVARS@@')
         out += [pad + p for p in preamble]
         preamble = []
         continue
@@ -241,22 +264,16 @@ for number, line in enumerate(lines):
                 die(f'texel is not (x, y, z, x): {texel}')
             comps = [t[1], t[2], t[3]]
         if tgt not in slots:
-            used = sum(3 if k == 'xyzx' else 4 for _, k in slots.values())
-            slots[tgt] = (used, kind)
+            slots[tgt] = (len(slots), kind)
         if slots[tgt][1] != kind:
             die(f'stores to one image differ in form: {s}')
-        first = slots[tgt][0]
-        lx, ly, row, pix, base = new('slx'), new('sly'), new('srow'), new('spix'), new('sbase')
-        out += [pad + c for c in [
-            f'{lx} = OpISub %uint {x} %bb_x0', f'{ly} = OpISub %uint {y} %bb_y0',
-            f'{row} = OpShiftLeftLogical %uint {ly} %bb_u5', f'{pix} = OpIAdd %uint {row} {lx}',
-            f'{base} = OpIMul %uint {pix} %bb_u10']]
-        for c, v in enumerate(comps):
-            e, p = new('se'), new('sp')
-            out += [pad + q for q in [
-                f'{e} = OpIAdd %uint {base} %bb_c{first + c}',
-                f'{p} = OpAccessChain %bb_ptr_f %bb_lds {e}', f'OpStore {p} {v}']]
-        stores[tgt] = stores.get(tgt, 0) + 1
+        t, k = slots[tgt][0], stores.get(tgt, 0)
+        if k > 3:
+            die(f'more than 4 stores to one image: {s}')
+        names = [f'%bb_fv{t}_{k}_{c}' for c in range(len(comps))] + [f'%bb_fx{t}_{k}', f'%bb_fy{t}_{k}']
+        fvars.extend((nm, '%bb_pff' if i < len(comps) else '%bb_pfu') for i, nm in enumerate(names))
+        out += [pad + f'OpStore {nm} {v}' for nm, v in zip(names, comps + [x, y])]
+        stores[tgt] = k + 1
         continue
     if in_main and s == f'{merge} = OpLabel':
         merge_label_seen = True
@@ -268,4 +285,7 @@ for number, line in enumerate(lines):
 kinds = sorted(k for _, k in slots.values())
 if kinds != ['xyzw', 'xyzx', 'xyzx'] or sorted(stores.values()) != [4, 4, 4] or not flushed:
     die(f'expected 4 stores to each of three images, found {sorted(stores.values())} {kinds}')
+seen = set()
+fv = [pad + f'{nm} = OpVariable {pt} Function' for nm, pt in fvars if not (nm in seen or seen.add(nm))]
+out = [x for l in out for x in (fv if l == '@@FVARS@@' else [l])]
 print('\n'.join(out))

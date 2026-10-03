@@ -27,6 +27,11 @@ OptiScaler's upscaler time on a Radeon RX 7800 XT (Mesa 26.2, RADV), 4K output:
 
 The saving varies by game. Only this one GPU has been tested.
 
+The table was measured with the first version of the postpass rewrite. The current version (see
+[What the two rewrites do](#what-the-two-rewrites-do)) is faster again: in Shadow of the Tomb
+Raider at 4K the upscaler time went from 3.42 ms to 3.09 ms with it, 26% below AMD's 4.16 ms, and
+the frame rate from 116.6 to 120.7 FPS. The other games have not been re-measured yet.
+
 Both Tomb Raider games were also run through their built-in benchmarks, where the frame time
 saved matches the upscaler time saved:
 
@@ -129,9 +134,12 @@ If the upscaler time does not drop, dump that game and run the script again.
 
 - **Postpass** (`postpass_lds_vkd3d.py`). FSR 4's last pass computes a 2x2 block of pixels per
   thread and writes each pixel separately into three images, so every store instruction writes
-  every other pixel. That scattered pattern is slow on RDNA3. The rewrite collects each 32x32 block
-  in workgroup memory and writes it out in solid rows. In a standalone benchmark at 4K the pass
-  went from about 2.1 ms to 0.8-0.9 ms.
+  every other pixel. That scattered pattern is slow on RDNA3. The rewrite keeps the values in
+  registers and writes the images one at a time: each image's 32x32 block goes through workgroup
+  memory and out in solid rows. Passing one image at a time needs 16 KB of workgroup memory
+  instead of 40 KB, so four times as many waves run at once. In a standalone benchmark at 4K the
+  pass went from about 2.1 ms to 0.6 ms (0.83 ms with the first version, which moved all three
+  images at once).
 - **Model pass 11** (`zconst.py`). The pass uses a coordinate that is always zero in its loop
   counts, which stops the driver from unrolling the loops. Replacing it with a constant saves about
   0.1 ms.
@@ -160,6 +168,12 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
   full write-up, data and sources are in [`research/wmma/`](research/wmma).
 - **The other model passes and the prepass.** Benchmarked individually; apart from pass 11 they
   compile to little more than the arithmetic itself, and nothing worth rewriting was found.
+- **Fusing the model passes.** Versions of the 12 passes that write nothing and read from cache
+  saved 0.07 ms of 3.35 ms in total, so merging passes to keep data on chip is not worth it: the
+  passes are limited by arithmetic, not memory.
+- **Where the time goes in a game.** Replacing parts of FSR 4 with empty shaders in Shadow of the
+  Tomb Raider (4K, 3.42 ms in total with the first postpass rewrite): model passes 1.86 ms,
+  postpass 0.96 ms, prepass 0.44 ms, OptiScaler and the rest 0.16 ms.
 
 ## Example images
 Before
