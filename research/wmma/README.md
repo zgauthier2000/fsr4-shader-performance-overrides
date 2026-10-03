@@ -218,6 +218,51 @@ With perfect packing the floor would be about 0.25-0.28 ms, roughly 10% under AM
 three of the twelve passes. That is about 0.05 ms per pass, and the two earlier gains predicted by
 this benchmark that were that small could not be seen in a game.
 
+## Comparison with d4r
+
+[d4r](https://github.com/countervolts/d4r) runs NVIDIA's DLSS on RDNA3 and gets a real gain from
+WMMA, so it is worth asking why it works there and not here. Its documentation and kernel sources
+(read, not run) give a consistent answer: the workload is shaped differently.
+
+| | DLSS 4 layers in d4r | FSR 4.1.1 INT8 pass 1 |
+|---|---|---|
+| Layer type | Transformer blocks over 8x8 token windows: projections, 64x64 attention, an MLP | Small convolutions |
+| Channels | 32 per attention head, several heads | 16 |
+| Matrix work per value written out | Several products in a row, intermediates kept in shared memory | One 16-deep product per layer |
+| Work between products | Float conversion and multiply-add | Integer round and clamp for 64 values per pixel |
+| Exactness | Relaxed (f32 accumulation, some 8-bit re-quantisation skipped) | Must match AMD's output |
+
+WMMA pays off when there is a lot of matrix work for each value that has to be handled one by one
+afterwards. DLSS has that; FSR 4.1.1's 16-channel convolutions are close to the opposite case.
+
+What d4r confirms about the approach used here:
+
+- **The same RDNA3 register layout,** described in its `kernels/common/wmma_layout.h`: 16 K
+  values per lane, replicated across the two halves of the wave, accumulator rows spread every
+  second row.
+- **The same cross-lane exchange.** d4r uses `permlanex16`; the register-only version of pass 1
+  compiles its eight exchanges to `v_permlanex16_b32` as well.
+- **Occupancy does not help.** d4r lists "occupancy tweaks (VGPR caps, waves-per-EU hints)" under
+  what did not help, matching the tests above.
+- **Weights in matrix layout are cheap to arrange.** d4r prepares them once in a separate kernel;
+  here they are copied from constants per workgroup, which costs about 0.007 ms.
+
+What it adds:
+
+- **On RDNA4 the exchange disappears.** There, the accumulator layout of one product is already the
+  operand layout of the next. RDNA4 runs AMD's FP8 FSR 4 model rather than the INT8 one studied here,
+  so this does not help the passes in this repository.
+- **d4r controls the compiler.** Its kernels are HIP code built with AMD's LLVM toolchain, with
+  explicit matrix instructions. FSR's shaders have to pass through D3D12, vkd3d-proton and RADV, so
+  that level of control is not available.
+- **64-wide waves for float-heavy kernels without matrix work** sped up one of d4r's kernels
+  (0.89 to 0.77 ms). RADV already compiles FSR's compute passes as 64-wide.
+
+If the lesson is that WMMA needs more matrix work per output value, FSR 4.1.1's middle passes (4, 6,
+9 and 10, with 400-512 dot-product operations per thread against pass 1's 208) are better candidates
+than pass 1. All twelve model passes together cost about 2.1 ms, so even a good result there would
+save a few tenths of a millisecond.
+
 ## Not tried
 
 - **The other nine passes.** Passes with more channels per pixel have more multiply work per
