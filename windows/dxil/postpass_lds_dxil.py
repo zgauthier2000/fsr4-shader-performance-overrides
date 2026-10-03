@@ -15,10 +15,9 @@
 # in contiguous rows. One texture at a time keeps shared memory small enough for several groups
 # to run on a WGP at once.
 #
-# The stores to the half texture (the recurrent state) stay as they are. Moving them as well gains
-# nothing measurable, the floats they are converted from would not fit in the 32768 bytes, and
-# keeping them as halfs in shared memory changes how a driver may round them. Nothing else
-# changes, so the output is bit-exact.
+# The stores to the half texture (the recurrent state) stay as they are: sending it through shared
+# memory as well (as the floats it is converted from) measured no faster under vkd3d-proton.
+# Nothing else changes, so the output is bit-exact.
 import re
 import sys
 
