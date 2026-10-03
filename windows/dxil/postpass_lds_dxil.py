@@ -9,9 +9,11 @@
 #
 # Each thread computes a 2x2 block of output pixels (the thread group: 32x32) and writes it into
 # three textures one pixel per store. Here the stores to the two float textures (history and
-# output colour) save their value in shared memory instead: 6 floats per pixel, x y z of each
-# (alpha repeats x), 24576 bytes of the 32768 that D3D12 allows a thread group. After the pass's
-# bounds check the group writes its 32x32 block of both textures in contiguous rows.
+# output colour) keep their values in registers instead, and after the pass's bounds check the
+# group writes the two textures one after the other: the threads put one texture's 32x32 block
+# into shared memory (x y z per pixel, alpha repeats x: 12288 bytes), and the group writes it out
+# in contiguous rows. One texture at a time keeps shared memory small enough for several groups
+# to run on a WGP at once.
 #
 # The stores to the half texture (the recurrent state) stay as they are. Moving them as well gains
 # nothing measurable, the floats they are converted from would not fit in the 32768 bytes, and
@@ -103,7 +105,13 @@ def block_of(line):
     return next(b for b in order if blocks[b][0] <= line <= blocks[b][1])
 
 
-# The stores after the bounds check.
+# The stores after the bounds check: their values reach the flush as phis in the exit block.
+check_block = block_of(check_line)
+exit_preds = [b for b in order if exit_block in succ[b]]
+if check_block not in exit_preds:
+    die('the bounds check does not branch to the exit block directly')
+cond_oob = lines[check_line].split()[2].rstrip(',')
+held = {}        # key -> list of 4 (x, y, [v0, v1, v2]) in store order
 STORE = re.compile(r'\s*call void @dx\.op\.textureStore\.(f16|f32)\(i32 67, %dx\.types\.Handle (%[\w.]+), '
                    r'i32 (%[\w.]+), i32 (%[\w.]+), i32 undef, (\w+) (\S+), \w+ (\S+), \w+ (\S+), \w+ (\S+), i8 15\)')
 targets = {}     # (base handle, properties) -> {'kind', 'slot', 'count'}
@@ -116,7 +124,7 @@ def new(prefix):
     return f'%bb.{prefix}{n[0]}'
 
 
-F = '[6144 x float], [6144 x float] addrspace(3)* @"\\01?bb_ldf@@3PAMA"'
+F = '[3072 x float], [3072 x float] addrspace(3)* @"\\01?bb_ldf@@3PAMA"'
 floats_used = 0
 halfs = 0
 for i in range(check_line, end):
@@ -145,50 +153,77 @@ for i in range(check_line, end):
         die('stores to one texture differ in type')
     if kind == 'f32' and values[3] != values[0]:
         die('float texel is not (x, y, z, x): ' + lines[i].strip()[:100])
-    lx, ly, row, pix, base = new('lx'), new('ly'), new('row'), new('pix'), new('base')
-    code = [f'  {lx} = sub i32 {x}, %bb.x0', f'  {ly} = sub i32 {y}, %bb.y0',
-            f'  {row} = shl i32 {ly}, 5', f'  {pix} = add i32 {row}, {lx}']
-    code.append(f'  {base} = mul i32 {pix}, 6')
-    for c in range(3):
-        e, p = new('e'), new('p')
-        code += [f'  {e} = add i32 {base}, {t["slot"] + c}', f'  {p} = getelementptr {F}, i32 0, i32 {e}',
-                 f'  store float {values[c]}, float addrspace(3)* {p}, align 4']
-    replace[i] = code
+    held.setdefault(key, []).append((x, y, values[:3]))
+    replace[i] = []
     t['count'] += 1
 
 if len(targets) != 2 or any(t['count'] != 4 for t in targets.values()) or halfs != 4:
     die(f'expected 4 stores to each of two float textures and one half texture, found '
         f'{[t["count"] for t in targets.values()]} and {halfs}')
 
+# Phis at the top of the exit block: the held values on the path from the body, undef from the
+# bounds check (those threads write nothing).
+phis = []
+phi_of = {}
+
+
+def phi(v, ty):
+    if (v, ty) not in phi_of:
+        r = new('phi')
+        srcs = ', '.join(f'[ {"undef" if b == check_block else v}, {b} ]' for b in exit_preds)
+        phis.append(f'  {r} = phi {ty} {srcs}')
+        phi_of[(v, ty)] = r
+    return phi_of[(v, ty)]
+
+
+held_phi = {key: [(phi(x, 'i32'), phi(y, 'i32'), [phi(v, 'float') for v in vs]) for x, y, vs in stores]
+            for key, stores in held.items()}
+
 # The flush, in place of the exit block's "ret void".
-flush = ['  call void @dx.op.barrier(i32 80, i32 9)  ; GroupMemoryBarrierWithGroupSync']
+ok = new('ok')
+flush = [f'  {ok} = xor i1 {cond_oob}, true']
 handles = {}
 for key in targets:
     h = new('h')
     flush.append(f'  {h} = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle {key[0]}, {key[1]})')
     handles[key] = h
-flush.append('  br label %bb.flush0')
-for k in range(4):
-    i, lx, ly, px, py, tx, ty, cx, cy, c = (new(p) for p in ('i', 'lx', 'ly', 'px', 'py', 'tx', 'ty', 'cx', 'cy', 'c'))
-    flush += ['', f'bb.flush{k}:',
-              f'  {i} = add i32 %bb.tid, {256 * k}', f'  {lx} = and i32 {i}, 31', f'  {ly} = lshr i32 {i}, 5',
-              f'  {px} = add i32 %bb.x0, {lx}', f'  {py} = add i32 %bb.y0, {ly}',
-              f'  {tx} = lshr i32 {px}, 1', f'  {ty} = lshr i32 {py}, 1',
-              f'  {cx} = icmp ult i32 {tx}, {w2}', f'  {cy} = icmp ult i32 {ty}, {h2}', f'  {c} = and i1 {cx}, {cy}',
-              f'  br i1 {c}, label %bb.write{k}, label %bb.flush{k + 1}', '', f'bb.write{k}:']
-    fbase = new('fbase')
-    flush.append(f'  {fbase} = mul i32 {i}, 6')
-    for key, t in targets.items():
+for t_i, key in enumerate(targets):
+    put, putd = f'bb.put{t_i}', f'bb.putdone{t_i}'
+    flush += ['  call void @dx.op.barrier(i32 80, i32 9)  ; GroupMemoryBarrierWithGroupSync',
+              f'  br i1 {ok}, label %{put}, label %{putd}', '', f'{put}:']
+    for x, y, vs in held_phi[key]:
+        lx, ly, row, pix, base = new('lx'), new('ly'), new('row'), new('pix'), new('base')
+        flush += [f'  {lx} = sub i32 {x}, %bb.x0', f'  {ly} = sub i32 {y}, %bb.y0', f'  {row} = shl i32 {ly}, 5',
+                  f'  {pix} = add i32 {row}, {lx}', f'  {base} = mul i32 {pix}, 3']
+        for c in range(3):
+            e, p = new('e'), new('p')
+            flush += [f'  {e} = add i32 {base}, {c}', f'  {p} = getelementptr {F}, i32 0, i32 {e}',
+                      f'  store float {vs[c]}, float addrspace(3)* {p}, align 4']
+    flush += [f'  br label %{putd}', '', f'{putd}:',
+              '  call void @dx.op.barrier(i32 80, i32 9)  ; GroupMemoryBarrierWithGroupSync',
+              f'  br label %bb.flush{t_i}_0']
+    for k in range(4):
+        i, lx, ly, px, py, tx, ty, cx, cy, c = (new(p) for p in ('i', 'lx', 'ly', 'px', 'py', 'tx', 'ty', 'cx', 'cy', 'c'))
+        nxt = f'bb.flush{t_i}_{k + 1}' if k < 3 else (f'bb.next{t_i}')
+        flush += ['', f'bb.flush{t_i}_{k}:',
+                  f'  {i} = add i32 %bb.tid, {256 * k}', f'  {lx} = and i32 {i}, 31', f'  {ly} = lshr i32 {i}, 5',
+                  f'  {px} = add i32 %bb.x0, {lx}', f'  {py} = add i32 %bb.y0, {ly}',
+                  f'  {tx} = lshr i32 {px}, 1', f'  {ty} = lshr i32 {py}, 1',
+                  f'  {cx} = icmp ult i32 {tx}, {w2}', f'  {cy} = icmp ult i32 {ty}, {h2}', f'  {c} = and i1 {cx}, {cy}',
+                  f'  br i1 {c}, label %bb.write{t_i}_{k}, label %{nxt}', '', f'bb.write{t_i}_{k}:']
+        fbase = new('fbase')
+        flush.append(f'  {fbase} = mul i32 {i}, 3')
         vals = []
         for comp in range(3):
             e, p, v = new('e'), new('p'), new('v')
-            flush += [f'  {e} = add i32 {fbase}, {t["slot"] + comp}', f'  {p} = getelementptr {F}, i32 0, i32 {e}',
+            flush += [f'  {e} = add i32 {fbase}, {comp}', f'  {p} = getelementptr {F}, i32 0, i32 {e}',
                       f'  {v} = load float, float addrspace(3)* {p}, align 4']
             vals.append(v)
         flush.append(f'  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle {handles[key]}, i32 {px}, i32 {py}, '
                      f'i32 undef, float {vals[0]}, float {vals[1]}, float {vals[2]}, float {vals[0]}, i8 15)')
-    flush.append(f'  br label %bb.flush{k + 1}')
-flush += ['', 'bb.flush4:', '  ret void']
+        flush.append(f'  br label %{nxt}')
+    flush += ['', f'bb.next{t_i}:']
+flush += ['  ret void']
 
 # Attribute group for the barrier, and the declarations.
 used = [int(m[1]) for l in lines if (m := re.match(r'attributes #(\d+) = ', l))]
@@ -196,15 +231,17 @@ attr = max(used) + 1 if used else 0
 out = []
 for i, l in enumerate(lines):
     if i == start:
-        out += ['@"\\01?bb_ldf@@3PAMA" = external addrspace(3) global [6144 x float], align 4', '', l,
+        out += ['@"\\01?bb_ldf@@3PAMA" = external addrspace(3) global [3072 x float], align 4', '', l,
                 '  %bb.gx = call i32 @dx.op.groupId.i32(i32 94, i32 0)',
                 '  %bb.gy = call i32 @dx.op.groupId.i32(i32 94, i32 1)',
                 '  %bb.tid = call i32 @dx.op.threadIdInGroup.i32(i32 95, i32 0)',
                 '  %bb.x0 = shl i32 %bb.gx, 5', '  %bb.y0 = shl i32 %bb.gy, 5']
     elif i in replace:
         out += replace[i]
+    elif i == blocks[exit_block][0] and i != ret_line:
+        out += phis + [l]
     elif i == ret_line:
-        out += flush
+        out += (phis if i == blocks[exit_block][0] else []) + flush
     elif i == end:
         out += [l, '', f'declare void @dx.op.barrier(i32, i32) #{attr}']
         for name, sig in (('groupId', 'declare i32 @dx.op.groupId.i32(i32, i32)'),

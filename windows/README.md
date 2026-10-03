@@ -13,8 +13,8 @@ Read this before spending time on it.
   (GE-Proton 11-7, Radeon RX 7800 XT). The add-on loads and replaces both shaders, and the upscaled
   image is byte-for-byte identical to the run with AMD's own shaders in all seven configurations of
   [`test/run_matrix.sh`](test/run_matrix.sh): 4K, 1440p and 1080p output at ratios from 1.5 to 3.0.
-  Translated by vkd3d-proton, the replacements are as fast there as the Linux overrides (postpass
-  about 1.6 ms to 0.7 ms at 4K).
+  Translated by vkd3d-proton, the replacement postpass takes 0.67 ms at 4K in a standalone
+  benchmark, against 2.1 ms for AMD's (the Linux override: 0.60 ms).
 - **Not tested:** anything on Windows itself. The add-on is built with MinGW, not MSVC, and has
   never been loaded by ReShade on Windows.
 - **Unknown:** whether there is anything to gain on Windows. The slow store pattern was measured
@@ -94,9 +94,10 @@ comments at its top. The build is reproducible: it produces the `prebuilt` file 
 
 ## How the DXIL versions differ from the Linux ones
 
-- The postpass moves only its two float textures through shared memory, 24,576 bytes, because
-  D3D12 limits a thread group to 32,768. The half-precision texture is written directly as in
-  AMD's shader. That costs nothing measurable.
+- The postpass keeps the values of its two float textures in registers and writes the textures
+  one after the other, each through 12,288 bytes of shared memory (D3D12 allows a thread group
+  32,768). The half-precision texture is written directly as in AMD's shader: sending it through
+  shared memory as well measured no faster under vkd3d-proton.
 - Pass 11 is the same change as on Linux: the always-zero z coordinate becomes a constant.
 
 ## Licence
