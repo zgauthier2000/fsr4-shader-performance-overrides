@@ -10,7 +10,7 @@ The game's own benchmark, run once without and once with the overrides, at 4K an
   overlay reads "DLSS -> FSR 4.1.1"). The game shows the GPU as an "NVIDIA GeForce RTX 4090" and the
   OS as Windows 10 because of that setup; both are spoofed.
 - **Settings:** DirectX 12, DLSS (here FSR 4.1.1) Balanced, exclusive fullscreen, VSync off, AMD
-  FidelityFX CAS off, HDR off, the same custom graphics preset in all four runs.
+  FidelityFX CAS off, HDR off, the game's "Custom" graphics preset.
 - **Overrides:** `prebuilt/` from this repository via `VKD3D_SHADER_OVERRIDE`, i.e. the postpass
   rewrite (this game's variant, `4d657fb0eed077d6`) and the pass 11 change.
 
