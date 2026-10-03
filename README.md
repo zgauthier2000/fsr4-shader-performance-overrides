@@ -19,10 +19,15 @@ OptiScaler's upscaler time on a Radeon RX 7800 XT (Mesa 26.2, RADV), 4K output:
 |---|---|---|---|---|
 | Control Resonant | Performance | 5.4 ms | 3.5 ms | 1.9 ms (35%) |
 | Mortal Shell II | Balanced | 4.97 ms | 3.58 ms | 1.39 ms (28%) |
-| Shadow of the Tomb Raider | Balanced | 4.2 ms | 3.4 ms | 0.8 ms (19%) |
+| Shadow of the Tomb Raider | Balanced | 4.16 ms | 3.47 ms | 0.69 ms (17%) |
+| Shadow of the Tomb Raider, 1440p output | Balanced | 1.76 ms | 1.55 ms | 0.21 ms (12%) |
 | Elden Ring (postpass only) | Balanced | 5.33 ms | 4.57 ms | 0.76 ms (14%) |
 
 The saving varies by game. Only this one GPU has been tested.
+
+In Shadow of the Tomb Raider's built-in benchmark at 4K the average frame rate went from 97 to
+104 FPS, and the frame time saved matches the upscaler time saved; see
+[the full results](results/shadow-of-the-tomb-raider) with screenshots.
 
 ## What you need
 
