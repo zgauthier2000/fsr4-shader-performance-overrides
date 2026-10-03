@@ -31,7 +31,7 @@ rate uncapped, standing at the same spot. Radeon RX 7800 XT, Mesa 26.2.3 (RADV),
 
 First rewrite:
 
-<img src="sottr-4k-first-rewrite.png" width="500" alt="OptiScaler overlay with the first rewrite: 116.7 FPS, upscaler time 3.42 ms">
+<img src="sottr-4k-first-rewrite.png" width="500" alt="OptiScaler overlay with the first rewrite: 116.6 FPS, upscaler time 3.42 ms">
 
 Phased postpass:
 
