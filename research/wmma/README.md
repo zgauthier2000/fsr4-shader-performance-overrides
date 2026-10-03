@@ -2,7 +2,9 @@
 
 Short answer: no. A version of model pass 1 that does its convolutions with WMMA was built and is
 bit-exact, but it is slower than AMD's shader: 0.41 ms against 0.29 ms. The multiplies themselves
-get about twice as fast; everything that has to happen around them costs more than that saves.
+get about twice as fast; everything that has to happen around them costs more than that saves. For
+the deepest passes, the best case for WMMA, the matrix products alone already cost as much as
+AMD's complete pass.
 
 This is a record of what was tried, how it was measured and why it loses, so that nobody has to
 repeat it. The sources are in this folder.
@@ -218,6 +220,39 @@ With perfect packing the floor would be about 0.25-0.28 ms, roughly 10% under AM
 three of the twelve passes. That is about 0.05 ms per pass, and the two earlier gains predicted by
 this benchmark that were that small could not be seen in a game.
 
+## The deeper passes
+
+The analysis above says WMMA can only win where there is much more multiply work for each value
+that has to be rounded and repacked afterwards. Counted from the shader code (4K output):
+
+| Pass | Layers | Dot ops per thread | Values rounded per thread | Ratio | Time alone |
+|---|---|---|---|---|---|
+| 1, 2, 12 | 3x3 16→16, 1x1 16→32, 1x1 32→16 | 832 | 64 | 13 | 0.29 ms each |
+| 4, 10 | 3x3 16→16, 1x1 32→64, 1x1 64→32 | 1,600 | 112 | 14 | 0.16 ms each |
+| 6 | about 2,048 dot ops | 2,048 | about 190 | about 11 | 0.07 ms |
+| 7, 8 | 3x3 16→32, 1x1 64→128, 1x1 128→64 | about 5,200 | 224 | 23 | 0.14 ms each |
+| 9 | as 7, plus a 2x upsampling layer | about 7,300 | about 350 | 21 | 0.18 ms |
+
+Passes 4 and 10 have more channels but the same ratio as pass 1. Passes 7, 8 and 9 are the only
+ones with clearly more multiply work per value, so pass 7 was tested as the best case.
+
+`probe7.comp` does only the matrix products of pass 7's three layers: 82 WMMA instructions per 16
+pixels, with the weight loads a real kernel would need, and none of the rounding or repacking
+between layers. That makes it a lower bound for any WMMA version of the pass.
+
+| Pass 7 variant | Time |
+|---|---|
+| AMD's complete pass (packed dot products, everything included) | 0.142 ms |
+| Probe, each layer's result through memory to the next (`-DMODE=0`) | 0.218 ms |
+| Probe, no intermediate memory traffic, layer 2/3 operands read from memory (`-DMODE=1`) | 0.12-0.13 ms |
+| Probe, the same with layer 2/3 operands cache-resident (`-DMODE=2`) | 0.12 ms |
+
+64-wide waves give the same 0.12-0.13 ms. **The products alone cost about as much as AMD's whole
+pass.** Adding the rounding and repacking, which cost pass 1 about as much again as its products,
+puts a real WMMA pass 7 well above AMD's. Passes 8 and 9 have the same layer shapes.
+
+That settles it: on RDNA3 there is no FSR 4.1.1 INT8 model pass that WMMA can make faster.
+
 ## Comparison with d4r
 
 [d4r](https://github.com/countervolts/d4r) runs NVIDIA's DLSS on RDNA3 and gets a real gain from
@@ -258,15 +293,13 @@ What it adds:
 - **64-wide waves for float-heavy kernels without matrix work** sped up one of d4r's kernels
   (0.89 to 0.77 ms). RADV already compiles FSR's compute passes as 64-wide.
 
-If the lesson is that WMMA needs more matrix work per output value, FSR 4.1.1's middle passes (4, 6,
-9 and 10, with 400-512 dot-product operations per thread against pass 1's 208) are better candidates
-than pass 1. All twelve model passes together cost about 2.1 ms, so even a good result there would
-save a few tenths of a millisecond.
+The deeper passes, the ones with the most matrix work per value, were tested as a result; see
+[The deeper passes](#the-deeper-passes).
 
 ## Not tried
 
-- **The other nine passes.** Passes with more channels per pixel have more multiply work per
-  rescaled value, so WMMA would look relatively better there. None was built.
+- **A full WMMA version of a deeper pass.** Not needed: the lower-bound probe for pass 7 already
+  costs as much as AMD's complete pass.
 - **RDNA4.** Its matrix layout is different (no replication, and a transposing load), and AMD's
   own FSR 4 model for it uses FP8 WMMA. Nothing here was measured on it.
 - **Higher occupancy for the WMMA pass itself.** Only the probe was tested, and only downward.
@@ -277,6 +310,7 @@ save a few tenths of a millisecond.
 |---|---|
 | `probe.comp`, `probe2.comp`, `probe3.comp` | Multiply-only probes. `-DTAPS=n` and `-DMODE=n` select variants; change `local_size_x` to 32 for wave32 |
 | `occ_w32.comp` | The occupancy probe; `-DMODE=0 -DK=n` |
+| `probe7.comp` | Lower-bound probe for pass 7; `-DMODE=0..2`, `-DWAVE=32` or `64`; run with `mbench 3` |
 | `gen_pass1.py` | Generates the shared-memory WMMA version of pass 1, 2 or 12 from a dumped pass |
 | `gen_pass1b.py` | Generates the register-only version |
 | `pp.py` | Prints a dumped model pass as condensed pseudo-code |

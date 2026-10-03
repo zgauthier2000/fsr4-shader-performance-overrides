@@ -1,0 +1,105 @@
+#version 460
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Lower bound for a WMMA version of FSR 4.1.1 model pass 7 (480x270 tensor at 4K output): only the
+// matrix products of its three layers, with operand loads like a real kernel would need, and none
+// of the rounding or repacking between layers. Each layer's B operand is read from memory instead of
+// being built from the previous layer's result, which is the cheapest a real kernel could get.
+//   layer 1: 3x3 conv 16 -> 32     9 taps x 2 output tiles             = 18 products per 16 pixels
+//   layer 2: 1x1 64 -> 128         4 K steps x 8 output tiles          = 32
+//   layer 3: 1x1 128 -> 64         8 K steps x 4 output tiles          = 32
+// The last layer's result is written as truncated bytes (a stand-in for the real output).
+// MODE 0: each layer's result goes through memory as the next layer's operand.
+// MODE 1: no intermediate stores; layer 2 and 3 operands come from separate read-only regions, and
+//         the layers' results are kept alive by summing them into one accumulator stored at the end.
+// MODE 2: as 1, but layer 2 and 3 operands are re-read from layer 1's (cache-resident) input, so
+//         only the products and the weight loads cost anything.
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_EXT_shader_explicit_arithmetic_types : require
+#extension GL_EXT_nonuniform_qualifier : require
+#ifndef MODE
+#define MODE 0
+#endif
+#ifndef WAVE
+#define WAVE 32
+#endif
+layout(local_size_x = WAVE) in;
+layout(push_constant) uniform R { uvec2 cbv; uint uav; uint srv; } reg;
+layout(set = 2, binding = 0) buffer T { uint d[]; } heap[];
+layout(set = 2, binding = 0) readonly buffer Wt { uint d[]; } wheap[];
+#define ACC coopmat<int32_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define MA coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA>
+#define MB coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB>
+#define MO coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+const uint IN1 = 0u;                       // 16 channels, rows of 482 pixels x 16 bytes (as FSR's tensors)
+const uint IN2 = (4u << 20) >> 2;          // 64 channels per pixel, 480 x 270
+const uint IN3 = (16u << 20) >> 2;         // 128 channels per pixel
+const uint OUT = (40u << 20) >> 2;         // 64 channels per pixel
+// Weights: one 16x16 A block (64 words) per (layer, output tile, K step).
+const uint W1 = 0u, W2 = W1 + 18u * 64u, W3 = W2 + 32u * 64u;
+void main() {
+    const uint y = gl_WorkGroupID.y, x0 = gl_WorkGroupID.x * 64u;
+    const uint t = reg.uav + 11u, w = reg.srv + 18u;
+    for (uint tile = 0u; tile < 4u; tile++) {
+        const uint xt = x0 + tile * 16u;
+        if (xt >= 480u)
+            break;
+        const uint px = y * 480u + xt;
+#if MODE >= 1
+        ACC keep = ACC(0);
+#endif
+        for (uint ot = 0u; ot < 2u; ot++) {           // layer 1
+            ACC acc = ACC(0);
+            for (uint tap = 0u; tap < 9u; tap++) {
+                MA a; MB b;
+                coopMatLoad(a, wheap[w].d, W1 + (ot * 9u + tap) * 64u, 4u, gl_CooperativeMatrixLayoutRowMajor);
+                coopMatLoad(b, heap[t].d, IN1 + ((y + tap / 3u) * 482u + xt + tap % 3u) * 4u, 4u, gl_CooperativeMatrixLayoutColumnMajor);
+                acc = coopMatMulAdd(a, b, acc);
+            }
+#if MODE >= 1
+            keep = keep + acc;
+#else
+            MO o = MO(acc);
+            coopMatStore(o, heap[t].d, IN2 + px * 16u + ot * 4u, 16u, gl_CooperativeMatrixLayoutColumnMajor);
+#endif
+        }
+        for (uint ot = 0u; ot < 8u; ot++) {           // layer 2
+            ACC acc = ACC(0);
+            for (uint s = 0u; s < 4u; s++) {
+                MA a; MB b;
+                coopMatLoad(a, wheap[w].d, W2 + (ot * 4u + s) * 64u, 4u, gl_CooperativeMatrixLayoutRowMajor);
+#if MODE == 2
+                coopMatLoad(b, heap[t].d, IN1 + ((y + s % 3u) * 482u + xt) * 4u, 4u, gl_CooperativeMatrixLayoutColumnMajor);
+#else
+                coopMatLoad(b, heap[t].d, IN2 + px * 16u + s * 4u, 16u, gl_CooperativeMatrixLayoutColumnMajor);
+#endif
+                acc = coopMatMulAdd(a, b, acc);
+            }
+#if MODE >= 1
+            keep = keep + acc;
+#else
+            MO o = MO(acc);
+            coopMatStore(o, heap[t].d, IN3 + px * 32u + ot * 4u, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+#endif
+        }
+        for (uint ot = 0u; ot < 4u; ot++) {           // layer 3
+            ACC acc = ACC(0);
+            for (uint s = 0u; s < 8u; s++) {
+                MA a; MB b;
+                coopMatLoad(a, wheap[w].d, W3 + (ot * 8u + s) * 64u, 4u, gl_CooperativeMatrixLayoutRowMajor);
+#if MODE == 2
+                coopMatLoad(b, heap[t].d, IN1 + ((y + s % 3u) * 482u + xt + s / 3u) * 4u, 4u, gl_CooperativeMatrixLayoutColumnMajor);
+#else
+                coopMatLoad(b, heap[t].d, IN3 + px * 32u + s * 4u, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+#endif
+                acc = coopMatMulAdd(a, b, acc);
+            }
+#if MODE >= 1
+            if (ot == 3u)
+                acc = acc + keep;
+#endif
+            MO o = MO(acc);
+            coopMatStore(o, heap[t].d, OUT + px * 16u + ot * 4u, 16u, gl_CooperativeMatrixLayoutColumnMajor);
+        }
+    }
+}
