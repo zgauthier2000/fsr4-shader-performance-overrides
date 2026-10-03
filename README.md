@@ -251,6 +251,20 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
 - **Where the time goes in a game.** Replacing parts of FSR 4 with empty shaders in Shadow of the
   Tomb Raider (4K, 3.42 ms in total with the first postpass rewrite): model passes 1.86 ms,
   postpass 0.96 ms, prepass 0.44 ms, OptiScaler and the rest 0.16 ms.
+- **Further workgroup-memory (LDS) tuning of the phased postpass.** Measured in a standalone
+  benchmark at 4K, where the phased postpass takes 0.59 ms and AMD's original with all its stores
+  removed (no write cost at all, full occupancy) 0.49 ms, so at most 0.1 ms is left:
+  - Removing the barriers (a probe with wrong output) made it slower, not faster (0.63 ms): they
+    cost nothing.
+  - The LDS work is small, about 70 instructions per thread out of about 2,700, already merged
+    into 16-byte stores and 8-byte loads. Smaller buffers (8 KB or 4 KB, half or a quarter of the
+    block at a time) were no faster.
+  - What is left is occupancy: the shader computes its four pixels one after another, so the
+    finished pixels' values wait in registers until the flush, which takes it from 60 to 96
+    registers per lane and from 24 to 16 waves per SIMD. Holding the recurrent-state values as
+    half-precision numbers to save registers was neither bit-exact nor faster. Flushing each pixel
+    as soon as it is done would need barriers inside the pass's bounds check, a large rewrite
+    for an expected 0.05 ms at most.
 
 ## Example images
 Before
