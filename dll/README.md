@@ -77,9 +77,11 @@ with the patched postpass running in each.
 
 ## Things to know
 
-- **Not tested on Windows itself.** Like the add-on, it has only run under Proton. And it is not
-  known whether AMD's Windows driver has the slow store pattern these rewrites remove; measure
-  before and after.
+- **On Windows,** testers with Radeon RX 7000 graphics cards report large improvements with the
+  first version of these rewrites, and the phased version (what this DLL contains) has been run on
+  Windows with an RX 7800 XT with about the same result. Measure before and after on your setup.
+- **Integrated GPUs:** on RDNA3 integrated GPUs both versions are reported slower than AMD's; see
+  [Integrated GPUs](../README.md#integrated-gpus-radeon-780m-and-similar) before using it there.
 - **On Linux, the launch option is slightly faster.** vkd3d-proton translates these DXIL shaders
   into slightly slower code than the hand-written SPIR-V overrides: the postpass takes 0.67 ms at
   4K against 0.60 ms. The patched DLL is simpler to set up; the

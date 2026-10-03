@@ -100,5 +100,6 @@ images go through 12 KB of shared memory one at a time instead of 24 KB at once 
 half-precision image is written directly, as before). Run through vkd3d-proton on the same GPU,
 its postpass went from 0.72 ms to 0.67 ms at 4K (AMD's: 2.1 ms), and the upscaled image stayed
 byte-for-byte identical to AMD's in all seven configurations of
-[`windows/test/run_matrix.sh`](../../windows/test/run_matrix.sh). It has still not been run on
-Windows itself.
+[`windows/test/run_matrix.sh`](../../windows/test/run_matrix.sh). On Windows with an RX 7800 XT,
+a tester saw about the same result as with the first version, which fits the small difference
+measured here.

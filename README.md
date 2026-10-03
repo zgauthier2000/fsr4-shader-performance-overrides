@@ -19,12 +19,12 @@ version. Details and measurements:
 **Patched DLL:** [`dll/`](dll) has a script that builds the same shaders straight into AMD's
 `amd_fidelityfx_upscaler_dx12.dll`, so a game needs no launch option or add-on: replace the DLL
 and you are done. A ready-made patched DLL is attached to the
-[release `dll-2026-10-03`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03). Verified byte for byte under Proton; not yet tried on
-Windows.
+[release `dll-2026-10-03`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03). Verified byte for byte under Proton, and run on Windows by
+testers (see below).
 
-**Windows:** there is an experimental ReShade add-on for Windows in [`windows/`](windows). It has
-been verified under Proton on Linux but not yet on Windows itself, and it is not known whether
-Windows has this slowdown to begin with. See [`windows/README.md`](windows/README.md).
+**Windows:** the patched DLL above works on Windows too, and there is also a ReShade add-on in
+[`windows/`](windows). Testers on Windows with Radeon RX 7000 graphics cards report large
+improvements, nearly as large as on Linux. See [Windows](#windows).
 
 ## Results
 
@@ -129,10 +129,19 @@ and 2 and the new files are added alongside. To have everything in one place, co
 
 ## Windows
 
-There is an experimental route for Windows in [`windows/`](windows): a ReShade add-on that swaps
-the same two shaders when AMD's DLL creates them. It has been verified under Proton on Linux but
-**not on Windows itself**, and it is not known whether Windows has the slowdown to begin with. See
-[`windows/README.md`](windows/README.md).
+Several testers on Windows with Radeon RX 7000 graphics cards report large improvements with the
+first version of these rewrites, nearly as large as on Linux, so AMD's Windows driver has the
+same slow store pattern. The phased version has also been run on Windows with an RX 7800 XT,
+with about the same result as the first version there.
+
+Two ways to use them on Windows:
+
+- the [patched DLL](#patched-dll): replace `amd_fidelityfx_upscaler_dx12.dll`, nothing else;
+- a ReShade add-on in [`windows/`](windows) that swaps the same two shaders when AMD's DLL creates
+  them. See [`windows/README.md`](windows/README.md).
+
+Both were verified byte for byte against AMD's output under Proton. On integrated GPUs, see the
+next section.
 
 ## Patched DLL
 
@@ -161,11 +170,11 @@ The two possibilities the reports have narrowed down:
   stores well, the postpass rewrite only adds barriers and workgroup-memory traffic, and bunches
   the writes at the end of each workgroup. This is the current suspect.
 
-On Windows with a Radeon RX 7800 XT, a tester saw no difference between the first and the phased
-version. That is expected: the DXIL version the add-on and the patched DLL use was never limited
-the same way (it already ran 8 waves per SIMD), and under vkd3d-proton its postpass only went from
-0.72 ms to 0.67 ms. Whether AMD's Windows driver has the store penalty at all, so whether either
-version beats AMD's original there, is still open.
+On Windows with Radeon RX 7000 graphics cards (not integrated GPUs), testers report large
+improvements with the first version, and one tester with an RX 7800 XT saw no difference between
+the first and the phased version. That is expected: the DXIL version that Windows uses was never
+limited the same way (it already ran 8 waves per SIMD), and under vkd3d-proton its postpass only
+went from 0.72 ms to 0.67 ms.
 
 To find out, compare OptiScaler's upscaler time, frame rate uncapped, in four runs:
 

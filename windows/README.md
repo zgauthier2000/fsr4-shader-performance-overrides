@@ -5,9 +5,7 @@ folder does the same job with a [ReShade](https://reshade.me) add-on: when AMD's
 creates its compute pipelines, the add-on swaps two of the shaders for the faster versions. AMD's
 DLL stays untouched.
 
-## Status: not yet tested on Windows
-
-Read this before spending time on it.
+## Status
 
 - **Tested:** AMD's real FSR 4.1.1 DLL, ReShade 6.8.0 and this add-on, run under Proton on Linux
   (GE-Proton 11-7, Radeon RX 7800 XT). The add-on loads and replaces both shaders, and the upscaled
@@ -15,11 +13,13 @@ Read this before spending time on it.
   [`test/run_matrix.sh`](test/run_matrix.sh): 4K, 1440p and 1080p output at ratios from 1.5 to 3.0.
   Translated by vkd3d-proton, the replacement postpass takes 0.67 ms at 4K in a standalone
   benchmark, against 2.1 ms for AMD's (the Linux override: 0.60 ms).
-- **Not tested:** anything on Windows itself. The add-on is built with MinGW, not MSVC, and has
-  never been loaded by ReShade on Windows.
-- **Unknown:** whether there is anything to gain on Windows. The slow store pattern was measured
-  with Linux's Radeon driver; AMD's Windows driver compiles shaders differently and may not have
-  it. Measure before and after, and please report what you find.
+- **On Windows:** testers with Radeon RX 7000 graphics cards report large improvements with the
+  first version of these rewrites, nearly as large as on Linux, so AMD's Windows driver has the
+  same slow store pattern. The phased version has been run on Windows with an RX 7800 XT, with
+  about the same result as the first version. On RDNA3 integrated GPUs both versions are reported
+  slower; see [Integrated GPUs](../README.md#integrated-gpus-radeon-780m-and-similar).
+- **The add-on itself** (as opposed to the [patched DLL](../dll)) is built with MinGW, not MSVC.
+  Measure before and after, and please report what you find.
 
 ## What you need
 
