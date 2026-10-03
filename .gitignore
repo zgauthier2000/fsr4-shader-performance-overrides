@@ -13,3 +13,12 @@ build/
 
 # Windows: the prebuilt add-on and its DXIL replacements are shared too (see windows/prebuilt/NOTICE.md).
 !windows/prebuilt/fsr4-overrides/*.dxil
+
+# dll/test: binaries and output of run_dll_matrix.sh
+dll/test/*.exe
+dll/test/*.dll
+dll/test/pfx
+dll/test/dll/
+dll/test/*.log
+dll/test/noise_capture_*
+dll/test/output_*.raw

@@ -16,6 +16,10 @@ below AMD's 4.16 ms, and the frame rate rose from 116.6 to 120.7 FPS. The files 
 version. Details and measurements:
 [`results/phased-postpass`](results/phased-postpass).
 
+**Patched DLL:** [`dll/`](dll) has a script that builds the same shaders straight into AMD's
+`amd_fidelityfx_upscaler_dx12.dll`, so a game needs no launch option or add-on: replace the DLL
+and you are done. Verified byte for byte under Proton; not yet tried on Windows.
+
 **Windows:** there is an experimental ReShade add-on for Windows in [`windows/`](windows). It has
 been verified under Proton on Linux but not yet on Windows itself, and it is not known whether
 Windows has this slowdown to begin with. See [`windows/README.md`](windows/README.md).
@@ -126,6 +130,14 @@ There is an experimental route for Windows in [`windows/`](windows): a ReShade a
 the same two shaders when AMD's DLL creates them. It has been verified under Proton on Linux but
 **not on Windows itself**, and it is not known whether Windows has the slowdown to begin with. See
 [`windows/README.md`](windows/README.md).
+
+## Patched DLL
+
+Instead of a launch option or the add-on, [`dll/patch_upscaler_dll.py`](dll) writes a copy of
+AMD's `amd_fidelityfx_upscaler_dx12.dll` (4.1.1.2740) with the faster shaders built in; it works
+on Windows and under Proton alike. On Linux the launch option is still slightly faster (the
+postpass: 0.60 ms against 0.67 ms at 4K), because vkd3d-proton translates the DLL's DXIL into
+slightly slower code than the hand-written SPIR-V. See [`dll/README.md`](dll/README.md).
 
 ## When the prebuilt files are not enough
 
