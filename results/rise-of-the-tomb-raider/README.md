@@ -9,10 +9,8 @@ It runs three scenes (Mountain Peak, Syria, Geothermal Valley) and reports an ov
 - **CPU:** AMD Ryzen 7 7700X.
 - **Upscaler:** FSR 4.1.1 with the INT8 model through OptiScaler; the overlay reads
   "DLSS -> FSR 4.1.1".
+- **Settings:** FSR 4.1.1 Balanced; all other settings identical between the runs.
 - **Overrides:** the shader overrides from this repository, loaded via `VKD3D_SHADER_OVERRIDE`.
-
-The results screen does not show the game's settings or the upscaling mode, so they are not
-recorded here; they were the same in the runs being compared.
 
 ## Results
 
@@ -24,7 +22,7 @@ Frames per second, average (minimum, maximum), as the game reports them:
 | Syria | 96.05 (71.81, 131.93) | 105.29 (71.85, 151.87) | 179.94 (75.53, 207.28) | 190.06 (73.44, 237.42) |
 | Geothermal Valley | 89.57 (76.54, 104.75) | 97.74 (83.23, 114.86) | 165.50 (137.14, 199.66) | 176.79 (123.85, 221.18) |
 | **Overall score** | **97.59** | **107.89** | **186.58** | **199.56** |
-| OptiScaler upscaler time (average) | 4.30 ms | 3.33 ms | 1.79 ms | 1.49 ms |
+| OptiScaler upscaler time (average) | 4.30 ms | 3.33 ms (−22.6%) | 1.79 ms | 1.49 ms (−16.8%) |
 
 The upscaler time is OptiScaler's overlay as shown on the results screen; it was not recorded
 during the benchmark run itself.
@@ -38,7 +36,7 @@ during the benchmark run itself.
 | Syria | +9.6% | +5.6% |
 | Geothermal Valley | +9.1% | +6.8% |
 | Frame time saved, from the overall score | 0.98 ms | 0.35 ms |
-| Upscaler time saved | 0.97 ms (23%) | 0.30 ms (17%) |
+| Upscaler time | −0.97 ms (−22.6%) | −0.30 ms (−16.8%) |
 
 - **Every scene is faster at both resolutions.**
 - **The frame time saved matches the upscaler time saved:** 0.98 ms against 0.97 ms at 4K, and

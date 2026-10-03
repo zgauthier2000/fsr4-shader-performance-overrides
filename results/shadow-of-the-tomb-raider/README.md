@@ -27,7 +27,7 @@ The game's own benchmark, run once without and once with the overrides, at 4K an
 | GPU FPS: 95th percentile | 90 | 96 | 156 | 162 |
 | CPU game FPS: average | 207 | 210 | 213 | 213 |
 | CPU render FPS: average | 438 | 452 | 459 | 457 |
-| OptiScaler upscaler time (average) | 4.16 ms | 3.47 ms | 1.76 ms | 1.55 ms |
+| OptiScaler upscaler time (average) | 4.16 ms | 3.47 ms (−16.6%) | 1.76 ms | 1.55 ms (−11.9%) |
 
 The upscaler time is OptiScaler's overlay as shown on the results screen, which keeps rendering
 the scene behind it; it was not recorded during the benchmark run itself.
@@ -40,7 +40,7 @@ the scene behind it; it was not recorded during the benchmark run itself.
 | GPU FPS, average | +8.0% | +4.4% |
 | Frame time saved, from average FPS | 0.69 ms | 0.17 ms |
 | Frame time saved, from GPU FPS | 0.74 ms | 0.23 ms |
-| Upscaler time saved | 0.69 ms (17%) | 0.21 ms (12%) |
+| Upscaler time | −0.69 ms (−16.6%) | −0.21 ms (−11.9%) |
 
 - **At 4K the game is entirely GPU-bound,** and the frame time saved (0.69 ms from the average
   FPS) matches the upscaler time saved (0.69 ms) exactly. The whole gain comes from the faster
