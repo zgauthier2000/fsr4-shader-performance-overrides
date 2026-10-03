@@ -27,6 +27,11 @@ It prints each shader it replaced. `--only pass11` or `--only postpass` (before 
 builds in just one of the two rewrites, to find out which one helps on your GPU; see
 [Integrated GPUs](../README.md#integrated-gpus-radeon-780m-and-similar).
 
+`--any-gpu` (experimental) also lifts the GPU check AMD's DLL applies to the INT8 version of
+FSR 4, which otherwise only runs on desktop RDNA3; `--only none` with it leaves the shaders as
+AMD's. See [RDNA2 and other GPUs](../README.md#rdna2-and-other-gpus-that-fsr-4-refuses-experimental).
+Not for RDNA4.
+
 Then, in the game folder (wherever
 `amd_fidelityfx_upscaler_dx12.dll` is, often next to OptiScaler):
 

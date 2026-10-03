@@ -228,6 +228,35 @@ more data, use whichever run is fastest on your GPU.
 Please report the results with the GPU, the operating system and driver (Mesa version or AMD
 driver), the game, the output resolution and FSR mode.
 
+## RDNA2 and other GPUs that FSR 4 refuses (experimental)
+
+AMD's DLL decides for itself which GPUs get FSR 4. It contains two versions, each with its own
+check:
+
+- the FP8 version needs the driver to report FP8 matrix multiplication and a discrete GPU, which in
+  practice means RDNA4;
+- the INT8 version (the one this repository speeds up) reads the GPU's chip family from AMD's
+  driver and only accepts family 0x91, desktop RDNA3 (RX 7900, 7800, 7700, 7600). It refuses RDNA2
+  (RX 6000), RDNA3 integrated GPUs (Radeon 780M, 890M) and other vendors.
+
+The INT8 version's shaders themselves are plain Direct3D 12 (Shader Model 6.6; packed int8 and
+half-precision dot products) and need no RDNA3-only feature. `patch_upscaler_dll.py --any-gpu`
+makes the INT8 version's check always answer yes, so FSR 4 is offered on those GPUs too. Under
+Proton on an RX 7800 XT the result is byte-for-byte identical to AMD's DLL, but **it has not been
+tried on any GPU the check refuses**: whether FSR 4 then runs correctly, and how fast, is up to
+that GPU and its driver. Do not use it on RDNA4, where both versions would then report support.
+
+Ready-made test builds are attached to the [release `dll-2026-10-03`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03):
+
+| File | Contents |
+|---|---|
+| `test-any-gpu-amd-shaders.zip` | check lifted, AMD's shaders unchanged: does FSR 4 run at all? |
+| `test-any-gpu.zip` | check lifted, both rewrites |
+| `test-any-gpu-pass11-only.zip` | check lifted, pass 11 rewrite only (for integrated GPUs) |
+
+If you try them, please report your GPU, Windows or Linux and driver version, the game, whether FSR
+4 starts and looks right, and OptiScaler's upscaler time for each.
+
 ## When the prebuilt files are not enough
 
 The overrides match exact shaders. A game silently falls back to AMD's originals, with no error,

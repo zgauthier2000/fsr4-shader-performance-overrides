@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# patch_upscaler_dll.py [--only postpass|pass11] <amd_fidelityfx_upscaler_dx12.dll> <output.dll> [replacement-dir]
+# patch_upscaler_dll.py [--only postpass|pass11|none] [--any-gpu] <amd_fidelityfx_upscaler_dx12.dll> <output.dll> [replacement-dir]
 #
 # Writes a copy of AMD's FSR 4.1.1 upscaler DLL that carries the faster shaders itself, so no
 # launch option, add-on or override folder is needed. The replacements are the DXIL files the
 # Windows add-on uses (default: ../windows/prebuilt/fsr4-overrides), each named after the hash in
-# the header of the AMD shader it replaces. --only builds in just one of the two rewrites, to find
-# out which one helps on a given GPU.
+# the header of the AMD shader it replaces. --only builds in just one of the two rewrites (or none),
+# to find out which one helps on a given GPU.
+#
+# --any-gpu (experimental) also lifts AMD's GPU check on the INT8 version of FSR 4: AMD's DLL only
+# offers it on desktop RDNA3 (chip family 0x91), refusing RDNA2, RDNA3 integrated GPUs and others.
+# The check (the IsSupported function of ffxProvider_FSR4_Int8, found through its type information)
+# is made to always answer yes. Whether FSR 4 then works on a given GPU is up to that GPU and its
+# driver. Not for RDNA4: there both versions of FSR 4 would then report support.
 #
 # The DLL keeps its shaders as plain DXIL containers in .rdata, each described by an entry in
 # .data: a 64-bit size followed by a 64-bit pointer. A replacement that fits is written in place;
@@ -24,10 +30,16 @@ import sys
 
 args = sys.argv[1:]
 only = None
-if args[:1] == ['--only']:
-    if len(args) < 2 or args[1] not in ('postpass', 'pass11'):
-        sys.exit('--only takes postpass or pass11')
+any_gpu = False
+while args[:1] in (['--only'], ['--any-gpu']):
+    if args[0] == '--any-gpu':
+        any_gpu, args = True, args[1:]
+        continue
+    if len(args) < 2 or args[1] not in ('postpass', 'pass11', 'none'):
+        sys.exit('--only takes postpass, pass11 or none')
     only, args = args[1], args[2:]
+if only == 'none' and not any_gpu:
+    sys.exit('--only none changes nothing without --any-gpu')
 if len(args) not in (2, 3):
     sys.exit('\n'.join(l[2:] for l in open(__file__).read().split('\nimport')[0].split('\n')[2:]))
 src, dst = args[0], args[1]
@@ -43,7 +55,7 @@ d = bytearray(open(src, 'rb').read())
 repl = {f[:-5]: open(os.path.join(rdir, f), 'rb').read() for f in sorted(os.listdir(rdir)) if f.endswith('.dxil')}
 if only:
     repl = {h: b for h, b in repl.items() if f'fsr4_model_v07_fp8_no_scale_{only}'.encode() in b}
-if not repl:
+if not repl and only != 'none':
     die(f'no replacement .dxil files in {rdir}' + (f' for {only}' if only else ''))
 for h, blob in repl.items():
     if blob[:4] != b'DXBC' or struct.unpack_from('<I', blob, 24)[0] != len(blob):
@@ -110,7 +122,32 @@ missing = sorted(set(repl) - {f[0] for f in found})
 if missing:
     die('shaders not found in this DLL (another FSR version, or already patched?): ' + ', '.join(missing))
 
+# --- the INT8 provider's GPU check (--any-gpu)
+INT8_ISSUPPORTED = bytes.fromhex('4883ec48488bc24885d27454488d5424')   # AMD's 4.1.1.2740
+unlock_at = None
+if any_gpu:
+    name = d.find(b'.?AVffxProvider_FSR4_Int8@@\0')
+    if name < 0:
+        die('no ffxProvider_FSR4_Int8 in this DLL')
+    td_rva = va_of_file(name - 16) - image_base                     # RTTI type descriptor
+    col, i = None, 0
+    while (i := d.find(struct.pack('<I', td_rva), i + 1)) >= 0:     # complete object locator
+        if i >= 12 and struct.unpack_from('<II', d, i - 12) == (1, 0):
+            col = i - 12
+            break
+    vt = col is not None and d.find(struct.pack('<Q', va_of_file(col)))
+    if not vt or vt < 0:
+        die('the INT8 provider\'s vtable was not found')
+    fn = struct.unpack_from('<Q', d, vt + 8 + 2 * 8)[0] - image_base   # slot 2: IsSupported
+    s_ = next(s for s in sections if s[1] <= fn < s[1] + s[2])
+    unlock_at = s_[3] + fn - s_[1]
+    if bytes(d[unlock_at:unlock_at + 16]) != INT8_ISSUPPORTED:
+        die('the INT8 provider\'s GPU check is not the expected code (another DLL version?)')
+
 # --- patch
+if unlock_at is not None:
+    d[unlock_at:unlock_at + 3] = bytes.fromhex('b001c3')            # mov al, 1 ; ret
+    print('INT8 provider: GPU check lifted (--any-gpu)')
 appended = bytearray()
 moved = []
 for h, pos, size, ref in found:
