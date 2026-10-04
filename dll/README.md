@@ -25,11 +25,11 @@ python3 patch_upscaler_dll.py amd_fidelityfx_upscaler_dx12.dll amd_fidelityfx_up
 
 It prints each shader it replaced. `--only pass11` or `--only postpass` (before the file names)
 builds in just one of the two rewrites, to find out which one helps on your GPU; see
-[Integrated GPUs](../README.md#integrated-gpus-radeon-780m-and-similar).
+[Integrated GPUs](../docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 
 `--any-gpu` (experimental) also lifts the GPU check AMD's DLL applies to the INT8 version of
 FSR 4, which otherwise only runs on desktop RDNA3; `--only none` with it leaves the shaders as
-AMD's. See [RDNA2 and other GPUs](../README.md#rdna2-and-other-gpus-that-fsr-4-refuses-experimental).
+AMD's. See [RDNA2 and other GPUs](../docs/gpu-support.md#rdna2-and-other-gpus-that-fsr-4-refuses-experimental).
 Not for RDNA4.
 
 Then, in the game folder (wherever
@@ -86,11 +86,11 @@ with the patched postpass running in each.
   first version of these rewrites, and the phased version (what this DLL contains) has been run on
   Windows with an RX 7800 XT with about the same result. Measure before and after on your setup.
 - **Integrated GPUs:** on RDNA3 integrated GPUs both versions are reported slower than AMD's; see
-  [Integrated GPUs](../README.md#integrated-gpus-radeon-780m-and-similar) before using it there.
+  [Integrated GPUs](../docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar) before using it there.
 - **On Linux, the launch option is slightly faster.** vkd3d-proton translates these DXIL shaders
   into slightly slower code than the hand-written SPIR-V overrides: the postpass takes 0.67 ms at
   4K against 0.60 ms. The patched DLL is simpler to set up; the
-  [launch option](../README.md#quick-start-the-prebuilt-files) is the faster choice. Using both
+  [launch option](../docs/linux.md#quick-start-the-prebuilt-files) is the faster choice. Using both
   does no harm: the override files only match AMD's original shaders, so they are ignored.
 - **Game and OptiScaler updates** may put the original DLL back.
 - **Online games.** The DLL is modified code; use your own judgement in games with anti-cheat.

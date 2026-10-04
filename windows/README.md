@@ -17,7 +17,7 @@ DLL stays untouched.
   first version of these rewrites, nearly as large as on Linux, so AMD's Windows driver has the
   same slow store pattern. The phased version has been run on Windows with an RX 7800 XT, with
   about the same result as the first version. On RDNA3 integrated GPUs both versions are reported
-  slower; see [Integrated GPUs](../README.md#integrated-gpus-radeon-780m-and-similar).
+  slower; see [Integrated GPUs](../docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 - **The add-on itself** (as opposed to the [patched DLL](../dll)) is built with MinGW, not MSVC.
   Measure before and after, and please report what you find.
 
