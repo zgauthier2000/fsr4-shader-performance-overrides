@@ -18,8 +18,8 @@ From the shaders inside AMD's `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740:
   thread into three images, the every-other-pixel pattern that is slow on RDNA3. The FP8 postpass
   makes 7 stores, several images at one shared coordinate. Whether those land densely or sparsely
   cannot be told from the code alone.
-- **The whole FP8 pipeline has been dumped** by running it under emulation (next section), but
-  not yet analysed for slow patterns.
+- **The whole FP8 pipeline has been dumped** by running it under emulation and checked for the
+  patterns this repository fixes in the INT8 version (below). None of them was found.
 
 ## The FP8 version can be run on RDNA3 under Proton
 
@@ -43,15 +43,37 @@ output this way, without an RDNA4 card. Two limits:
   the shaders differently, so `.spv` overrides must be built from a dump made on an RDNA4 card. A
   rewrite of the DXIL itself (the patched-DLL route) does not have this problem.
 
+## Checked for the known slow patterns: none found
+
+The dumped FP8 shaders (vkd3d-proton's translation with the emulation on) were checked for the
+three things that were slow in the INT8 version on RDNA3:
+
+| Pattern | INT8 version | FP8 version |
+|---|---|---|
+| Image writes | postpass: every other pixel per store instruction, in both directions | prepass and postpass: each store writes 32 pixels in a row (one per lane), two rows and 64 pixels across per thread group. Dense. |
+| Loops the compiler cannot unroll | pass 11: loop counts depended on an always-zero coordinate | loop counts are constants (2, 4, 8, 16 of 32, the matrix length). The always-zero coordinate is still read, but only for addresses. Pass 11 has one loop that ends on a position check. |
+| Arithmetic | int8 dot products | hardware matrix multiply-add (104 per thread group in pass 1, 164 in pass 7), with nothing around it to restructure |
+
+So the FP8 version was written without the INT8 version's two mistakes, and there is no rewrite
+to port. What this check cannot see:
+
+- **How the shaders compile for RDNA4.** Registers, occupancy and the real matrix instructions
+  depend on the native translation and on RDNA4's compiler target. An attempt to run the pipeline
+  against Mesa's compile-only RDNA4 device did not start, so this is still open, and it is the
+  first thing to look at on a real card (step 3 below).
+- **The 13 small `passN_post` shaders.** Each is a separate dispatch that writes zeros to the edge
+  of a tensor. Whether those 13 dispatches cost anything noticeable can only be timed on RDNA4.
+- **Anything specific to RDNA4's memory system,** as the integrated-GPU reports show for RDNA3.
+
 ## What could carry over
 
 The method, not the files:
 
 - **Sparse image writes.** The penalty this repository removes comes from how images are stored
   in 2D tiles (see
-  [why AMD's stores are slow](../research/postpass-and-prepass/README.md#why-amds-stores-are-slow-the-density-of-the-writes)),
-  so RDNA4 may have it too. If the FP8 postpass writes sparsely, the same idea applies, as a new
-  rewrite for that shader: collect a block and write it out solid, one image at a time.
+  [why AMD's stores are slow](../research/postpass-and-prepass/README.md#why-amds-stores-are-slow-the-density-of-the-writes)).
+  The FP8 shaders already write solid rows, so there is nothing to fix there; whether 32x1 rows
+  are as good as larger blocks on RDNA4 is a question for a profiler.
 - **Loops the compiler cannot unroll.** The INT8 pass 11 fix (an always-zero coordinate in loop
   counts) is specific to that pass; the FP8 passes need their own check for the same mistake.
 - **A different balance.** With matrix hardware the model part should be much cheaper on RDNA4,
