@@ -26,3 +26,4 @@ dll/test/vkd3d-proton.cache*
 dll/test/all_*.dll
 dll/test/va
 dll/test/vb
+dll/test/lall/

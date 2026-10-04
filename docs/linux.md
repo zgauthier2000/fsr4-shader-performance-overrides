@@ -17,8 +17,9 @@
 
 ## Quick start: the prebuilt files
 
-The [`prebuilt/`](../prebuilt) folder holds the overrides for the common case: AMD's DLL version
-4.1.1.2740, output above 1080p, and any preset except Ultra Performance.
+The [`prebuilt/`](../prebuilt) folder holds overrides for every normal version of the two shaders
+in AMD's DLL version 4.1.1.2740: every output size, every preset, and every way a game can set up
+exposure and colour space (54 files; see [shader variants](variants.md)).
 
 1. Clone or download this repository.
 2. Add this to the game's launch options in Steam (keep anything already there in front of
@@ -32,8 +33,7 @@ The [`prebuilt/`](../prebuilt) folder holds the overrides for the common case: A
 3. Compare OptiScaler's upscaler time with and without the variable, standing at the same spot. ***In
    some games, that number is only reliable with the frame rate uncapped.***
 
-If the time does not drop, your game uses a shader variant that is not in `prebuilt/`. Build your
-own as described next.
+If the time does not drop, see [when the prebuilt files are not enough](#when-the-prebuilt-files-are-not-enough).
 
 ## Building your own
 
@@ -74,14 +74,15 @@ and 2 and the new files are added alongside. To have everything in one place, co
 ## When the prebuilt files are not enough
 
 The overrides match exact shaders. A game silently falls back to AMD's originals, with no error,
-when it uses a shader you do not have a file for. That happens with:
+when it uses a shader there is no file for. Since 2026-10-04 `prebuilt/` has a file for every
+normal version in AMD's DLL 4.1.1.2740, so that should only happen with:
 
 - a different FSR DLL version;
-- output at 1080p or below versus above 1080p (two different shader sets);
-- Ultra Performance mode (its own model). Quality, Balanced and Performance share one;
-- a game whose FSR setup differs, for example in how exposure is handled.
+- FSR's debug view (its versions of the postpass are not covered);
+- a Proton or vkd3d-proton version that translates the shaders differently from the one the
+  files were made with (GE-Proton 11-7). This has not been seen, but it cannot be ruled out.
 
-If the upscaler time does not drop, dump that game and run the script again.
+In the first and last case, dump that game and build your own files as described above.
 
 ## Things to know
 

@@ -8,8 +8,8 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
 Three changes today. The image is still byte-for-byte the same.
 
-- **The patched DLL and the ReShade add-on now cover every version of the two shaders** (14:44 EDT,
-  commit `c5bb214`). AMD's DLL contains 48 versions of the postpass and 6 of pass 11, and which one
+- **Every version of the two shaders is now covered, on Linux and Windows** (the DLL and add-on
+  at 14:44 EDT, commit `c5bb214`; the Linux files later the same day). AMD's DLL contains 48 versions of the postpass and 6 of pass 11, and which one
   a game uses depends on its output size, preset, exposure and colour-space setup. Until now only
   the 10 most common were replaced, so some games got no speedup. All 54 are replaced now, checked
   in all 48 combinations that select a different one. See [shader variants](docs/variants.md).
@@ -123,9 +123,8 @@ Proton translates the DLL's shaders into slightly slower code.
 
    `Z:` is how Proton sees your Linux root, so `Z:/home/you/...` is `/home/you/...`.
 
-This covers output above 1080p up to 4K in every mode except Ultra Performance, for the most common
-ways games set FSR up. For anything else, or if it does not get faster, build your own files
-([Linux guide](docs/linux.md)) or use the patched DLL below, which covers every case.
+This covers every output size, preset and way a game can set FSR 4.1.1 up. If it does not get
+faster: [Linux guide](docs/linux.md).
 
 ### Windows: replace one DLL
 
@@ -147,9 +146,8 @@ Open OptiScaler's overlay and compare the upscaler time with and without the cha
 the same spot. **In some games that number is only reliable with the frame rate uncapped.** At 4K
 it should drop by roughly 1 ms.
 
-If nothing changes with the Linux launch option, your game probably uses a shader version that
-`prebuilt/` does not have; the patched DLL covers all of them. See
-[shader variants](docs/variants.md).
+If nothing changes, check that the game really runs FSR 4.1.1 with AMD's DLL version 4.1.1.2740;
+other versions have different shaders. See [shader variants](docs/variants.md).
 
 ### Undo
 

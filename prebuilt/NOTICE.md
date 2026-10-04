@@ -16,11 +16,12 @@ upscaler. They are not AMD's originals and are not provided or endorsed by AMD.
   repository.
   Running `build_override.sh` on a matching dump reproduces these files byte for byte.
 
-| File | Shader | Change |
-|---|---|---|
-| `683038df6272d4db.spv` | FSR 4.1.1 postpass | stores written in rows through workgroup memory, one image at a time |
-| `4d657fb0eed077d6.spv` | FSR 4.1.1 postpass, variant that also stores the exposure value | stores written in rows through workgroup memory, one image at a time |
-| `e29847a84b6f746f.spv` | FSR 4.1.1 model pass 11 | always-zero z coordinate replaced by a constant; each row of its output stored together |
+54 files, one for every normal version of the two shaders in the DLL: 48 of the FSR 4.1.1 postpass
+(stores written in solid blocks through workgroup memory, one image at a time) and 6 of model
+pass 11 (always-zero z coordinate replaced by a constant; each row of its output stored
+together). They were made from dumps of AMD's DLL running in a test program under Proton
+(GE-Proton 11-7) in each combination that selects a different version; see
+[`../docs/variants.md`](../docs/variants.md).
 
 ## Licences
 

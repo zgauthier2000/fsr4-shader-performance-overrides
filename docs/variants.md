@@ -13,9 +13,9 @@ Counted from the DLL itself, for the INT8 version of FSR 4 that runs on RX 7000 
 
 | Shader | Versions in the DLL | Replacements shipped | The rewrite applies to |
 |---|---|---|---|
-| Postpass, normal | 48 | 48 for Windows and the DLL; 2 for the Linux launch option | all 48 |
+| Postpass, normal | 48 | 48 | all 48 |
 | Postpass, with FSR's debug view | 48 | 0 | none (the debug view writes an extra image) |
-| Model pass 11 | 6 | 6 for Windows and the DLL; 1 for the Linux launch option | all 6 |
+| Model pass 11 | 6 | 6 | all 6 |
 
 The DLL also holds 24 postpass and 3 pass 11 versions for the FP8 model (RX 9000 cards), which
 this repository does not touch; see [RDNA4](rdna4.md).
@@ -44,12 +44,12 @@ which postpass or pass 11 runs.
 - **Patched DLL and ReShade add-on (since 2026-10-04):** every normal version is covered, so the
   speedup no longer depends on how the game sets FSR up. Only FSR's debug view falls back to
   AMD's postpass.
-- **Linux launch option:** `prebuilt/` still holds only the common versions (output above 1080p
-  up to 4K, any preset except Ultra Performance, two of the eight exposure and colour setups),
-  because those files are named after Proton's translation of each shader and can only be made
-  from a game's dump. If the upscaler time does not drop, either build your own files from a dump
-  of that game ([Linux guide](linux.md#building-your-own)), which works for any normal version, or
-  use the patched DLL, which is slightly slower on Linux but covers everything.
+- **Linux launch option (since 2026-10-04):** `prebuilt/` has all 54 as well. They were made by
+  running AMD's unmodified DLL under Proton in each of the 48 combinations with shader dumping on,
+  which gives Proton's own translation of every version, and building the overrides from those
+  dumps. Checked the same way: byte-identical output in all 48
+  ([`../dll/test/run_all_variants_linux.sh`](../dll/test/run_all_variants_linux.sh)). The three
+  files shipped before came out identical this way.
 
 ## How the full set was verified
 
