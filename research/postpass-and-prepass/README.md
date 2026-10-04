@@ -230,9 +230,37 @@ In a game it makes no measurable difference: Shadow of the Tomb Raider's benchma
 traffic that does not limit speed on this card. It may matter on GPUs that are short of memory
 bandwidth, where it has not been tested.
 
-The prepass is the largest remaining source of traffic. About 640 MB of it comes from its writes,
-but removing them all saves only 0.02 ms, and making its tensor writes dense (`prepass_quad.py`)
-does not change the traffic.
+### The prepass's traffic: attributed, but not reducible from the shader
+
+The prepass is the largest remaining source of traffic. Probes that remove one thing at a time
+(wrong output; `nomem.py`, with `NOMEM_ONLY=img` or `buf` to pick the stores):
+
+| Prepass probe | Read from memory | Benchmark |
+|---|---|---|
+| As is | 1,716 MB | 0.482 ms |
+| No image write (66 MB of data) | 1,247 MB | 0.463 ms |
+| No tensor stores (33 MB of data) | 1,380 MB | 0.468 ms |
+| No stores at all | 950 MB | 0.448 ms |
+| All reads from cache, stores kept | 911 MB | 0.457 ms |
+| Neither | 252 MB (the floor) | 0.420 ms |
+
+Its stores cause about 700 MB of reads for 99 MB written, seven times the data, and its reads
+about 700 MB for roughly 125 MB of inputs. Four byte-identical rewrites were tried against that:
+
+| Rewrite | Read from memory | Benchmark |
+|---|---|---|
+| AMD's prepass | 1,716 MB | 0.482 ms |
+| Each quad lane stores one word of the tensor (`prepass_quad.py`) | 1,705 MB | 0.475 ms |
+| All stores moved to the end of the shader (`prepass_sync.py late`) | 1,709 MB | 0.479 ms |
+| The same, after a workgroup barrier (`prepass_sync.py sync`) | 1,707 MB | 0.480 ms |
+| Each wave covers an 8x8 block of pixels instead of 16x4 | 1,783 MB | 0.474 ms |
+
+None of them moves the traffic. It does not come from when the stores happen or how the lanes are
+arranged, so it appears to follow from the pass's shape: a thread group covers 16x16 pixels, so
+one group can write only 128 bytes of any row of the image or the tensor, and the rest of each
+cache block belongs to other groups that run at other times. A replacement shader cannot change
+how the pass is dispatched. The time at stake is small in any case: removing every store saves
+0.03 ms.
 
 ## The prepass
 
@@ -277,6 +305,7 @@ GPUs have not been measured here.
 | `nullify.py` | replaces a shader's body with an empty one (used for the in-game breakdown of FSR 4's time) |
 | `postpass_shuffle.py` | the lane-swap postpass |
 | `prepass_quad.py` | the prepass rewrite |
+| `prepass_sync.py` | the prepass with its stores moved to the end (`late`) and synchronised (`sync`) |
 | `p11defer.py` | pass 11 with its stores deferred (run after `zconst.py`; argument `row` or `all`) |
 | `mesa-tiling-override.patch` | the experimental Mesa changes behind the tiling and counter tables (`AC_FORCE_SWIZZLE=<mode>`, `AC_FORCE_SWIZZLE_MASK=<bit per image>`, `AC_PRINT_SWIZZLE=1`, `AC_SPM_PRINT=1`) |
 | `pbench.c` | the prepass benchmark; the postpass and model-pass ones are in [`../wmma/bench`](../wmma/bench) |

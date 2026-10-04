@@ -14,6 +14,8 @@ import re
 import sys
 
 mode = sys.argv[1]
+import os
+ONLY = os.environ.get('NOMEM_ONLY', '')   # 'img' or 'buf': guard only image writes / only buffer stores
 L = sys.stdin.read().split('\n')
 
 
@@ -163,7 +165,7 @@ for i, l in enumerate(L):
             continue
     if mode in ('st', 'both'):
         m = re.match(r'(\s*)OpImageWrite (%\S+) (%\S+) (%\S+)(.*)', l)
-        if m:
+        if m and ONLY != 'buf':
             x, c, T, M = new(), new(), new(), new()
             out += [f'{m[1]}{x} = OpCompositeExtract %float {m[4]} 0',
                     f'{m[1]}{c} = OpFOrdEqual %bool {x} %nm_fmagic',
@@ -175,7 +177,7 @@ for i, l in enumerate(L):
             stores += 1
             continue
         m = re.match(r'(\s*)OpStore (%\S+) (%\S+)(.*)', l)
-        if m and m[2] in sb:
+        if m and m[2] in sb and ONLY != 'img':
             # value must be a uint scalar; compare it with the magic constant
             c, T, M = new(), new(), new()
             out += [f'{m[1]}{c} = OpIEqual %bool {m[3]} %nm_magic',
