@@ -98,7 +98,8 @@ comments at its top. The build is reproducible: it produces the `prebuilt` file 
   one after the other, each through 12,288 bytes of shared memory (D3D12 allows a thread group
   32,768). The half-precision texture is written directly as in AMD's shader: sending it through
   shared memory as well measured no faster under vkd3d-proton.
-- Pass 11 is the same change as on Linux: the always-zero z coordinate becomes a constant.
+- Pass 11 has the same two changes as on Linux: the always-zero z coordinate becomes a constant,
+  and each row of its output is stored together (`dxil/pass11_stores_dxil.py`).
 
 ## Licence
 

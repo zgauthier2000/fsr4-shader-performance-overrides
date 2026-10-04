@@ -16,6 +16,13 @@
   counts, which stops the driver from unrolling the loops. Replacing it with a constant takes the
   pass from 0.60 ms to 0.23 ms in a standalone benchmark. The same change does nothing for the
   other 11 passes.
+- **Model pass 11's stores** (`pass11_stores.py`, since 2026-10-04). The pass is the model's
+  upsampling step: each thread computes a 2x2 block of outputs and stored every word the moment it
+  was computed, 4 bytes in every 32, the same sparse pattern as the postpass. Now each row's
+  eight words are stored together. The pass reads 234 MB from memory instead of 1,018 MB and
+  makes 26 times fewer write requests. On an RX 7800 XT this does not change the frame rate (the
+  traffic was not what limited the pass there); it is shipped because it is never slower and may
+  help GPUs with less memory bandwidth.
 
 Both rewrites leave the arithmetic untouched. In a standalone benchmark on the same GPU, the
 rewritten shaders produced output byte-for-byte identical to AMD's.
@@ -107,10 +114,6 @@ capture on Windows would show what AMD's Windows compiler actually does with eac
   layout; but the phased postpass on the default layout takes 0.60 ms, and linear images slow it
   (and other uses of those images) down. Details in
   [`research/postpass-and-prepass/`](../research/postpass-and-prepass).
-- **Dense stores in model pass 11.** The pass stores its 2x2 block of outputs one word at a time;
-  storing each row's words together cuts its memory traffic to a third and its write requests
-  17-fold, byte-identical, but the game's upscaler time does not change (3.12 ms either way), so
-  it is not shipped.
 - **Fusing the model passes.** Versions of the 12 passes that write nothing saved 0.07 ms of
   2.03 ms in total, and the compiled passes are almost all arithmetic (pass 1: 832 int8 dot
   products and 13 memory instructions out of 1,450). Merging passes to keep data on chip is not

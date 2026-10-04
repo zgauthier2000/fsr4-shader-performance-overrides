@@ -52,9 +52,9 @@ The replacement shaders are the DXIL files of the Windows add-on,
 and model pass 11, for every output size and preset the add-on covers. Inside the DLL the shaders
 are plain DXIL containers, each described by a size and a pointer:
 
-- The four pass 11 shaders are smaller than AMD's, so they are written in place.
-- The six postpass shaders are larger, so they go into a new section, `.fsr4`, at the end of the
-  file, and their size and pointer are updated.
+- A replacement that is no larger than AMD's shader is written in place.
+- A larger one (all ten, in the current version) goes into a new section, `.fsr4`, at the end of
+  the file, and its size and pointer are updated.
 
 Nothing else in the DLL changes. AMD's digital signature does not survive the change, so the
 script removes it (and recomputes the PE checksum). Neither the DLL nor AMD's FidelityFX loader

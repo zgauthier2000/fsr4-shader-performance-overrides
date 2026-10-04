@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="420" viewBox="0 0 760 420" role="img" aria-label="Memory read by FSR 4 per frame at 4K: 7,668 MB with AMD's shaders, 5,381 MB with this release">
+<rect width="760" height="420" rx="8" fill="#1a1a19"/>
+<text x="24" y="34" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#ffffff">Memory read by FSR 4 per frame at 4K</text>
+<text x="24" y="54" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">MB read from memory by each part, Radeon RX 7800 XT. Lower is better.</text>
+<rect x="24" y="66" width="12" height="12" rx="2" fill="#184f95"/>
+<text x="42" y="76" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">AMD's shaders</text>
+<rect x="140" y="66" width="12" height="12" rx="2" fill="#3987e5"/>
+<text x="158" y="76" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">This release</text>
+<line x1="200.0" y1="88" x2="200.0" y2="362" stroke="#383835" stroke-width="1"/>
+<text x="200.0" y="380" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0</text>
+<line x1="312.5" y1="88" x2="312.5" y2="362" stroke="#2c2c2a" stroke-width="1"/>
+<text x="312.5" y="380" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">2,000</text>
+<line x1="425.0" y1="88" x2="425.0" y2="362" stroke="#2c2c2a" stroke-width="1"/>
+<text x="425.0" y="380" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">4,000</text>
+<line x1="537.5" y1="88" x2="537.5" y2="362" stroke="#2c2c2a" stroke-width="1"/>
+<text x="537.5" y="380" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">6,000</text>
+<line x1="650.0" y1="88" x2="650.0" y2="362" stroke="#2c2c2a" stroke-width="1"/>
+<text x="650.0" y="380" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">8,000</text>
+<text x="650" y="400" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">MB per frame</text>
+<text x="188" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">Postpass</text>
+<path d="M200,104.0 H325.1 Q329.1,104.0 329.1,108.0 V114.0 Q329.1,118.0 325.1,118.0 H200 Z" fill="#184f95"/>
+<text x="337.1" y="115.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">2,295</text>
+<path d="M200,120.0 H240.6 Q244.6,120.0 244.6,124.0 V130.0 Q244.6,134.0 240.6,134.0 H200 Z" fill="#3987e5"/>
+<text x="252.6" y="131.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">792</text>
+<text x="188" y="177.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">Model pass 11</text>
+<path d="M200,158.0 H253.3 Q257.3,158.0 257.3,162.0 V168.0 Q257.3,172.0 253.3,172.0 H200 Z" fill="#184f95"/>
+<text x="265.3" y="169.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">1,018</text>
+<path d="M200,174.0 H209.2 Q213.2,174.0 213.2,178.0 V184.0 Q213.2,188.0 209.2,188.0 H200 Z" fill="#3987e5"/>
+<text x="221.2" y="185.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">234</text>
+<text x="188" y="231.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">Prepass</text>
+<path d="M200,212.0 H292.3 Q296.3,212.0 296.3,216.0 V222.0 Q296.3,226.0 292.3,226.0 H200 Z" fill="#184f95"/>
+<text x="304.3" y="223.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">1,712</text>
+<path d="M200,228.0 H292.3 Q296.3,228.0 296.3,232.0 V238.0 Q296.3,242.0 292.3,242.0 H200 Z" fill="#3987e5"/>
+<text x="304.3" y="239.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">1,712</text>
+<text x="188" y="285.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">Other 11 model passes</text>
+<path d="M200,266.0 H344.7 Q348.7,266.0 348.7,270.0 V276.0 Q348.7,280.0 344.7,280.0 H200 Z" fill="#184f95"/>
+<text x="356.7" y="277.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">2,643</text>
+<path d="M200,282.0 H344.7 Q348.7,282.0 348.7,286.0 V292.0 Q348.7,296.0 344.7,296.0 H200 Z" fill="#3987e5"/>
+<text x="356.7" y="293.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">2,643</text>
+<line x1="24" y1="308" x2="736" y2="308" stroke="#2c2c2a" stroke-width="1"/>
+<text x="188" y="339.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="end" fill="#ffffff">All passes</text>
+<path d="M200,320.0 H627.3 Q631.3,320.0 631.3,324.0 V330.0 Q631.3,334.0 627.3,334.0 H200 Z" fill="#184f95"/>
+<text x="639.3" y="331.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">7,668</text>
+<path d="M200,336.0 H498.7 Q502.7,336.0 502.7,340.0 V346.0 Q502.7,350.0 498.7,350.0 H200 Z" fill="#3987e5"/>
+<text x="510.7" y="347.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#c3c2b7">5,381</text>
+</svg>

@@ -11,7 +11,7 @@ are not AMD's originals and are not provided or endorsed by AMD.
   `60f4ea81909200d8542eca14dccb2628b763a9a3`; git blob
   `199de3a500a1d153b7e73fa5ca0adbd2a4ac1229`).
 - **Modification:** the DLL's shaders, disassembled with Microsoft's DXC, rewritten by
-  `dxil/postpass_lds_dxil.py` and `dxil/zconst_dxil.py`, and assembled and signed with DXC again
+  `dxil/postpass_lds_dxil.py`, `dxil/zconst_dxil.py` and `dxil/pass11_stores_dxil.py`, and assembled and signed with DXC again
   (`dxil/build_dxil_overrides.sh`).
 
 AMD's SDK licence (`docs/license.md` in the repository above) lists

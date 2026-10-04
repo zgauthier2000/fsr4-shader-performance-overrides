@@ -34,6 +34,9 @@ for f in "$src"/*.dxil; do
         echo "skipped $(basename "$f"): not the expected structure"
         continue
     fi
+    if [[ $script == zconst_dxil.py ]] && python3 "$here/pass11_stores_dxil.py" < "$work/out.ll" > "$work/out2.ll" 2>/dev/null; then
+        mv "$work/out2.ll" "$work/out.ll"      # pass 11, second step: store each row together
+    fi
     "$work/dxilasm" "$dxc_dir/lib/libdxcompiler.so" "$work/out.ll" "$out/$hash.dxil"
     echo "$out/$hash.dxil  (${name##*_}, from $(basename "$f"))"
     built=$((built + 1))

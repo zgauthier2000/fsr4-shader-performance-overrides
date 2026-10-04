@@ -205,7 +205,8 @@ The cache counters (see the tiling section above) for each pass at 4K, per run o
 | Postpass, AMD's | 2,295 MB | 7.8 million | 166 MB |
 | Prepass | 1,712 MB | 7.0 million | 99 MB |
 | Postpass, phased | 792 MB | 3.2 million | 166 MB |
-| Model pass 11 (with the shipped rewrite) | 739 MB | 2.6 million | 33 MB |
+| Model pass 11, AMD's | 1,018 MB | 3.9 million | 33 MB |
+| Model pass 11 with only the constant-z change | 739 MB | 2.6 million | 33 MB |
 | Model passes 1, 2, 12 | about 270 MB each | 0.24 million each | 33 MB each |
 | The other eight model passes | 208 to 265 MB each | about 0.1 million each | 8 to 16 MB each |
 
@@ -215,20 +216,20 @@ words each, and stores every word as soon as it is computed, with the next word'
 between, so one store instruction writes 4 bytes in every 32. That is the postpass's sparse-write
 pattern again, in a buffer.
 
-`p11defer.py` (applied after `zconst.py`) keeps each row's eight words in registers and stores them
-together. The output is byte-identical.
+`pass11_stores.py` at the top of the repository (applied after `zconst.py`) keeps each row's eight
+words in registers and stores them together. The output is byte-identical.
 
 | Pass 11 | Benchmark | Read from memory | Write requests | Registers / waves per SIMD |
 |---|---|---|---|---|
-| AMD's | 0.60 ms | | | |
-| Shipped rewrite (`zconst.py`) | 0.23 to 0.32 ms, varying between runs | 739 MB | 2.61 million | 60 / 24 |
-| With deferred stores | 0.216 ms, steady | 234 MB | 0.15 million | 48 / 32 |
+| AMD's | 0.60 ms | 1,018 MB | 3.92 million | 48 / 32 |
+| Constant-z change only (`zconst.py`) | 0.23 to 0.32 ms, varying between runs | 739 MB | 2.61 million | 60 / 24 |
+| With the stores together as well (shipped) | 0.216 ms, steady | 234 MB | 0.15 million | 48 / 32 |
 
 In a game it makes no measurable difference: Shadow of the Tomb Raider's benchmark at 4K gave
 108 FPS, 16,780 frames and 3.12 ms of upscaler time with it, against 108 FPS, 16,736 frames and
-3.12 ms with the shipped files. So it is **not shipped**; like the square-block flush, it removes
-traffic that does not limit speed on this card. It may matter on GPUs that are short of memory
-bandwidth, where it has not been tested.
+3.12 ms without it. It removes traffic that does not limit speed on this card. It is shipped since
+2026-10-04 all the same: it is never slower, the pass runs at higher occupancy, and the traffic it
+removes may matter on GPUs that are short of memory bandwidth, where it has not been tested.
 
 ### The prepass's traffic: attributed, but not reducible from the shader
 
@@ -327,7 +328,6 @@ GPUs have not been measured here.
 | `postpass_shuffle.py` | the lane-swap postpass |
 | `prepass_quad.py` | the prepass rewrite |
 | `prepass_sync.py` | the prepass with its stores moved to the end (`late`) and synchronised (`sync`) |
-| `p11defer.py` | pass 11 with its stores deferred (run after `zconst.py`; argument `row` or `all`) |
 | `mesa-tiling-override.patch` | the experimental Mesa changes behind the tiling and counter tables (`AC_FORCE_SWIZZLE=<mode>`, `AC_FORCE_SWIZZLE_MASK=<bit per image>`, `AC_PRINT_SWIZZLE=1`, `AC_SPM_PRINT=1`) |
 | `pbench.c` | the prepass benchmark; the postpass and model-pass ones are in [`../wmma/bench`](../wmma/bench) |
 

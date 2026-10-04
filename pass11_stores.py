@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Experiment: FSR 4.1.1 (INT8) model pass 11 (after zconst.py) with its output stores deferred.
-#   p11defer.py row|all < pass11.zconst.spvasm > out.spvasm
-# The pass computes a 2x2 block of output pixels per thread, 4 words each, and stores every word
-# as soon as it is computed, with the next word's arithmetic in between; one store instruction
-# therefore writes 4 bytes in every 32. Here the words are kept in registers and stored together:
-# "row" after each row of the block (2 pixels, 32 contiguous bytes per thread), "all" after the
-# whole block. Addresses and values are exactly those of the original stores.
+# Model pass 11 of FSR 4.1.1 (INT8), after zconst.py: stores each row of its output together.
+#
+#   spirv-dis <hash>.spv | zconst.py | pass11_stores.py > out.spvasm ; spirv-as --target-env spv1.3
+#
+# The pass computes a 2x2 block of output pixels per thread, four words each, and stores every
+# word as soon as it is computed, with the next word's arithmetic in between; one store
+# instruction therefore writes 4 bytes in every 32, and partly written cache blocks are fetched
+# and written back several times. Here each row's eight words are kept in registers and stored
+# together (argument "all": the whole block at the end). Addresses and values are exactly those of
+# the original stores, so the output is bit-exact; the pass's memory traffic drops to a third.
 import re, sys
-level = sys.argv[1]
+level = sys.argv[1] if len(sys.argv) > 1 else 'row'
 L = sys.stdin.read().split('\n')
 defs = {}
 for l in L:

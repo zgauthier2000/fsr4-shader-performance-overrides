@@ -12,14 +12,15 @@ upscaler. They are not AMD's originals and are not provided or endorsed by AMD.
   `199de3a500a1d153b7e73fa5ca0adbd2a4ac1229`).
 - **Translation:** the DLL's shaders as vkd3d-proton translated them to SPIR-V while a game ran
   (`VKD3D_SHADER_DUMP_PATH`).
-- **Modification:** rewritten by `postpass_lds_vkd3d.py` and `zconst.py` from this repository.
+- **Modification:** rewritten by `postpass_lds_vkd3d.py`, `zconst.py` and `pass11_stores.py` from this
+  repository.
   Running `build_override.sh` on a matching dump reproduces these files byte for byte.
 
 | File | Shader | Change |
 |---|---|---|
 | `683038df6272d4db.spv` | FSR 4.1.1 postpass | stores written in rows through workgroup memory, one image at a time |
 | `4d657fb0eed077d6.spv` | FSR 4.1.1 postpass, variant that also stores the exposure value | stores written in rows through workgroup memory, one image at a time |
-| `e29847a84b6f746f.spv` | FSR 4.1.1 model pass 11 | always-zero z coordinate replaced by a constant |
+| `e29847a84b6f746f.spv` | FSR 4.1.1 model pass 11 | always-zero z coordinate replaced by a constant; each row of its output stored together |
 
 ## Licences
 

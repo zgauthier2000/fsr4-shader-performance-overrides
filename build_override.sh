@@ -9,14 +9,15 @@
 #   postpass       image stores go through workgroup memory and are written in contiguous rows
 #                  (postpass_lds_vkd3d.py). POSTPASS=0 skips it.
 #   model pass 11  the always-zero z coordinate becomes a constant, so the driver can unroll the
-#                  pass's loops (zconst.py). PASS11=0 skips it.
+#                  pass's loops (zconst.py), and each row of its output is stored together
+#                  (pass11_stores.py). PASS11=0 skips it.
 #
 # The override directory can be shared by every game: files are named by shader hash, so variants
 # from several games sit side by side and a game only picks up the ones it actually uses.
 set -euo pipefail
 here=$(cd -- "$(dirname -- "$0")" && pwd)
 if [[ $# -lt 1 || $1 == -h || $1 == --help ]]; then
-    sed -n '3,15p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '3,16p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
 fi
 dump=$(realpath "$1")
@@ -70,6 +71,14 @@ while read -r kind hash; do
     if ! python3 "$here/$script" < "$work/$hash.spvasm" > "$work/$hash.new.spvasm"; then
         echo "skipped $hash ($kind): the shader does not have the expected structure"
         continue
+    fi
+    if [[ $kind == pass11 ]]; then
+        # second step for pass 11: store each row of its output together (pass11_stores.py)
+        if python3 "$here/pass11_stores.py" < "$work/$hash.new.spvasm" > "$work/$hash.new2.spvasm" 2>/dev/null; then
+            mv "$work/$hash.new2.spvasm" "$work/$hash.new.spvasm"
+        else
+            echo "note: $hash (pass11): stores left as they are"
+        fi
     fi
     spirv-as --target-env spv1.3 "$work/$hash.new.spvasm" -o "$work/$hash.spv"
     spirv-val --target-env vulkan1.3 "$work/$hash.spv"
