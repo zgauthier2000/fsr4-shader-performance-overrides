@@ -6,6 +6,11 @@ Everything shipped by this repository leaves FSR 4's output unchanged, byte for 
 experiment that does not: it was asked for by a user who wanted to try it against shimmering in
 motion. **It is not part of the normal DLL or the Linux overrides.**
 
+**Result (2026-10-04): it looks bad in motion, and it is not the fix.** The shimmering it was
+meant to cure is fixed by splitting the postpass's dot products instead (`test-rdna2.zip`, see
+[GPU support](../../docs/gpu-support.md#rdna2-needs-one-more-change-the-dot-products)), which does
+not change the image at all.
+
 ## What it changes
 
 For each output pixel, the postpass blends the reprojected previous output (the history) with the
@@ -35,12 +40,11 @@ sRGB.
 
 On a still scene the clamped version reaches the same quality, slightly later.
 
-## What was not measured
+## In motion
 
-Anything in motion, which is the whole point of the change. The model lowers `w` where the history
-is wrong, for example in areas a moving object has just uncovered. Forcing at least 80% history
-there can be expected to leave ghosting or trails. Whether shimmering improves, and what it costs,
-has to be judged in a game.
+Tried in a game after the builds were published: it looks bad. That fits what the blend does: the
+model lowers `w` where the history is wrong, for example in areas a moving object has just
+uncovered, and forcing at least 80% history there keeps the wrong image on screen.
 
 ## Test builds
 

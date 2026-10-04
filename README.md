@@ -4,6 +4,28 @@ Makes AMD FSR 4.1.1 upscaling about 25 to 30% cheaper on Radeon RX 7000 graphics
 and Windows, by replacing two of FSR 4's compute shaders with faster ones. **The image is
 unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
+## RDNA2 (RX 6000): shimmering in motion fixed (2026-10-04, 15:43 EDT)
+
+FSR 4.1.1's INT8 model can be made to run on RDNA2, but there it shimmers in motion. A test build
+from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3)
+(Windows DLL).
+
+- **The cause is one instruction form in the postpass.** AMD's postpass adds each int8 dot
+  product onto a running total inside the instruction. RDNA2's driver gets that form wrong. The
+  build computes each product alone and adds it afterwards (960 places per shader). The number is
+  the same, so on RDNA3 the image is still byte-for-byte AMD's.
+- **Where the idea comes from:** the [fsr4xyz](https://github.com/the3rdparty1917/fsr4xyz)
+  project's 4.1.1b DLL, which found this fix. The build here is an independent implementation of
+  it on top of this repository's faster postpass and pass 11, in all 54 shader versions.
+- **What else is in it:** AMD's GPU check is lifted (AMD's DLL offers this model only on desktop
+  RDNA3).
+- **What did not work:** keeping the postpass's history weight at 0.8 or more, a change that was
+  suggested against the shimmering. It looks bad in motion. Those builds
+  (`test-history-clamp-*.zip`) stay attached for reference only.
+
+Not measured yet on RDNA2: how much faster it is than AMD's shaders there. Details:
+[GPU support](docs/gpu-support.md#rdna2-needs-one-more-change-the-dot-products).
+
 ## What's new: 2026-10-04, 14:55 EDT (commit `9298321`)
 
 Three changes today. The image is still byte-for-byte the same.
@@ -93,7 +115,7 @@ How this was measured, and everything that was tried on each part:
 |---|---|---|
 | RX 7900, 7800, 7700, 7600 (desktop RDNA3) | yes, measured on an RX 7800 XT | yes, testers report large gains |
 | Radeon 780M, 890M and other RDNA3 integrated GPUs | no: pass 11 is reported much slower there | no: same |
-| RX 6000, Steam Deck (RDNA2) | experimental, untested | experimental, untested |
+| RX 6000 (RDNA2) | experimental, untested | experimental: `test-rdna2.zip` runs and fixes the shimmering; speed not measured |
 | RX 9000 (RDNA4) | no: it runs a different FSR 4 ([open for someone to pick up](docs/rdna4.md)) | no |
 
 You also need:
@@ -168,7 +190,7 @@ Remove the launch option, or put the original DLL back.
 |---|---|
 | [All results](docs/results.md) | every game measured, benchmark pages with screenshots |
 | [Linux guide](docs/linux.md) | requirements, building your own files, troubleshooting |
-| [GPU support](docs/gpu-support.md) | Windows, integrated GPUs, the experimental RDNA2 unlock |
+| [GPU support](docs/gpu-support.md) | Windows, integrated GPUs, the RDNA2 build and its shimmering fix |
 | [Shader variants](docs/variants.md) | which versions of FSR 4's shaders are covered, and what to do if your game's is not |
 | [How it works](docs/how-it-works.md) | what the two rewrites do, where the time goes, what else was tried |
 | [RDNA4](docs/rdna4.md) | what is known about the FP8 model on RX 9000 cards; open for anyone who can test on one |

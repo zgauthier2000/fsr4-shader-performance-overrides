@@ -114,18 +114,26 @@ The postpass rewrite in this repository keeps AMD's accumulating form, so the pl
 builds would be expected to ghost on RDNA2. `windows/dxil/dot4_split_dxil.py` (build option
 `DOT4=split`) applies the same idea to the rewritten postpass; it is an independent
 implementation on AMD's shaders, with no code from that project. On an RX 7800 XT the output is
-byte-identical to AMD's in all 48 shader combinations and the pass is as fast as without it. It
-has not been run on RDNA2.
+byte-identical to AMD's in all 48 shader combinations and the pass is as fast as without it.
+
+**Result on RDNA2 (2026-10-04):** the build with this change, `test-rdna2.zip`, fixes the
+shimmering in motion. So the accumulating dot product is the cause, and the rewritten postpass
+and pass 11 work on RDNA2 once it is gone. Its upscaler time on RDNA2, against AMD's shaders and
+against the fsr4xyz DLL, has not been measured yet.
+
+**What did not fix it:** a lower bound of 0.8 on the postpass's history weight (the share of the
+previous frame in each output pixel), which was suggested as a fix. It looks bad in motion; see
+[history clamp](../research/history-clamp).
 
 Ready-made test builds are attached to the [release `dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3):
 
 | File | Contents |
 |---|---|
-| `test-rdna2.zip` | **for RDNA2:** check lifted, both rewrites, and the postpass's dot products split (see above) |
+| `test-rdna2.zip` | **for RDNA2, fixes the shimmering:** check lifted, both rewrites, and the postpass's dot products split (see above) |
 | `test-any-gpu-amd-shaders.zip` | check lifted, AMD's shaders unchanged: does FSR 4 run at all? |
 | `test-any-gpu.zip` | check lifted, both rewrites |
 | `test-any-gpu-pass11-only.zip` | check lifted, pass 11 rewrite only |
-| `test-history-clamp-0.8-any-gpu.zip` | as `test-rdna2.zip`, plus an experiment that **changes the image**: see [history clamp](../research/history-clamp) |
+| `test-history-clamp-0.8-any-gpu.zip` | as `test-rdna2.zip`, plus an experiment that **changes the image** and looks bad in motion; do not use: see [history clamp](../research/history-clamp) |
 
 If you try them, please report your GPU, Windows or Linux and driver version, the game, whether FSR
 4 starts and looks right, and OptiScaler's upscaler time for each.
