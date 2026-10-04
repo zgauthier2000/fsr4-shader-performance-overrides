@@ -10,7 +10,8 @@ downloaded or built the files before that, get them again.
 
 ## What to expect
 
-At 4K, FSR 4 takes about 1 ms less GPU time per frame. When the GPU is the limit, that is:
+At 4K, FSR 4's upscaling time drops by **26 to 30%**, about 1 ms less GPU time per frame. When the
+GPU is the limit, that is:
 
 | Your frame rate at 4K | Gain |
 |---|---|
@@ -18,7 +19,8 @@ At 4K, FSR 4 takes about 1 ms less GPU time per frame. When the GPU is the limit
 | around 100 FPS | up to about +11% |
 | around 120 FPS | up to about +14% |
 
-At 1440p output the saving is 0.2 to 0.3 ms per frame, a few percent. If the CPU is the limit,
+At 1440p output the upscaling time drops by 12 to 17% (0.2 to 0.3 ms per frame, measured with the
+first version), a few percent of frame rate. If the CPU is the limit,
 the frame rate does not change.
 
 Measured on a Radeon RX 7800 XT, 4K output, FSR 4.1.1 Balanced:
