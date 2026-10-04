@@ -51,7 +51,7 @@ went from 0.72 ms to 0.67 ms.
 
 To find out, compare OptiScaler's upscaler time, frame rate uncapped, in four runs. Ready-made
 pass 11-only and postpass-only DLLs are attached to the
-[release `dll-2026-10-03`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03)
+[release `dll-2026-10-04`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04)
 as `test-pass11-only.zip` and `test-postpass-only.zip`.
 
 | Run | Linux (launch option) | Patched DLL |
@@ -86,7 +86,7 @@ Proton on an RX 7800 XT the result is byte-for-byte identical to AMD's DLL, but 
 tried on any GPU the check refuses**: whether FSR 4 then runs correctly, and how fast, is up to
 that GPU and its driver. Do not use it on RDNA4, where both versions would then report support.
 
-Ready-made test builds are attached to the [release `dll-2026-10-03`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03):
+Ready-made test builds are attached to the [release `dll-2026-10-04`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04):
 
 | File | Contents |
 |---|---|
