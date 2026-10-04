@@ -87,10 +87,42 @@ Why linear inputs speed AMD's postpass up was narrowed down but not settled:
 | Other tiled modes for the input | `256KB_R_X` the same as the default, `64KB_D_X` slower (2.20 ms) |
 
 So a linear input removes about a third of the sparse-store penalty without making any read
-cheaper. That points to reads and partly written blocks competing for the same cache in the
-texture path, with the tiled input's reads pushing unfinished blocks of the tiled outputs out; a
-linear input would land elsewhere in that cache. This is a guess: confirming it needs the GPU's
-cache counters, which were not captured.
+cheaper.
+
+### The GPU's cache counters: sparse writes make the cache read and rewrite blocks
+
+RADV can record the GPU's performance counters for a single submit (`MESA_VK_TRACE=rgp` with
+`MESA_VK_TRACE_PER_SUBMIT=1`), so the benchmark needed no presenting loop. The same Mesa patch
+prints each raw counter summed over the capture (`AC_SPM_PRINT=1`). Requests between the GPU's L2
+cache and memory, in millions per 5 dispatches of the postpass at 4K (medians of 60 captures;
+capturing slows the pass by about 1.4 times, so the times are only for comparing rows):
+
+| Postpass, tiling | Read requests, 64 B | Read requests, 128 B | Write requests | L2 misses | Time while capturing |
+|---|---|---|---|---|---|
+| AMD's, stores removed, default tiling | 10.2 | 7.5 | 7.0 | 115 | 0.55 ms |
+| AMD's, stores removed, linear input | 10.6 | 8.4 | 7.4 | 122 | 0.55 ms |
+| Phased, default tiling | 17.8 | 17.3 | 16.1 | 202 | 0.87 ms |
+| AMD's, default tiling | 57.9 | 51.2 | 38.7 | 494 | 3.08 ms |
+| AMD's, linear input | 45.9 | 49.3 | 34.0 | 410 | 2.22 ms |
+| AMD's, linear written images | 31.6 | 36.2 | 26.5 | 288 | 1.43 ms |
+
+(Write requests: the general and the 64-byte write counters added.)
+
+- **This is what the sparse-write penalty is.** With AMD's stores the cache makes five to seven
+  times the read requests of the same shader without stores, and 2.4 times the write requests of
+  the phased version, for the same pixels. A block that is only partly written has to be fetched
+  from memory first, and it is written back more than once because it leaves the cache before the
+  other stores have filled it. The phased postpass fills whole blocks, so it stays close to the
+  minimum.
+- **Why a linear input helps AMD's postpass.** Without stores, the input's layout changes nothing
+  (first two rows). With them, a linear input gives 21% fewer 64-byte reads, 12% fewer writes and
+  17% fewer L2 misses: the tiled input's reads were pushing partly written output blocks out of
+  the cache, and each one pushed out costs a write, and a read when the next store reaches it.
+  That confirms the guess above, with the L2 cache as the place where it happens.
+- **Linear written images** cut the traffic further, but not to the phased version's level.
+
+The counter names are Mesa's (`GL2C_EA_RDREQ_64B`, `GL2C_EA_RDREQ_128B`, `GL2C_EA_WRREQ`,
+`GL2C_EA_WRREQ_64B`, `GL2C_MISS`); they are used here to compare rows, not as exact byte counts.
 
 So the shader rewrite is the right place for this fix: even with the written images linear, AMD's
 shader takes 1.06 ms against 0.60 ms for the phased one on the default layout, and the driver
@@ -186,7 +218,7 @@ GPUs have not been measured here.
 | `nullify.py` | replaces a shader's body with an empty one (used for the in-game breakdown of FSR 4's time) |
 | `postpass_shuffle.py` | the lane-swap postpass |
 | `prepass_quad.py` | the prepass rewrite |
-| `mesa-tiling-override.patch` | the experimental Mesa change behind the tiling table (`AC_FORCE_SWIZZLE=<mode>`, `AC_FORCE_SWIZZLE_MASK=<bit per image>`, `AC_PRINT_SWIZZLE=1`) |
+| `mesa-tiling-override.patch` | the experimental Mesa changes behind the tiling and counter tables (`AC_FORCE_SWIZZLE=<mode>`, `AC_FORCE_SWIZZLE_MASK=<bit per image>`, `AC_PRINT_SWIZZLE=1`, `AC_SPM_PRINT=1`) |
 | `pbench.c` | the prepass benchmark; the postpass and model-pass ones are in [`../wmma/bench`](../wmma/bench) |
 
 The scripts take `spirv-dis` text of shaders from a vkd3d-proton dump and write text for

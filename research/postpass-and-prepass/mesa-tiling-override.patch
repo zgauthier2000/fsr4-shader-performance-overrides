@@ -1,3 +1,58 @@
+diff --git a/src/amd/common/ac_rgp.c b/src/amd/common/ac_rgp.c
+index 6a594fa..7dd780d 100644
+--- a/src/amd/common/ac_rgp.c
++++ b/src/amd/common/ac_rgp.c
+@@ -993,6 +993,7 @@ static void ac_sqtt_dump_spm(const struct ac_spm_trace *spm_trace,
+    uint32_t sample_size_in_hwords = sample_size_in_bytes / sizeof(uint16_t);
+    uint16_t *counter_values_ptr = (uint16_t *)spm_data_ptr;
+ 
++   uint64_t exp_sum[256] = {0};
+    for (uint32_t c = 0; c < spm_trace->num_counters; c++) {
+       uint64_t offset = spm_trace->counters[c].offset;
+ 
+@@ -1000,10 +1001,20 @@ static void ac_sqtt_dump_spm(const struct ac_spm_trace *spm_trace,
+          uint64_t index = offset + (s * sample_size_in_hwords);
+          uint16_t value = counter_values_ptr[index];
+ 
++         if (spm_trace->counters[c].id < 256)
++            exp_sum[spm_trace->counters[c].id] += value;
+          file_offset += sizeof(value);
+          fwrite(&value, sizeof(value), 1, output);
+       }
+    }
++   /* EXPERIMENT: print each raw counter summed over instances and samples. */
++   if (getenv("AC_SPM_PRINT")) {
++      fprintf(stderr, "SPM samples=%u", num_samples);
++      for (unsigned i = 0; i < 256; i++)
++         if (exp_sum[i])
++            fprintf(stderr, " c%u=%llu", i, (unsigned long long)exp_sum[i]);
++      fprintf(stderr, "\n");
++   }
+ 
+    /* SQTT SPM DB chunk. */
+    ac_sqtt_fill_spm_db(spm_trace, &spm_db, num_samples,
+@@ -1418,6 +1429,21 @@ static bool
+ ac_use_derived_spm_trace(const struct radeon_info *info,
+                          const struct ac_spm_trace *spm_trace)
+ {
++   /* EXPERIMENT: print each raw counter summed over instances and samples. */
++   if (spm_trace && getenv("AC_SPM_PRINT")) {
++      uint64_t sum[64] = {0};
++      uint32_t hw = spm_trace->sample_size_in_bytes / sizeof(uint16_t);
++      const uint16_t *v = (const uint16_t *)spm_trace->ptr;
++      for (uint32_t c = 0; c < spm_trace->num_counters; c++)
++         for (uint32_t smp = 0; smp < spm_trace->num_samples; smp++)
++            if (spm_trace->counters[c].id < 64)
++               sum[spm_trace->counters[c].id] += v[spm_trace->counters[c].offset + smp * hw];
++      fprintf(stderr, "SPM samples=%u", spm_trace->num_samples);
++      for (unsigned k = 0; k < 64; k++)
++         if (sum[k])
++            fprintf(stderr, " c%u=%llu", k, (unsigned long long)sum[k]);
++      fprintf(stderr, "\n");
++   }
+    if (!spm_trace)
+       return false;
+ 
 diff --git a/src/amd/common/ac_surface.c b/src/amd/common/ac_surface.c
 index 9eed327..75f9ea4 100644
 --- a/src/amd/common/ac_surface.c
