@@ -7,7 +7,7 @@
 | Desktop RDNA3 (RX 7900, 7800, 7700, 7600) | Linux, Proton | measured on an RX 7800 XT: faster |
 | Desktop RDNA3 | Windows | testers report large gains |
 | RDNA3 integrated (Radeon 780M, 890M) | any | do not use: pass 11 is reported much slower there, the postpass no faster |
-| RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; experimental unlock, untested |
+| RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; the experimental `test-rdna2.zip` runs on Windows and fixes the shimmering in motion ([below](#rdna2-needs-one-more-change-the-dot-products)); speed not measured |
 | RDNA4 (RX 9000) | any | not covered: it runs a different FSR 4 model; see [RDNA4](rdna4.md) |
 
 ## Windows
