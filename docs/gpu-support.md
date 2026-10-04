@@ -6,8 +6,8 @@
 |---|---|---|
 | Desktop RDNA3 (RX 7900, 7800, 7700, 7600) | Linux, Proton | measured on an RX 7800 XT: faster |
 | Desktop RDNA3 | Windows | testers report large gains |
-| RDNA3 integrated (Radeon 780M, 890M) | any | do not use: pass 11 is reported much slower there, the postpass no faster |
-| RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; the experimental `test-rdna2.zip` runs on Windows and fixes the shimmering in motion ([below](#rdna2-needs-one-more-change-the-dot-products)); speed not measured |
+| RDNA3 integrated (Radeon 780M, 890M) | any | do not use the normal build (pass 11 is reported much slower there); the experimental `test-igpu.zip` is reported 2% faster than fsr4xyz's `4.1.1b` on a 780M |
+| RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; the experimental `test-rdna2.zip` runs on Windows and fixes the shimmering in motion; testers report 2 to 3% less upscaler time than fsr4xyz's `4.1.1b` ([below](#rdna2-needs-one-more-change-the-dot-products)) |
 | RDNA4 (RX 9000) | any | not covered: it runs a different FSR 4 model; see [RDNA4](rdna4.md) |
 
 ## Windows
@@ -54,8 +54,14 @@ loops, so the pass stays small (6.5 KB as compiled for a Radeon 780M), and only 
 its output together, which cuts the memory the pass reads to about a quarter. It is attached to
 the [release `dll-2026-10-04.5`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.5)
 as `test-igpu.zip` (AMD's GPU check is lifted in it, as in every released DLL). Its output is
-byte-identical to AMD's, but it has not been run on an integrated GPU yet: please compare the
-upscaler time with AMD's original DLL and report both. On Linux, the same pass 11 can be built with
+byte-identical to AMD's.
+
+**First report (2026-10-04):** Radeon 780M (Ryzen 7 8845HS), Windows 11, Cyberpunk 2077, 1080p
+Balanced, OptiScaler 0.9.5-pre4, same spot: fsr4xyz's `4.1.1b` 5.15 ms and 47.8 FPS on average;
+the integrated-GPU build 5.04 ms and 48.5 FPS (-2%). So this build is no longer slower on an
+integrated GPU, unlike the normal one, but the gain is small. It was compared with `4.1.1b`, not
+with AMD's shaders. More reports are welcome: please compare the upscaler time with the DLL you
+used before and report both. On Linux, the same pass 11 can be built with
 `PASS11=rows ./build_override.sh <dump>`.
 
 On Windows with Radeon RX 7000 graphics cards (not integrated GPUs), testers report large
@@ -121,8 +127,26 @@ byte-identical to AMD's in all 48 shader combinations and the pass is as fast as
 
 **Result on RDNA2 (2026-10-04):** the build with this change, `test-rdna2.zip`, fixes the
 shimmering in motion. So the accumulating dot product is the cause, and the rewritten postpass
-and pass 11 work on RDNA2 once it is gone. Its upscaler time on RDNA2, against AMD's shaders and
-against the fsr4xyz DLL, has not been measured yet.
+and pass 11 work on RDNA2 once it is gone. 
+**First speed reports from testers (2026-10-04, release `dll-2026-10-04.5`)**, OptiScaler's
+upscaler time:
+
+| GPU | Game | Render to output | Before | `4.1.1-cyboman-r2` | Change |
+|---|---|---|---|---|---|
+| RX 6900 XT | Final Fantasy VII Rebirth | 1920x1080 to 3840x2160 | 3.79 ms, 66.6 FPS (a DLL reporting `4.1.1`) | 2.70 ms, 73.2 FPS | -29% |
+| RX 6800 | Control Resonant | 1707x960 to 2560x1440 | 1.96 ms, 73.7 FPS (fsr4xyz `4.1.1b`) | 1.92 ms, 73.2 FPS | -2% |
+| RX 6700 XT | not stated | not stated | 2.46 ms (not stated) | 2.38 ms | -3% |
+
+What these do and do not show:
+
+- Against a DLL with AMD's own name the gain is about as large as on RDNA3. Which DLL that
+  baseline was is not known beyond its name, and the two screenshots differ in one sharpening
+  setting (the override was on in the "before" one), so treat the 29% as approximate.
+- Against fsr4xyz's `4.1.1b` the difference is small, 2% in the one report that names it. That
+  suggests most of the cost on RDNA2 goes away with the dot-product change that both DLLs share,
+  and that this repository's rewrites add little on top there. That is a reading of two data
+  points, not a measurement of where the time goes on RDNA2.
+- These are single readings from testers' screenshots, not repeated runs.
 
 **What did not fix it:** a lower bound of 0.8 on the postpass's history weight (the share of the
 previous frame in each output pixel), which was suggested as a fix. It looks bad in motion; see

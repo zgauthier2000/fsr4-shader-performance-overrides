@@ -23,7 +23,9 @@ from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-
   suggested against the shimmering. It looks bad in motion, and its test
   builds have been removed from the release.
 
-Not measured yet on RDNA2: how much faster it is than AMD's shaders there. Details:
+First speed reports from testers: 2 to 3% less upscaler time than the fsr4xyz DLL (RX 6800,
+RX 6700 XT), and 3.79 ms down to 2.70 ms against a DLL reporting plain `4.1.1` (RX 6900 XT, 1080p
+to 4K). Details:
 [GPU support](docs/gpu-support.md#rdna2-needs-one-more-change-the-dot-products).
 
 ## What's new: 2026-10-04, 14:55 EDT (commit `9298321`)
@@ -114,8 +116,8 @@ How this was measured, and everything that was tried on each part:
 | GPU | Linux (Proton) | Windows |
 |---|---|---|
 | RX 7900, 7800, 7700, 7600 (desktop RDNA3) | yes, measured on an RX 7800 XT | yes, testers report large gains |
-| Radeon 780M, 890M and other RDNA3 integrated GPUs | no: pass 11 is reported much slower there | no: same |
-| RX 6000 (RDNA2) | experimental, untested | experimental: `test-rdna2.zip` runs and fixes the shimmering; speed not measured |
+| Radeon 780M, 890M and other RDNA3 integrated GPUs | not the normal build (pass 11 is reported much slower there) | experimental `test-igpu.zip`: one report, 2% faster than fsr4xyz's `4.1.1b` on a 780M |
+| RX 6000 (RDNA2) | experimental, untested | experimental: `test-rdna2.zip` runs and fixes the shimmering; reported 2 to 3% faster than fsr4xyz's `4.1.1b` |
 | RX 9000 (RDNA4) | no: it runs a different FSR 4 ([open for someone to pick up](docs/rdna4.md)) | no, and do not install the DLL there |
 
 You also need:
