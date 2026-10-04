@@ -129,9 +129,10 @@ Ready-made test builds are attached to the [release `dll-2026-10-04.3`](https://
 | File | Contents |
 |---|---|
 | `test-rdna2.zip` | **for RDNA2, fixes the shimmering:** check lifted, both rewrites, and the postpass's dot products split (see above) |
-| `test-any-gpu-amd-shaders.zip` | check lifted, AMD's shaders unchanged: does FSR 4 run at all? |
 | `test-any-gpu.zip` | check lifted, both rewrites |
-| `test-any-gpu-pass11-only.zip` | check lifted, pass 11 rewrite only |
+
+Other combinations (check lifted with AMD's shaders unchanged, or with one rewrite only) are built
+with `dll/patch_upscaler_dll.py --any-gpu --only none|pass11|postpass`.
 
 If you try them, please report your GPU, Windows or Linux and driver version, the game, whether FSR
 4 starts and looks right, and OptiScaler's upscaler time for each.
