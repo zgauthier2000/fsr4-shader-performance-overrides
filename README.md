@@ -20,8 +20,8 @@ from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-
 - **What else is in it:** AMD's GPU check is lifted (AMD's DLL offers this model only on desktop
   RDNA3).
 - **What did not work:** keeping the postpass's history weight at 0.8 or more, a change that was
-  suggested against the shimmering. It looks bad in motion. Those builds
-  (`test-history-clamp-*.zip`) stay attached for reference only.
+  suggested against the shimmering. It looks bad in motion, and its test
+  builds have been removed from the release.
 
 Not measured yet on RDNA2: how much faster it is than AMD's shaders there. Details:
 [GPU support](docs/gpu-support.md#rdna2-needs-one-more-change-the-dot-products).

@@ -48,12 +48,6 @@ uncovered, and forcing at least 80% history there keeps the wrong image on scree
 
 ## Test builds
 
-Release [`dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3):
-
-| File | Contents |
-|---|---|
-| `test-history-clamp-0.8.zip` | the normal DLL (all 54 shader versions, both rewrites) with the clamp |
-| `test-history-clamp-0.8-any-gpu.zip` | the same with AMD's GPU check lifted and the postpass's dot products split, as in `test-rdna2.zip` (see [GPU support](../../docs/gpu-support.md)) |
-
-Both give the same image as each other on an RX 7800 XT. FSR's debug view still uses AMD's
-postpass, without the clamp.
+Two test DLLs with the clamp (one normal, one with AMD's GPU check lifted and the dot products
+split) were attached to release `dll-2026-10-04.3` and removed the same day, after the result
+above. The script here rebuilds them if anyone wants to try another value.
