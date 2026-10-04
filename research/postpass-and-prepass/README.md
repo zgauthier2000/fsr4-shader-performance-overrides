@@ -72,8 +72,25 @@ Linear tiling applied to some of the images only (the others on the default):
   (2.07 to 1.06 ms), each of the three contributing 0.2 to 0.4 ms, and costs the phased version
   little (0.60 to 0.66 ms).
 - **The read images matter too, in opposite directions.** Linear inputs slow the phased postpass
-  (0.60 to 0.81 ms), as expected for texture reads. They speed AMD's up (2.07 to 1.51 ms), which
-  is not explained; the two effects add up to the "all five" row.
+  (0.60 to 0.81 ms), as expected for texture reads. They speed AMD's up (2.07 to 1.51 ms); see
+  below.
+
+Why linear inputs speed AMD's postpass up was narrowed down but not settled:
+
+| Check | Result |
+|---|---|
+| Which input | only the input colour image (read 9 times per pixel): 2.08 to 1.52 ms. The reprojected history (read once per pixel) makes no difference. |
+| Are the reads themselves faster? | No. AMD's postpass with its stores removed takes 0.47 ms on either layout. The gain only exists while the sparse stores are there. |
+| With the written images linear too | the gain shrinks to about 0.15 ms (1.06 to 0.91 ms) |
+| Where the images sit in memory | no effect: each image shifted by 64 KB, 1 MB and 33 MB, and the linear input by 256 bytes to 32 KB |
+| The driver's image compression (DCC) and fast clears | no effect: `RADV_DEBUG=nodcc`, `nofastclears`, `radv_disable_dcc_stores` |
+| Other tiled modes for the input | `256KB_R_X` the same as the default, `64KB_D_X` slower (2.20 ms) |
+
+So a linear input removes about a third of the sparse-store penalty without making any read
+cheaper. That points to reads and partly written blocks competing for the same cache in the
+texture path, with the tiled input's reads pushing unfinished blocks of the tiled outputs out; a
+linear input would land elsewhere in that cache. This is a guess: confirming it needs the GPU's
+cache counters, which were not captured.
 
 So the shader rewrite is the right place for this fix: even with the written images linear, AMD's
 shader takes 1.06 ms against 0.60 ms for the phased one on the default layout, and the driver
