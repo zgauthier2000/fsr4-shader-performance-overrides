@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Writes memory-traffic-light.svg and memory-traffic-dark.svg: memory read by each part of FSR 4
 # per frame at 4K, AMD's shaders against this repository's. Data: research/postpass-and-prepass.
-ROWS = [('Postpass', 2295, 792), ('Model pass 11', 1018, 234), ('Prepass', 1712, 1712),
-        ('Other 11 model passes', 2643, 2643), ('All passes', 7668, 5381)]
+ROWS = [('Postpass', 2295, 732), ('Model pass 11', 1018, 234), ('Prepass', 1712, 1712),
+        ('Other 11 model passes', 2643, 2643), ('All passes', 7668, 5321)]
 THEMES = {
     'light': dict(surface='#fcfcfb', ink='#0b0b0b', ink2='#52514e', muted='#898781', grid='#e1e0d9', axis='#c3c2b7',
                   before='#86b6ef', after='#2a78d6'),
@@ -25,7 +25,7 @@ def bar(x0, y, w, h, fill):
 for name, t in THEMES.items():
     H = TOP + ROWH * len(ROWS) + 58
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" '
-         f'aria-label="Memory read by FSR 4 per frame at 4K: 7,668 MB with AMD\'s shaders, 5,381 MB with this release">',
+         f'aria-label="Memory read by FSR 4 per frame at 4K: 7,668 MB with AMD\'s shaders, 5,321 MB with this release">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          f'<text x="24" y="34" {FONT} font-size="16" font-weight="600" fill="{t["ink"]}">Memory read by FSR 4 per frame at 4K</text>',
          f'<text x="24" y="54" {FONT} font-size="12" fill="{t["ink2"]}">MB read from memory by each part, Radeon RX 7800 XT. Lower is better.</text>',

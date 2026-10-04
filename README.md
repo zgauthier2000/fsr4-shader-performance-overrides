@@ -4,32 +4,41 @@ Makes AMD FSR 4.1.1 upscaling about 25 to 30% cheaper on Radeon RX 7000 graphics
 and Windows, by replacing two of FSR 4's compute shaders with faster ones. **The image is
 unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
-## What's new: 2026-10-04, 11:41 EDT (commit `ef57cf2`)
+## What's new: 2026-10-04, 12:58 EDT (commit `18e3ddd`)
 
-**Model pass 11 now writes its output in whole rows.** It used to store one word at a time, the
-same sparse pattern that made AMD's postpass slow. Together with the "phased" postpass from
-2026-10-03, FSR 4 now reads about 30% less memory per frame than with AMD's shaders. The image is
-still byte-for-byte the same.
+Two changes today, both about how much memory FSR 4 moves. The image is still byte-for-byte the
+same.
+
+- **Model pass 11 writes its output in whole rows** (11:41 EDT, commit `ef57cf2`). It used to
+  store one word at a time, the same sparse pattern that made AMD's postpass slow.
+- **The postpass writes its images in solid 8x8 blocks** (12:58 EDT, commit `18e3ddd`) instead of
+  two rows of 32 pixels at a time, which reads a little less again.
+
+Together with the "phased" postpass from 2026-10-03, FSR 4 now reads about 31% less memory per
+frame than with AMD's shaders.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/memory-traffic-dark.svg">
-  <img src="docs/img/memory-traffic-light.svg" width="760" alt="Bar chart: memory read by FSR 4 per frame at 4K, AMD's shaders against this release. Postpass 2,295 to 792 MB, model pass 11 1,018 to 234 MB, prepass and the other model passes unchanged, all passes 7,668 to 5,381 MB.">
+  <img src="docs/img/memory-traffic-light.svg" width="760" alt="Bar chart: memory read by FSR 4 per frame at 4K, AMD's shaders against this release. Postpass 2,295 to 732 MB, model pass 11 1,018 to 234 MB, prepass and the other model passes unchanged, all passes 7,668 to 5,321 MB.">
 </picture>
 
 | Memory read per frame at 4K | AMD's shaders | This release |
 |---|---|---|
-| Postpass | 2,295 MB | 792 MB |
-| Model pass 11 | 1,018 MB | 234 MB (739 MB before this release) |
+| Postpass | 2,295 MB | 732 MB (792 MB before today) |
+| Model pass 11 | 1,018 MB | 234 MB (739 MB before today) |
 | Prepass | 1,712 MB | 1,712 MB |
 | Other 11 model passes | 2,643 MB | 2,643 MB |
-| **All passes** | **7,668 MB** | **5,381 MB (−30%)** |
+| **All passes** | **7,668 MB** | **5,321 MB (−31%)** |
 
-- **Frame rate on an RX 7800 XT is the same as with the 2026-10-03 version** (108 FPS and 3.12 ms
-  of upscaler time in Shadow of the Tomb Raider's benchmark, either way): on that card this
-  memory traffic was not what limited the pass. The change is never slower, and it may help GPUs
-  with less memory bandwidth, where it has not been measured yet.
+- **Frame rate on an RX 7800 XT is the same as with the 2026-10-03 version** (108 FPS and about
+  3.1 ms of upscaler time in Shadow of the Tomb Raider's benchmark, with or without today's
+  changes): on that card this memory traffic was not what limited the passes. The changes are
+  never slower, and they may help GPUs with less memory bandwidth, where they have not been
+  measured yet.
 - **To get it:** download the files again, or run `build_override.sh` again if you built your own.
-  The patched DLL is in the [release `dll-2026-10-04`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04).
+  The patched DLL is in the [release `dll-2026-10-04.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.2).
+- **Integrated GPUs:** still not recommended, but there is an experimental build to test; see
+  [GPU support](docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 - The figures are read requests between the GPU's cache and memory, counted in a standalone
   benchmark of each pass; each one includes about 200 MB that belongs to the measurement itself.
   Details: [research](research/postpass-and-prepass#memory-traffic-of-every-pass-and-pass-11s-stores).
@@ -118,7 +127,7 @@ does not get faster: [Linux guide](docs/linux.md).
 This also works under Proton, but on Linux the launch option above is faster.
 
 1. Download `amd_fidelityfx_upscaler_dx12.dll` from the
-   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04).
+   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.2).
 2. In the game folder, rename the existing `amd_fidelityfx_upscaler_dx12.dll` (often next to
    OptiScaler) to `amd_fidelityfx_upscaler_dx12.dll.orig`. It must be version 4.1.1.2740.
 3. Put the downloaded DLL in its place.

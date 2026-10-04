@@ -52,12 +52,11 @@ What is known about why:
 **An experimental build for integrated GPUs is available for testing.** Its pass 11 keeps AMD's
 loops, so the pass stays small (6.5 KB as compiled for a Radeon 780M), and only stores each row of
 its output together, which cuts the memory the pass reads to about a quarter. It is attached to
-the [release `dll-2026-10-04`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04)
+the [release `dll-2026-10-04.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.2)
 as `test-igpu.zip` and, with AMD's GPU check lifted, `test-igpu-any-gpu.zip`. Its output is
 byte-identical to AMD's, but it has not been run on an integrated GPU yet: please compare the
 upscaler time with AMD's original DLL and report both. On Linux, the same pass 11 can be built with
-`PASS11=rows ./build_override.sh <dump>` from the
-[`next-release` branch](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/tree/next-release).
+`PASS11=rows ./build_override.sh <dump>`.
 
 On Windows with Radeon RX 7000 graphics cards (not integrated GPUs), testers report large
 improvements with the first version, and one tester with an RX 7800 XT saw no difference between
@@ -67,7 +66,7 @@ went from 0.72 ms to 0.67 ms.
 
 To test on your own GPU, compare OptiScaler's upscaler time, frame rate uncapped, in four runs. Ready-made
 pass 11-only and postpass-only DLLs are attached to the
-[release `dll-2026-10-04`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04)
+[release `dll-2026-10-04.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.2)
 as `test-pass11-only.zip` and `test-postpass-only.zip`.
 
 | Run | Linux (launch option) | Patched DLL |
@@ -101,7 +100,7 @@ Proton on an RX 7800 XT the result is byte-for-byte identical to AMD's DLL, but 
 tried on any GPU the check refuses**: whether FSR 4 then runs correctly, and how fast, is up to
 that GPU and its driver. Do not use it on RDNA4, where both versions would then report support.
 
-Ready-made test builds are attached to the [release `dll-2026-10-04`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04):
+Ready-made test builds are attached to the [release `dll-2026-10-04.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.2):
 
 | File | Contents |
 |---|---|
