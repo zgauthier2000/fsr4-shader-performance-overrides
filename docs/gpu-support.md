@@ -6,7 +6,7 @@
 |---|---|---|
 | Desktop RDNA3 (RX 7900, 7800, 7700, 7600) | Linux, Proton | measured on an RX 7800 XT: faster |
 | Desktop RDNA3 | Windows | testers report large gains |
-| RDNA3 integrated (Radeon 780M, 890M) | any | reported slower: do not use, or try pass 11 only |
+| RDNA3 integrated (Radeon 780M, 890M) | any | do not use: pass 11 is reported much slower there, the postpass no faster |
 | RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; experimental unlock, untested |
 | RDNA4 (RX 9000) | any | not covered: it runs a different FSR 4 model; see [RDNA4](rdna4.md) |
 
@@ -27,21 +27,27 @@ Both were verified byte for byte against AMD's output under Proton. On integrate
 
 ## Integrated GPUs (Radeon 780M and similar)
 
-People testing on RDNA3 integrated GPUs have reported that FSR 4 gets slower, not faster, with
-the first version of the postpass rewrite and with the phased version too. This has not been
-reproduced here (only a Radeon RX 7800 XT was available), and it is not yet known which of the
-two rewrites is responsible. The likely one is the postpass: an integrated GPU's memory system
-may not suffer from the scattered stores at all, so rewriting them only adds work. Pass 11 only
-lets the driver unroll loops, which is unlikely to cost anything. Until the runs below show
-otherwise, **on an integrated GPU, use pass 11 only, or nothing**.
+**Do not use these rewrites on an integrated GPU for now.** A tester who ran the two rewrites
+separately on an RDNA3 integrated GPU (with the 2026-10-03 release) reports:
 
-The two possibilities the reports have narrowed down:
+- **the pass 11 rewrite makes the upscaler much slower;**
+- **the postpass rewrite makes no difference:** it behaves like AMD's shader.
 
-- **Low occupancy** in the first postpass rewrite (4 waves per SIMD to hide memory latency) was the
-  first suspect, but the phased postpass (16 waves per SIMD) is reported slower too.
-- **No store penalty to remove:** if the integrated GPU's memory system handles the scattered
-  stores well, the postpass rewrite only adds barriers and workgroup-memory traffic, and bunches
-  the writes at the end of each workgroup. This is the current suspect.
+So on these GPUs there is nothing to gain and pass 11 costs a lot; AMD's original shaders are the
+right choice. This has not been reproduced here (only a Radeon RX 7800 XT was available), and
+earlier advice on this page to use pass 11 alone on integrated GPUs was a guess that turned out
+wrong.
+
+What is known about why:
+
+- **Pass 11.** The rewrite lets the compiler unroll the pass's loops, which makes it faster on a
+  graphics card but five times larger (about 31 KB of code instead of 6 KB, as Mesa compiles it
+  for a Radeon 780M). Whether the size is what hurts on an integrated GPU is not known.
+- **Postpass.** An integrated GPU's memory system evidently does not suffer from the scattered
+  stores the way a graphics card does, so there is nothing for the rewrite to remove.
+- **The 2026-10-04 release has a different pass 11** (it also stores its output in whole rows, and
+  reads far less memory). It has not been tested on an integrated GPU; the pass 11-only test
+  build of that release is the way to find out.
 
 On Windows with Radeon RX 7000 graphics cards (not integrated GPUs), testers report large
 improvements with the first version, and one tester with an RX 7800 XT saw no difference between
@@ -49,7 +55,7 @@ the first and the phased version. That is expected: the DXIL version that Window
 limited the same way (it already ran 8 waves per SIMD), and under vkd3d-proton its postpass only
 went from 0.72 ms to 0.67 ms.
 
-To find out, compare OptiScaler's upscaler time, frame rate uncapped, in four runs. Ready-made
+To test on your own GPU, compare OptiScaler's upscaler time, frame rate uncapped, in four runs. Ready-made
 pass 11-only and postpass-only DLLs are attached to the
 [release `dll-2026-10-04`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04)
 as `test-pass11-only.zip` and `test-postpass-only.zip`.
@@ -62,8 +68,7 @@ as `test-pass11-only.zip` and `test-postpass-only.zip`.
 | Postpass only | a copy of `prebuilt/` without `e29847a84b6f746f.spv` | `patch_upscaler_dll.py --only postpass` |
 
 At 1080p output or below, the files in `prebuilt/` do not apply; build your own with
-`build_override.sh`, using `PASS11=0` or `POSTPASS=0` to leave one rewrite out. Until there is
-more data, use whichever run is fastest on your GPU.
+`build_override.sh`, using `PASS11=0` or `POSTPASS=0` to leave one rewrite out.
 
 Please report the results with the GPU, the operating system and driver (Mesa version or AMD
 driver), the game, the output resolution and FSR mode.
@@ -92,7 +97,7 @@ Ready-made test builds are attached to the [release `dll-2026-10-04`](https://gi
 |---|---|
 | `test-any-gpu-amd-shaders.zip` | check lifted, AMD's shaders unchanged: does FSR 4 run at all? |
 | `test-any-gpu.zip` | check lifted, both rewrites |
-| `test-any-gpu-pass11-only.zip` | check lifted, pass 11 rewrite only (for integrated GPUs) |
+| `test-any-gpu-pass11-only.zip` | check lifted, pass 11 rewrite only |
 
 If you try them, please report your GPU, Windows or Linux and driver version, the game, whether FSR
 4 starts and looks right, and OptiScaler's upscaler time for each.

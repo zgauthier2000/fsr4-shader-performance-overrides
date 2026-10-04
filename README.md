@@ -79,7 +79,7 @@ How this was measured, and everything that was tried on each part:
 | GPU | Linux (Proton) | Windows |
 |---|---|---|
 | RX 7900, 7800, 7700, 7600 (desktop RDNA3) | yes, measured on an RX 7800 XT | yes, testers report large gains |
-| Radeon 780M, 890M and other RDNA3 integrated GPUs | no: reported slower | no: reported slower |
+| Radeon 780M, 890M and other RDNA3 integrated GPUs | no: pass 11 is reported much slower there | no: same |
 | RX 6000, Steam Deck (RDNA2) | experimental, untested | experimental, untested |
 | RX 9000 (RDNA4) | no: it runs a different FSR 4 ([open for someone to pick up](docs/rdna4.md)) | no |
 
