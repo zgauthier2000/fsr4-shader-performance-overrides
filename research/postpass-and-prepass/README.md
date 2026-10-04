@@ -33,6 +33,33 @@ numbers per thread) must wait somewhere: in registers, which is the phased versi
 in about 30 KB of workgroup memory, which is far worse. That is why 24 waves per SIMD with dense
 writes is out of reach, and why the phased postpass is close to what this pass allows.
 
+### Is it the driver's image layout? Partly, but the rewrite still wins
+
+The driver decides how an image's pixels are arranged in memory (its tiling). To see whether the
+sparse-write penalty comes from that choice, Mesa was patched to force a tiling mode for colour
+images (`mesa-tiling-override.patch`, Mesa 26.2.3, for this experiment only), and the postpass
+benchmark was run against the patched driver. Output was byte-identical in every case.
+
+| Tiling of all images | AMD's postpass | Phased postpass |
+|---|---|---|
+| `64KB_R_X`, the driver's default | 2.10 ms | 0.60 ms |
+| `256KB_R_X` | 2.10 ms | 0.60 ms |
+| `64KB_D_X` | 2.44 ms | 0.77 ms |
+| Linear (no tiling) | 1.02 ms | 0.85 ms |
+
+The other modes tried were rejected for these images on this GPU.
+
+- **The penalty does depend on the layout:** with linear images AMD's sparse writes cost half as
+  much.
+- **It is not a fix:** the phased postpass on the default tiling is still far faster than AMD's
+  shader on any layout, and linear images make the phased version slower. Linear images are also a
+  poor choice for everything else that reads or draws to them, and the driver cannot know which
+  images a shader will write sparsely.
+
+So the shader rewrite is the right place for this fix; a driver-side change of layout would give
+half the gain at best and cost elsewhere. The override applied to every image in the benchmark,
+those read as well as those written; the two were not separated.
+
 ## How much of each pass is memory traffic
 
 `nomem.py` makes probe versions of a shader that keep all the arithmetic but drop memory traffic:
@@ -123,6 +150,7 @@ GPUs have not been measured here.
 | `nullify.py` | replaces a shader's body with an empty one (used for the in-game breakdown of FSR 4's time) |
 | `postpass_shuffle.py` | the lane-swap postpass |
 | `prepass_quad.py` | the prepass rewrite |
+| `mesa-tiling-override.patch` | the experimental Mesa change behind the tiling table (`AC_FORCE_SWIZZLE=<mode>`, `AC_PRINT_SWIZZLE=1`) |
 | `pbench.c` | the prepass benchmark; the postpass and model-pass ones are in [`../wmma/bench`](../wmma/bench) |
 
 The scripts take `spirv-dis` text of shaders from a vkd3d-proton dump and write text for

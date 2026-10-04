@@ -1,0 +1,19 @@
+diff --git a/src/amd/common/ac_surface.c b/src/amd/common/ac_surface.c
+index 9eed327..0a15a62 100644
+--- a/src/amd/common/ac_surface.c
++++ b/src/amd/common/ac_surface.c
+@@ -2853,6 +2853,14 @@ static int gfx9_compute_surface(struct ac_addrlib *addrlib, const struct radeon_
+                                              &AddrSurfInfoIn.swizzleMode);
+          if (r)
+             return r;
++         /* EXPERIMENT: tiling override for colour images. */
++         if (!(surf->flags & RADEON_SURF_Z_OR_SBUFFER) && config->info.samples <= 1) {
++            if (getenv("AC_PRINT_SWIZZLE"))
++               fprintf(stderr, "ac_surface: %ux%u bpe %u default swizzle %u\n", config->info.width,
++                       config->info.height, surf->bpe, AddrSurfInfoIn.swizzleMode);
++            if (getenv("AC_FORCE_SWIZZLE"))
++               AddrSurfInfoIn.swizzleMode = atoi(getenv("AC_FORCE_SWIZZLE"));
++         }
+          break;
+ 
+       default:
