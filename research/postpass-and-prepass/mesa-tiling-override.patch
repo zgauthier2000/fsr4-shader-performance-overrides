@@ -1,17 +1,21 @@
 diff --git a/src/amd/common/ac_surface.c b/src/amd/common/ac_surface.c
-index 9eed327..0a15a62 100644
+index 9eed327..75f9ea4 100644
 --- a/src/amd/common/ac_surface.c
 +++ b/src/amd/common/ac_surface.c
-@@ -2853,6 +2853,14 @@ static int gfx9_compute_surface(struct ac_addrlib *addrlib, const struct radeon_
+@@ -2853,6 +2853,18 @@ static int gfx9_compute_surface(struct ac_addrlib *addrlib, const struct radeon_
                                               &AddrSurfInfoIn.swizzleMode);
           if (r)
              return r;
 +         /* EXPERIMENT: tiling override for colour images. */
 +         if (!(surf->flags & RADEON_SURF_Z_OR_SBUFFER) && config->info.samples <= 1) {
++            static unsigned ac_exp_index;
++            unsigned idx = ac_exp_index++;
++            /* AC_FORCE_SWIZZLE_MASK: bit n = apply to the n-th colour image created. */
++            unsigned long mask = getenv("AC_FORCE_SWIZZLE_MASK") ? strtoul(getenv("AC_FORCE_SWIZZLE_MASK"), NULL, 0) : ~0ul;
 +            if (getenv("AC_PRINT_SWIZZLE"))
-+               fprintf(stderr, "ac_surface: %ux%u bpe %u default swizzle %u\n", config->info.width,
++               fprintf(stderr, "ac_surface: #%u %ux%u bpe %u default swizzle %u\n", idx, config->info.width,
 +                       config->info.height, surf->bpe, AddrSurfInfoIn.swizzleMode);
-+            if (getenv("AC_FORCE_SWIZZLE"))
++            if (getenv("AC_FORCE_SWIZZLE") && idx < 64 && (mask >> idx) & 1)
 +               AddrSurfInfoIn.swizzleMode = atoi(getenv("AC_FORCE_SWIZZLE"));
 +         }
           break;

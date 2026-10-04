@@ -56,9 +56,28 @@ The other modes tried were rejected for these images on this GPU.
   poor choice for everything else that reads or draws to them, and the driver cannot know which
   images a shader will write sparsely.
 
-So the shader rewrite is the right place for this fix; a driver-side change of layout would give
-half the gain at best and cost elsewhere. The override applied to every image in the benchmark,
-those read as well as those written; the two were not separated.
+Linear tiling applied to some of the images only (the others on the default):
+
+| Linear images | AMD's postpass | Phased postpass |
+|---|---|---|
+| none | 2.07 ms | 0.60 ms |
+| the three written (history, output, recurrent state) | 1.06 ms | 0.66 ms |
+| history only | 1.70 ms | 0.61 ms |
+| output only | 1.69 ms | 0.61 ms |
+| recurrent state only | 1.87 ms | 0.62 ms |
+| the two read (input colour, reprojected history) | 1.51 ms | 0.81 ms |
+| all five | 0.97 ms | 0.84 ms |
+
+- **The written images carry most of the penalty.** Making only them linear halves AMD's postpass
+  (2.07 to 1.06 ms), each of the three contributing 0.2 to 0.4 ms, and costs the phased version
+  little (0.60 to 0.66 ms).
+- **The read images matter too, in opposite directions.** Linear inputs slow the phased postpass
+  (0.60 to 0.81 ms), as expected for texture reads. They speed AMD's up (2.07 to 1.51 ms), which
+  is not explained; the two effects add up to the "all five" row.
+
+So the shader rewrite is the right place for this fix: even with the written images linear, AMD's
+shader takes 1.06 ms against 0.60 ms for the phased one on the default layout, and the driver
+cannot know which images a shader will write sparsely.
 
 ## How much of each pass is memory traffic
 
@@ -150,7 +169,7 @@ GPUs have not been measured here.
 | `nullify.py` | replaces a shader's body with an empty one (used for the in-game breakdown of FSR 4's time) |
 | `postpass_shuffle.py` | the lane-swap postpass |
 | `prepass_quad.py` | the prepass rewrite |
-| `mesa-tiling-override.patch` | the experimental Mesa change behind the tiling table (`AC_FORCE_SWIZZLE=<mode>`, `AC_PRINT_SWIZZLE=1`) |
+| `mesa-tiling-override.patch` | the experimental Mesa change behind the tiling table (`AC_FORCE_SWIZZLE=<mode>`, `AC_FORCE_SWIZZLE_MASK=<bit per image>`, `AC_PRINT_SWIZZLE=1`) |
 | `pbench.c` | the prepass benchmark; the postpass and model-pass ones are in [`../wmma/bench`](../wmma/bench) |
 
 The scripts take `spirv-dis` text of shaders from a vkd3d-proton dump and write text for
