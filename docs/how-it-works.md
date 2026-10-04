@@ -8,7 +8,7 @@
   thread and writes each pixel separately into three images, so every store instruction writes
   every other pixel. That scattered pattern is slow on RDNA3. The rewrite keeps the values in
   registers and writes the images one at a time: each image's 32x32 block goes through workgroup
-  memory and out in solid rows. Passing one image at a time needs 16 KB of workgroup memory
+  memory and out in solid 8x8 blocks. Passing one image at a time needs 16 KB of workgroup memory
   instead of 40 KB, so four times as many waves run at once. In a standalone benchmark at 4K the
   pass went from about 2.1 ms to 0.6 ms (0.83 ms with the first version, which moved all three
   images at once).

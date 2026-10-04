@@ -10,14 +10,15 @@
 #                  (postpass_lds_vkd3d.py). POSTPASS=0 skips it.
 #   model pass 11  the always-zero z coordinate becomes a constant, so the driver can unroll the
 #                  pass's loops (zconst.py), and each row of its output is stored together
-#                  (pass11_stores.py). PASS11=0 skips it.
+#                  (pass11_stores.py). PASS11=0 skips it; PASS11=rows changes only the stores and
+#                  keeps the loops, which keeps the pass small (a version for integrated GPUs).
 #
 # The override directory can be shared by every game: files are named by shader hash, so variants
 # from several games sit side by side and a game only picks up the ones it actually uses.
 set -euo pipefail
 here=$(cd -- "$(dirname -- "$0")" && pwd)
 if [[ $# -lt 1 || $1 == -h || $1 == --help ]]; then
-    sed -n '3,16p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '3,17p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
 fi
 dump=$(realpath "$1")
@@ -50,7 +51,7 @@ for f in sorted(glob.glob(os.environ['DUMP_DIR'] + '/*.spv')):
     # 12 image writes, or 13 in the variants that also store the exposure value
     if os.environ.get('POSTPASS', '1') == '1' and compute and local == (256, 1, 1) and writes in (12, 13) and dots == 960:
         print('postpass', name)
-    if os.environ.get('PASS11', '1') == '1' and compute and local == (64, 1, 1) and writes == 0 and dots == 272 and loops == 6:
+    if os.environ.get('PASS11', '1') != '0' and compute and local == (64, 1, 1) and writes == 0 and dots == 272 and loops == 6:
         print('pass11', name)
 PY
 if [[ ! -s $work/candidates ]]; then
@@ -65,14 +66,17 @@ while read -r kind hash; do
     spirv-dis "$dump/$hash.spv" -o "$work/$hash.spvasm"
     if [[ $kind == postpass ]]; then
         script=postpass_lds_vkd3d.py
+    elif [[ ${PASS11:-1} == rows ]]; then
+        script=pass11_stores.py      # loops kept: only the stores change (for integrated GPUs)
     else
         script=zconst.py
     fi
-    if ! python3 "$here/$script" < "$work/$hash.spvasm" > "$work/$hash.new.spvasm"; then
+    arg=; [[ $script == pass11_stores.py ]] && arg=rowc
+    if ! python3 "$here/$script" $arg < "$work/$hash.spvasm" > "$work/$hash.new.spvasm"; then
         echo "skipped $hash ($kind): the shader does not have the expected structure"
         continue
     fi
-    if [[ $kind == pass11 ]]; then
+    if [[ $kind == pass11 && ${PASS11:-1} != rows ]]; then
         # second step for pass 11: store each row of its output together (pass11_stores.py)
         if python3 "$here/pass11_stores.py" < "$work/$hash.new.spvasm" > "$work/$hash.new2.spvasm" 2>/dev/null; then
             mv "$work/$hash.new2.spvasm" "$work/$hash.new.spvasm"

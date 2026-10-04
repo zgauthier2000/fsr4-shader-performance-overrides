@@ -8,7 +8,9 @@
 # word as soon as it is computed, with the next word's arithmetic in between; one store
 # instruction therefore writes 4 bytes in every 32, and partly written cache blocks are fetched
 # and written back several times. Here each row's eight words are kept in registers and stored
-# together (argument "all": the whole block at the end). Addresses and values are exactly those of
+# together (argument "all": the whole block at the end; "rowc": the same as the default with the
+# registers reused for each row, which is smaller when the loops are not unrolled; "pixel": each
+# pixel's four words together). Addresses and values are exactly those of
 # the original stores, so the output is bit-exact; the pass's memory traffic drops to a third.
 import re, sys
 level = sys.argv[1] if len(sys.argv) > 1 else 'row'
@@ -53,18 +55,24 @@ for i, l in enumerate(L):
         df_decl = True
     if i == si:
         a, b, c, d, p1, p2 = (new() for _ in range(6))
-        out += [f'{pad}{a} = OpShiftLeftLogical %uint {outer_phi} %uint_1', f'{pad}{b} = OpIAdd %uint {a} {mid_phi}',
-                f'{pad}{c} = OpShiftLeftLogical %uint {b} %uint_2', f'{pad}{d} = OpIAdd %uint {c} {inner_phi}',
+        if level == 'pixel':      # slot = word of the pixel
+            out += [f'{pad}{d} = OpCopyObject %uint {inner_phi}']
+        elif level == 'rowc':     # slot = position in the row (the slots are reused for the next row)
+            out += [f'{pad}{c} = OpShiftLeftLogical %uint {mid_phi} %uint_2', f'{pad}{d} = OpIAdd %uint {c} {inner_phi}']
+        else:
+            out += [f'{pad}{a} = OpShiftLeftLogical %uint {outer_phi} %uint_1', f'{pad}{b} = OpIAdd %uint {a} {mid_phi}',
+                    f'{pad}{c} = OpShiftLeftLogical %uint {b} %uint_2', f'{pad}{d} = OpIAdd %uint {c} {inner_phi}']
+        out += [
                 f'{pad}{p1} = OpAccessChain %_ptr_Function_uint %df_val {d}', f'{pad}OpStore {p1} {val}',
                 f'{pad}{p2} = OpAccessChain %_ptr_Function_uint %df_idx {d}', f'{pad}OpStore {p2} {index}']
         continue
     out.append(l)
-    target = mid_merge if level == 'row' else outer_merge
+    target = {'row': mid_merge, 'rowc': mid_merge, 'pixel': inner_merge}.get(level, outer_merge)
     if s == f'{target} = OpLabel':
         r1, r2, r3, bp = (new() for _ in range(4))
         out += [f'{pad}{r1} = OpAccessChain {breg[1]} {breg[2]} {breg[3]}', f'{pad}{r2} = OpLoad %uint {r1}',
                 f'{pad}{r3} = OpIAdd %uint {r2} {badd[3]}', f'{pad}{bp} = OpAccessChain {bchain[1]} {heap} {r3}']
-        count = 8 if level == 'row' else 16
+        count = {'row': 8, 'rowc': 8, 'pixel': 4}.get(level, 16)
         if level == 'row':
             first = new()
             out.append(f'{pad}{first} = OpShiftLeftLogical %uint {outer_phi} %uint_3')

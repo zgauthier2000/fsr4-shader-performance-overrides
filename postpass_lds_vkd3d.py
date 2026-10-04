@@ -11,7 +11,9 @@
 # workgroup writes the three images one after another: the invocations put one image's 32x32 block
 # into workgroup memory, and the workgroup writes it out in contiguous rows. One image at a time
 # needs 16 KB of workgroup memory instead of 40 KB for all three, which lets four times as many
-# waves run per SIMD. Nothing else in the shader changes, so the output is bit-exact.
+# waves run per SIMD. In the flush each wave writes an aligned 8x8 block of pixels per store, which
+# reads about a tenth less memory than writing two rows of 32 (same speed on an RX 7800 XT).
+# Nothing else in the shader changes, so the output is bit-exact.
 #
 # Adapted from tools/fsr4cap/postpass_lds.py of bbport (https://github.com/deadinside28/bloodborne_pc,
 # GPL-2.0-or-later), which expects dxil-spirv command-line output with reflection names.
@@ -20,6 +22,8 @@
 import re
 import sys
 
+W = int(sys.argv[1]) if len(sys.argv) > 1 else 8   # a wave (64 lanes) writes W x 64/W pixels per store: 8, 16 or 32
+LW = {32: 5, 16: 4, 8: 3}[W]
 ROWS = 32   # rows of the 32x32 block per flush; smaller buffers measured no faster
 lines = sys.stdin.read().split('\n')
 out = []
@@ -85,6 +89,9 @@ def new(prefix):
     return f'%bb_{prefix}{n[0]}'
 
 decl = [
+    '%sq_6 = OpConstant %uint 6', '%sq_63 = OpConstant %uint 63', f'%sq_wmask = OpConstant %uint {32 // W - 1}',
+    f'%sq_lw = OpConstant %uint {LW}', f'%sq_lmask = OpConstant %uint {W - 1}', f'%sq_wshift = OpConstant %uint {5 - LW}',
+    f'%sq_lh = OpConstant %uint {6 - LW}',
     '%bb_u5 = OpConstant %uint 5', '%bb_u31 = OpConstant %uint 31', '%bb_u10 = OpConstant %uint 10',
     '%bb_u2 = OpConstant %uint 2', '%bb_u264 = OpConstant %uint 264',
     f'%bb_usize = OpConstant %uint {32 * ROWS * 4}', f'%bb_urows = OpConstant %uint {ROWS}',
@@ -178,8 +185,15 @@ def flush():
             # 2. the workgroup writes those rows of the image, one row of 32 pixels per 32 invocations
             for k in range(ROWS // 8):
                 i, lx, ly, px, py = new('i'), new('lx'), new('ly'), new('px'), new('py')
-                code += [f'{i} = OpIAdd %uint %bb_lid %bb_k{k}', f'{lx} = OpBitwiseAnd %uint {i} %bb_u31',
-                         f'{ly} = OpShiftRightLogical %uint {i} %bb_u5', f'{px} = OpIAdd %uint %bb_x0 {lx}',
+                wv, ln, a1, a2, a3, b1, b2, b3, pixi = (new(q) for q in ('wv', 'ln', 'a', 'a', 'a', 'b', 'b', 'b', 'pixi'))
+                code += [f'{i} = OpIAdd %uint %bb_lid %bb_k{k}',
+                         f'{wv} = OpShiftRightLogical %uint {i} %sq_6', f'{ln} = OpBitwiseAnd %uint {i} %sq_63',
+                         f'{a1} = OpBitwiseAnd %uint {wv} %sq_wmask', f'{a2} = OpShiftLeftLogical %uint {a1} %sq_lw',
+                         f'{a3} = OpBitwiseAnd %uint {ln} %sq_lmask', f'{lx} = OpBitwiseOr %uint {a2} {a3}',
+                         f'{b1} = OpShiftRightLogical %uint {wv} %sq_wshift', f'{b2} = OpShiftLeftLogical %uint {b1} %sq_lh',
+                         f'{b3} = OpShiftRightLogical %uint {ln} %sq_lw', f'{ly} = OpBitwiseOr %uint {b2} {b3}',
+                         f'{pixi}r = OpShiftLeftLogical %uint {ly} %bb_u5', f'{pixi} = OpBitwiseOr %uint {pixi}r {lx}',
+                         f'{px} = OpIAdd %uint %bb_x0 {lx}',
                          f'{py}r = OpIAdd %uint %bb_y0 {ly}', f'{py} = OpIAdd %uint {py}r %bb_h{h}']
                 tx, ty, cx, cy, c = new('tx'), new('ty'), new('cx'), new('cy'), new('c')
                 code += [f'{tx} = OpShiftRightLogical %uint {px} %uint_1',
@@ -192,7 +206,7 @@ def flush():
                     c = c2
                 then, done, base = new('then'), new('done'), new('base')
                 code += [f'OpSelectionMerge {done} None', f'OpBranchConditional {c} {then} {done}', f'{then} = OpLabel',
-                         f'{base} = OpIMul %uint {i} {ncc}']
+                         f'{base} = OpIMul %uint {pixi} {ncc}']
                 vals = []
                 for comp in range(nc):
                     e, ptr, v = new('e'), new('p'), new('v')

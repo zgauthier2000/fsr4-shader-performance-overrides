@@ -25,12 +25,13 @@ for f in "$src"/*.dxil; do
     name=$(strings -n 8 "$f" | grep -m1 -oE 'fsr4_model_v07_fp8_no_scale_(postpass|pass11)$' || true)
     case $name in
         *_postpass) script=postpass_lds_dxil.py ;;
-        *_pass11) script=zconst_dxil.py ;;
+        *_pass11) script=zconst_dxil.py; [[ ${PASS11:-1} == rows ]] && script=pass11_stores_dxil.py ;;
         *) continue ;;
     esac
     hash=$(xxd -s 4 -l 16 -p "$f")
     "$dxc_dir/bin/dxc" -dumpbin "$f" > "$work/in.ll"
-    if ! python3 "$here/$script" < "$work/in.ll" > "$work/out.ll"; then
+    arg=; [[ $script == pass11_stores_dxil.py ]] && arg=rowc
+    if ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll"; then
         echo "skipped $(basename "$f"): not the expected structure"
         continue
     fi

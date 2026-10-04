@@ -12,8 +12,8 @@
 # output colour) keep their values in registers instead, and after the pass's bounds check the
 # group writes the two textures one after the other: the threads put one texture's 32x32 block
 # into shared memory (x y z per pixel, alpha repeats x: 12288 bytes), and the group writes it out
-# in contiguous rows. One texture at a time keeps shared memory small enough for several groups
-# to run on a WGP at once.
+# in solid blocks (each wave an aligned 8x8 block of pixels). One texture at a time keeps shared
+# memory small enough for several groups to run on a WGP at once.
 #
 # The stores to the half texture (the recurrent state) stay as they are: sending it through shared
 # memory as well (as the floats it is converted from) measured no faster under vkd3d-proton.
@@ -203,15 +203,21 @@ for t_i, key in enumerate(targets):
               f'  br label %bb.flush{t_i}_0']
     for k in range(4):
         i, lx, ly, px, py, tx, ty, cx, cy, c = (new(p) for p in ('i', 'lx', 'ly', 'px', 'py', 'tx', 'ty', 'cx', 'cy', 'c'))
+        wv, ln, a1, a2, a3, b1, b2, b3, pixr, pixi = (new(p) for p in ('wv', 'ln', 'a', 'a', 'a', 'b', 'b', 'b', 'pixr', 'pix'))
         nxt = f'bb.flush{t_i}_{k + 1}' if k < 3 else (f'bb.next{t_i}')
         flush += ['', f'bb.flush{t_i}_{k}:',
-                  f'  {i} = add i32 %bb.tid, {256 * k}', f'  {lx} = and i32 {i}, 31', f'  {ly} = lshr i32 {i}, 5',
+                  # each wave (64 lanes) writes an aligned 8x8 block of the 32x32 block
+                  f'  {i} = add i32 %bb.tid, {256 * k}', f'  {wv} = lshr i32 {i}, 6', f'  {ln} = and i32 {i}, 63',
+                  f'  {a1} = and i32 {wv}, 3', f'  {a2} = shl i32 {a1}, 3', f'  {a3} = and i32 {ln}, 7',
+                  f'  {lx} = or i32 {a2}, {a3}',
+                  f'  {b1} = lshr i32 {wv}, 2', f'  {b2} = shl i32 {b1}, 3', f'  {b3} = lshr i32 {ln}, 3',
+                  f'  {ly} = or i32 {b2}, {b3}', f'  {pixr} = shl i32 {ly}, 5', f'  {pixi} = or i32 {pixr}, {lx}',
                   f'  {px} = add i32 %bb.x0, {lx}', f'  {py} = add i32 %bb.y0, {ly}',
                   f'  {tx} = lshr i32 {px}, 1', f'  {ty} = lshr i32 {py}, 1',
                   f'  {cx} = icmp ult i32 {tx}, {w2}', f'  {cy} = icmp ult i32 {ty}, {h2}', f'  {c} = and i1 {cx}, {cy}',
                   f'  br i1 {c}, label %bb.write{t_i}_{k}, label %{nxt}', '', f'bb.write{t_i}_{k}:']
         fbase = new('fbase')
-        flush.append(f'  {fbase} = mul i32 {i}, 3')
+        flush.append(f'  {fbase} = mul i32 {pixi}, 3')
         vals = []
         for comp in range(3):
             e, p, v = new('e'), new('p'), new('v')

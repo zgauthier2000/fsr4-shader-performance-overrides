@@ -4,6 +4,7 @@
 # zconst_dxil.py: stores each row of its output together, as pass11_stores.py does for the SPIR-V.
 #
 #   dxc -dumpbin <pass11.dxil> | zconst_dxil.py | pass11_stores_dxil.py > out.ll     (then dxilasm)
+#   dxc -dumpbin <pass11.dxil> | pass11_stores_dxil.py rowc > out.ll      (loops kept, compact form)
 #
 # The pass computes a 2x2 block of output pixels per thread, four words each, and stores every
 # word as soon as it is computed. Here the eight words of a row and their addresses are kept in
@@ -12,6 +13,7 @@
 import re
 import sys
 
+COMPACT = len(sys.argv) > 1 and sys.argv[1] == 'rowc'   # reuse the 8 slots for each row (smaller with loops)
 L = sys.stdin.read().split('\n')
 
 
@@ -49,7 +51,7 @@ A = '[16 x i32], [16 x i32]*'
 out = []
 for i, l in enumerate(L):
     if i == si:
-        out += [f'  %df.s1 = shl i32 {outer}, 1', f'  %df.s2 = add i32 %df.s1, {mid}', '  %df.s3 = shl i32 %df.s2, 2',
+        out += [f'  %df.s1 = shl i32 {"0" if COMPACT else outer}, 1', f'  %df.s2 = add i32 %df.s1, {mid}', '  %df.s3 = shl i32 %df.s2, 2',
                 f'  %df.s4 = add i32 %df.s3, {inner}',
                 f'  %df.pv = getelementptr inbounds {A} %df.val, i32 0, i32 %df.s4', f'  store i32 {value}, i32* %df.pv, align 4',
                 f'  %df.pi = getelementptr inbounds {A} %df.idx, i32 0, i32 %df.s4', f'  store i32 {index}, i32* %df.pi, align 4']
@@ -58,7 +60,7 @@ for i, l in enumerate(L):
     if i == alloca:
         out += ['  %df.val = alloca [16 x i32], align 4', '  %df.idx = alloca [16 x i32], align 4']
     if i == latch:
-        out += [f'  %df.h = {hcall}', f'  %df.f = shl i32 {outer}, 3']
+        out += [f'  %df.h = {hcall}', f'  %df.f = shl i32 {"0" if COMPACT else outer}, 3']
         for k in range(8):
             out += [f'  %df.k{k} = add i32 %df.f, {k}',
                     f'  %df.gv{k} = getelementptr inbounds {A} %df.val, i32 0, i32 %df.k{k}', f'  %df.v{k} = load i32, i32* %df.gv{k}, align 4',

@@ -17,7 +17,8 @@ export PROTONPATH=${PROTONPATH:-$HOME/.local/share/Steam/compatibilitytools.d/GE
 frames=${FRAMES:-4}
 mkdir -p dll
 [[ -f dll/original.dll ]] || cp amd_fidelityfx_upscaler_dx12.dll dll/original.dll
-python3 ../patch_upscaler_dll.py dll/original.dll dll/patched.dll > /dev/null || exit 1
+# REPL_DIR: a replacement folder other than ../../windows/prebuilt/fsr4-overrides
+python3 ../patch_upscaler_dll.py dll/original.dll dll/patched.dll ${REPL_DIR:+"$REPL_DIR"} > /dev/null || exit 1
 run() {  # run <dll> <render> <out> <dump-dir or ''>
     cp "$1" amd_fidelityfx_upscaler_dx12.dll
     VKD3D_SHADER_DUMP_PATH=${4:+Z:$PWD/$4} timeout 280 umu-run "$PWD/fsr4cap.exe" 4.1.1 "$2" "$3" "$frames" noise > umu.log 2>&1

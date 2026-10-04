@@ -17,6 +17,7 @@ export PROTONPATH=${PROTONPATH:-$HOME/.local/share/Steam/compatibilitytools.d/GE
 frames=${FRAMES:-4}
 for cfg in "2560x1440 3840x2160" "2260x1272 3840x2160" "1920x1080 3840x2160" "1280x720 3840x2160" "1706x960 2560x1440" "1280x720 1920x1080" "640x360 1920x1080"; do
     set -- $cfg; render=$1; out=$2; tag=${render}_${out}
+    [[ -n ${ONLY:-} && $tag != "$ONLY" ]] && continue      # ONLY=<render>_<output>: just that configuration
     rm -rf "matrix/$tag"; mkdir -p "matrix/$tag/dump" "matrix/$tag/fsr4-overrides"
     # Reference run: ReShade and the add-on are loaded (d3d12.dll next to the exe), but with an empty
     # replacement folder, so AMD's own shaders run and get dumped.

@@ -125,9 +125,9 @@ Can the phased postpass's remaining traffic be cut the same way? Tried, with no 
 
 | Phased postpass, pixels one wave writes per store | 64 B reads | 128 B reads | Writes | Benchmark |
 |---|---|---|---|---|
-| 32x2 (shipped) | 17.7 | 17.2 | 16.0 | 0.60 ms |
+| 32x2 (shipped until the pass 11 release) | 17.7 | 17.2 | 16.0 | 0.60 ms |
 | 16x4 | 17.0 | 15.3 | 15.2 | 0.60 ms |
-| 8x8 | 16.9 | 15.3 | 15.2 | 0.60 ms |
+| 8x8 (shipped after it) | 16.9 | 15.3 | 15.2 | 0.60 ms |
 
 Letting each wave write a square block instead of two rows removes about a tenth of the traffic
 (all three versions byte-identical), but the pass is no faster: once the writes are dense, memory
@@ -139,7 +139,7 @@ removing them saves only 0.02 ms.
 In a game the square-block flush makes no difference either. Shadow of the Tomb Raider's
 benchmark at 4K, one run each: 108 FPS, 16,736 frames and 3.12 ms of upscaler time with the
 shipped 32x2 flush; 108 FPS, 16,778 frames and 3.09 ms with the 8x8 flush. That is 0.25% apart,
-within run-to-run variation, so the shipped flush stays.
+within run-to-run variation. The 8x8 flush is shipped all the same, for the traffic it saves.
 
 The counter names are Mesa's (`GL2C_EA_RDREQ_64B`, `GL2C_EA_RDREQ_128B`, `GL2C_EA_WRREQ`,
 `GL2C_EA_WRREQ_64B`, `GL2C_MISS`); they are used here to compare rows, not as exact byte counts.
