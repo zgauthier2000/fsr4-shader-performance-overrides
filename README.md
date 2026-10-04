@@ -65,7 +65,11 @@ Details for integrated GPUs and RDNA2: [GPU support](docs/gpu-support.md).
 
 ## Install
 
-### Linux: one launch option
+**On Linux, use the launch option, not the DLL.** It is the faster of the two: the rewritten
+postpass takes 0.60 ms at 4K with the launch option against 0.67 ms with the patched DLL, because
+Proton translates the DLL's shaders into slightly slower code.
+
+### Linux: one launch option (recommended on Linux)
 
 1. Download or clone this repository.
 2. In Steam, add this to the game's launch options (keep anything already there in front of
@@ -80,7 +84,9 @@ Details for integrated GPUs and RDNA2: [GPU support](docs/gpu-support.md).
 This covers output above 1080p in every mode except Ultra Performance. For anything else, or if it
 does not get faster: [Linux guide](docs/linux.md).
 
-### Windows (or Linux, if you prefer): replace one DLL
+### Windows: replace one DLL
+
+This also works under Proton, but on Linux the launch option above is faster.
 
 1. Download `amd_fidelityfx_upscaler_dx12.dll` from the
    [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-03).
