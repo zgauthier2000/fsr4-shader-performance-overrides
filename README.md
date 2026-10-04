@@ -138,6 +138,10 @@ It is AMD's DLL with the two shaders swapped. Details, and how to build it yours
 
 ### Check that it worked
 
+The replacements match exact shaders, and AMD's DLL has more versions of them than are covered
+so far. If nothing changes in your game, that is the likely reason:
+[shader variants](docs/variants.md).
+
 Open OptiScaler's overlay and compare the upscaler time with and without the change, standing at
 the same spot. **In some games that number is only reliable with the frame rate uncapped.** At 4K
 it should drop by roughly 1 ms.
@@ -162,6 +166,7 @@ Remove the launch option, or put the original DLL back.
 | [All results](docs/results.md) | every game measured, benchmark pages with screenshots |
 | [Linux guide](docs/linux.md) | requirements, building your own files, troubleshooting |
 | [GPU support](docs/gpu-support.md) | Windows, integrated GPUs, the experimental RDNA2 unlock |
+| [Shader variants](docs/variants.md) | which versions of FSR 4's shaders are covered, and what to do if your game's is not |
 | [How it works](docs/how-it-works.md) | what the two rewrites do, where the time goes, what else was tried |
 | [RDNA4](docs/rdna4.md) | what is known about the FP8 model on RX 9000 cards; open for anyone who can test on one |
 | [Research](research) | the probes, data and scripts behind all of it |
