@@ -121,6 +121,21 @@ capturing slows the pass by about 1.4 times, so the times are only for comparing
   That confirms the guess above, with the L2 cache as the place where it happens.
 - **Linear written images** cut the traffic further, but not to the phased version's level.
 
+Can the phased postpass's remaining traffic be cut the same way? Tried, with no gain in time:
+
+| Phased postpass, pixels one wave writes per store | 64 B reads | 128 B reads | Writes | Benchmark |
+|---|---|---|---|---|
+| 32x2 (shipped) | 17.7 | 17.2 | 16.0 | 0.60 ms |
+| 16x4 | 17.0 | 15.3 | 15.2 | 0.60 ms |
+| 8x8 | 16.9 | 15.3 | 15.2 | 0.60 ms |
+
+Letting each wave write a square block instead of two rows removes about a tenth of the traffic
+(all three versions byte-identical), but the pass is no faster: once the writes are dense, memory
+traffic is no longer what limits it. The reads that remain above the no-store level are the cache
+fetching blocks that are about to be overwritten whole, which a shader cannot prevent. The prepass
+shows the same thing: its writes add traffic (64 B reads 26 to 38, writes 18 to 35 million), but
+removing them saves only 0.02 ms.
+
 The counter names are Mesa's (`GL2C_EA_RDREQ_64B`, `GL2C_EA_RDREQ_128B`, `GL2C_EA_WRREQ`,
 `GL2C_EA_WRREQ_64B`, `GL2C_MISS`); they are used here to compare rows, not as exact byte counts.
 
