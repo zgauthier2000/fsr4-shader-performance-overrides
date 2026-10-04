@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# patch_upscaler_dll.py [--only postpass|pass11|none] [--any-gpu] <amd_fidelityfx_upscaler_dx12.dll> <output.dll> [replacement-dir]
+# patch_upscaler_dll.py [--only postpass|pass11|none] [--any-gpu] [--name <version name>] <amd_fidelityfx_upscaler_dx12.dll> <output.dll> [replacement-dir]
 #
 # Writes a copy of AMD's FSR 4.1.1 upscaler DLL that carries the faster shaders itself, so no
 # launch option, add-on or override folder is needed. The replacements are the DXIL files the
@@ -13,6 +13,12 @@
 # The check (the IsSupported function of ffxProvider_FSR4_Int8, found through its type information)
 # is made to always answer yes. Whether FSR 4 then works on a given GPU is up to that GPU and its
 # driver. Not for RDNA4: there both versions of FSR 4 would then report support.
+#
+# --name changes the version name the DLL reports through the FidelityFX API ("4.1.1" in AMD's),
+# which is what OptiScaler and other front ends display, so that a patched DLL can be told from
+# AMD's. A name of up to 7 characters is written over AMD's; a longer one goes into the new
+# section and the one instruction that loads the name is pointed at it. The file version in the
+# DLL's properties (4.1.1.2740) is not changed.
 #
 # The DLL keeps its shaders as plain DXIL containers in .rdata, each described by an entry in
 # .data: a 64-bit size followed by a 64-bit pointer. A replacement that fits is written in place;
@@ -31,15 +37,21 @@ import sys
 args = sys.argv[1:]
 only = None
 any_gpu = False
-while args[:1] in (['--only'], ['--any-gpu']):
+new_name = None
+while args[:1] in (['--only'], ['--any-gpu'], ['--name']):
     if args[0] == '--any-gpu':
         any_gpu, args = True, args[1:]
+        continue
+    if args[0] == '--name':
+        if len(args) < 2 or not 0 < len(args[1]) < 64 or not all(' ' <= c <= '~' for c in args[1]):
+            sys.exit('--name takes 1 to 63 printable ASCII characters')
+        new_name, args = args[1].encode(), args[2:]
         continue
     if len(args) < 2 or args[1] not in ('postpass', 'pass11', 'none'):
         sys.exit('--only takes postpass, pass11 or none')
     only, args = args[1], args[2:]
-if only == 'none' and not any_gpu:
-    sys.exit('--only none changes nothing without --any-gpu')
+if only == 'none' and not any_gpu and not new_name:
+    sys.exit('--only none changes nothing without --any-gpu or --name')
 if len(args) not in (2, 3):
     sys.exit('\n'.join(l[2:] for l in open(__file__).read().split('\nimport')[0].split('\n')[2:]))
 src, dst = args[0], args[1]
@@ -144,6 +156,23 @@ if any_gpu:
     if bytes(d[unlock_at:unlock_at + 16]) != INT8_ISSUPPORTED:
         die('the INT8 provider\'s GPU check is not the expected code (another DLL version?)')
 
+# --- the version name (--name)
+VERSION_NAME = b'4.1.1\0\0\0FSR4-i8\0'                               # AMD's 4.1.1.2740
+name_at = name_ref = None
+if new_name:
+    name_at = d.find(VERSION_NAME)
+    if name_at < 0 or d.find(VERSION_NAME, name_at + 1) >= 0:
+        die('the version name was not found (another DLL version?)')
+    if len(new_name) > 7:
+        target = va_of_file(name_at) - image_base
+        text = next(s for s in sections if s[0] == '.text')
+        refs = [i for i in range(text[3] + 3, text[3] + text[4] - 4)
+                if d[i - 2] == 0x8d and d[i - 3] in (0x48, 0x4c) and d[i - 1] & 0xc7 == 5      # lea r64, [rip+disp]
+                and text[1] + i - text[3] + 4 + struct.unpack_from('<i', d, i)[0] == target]
+        if len(refs) != 1:
+            die(f'expected one instruction loading the version name, found {len(refs)}')
+        name_ref = refs[0]
+
 # --- patch
 if unlock_at is not None:
     d[unlock_at:unlock_at + 3] = bytes.fromhex('b001c3')            # mov al, 1 ; ret
@@ -162,6 +191,16 @@ for h, pos, size, ref in found:
         moved.append((h, ref, len(appended), len(blob), size))
         appended += blob
 
+name_off = None
+if new_name and name_ref is None:
+    d[name_at:name_at + 8] = new_name + bytes(8 - len(new_name))
+    print(f'version name: {new_name.decode()} (in place)')
+elif new_name:
+    while len(appended) % 16:
+        appended.append(0)
+    name_off = len(appended)
+    appended += new_name + b'\0'
+
 # Remove the signature (the certificate table sits at the end of the file and is not mapped).
 sec_off, sec_size = struct.unpack_from('<II', d, dirs + 8 * 4)
 if sec_off:
@@ -170,7 +209,7 @@ if sec_off:
     del d[sec_off:]
     struct.pack_into('<II', d, dirs + 8 * 4, 0, 0)
 
-if moved:
+if appended:
     if sec_table + 40 * (nsec + 1) > size_of_headers:
         die('no room for another section header')
     last = max(sections, key=lambda s: s[1])
@@ -188,6 +227,10 @@ if moved:
         struct.pack_into('<Q', d, ref - 8, n)
         struct.pack_into('<Q', d, ref, image_base + va + off)
         print(f'{h}: moved to .fsr4 ({old} -> {n} bytes)')
+    if name_off is not None:
+        text = next(s for s in sections if s[0] == '.text')
+        struct.pack_into('<i', d, name_ref, va + name_off - (text[1] + name_ref - text[3] + 4))
+        print(f'version name: {new_name.decode()} (in .fsr4)')
 
 # PE checksum
 struct.pack_into('<I', d, opt + 64, 0)

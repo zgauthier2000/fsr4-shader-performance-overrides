@@ -52,7 +52,7 @@ What is known about why:
 **An experimental build for integrated GPUs is available for testing.** Its pass 11 keeps AMD's
 loops, so the pass stays small (6.5 KB as compiled for a Radeon 780M), and only stores each row of
 its output together, which cuts the memory the pass reads to about a quarter. It is attached to
-the [release `dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3)
+the [release `dll-2026-10-04.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.4)
 as `test-igpu.zip` and, with AMD's GPU check lifted, `test-igpu-any-gpu.zip`. Its output is
 byte-identical to AMD's, but it has not been run on an integrated GPU yet: please compare the
 upscaler time with AMD's original DLL and report both. On Linux, the same pass 11 can be built with
@@ -124,7 +124,7 @@ against the fsr4xyz DLL, has not been measured yet.
 previous frame in each output pixel), which was suggested as a fix. It looks bad in motion; see
 [history clamp](../research/history-clamp).
 
-Ready-made test builds are attached to the [release `dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3):
+Ready-made test builds are attached to the [release `dll-2026-10-04.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.4):
 
 | File | Contents |
 |---|---|

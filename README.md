@@ -7,7 +7,7 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 ## RDNA2 (RX 6000): shimmering in motion fixed (2026-10-04, 15:43 EDT)
 
 FSR 4.1.1's INT8 model can be made to run on RDNA2, but there it shimmers in motion. A test build
-from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3)
+from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-04.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.4)
 (Windows DLL).
 
 - **The cause is one instruction form in the postpass.** AMD's postpass adds each int8 dot
@@ -62,7 +62,7 @@ frame than with AMD's shaders.
   never slower, and they may help GPUs with less memory bandwidth, where they have not been
   measured yet.
 - **To get it:** download the files again, or run `build_override.sh` again if you built your own.
-  The patched DLL is in the [release `dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3).
+  The patched DLL is in the [release `dll-2026-10-04.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.4).
 - **Integrated GPUs:** still not recommended, but there is an experimental build to test; see
   [GPU support](docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 - The figures are read requests between the GPU's cache and memory, counted in a standalone
@@ -153,12 +153,22 @@ faster: [Linux guide](docs/linux.md).
 This also works under Proton, but on Linux the launch option above is faster.
 
 1. Download `amd_fidelityfx_upscaler_dx12.dll` from the
-   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3).
+   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.4).
 2. In the game folder, rename the existing `amd_fidelityfx_upscaler_dx12.dll` (often next to
    OptiScaler) to `amd_fidelityfx_upscaler_dx12.dll.orig`. It must be version 4.1.1.2740.
 3. Put the downloaded DLL in its place.
 
-It is AMD's DLL with the two shaders swapped. Details, and how to build it yourself:
+OptiScaler then lists FSR as **`4.1.1-cyboman-r3`** instead of `4.1.1`, which shows that the
+patched DLL is the one in use. The test builds for other GPUs carry their own names:
+
+| Build | Name shown | For |
+|---|---|---|
+| `amd_fidelityfx_upscaler_dx12.dll` | `4.1.1-cyboman-r3` | desktop RDNA3 (RX 7000) |
+| `test-igpu.zip`, `test-igpu-any-gpu.zip` | `4.1.1-cyboman-ig` | RDNA3 integrated GPUs (experimental) |
+| `test-rdna2.zip` | `4.1.1-cyboman-r2` | RDNA2 (RX 6000) |
+| `test-any-gpu.zip` | `4.1.1-cyboman-any` | the desktop build with AMD's GPU check lifted |
+
+It is AMD's DLL with the two shaders swapped and the name changed. Details, and how to build it yourself:
 [`dll/`](dll). There is also a ReShade add-on that does the same without touching the DLL:
 [`windows/`](windows).
 
@@ -167,6 +177,9 @@ It is AMD's DLL with the two shaders swapped. Details, and how to build it yours
 Open OptiScaler's overlay and compare the upscaler time with and without the change, standing at
 the same spot. **In some games that number is only reliable with the frame rate uncapped.** At 4K
 it should drop by roughly 1 ms.
+
+With the patched DLL, also check that the FSR version shown is `4.1.1-cyboman-r3`; if it still
+says `4.1.1`, the game is loading AMD's DLL from somewhere else.
 
 If nothing changes, check that the game really runs FSR 4.1.1 with AMD's DLL version 4.1.1.2740;
 other versions have different shaders. See [shader variants](docs/variants.md).
