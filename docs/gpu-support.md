@@ -49,6 +49,16 @@ What is known about why:
   reads far less memory). It has not been tested on an integrated GPU; the pass 11-only test
   build of that release is the way to find out.
 
+**An experimental build for integrated GPUs is available for testing.** Its pass 11 keeps AMD's
+loops, so the pass stays small (6.5 KB as compiled for a Radeon 780M), and only stores each row of
+its output together, which cuts the memory the pass reads to about a quarter. It is attached to
+the [release `dll-2026-10-04`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04)
+as `test-igpu.zip` and, with AMD's GPU check lifted, `test-igpu-any-gpu.zip`. Its output is
+byte-identical to AMD's, but it has not been run on an integrated GPU yet: please compare the
+upscaler time with AMD's original DLL and report both. On Linux, the same pass 11 can be built with
+`PASS11=rows ./build_override.sh <dump>` from the
+[`next-release` branch](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/tree/next-release).
+
 On Windows with Radeon RX 7000 graphics cards (not integrated GPUs), testers report large
 improvements with the first version, and one tester with an RX 7800 XT saw no difference between
 the first and the phased version. That is expected: the DXIL version that Windows uses was never
