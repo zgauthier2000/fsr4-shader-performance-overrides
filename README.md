@@ -58,6 +58,34 @@ saved matches the upscaler time saved:
 
 Each links to the full numbers and the results screenshots.
 
+## Where FSR 4's time goes now
+
+Shadow of the Tomb Raider, 4K output, Balanced, frame rate uncapped, Radeon RX 7800 XT, with the
+phased postpass and the pass 11 rewrite: **3.09 ms in total** (AMD's shaders: 4.16 ms).
+
+| Part | Time | Share | Room left |
+|---|---|---|---|
+| Model passes (12) | 1.86 ms | 60% | none found: limited by arithmetic; WMMA and pass fusion ruled out |
+| Postpass (phased) | about 0.63 ms | 20% | 0.05 ms at most |
+| Prepass | 0.44 ms | 14% | a few hundredths of a millisecond |
+| OptiScaler and dispatch overhead | 0.12 ms | 4% | outside the shaders |
+| Two small shaders and gaps between passes | 0.04 ms | 1% | |
+
+The model passes, split by each pass's share in a standalone benchmark (an estimate; single
+passes cannot be timed in the game):
+
+| Tensor size | Passes | Estimated time |
+|---|---|---|
+| 1920x1080 | 1, 2, 12 | about 0.73 ms (about 0.24 ms each) |
+| 960x540 | 3, 4, 5, 10, 11 | about 0.67 ms (pass 11 the largest, about 0.19 ms) |
+| 480x270 | 6, 7, 8, 9 | about 0.46 ms |
+
+How it was measured: parts of FSR 4 were replaced with empty shaders, one run each, and
+OptiScaler's upscaler time was read at the same spot. Those runs were made with the first postpass
+rewrite (postpass 0.96 ms, total 3.42 ms). The phased postpass then lowered the total by 0.33 ms,
+and nothing else changed, so its 0.63 ms is derived from that, not measured on its own. The
+attempts behind the "room left" column are under [What else was tried](#what-else-was-tried).
+
 ## What you need
 
 - Linux, and a D3D12 game running through Proton (vkd3d-proton). DX11 and Vulkan games are not
@@ -310,9 +338,6 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
 - **Fusing the model passes.** Versions of the 12 passes that write nothing and read from cache
   saved 0.07 ms of 3.35 ms in total, so merging passes to keep data on chip is not worth it: the
   passes are limited by arithmetic, not memory.
-- **Where the time goes in a game.** Replacing parts of FSR 4 with empty shaders in Shadow of the
-  Tomb Raider (4K, 3.42 ms in total with the first postpass rewrite): model passes 1.86 ms,
-  postpass 0.96 ms, prepass 0.44 ms, OptiScaler and the rest 0.16 ms.
 - **Further workgroup-memory (LDS) tuning of the phased postpass.** Measured in a standalone
   benchmark at 4K, where the phased postpass takes 0.59 ms and AMD's original with all its stores
   removed (no write cost at all, full occupancy) 0.49 ms, so at most 0.1 ms is left:
