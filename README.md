@@ -10,7 +10,7 @@ downloaded or built the files before that, get them again.
 
 ## What to expect
 
-At 4K, FSR 4's upscaling time drops by **26 to 30%**, about 1 ms less GPU time per frame. When the
+At 4K, FSR 4's upscaling time drops by **25 to 30%**, about 1 ms less GPU time per frame. When the
 GPU is the limit, that is:
 
 | Your frame rate at 4K | Gain |
@@ -28,7 +28,7 @@ Measured on a Radeon RX 7800 XT, 4K output, FSR 4.1.1 Balanced:
 | Game | FSR 4 time per frame | Frame rate |
 |---|---|---|
 | Rise of the Tomb Raider (built-in benchmark) | 4.30 → 3.02 ms (−30%) | 97.6 → 108.6 FPS (+11%) |
-| Shadow of the Tomb Raider | 4.16 → 3.09 ms (−26%) | 97 → 104 FPS (+7%) in the benchmark with the first version; the current version adds about 3% more |
+| Shadow of the Tomb Raider (built-in benchmark) | 4.16 → 3.12 ms (−25%) | 97 → 108 FPS (+11%) |
 
 More games, 1440p and screenshots: [all results](docs/results.md).
 

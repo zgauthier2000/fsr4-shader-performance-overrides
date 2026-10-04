@@ -52,6 +52,31 @@ the scene behind it; it was not recorded during the benchmark run itself.
 These are single runs of each configuration, so differences of a frame or two per second are
 within normal run-to-run variation; the 4K result is well outside it.
 
+## 4K with the phased postpass
+
+Run on 2026-10-04 with the current files (the [phased postpass](../phased-postpass) and pass 11),
+same settings. One run.
+
+| | 4K original | 4K, first rewrite | **4K, phased postpass** |
+|---|---|---|---|
+| Average FPS | 97 | 104 | **108** |
+| Frames rendered | 15,002 | 16,168 | **16,736** |
+| GPU bound | 100% | 100% | **99%** |
+| GPU FPS: average | 100 | 108 | **112** |
+| GPU FPS: minimum | 86 | 92 | **94** |
+| GPU FPS: maximum | 129 | 139 | **146** |
+| GPU FPS: 95th percentile | 90 | 96 | **100** |
+| CPU game FPS: average | 207 | 210 | **188** |
+| CPU render FPS: average | 438 | 452 | **388** |
+| OptiScaler upscaler time (average) | 4.16 ms | 3.47 ms (−16.6%) | **3.12 ms (−25.0%)** |
+
+- **Against AMD's shaders:** +11.3% average FPS, and the frame time saved (1.05 ms, from the
+  average FPS) matches the upscaler time saved (1.04 ms).
+- **The CPU figures are lower than in the earlier runs,** which were made on another day; they do
+  not depend on the shaders, and the run is still 99% GPU-bound.
+
+<img src="4k-phased.jpg" width="800" alt="4K benchmark with the phased postpass: average 108 FPS, upscaler time 3.12 ms">
+
 ## Screenshots
 
 The four results screens, unedited apart from conversion to JPEG.

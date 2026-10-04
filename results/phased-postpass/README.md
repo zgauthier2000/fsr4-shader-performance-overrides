@@ -37,6 +37,9 @@ rate uncapped, standing at the same spot. Radeon RX 7800 XT, Mesa 26.2.3 (RADV),
 - AMD's 4.16 ms is from the [built-in benchmark runs](../shadow-of-the-tomb-raider) with the same
   settings; the two other rows were read at the same spot in the game, one after the other.
 
+In the game's built-in benchmark the phased version averages 108 FPS, against 104 with the first
+rewrite and 97 with AMD's shaders ([full results](../shadow-of-the-tomb-raider#4k-with-the-phased-postpass)).
+
 First rewrite:
 
 <img src="sottr-4k-first-rewrite.png" width="500" alt="OptiScaler overlay with the first rewrite: 116.6 FPS, upscaler time 3.42 ms">
