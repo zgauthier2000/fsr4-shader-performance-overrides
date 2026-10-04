@@ -38,9 +38,12 @@ OptiScaler's upscaler time on a Radeon RX 7800 XT (Mesa 26.2, RADV), 4K output:
 | Shadow of the Tomb Raider, 1440p output | Balanced | 1.76 ms | 1.55 ms | 0.21 ms (12%) |
 | Rise of the Tomb Raider | Balanced | 4.30 ms | 3.33 ms | 0.97 ms (23%) |
 | Rise of the Tomb Raider, 1440p output | Balanced | 1.79 ms | 1.49 ms | 0.30 ms (17%) |
-| Elden Ring (postpass only) | Balanced | 5.33 ms | 4.57 ms | 0.76 ms (14%) |
+| Elden Ring (postpass only)* | Balanced | 5.33 ms | 4.57 ms | 0.76 ms (14%) |
 
 The saving varies by game. Only this one GPU has been tested.
+
+\* Measured with the game's 60 FPS cap in place, which makes OptiScaler's upscaler time unreliable
+in some games; treat this row as approximate.
 
 The table was measured with the first version of the postpass rewrite. The current, phased
 version is faster again; in Shadow of the Tomb Raider at 4K it brings the upscaler time to
@@ -85,6 +88,10 @@ OptiScaler's upscaler time was read at the same spot. Those runs were made with 
 rewrite (postpass 0.96 ms, total 3.42 ms). The phased postpass then lowered the total by 0.33 ms,
 and nothing else changed, so its 0.63 ms is derived from that, not measured on its own. The
 attempts behind the "room left" column are under [What else was tried](#what-else-was-tried).
+
+Standalone benchmark times quoted elsewhere in this repository compare versions of one shader
+fairly, but overstate its cost in a game: the model passes total 3.35 ms in the benchmark against
+1.86 ms here.
 
 ## What you need
 
@@ -326,6 +333,9 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
   SPIR-V stored in its pipeline caches for that game, which can lengthen the first loads.
 - **Online games.** This only sets an environment variable for vkd3d-proton, but it does change
   what the game renders with. Use your own judgement in games with anti-cheat.
+- **Do not set `RADV_PERFTEST=cswave32`** for a game that runs FSR 4. In a standalone benchmark it
+  made 11 of the 12 model passes about 40% slower (pass 1: 0.43 to 0.61 ms), roughly 1 ms of FSR 4
+  per frame.
 - **To undo it,** remove the launch option.
 
 ## What else was tried
@@ -334,7 +344,14 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
   pass 1 was built and measured: 0.41 ms against 0.29 ms for AMD's shader, so it is not used. The
   full write-up, data and sources are in [`research/wmma/`](research/wmma).
 - **The other model passes and the prepass.** Benchmarked individually; apart from pass 11 they
-  compile to little more than the arithmetic itself, and nothing worth rewriting was found.
+  compile to little more than the arithmetic itself, and nothing worth rewriting was found. A
+  byte-identical prepass rewrite gained about 1.5% and is not shipped.
+- **Keeping the postpass at 24 waves per SIMD.** A version that swaps pixels between lanes instead
+  of using workgroup memory was byte-identical but took 1.44 ms against 0.59 ms: it still wrote
+  only every other row, and sparse writes in either direction are what is slow.
+
+  The probes, data and scripts for these two points, the fusion test above and the occupancy on
+  other GPUs are in [`research/postpass-and-prepass/`](research/postpass-and-prepass).
 - **Fusing the model passes.** Versions of the 12 passes that write nothing and read from cache
   saved 0.07 ms of 3.35 ms in total, so merging passes to keep data on chip is not worth it: the
   passes are limited by arithmetic, not memory.
