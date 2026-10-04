@@ -10,7 +10,7 @@ alike.
 A patched DLL is attached to the [release `dll-2026-10-04.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.4), with AMD's notice and
 SHA-256 checksums. It was made by this script from AMD's original (SHA-256
 `d0dcccc74a43c44ba435b7a369b456e0970d8a4464e4bd683119b374f2c9fb46`), and running the script on that
-file reproduces it exactly. Install it as described below, from step 1 under "Then, in the game
+file with `--name 4.1.1-cyboman-r3` reproduces it exactly. Install it as described below, from step 1 under "Then, in the game
 folder".
 
 ## Make the DLL
@@ -31,6 +31,13 @@ builds in just one of the two rewrites, to find out which one helps on your GPU;
 FSR 4, which otherwise only runs on desktop RDNA3; `--only none` with it leaves the shaders as
 AMD's. See [RDNA2 and other GPUs](../docs/gpu-support.md#rdna2-and-other-gpus-that-fsr-4-refuses-experimental).
 Not for RDNA4.
+
+`--name <text>` changes the version name the DLL reports ("4.1.1" in AMD's), which is what
+OptiScaler displays, so that a patched DLL can be told from AMD's and the builds from each other.
+The released DLLs use `4.1.1-cyboman-r3` (desktop RDNA3), `4.1.1-cyboman-ig` (integrated GPUs),
+`4.1.1-cyboman-r2` (RDNA2) and `4.1.1-cyboman-any` (GPU check lifted). Keep `4.1.1` at the start
+in case a front end reads the name as a number. The file version in the DLL's properties stays
+4.1.1.2740.
 
 Then, in the game folder (wherever
 `amd_fidelityfx_upscaler_dx12.dll` is, often next to OptiScaler):
