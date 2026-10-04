@@ -13,7 +13,6 @@ Three changes today. The image is still byte-for-byte the same.
   a game uses depends on its output size, preset, exposure and colour-space setup. Until now only
   the 10 most common were replaced, so some games got no speedup. All 54 are replaced now, checked
   in all 48 combinations that select a different one. See [shader variants](docs/variants.md).
-
 - **Model pass 11 writes its output in whole rows** (11:41 EDT, commit `ef57cf2`). It used to
   store one word at a time, the same sparse pattern that made AMD's postpass slow.
 - **The postpass writes its images in solid 8x8 blocks** (12:58 EDT, commit `18e3ddd`) instead of
