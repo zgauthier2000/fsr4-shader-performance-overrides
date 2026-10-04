@@ -8,8 +8,7 @@ and want to take this on, or just to help by testing, everything needed to start
 
 ## What is known
 
-From the shaders inside AMD's `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740 (read from the DLL,
-not run):
+From the shaders inside AMD's `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740:
 
 - **The FP8 postpass is a different program** from the INT8 one this repository rewrites. It is
   Shader Model 6.4 with thread groups of 32 (the INT8 one: 256), and it calls AMD's driver
@@ -19,8 +18,30 @@ not run):
   thread into three images, the every-other-pixel pattern that is slow on RDNA3. The FP8 postpass
   makes 7 stores, several images at one shared coordinate. Whether those land densely or sparsely
   cannot be told from the code alone.
-- **The FP8 model passes were not identified.** Only 24 postpass and 18 prepass variants in the DLL
-  carry AMD's intrinsics; 384 other shaders have no readable name.
+- **The whole FP8 pipeline has been dumped** by running it under emulation (next section), but
+  not yet analysed for slow patterns.
+
+## The FP8 version can be run on RDNA3 under Proton
+
+Proton can run the FP8 version on an RDNA3 card by emulating the FP8 matrix operations with FP16:
+set `DXIL_SPIRV_CONFIG=wmma_rdna3_workaround` (GE-Proton 11-7, vkd3d-proton). On an RX 7800 XT,
+AMD's DLL then picks its FP8 version, runs, and produces an image. The shaders it loads at 4K:
+
+| Shaders | Count | Notes |
+|---|---|---|
+| Model passes `pass1` to `pass12` | 12 | cooperative-matrix code, thread groups of 32 |
+| `pass0_post` to `pass12_post` | 13 | small, no matrix code |
+| `prepass` | 1 | 2 image writes, some matrix code |
+| `postpass` | 1 | 3 image writes, matrix code |
+
+This makes the FP8 shaders available for study, and a rewrite can be checked for unchanged
+output this way, without an RDNA4 card. Two limits:
+
+- **Timings do not transfer.** The emulation is slower than real FP8 hardware (Proton itself
+  advises the INT8 version on RDNA3), so nothing measured this way says what RDNA4 gains.
+- **Linux override files do not transfer either.** With the emulation on, vkd3d-proton translates
+  the shaders differently, so `.spv` overrides must be built from a dump made on an RDNA4 card. A
+  rewrite of the DXIL itself (the patched-DLL route) does not have this problem.
 
 ## What could carry over
 
