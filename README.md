@@ -4,10 +4,15 @@ Makes AMD FSR 4.1.1 upscaling about 25 to 30% cheaper on Radeon RX 7000 graphics
 and Windows, by replacing two of FSR 4's compute shaders with faster ones. **The image is
 unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
-## What's new: 2026-10-04, 12:58 EDT (commit `18e3ddd`)
+## What's new: 2026-10-04, 14:44 EDT (commit `c5bb214`)
 
-Two changes today, both about how much memory FSR 4 moves. The image is still byte-for-byte the
-same.
+Three changes today. The image is still byte-for-byte the same.
+
+- **The patched DLL and the ReShade add-on now cover every version of the two shaders** (14:44 EDT,
+  commit `c5bb214`). AMD's DLL contains 48 versions of the postpass and 6 of pass 11, and which one
+  a game uses depends on its output size, preset, exposure and colour-space setup. Until now only
+  the 10 most common were replaced, so some games got no speedup. All 54 are replaced now, checked
+  in all 48 combinations that select a different one. See [shader variants](docs/variants.md).
 
 - **Model pass 11 writes its output in whole rows** (11:41 EDT, commit `ef57cf2`). It used to
   store one word at a time, the same sparse pattern that made AMD's postpass slow.
@@ -36,7 +41,7 @@ frame than with AMD's shaders.
   never slower, and they may help GPUs with less memory bandwidth, where they have not been
   measured yet.
 - **To get it:** download the files again, or run `build_override.sh` again if you built your own.
-  The patched DLL is in the [release `dll-2026-10-04.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.2).
+  The patched DLL is in the [release `dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3).
 - **Integrated GPUs:** still not recommended, but there is an experimental build to test; see
   [GPU support](docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 - The figures are read requests between the GPU's cache and memory, counted in a standalone
@@ -119,15 +124,16 @@ Proton translates the DLL's shaders into slightly slower code.
 
    `Z:` is how Proton sees your Linux root, so `Z:/home/you/...` is `/home/you/...`.
 
-This covers output above 1080p in every mode except Ultra Performance. For anything else, or if it
-does not get faster: [Linux guide](docs/linux.md).
+This covers output above 1080p up to 4K in every mode except Ultra Performance, for the most common
+ways games set FSR up. For anything else, or if it does not get faster, build your own files
+([Linux guide](docs/linux.md)) or use the patched DLL below, which covers every case.
 
 ### Windows: replace one DLL
 
 This also works under Proton, but on Linux the launch option above is faster.
 
 1. Download `amd_fidelityfx_upscaler_dx12.dll` from the
-   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.2).
+   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3).
 2. In the game folder, rename the existing `amd_fidelityfx_upscaler_dx12.dll` (often next to
    OptiScaler) to `amd_fidelityfx_upscaler_dx12.dll.orig`. It must be version 4.1.1.2740.
 3. Put the downloaded DLL in its place.
@@ -142,8 +148,8 @@ Open OptiScaler's overlay and compare the upscaler time with and without the cha
 the same spot. **In some games that number is only reliable with the frame rate uncapped.** At 4K
 it should drop by roughly 1 ms.
 
-The replacements match exact shaders, and AMD's DLL has more versions of them than are covered
-so far. If nothing changes in your game, that is the likely reason:
+If nothing changes with the Linux launch option, your game probably uses a shader version that
+`prebuilt/` does not have; the patched DLL covers all of them. See
 [shader variants](docs/variants.md).
 
 ### Undo
