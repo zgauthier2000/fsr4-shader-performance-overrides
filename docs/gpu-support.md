@@ -100,6 +100,23 @@ Proton on an RX 7800 XT the result is byte-for-byte identical to AMD's DLL, but 
 tried on any GPU the check refuses**: whether FSR 4 then runs correctly, and how fast, is up to
 that GPU and its driver. Do not use it on RDNA4, where both versions would then report support.
 
+### RDNA2 needs one more change: the dot products
+
+The [fsr4xyz](https://github.com/the3rdparty1917/fsr4xyz) project, which fixes this version of
+FSR 4 for RDNA2 on Windows, found that the postpass ghosts on RDNA2 unless its int8 dot products
+are written differently: AMD's shader adds each product onto a running total inside the
+instruction, and their version computes each product alone and adds it afterwards. The result is
+the same number, so the difference can only matter to the driver, which evidently mishandles the
+accumulating form on RDNA2. Their DLL also lifts the same GPU check, which confirms that lifting
+it is what RDNA2 needs.
+
+The postpass rewrite in this repository keeps AMD's accumulating form, so the plain `--any-gpu`
+builds would be expected to ghost on RDNA2. `windows/dxil/dot4_split_dxil.py` (build option
+`DOT4=split`) applies the same idea to the rewritten postpass; it is an independent
+implementation on AMD's shaders, with no code from that project. On an RX 7800 XT the output is
+byte-identical to AMD's in all 48 shader combinations and the pass is as fast as without it. It
+has not been run on RDNA2.
+
 Ready-made test builds are attached to the [release `dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3):
 
 | File | Contents |
