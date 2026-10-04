@@ -4,12 +4,12 @@ Makes AMD FSR 4.1.1 upscaling about 25 to 30% cheaper on Radeon RX 7000 graphics
 and Windows, by replacing two of FSR 4's compute shaders with faster ones. **The image is
 unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
-## What's new: 2026-10-04, 14:44 EDT (commit `c5bb214`)
+## What's new: 2026-10-04, 14:55 EDT (commit `9298321`)
 
 Three changes today. The image is still byte-for-byte the same.
 
 - **Every version of the two shaders is now covered, on Linux and Windows** (the DLL and add-on
-  at 14:44 EDT, commit `c5bb214`; the Linux files later the same day). AMD's DLL contains 48 versions of the postpass and 6 of pass 11, and which one
+  at 14:44 EDT, commit `c5bb214`; the Linux files at 14:55 EDT, commit `9298321`). AMD's DLL contains 48 versions of the postpass and 6 of pass 11, and which one
   a game uses depends on its output size, preset, exposure and colour-space setup. Until now only
   the 10 most common were replaced, so some games got no speedup. All 54 are replaced now, checked
   in all 48 combinations that select a different one. See [shader variants](docs/variants.md).
