@@ -64,10 +64,9 @@ the first and the phased version. That is expected: the DXIL version that Window
 limited the same way (it already ran 8 waves per SIMD), and under vkd3d-proton its postpass only
 went from 0.72 ms to 0.67 ms.
 
-To test on your own GPU, compare OptiScaler's upscaler time, frame rate uncapped, in four runs. Ready-made
-pass 11-only and postpass-only DLLs are attached to the
-[release `dll-2026-10-04.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.3)
-as `test-pass11-only.zip` and `test-postpass-only.zip`.
+To test on your own GPU, compare OptiScaler's upscaler time, frame rate uncapped, in four runs. A DLL with
+only one of the two rewrites is built with `dll/patch_upscaler_dll.py --only pass11` or
+`--only postpass`.
 
 | Run | Linux (launch option) | Patched DLL |
 |---|---|---|
