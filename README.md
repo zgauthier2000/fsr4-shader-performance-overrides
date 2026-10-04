@@ -147,6 +147,12 @@ Proton translates the DLL's shaders into slightly slower code.
 
    `Z:` is how Proton sees your Linux root, so `Z:/home/you/...` is `/home/you/...`.
 
+**The game must be using AMD's original DLL.** The launch option does nothing with the patched DLL
+from this repository (or any other modified one) installed, because the files are matched to AMD's
+shaders. If you installed the patched DLL earlier, put `amd_fidelityfx_upscaler_dx12.dll.orig` back
+first. OptiScaler then shows FSR as plain `4.1.1`; the launch option does not change the name, so
+the upscaler time is how you tell it applied.
+
 This covers every output size, preset and way a game can set FSR 4.1.1 up. If it does not get
 faster: [Linux guide](docs/linux.md).
 

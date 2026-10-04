@@ -78,11 +78,15 @@ when it uses a shader there is no file for. Since 2026-10-04 `prebuilt/` has a f
 normal version in AMD's DLL 4.1.1.2740, so that should only happen with:
 
 - a different FSR DLL version;
+- a modified DLL: the patched DLL from this repository (it shows as `4.1.1-cyboman-...` in
+  OptiScaler), fsr4xyz's `4.1.1b` or any other. Their shaders are not AMD's, so no file matches
+  and the launch option does nothing; the DLL's own shaders run. Put AMD's original DLL back to
+  use the launch option. Checked with release `dll-2026-10-04.5`: none of its shaders match;
 - FSR's debug view (its versions of the postpass are not covered);
 - a Proton or vkd3d-proton version that translates the shaders differently from the one the
   files were made with (GE-Proton 11-7). This has not been seen, but it cannot be ruled out.
 
-In the first and last case, dump that game and build your own files as described above.
+With a different FSR DLL version or another Proton, dump that game and build your own files as described above.
 
 ## Things to know
 
