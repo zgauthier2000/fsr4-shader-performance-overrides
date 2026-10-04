@@ -59,8 +59,8 @@ byte-identical to AMD's.
 **First report (2026-10-04):** Radeon 780M (Ryzen 7 8845HS), Windows 11, Cyberpunk 2077, 1080p
 Balanced, OptiScaler 0.9.5-pre4, same spot: fsr4xyz's `4.1.1b` 5.15 ms and 47.8 FPS on average;
 the integrated-GPU build 5.04 ms and 48.5 FPS (-2%). So this build is no longer slower on an
-integrated GPU, unlike the normal one, but the gain is small. It was compared with `4.1.1b`, not
-with AMD's shaders. More reports are welcome: please compare the upscaler time with the DLL you
+integrated GPU, unlike the normal one, but the gain is small. It was compared with `4.1.1b`, which is
+treated as equal in speed to AMD's shaders (see [RDNA2](#rdna2-needs-one-more-change-the-dot-products)). More reports are welcome: please compare the upscaler time with the DLL you
 used before and report both. On Linux, the same pass 11 can be built with
 `PASS11=rows ./build_override.sh <dump>`.
 
@@ -137,15 +137,15 @@ upscaler time:
 | RX 6800 | Control Resonant | 1707x960 to 2560x1440 | 1.96 ms, 73.7 FPS (fsr4xyz `4.1.1b`) | 1.92 ms, 73.2 FPS | -2% |
 | RX 6700 XT | not stated | not stated | 2.46 ms (not stated) | 2.38 ms | -3% |
 
-What these do and do not show:
+How to read these:
 
-- Against a DLL with AMD's own name the gain is about as large as on RDNA3. Which DLL that
-  baseline was is not known beyond its name, and the two screenshots differ in one sharpening
-  setting (the override was on in the "before" one), so treat the 29% as approximate.
-- Against fsr4xyz's `4.1.1b` the difference is small, 2% in the one report that names it. That
-  suggests most of the cost on RDNA2 goes away with the dot-product change that both DLLs share,
-  and that this repository's rewrites add little on top there. That is a reading of two data
-  points, not a measurement of where the time goes on RDNA2.
+- **`4.1.1b` is treated as equal in speed to AMD's `4.1.1`.** Its shader changes (the dot-product
+  form and a few coordinate clamps) leave the amount of work the same, so a comparison against
+  either counts as a comparison against AMD's shaders. This is an assumption from reading the
+  shaders, not a measurement.
+- On that basis the gain on RDNA2 so far ranges from 2% to 29%. The largest is at 4K output and
+  the 2% one at 1440p; the two FF VII screenshots also differ in one sharpening setting (the
+  override was on in the "before" one), so treat the 29% as approximate.
 - These are single readings from testers' screenshots, not repeated runs.
 
 **What did not fix it:** a lower bound of 0.8 on the postpass's history weight (the share of the
