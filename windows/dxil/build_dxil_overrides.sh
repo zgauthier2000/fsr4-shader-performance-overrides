@@ -30,6 +30,9 @@ for f in "$src"/*.dxil; do
     esac
     hash=$(xxd -s 4 -l 16 -p "$f")
     "$dxc_dir/bin/dxc" -dumpbin "$f" > "$work/in.ll"
+    # Only the INT8 model's shaders (packed int8 dot products), and not the debug-view versions.
+    grep -q 'dot4AddPacked' "$work/in.ll" || continue
+    grep -q 'rw_debug_visualization' "$work/in.ll" && continue
     arg=; [[ $script == pass11_stores_dxil.py ]] && arg=rowc
     if ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll"; then
         echo "skipped $(basename "$f"): not the expected structure"

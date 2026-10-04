@@ -13,9 +13,9 @@ Counted from the DLL itself, for the INT8 version of FSR 4 that runs on RX 7000 
 
 | Shader | Versions in the DLL | Replacements shipped | The rewrite applies to |
 |---|---|---|---|
-| Postpass, normal | 48 | 6 | all 48 |
+| Postpass, normal | 48 | 48 for Windows and the DLL; 2 for the Linux launch option | all 48 |
 | Postpass, with FSR's debug view | 48 | 0 | none (the debug view writes an extra image) |
-| Model pass 11 | 6 | 4 | all 6 |
+| Model pass 11 | 6 | 6 for Windows and the DLL; 1 for the Linux launch option | all 6 |
 
 The DLL also holds 24 postpass and 3 pass 11 versions for the FP8 model (RX 9000 cards), which
 this repository does not touch; see [RDNA4](rdna4.md).
@@ -23,12 +23,9 @@ this repository does not touch; see [RDNA4](rdna4.md).
 All INT8 postpass versions use thread groups of 256x1x1. The 32x1x1 groups in the DLL belong to
 the FP8 versions.
 
-## Why only some are shipped
+## What selects a version
 
-The shipped replacements are the versions that turned up in practice: in the test program used
-to check the output, and in the games measured for this repository.
-
-What selects a version, found by running AMD's DLL with each option:
+Found by running AMD's DLL with each option:
 
 | Choice | Values | Postpass versions | Pass 11 versions |
 |---|---|---|---|
@@ -44,22 +41,23 @@ which postpass or pass 11 runs.
 
 ## What this means for you
 
-- **Linux launch option:** if the upscaler time does not drop, your game uses a version that is
-  not in `prebuilt/`. Build your own files from a dump of that game
-  ([Linux guide](linux.md#building-your-own)); the scripts handle any normal version.
-- **Patched DLL and ReShade add-on:** same symptom, no speedup for the postpass. Building the
-  replacement for your game's version is described in the
-  [Windows page](../windows/README.md#if-your-games-variant-is-not-prebuilt).
+- **Patched DLL and ReShade add-on (since 2026-10-04):** every normal version is covered, so the
+  speedup no longer depends on how the game sets FSR up. Only FSR's debug view falls back to
+  AMD's postpass.
+- **Linux launch option:** `prebuilt/` still holds only the common versions (output above 1080p
+  up to 4K, any preset except Ultra Performance, two of the eight exposure and colour setups),
+  because those files are named after Proton's translation of each shader and can only be made
+  from a game's dump. If the upscaler time does not drop, either build your own files from a dump
+  of that game ([Linux guide](linux.md#building-your-own)), which works for any normal version, or
+  use the patched DLL, which is slightly slower on Linux but covers everything.
 
-## Work in progress
+## How the full set was verified
 
-Running the rewrite directly on the DLL's own copies of all 54 normal shaders (48 postpass, 6
-pass 11) works: every one builds and passes Microsoft's validator, and the 10 already shipped
-come out byte for byte the same that way. What is missing is proof that the other 44 produce
-output identical to AMD's, because the test program only triggers the 10. The test program is
-being extended to set more of FSR's options; versions that pass will be added to the patched DLL
-and the add-on, so that Windows users are covered whatever their game does. Linux override files
-cannot be prebuilt this way, because they are named after Proton's translation of each shader.
+The rewrite was run on the DLL's own copies of all 54 shaders (48 postpass, 6 pass 11). A test
+program then ran AMD's DLL and the patched one in each of the 48 combinations that select a
+different version (3 output sizes x 2 models x 8 setups), with a shader dump to confirm which
+versions ran. In all 48 the output was byte-for-byte identical to AMD's, both shaders were
+replaced, and every one of the 54 was exercised at least once.
 
 Thanks to the commenter on Discord who pointed out that the DLL has far more postpass versions
 than were covered.

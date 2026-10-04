@@ -2,6 +2,8 @@
 
 ## `fsr4-overrides/*.dxil`
 
+54 files: every normal version of the FSR 4.1.1 INT8 postpass (48) and model pass 11 (6).
+
 These are modified versions of compute shaders from AMD's FSR 4.1.1 upscaler, in DXIL form. They
 are not AMD's originals and are not provided or endorsed by AMD.
 

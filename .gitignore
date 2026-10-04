@@ -23,3 +23,6 @@ dll/test/*.log
 dll/test/noise_capture_*
 dll/test/output_*.raw
 dll/test/vkd3d-proton.cache*
+dll/test/all_*.dll
+dll/test/va
+dll/test/vb

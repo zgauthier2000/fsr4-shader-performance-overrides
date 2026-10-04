@@ -5,6 +5,8 @@
 //   fsr4img.exe 4.1.1 2260x1272 3840x2160 32 image
 // Build: x86_64-w64-mingw32-gcc -std=c11 -O1 -I<FidelityFX SDK>/Kits/FidelityFX/api/include
 //   -I<...>/upscalers/include fsr4img.c -o fsr4img.exe -ld3d12 -ldxguid -static
+// Options for reaching other shader versions (dll/test/run_all_variants.sh): environment variables
+// FSR_CTX_FLAGS (context flags), FSR_DISP_FLAGS (dispatch flags), FSR_SHARPEN (0 or 1).
 // SPDX-License-Identifier: GPL-2.0-or-later
 // bbport: fsr4cap.exe — runs AMD's FSR 4 upscaler DLL through the FidelityFX API on D3D12 (under
 // Wine/Proton with vkd3d-proton) on synthetic inputs, for recording what it does (docs/upscaler.md,
@@ -250,6 +252,7 @@ int main(int argc, char** argv) {
     create.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_UPSCALE;
     create.header.pNext = &override.header;
     create.flags = FFX_UPSCALE_ENABLE_HIGH_DYNAMIC_RANGE | FFX_UPSCALE_ENABLE_AUTO_EXPOSURE;
+    if (getenv("FSR_CTX_FLAGS")) create.flags = (uint32_t)strtoul(getenv("FSR_CTX_FLAGS"), NULL, 0);   // variant tests
     create.maxRenderSize.width = ow;
     create.maxRenderSize.height = oh;
     create.maxUpscaleSize.width = ow;
@@ -320,6 +323,8 @@ int main(int argc, char** argv) {
         d.upscaleSize.width = ow;
         d.upscaleSize.height = oh;
         d.enableSharpening = !image;
+        if (getenv("FSR_SHARPEN")) d.enableSharpening = atoi(getenv("FSR_SHARPEN")) != 0;
+        if (getenv("FSR_DISP_FLAGS")) d.flags = (uint32_t)strtoul(getenv("FSR_DISP_FLAGS"), NULL, 0);
         d.sharpness = 0.5f;
         d.frameTimeDelta = 10.0f;
         d.preExposure = 1.0f;

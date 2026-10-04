@@ -49,11 +49,12 @@ the input file untouched.
 
 The replacement shaders are the DXIL files of the Windows add-on,
 [`../windows/prebuilt/fsr4-overrides`](../windows/prebuilt/fsr4-overrides): the phased postpass
-and model pass 11, for every output size and preset the add-on covers. Inside the DLL the shaders
+and model pass 11, in every normal version the DLL contains (48 and 6; see
+[shader variants](../docs/variants.md)), so the speedup does not depend on how a game sets FSR up. Inside the DLL the shaders
 are plain DXIL containers, each described by a size and a pointer:
 
 - A replacement that is no larger than AMD's shader is written in place.
-- A larger one (all ten, in the current version) goes into a new section, `.fsr4`, at the end of
+- A larger one (all 54, in the current version) goes into a new section, `.fsr4`, at the end of
   the file, and its size and pointer are updated.
 
 Nothing else in the DLL changes. AMD's digital signature does not survive the change, so the
@@ -79,6 +80,10 @@ with the patched postpass running in each.
 | 1706x960 | 2560x1440 | identical |
 | 1280x720 | 1920x1080 | identical |
 | 640x360 | 1920x1080 | identical |
+
+[`test/run_all_variants.sh`](test/run_all_variants.sh) does the same for every combination of
+output size, model, exposure and colour-space setup that selects a different shader: 48
+combinations, all identical, with both replaced shaders confirmed running in each.
 
 ## Things to know
 
