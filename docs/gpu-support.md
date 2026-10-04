@@ -52,8 +52,8 @@ What is known about why:
 **An experimental build for integrated GPUs is available for testing.** Its pass 11 keeps AMD's
 loops, so the pass stays small (6.5 KB as compiled for a Radeon 780M), and only stores each row of
 its output together, which cuts the memory the pass reads to about a quarter. It is attached to
-the [release `dll-2026-10-04.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.4)
-as `test-igpu.zip` and, with AMD's GPU check lifted, `test-igpu-any-gpu.zip`. Its output is
+the [release `dll-2026-10-04.5`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.5)
+as `test-igpu.zip` (AMD's GPU check is lifted in it, as in every released DLL). Its output is
 byte-identical to AMD's, but it has not been run on an integrated GPU yet: please compare the
 upscaler time with AMD's original DLL and report both. On Linux, the same pass 11 can be built with
 `PASS11=rows ./build_override.sh <dump>`.
@@ -99,6 +99,10 @@ Proton on an RX 7800 XT the result is byte-for-byte identical to AMD's DLL, but 
 tried on any GPU the check refuses**: whether FSR 4 then runs correctly, and how fast, is up to
 that GPU and its driver. Do not use it on RDNA4, where both versions would then report support.
 
+**Since release `dll-2026-10-04.5` every released DLL has the check lifted**, including the main
+one, so there are three builds in all: desktop RDNA3, integrated GPUs and RDNA2. On desktop RDNA3
+the lifted check changes nothing.
+
 ### RDNA2 needs one more change: the dot products
 
 The [fsr4xyz](https://github.com/the3rdparty1917/fsr4xyz) project, which fixes this version of
@@ -124,12 +128,13 @@ against the fsr4xyz DLL, has not been measured yet.
 previous frame in each output pixel), which was suggested as a fix. It looks bad in motion; see
 [history clamp](../research/history-clamp).
 
-Ready-made test builds are attached to the [release `dll-2026-10-04.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.4):
+The builds are attached to the [release `dll-2026-10-04.5`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.5):
 
 | File | Contents |
 |---|---|
 | `test-rdna2.zip` | **for RDNA2, fixes the shimmering:** check lifted, both rewrites, and the postpass's dot products split (see above) |
-| `test-any-gpu.zip` | check lifted, both rewrites |
+| `amd_fidelityfx_upscaler_dx12.dll` | the main DLL for desktop RDNA3: check lifted, both rewrites |
+| `test-igpu.zip` | for integrated GPUs: check lifted, postpass rewrite and the compact pass 11 ([above](#integrated-gpus-radeon-780m-and-similar)) |
 
 Other combinations (check lifted with AMD's shaders unchanged, or with one rewrite only) are built
 with `dll/patch_upscaler_dll.py --any-gpu --only none|pass11|postpass`.
