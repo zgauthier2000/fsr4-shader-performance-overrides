@@ -26,9 +26,21 @@ the FP8 versions.
 ## Why only some are shipped
 
 The shipped replacements are the versions that turned up in practice: in the test program used
-to check the output, and in the games measured for this repository. The 48 normal versions look
-like 2 output-size classes (above 1080p, and 1080p or below) x 2 models (Ultra Performance, and
-all other presets) x 12 combinations of how the game hands FSR its colour and exposure.
+to check the output, and in the games measured for this repository.
+
+What selects a version, found by running AMD's DLL with each option:
+
+| Choice | Values | Postpass versions | Pass 11 versions |
+|---|---|---|---|
+| Output size | up to 1080p; above 1080p up to 4K; above 4K | 3 | 3 |
+| Model | Ultra Performance; every other preset | 2 | 2 |
+| Exposure and colour space, as the game sets FSR up | 8 combinations, below | 8 | 1 |
+| | | 48 | 6 |
+
+The 8 combinations: automatic exposure on or off, each with the input colour declared as linear,
+as non-linear without saying which, as sRGB, or as PQ. High dynamic range, the motion-vector and
+depth options, dynamic resolution, sharpening and native-resolution anti-aliasing do not change
+which postpass or pass 11 runs.
 
 ## What this means for you
 

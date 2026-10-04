@@ -138,13 +138,13 @@ It is AMD's DLL with the two shaders swapped. Details, and how to build it yours
 
 ### Check that it worked
 
-The replacements match exact shaders, and AMD's DLL has more versions of them than are covered
-so far. If nothing changes in your game, that is the likely reason:
-[shader variants](docs/variants.md).
-
 Open OptiScaler's overlay and compare the upscaler time with and without the change, standing at
 the same spot. **In some games that number is only reliable with the frame rate uncapped.** At 4K
 it should drop by roughly 1 ms.
+
+The replacements match exact shaders, and AMD's DLL has more versions of them than are covered
+so far. If nothing changes in your game, that is the likely reason:
+[shader variants](docs/variants.md).
 
 ### Undo
 
