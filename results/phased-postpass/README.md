@@ -76,6 +76,10 @@ game, settings and spot; first rewrite in place):
 
 The postpass was the largest single shader left, which is what led to the phased version.
 
+Measured again the same way with the phased postpass: 0.12 ms with everything emptied and 0.75 ms
+with only the postpass running, so the phased postpass costs 0.63 ms in the game, 0.33 ms less
+than the first rewrite. That is exactly the drop in the total (3.42 ms to 3.09 ms).
+
 ## In a standalone benchmark
 
 The postpass alone, on the same GPU, at 4K output (the same shaders as in the game, driven with

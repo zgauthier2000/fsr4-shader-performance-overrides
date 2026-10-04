@@ -69,7 +69,7 @@ phased postpass and the pass 11 rewrite: **3.09 ms in total** (AMD's shaders: 4.
 | Part | Time | Share | Room left |
 |---|---|---|---|
 | Model passes (12) | 1.86 ms | 60% | none found: limited by arithmetic; WMMA and pass fusion ruled out |
-| Postpass (phased) | about 0.63 ms | 20% | 0.05 ms at most |
+| Postpass (phased) | 0.63 ms | 20% | 0.05 ms at most |
 | Prepass | 0.44 ms | 14% | a few hundredths of a millisecond |
 | OptiScaler and dispatch overhead | 0.12 ms | 4% | outside the shaders |
 | Two small shaders and gaps between passes | 0.04 ms | 1% | |
@@ -84,9 +84,10 @@ passes cannot be timed in the game):
 | 480x270 | 6, 7, 8, 9 | about 0.46 ms |
 
 How it was measured: parts of FSR 4 were replaced with empty shaders, one run each, and
-OptiScaler's upscaler time was read at the same spot. Those runs were made with the first postpass
-rewrite (postpass 0.96 ms, total 3.42 ms). The phased postpass then lowered the total by 0.33 ms,
-and nothing else changed, so its 0.63 ms is derived from that, not measured on its own. The
+OptiScaler's upscaler time was read at the same spot. With everything emptied the reading is
+0.12 ms, and with only the phased postpass running 0.75 ms, so the postpass costs 0.63 ms (the
+first rewrite: 1.08 ms, so 0.96 ms). That matches the drop in the total from 3.42 ms to 3.09 ms. The
+other parts were measured while the first rewrite was in place; they did not change. The
 attempts behind the "room left" column are under [What else was tried](#what-else-was-tried).
 
 Standalone benchmark times quoted elsewhere in this repository compare versions of one shader
