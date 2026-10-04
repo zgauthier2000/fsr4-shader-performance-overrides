@@ -121,6 +121,7 @@ Ready-made test builds are attached to the [release `dll-2026-10-04.3`](https://
 
 | File | Contents |
 |---|---|
+| `test-rdna2.zip` | **for RDNA2:** check lifted, both rewrites, and the postpass's dot products split (see above) |
 | `test-any-gpu-amd-shaders.zip` | check lifted, AMD's shaders unchanged: does FSR 4 run at all? |
 | `test-any-gpu.zip` | check lifted, both rewrites |
 | `test-any-gpu-pass11-only.zip` | check lifted, pass 11 rewrite only |
