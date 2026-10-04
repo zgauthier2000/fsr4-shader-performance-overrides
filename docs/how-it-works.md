@@ -107,6 +107,10 @@ capture on Windows would show what AMD's Windows compiler actually does with eac
   layout; but the phased postpass on the default layout takes 0.60 ms, and linear images slow it
   (and other uses of those images) down. Details in
   [`research/postpass-and-prepass/`](../research/postpass-and-prepass).
+- **Dense stores in model pass 11.** The pass stores its 2x2 block of outputs one word at a time;
+  storing each row's words together cuts its memory traffic to a third and its write requests
+  17-fold, byte-identical, but the game's upscaler time does not change (3.12 ms either way), so
+  it is not shipped.
 - **Fusing the model passes.** Versions of the 12 passes that write nothing saved 0.07 ms of
   2.03 ms in total, and the compiled passes are almost all arithmetic (pass 1: 832 int8 dot
   products and 13 memory instructions out of 1,450). Merging passes to keep data on chip is not
