@@ -54,7 +54,7 @@ How this was measured, and everything that was tried on each part:
 | RX 7900, 7800, 7700, 7600 (desktop RDNA3) | yes, measured on an RX 7800 XT | yes, testers report large gains |
 | Radeon 780M, 890M and other RDNA3 integrated GPUs | no: reported slower | no: reported slower |
 | RX 6000, Steam Deck (RDNA2) | experimental, untested | experimental, untested |
-| RX 9000 (RDNA4) | not needed: it runs a different FSR 4 | not needed |
+| RX 9000 (RDNA4) | no: it runs a different FSR 4 ([open for someone to pick up](docs/rdna4.md)) | no |
 
 You also need:
 
@@ -127,6 +127,7 @@ Remove the launch option, or put the original DLL back.
 | [Linux guide](docs/linux.md) | requirements, building your own files, troubleshooting |
 | [GPU support](docs/gpu-support.md) | Windows, integrated GPUs, the experimental RDNA2 unlock |
 | [How it works](docs/how-it-works.md) | what the two rewrites do, where the time goes, what else was tried |
+| [RDNA4](docs/rdna4.md) | what is known about the FP8 model on RX 9000 cards; open for anyone who can test on one |
 | [Research](research) | the probes, data and scripts behind all of it |
 
 ## Example images

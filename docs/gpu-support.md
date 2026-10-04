@@ -8,7 +8,7 @@
 | Desktop RDNA3 | Windows | testers report large gains |
 | RDNA3 integrated (Radeon 780M, 890M) | any | reported slower: do not use, or try pass 11 only |
 | RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; experimental unlock, untested |
-| RDNA4 (RX 9000) | any | not applicable: it runs a different FSR 4 model |
+| RDNA4 (RX 9000) | any | not covered: it runs a different FSR 4 model; see [RDNA4](rdna4.md) |
 
 ## Windows
 
