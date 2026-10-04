@@ -200,6 +200,6 @@ if pending_phi_fix:
         res.append(l)
     out = res
 if not any(re.match(r'\s*%bool = OpTypeBool', l) for l in out):
-    out = [('%bool = OpTypeBool\n' + l) if l.strip().startswith('%nm_mask') else l for l in out]
+    out = [('%bool = OpTypeBool\n' + l) if l.strip().startswith('%nm_mask =') else l for l in out]
 print('\n'.join(out))
 print(f'nomem: masked {masked} loads, guarded {stores} stores', file=sys.stderr)

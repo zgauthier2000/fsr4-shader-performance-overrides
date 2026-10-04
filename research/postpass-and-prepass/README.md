@@ -262,6 +262,27 @@ cache block belongs to other groups that run at other times. A replacement shade
 how the pass is dispatched. The time at stake is small in any case: removing every store saves
 0.03 ms.
 
+### The sharpening pass (RCAS): at the memory bandwidth limit
+
+FSR 4's sharpening pass only runs when sharpening is enabled. In the benchmark it takes 0.258 ms
+at 4K, reads 1,123 MB and makes 4.7 million write requests. Each thread sharpens four pixels,
+8 apart, so every store instruction of a wave writes a solid 8x8 block: the writes are dense.
+
+| Sharpening pass | Benchmark |
+|---|---|
+| AMD's | 0.258 ms |
+| Stores removed (wrong output) | 0.074 ms |
+| All reads from cache, stores kept (wrong output) | 0.084 ms |
+| Neither | 0.064 ms |
+| The four stores moved to the end of the shader (byte-identical) | 0.250 ms |
+
+The arithmetic is only about 0.06 ms; the rest appears only when the pass both reads its 66 MB
+input and writes its 66 MB output. Moving that much data takes about 0.21 ms at this card's memory
+bandwidth (624 GB/s), close to what is measured, and the two images together do not fit in the
+GPU's 64 MB cache. So the pass looks limited by memory bandwidth, not by its code, and nothing in
+the shader can change how much it must read and write. Moving the stores to the end, which lets
+the compiler group the reads, gains 3%. Not shipped.
+
 ## The prepass
 
 AMD's prepass takes 0.47 ms in the benchmark (0.44 ms in the game), runs 32 waves per SIMD with 48
