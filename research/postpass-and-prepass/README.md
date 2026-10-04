@@ -5,9 +5,11 @@ rewrite, including the attempts that did not work. Everything here was run on a 
 with Mesa 26.2.3 (RADV), at 4K output unless noted.
 
 **A note on the numbers.** Times marked "benchmark" come from a standalone program that runs one
-shader in a long burst with pseudo-random inputs. It is good for comparing versions of a shader,
-but it overstates what a pass costs in a game: the 12 model passes add up to 3.35 ms there and to
-1.86 ms in Shadow of the Tomb Raider, about 1.8 times less.
+shader repeatedly with pseudo-random inputs. With long bursts (500 dispatches) it agrees with the
+game: the 12 model passes add up to 2.03 ms there and to 1.86 ms in Shadow of the Tomb Raider.
+With short bursts (20 dispatches) the model passes read about 65% too high, which is how they
+were first measured; the model-pass tables below are from long bursts. The postpass and prepass
+times do not depend on the burst length.
 
 ## Why AMD's stores are slow: the density of the writes
 
@@ -42,32 +44,38 @@ only the time matters.
 |---|---|---|---|---|
 | Postpass (first rewrite) | 0.83 | 0.76 | 0.76 | 0.72 |
 | Prepass | 0.47 | 0.45 | 0.46 | 0.42 |
-| 12 model passes, total | 3.35 | 3.28 | 3.42 | 3.47 |
+| 12 model passes, total | 2.03 | 1.95 | 2.34 | 2.32 |
 
 Per model pass (pass 11 with its rewrite):
 
 | Pass | As is | No writes | Cached reads | Both |
 |---|---|---|---|---|
-| 1 | 0.441 | 0.426 | 0.442 | 0.448 |
-| 2 | 0.443 | 0.427 | 0.455 | 0.447 |
-| 3 | 0.096 | 0.098 | 0.098 | 0.095 |
-| 4 | 0.256 | 0.253 | 0.276 | 0.257 |
-| 5 | 0.257 | 0.254 | 0.275 | 0.264 |
-| 6 | 0.094 | 0.088 | 0.098 | 0.094 |
-| 7 | 0.225 | 0.218 | 0.241 | 0.230 |
-| 8 | 0.220 | 0.216 | 0.236 | 0.245 |
-| 9 | 0.297 | 0.293 | 0.322 | 0.315 |
-| 10 | 0.258 | 0.247 | 0.265 | 0.270 |
-| 11 | 0.339 | 0.328 | 0.355 | 0.356 |
-| 12 | 0.426 | 0.430 | 0.455 | 0.451 |
+| 1 | 0.291 | 0.280 | 0.331 | 0.328 |
+| 2 | 0.291 | 0.280 | 0.330 | 0.327 |
+| 3 | 0.050 | 0.050 | 0.049 | 0.048 |
+| 4 | 0.139 | 0.136 | 0.181 | 0.182 |
+| 5 | 0.139 | 0.136 | 0.181 | 0.181 |
+| 6 | 0.048 | 0.052 | 0.055 | 0.053 |
+| 7 | 0.115 | 0.112 | 0.117 | 0.116 |
+| 8 | 0.115 | 0.115 | 0.115 | 0.114 |
+| 9 | 0.176 | 0.171 | 0.217 | 0.216 |
+| 10 | 0.139 | 0.138 | 0.181 | 0.178 |
+| 11 | 0.229 | 0.203 | 0.252 | 0.250 |
+| 12 | 0.293 | 0.280 | 0.330 | 0.327 |
 
-- **Model passes:** removing every write saves about 2%, and cached reads save nothing (the extra
-  masking instruction costs slightly more than it gains). The passes are limited by arithmetic, so
-  merging passes to keep data on chip could save under 0.1 ms.
+- **Model passes:** removing every write saves about 4% (0.07 ms). The cached-reads probe runs
+  slower than the original in most passes, so it is not a valid lower bound and says nothing
+  about what the reads cost: masking the addresses changes the code the compiler produces. What
+  the compiled code shows is that the passes are almost all arithmetic: pass 1 is 832 int8 dot
+  products and 13 memory instructions out of 1,450. So merging passes to keep data on chip has
+  little to gain.
+- **Other things tried on the model passes:** the constant-z change that takes pass 11 from 0.60
+  to 0.23 ms does nothing for the other 11 passes (each within 0.004 ms). Running them as wave32
+  (`RADV_PERFTEST=cswave32`) makes every pass 40 to 65% slower, 2.03 to 3.13 ms in total.
 - **Postpass and prepass:** about 14% and 10% memory traffic. What stood out instead was the
   first postpass rewrite's occupancy, which led to the phased version.
 - **A trap:** masking each read's own index, instead of the shared base it is computed from, stops
-  the compiler from merging neighbouring reads and makes the probe slower than the original.
+  the compiler from merging neighbouring reads and makes the probe slower still.
 
 One caveat: the benchmark repeats one pass, so its inputs may stay in the GPU's 64 MB cache. In a
 game the previous pass has just written them, so they are likely cached there too.

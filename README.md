@@ -79,9 +79,9 @@ passes cannot be timed in the game):
 
 | Tensor size | Passes | Estimated time |
 |---|---|---|
-| 1920x1080 | 1, 2, 12 | about 0.73 ms (about 0.24 ms each) |
-| 960x540 | 3, 4, 5, 10, 11 | about 0.67 ms (pass 11 the largest, about 0.19 ms) |
-| 480x270 | 6, 7, 8, 9 | about 0.46 ms |
+| 1920x1080 | 1, 2, 12 | about 0.80 ms (about 0.27 ms each) |
+| 960x540 | 3, 4, 5, 10, 11 | about 0.64 ms (pass 11 the largest, about 0.21 ms) |
+| 480x270 | 6, 7, 8, 9 | about 0.42 ms |
 
 How it was measured: parts of FSR 4 were replaced with empty shaders, one run each, and
 OptiScaler's upscaler time was read at the same spot. With everything emptied the reading is
@@ -90,9 +90,11 @@ first rewrite: 1.08 ms, so 0.96 ms). That matches the drop in the total from 3.4
 other parts were measured while the first rewrite was in place; they did not change. The
 attempts behind the "room left" column are under [What else was tried](#what-else-was-tried).
 
-Standalone benchmark times quoted elsewhere in this repository compare versions of one shader
-fairly, but overstate its cost in a game: the model passes total 3.35 ms in the benchmark against
-1.86 ms here.
+The standalone benchmark agrees with the game when it runs each pass in a long burst (500
+dispatches): the 12 model passes total 2.03 ms there against 1.86 ms here, the postpass 0.59 ms
+against 0.63 ms, the prepass 0.48 ms against 0.44 ms. With short bursts (20 dispatches) the model
+passes read about 65% too high (3.35 ms), which is how they were first measured; the model-pass
+figures in this repository have been re-measured with long bursts.
 
 ## What you need
 
@@ -316,8 +318,9 @@ If the upscaler time does not drop, dump that game and run the script again.
   pass went from about 2.1 ms to 0.6 ms (0.83 ms with the first version, which moved all three
   images at once).
 - **Model pass 11** (`zconst.py`). The pass uses a coordinate that is always zero in its loop
-  counts, which stops the driver from unrolling the loops. Replacing it with a constant saves about
-  0.1 ms.
+  counts, which stops the driver from unrolling the loops. Replacing it with a constant takes the
+  pass from 0.60 ms to 0.23 ms in a standalone benchmark. The same change does nothing for the
+  other 11 passes.
 
 Both rewrites leave the arithmetic untouched. In a standalone benchmark on the same GPU, the
 rewritten shaders produced output byte-for-byte identical to AMD's.
@@ -335,8 +338,8 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
 - **Online games.** This only sets an environment variable for vkd3d-proton, but it does change
   what the game renders with. Use your own judgement in games with anti-cheat.
 - **Do not set `RADV_PERFTEST=cswave32`** for a game that runs FSR 4. In a standalone benchmark it
-  made 11 of the 12 model passes about 40% slower (pass 1: 0.43 to 0.61 ms), roughly 1 ms of FSR 4
-  per frame.
+  made every model pass 40 to 65% slower (pass 1: 0.29 to 0.45 ms; all 12: 2.03 to 3.13 ms), about
+  1.1 ms of FSR 4 per frame.
 - **To undo it,** remove the launch option.
 
 ## What else was tried
@@ -353,9 +356,10 @@ rewritten shaders produced output byte-for-byte identical to AMD's.
 
   The probes, data and scripts for these two points, the fusion test above and the occupancy on
   other GPUs are in [`research/postpass-and-prepass/`](research/postpass-and-prepass).
-- **Fusing the model passes.** Versions of the 12 passes that write nothing and read from cache
-  saved 0.07 ms of 3.35 ms in total, so merging passes to keep data on chip is not worth it: the
-  passes are limited by arithmetic, not memory.
+- **Fusing the model passes.** Versions of the 12 passes that write nothing saved 0.07 ms of
+  2.03 ms in total, and the compiled passes are almost all arithmetic (pass 1: 832 int8 dot
+  products and 13 memory instructions out of 1,450). Merging passes to keep data on chip is not
+  worth it.
 - **Further workgroup-memory (LDS) tuning of the phased postpass.** Measured in a standalone
   benchmark at 4K, where the phased postpass takes 0.59 ms and AMD's original with all its stores
   removed (no write cost at all, full occupancy) 0.49 ms, so at most 0.1 ms is left:

@@ -134,9 +134,10 @@ pending_phi_fix = {}   # old block label -> new label (the one ending the old bl
 for i, l in enumerate(L):
     s = l.strip()
     if not const_added and re.match(r'\s*%\S+ = OpFunction ', l):
-        out += ['%nm_mask = OpConstant %uint 16383', '%nm_magic = OpConstant %uint 2654435769',
-                '%nm_fmagic = OpConstant %float 1234567.25', '%nm_m63 = OpConstant %uint 63',
-                '%nm_mask2 = OpConstantComposite %v2uint %nm_m63 %nm_m63']
+        out += ['%nm_mask = OpConstant %uint 16383', '%nm_magic = OpConstant %uint 2654435769']
+        if any('OpImage' in x for x in L):
+            out += ['%nm_fmagic = OpConstant %float 1234567.25', '%nm_m63 = OpConstant %uint 63',
+                    '%nm_mask2 = OpConstantComposite %v2uint %nm_m63 %nm_m63']
         if any(re.match(r'\s*%v2float = OpTypeVector', x) for x in L):
             out += ['%nm_f = OpConstant %float 0.015625', '%nm_scale2 = OpConstantComposite %v2float %nm_f %nm_f']
         const_added = True
