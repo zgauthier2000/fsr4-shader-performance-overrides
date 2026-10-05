@@ -6,7 +6,7 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/overview-dark.svg">
-  <img src="docs/img/overview-light.svg" width="760" alt="Overview. Of FSR 4.1.1's fourteen main passes, twelve are rewritten with the same output: the prepass (10% less time), ten model passes (the same arithmetic in fewer steps; pass 11 takes 62% less time and reads 77% less memory) and the postpass (about 70% less time, 68% less memory read). Model passes 3 and 6 are untouched. On a Radeon RX 7800 XT at 4K in Shadow of the Tomb Raider the upscaler time goes from 4.16 to 3.05 ms per frame (97 to 109 FPS), 27% less, and the memory FSR 4 reads per frame from 7,668 to 5,321 MB, 31% less.">
+  <img src="docs/img/overview-light.svg" width="760" alt="Overview. Of FSR 4.1.1's fourteen main passes, twelve are rewritten with the same output: the prepass (10% less time), ten model passes (the same arithmetic in fewer steps; pass 11 takes 62% less time and reads 76% less memory) and the postpass (about 70% less time, 68% less memory read). Model passes 3 and 6 are untouched. On a Radeon RX 7800 XT at 4K in Shadow of the Tomb Raider the upscaler time goes from 4.16 to 3.05 ms per frame (97 to 109 FPS), 27% less, and the memory FSR 4 reads per frame from 7,639 to 5,317 MB, 30% less.">
 </picture>
 
 Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
@@ -133,21 +133,25 @@ Three changes today. The image is still byte-for-byte the same.
 - **The postpass writes its images in solid 8x8 blocks** (12:58 EDT, commit `18e3ddd`) instead of
   two rows of 32 pixels at a time, which reads a little less again.
 
-Together with the "phased" postpass from 2026-10-03, FSR 4 now reads about 31% less memory per
+Together with the "phased" postpass from 2026-10-03, FSR 4 now reads about 30% less memory per
 frame than with AMD's shaders.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/memory-traffic-dark.svg">
-  <img src="docs/img/memory-traffic-light.svg" width="760" alt="Bar chart: memory read by FSR 4 per frame at 4K, AMD's shaders against this release. Postpass 2,295 to 732 MB, model pass 11 1,018 to 234 MB, prepass and the other model passes unchanged, all passes 7,668 to 5,321 MB.">
+  <img src="docs/img/memory-traffic-light.svg" width="760" alt="Bar chart: memory read by FSR 4 per frame at 4K, AMD's shaders against this release. Postpass 2,291 to 732 MB, model pass 11 984 to 233 MB, prepass 1,715 to 1,707 MB, the other eleven model passes 2,649 to 2,645 MB, all passes 7,639 to 5,317 MB.">
 </picture>
+
+Measured again on 2026-10-05 with everything the repository now ships (the prepass and the other
+model-pass rewrites included). Those later rewrites save time by doing less arithmetic, and the
+memory they read is unchanged, so the total is where it was (7,668 to 5,321 MB the day before).
 
 | Memory read per frame at 4K | AMD's shaders | This release |
 |---|---|---|
-| Postpass | 2,295 MB | 732 MB (792 MB before today) |
-| Model pass 11 | 1,018 MB | 234 MB (739 MB before today) |
-| Prepass | 1,712 MB | 1,712 MB |
-| Other 11 model passes | 2,643 MB | 2,643 MB |
-| **All passes** | **7,668 MB** | **5,321 MB (−31%)** |
+| Postpass | 2,291 MB | 732 MB |
+| Model pass 11 | 984 MB | 233 MB |
+| Prepass | 1,715 MB | 1,707 MB |
+| Other 11 model passes | 2,649 MB | 2,645 MB |
+| **All passes** | **7,639 MB** | **5,317 MB (−30%)** |
 
 - **Frame rate on an RX 7800 XT is the same as with the 2026-10-03 version** (108 FPS and about
   3.1 ms of upscaler time in Shadow of the Tomb Raider's benchmark, with or without today's

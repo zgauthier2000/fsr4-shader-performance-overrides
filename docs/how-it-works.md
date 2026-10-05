@@ -22,7 +22,7 @@ the end of this section.)
 - **Model pass 11's stores** (`pass11_stores.py`, since 2026-10-04). The pass is the model's
   upsampling step: each thread computes a 2x2 block of outputs and stored every word the moment it
   was computed, 4 bytes in every 32, the same sparse pattern as the postpass. Now each row's
-  eight words are stored together. The pass reads 234 MB from memory instead of 1,018 MB and
+  eight words are stored together. The pass reads about 233 MB from memory instead of about 1,000 MB and
   makes 26 times fewer write requests. On an RX 7800 XT this does not change the frame rate (the
   traffic was not what limited the pass there); it is shipped because it is never slower and may
   help GPUs with less memory bandwidth.

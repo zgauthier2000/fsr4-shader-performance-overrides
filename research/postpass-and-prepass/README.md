@@ -210,6 +210,19 @@ The cache counters (see the tiling section above) for each pass at 4K, per run o
 | Model passes 1, 2, 12 | about 270 MB each | 0.24 million each | 33 MB each |
 | The other eight model passes | 208 to 265 MB each | about 0.1 million each | 8 to 16 MB each |
 
+**Measured again on 2026-10-05 with every shipped rewrite** (medians of three captures per pass):
+AMD's shaders 7,639 MB per frame, the shipped set 5,317 MB (30% less). The prepass rewrite reads
+1,707 MB against 1,715 MB and the exact model-pass rewrites change nothing measurable (each pass
+within 3 MB of AMD's): they save arithmetic, not traffic. Pass 11 with AMD's shader read 984 MB in
+this run (975 to 1,006 MB over three captures) against 1,018 MB the day before; the other passes
+repeat within 1%.
+
+The prepass and postpass figures depend on the version the game selects. The table uses the
+versions Elden Ring selects. Shadow of the Tomb Raider's versions read less in the same benchmark:
+prepass 1,119 MB (rewritten: 1,089 MB), postpass 1,400 MB (rewritten: 531 MB), which makes the
+totals 6,152 and 4,498 MB (27% less). The benchmark programs were written around Elden Ring's
+versions, so treat the Tomb Raider figures as less certain.
+
 Pass 11, the model's upsampling step, stands out among the model passes: ten times the write
 requests of passes that write the same amount. It computes a 2x2 block of outputs per thread, four
 words each, and stores every word as soon as it is computed, with the next word's arithmetic in

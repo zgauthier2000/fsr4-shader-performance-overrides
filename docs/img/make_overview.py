@@ -30,9 +30,9 @@ def hbar(x0, y, w, h, fill):
 def figure(t):
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" '
          'aria-label="Overview. Of FSR 4.1.1\'s fourteen main passes, twelve are rewritten with the same output: the prepass (10% less time), '
-         'ten model passes (the same arithmetic in fewer steps; pass 11 takes 62% less time and reads 77% less memory) and the postpass '
+         'ten model passes (the same arithmetic in fewer steps; pass 11 takes 62% less time and reads 76% less memory) and the postpass '
          '(about 70% less time, 68% less memory read). On a Radeon RX 7800 XT at 4K the upscaler time goes from 4.16 to 3.05 ms per frame '
-         'and the memory read per frame from 7,668 to 5,321 MB.">',
+         'and the memory read per frame from 7,639 to 5,317 MB.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 34, 'What this project changes in FSR 4.1.1', t, 16, 'ink', weight=600),
          text(24, 54, "FSR 4's passes in the order they run each frame. Twelve of fourteen are rewritten; the image stays AMD's, byte for byte.", t)]
@@ -57,7 +57,7 @@ def figure(t):
     # what was done, under each group
     yb = Y + BH + 22
     notes = [(xs[0][0], 'start', 'Prepass', ['each thread fetches its', "neighbours' inputs once"], '−10% time'),
-             ((m0 + m1) / 2, 'middle', 'Model passes', ['same arithmetic in fewer steps;', 'pass 11 stores its output in groups'], 'pass 11: −62% time, −77% memory read'),
+             ((m0 + m1) / 2, 'middle', 'Model passes', ['same arithmetic in fewer steps;', 'pass 11 stores its output in groups'], 'pass 11: −62% time, −76% memory read'),
              (xs[13][0] + xs[13][1], 'end', 'Postpass', ['writes its output in phases', 'instead of scattered stores'], 'about −70% time, −68% memory read')]
     for x, anchor, title, lines, gain in notes:
         o.append(text(x, yb, title, t, 13, 'ink', anchor, 600))
@@ -75,7 +75,7 @@ def figure(t):
     panels = [(24, 'Upscaler time per frame', 'Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT',
                [("AMD's shaders", 4.16, 'amd', '4.16 ms  ·  97 FPS'), ('This project', 3.05, 'exact', '3.05 ms  ·  109 FPS')], 4.16, '27% less'),
               (400, 'Memory read per frame', 'All of FSR 4 at 4K, RX 7800 XT',
-               [("AMD's shaders", 7668, 'amd', '7,668 MB'), ('This project', 5321, 'exact', '5,321 MB')], 7668, '31% less')]
+               [("AMD's shaders", 7639, 'amd', '7,639 MB'), ('This project', 5317, 'exact', '5,317 MB')], 7639, '30% less')]
     for x0, title, sub, rows, mx, verdict in panels:
         o.append(text(x0, ys + 28, title, t, 14, 'ink', weight=600))
         o.append(text(x0 + 336, ys + 28, verdict, t, 14, 'ink', 'end', 600))
