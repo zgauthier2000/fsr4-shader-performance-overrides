@@ -25,6 +25,8 @@ GPUs it is meant for. Expect rough edges and please report them.
 
 Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05) (9 MB).
 
+Results received so far: [RESULTS.md](RESULTS.md).
+
 ## Why
 
 Tester reports so far are one number per build: the upscaler time a game's overlay shows. That
