@@ -1,60 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="422" viewBox="0 0 760 422" role="img" aria-label="Upscaling time saved by GPU type and output size. Desktop RX 7000: 25 to 35 percent at 4K, 12 to 17 percent at 1440p. Desktop RX 6000: 29 to 32 percent at 4K, 19 percent at 3440x1440, 2 to 11 percent at 2560x1440, 1 to 3 percent at 1080p. Integrated Radeon 780M: 2 percent at 1080p.">
-<rect width="760" height="422" rx="8" fill="#1a1a19"/>
-<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">How much upscaling time the rewrites save, by GPU type and output size</text>
-<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Each mark is one before/after report: percent less FSR 4 time per frame than with AMD’s shaders.</text>
-<line x1="250.0" y1="70" x2="250.0" y2="378" stroke="#383835" stroke-width="1"/>
-<text x="250.0" y="396.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0%</text>
-<line x1="337.5" y1="70" x2="337.5" y2="378" stroke="#2c2c2a" stroke-width="1"/>
-<text x="337.5" y="396.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">10%</text>
-<line x1="425.0" y1="70" x2="425.0" y2="378" stroke="#2c2c2a" stroke-width="1"/>
-<text x="425.0" y="396.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">20%</text>
-<line x1="512.5" y1="70" x2="512.5" y2="378" stroke="#2c2c2a" stroke-width="1"/>
-<text x="512.5" y="396.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">30%</text>
-<line x1="600.0" y1="70" x2="600.0" y2="378" stroke="#2c2c2a" stroke-width="1"/>
-<text x="600.0" y="396.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">40%</text>
-<text x="600.0" y="414.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">less upscaling time</text>
-<rect x="24" y="78" width="712" height="22" rx="4" fill="#2c2c2a" opacity="0.55"/>
-<circle cx="38.0" cy="89.0" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<text x="52.0" y="93.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Desktop RX 7000 (RDNA3)</text>
-<text x="236.0" y="127.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">4K output</text>
-<line x1="468.8" y1="123.0" x2="557.9" y2="123.0" stroke="#3987e5" stroke-width="2" opacity="0.35"/>
-<circle cx="468.8" cy="123.0" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="494.7" cy="123.0" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="510.5" cy="123.0" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="557.9" cy="123.0" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<text x="614.0" y="127.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">25–35%  ·  4 reports</text>
-<text x="236.0" y="157.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">2560x1440 output</text>
-<line x1="354.4" y1="153.0" x2="396.6" y2="153.0" stroke="#3987e5" stroke-width="2" opacity="0.35"/>
-<circle cx="354.4" cy="153.0" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<circle cx="396.6" cy="153.0" r="5" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
-<text x="614.0" y="157.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">12–17%  ·  2 reports</text>
-<rect x="24" y="168" width="712" height="22" rx="4" fill="#2c2c2a" opacity="0.55"/>
-<rect x="33.0" y="174.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<text x="52.0" y="183.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Desktop RX 6000 (RDNA2)</text>
-<text x="236.0" y="217.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">4K output</text>
-<line x1="501.6" y1="213.0" x2="531.7" y2="213.0" stroke="#e8823a" stroke-width="2" opacity="0.35"/>
-<rect x="496.6" y="208.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<rect x="526.7" y="208.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<text x="614.0" y="217.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">29–32%  ·  2 reports</text>
-<text x="236.0" y="247.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">3440x1440 output</text>
-<rect x="414.5" y="238.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<text x="614.0" y="247.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">19%  ·  1 report</text>
-<text x="236.0" y="277.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">2560x1440 output</text>
-<line x1="266.1" y1="273.0" x2="345.1" y2="273.0" stroke="#e8823a" stroke-width="2" opacity="0.35"/>
-<rect x="261.1" y="268.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<rect x="262.9" y="274.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<rect x="279.1" y="268.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<rect x="340.1" y="268.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<text x="614.0" y="277.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">2–11%  ·  4 reports</text>
-<text x="236.0" y="307.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1080p output</text>
-<line x1="257.2" y1="303.0" x2="273.4" y2="303.0" stroke="#e8823a" stroke-width="2" opacity="0.35"/>
-<rect x="252.2" y="298.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<rect x="268.4" y="298.0" width="10" height="10" rx="1.5" fill="#e8823a" stroke="#1a1a19" stroke-width="2"/>
-<text x="614.0" y="307.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">1–3%  ·  2 reports</text>
-<rect x="24" y="318" width="712" height="22" rx="4" fill="#2c2c2a" opacity="0.55"/>
-<path d="M38.0,323.0 L44.0,329.0 L38.0,335.0 L32.0,329.0 Z" fill="#a98bf0" stroke="#1a1a19" stroke-width="2"/>
-<text x="52.0" y="333.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Integrated RDNA3 (Radeon 780M)</text>
-<text x="236.0" y="367.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1080p output</text>
-<path d="M268.7,357.0 L274.7,363.0 L268.7,369.0 L262.7,363.0 Z" fill="#a98bf0" stroke="#1a1a19" stroke-width="2"/>
-<text x="614.0" y="367.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">2%  ·  1 report</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="362" viewBox="0 0 760 362" role="img" aria-label="Average reduction in FSR 4 time per frame: Desktop RX 7000 at 4K output 29 percent; Desktop RX 7000 at 1440p output 14 percent; Desktop RX 6000 at 4K output 30 percent; Desktop RX 6000 at 1440p output 5 percent; Desktop RX 6000 at 1080p output 2 percent; Integrated Radeon 780M at 1080p output 2 percent.">
+<rect width="760" height="362" rx="8" fill="#1a1a19"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">How much faster FSR 4 gets</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Average reduction in FSR 4’s time per frame, by graphics card and output resolution.</text>
+<line x1="250.0" y1="70" x2="250.0" y2="316" stroke="#383835" stroke-width="1"/>
+<text x="250.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0%</text>
+<line x1="342.5" y1="70" x2="342.5" y2="316" stroke="#2c2c2a" stroke-width="1"/>
+<text x="342.5" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">10%</text>
+<line x1="435.0" y1="70" x2="435.0" y2="316" stroke="#2c2c2a" stroke-width="1"/>
+<text x="435.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">20%</text>
+<line x1="527.5" y1="70" x2="527.5" y2="316" stroke="#2c2c2a" stroke-width="1"/>
+<text x="527.5" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">30%</text>
+<line x1="620.0" y1="70" x2="620.0" y2="316" stroke="#2c2c2a" stroke-width="1"/>
+<text x="620.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">40%</text>
+<text x="24.0" y="126.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Desktop RX 7000</text>
+<text x="238.0" y="110.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">4K</text>
+<path d="M250,96.0 H518.7 Q522.7,96.0 522.7,100.0 V110.0 Q522.7,114.0 518.7,114.0 H250 Z" fill="#3987e5"/>
+<text x="530.7" y="110.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="start" fill="#ffffff">29%</text>
+<text x="238.0" y="144.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1440p</text>
+<path d="M250,130.0 H378.7 Q382.7,130.0 382.7,134.0 V144.0 Q382.7,148.0 378.7,148.0 H250 Z" fill="#3987e5"/>
+<text x="390.7" y="144.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="start" fill="#ffffff">14%</text>
+<text x="24.0" y="223.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Desktop RX 6000</text>
+<text x="238.0" y="190.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">4K</text>
+<path d="M250,176.0 H527.9 Q531.9,176.0 531.9,180.0 V190.0 Q531.9,194.0 527.9,194.0 H250 Z" fill="#3987e5"/>
+<text x="539.9" y="190.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="start" fill="#ffffff">30%</text>
+<text x="238.0" y="224.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1440p</text>
+<path d="M250,210.0 H289.1 Q293.1,210.0 293.1,214.0 V224.0 Q293.1,228.0 289.1,228.0 H250 Z" fill="#3987e5"/>
+<text x="301.1" y="224.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="start" fill="#ffffff">5%</text>
+<text x="238.0" y="258.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1080p</text>
+<path d="M250,244.0 H262.2 Q266.2,244.0 266.2,248.0 V258.0 Q266.2,262.0 262.2,262.0 H250 Z" fill="#3987e5"/>
+<text x="274.2" y="258.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="start" fill="#ffffff">2%</text>
+<text x="24.0" y="303.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Integrated Radeon 780M</text>
+<text x="238.0" y="304.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1080p</text>
+<path d="M250,290.0 H265.8 Q269.8,290.0 269.8,294.0 V304.0 Q269.8,308.0 265.8,308.0 H250 Z" fill="#3987e5"/>
+<text x="277.8" y="304.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="start" fill="#ffffff">2%</text>
 </svg>

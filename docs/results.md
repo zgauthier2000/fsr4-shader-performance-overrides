@@ -37,38 +37,44 @@ Each links to the full numbers and the results screenshots.
 
 ## By GPU type
 
-Every before/after report collected so far, from this repository's own measurements (RX 7800 XT,
-Linux) and from testers (RX 6000 cards and the Radeon 780M, single readings from their
-screenshots; details in [GPU support](gpu-support.md)).
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/gpu-gain-dark.svg">
-  <img src="img/gpu-gain-light.svg" width="760" alt="Chart of upscaling time saved by GPU type and output size, one mark per report. Desktop RX 7000: 25 to 35 percent at 4K output (4 reports), 12 to 17 percent at 2560x1440 (2 reports). Desktop RX 6000: 29 to 32 percent at 4K (2 reports), 19 percent at 3440x1440 (1 report), 2 to 11 percent at 2560x1440 (4 reports), 1 to 3 percent at 1080p (2 reports). Integrated Radeon 780M: 2 percent at 1080p (1 report).">
+  <img src="img/gpu-gain-light.svg" width="760" alt="Bar chart of the average reduction in FSR 4's time per frame. Desktop RX 7000: 29 percent at 4K output, 14 percent at 1440p. Desktop RX 6000: 30 percent at 4K, 5 percent at 1440p, 2 percent at 1080p. Integrated Radeon 780M: 2 percent at 1080p.">
 </picture>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="img/gpu-times-dark.svg">
-  <img src="img/gpu-times-light.svg" width="760" alt="Chart of FSR 4 time per frame before and after for sixteen reports, grouped by GPU type. RX 7800 XT at 4K: 4.30 to 3.02, 4.16 to 3.12, 5.40 to 3.50 and 4.97 to 3.58 ms; at 2560x1440: 1.79 to 1.49 and 1.76 to 1.55 ms. RX 6900 XT at 4K: 3.79 to 2.57 and 3.79 to 2.70 ms; at 3440x1440: 2.22 to 1.79 ms; at 2560x1440: 1.38 to 1.23 ms. RX 6750 XT at 2560x1440: 2.31 to 2.22 and 2.17 to 2.13 ms. RX 6800 at 2560x1440: 1.96 to 1.92 ms. RX 6600 at 1080p: 2.24 to 2.18 and 2.43 to 2.41 ms. Radeon 780M at 1080p: 5.15 to 5.04 ms.">
-</picture>
+The chart averages the reports below. The RX 7800 XT rows are this repository's own measurements
+on Linux; the others are single readings from testers' screenshots.
 
-What the charts show:
+| Card | Game | Output | FSR 4 time before | After | Saved |
+|---|---|---|---|---|---|
+| RX 7800 XT | Rise of the Tomb Raider | 4K | 4.30 ms | 3.02 ms | 30% |
+| RX 7800 XT | Shadow of the Tomb Raider | 4K | 4.16 ms | 3.12 ms | 25% |
+| RX 7800 XT | Control Resonant | 4K | 5.40 ms | 3.50 ms | 35% |
+| RX 7800 XT | Mortal Shell II | 4K | 4.97 ms | 3.58 ms | 28% |
+| RX 7800 XT | Rise of the Tomb Raider | 1440p | 1.79 ms | 1.49 ms | 17% |
+| RX 7800 XT | Shadow of the Tomb Raider | 1440p | 1.76 ms | 1.55 ms | 12% |
+| RX 6900 XT | Ready or Not | 4K | 3.79 ms | 2.57 ms | 32% |
+| RX 6900 XT | Final Fantasy VII Rebirth | 4K | 3.79 ms | 2.70 ms | 29% |
+| RX 6900 XT | Final Fantasy VII Rebirth | 1440p | 1.38 ms | 1.23 ms | 11% |
+| RX 6750 XT | Mafia: The Old Country, native | 1440p | 2.31 ms | 2.22 ms | 4% |
+| RX 6750 XT | Mafia: The Old Country | 1440p | 2.17 ms | 2.13 ms | 2% |
+| RX 6800 | Control Resonant | 1440p | 1.96 ms | 1.92 ms | 2% |
+| RX 6600 | Clair Obscur: Expedition 33 | 1080p | 2.24 ms | 2.18 ms | 3% |
+| RX 6600 | Code Vein 2 | 1080p | 2.43 ms | 2.41 ms | 1% |
+| Radeon 780M | Cyberpunk 2077 | 1080p | 5.15 ms | 5.04 ms | 2% |
 
-- **4K output:** about 25 to 35% less upscaling time on both desktop generations, roughly 1 ms per
-  frame.
-- **Below 4K the gain falls off, faster on RX 6000 than on RX 7000.** At 2560x1440 an RX 7800 XT
-  still saves 12 to 17%; RX 6000 cards save 2 to 11%, and 1 to 3% at 1080p.
-- **Integrated graphics:** one report, 2%, with the integrated-GPU build.
+Not in the chart: an RX 6900 XT at 3440x1440 in S.T.A.L.K.E.R. 2 (2.22 ms to 1.79 ms, 19%), which
+sits between the 4K and 1440p figures as its pixel count does.
 
-What to keep in mind:
+Keep in mind:
 
 - The RX 7800 XT rows for Control Resonant and Mortal Shell II, and both of its 1440p rows, were
   measured with the first version of the rewrite; the current one saves more.
 - On RX 6000 cards "before" is fsr4xyz's `4.1.1b` in most reports. It is treated as equal in
   speed to AMD's shaders, which is an assumption (see [GPU support](gpu-support.md)).
-- Left out: one RX 6700 XT report without a stated resolution, a Sifu report without a stated
-  GPU, and Elden Ring on the RX 7800 XT, which was measured with a frame-rate cap.
+- Some bars rest on one or two reports.
 - No RX 9000 results: those cards run a different FSR 4 model that this project does not touch.
-- The charts are made by [`img/make_gpu_gain_charts.py`](img/make_gpu_gain_charts.py).
+- The chart is made by [`img/make_gpu_gain_charts.py`](img/make_gpu_gain_charts.py).
 
 ## Benchmark pages
 
