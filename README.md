@@ -214,6 +214,7 @@ Remove the launch option, or put the original DLL back.
 |---|---|
 | [All results](docs/results.md) | every game measured, benchmark pages with screenshots |
 | [Linux guide](docs/linux.md) | requirements, building your own files, troubleshooting |
+| [Making a shader dump](docs/shader-dump.md) | step by step, for reporting a wrong image or a missing speedup on Linux |
 | [GPU support](docs/gpu-support.md) | Windows, integrated GPUs, the RDNA2 build and its shimmering fix |
 | [Shader variants](docs/variants.md) | which versions of FSR 4's shaders are covered, and what to do if your game's is not |
 | [How it works](docs/how-it-works.md) | what the two rewrites do, where the time goes, what else was tried |

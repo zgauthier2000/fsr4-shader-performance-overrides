@@ -14,7 +14,8 @@
   Other cards are untested, and RDNA4 runs a different FSR 4 model that this does not touch.
 - **Not RDNA2 (RX 6000) for now.** A tester with an RX 6900 XT reports that the launch option
   works there but the image comes out darker than with AMD's shaders (2026-10-05). The cause is
-  not known yet. On RDNA2, use the DLL (`test-rdna2.zip`) instead, which the same tester runs
+  not known yet; if you have an RDNA2 card and want to help find it, see
+  [Making a shader dump](shader-dump.md). On RDNA2, use the DLL (`test-rdna2.zip`) instead, which the same tester runs
   without that problem.
 - Only if you build your own files: `python3` and SPIRV-Tools (`spirv-dis`, `spirv-as`,
   `spirv-val`).
@@ -89,6 +90,9 @@ normal version in AMD's DLL 4.1.1.2740, so that should only happen with:
 - FSR's debug view (its versions of the postpass are not covered);
 - a Proton or vkd3d-proton version that translates the shaders differently from the one the
   files were made with (GE-Proton 11-7). This has not been seen, but it cannot be ruled out.
+
+If the image is wrong, or you were asked for a dump, follow
+[Making a shader dump](shader-dump.md).
 
 With a different FSR DLL version or another Proton, dump that game and build your own files as described above.
 
