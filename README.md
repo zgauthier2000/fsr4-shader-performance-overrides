@@ -141,6 +141,15 @@ How this was measured, and everything that was tried on each part:
 
 ## Will it work for me?
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/gpu-gain-dark.svg">
+  <img src="docs/img/gpu-gain-light.svg" width="760" alt="Chart of upscaling time saved by GPU type and output size, one mark per report. Desktop RX 7000: 25 to 35 percent at 4K output (4 reports), 12 to 17 percent at 2560x1440 (2 reports). Desktop RX 6000: 29 to 32 percent at 4K (2 reports), 19 percent at 3440x1440 (1 report), 2 to 11 percent at 2560x1440 (4 reports), 1 to 3 percent at 1080p (2 reports). Integrated Radeon 780M: 2 percent at 1080p (1 report).">
+</picture>
+
+The gain depends on the output size more than on the card: large at 4K, small at 1440p and below
+on RX 6000 cards. Every report behind this chart, with times in milliseconds:
+[results by GPU type](docs/results.md#by-gpu-type).
+
 | GPU | Linux (Proton) | Windows |
 |---|---|---|
 | RX 7900, 7800, 7700, 7600 (desktop RDNA3) | yes, measured on an RX 7800 XT | yes, testers report large gains |
