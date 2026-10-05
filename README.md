@@ -9,9 +9,10 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 - **A test build for RDNA2 and the Steam Deck: `test-rdna2-compact.zip`.** It is the RDNA2 build
   with a much smaller model pass 11 (4.7 KB of code on those chips instead of 21.4 KB), the same
   one the integrated-GPU build uses. The Steam Deck is both RDNA2 and integrated, so this is the
-  build to try there; on desktop RX 6000 cards it shows whether the large pass 11 was holding the
-  gain back at 1440p. Untested on both so far: please compare it with `test-rdna2.zip` and report
-  the upscaler time of each. [Details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05).
+  build to try there, and it is untested on a Deck so far: please compare it with `test-rdna2.zip`
+  and report the upscaler time of each. On a desktop RX 6750 XT it is 2% slower than
+  `test-rdna2.zip` (2.14 ms against 2.10 ms at 1440p), so desktop RX 6000 cards should keep using
+  `test-rdna2.zip`. [Details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05).
 - **The DLLs now say what they are.** OptiScaler shows `4.1.1-cyboman-r3` (RX 7000),
   `-ig` (integrated), `-r2` (RX 6000) or `-r2c` (the new test build) instead of `4.1.1`, so you can
   see that the patched DLL is the one loaded. All of them have AMD's GPU check lifted; none is for

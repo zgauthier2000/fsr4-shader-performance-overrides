@@ -129,8 +129,8 @@ byte-identical to AMD's in all 48 shader combinations and the pass is as fast as
 shimmering in motion. So the accumulating dot product is the cause, and the rewritten postpass
 and pass 11 work on RDNA2 once it is gone. 
 **Speed reports from testers (2026-10-04 and 2026-10-05)**, OptiScaler's upscaler time, sorted by
-output size. "Before" is the DLL named in brackets; the patched DLL shows as `4.1.1-cyboma...` in
-OptiScaler's menu, so which of the RDNA2 builds (`-r2` or `-r2c`) a tester used is not visible.
+output size. "Before" is the DLL named in brackets; the patched DLL in every row is
+`test-rdna2.zip` (`4.1.1-cyboman-r2`), not the compact test build.
 
 | GPU | Game | Render to output | Before | Patched DLL | Change |
 |---|---|---|---|---|---|
@@ -266,8 +266,13 @@ Why try it:
 Output is byte-for-byte identical to AMD's DLL at four sizes (4K, 1440p, 1080p and 1280x720
 output) on an RX 7800 XT. It has not been run on RDNA2 or a Steam Deck. The useful report is
 OptiScaler's upscaler time with `test-rdna2.zip` and with this build, at the same spot: on desktop
-at 1440p and at 4K, on the Deck at its own resolution. If it is equal or better on desktop, it
-will replace `test-rdna2.zip`.
+at 1440p and at 4K, on the Deck at its own resolution.
+
+**First report (2026-10-05), RX 6750 XT at 1440p output (Performance, XeSS inputs):**
+`test-rdna2.zip` 2.10 ms, `test-rdna2-compact.zip` 2.14 ms. The compact build is 0.04 ms (2%)
+slower. So on a desktop RDNA2 card the unrolled pass 11 is not what holds the gain back at 1440p,
+and `test-rdna2.zip` stays the build for RX 6000 cards. The compact build remains a candidate for
+the Steam Deck only, where it has not been tried yet.
 
 If you try them, please report your GPU, Windows or Linux and driver version, the game, whether FSR
 4 starts and looks right, and OptiScaler's upscaler time for each.
