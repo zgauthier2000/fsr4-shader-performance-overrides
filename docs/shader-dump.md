@@ -39,14 +39,19 @@ the dump contains that DLL's shaders, which is not what is being checked.
 In a terminal, in this repository's folder:
 
 ```
-for f in prebuilt/*.spv; do [ -e ~/fsr4-dump/$(basename $f) ] && sha256sum ~/fsr4-dump/$(basename $f); done
+./check_prebuilt.sh ~/fsr4-dump
 ```
 
-- **Two lines** (the postpass and model pass 11): your game runs shaders the prebuilt files cover.
-  Keep the two lines for your report; the checksums show whether Proton translated them on your
-  machine the same way as on the machine the prebuilt files were made on.
-- **Nothing:** the shaders are not AMD's 4.1.1.2740 ones (another FSR version or a modified DLL),
-  or FSR 4 was not running during the dump.
+It compares the dumped shaders with the ones the prebuilt files were made from and prints one of:
+
+- **"All N shaders match: prebuilt/ fits your setup."** Proton translated AMD's shaders on your
+  machine exactly as on the machine the prebuilt files were made on.
+- **"N of M shaders are translated differently on your setup."** The prebuilt files do not fit and
+  would give a wrong image. Go on to step 4 and use your own build.
+- **"None of the shaders prebuilt/ covers is in this dump."** The shaders are not AMD's 4.1.1.2740
+  ones (another FSR version or a modified DLL), or FSR 4 was not running during the dump.
+
+Keep the output for your report.
 
 ## 4. Build files from your own dump and test them
 
@@ -75,11 +80,12 @@ Open an issue on this repository, or reply wherever you were asked, with:
 
 - GPU, Mesa version (`vulkaninfo --summary | grep -i driverInfo`) and Proton version;
 - the game, output resolution and FSR preset;
-- the lines from step 3;
+- the output of step 3;
 - what the image and the upscaler time were with: AMD's shaders, the `prebuilt` folder, your own
   build (step 4), and, if you did step 5, each single-shader build;
 - screenshots of the same spot with AMD's shaders and with the build that looks wrong, if you can;
-- if you are willing, the two files from step 3 (zip them). They are AMD's shaders as Proton
+- if you are willing, the dumped files that step 3 lists as differing, or, if none differ, the
+  ones `build_override.sh` names in step 4 (zip them). They are AMD's shaders as Proton
   translated them; nothing from your system is in them.
 
 Afterwards the dump folder can be deleted, and the launch option set back to what you want to use.

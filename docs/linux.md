@@ -18,6 +18,9 @@
   Proton version (2026-10-05). So Proton's translation of AMD's shaders is not the same on every
   setup, and the prebuilt files, made on an RX 7800 XT, only fit setups that translate them the
   same way. If the image looks wrong with `prebuilt/` on any card, build your own.
+- **To find out whether `prebuilt/` fits your setup,** make a dump and run
+  `./check_prebuilt.sh <dump folder>` ([Making a shader dump](shader-dump.md), steps 2 and 3). It
+  compares your dump with the shaders the prebuilt files were made from.
 - Only if you build your own files: `python3` and SPIRV-Tools (`spirv-dis`, `spirv-as`,
   `spirv-val`).
 

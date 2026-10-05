@@ -160,7 +160,13 @@ with the RX 6900 XT gets a darker image with the prebuilt override files, and a 
 files built by `build_override.sh` from a dump of their own game, on the same Proton version as the
 prebuilt files were made with. The rewrite itself is therefore fine on RDNA2; what does not carry
 over is Proton's translation of AMD's shaders, which the prebuilt files (made on an RX 7800 XT)
-are tied to. What exactly differs is not known yet. The DLL build does not have this problem,
+are tied to. The tester's dump confirms it: all four of their dumped shaders (two postpass
+versions, two of pass 11) have different checksums from the same shaders dumped on the RX 7800 XT,
+while on the RX 7800 XT the dumps are identical across three different programs. So the
+translation depends on the card. One difference between the two card generations that
+vkd3d-proton can see is the size the driver reports for image descriptors (64 bytes on RDNA2, 32
+on RDNA3); whether that is what changes the translation has not been confirmed.
+`check_prebuilt.sh` compares a dump with the shaders the prebuilt files were made from. The DLL build does not have this problem,
 because its shaders are translated on the machine that runs them. See
 [Making a shader dump](linux.md#building-your-own).
 

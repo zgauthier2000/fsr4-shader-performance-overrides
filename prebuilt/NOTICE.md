@@ -15,6 +15,10 @@ upscaler. They are not AMD's originals and are not provided or endorsed by AMD.
 - **Modification:** rewritten by `postpass_lds_vkd3d.py`, `zconst.py` and `pass11_stores.py` from this
   repository.
   Running `build_override.sh` on a matching dump reproduces these files byte for byte.
+- **They fit only where Proton produces the same translation.** They were made on a Radeon
+  RX 7800 XT with GE-Proton 11-7; on an RX 6900 XT the translation differs and these files give a
+  wrong image. `ORIGINALS.sha256` lists the checksums of the translated shaders they were made
+  from, and `../check_prebuilt.sh <dump>` compares a dump against it.
 
 54 files, one for every normal version of the two shaders in the DLL: 48 of the FSR 4.1.1 postpass
 (stores written in solid blocks through workgroup memory, one image at a time) and 6 of model
