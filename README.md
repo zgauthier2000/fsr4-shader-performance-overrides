@@ -16,9 +16,11 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
   `-ig` (integrated), `-r2` (RX 6000) or `-r2c` (the new test build) instead of `4.1.1`, so you can
   see that the patched DLL is the one loaded. All of them have AMD's GPU check lifted; none is for
   RX 9000 cards.
-- **First results from testers on other GPUs.** RX 6900 XT: 3.79 ms down to 2.70 ms at 4K output
-  and 1.38 ms to 1.23 ms at 1440p. Radeon 780M with the integrated-GPU build: 5.15 ms to 5.04 ms.
-  [All reports](docs/gpu-support.md).
+- **Results from testers on RX 6000 cards** (ten reports, five cards). The gain follows the output
+  size: about 30% less upscaler time at 4K (RX 6900 XT: 3.79 ms to 2.57 ms in Ready or Not, 3.79 ms
+  to 2.70 ms in Final Fantasy VII Rebirth), 19% at 3440x1440, and 1 to 11% at 1440p and 1080p.
+  Radeon 780M with the integrated-GPU build: 5.15 ms to 5.04 ms.
+  [All reports](docs/gpu-support.md#rdna2-needs-one-more-change-the-dot-products).
 - **Linux: the prebuilt files do not fit every setup.** On one RX 6900 XT they give a darker image,
   while files built from that user's own shader dump are correct. `./check_prebuilt.sh` now tells
   you whether they fit yours, and [Making a shader dump](docs/shader-dump.md) walks through it. On
@@ -142,7 +144,7 @@ How this was measured, and everything that was tried on each part:
 |---|---|---|
 | RX 7900, 7800, 7700, 7600 (desktop RDNA3) | yes, measured on an RX 7800 XT | yes, testers report large gains |
 | Radeon 780M, 890M and other RDNA3 integrated GPUs | not the normal build (pass 11 is reported much slower there) | experimental `test-igpu.zip`: one report, 2% faster than fsr4xyz's `4.1.1b` on a 780M |
-| RX 6000 (RDNA2) | experimental; check with `check_prebuilt.sh` first: the prebuilt files give one tester a wrong image in one game | experimental: `test-rdna2.zip` runs and fixes the shimmering; reported 2 to 11% faster at 1440p and 29% at 4K |
+| RX 6000 (RDNA2) | experimental; check with `check_prebuilt.sh` first: the prebuilt files give one tester a wrong image in one game | experimental: `test-rdna2.zip` runs and fixes the shimmering; reported about 30% faster at 4K, 1 to 11% at 1440p and below |
 | RX 9000 (RDNA4) | no: it runs a different FSR 4 ([open for someone to pick up](docs/rdna4.md)) | no, and do not install the DLL there |
 
 You also need:

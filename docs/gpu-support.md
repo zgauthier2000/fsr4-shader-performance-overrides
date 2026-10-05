@@ -7,7 +7,7 @@
 | Desktop RDNA3 (RX 7900, 7800, 7700, 7600) | Linux, Proton | measured on an RX 7800 XT: faster |
 | Desktop RDNA3 | Windows | testers report large gains |
 | RDNA3 integrated (Radeon 780M, 890M) | any | do not use the normal build (pass 11 is reported much slower there); the experimental `test-igpu.zip` is reported 2% faster than fsr4xyz's `4.1.1b` on a 780M |
-| RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; the experimental `test-rdna2.zip` runs on Windows and fixes the shimmering in motion; testers report 2 to 3% less upscaler time than fsr4xyz's `4.1.1b` ([below](#rdna2-needs-one-more-change-the-dot-products)) |
+| RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; the experimental `test-rdna2.zip` runs on Windows and fixes the shimmering in motion; testers report about 30% less upscaler time at 4K, 19% at 3440x1440 and 1 to 11% at 1440p and below ([below](#rdna2-needs-one-more-change-the-dot-products)) |
 | RDNA4 (RX 9000) | any | not covered: it runs a different FSR 4 model; see [RDNA4](rdna4.md) |
 
 ## Windows
@@ -128,34 +128,52 @@ byte-identical to AMD's in all 48 shader combinations and the pass is as fast as
 **Result on RDNA2 (2026-10-04):** the build with this change, `test-rdna2.zip`, fixes the
 shimmering in motion. So the accumulating dot product is the cause, and the rewritten postpass
 and pass 11 work on RDNA2 once it is gone. 
-**First speed reports from testers (2026-10-04, release `dll-2026-10-04.5`)**, OptiScaler's
-upscaler time:
+**Speed reports from testers (2026-10-04 and 2026-10-05)**, OptiScaler's upscaler time, sorted by
+output size. "Before" is the DLL named in brackets; the patched DLL shows as `4.1.1-cyboma...` in
+OptiScaler's menu, so which of the RDNA2 builds (`-r2` or `-r2c`) a tester used is not visible.
 
-| GPU | Game | Render to output | Before | `4.1.1-cyboman-r2` | Change |
+| GPU | Game | Render to output | Before | Patched DLL | Change |
 |---|---|---|---|---|---|
-| RX 6900 XT | Final Fantasy VII Rebirth | 1920x1080 to 3840x2160 | 3.79 ms, 66.6 FPS (a DLL reporting `4.1.1`) | 2.70 ms, 73.2 FPS | -29% |
-| RX 6900 XT (same tester) | Final Fantasy VII Rebirth | 1280x720 to 2560x1440 | 1.38 ms, 93.1 FPS (a DLL reporting `4.1.1`) | 1.23 ms, 92.8 FPS | -11% |
-| RX 6900 XT (same tester) | Final Fantasy VII Rebirth | 1920x1080 to 3840x2160 | 2.70 ms (`4.1.1-cyboman-r2` DLL) | 2.68 ms with Linux override files built from their own dump | -1% |
-| RX 6800 | Control Resonant | 1707x960 to 2560x1440 | 1.96 ms, 73.7 FPS (fsr4xyz `4.1.1b`) | 1.92 ms, 73.2 FPS | -2% |
+| RX 6900 XT, Linux | Ready or Not | 2258x1271 to 3840x2160 | 3.79 ms, 134.5 FPS (`4.1.1b`) | 2.57 ms, 153.7 FPS | -32% |
+| RX 6900 XT, Linux | Final Fantasy VII Rebirth | 1920x1080 to 3840x2160 | 3.79 ms, 66.6 FPS (`4.1.1`) | 2.70 ms, 73.2 FPS | -29% |
+| RX 6900 XT | S.T.A.L.K.E.R. 2 | 2292x960 to 3440x1440 | 2.22 ms, 123.3 FPS (`4.1.1b`) | 1.79 ms, 124.4 FPS | -19% |
+| RX 6900 XT, Linux | Final Fantasy VII Rebirth | 1280x720 to 2560x1440 | 1.38 ms, 93.1 FPS (`4.1.1`) | 1.23 ms, 92.8 FPS | -11% |
+| RX 6750 XT | Mafia: The Old Country | 2560x1440 to 2560x1440 | 2.31 ms, 38.4 FPS (`4.1.1b`) | 2.22 ms, 43.9 FPS | -4% |
+| RX 6750 XT | Mafia: The Old Country | 1707x960 to 2560x1440 | 2.17 ms (`4.1.1b`) | 2.13 ms | -2% |
+| RX 6800 | Control Resonant | 1707x960 to 2560x1440 | 1.96 ms, 73.7 FPS (`4.1.1b`) | 1.92 ms, 73.2 FPS | -2% |
 | RX 6700 XT | not stated | not stated | 2.46 ms (not stated) | 2.38 ms | -3% |
+| RX 6600 | Clair Obscur: Expedition 33 | 1281x721 to 1920x1080 | 2.24 ms, average 2.26 (`4.1.1b`) | 2.18 ms, average 2.22 | -2 to -3% |
+| RX 6600 | Code Vein 2 | 1287x724 to 1920x1080 | 2.43 ms, 48.4 FPS (`4.1.1b`) | 2.41 ms, 49.3 FPS | -1% |
+
+Other measurements:
+
+| Setup | Before | After | Change |
+|---|---|---|---|
+| RX 6900 XT, Linux, Final Fantasy VII Rebirth, 1080p to 4K: the patched DLL against Linux override files built from the tester's own dump | 2.70 ms (DLL) | 2.68 ms (override files) | -1% |
+| GPU not shown, Sifu (Direct3D 11 through OptiScaler's Direct3D 12 path), 1920x1080 to 3840x2160 | 9.36 ms, average 9.71 (`4.1.1b`) | 9.48 ms, average 9.23 | none measurable |
 
 How to read these:
 
 - **`4.1.1b` is treated as equal in speed to AMD's `4.1.1`.** Its shader changes (the dot-product
   form and a few coordinate clamps) leave the amount of work the same, so a comparison against
   either counts as a comparison against AMD's shaders. This is an assumption from reading the
-  shaders, not a measurement.
-- On that basis the gain on RDNA2 so far ranges from 2% to 29%: 29% at 4K output, and 2% and 11%
-  at 1440p.
-- **The gain shrinks faster than the pixel count.** The same RX 6900 XT in the same game saves
-  1.09 ms at 4K and 0.15 ms at 1440p. With 44% of the pixels, a proportional saving would be about
-  0.48 ms. One explanation that fits, not verified: the rewrites remove a memory penalty from
-  sparse image writes, and at 1440p the postpass's images (about 29 MB each) fit in these cards'
-  128 MB on-chip cache, where that penalty is small, while at 4K (66 MB each) they do not.
-- The two 4K screenshots differ in one sharpening setting (the override was on in the "before"
-  one), so treat the 29% as approximate. The 1440p pair has sharpening off in both.
-- On this RDNA2 card the Linux override files (built from the tester's own dump) and the DLL are
-  equally fast, 2.68 ms against 2.70 ms. On RDNA3 the override route is a little faster.
+  shaders, not a measurement. The reports are consistent with it: on an RX 6900 XT at 4K, one
+  tester measured 3.79 ms with `4.1.1b` and another 3.79 ms with `4.1.1`.
+- **The gain follows the output size.** About 30% at 4K (two testers, two games, 1.1 to 1.2 ms
+  saved), 19% at 3440x1440, 11% and less at 2560x1440, and 1 to 3% at 1080p.
+- **At 1440p and below the rewrites do little on RDNA2.** That holds on cards with very different
+  amounts of on-chip cache (RX 6600 to RX 6900 XT), so the earlier guess that a large cache hides
+  the problem at 1440p does not explain it. Why the saving falls off faster than the pixel count
+  is not known.
+- Frame rates moved only where the time saved was large (Ready or Not at 4K: 134.5 to 153.7 FPS).
+  The Mafia pair at native 1440p differs by more than the upscaler time can account for, so its
+  frame rates were probably not taken at the same spot.
+- The two Final Fantasy VII Rebirth 4K screenshots differ in one sharpening setting (the override
+  was on in the "before" one), so treat that 29% as approximate.
+- On an RDNA2 card the Linux override files and the DLL are equally fast. On RDNA3 the override
+  route is a little faster.
+- The Sifu result is from a much slower setup (8 ms in FSR itself at 4K); nothing can be read
+  from it without knowing the GPU.
 - These are single readings from testers' screenshots, not repeated runs.
 
 **On Linux with RDNA2, build the override files from your own dump (2026-10-05).** The tester
