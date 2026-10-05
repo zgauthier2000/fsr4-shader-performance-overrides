@@ -168,6 +168,42 @@ stable, and more means shimmer.
 This is one synthetic scene at one speed. It ranks shader sets; it does not say how visible the
 difference is in a particular game.
 
+## Which passes can be pruned cheaply
+
+Added 2026-10-05. Each of the set's six pruned model passes on its own, then in growing
+combinations, in the moving scene. Time saved is on an RX 7800 XT at 4K. AMD's shaders score:
+whole frame 30.53 dB against the true image; frame-to-frame change 0.079 (background), 0.106
+(block texture), 2.04 (fine stripes), 0.913 (railing bars).
+
+| Pass alone | Time saved | Against AMD's frames | Whole frame vs true image | Change: background | texture | stripes | railing |
+|---|---|---|---|---|---|---|---|
+| 1 | 0.051 ms | 50.6 dB | 30.89 dB | 0.083 | 0.097 | 1.69 | 0.906 |
+| 10 | 0.032 ms | 54.5 dB | 30.53 dB | 0.073 | 0.107 | 2.12 | 0.921 |
+| 5 | 0.029 ms | 52.6 dB | 30.38 dB | 0.083 | 0.115 | 2.42 | 0.876 |
+| 2 | 0.049 ms | 53.9 dB | 30.46 dB | 0.106 | 0.110 | 2.16 | 0.979 |
+| 12 | 0.119 ms | 48.6 dB | 30.58 dB | 0.105 | 0.107 | 1.82 | 1.019 |
+| 4 | 0.038 ms | 47.0 dB | 29.78 dB | 0.062 | 0.077 | 2.63 | 1.095 |
+
+| Combination | Time saved | Whole frame vs true image | Change: background | texture | stripes | railing |
+|---|---|---|---|---|---|---|
+| AMD's shaders | | 30.53 dB | 0.079 | 0.106 | 2.04 | 0.913 |
+| Passes 1, 10 | 0.08 ms | 30.90 dB | 0.077 | 0.097 | 1.73 | 0.900 |
+| Passes 1, 10, 5 | 0.11 ms | 30.80 dB | 0.075 | 0.102 | 2.00 | 0.890 |
+| Passes 1, 10, 5, 12 | 0.23 ms | 30.66 dB | 0.099 | 0.111 | 1.86 | 0.985 |
+| Passes 1, 10, 5, 12, 2 | 0.28 ms | 30.64 dB | 0.103 | 0.106 | 2.09 | 1.022 |
+| All six | 0.32 ms | 30.23 dB | 0.072 | 0.090 | 2.43 | 1.068 |
+
+- **Passes 1, 10 and 5 can be pruned at the set's fractions without any figure getting worse than
+  AMD's in this scene.** Together they save 0.11 ms, 3.6% of FSR 4's time at 4K. The output is
+  not AMD's (about 50 dB from it), but nothing measured here says it is worse.
+- **Pass 12 is where most of the time is (0.12 ms) and where the background starts to shimmer**
+  (25 to 30% more frame-to-frame change). It is the pass to tune: a smaller removed fraction
+  might keep most of the gain.
+- **Pass 4 is the costliest for what it saves:** it lowers the error-free look of thin detail and
+  the whole-frame figure by 0.75 dB for 0.04 ms. It should be left alone or pruned far less.
+- These figures come from one synthetic scene. They rank the passes; they are not a promise about
+  any game.
+
 ## Where this stands
 
 - **Nothing here goes into the main files.** They keep AMD's image byte for byte; the exact parts
