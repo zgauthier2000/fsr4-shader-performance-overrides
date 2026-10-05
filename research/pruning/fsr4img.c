@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // fsr4cap.c of bbport (https://github.com/deadinside28/bloodborne_pc, tools/fsr4cap, GPL-2.0-or-later)
 // with an "image" mode added: per-frame colour from img/color_NNN.raw (RGBA16F) and jitter from
-// img/jitter.txt, zero motion, constant depth, sharpening off; capture hooks stubbed out.
+// img/jitter.txt, sharpening off; capture hooks stubbed out. If img/motion_NNN.raw (RG16F, render
+// pixels) and img/depth_NNN.raw (R32F) exist they are used for that frame (gen_motion.py writes
+// them); otherwise motion is zero and depth constant.
 //   fsr4img.exe 4.1.1 2260x1272 3840x2160 32 image
 // Build: x86_64-w64-mingw32-gcc -std=c11 -O1 -I<FidelityFX SDK>/Kits/FidelityFX/api/include
 //   -I<...>/upscalers/include fsr4img.c -o fsr4img.exe -ld3d12 -ldxguid -static
-// Options for reaching other shader versions (dll/test/run_all_variants.sh): environment variables
-// FSR_CTX_FLAGS (context flags), FSR_DISP_FLAGS (dispatch flags), FSR_SHARPEN (0 or 1).
-// SPDX-License-Identifier: GPL-2.0-or-later
+// Environment variables: FSR_IMG_DIR (input folder next to the exe, default img), FSR_KEEP=N (also
+// write the last N frames as output_WxH_fNNN.raw), and, for reaching other shader versions
+// (dll/test/run_all_variants.sh), FSR_CTX_FLAGS, FSR_DISP_FLAGS, FSR_SHARPEN (0 or 1).
 // bbport: fsr4cap.exe — runs AMD's FSR 4 upscaler DLL through the FidelityFX API on D3D12 (under
 // Wine/Proton with vkd3d-proton) on synthetic inputs, for recording what it does (docs/upscaler.md,
 // FSR 4.1.1). Step 1: list the upscaler versions, create a context with a chosen version, run
@@ -162,6 +164,7 @@ static void FillColor(uint8_t* row, UINT w) {
 }
 static FILE* img_file;
 static void FillFromFile(uint8_t* row, UINT w) { if (fread(row, 8, w, img_file) != w) memset(row, 0, 8 * (size_t)w); }
+static void FillFromFile4(uint8_t* row, UINT w) { if (fread(row, 4, w, img_file) != w) memset(row, 0, 4 * (size_t)w); }
 static void FillZero2(uint8_t* row, UINT w) { memset(row, 0, 4 * (size_t)w); }
 static void FillDepthConst(uint8_t* row, UINT w) { float* p = (float*)row; for (UINT x = 0; x < w; ++x) p[x] = 0.5f; }
 static void FillMotion(uint8_t* row, UINT w) {
@@ -171,6 +174,41 @@ static void FillMotion(uint8_t* row, UINT w) {
 static void FillDepth(uint8_t* row, UINT w) {
     float* p = (float*)row;
     for (UINT x = 0; x < w; ++x) p[x] = 0.9f + Next() * 0.1f;
+}
+
+// Reads `output` back and writes it next to the exe: output_WxH.raw, or output_WxH_fNNN.raw for a kept frame.
+static void WriteOutput(ID3D12Resource* output, UINT ow, UINT oh, int frame) {
+    const UINT pitch = (ow * 8 + 255) & ~255u;
+    static ID3D12Resource* rb;
+    if (!rb) rb = Buffer(D3D12_HEAP_TYPE_READBACK, (UINT64)pitch * oh);
+    D3D12_TEXTURE_COPY_LOCATION src = {.pResource = output, .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX};
+    D3D12_TEXTURE_COPY_LOCATION dst = {.pResource = rb, .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT};
+    dst.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+    dst.PlacedFootprint.Footprint.Width = ow;
+    dst.PlacedFootprint.Footprint.Height = oh;
+    dst.PlacedFootprint.Footprint.Depth = 1;
+    dst.PlacedFootprint.Footprint.RowPitch = pitch;
+    D3D12_RESOURCE_BARRIER b = {.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION};
+    b.Transition.pResource = output;
+    b.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+    b.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+    ID3D12GraphicsCommandList_ResourceBarrier(list, 1, &b);
+    ID3D12GraphicsCommandList_CopyTextureRegion(list, &dst, 0, 0, 0, &src, NULL);
+    b.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
+    b.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+    ID3D12GraphicsCommandList_ResourceBarrier(list, 1, &b);
+    Submit();
+    uint8_t* data;
+    CHECK(ID3D12Resource_Map(rb, 0, NULL, (void**)&data));
+    char path[MAX_PATH];
+    GetModuleFileNameA(NULL, path, MAX_PATH);
+    if (frame < 0) snprintf(strrchr(path, '\\') + 1, 64, "output_%ux%u.raw", ow, oh);
+    else snprintf(strrchr(path, '\\') + 1, 64, "output_%ux%u_f%03d.raw", ow, oh, frame);
+    FILE* f = fopen(path, "wb");
+    for (UINT y = 0; f && y < oh; ++y) fwrite(data + (size_t)y * pitch, 1, (size_t)ow * 8, f);
+    if (f) fclose(f);
+    ID3D12Resource_Unmap(rb, 0, NULL);
+    printf("output written to %s\n", path);
 }
 
 static void Message(uint32_t type, const wchar_t* message) {
@@ -287,9 +325,11 @@ int main(int argc, char** argv) {
     char base[MAX_PATH];
     GetModuleFileNameA(NULL, base, MAX_PATH);
     *(strrchr(base, '\\') + 1) = 0;
+    const char* dir = getenv("FSR_IMG_DIR") ? getenv("FSR_IMG_DIR") : "img";   // input folder next to the exe
+    const int keep = getenv("FSR_KEEP") ? atoi(getenv("FSR_KEEP")) : 0;       // also write the last N frames
     if (image) {
         char p[MAX_PATH];
-        snprintf(p, sizeof(p), "%simg\\jitter.txt", base);
+        snprintf(p, sizeof(p), "%s%s\\jitter.txt", base, dir);
         jit = fopen(p, "r");
         if (!jit) { fprintf(stderr, "no img/jitter.txt\n"); return 1; }
         Upload(motion, rw, rh, 4, FillZero2);
@@ -299,11 +339,16 @@ int main(int argc, char** argv) {
         float jx = 0.25f * (float)(frame % 4) - 0.375f, jy = 0.125f;
         if (image) {
             char p[MAX_PATH];
-            snprintf(p, sizeof(p), "%simg\\color_%03d.raw", base, frame);
+            snprintf(p, sizeof(p), "%s%s\\color_%03d.raw", base, dir, frame);
             img_file = fopen(p, "rb");
             if (!img_file || fscanf(jit, "%f %f", &jx, &jy) != 2) { fprintf(stderr, "missing input for frame %d\n", frame); return 1; }
             Upload(color, rw, rh, 8, FillFromFile);
             fclose(img_file);
+            // optional per-frame motion vectors (RG16F, render pixels) and depth (R32F)
+            snprintf(p, sizeof(p), "%s%s\\motion_%03d.raw", base, dir, frame);
+            if ((img_file = fopen(p, "rb"))) { Upload(motion, rw, rh, 4, FillFromFile4); fclose(img_file); }
+            snprintf(p, sizeof(p), "%s%s\\depth_%03d.raw", base, dir, frame);
+            if ((img_file = fopen(p, "rb"))) { Upload(depth, rw, rh, 4, FillFromFile4); fclose(img_file); }
         }
         char mark[32];
         snprintf(mark, sizeof(mark), "frame %d", frame);
@@ -339,35 +384,10 @@ int main(int argc, char** argv) {
             return 1;
         }
         Submit();
+        if (image && frame >= frames - keep) WriteOutput(output, ow, oh, frame);
     }
     CaptureMark("end");
-    if (noise || image) {
-        const UINT pitch = (ow * 8 + 255) & ~255u;
-        ID3D12Resource* rb = Buffer(D3D12_HEAP_TYPE_READBACK, (UINT64)pitch * oh);
-        D3D12_TEXTURE_COPY_LOCATION src = {.pResource = output, .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX};
-        D3D12_TEXTURE_COPY_LOCATION dst = {.pResource = rb, .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT};
-        dst.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-        dst.PlacedFootprint.Footprint.Width = ow;
-        dst.PlacedFootprint.Footprint.Height = oh;
-        dst.PlacedFootprint.Footprint.Depth = 1;
-        dst.PlacedFootprint.Footprint.RowPitch = pitch;
-        D3D12_RESOURCE_BARRIER b = {.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION};
-        b.Transition.pResource = output;
-        b.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-        b.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
-        ID3D12GraphicsCommandList_ResourceBarrier(list, 1, &b);
-        ID3D12GraphicsCommandList_CopyTextureRegion(list, &dst, 0, 0, 0, &src, NULL);
-        Submit();
-        uint8_t* data;
-        CHECK(ID3D12Resource_Map(rb, 0, NULL, (void**)&data));
-        char path[MAX_PATH];
-        GetModuleFileNameA(NULL, path, MAX_PATH);
-        snprintf(strrchr(path, '\\') + 1, 64, "output_%ux%u.raw", ow, oh);
-        FILE* f = fopen(path, "wb");
-        for (UINT y = 0; f && y < oh; ++y) fwrite(data + (size_t)y * pitch, 1, (size_t)ow * 8, f);
-        if (f) fclose(f);
-        printf("output written to %s\n", path);
-    }
+    if (noise || image) WriteOutput(output, ow, oh, -1);
     printf("%d frames done\n", frames);
     ffx.DestroyContext(&context, NULL);
     return 0;

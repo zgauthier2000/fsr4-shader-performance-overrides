@@ -326,6 +326,7 @@ GPUs have not been measured here.
 | `nomem.py`, `run_nm.sh` | the no-memory probes and the script that ran them over the model passes |
 | `nullify.py` | replaces a shader's body with an empty one (used for the in-game breakdown of FSR 4's time) |
 | `postpass_shuffle.py` | the lane-swap postpass |
+| `postpass_taps.py` | the postpass's nine neighbourhood reads without their branches (idea from a [community set](../community-lossy-set)): bit-exact, 3% slower on an RX 7800 XT, reported faster on RDNA2 |
 | `prepass_quad.py` | the prepass rewrite |
 | `prepass_sync.py` | the prepass with its stores moved to the end (`late`) and synchronised (`sync`) |
 | `mesa-tiling-override.patch` | the experimental Mesa changes behind the tiling and counter tables (`AC_FORCE_SWIZZLE=<mode>`, `AC_FORCE_SWIZZLE_MASK=<bit per image>`, `AC_PRINT_SWIZZLE=1`, `AC_SPM_PRINT=1`) |
