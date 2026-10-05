@@ -193,9 +193,17 @@ offsets from the wrong place and fetches the wrong textures, which explains the 
 - three Vulkan extensions hidden from vkd3d-proton one at a time (`VK_EXT_descriptor_buffer`,
   `VK_EXT_mutable_descriptor_type`, `VK_EXT_inline_uniform_block`): no change.
 
-What is left: the game the tester used (Final Fantasy VII Rebirth) or the card. It should not be
-read as "RDNA2 translates differently" until that is known. A dump from the same card in another
-game, or from another RDNA2 card, would decide it.
+- vkd3d-proton's built-in profile for the game: the test program run under the name
+  `ff7rebirth_.exe` on the RX 7800 XT keeps the usual layout;
+- two mods the tester had in that game (a shader injector and an asynchronous-shader fix): with
+  both removed, the result is the same;
+- RDNA2 as such, most likely: override files a community member made from their own dumps on an
+  RX 6700M in another game (see [community shader set](../research/community-lossy-set)) use the
+  usual layout and are reported to work there.
+
+What is left: the game itself (Final Fantasy VII Rebirth), or something particular to that
+tester's system. A dump from the same machine in another game would decide it. Until then,
+treat it as one setup where the prebuilt files do not fit, not as a property of RDNA2.
 
 The other layout can be produced from the usual one: a converter reproduces all four of the
 tester's dumped shaders byte for byte from the RX 7800 XT's. A second set of prebuilt files for
