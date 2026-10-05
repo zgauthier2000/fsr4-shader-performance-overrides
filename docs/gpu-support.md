@@ -165,10 +165,19 @@ prebuilt files were made with. The rewrite itself is therefore fine on RDNA2; wh
 over is Proton's translation of AMD's shaders, which the prebuilt files (made on an RX 7800 XT)
 are tied to. The tester's dump confirms it: all four of their dumped shaders (two postpass
 versions, two of pass 11) have different checksums from the same shaders dumped on the RX 7800 XT,
-while on the RX 7800 XT the dumps are identical across three different programs. So the
-translation depends on the card. One difference between the two card generations that
-vkd3d-proton can see is the size the driver reports for image descriptors (64 bytes on RDNA2, 32
-on RDNA3); whether that is what changes the translation has not been confirmed.
+while on the RX 7800 XT the dumps are identical across three different programs.
+
+**What differs is one thing** (from the tester's dumped postpass, compared instruction by
+instruction with the RX 7800 XT's): where the shader finds two values in its root constants, the
+offsets of its two descriptor tables. In the RX 7800 XT's translation they are at bytes 8 and 12;
+in the tester's, at bytes 108 and 112, after 25 more words. Everything else is identical: the same
+6,129 instructions. A prebuilt file dropped into the tester's setup therefore reads its table
+offsets from the wrong place and fetches the wrong textures, which explains the darker image.
+
+**Why the layout differs is not established.** The layout follows the root signature the
+upscaler DLL creates, so the candidates are the tester's DLL or OptiScaler build being different
+from the ones used here, or something that depends on the card. It should not be read as "RDNA2
+translates differently" until that is known.
 `check_prebuilt.sh` compares a dump with the shaders the prebuilt files were made from. The DLL build does not have this problem,
 because its shaders are translated on the machine that runs them. See
 [Making a shader dump](linux.md#building-your-own).

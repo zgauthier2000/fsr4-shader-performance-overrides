@@ -4,7 +4,7 @@
 #
 # Tells you whether the files in prebuilt/ fit your setup. They were made from AMD's FSR 4.1.1
 # shaders as Proton (vkd3d-proton) translated them on a Radeon RX 7800 XT, and they only work where
-# Proton translates those shaders to exactly the same code: on other cards it can differ (seen on
+# Proton translates those shaders to exactly the same code: on other setups it can differ (seen on
 # an RX 6900 XT), and then the prebuilt files give a wrong image, with no error message.
 #
 # Make a dump first (docs/shader-dump.md, steps 1 and 2), then run this on the dump folder. It

@@ -153,9 +153,9 @@ shaders. If you installed the patched DLL earlier, put `amd_fidelityfx_upscaler_
 first. OptiScaler then shows FSR as plain `4.1.1`; the launch option does not change the name, so
 the upscaler time is how you tell it applied.
 
-**The prebuilt files are for RX 7000 desktop cards.** On other cards Proton can translate AMD's
-shaders differently, and then they give a wrong image (seen as a darker picture on an RX 6900 XT).
-There, or whenever the image looks off, build your own files:
+**The prebuilt files do not fit every setup.** They were made and checked on an RX 7000 desktop
+card. On one tester's setup (an RX 6900 XT) Proton lays the same shaders out differently, and the
+prebuilt files give a darker picture there. Whenever the image looks off, build your own files:
 [Linux guide](docs/linux.md#building-your-own). `./check_prebuilt.sh <dump folder>` tells you whether
 the prebuilt files fit.
 

@@ -17,7 +17,9 @@
   dump of their own game ([Making a shader dump](shader-dump.md), steps 2 and 4), on the same
   Proton version (2026-10-05). So Proton's translation of AMD's shaders is not the same on every
   setup, and the prebuilt files, made on an RX 7800 XT, only fit setups that translate them the
-  same way. If the image looks wrong with `prebuilt/` on any card, build your own.
+  same way. What differs is where the shaders find two values in their root constants
+  ([details](gpu-support.md#rdna2-needs-one-more-change-the-dot-products)); whether the card, the
+  DLL or OptiScaler causes it is not known yet. If the image looks wrong with `prebuilt/` on any card, build your own.
 - **To find out whether `prebuilt/` fits your setup,** make a dump and run
   `./check_prebuilt.sh <dump folder>` ([Making a shader dump](shader-dump.md), steps 2 and 3). It
   compares your dump with the shaders the prebuilt files were made from.
