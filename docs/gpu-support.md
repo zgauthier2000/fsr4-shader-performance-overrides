@@ -52,7 +52,7 @@ What is known about why:
 **An experimental build for integrated GPUs is available for testing.** Its pass 11 keeps AMD's
 loops, so the pass stays small (6.5 KB as compiled for a Radeon 780M), and only stores each row of
 its output together, which cuts the memory the pass reads to about a quarter. It is attached to
-the [release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3)
+the [release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4)
 as `test-igpu.zip` (AMD's GPU check is lifted in it, as in every released DLL). Its output is
 byte-identical to AMD's.
 
@@ -130,7 +130,7 @@ shimmering in motion. So the accumulating dot product is the cause, and the rewr
 and pass 11 work on RDNA2 once it is gone. 
 **Speed reports from testers (2026-10-04 and 2026-10-05)**, OptiScaler's upscaler time, sorted by
 output size. "Before" is the DLL named in brackets; the patched DLL in every row is
-`test-rdna2.zip` (`4.1.1-cyboman-r2`), not the compact test build.
+`test-rdna2.zip` (`4.1.1-r2-cyboman`), not the compact test build.
 
 | GPU | Game | Render to output | Before | Patched DLL | Change |
 |---|---|---|---|---|---|
@@ -234,7 +234,7 @@ because its shaders are translated on the machine that runs them. See
 previous frame in each output pixel), which was suggested as a fix. It looks bad in motion; see
 [history clamp](../research/history-clamp).
 
-The builds are attached to the [release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3):
+The builds are attached to the [release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4):
 
 | File | Contents |
 |---|---|
@@ -248,7 +248,7 @@ with `dll/patch_upscaler_dll.py --any-gpu --only none|pass11|postpass`.
 
 ### Test build: RDNA2 with the compact pass 11 (2026-10-05)
 
-`test-rdna2-compact.zip` (shows as `4.1.1-cyboman-r2c`) is `test-rdna2.zip` with one change: model
+`test-rdna2-compact.zip` (shows as `4.1.1-r2c-cyboman`) is `test-rdna2.zip` with one change: model
 pass 11 is the compact version from the integrated-GPU build, which keeps AMD's loops and only
 stores each row of its output together. Compiled for an RX 6000 card or the Steam Deck, that pass
 is 4.7 KB of code, against 21.4 KB for the unrolled version in `test-rdna2.zip` and 4.4 KB for

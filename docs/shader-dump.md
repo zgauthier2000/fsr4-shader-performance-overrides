@@ -13,7 +13,7 @@ is usually called `spirv-tools`). Replace `/home/you` with your home folder thro
 ## 1. Use AMD's original DLL
 
 The game must run AMD's unmodified `amd_fidelityfx_upscaler_dx12.dll` (version 4.1.1.2740).
-OptiScaler should show FSR as plain `4.1.1`. With a patched DLL (`4.1.1-cyboman-...`, `4.1.1b`)
+OptiScaler should show FSR as plain `4.1.1`. With a patched DLL (`4.1.1-...-cyboman`, `4.1.1b`)
 the dump contains that DLL's shaders, which is not what is being checked.
 
 ## 2. Dump

@@ -11,7 +11,27 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
 Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
 
-## What's new: 2026-10-05, latest ([release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3))
+## What's new: 2026-10-05, latest ([release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4))
+
+- **New names in OptiScaler, same shaders.** The GPU tag now comes before "cyboman", so it is
+  readable in OptiScaler's closed dropdown and in screenshots:
+
+  | Build | Shows as | Before |
+  |---|---|---|
+  | main DLL (desktop RX 7000) | `4.1.1-r3-cyboman` | `4.1.1-cyboman-r3` |
+  | `test-rdna2.zip` | `4.1.1-r2-cyboman` | `4.1.1-cyboman-r2` |
+  | `test-rdna2-compact.zip` | `4.1.1-r2c-cyboman` | `4.1.1-cyboman-r2c` |
+  | `test-igpu.zip` | `4.1.1-ig-cyboman` | `4.1.1-cyboman-ig` |
+  | `test-lossy.zip` | `4.1.1-r3-lossy-cyboman` | `4.1.1-cyboman-lossy` |
+  | `test-lossy-rdna2.zip` | `4.1.1-r2-lossy-cyboman` | `4.1.1-cyboman-r2-lossy` |
+  | `test-lossy-rdna2-compact.zip` | `4.1.1-r2c-lossy-cyboman` | `4.1.1-cyboman-r2c-lossy` |
+  | `test-lossy-igpu.zip` | `4.1.1-ig-lossy-cyboman` | `4.1.1-cyboman-ig-lossy` |
+
+  Only the name differs from release `dll-2026-10-05.3`: the exact builds still give AMD's image
+  byte for byte and the lossy ones the same output as before. If you are sending screenshots,
+  please use these builds.
+
+## Earlier on 2026-10-05 (release `dll-2026-10-05.3`): lossy test builds and the timing kit
 
 - **An opt-in test build that is NOT bit-exact: `test-lossy.zip` (Windows DLL) and
   `test-lossy-linux.zip` (Linux override folder).**
@@ -25,7 +45,7 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
   of the Tomb Raider's benchmark at 4K Balanced the upscaler time goes from 3.05 ms (main files)
   to 2.91 ms, and 109 to 111 FPS; no difference was visible there. In the test scenes it costs
   0.3 to 0.7 dB of accuracy at every output size, and fine repeating patterns are 17 to 31% less
-  steady in motion at 1440p output. For desktop RX 7000 cards; shows as `4.1.1-cyboman-lossy`.
+  steady in motion at 1440p output. For desktop RX 7000 cards; shows as `4.1.1-r3-lossy-cyboman`.
   [Measurements, tools and what to watch for](research/lossy#the-opt-in-test-build-2026-10-05).
 - **Lossy builds for other GPUs too:** `test-lossy-rdna2.zip` (RX 6000),
   `test-lossy-rdna2-compact.zip` (RDNA2 and Steam Deck) and `test-lossy-igpu.zip` (RDNA3
@@ -80,8 +100,10 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
 - **A second RDNA2 test build, `test-rdna2-taps.zip`,** was added at 12:40 EDT and has since been
   withdrawn: testers saw no improvement from it.
   [Details](docs/gpu-support.md#withdrawn-rdna2-with-the-postpasss-reads-unbranched-2026-10-05).
-- **The DLLs now say what they are.** OptiScaler shows `4.1.1-cyboman-r3` (RX 7000),
-  `-ig` (integrated), `-r2` (RX 6000) or `-r2c` (the new test build) instead of `4.1.1`, so you can
+- **The DLLs now say what they are.** OptiScaler shows `4.1.1-r3-cyboman` (RX 7000),
+  `4.1.1-ig-cyboman` (integrated), `4.1.1-r2-cyboman` (RX 6000) or `4.1.1-r2c-cyboman` (the new
+  test build) instead of `4.1.1` (in releases before `dll-2026-10-05.4` the tag came last, as in
+  `4.1.1-cyboman-r3`), so you can
   see that the patched DLL is the one loaded. Every build except the `test-lossy` ones produces AMD's image byte for byte. All of them have AMD's GPU check lifted; none is for
   RX 9000 cards.
 - **Results from testers on RX 6000 cards** (ten reports, five cards). The gain follows the output
@@ -102,7 +124,7 @@ The main DLL for RX 7000 cards and the Linux files are unchanged since 2026-10-0
 ## RDNA2 (RX 6000): shimmering in motion fixed (2026-10-04, 15:43 EDT)
 
 FSR 4.1.1's INT8 model can be made to run on RDNA2, but there it shimmers in motion. A test build
-from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3)
+from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4)
 (Windows DLL).
 
 - **The cause is one instruction form in the postpass.** AMD's postpass adds each int8 dot
@@ -163,7 +185,7 @@ memory they read is unchanged, so the total is where it was (7,668 to 5,321 MB t
   never slower, and they may help GPUs with less memory bandwidth, where they have not been
   measured yet.
 - **To get it:** download the files again, or run `build_override.sh` again if you built your own.
-  The patched DLL is in the [release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3).
+  The patched DLL is in the [release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4).
 - **Integrated GPUs:** still not recommended, but there is an experimental build to test; see
   [GPU support](docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 - The figures are read requests between the GPU's cache and memory, counted in a standalone
@@ -274,24 +296,24 @@ faster: [Linux guide](docs/linux.md).
 This also works under Proton, but on Linux the launch option above is faster.
 
 1. Download `amd_fidelityfx_upscaler_dx12.dll` from the
-   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3).
+   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4).
 2. In the game folder, rename the existing `amd_fidelityfx_upscaler_dx12.dll` (often next to
    OptiScaler) to `amd_fidelityfx_upscaler_dx12.dll.orig`. It must be version 4.1.1.2740.
 3. Put the downloaded DLL in its place.
 
-OptiScaler then lists FSR as **`4.1.1-cyboman-r3`** instead of `4.1.1`, which shows that the
+OptiScaler then lists FSR as **`4.1.1-r3-cyboman`** instead of `4.1.1`, which shows that the
 patched DLL is the one in use. The test builds for other GPUs carry their own names:
 
 | Build | Name shown | For |
 |---|---|---|
-| `amd_fidelityfx_upscaler_dx12.dll` | `4.1.1-cyboman-r3` | desktop RDNA3 (RX 7000) |
-| `test-igpu.zip` | `4.1.1-cyboman-ig` | RDNA3 integrated GPUs (experimental) |
-| `test-rdna2.zip` | `4.1.1-cyboman-r2` | RDNA2 (RX 6000) |
-| `test-rdna2-compact.zip` | `4.1.1-cyboman-r2c` | RDNA2 and Steam Deck, test build with a smaller pass 11 ([details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05)) |
-| `test-lossy.zip` | `4.1.1-cyboman-lossy` | desktop RDNA3, **opt-in test build that changes the image** ([details](research/lossy#the-opt-in-test-build-2026-10-05)) |
-| `test-lossy-rdna2.zip` | `4.1.1-cyboman-r2-lossy` | RDNA2, **changes the image** |
-| `test-lossy-rdna2-compact.zip` | `4.1.1-cyboman-r2c-lossy` | RDNA2 and Steam Deck, **changes the image** |
-| `test-lossy-igpu.zip` | `4.1.1-cyboman-ig-lossy` | RDNA3 integrated GPUs, **changes the image** |
+| `amd_fidelityfx_upscaler_dx12.dll` | `4.1.1-r3-cyboman` | desktop RDNA3 (RX 7000) |
+| `test-igpu.zip` | `4.1.1-ig-cyboman` | RDNA3 integrated GPUs (experimental) |
+| `test-rdna2.zip` | `4.1.1-r2-cyboman` | RDNA2 (RX 6000) |
+| `test-rdna2-compact.zip` | `4.1.1-r2c-cyboman` | RDNA2 and Steam Deck, test build with a smaller pass 11 ([details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05)) |
+| `test-lossy.zip` | `4.1.1-r3-lossy-cyboman` | desktop RDNA3, **opt-in test build that changes the image** ([details](research/lossy#the-opt-in-test-build-2026-10-05)) |
+| `test-lossy-rdna2.zip` | `4.1.1-r2-lossy-cyboman` | RDNA2, **changes the image** |
+| `test-lossy-rdna2-compact.zip` | `4.1.1-r2c-lossy-cyboman` | RDNA2 and Steam Deck, **changes the image** |
+| `test-lossy-igpu.zip` | `4.1.1-ig-lossy-cyboman` | RDNA3 integrated GPUs, **changes the image** |
 
 All of them have AMD's GPU check lifted (AMD's DLL offers this FSR 4 model only on desktop RDNA3), so
 each starts on any GPU. **Do not use them on RX 9000 (RDNA4) cards:** those run a different FSR 4
@@ -307,7 +329,7 @@ Open OptiScaler's overlay and compare the upscaler time with and without the cha
 the same spot. **In some games that number is only reliable with the frame rate uncapped.** At 4K
 it should drop by roughly 1 ms.
 
-With the patched DLL, also check that the FSR version shown is `4.1.1-cyboman-r3`; if it still
+With the patched DLL, also check that the FSR version shown is `4.1.1-r3-cyboman`; if it still
 says `4.1.1`, the game is loading AMD's DLL from somewhere else.
 
 If nothing changes, check that the game really runs FSR 4.1.1 with AMD's DLL version 4.1.1.2740;

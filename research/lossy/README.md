@@ -237,14 +237,14 @@ AMD's). Set 2 is the better stopping point: the remaining passes have nothing ch
 > you want AMD's image, do not use it.
 
 Lossy set 2 from above, attached to the
-[release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3):
+[release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4):
 
 | File | What it is | Use |
 |---|---|---|
-| `test-lossy.zip` | the main DLL for desktop RX 7000 cards with the lossy model passes; shows as `4.1.1-cyboman-lossy` | replaces `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740, like the main DLL |
-| `test-lossy-rdna2.zip` | `test-rdna2.zip` (RX 6000) with the lossy model passes; shows as `4.1.1-cyboman-r2-lossy` | as above |
-| `test-lossy-rdna2-compact.zip` | `test-rdna2-compact.zip` (RDNA2 and Steam Deck) with the lossy model passes; shows as `4.1.1-cyboman-r2c-lossy` | as above |
-| `test-lossy-igpu.zip` | `test-igpu.zip` (RDNA3 integrated GPUs) with the lossy model passes; shows as `4.1.1-cyboman-ig-lossy` | as above |
+| `test-lossy.zip` | the main DLL for desktop RX 7000 cards with the lossy model passes; shows as `4.1.1-r3-lossy-cyboman` | replaces `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740, like the main DLL |
+| `test-lossy-rdna2.zip` | `test-rdna2.zip` (RX 6000) with the lossy model passes; shows as `4.1.1-r2-lossy-cyboman` | as above |
+| `test-lossy-rdna2-compact.zip` | `test-rdna2-compact.zip` (RDNA2 and Steam Deck) with the lossy model passes; shows as `4.1.1-r2c-lossy-cyboman` | as above |
+| `test-lossy-igpu.zip` | `test-igpu.zip` (RDNA3 integrated GPUs) with the lossy model passes; shows as `4.1.1-ig-lossy-cyboman` | as above |
 | `test-lossy-linux.zip` | a Linux override folder, `fsr4-lossy-overrides` | `VKD3D_SHADER_OVERRIDE='Z:/path/to/fsr4-lossy-overrides' %command%`, with AMD's original DLL |
 
 Do not use the DLL on RX 9000 (RDNA4) cards. The Linux folder was built on an RX 7800 XT with

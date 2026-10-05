@@ -19,7 +19,7 @@ something about your system as a whole.
 Pick any **other** game where you use FSR 4 through OptiScaler.
 
 1. Make sure that game uses AMD's original `amd_fidelityfx_upscaler_dx12.dll`. OptiScaler should
-   show the FSR version as plain `4.1.1`, not `4.1.1-cyboman-...`.
+   show the FSR version as plain `4.1.1`, not `4.1.1-...-cyboman`.
 
 2. Make an empty folder:
 

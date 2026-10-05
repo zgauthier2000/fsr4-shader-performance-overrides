@@ -91,7 +91,7 @@ when it uses a shader there is no file for. Since 2026-10-04 `prebuilt/` has a f
 normal version in AMD's DLL 4.1.1.2740, so that should only happen with:
 
 - a different FSR DLL version;
-- a modified DLL: the patched DLL from this repository (it shows as `4.1.1-cyboman-...` in
+- a modified DLL: the patched DLL from this repository (it shows as `4.1.1-...-cyboman` in
   OptiScaler), fsr4xyz's `4.1.1b` or any other. Their shaders are not AMD's, so no file matches
   and the launch option does nothing; the DLL's own shaders run. Put AMD's original DLL back to
   use the launch option. Checked with release `dll-2026-10-04.5`: none of its shaders match;

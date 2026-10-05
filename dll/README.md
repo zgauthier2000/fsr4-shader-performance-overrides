@@ -7,10 +7,10 @@ alike.
 
 ## Download it
 
-A patched DLL is attached to the [release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3), with AMD's notice and
+A patched DLL is attached to the [release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4), with AMD's notice and
 SHA-256 checksums. It was made by this script from AMD's original (SHA-256
 `d0dcccc74a43c44ba435b7a369b456e0970d8a4464e4bd683119b374f2c9fb46`), and running the script on that
-file with `--any-gpu --name 4.1.1-cyboman-r3` reproduces it exactly. Install it as described below, from step 1 under "Then, in the game
+file with `--any-gpu --name 4.1.1-r3-cyboman` reproduces it exactly. Install it as described below, from step 1 under "Then, in the game
 folder".
 
 ## Make the DLL
@@ -34,11 +34,13 @@ Not for RDNA4. **All released DLLs are built with it** since release `dll-2026-1
 
 `--name <text>` changes the version name the DLL reports ("4.1.1" in AMD's), which is what
 OptiScaler displays, so that a patched DLL can be told from AMD's and the builds from each other.
-The released DLLs use `4.1.1-cyboman-r3` (desktop RDNA3), `4.1.1-cyboman-ig` (integrated GPUs)
-`4.1.1-cyboman-r2` (RDNA2), `4.1.1-cyboman-r2c` (RDNA2 with the compact pass 11, a test
-build) and `4.1.1-cyboman-lossy` (the opt-in build that changes the image; `-r2-lossy`, `-r2c-lossy` and
-`-ig-lossy` for the other GPUs; see
-[`research/lossy`](../research/lossy)). Keep `4.1.1` at the start
+The released DLLs use `4.1.1-r3-cyboman` (desktop RDNA3), `4.1.1-ig-cyboman` (integrated GPUs)
+`4.1.1-r2-cyboman` (RDNA2), `4.1.1-r2c-cyboman` (RDNA2 with the compact pass 11, a test
+build) and `4.1.1-r3-lossy-cyboman` (the opt-in build that changes the image; `4.1.1-r2-lossy-cyboman`,
+`4.1.1-r2c-lossy-cyboman` and `4.1.1-ig-lossy-cyboman` for the other GPUs; see
+[`research/lossy`](../research/lossy)). The GPU tag comes before `cyboman` since release
+`dll-2026-10-05.4`, so that it stays visible in OptiScaler's closed dropdown; earlier releases
+have it last (`4.1.1-cyboman-r3`). Keep `4.1.1` at the start
 in case a front end reads the name as a number. The file version in the DLL's properties stays
 4.1.1.2740.
 
