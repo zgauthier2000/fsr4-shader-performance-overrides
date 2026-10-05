@@ -237,6 +237,9 @@ Lossy set 2 from above, attached to the
 | File | What it is | Use |
 |---|---|---|
 | `test-lossy.zip` | the main DLL for desktop RX 7000 cards with the lossy model passes; shows as `4.1.1-cyboman-lossy` | replaces `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740, like the main DLL |
+| `test-lossy-rdna2.zip` | `test-rdna2.zip` (RX 6000) with the lossy model passes; shows as `4.1.1-cyboman-r2-lossy` | as above |
+| `test-lossy-rdna2-compact.zip` | `test-rdna2-compact.zip` (RDNA2 and Steam Deck) with the lossy model passes; shows as `4.1.1-cyboman-r2c-lossy` | as above |
+| `test-lossy-igpu.zip` | `test-igpu.zip` (RDNA3 integrated GPUs) with the lossy model passes; shows as `4.1.1-cyboman-ig-lossy` | as above |
 | `test-lossy-linux.zip` | a Linux override folder, `fsr4-lossy-overrides` | `VKD3D_SHADER_OVERRIDE='Z:/path/to/fsr4-lossy-overrides' %command%`, with AMD's original DLL |
 
 Do not use the DLL on RX 9000 (RDNA4) cards. The Linux folder was built on an RX 7800 XT with
@@ -292,4 +295,10 @@ and whether you can see a difference, with GPU, game, output resolution and pres
 look are fine repeating patterns in motion (grilles, fences, fabric, distant brickwork), most of
 all at 1440p output.
 
-Only the desktop RDNA3 build exists. The settings were tuned on an RX 7800 XT at 4K.
+**The builds for other GPUs** (added later on 2026-10-05) are the exact build for that GPU with
+the same 27 lossy shaders; the GPU-specific parts (the postpass, pass 11) are unchanged. On an
+RX 7800 XT all three give output byte-identical to the desktop RDNA3 lossy DLL at four sizes. None
+has been run on the hardware it is for, and the settings were tuned on an RX 7800 XT at 4K, so
+neither the gain nor the visible cost is known there. `build_lossy_dxil.sh` takes the exact set
+to start from as its second argument. Compare each with its exact build: `test-rdna2.zip`,
+`test-rdna2-compact.zip` or `test-igpu.zip`.

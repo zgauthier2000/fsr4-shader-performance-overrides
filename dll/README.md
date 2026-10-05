@@ -36,7 +36,8 @@ Not for RDNA4. **All released DLLs are built with it** since release `dll-2026-1
 OptiScaler displays, so that a patched DLL can be told from AMD's and the builds from each other.
 The released DLLs use `4.1.1-cyboman-r3` (desktop RDNA3), `4.1.1-cyboman-ig` (integrated GPUs)
 `4.1.1-cyboman-r2` (RDNA2), `4.1.1-cyboman-r2c` (RDNA2 with the compact pass 11, a test
-build) and `4.1.1-cyboman-lossy` (the opt-in build that changes the image, see
+build) and `4.1.1-cyboman-lossy` (the opt-in build that changes the image; `-r2-lossy`, `-r2c-lossy` and
+`-ig-lossy` for the other GPUs; see
 [`research/lossy`](../research/lossy)). Keep `4.1.1` at the start
 in case a front end reads the name as a number. The file version in the DLL's properties stays
 4.1.1.2740.
