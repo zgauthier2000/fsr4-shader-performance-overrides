@@ -4,7 +4,26 @@ Makes AMD FSR 4.1.1 upscaling about 25 to 30% cheaper on Radeon RX 7000 graphics
 and Windows, by replacing FSR 4's slowest compute shaders with faster ones. **The image is
 unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
-## What's new: 2026-10-05, 17:05 EDT ([release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3))
+## What's new: 2026-10-05, latest ([release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3))
+
+- **An opt-in test build that is NOT bit-exact: `test-lossy.zip` (Windows DLL) and
+  `test-lossy-linux.zip` (Linux override folder).**
+
+  > **WARNING: this build changes the image.** It is not the same as the main DLL or the prebuilt
+  > folder, and not the same as AMD's DLL. Everything else in this repository produces AMD's image
+  > byte for byte; this does not. Use it only if you want to try it, and use the main files if you
+  > want AMD's image.
+
+  It removes part of the arithmetic in nine of FSR 4's model passes. On an RX 7800 XT in Shadow
+  of the Tomb Raider's benchmark at 4K Balanced the upscaler time goes from 3.05 ms (main files)
+  to 2.91 ms, and 109 to 111 FPS; no difference was visible there. In the test scenes it costs
+  0.3 to 0.7 dB of accuracy at every output size, and fine repeating patterns are 17 to 31% less
+  steady in motion at 1440p output. For desktop RX 7000 cards; shows as `4.1.1-cyboman-lossy`.
+  [Measurements, tools and what to watch for](research/lossy#the-opt-in-test-build-2026-10-05).
+- **`test-rdna2-taps.zip` is withdrawn.** Testers saw no improvement from it on RDNA2.
+  `test-rdna2.zip` remains the build for RX 6000 cards.
+
+## Earlier on 2026-10-05, 17:05 EDT (release `dll-2026-10-05.3`)
 
 - **The prepass is rewritten too, with AMD's image still byte for byte.** The prepass prepares
   the model's input in blocks of four pixels. In AMD's shader the four threads of a block each
@@ -42,13 +61,12 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
   and report the upscaler time of each. On a desktop RX 6750 XT it is 2% slower than
   `test-rdna2.zip` (2.14 ms against 2.10 ms at 1440p), so desktop RX 6000 cards should keep using
   `test-rdna2.zip`. [Details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05).
-- **A second RDNA2 test build, `test-rdna2-taps.zip`** (added 12:40 EDT): `test-rdna2.zip` with one
-  more bit-exact postpass change that a community member measured as about 2% faster on an
-  RX 6700M. Untested on RDNA2 here; please compare it with `test-rdna2.zip`.
-  [Details](docs/gpu-support.md#test-build-rdna2-with-the-postpasss-reads-unbranched-2026-10-05).
+- **A second RDNA2 test build, `test-rdna2-taps.zip`,** was added at 12:40 EDT and has since been
+  withdrawn: testers saw no improvement from it.
+  [Details](docs/gpu-support.md#withdrawn-rdna2-with-the-postpasss-reads-unbranched-2026-10-05).
 - **The DLLs now say what they are.** OptiScaler shows `4.1.1-cyboman-r3` (RX 7000),
   `-ig` (integrated), `-r2` (RX 6000) or `-r2c` (the new test build) instead of `4.1.1`, so you can
-  see that the patched DLL is the one loaded. All of them have AMD's GPU check lifted; none is for
+  see that the patched DLL is the one loaded. Every build except `test-lossy.zip` produces AMD's image byte for byte. All of them have AMD's GPU check lifted; none is for
   RX 9000 cards.
 - **Results from testers on RX 6000 cards** (ten reports, five cards). The gain follows the output
   size: about 30% less upscaler time at 4K (RX 6900 XT: 3.79 ms to 2.57 ms in Ready or Not, 3.79 ms
@@ -249,8 +267,8 @@ patched DLL is the one in use. The test builds for other GPUs carry their own na
 | `amd_fidelityfx_upscaler_dx12.dll` | `4.1.1-cyboman-r3` | desktop RDNA3 (RX 7000) |
 | `test-igpu.zip` | `4.1.1-cyboman-ig` | RDNA3 integrated GPUs (experimental) |
 | `test-rdna2.zip` | `4.1.1-cyboman-r2` | RDNA2 (RX 6000) |
-| `test-rdna2-taps.zip` | `4.1.1-cyboman-r2t` | RDNA2, test build with one more postpass change ([details](docs/gpu-support.md#test-build-rdna2-with-the-postpasss-reads-unbranched-2026-10-05)) |
 | `test-rdna2-compact.zip` | `4.1.1-cyboman-r2c` | RDNA2 and Steam Deck, test build with a smaller pass 11 ([details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05)) |
+| `test-lossy.zip` | `4.1.1-cyboman-lossy` | desktop RDNA3, **opt-in test build that changes the image** ([details](research/lossy#the-opt-in-test-build-2026-10-05)) |
 
 All of them have AMD's GPU check lifted (AMD's DLL offers this FSR 4 model only on desktop RDNA3), so
 each starts on any GPU. **Do not use them on RX 9000 (RDNA4) cards:** those run a different FSR 4

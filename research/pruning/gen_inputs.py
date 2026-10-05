@@ -5,8 +5,10 @@
 import sys, os, numpy as np
 from PIL import Image
 src, out, frames, sgx, sgy = sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5])
-rw, rh = 2260, 1272
-im = np.asarray(Image.open(src).convert('RGB'), dtype=np.float32) / 255.0
+ow_, oh_, rw, rh = (int(x) for x in os.environ.get('SCENE', '3840 2160 2260 1272').split())
+im_ = Image.open(src).convert('RGB')
+if im_.size != (ow_, oh_): im_ = im_.resize((ow_, oh_), Image.LANCZOS)
+im = np.asarray(im_, dtype=np.float32) / 255.0
 lin = np.where(im <= 0.04045, im / 12.92, ((im + 0.055) / 1.055) ** 2.4).astype(np.float32)
 oh, ow = lin.shape[:2]
 os.makedirs(out, exist_ok=True)

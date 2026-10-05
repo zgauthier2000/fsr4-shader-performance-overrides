@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # metric.py <output.raw> <reference .raw or truth.npy> : PSNR in sRGB display space (dB), max abs diff in 8-bit steps
-import sys, numpy as np
+import sys, os, numpy as np
+OW, OH = (int(x) for x in os.environ.get('SCENE', '3840 2160').split()[:2])
 def load(p):
     if p.endswith('.npy'): return np.load(p)
-    return np.fromfile(p, dtype=np.float16).reshape(2160, 3840, 4)[:, :, :3].astype(np.float32)
+    return np.fromfile(p, dtype=np.float16).reshape(OH, OW, 4)[:, :, :3].astype(np.float32)
 def srgb(x):
     x = np.clip(x, 0, 1)
     return np.where(x <= 0.0031308, x * 12.92, 1.055 * x ** (1 / 2.4) - 0.055)

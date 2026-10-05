@@ -4,7 +4,11 @@
 
 Everything this repository ships keeps AMD's image byte for byte. This page is about an
 experiment that does not: doing less arithmetic in the model passes, and looking for the settings
-that cost the least. **Nothing here is shipped or built into any release.**
+that cost the least. **None of it is in the main files.** Since 2026-10-05 the result is
+available as a separate, opt-in test build; see [the last section](#the-opt-in-test-build-2026-10-05).
+
+> **WARNING: the test build changes the image.** It is not the same as the main DLL, the prebuilt
+> folder or AMD's DLL, all of which produce the same image byte for byte.
 
 It builds on two things: the measurement of a [community shader set](../community-lossy-set), which
 showed that some model passes can lose weights without a measurable cost, and the
@@ -219,3 +223,73 @@ AMD's). Set 2 is the better stopping point: the remaining passes have nothing ch
 - Every version of the passes (three output-size classes, two models) and the DLL's shader
   format. The tool has only been run on the versions used at 1440p-to-4K output.
 - More scenes, ideally frames captured from a game.
+
+## The opt-in test build (2026-10-05)
+
+> **WARNING: this build changes the image.** It is not the same as this repository's main DLL or
+> prebuilt folder, and not the same as AMD's DLL. Those three produce the same image, byte for
+> byte. This one produces a different, slightly less accurate picture in exchange for speed. If
+> you want AMD's image, do not use it.
+
+Lossy set 2 from above, attached to the
+[release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3):
+
+| File | What it is | Use |
+|---|---|---|
+| `test-lossy.zip` | the main DLL for desktop RX 7000 cards with the lossy model passes; shows as `4.1.1-cyboman-lossy` | replaces `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740, like the main DLL |
+| `test-lossy-linux.zip` | a Linux override folder, `fsr4-lossy-overrides` | `VKD3D_SHADER_OVERRIDE='Z:/path/to/fsr4-lossy-overrides' %command%`, with AMD's original DLL |
+
+Do not use the DLL on RX 9000 (RDNA4) cards. The Linux folder was built on an RX 7800 XT with
+GE-Proton 11-7 and has the same limits as the [prebuilt folder](../../docs/linux.md).
+
+**What is in it.** The exact files, with 27 model-pass shaders replaced: passes 1, 2, 4, 5, 7, 8,
+9, 10 and 12 of the normal model, for the three output-size classes. Weights are folded in passes
+1 (4 words of 36), 5 (18), 10 (18) and 12 (20); the rounding change is in all nine. The postpass,
+the prepass and pass 11 are the exact versions. **Ultra Performance is not lossy** apart from the
+rounding change in three passes it shares: it uses a different model, and the settings were not
+tuned for it.
+
+**The two builds are the same thing.** `wfold_dxil.py` and `wround_dxil.py` are the DXIL forms of
+the two tools and make the same choices. The DLL's output is byte-identical to the Linux folder's
+at six sizes (4K, 1440p and 1080p output, normal and Ultra Performance model), under Proton on an
+RX 7800 XT. `build_lossy_dxil.sh` builds the DXIL set from AMD's shaders.
+
+**In a game.** Shadow of the Tomb Raider's benchmark, 4K Balanced, RX 7800 XT, Linux launch option:
+
+| | Upscaler time | Average FPS | Frames rendered |
+|---|---|---|---|
+| AMD's shaders | 4.16 ms | 97 | |
+| Main files (exact) | 3.05 ms | 109 | 16884 |
+| Lossy test build | 2.91 ms | 111 | 17148 |
+
+That is 0.14 ms less than the exact files (4.6%). No difference was visible in that run. It is
+one game at one size.
+
+**At other output sizes.** The still scene and the moving scene, scaled to each output size so
+that lower resolutions have finer detail per pixel. Each cell is AMD's shaders, then the lossy
+set. "Change" is the frame-to-frame change of a scene point (lower is steadier).
+
+| Output, preset | Still scene against the true image | Change: background | Change: railing bars | Change: fine stripes |
+|---|---|---|---|---|
+| 4K Balanced | 44.31, 43.71 dB | 0.079, 0.079 | 0.913, 0.948 (+4%) | 2.04, 1.95 (-4%) |
+| 4K Performance | 43.90, 43.23 dB | 0.092, 0.086 | 0.549, 0.626 (+14%) | 1.78, 1.85 (+4%) |
+| 1440p Quality | 43.17, 42.82 dB | 0.077, 0.080 | 1.252, 1.217 (-3%) | 1.23, 1.60 (+31%) |
+| 1440p Balanced | 42.86, 42.41 dB | 0.091, 0.092 | 1.572, 1.606 (+2%) | 1.52, 1.78 (+17%) |
+| 1440p Performance | 42.58, 42.11 dB | 0.101, 0.094 | 1.528, 1.588 (+4%) | 1.56, 2.04 (+31%) |
+| 1080p Quality | 42.61, 42.34 dB | 0.083, 0.086 | 1.227, 1.276 (+4%) | 2.71, 2.20 (-19%) |
+| 1080p Balanced | 42.37, 42.06 dB | 0.096, 0.096 | 1.577, 1.573 (0%) | 2.09, 2.02 (-4%) |
+| 1080p Performance | 42.04, 41.68 dB | 0.103, 0.097 | 1.403, 1.406 (0%) | 1.78, 1.88 (+6%) |
+
+- **Still image:** 0.3 to 0.7 dB less accurate at every size, and no worse at lower resolutions.
+- **Background and ordinary texture in motion:** within a few percent of AMD's everywhere.
+- **Thin bars:** within 4%, except 4K Performance (14% less steady).
+- **Fine stripes at 1440p output:** 17 to 31% less steady on all three presets. The stripes are a
+  harsh pattern that AMD's shaders also reproduce badly, and at 1080p Quality the lossy set is the
+  steadier one, so single figures are noisy; three presets agreeing is not.
+
+**What to report.** The upscaler time with the main files and with this build at the same spot,
+and whether you can see a difference, with GPU, game, output resolution and preset. The places to
+look are fine repeating patterns in motion (grilles, fences, fabric, distant brickwork), most of
+all at 1440p output.
+
+Only the desktop RDNA3 build exists. The settings were tuned on an RX 7800 XT at 4K.

@@ -107,6 +107,11 @@ that the still scene and the average error both miss.
     FSR_IMG_DIR=imgm FSR_KEEP=8 FSR_CTX_FLAGS=0x0 FSR_DISP_FLAGS=0 umu-run fsr4img.exe 4.1.1 2260x1272 3840x2160 40 image
     python3 metric_motion.py imgm <folder with the output frames> [<folder with reference frames>]
 
+Other output sizes: set `SCENE="<output width> <output height> <render width> <render height>"`
+for all four scripts (for example `SCENE="2560 1440 1506 847"`) and pass the same sizes to the
+test program. The picture is resized and the scene's objects are scaled with it, so a lower
+output size has finer detail per pixel, as in a game. Without `SCENE` everything is as above.
+
 ## Files
 
 | File | What it is |

@@ -4,13 +4,16 @@
 # the scene lands on a pixel centre in every frame and frames can be compared exactly.
 import numpy as np
 
-OW, OH, RW, RH = 3840, 2160, 2260, 1272
+import os
+OW, OH, RW, RH = (int(x) for x in os.environ.get('SCENE', '3840 2160 2260 1272').split())
+S = OW / 3840                  # the 4K scene scaled to the output size
+_s = lambda *v: tuple(int(round(x * S)) for x in v)
 PAD = 384                      # mirror padding of the background, room for the pan
 VB = (4, 2)                    # the camera pans: the background moves by -VB on screen each frame
 VO = (-5, 3)                   # the foreground objects move by VO on screen each frame
-BLOCK = (2300, 300, 800, 560)  # solid textured block: x, y, w, h at frame 0
-RAIL = (2300, 1000, 900, 420)  # railing: thin bars with see-through gaps
-BAR_W, BAR_STEP = 3, 24        # bar width and spacing
+BLOCK = _s(2300, 300, 800, 560)  # solid textured block: x, y, w, h at frame 0
+RAIL = _s(2300, 1000, 900, 420)  # railing: thin bars with see-through gaps
+BAR_W, BAR_STEP = max(1, int(round(3 * S))), int(round(24 * S))        # bar width and spacing
 DEPTH_BG, DEPTH_FG = 0.9, 0.3
 
 
@@ -36,7 +39,7 @@ def truth(world, t):
     # block texture: another part of the picture, fixed to the block, with fine stripes on its right half
     by, bx = np.nonzero(block)
     ty, tx = by - (BLOCK[1] + oy), bx - (BLOCK[0] + ox)
-    tex = world[PAD + 1200 + ty, PAD + 400 + tx]
+    tex = world[PAD + int(1200 * S) + ty, PAD + int(400 * S) + tx]
     stripe = (tx >= BLOCK[2] // 2) & ((tx + ty) % 12 < 2)
     tex = np.where(stripe[:, None], np.float32(0.9), tex)
     img[by, bx] = tex
