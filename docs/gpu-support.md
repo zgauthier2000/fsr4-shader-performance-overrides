@@ -155,10 +155,14 @@ How to read these:
   one), so treat the 29% as approximate. The 1440p pair has sharpening off in both.
 - These are single readings from testers' screenshots, not repeated runs.
 
-**On Linux, use the DLL on RDNA2, not the launch option (2026-10-05).** The tester with the
-RX 6900 XT reports that the prebuilt override files apply there but give a darker image than AMD's
-shaders. The DLL build does not show this on the same machine. The override files were made and
-verified on an RX 7800 XT only; the cause on RDNA2 is not known yet.
+**On Linux with RDNA2, build the override files from your own dump (2026-10-05).** The tester
+with the RX 6900 XT gets a darker image with the prebuilt override files, and a correct image with
+files built by `build_override.sh` from a dump of their own game, on the same Proton version as the
+prebuilt files were made with. The rewrite itself is therefore fine on RDNA2; what does not carry
+over is Proton's translation of AMD's shaders, which the prebuilt files (made on an RX 7800 XT)
+are tied to. What exactly differs is not known yet. The DLL build does not have this problem,
+because its shaders are translated on the machine that runs them. See
+[Making a shader dump](linux.md#building-your-own).
 
 **What did not fix it:** a lower bound of 0.8 on the postpass's history weight (the share of the
 previous frame in each output pixel), which was suggested as a fix. It looks bad in motion; see

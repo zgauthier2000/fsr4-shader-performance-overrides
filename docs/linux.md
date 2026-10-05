@@ -12,11 +12,12 @@
   find nothing they recognise.
 - An RDNA3 card on the RADV driver. The slow pattern these rewrites remove was measured there.
   Other cards are untested, and RDNA4 runs a different FSR 4 model that this does not touch.
-- **Not RDNA2 (RX 6000) for now.** A tester with an RX 6900 XT reports that the launch option
-  works there but the image comes out darker than with AMD's shaders (2026-10-05). The cause is
-  not known yet; if you have an RDNA2 card and want to help find it, see
-  [Making a shader dump](shader-dump.md). On RDNA2, use the DLL (`test-rdna2.zip`) instead, which the same tester runs
-  without that problem.
+- **On RDNA2 (RX 6000), build your own files; do not use `prebuilt/`.** A tester with an
+  RX 6900 XT gets a darker image with the prebuilt files and a correct one with files built from a
+  dump of their own game ([Making a shader dump](shader-dump.md), steps 2 and 4), on the same
+  Proton version (2026-10-05). So Proton's translation of AMD's shaders is not the same on every
+  setup, and the prebuilt files, made on an RX 7800 XT, only fit setups that translate them the
+  same way. If the image looks wrong with `prebuilt/` on any card, build your own.
 - Only if you build your own files: `python3` and SPIRV-Tools (`spirv-dis`, `spirv-as`,
   `spirv-val`).
 
