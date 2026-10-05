@@ -73,6 +73,62 @@ The background gets less stable in steps: slightly up to 20 words, sharply at 23
   it) and raises the railing's change by 2 to 4%. That is 0.10 to 0.11 ms, about 3.5% of FSR 4's
   time at 4K on this card.
 
+## The rest of the arithmetic: rounding and output scaling
+
+Added 2026-10-05. Two more tools, for the code between and after the layers.
+
+**`wround.py` (not bit-exact).** Between layers a pass divides each sum by a power of two and
+rounds halves to the even neighbour, `(x + (h - 1) + ((x >> n) & 1)) >> n`. The tool makes it
+`(x + h) >> n`, halves up: two instructions fewer per value. The result differs by one step, and
+only for sums that are exactly halfway. It applies to ten of the twelve passes (48 to 80 values
+each in the six passes with constant weights).
+
+**`wtail.py` (bit-exact).** Six passes (1, 2, 9, 10, 11, 12) end by combining two integers in
+floating point for each output value: `int16(RoundEven((float(a) * 2^-6 + float(b) * 2^-12) * 64))`.
+Every floating-point step there is exact, because the numbers are small integers scaled by powers
+of two, so the same value can be computed in integers: `n = 64a + b`, then
+`(n + 31 + ((n >> 6) & 1)) >> 6`. The output is byte-identical to AMD's in the standalone
+benchmark, with the real weights and with random ones, on random inputs. This one could go into
+the exact files; it is small. (`wtail.py up` rounds halves up instead, which is not exact.)
+
+Time saved per pass, RX 7800 XT at 4K:
+
+| Pass | Rounding (`wround.py`) | Integer output scaling (`wtail.py`, exact) |
+|---|---|---|
+| 1 | 0.007 ms | 0.006 ms |
+| 2 | 0.007 ms | 0.006 ms |
+| 4 | 0.004 ms | |
+| 5 | 0.003 ms | |
+| 7, 8, 9 | 0.006 ms together | 0.002 ms (pass 9) |
+| 10 | 0.004 ms | 0.003 ms |
+| 12 | 0.007 ms | 0.004 ms |
+| Total | 0.038 ms | 0.021 ms |
+
+## Everything together
+
+Nine passes: folding in passes 1 (4 words), 10 (18), 5 (18) and 12 (20); the rounding change in
+all nine; the integer output scaling where it applies. Pass 11 keeps this repository's exact
+rewrite.
+
+| | AMD's shaders | Combined set |
+|---|---|---|
+| Time of the nine passes, RX 7800 XT at 4K | 1.72 ms | 1.55 ms (0.17 ms less, 5.6% of FSR 4's whole time) |
+| Moving scene, whole frame against the true image | 30.53 dB | 30.70 dB |
+| Frame-to-frame change: background | 0.079 | 0.079 |
+| block texture | 0.106 | 0.105 |
+| fine stripes | 2.04 | 1.95 |
+| railing bars | 0.913 | 0.948 |
+| Still scene, 32 frames, against the true image | 44.31 dB | 43.71 dB |
+| Against AMD's frames | | 47.6 dB moving, 56.7 dB still |
+
+The rounding change and the integer scaling add time saved without moving the quality figures:
+they are the same as for folding alone. The cost that can be measured is 0.6 dB in the still
+scene and 4% more frame-to-frame change on the railing.
+
+For comparison, the community set's version of pass 1 saves 0.054 ms and this one 0.026 ms. The
+difference is finer rewriting of the same code (the rounding constant folded into the bias, the
+ReLU merged into the clamp, values extracted as bytes), not another idea.
+
 ## What these figures do and do not mean
 
 - **The image is not AMD's.** About 48 to 50 dB from it: small, everywhere.
@@ -86,7 +142,7 @@ The background gets less stable in steps: slightly up to 20 words, sharply at 23
 
 - Sweeps for passes 1, 5, 10 (more than the fractions above) and pass 2; pass 4 looked like a bad
   trade in the community set.
-- The other half of the community set's gain: its changes to rounding and output scaling.
+- The finer rewrites listed above, worth perhaps another 0.02 ms per pass in passes 1, 2 and 12.
 - The prepass: a faster, not bit-exact prepass with no measurable effect exists in that set; an
   implementation of its own is needed here.
 - Every version of the passes (three output-size classes, two models) and the DLL's shader
