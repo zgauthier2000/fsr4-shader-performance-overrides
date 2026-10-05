@@ -19,9 +19,9 @@ and writes the readings to a results folder. No game, no OptiScaler and no DLL a
 - The optional `traffic` step still needs a CPU with AVX-512 (its bundled driver build was made
   for one) and is skipped elsewhere.
 
-**Status: new and lightly tested.** It has run on two machines: a Radeon RX 7800 XT (Mesa 26.2,
-CachyOS) and a Steam Machine (Navi 33, SteamOS). It has not yet run on an RX 6000 card, an
-integrated GPU or a Steam Deck, which are the GPUs it is most wanted for. Expect rough edges and
+**Status: new and lightly tested.** It has run on three machines: a Radeon RX 7800 XT, a Steam
+Machine (Navi 33, SteamOS) and a laptop RX 6700M (RDNA2). It has not yet run on an integrated
+GPU or a Steam Deck. Expect rough edges and
 please report them.
 
 Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05) (9 MB).
