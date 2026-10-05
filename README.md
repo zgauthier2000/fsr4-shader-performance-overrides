@@ -13,6 +13,10 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
   and report the upscaler time of each. On a desktop RX 6750 XT it is 2% slower than
   `test-rdna2.zip` (2.14 ms against 2.10 ms at 1440p), so desktop RX 6000 cards should keep using
   `test-rdna2.zip`. [Details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05).
+- **A second RDNA2 test build, `test-rdna2-taps.zip`** (added 12:40 EDT): `test-rdna2.zip` with one
+  more bit-exact postpass change that a community member measured as about 2% faster on an
+  RX 6700M. Untested on RDNA2 here; please compare it with `test-rdna2.zip`.
+  [Details](docs/gpu-support.md#test-build-rdna2-with-the-postpasss-reads-unbranched-2026-10-05).
 - **The DLLs now say what they are.** OptiScaler shows `4.1.1-cyboman-r3` (RX 7000),
   `-ig` (integrated), `-r2` (RX 6000) or `-r2c` (the new test build) instead of `4.1.1`, so you can
   see that the patched DLL is the one loaded. All of them have AMD's GPU check lifted; none is for
@@ -216,6 +220,7 @@ patched DLL is the one in use. The test builds for other GPUs carry their own na
 | `amd_fidelityfx_upscaler_dx12.dll` | `4.1.1-cyboman-r3` | desktop RDNA3 (RX 7000) |
 | `test-igpu.zip` | `4.1.1-cyboman-ig` | RDNA3 integrated GPUs (experimental) |
 | `test-rdna2.zip` | `4.1.1-cyboman-r2` | RDNA2 (RX 6000) |
+| `test-rdna2-taps.zip` | `4.1.1-cyboman-r2t` | RDNA2, test build with one more postpass change ([details](docs/gpu-support.md#test-build-rdna2-with-the-postpasss-reads-unbranched-2026-10-05)) |
 | `test-rdna2-compact.zip` | `4.1.1-cyboman-r2c` | RDNA2 and Steam Deck, test build with a smaller pass 11 ([details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05)) |
 
 All of them have AMD's GPU check lifted (AMD's DLL offers this FSR 4 model only on desktop RDNA3), so

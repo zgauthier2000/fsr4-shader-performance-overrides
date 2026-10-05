@@ -239,6 +239,7 @@ The builds are attached to the [release `dll-2026-10-05`](https://github.com/zga
 | File | Contents |
 |---|---|
 | `test-rdna2.zip` | **for RDNA2, fixes the shimmering:** check lifted, both rewrites, and the postpass's dot products split (see above) |
+| `test-rdna2-taps.zip` | **test build for RDNA2:** as `test-rdna2.zip`, with the postpass's neighbourhood reads unbranched (see below) |
 | `test-rdna2-compact.zip` | **test build for RDNA2 and the Steam Deck:** as `test-rdna2.zip`, with the compact pass 11 of the integrated-GPU build (see below) |
 | `amd_fidelityfx_upscaler_dx12.dll` | the main DLL for desktop RDNA3: check lifted, both rewrites |
 | `test-igpu.zip` | for integrated GPUs: check lifted, postpass rewrite and the compact pass 11 ([above](#integrated-gpus-radeon-780m-and-similar)) |
@@ -273,6 +274,25 @@ at 1440p and at 4K, on the Deck at its own resolution.
 slower. So on a desktop RDNA2 card the unrolled pass 11 is not what holds the gain back at 1440p,
 and `test-rdna2.zip` stays the build for RX 6000 cards. The compact build remains a candidate for
 the Steam Deck only, where it has not been tried yet.
+
+### Test build: RDNA2 with the postpass's reads unbranched (2026-10-05)
+
+`test-rdna2-taps.zip` (shows as `4.1.1-cyboman-r2t`) is `test-rdna2.zip` with one more change to
+the postpass. For each pixel the postpass reads a 3x3 neighbourhood of the model's output; each of
+the nine reads sits behind a branch that skips it at the picture's edge. Here the reads always
+happen, at a valid address, and their values are replaced by zero at the edge, which gives the
+same sums. Without the branches the reads can overlap instead of being waited on one after
+another.
+
+The idea and the measurement are a community member's (VALKKKS): on an RX 6700M the postpass got
+about 10% faster, roughly 2% of FSR 4's whole time at 1440p. On an RX 7800 XT the same change is 3%
+slower, so it is built only into this RDNA2 test build (`TAPS=1` in
+`windows/dxil/build_dxil_overrides.sh`).
+
+Output is byte-for-byte identical to AMD's DLL in eight configurations (720p to 4K output, four
+ratios) on an RX 7800 XT. It has not been run on RDNA2. The useful report is the upscaler time with
+`test-rdna2.zip` and with this build at the same spot, at 1440p and at 4K; the expected difference
+is small, so use the average the overlay shows or a few repeats.
 
 If you try them, please report your GPU, Windows or Linux and driver version, the game, whether FSR
 4 starts and looks right, and OptiScaler's upscaler time for each.
