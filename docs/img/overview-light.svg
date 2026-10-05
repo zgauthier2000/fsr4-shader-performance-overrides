@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="392" viewBox="0 0 760 392" role="img" aria-label="Overview. Of FSR 4.1.1's fourteen main passes, twelve are rewritten with the same output: the prepass (10% less time), ten model passes (the same arithmetic in fewer steps; pass 11 takes 62% less time and reads 77% less memory) and the postpass (about 70% less time, 68% less memory read). On a Radeon RX 7800 XT at 4K the upscaler time goes from 4.16 to 3.05 ms per frame and the memory read per frame from 7,668 to 5,321 MB.">
+<rect width="760" height="392" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">What this project changes in FSR 4.1.1</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">FSR 4's passes in the order they run each frame. Twelve of fourteen are rewritten; the image stays AMD's, byte for byte.</text>
+<rect x="24.0" y="96" width="84.0" height="34" rx="4" fill="#2a78d6"/>
+<text x="66.0" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">Prepass</text>
+<rect x="114.0" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="133.4" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="158.8" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="178.2" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="203.7" y="96" width="38.8" height="34" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<text x="223.1" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#52514e">3</text>
+<rect x="248.5" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="267.9" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">4</text>
+<rect x="293.3" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="312.8" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">5</text>
+<rect x="338.2" y="96" width="38.8" height="34" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<text x="357.6" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#52514e">6</text>
+<rect x="383.0" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="402.4" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">7</text>
+<rect x="427.8" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="447.2" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">8</text>
+<rect x="472.7" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="492.1" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">9</text>
+<rect x="517.5" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="536.9" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">10</text>
+<rect x="562.3" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="581.8" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">11</text>
+<rect x="607.2" y="96" width="38.8" height="34" rx="4" fill="#2a78d6"/>
+<text x="626.6" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">12</text>
+<rect x="652.0" y="96" width="84.0" height="34" rx="4" fill="#2a78d6"/>
+<text x="694.0" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">Postpass</text>
+<text x="380.0" y="88.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">the model: 12 passes</text>
+<path d="M114.0,93 V90 H646.0 V93" fill="none" stroke="#c3c2b7" stroke-width="1"/>
+<text x="24.0" y="152.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Prepass</text>
+<text x="24.0" y="170.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">each thread fetches its</text>
+<text x="24.0" y="186.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">neighbours' inputs once</text>
+<text x="24.0" y="204.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">−10% time</text>
+<text x="380.0" y="152.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#0b0b0b">Model passes</text>
+<text x="380.0" y="170.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#52514e">same arithmetic in fewer steps;</text>
+<text x="380.0" y="186.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#52514e">pass 11 stores its output in groups</text>
+<text x="380.0" y="204.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">pass 11: −62% time, −77% memory read</text>
+<text x="736.0" y="152.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="end" fill="#0b0b0b">Postpass</text>
+<text x="736.0" y="170.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#52514e">writes its output in phases</text>
+<text x="736.0" y="186.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#52514e">instead of scattered stores</text>
+<text x="736.0" y="204.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="end" fill="#0b0b0b">about −70% time, −68% memory read</text>
+<rect x="24" y="230" width="12" height="12" rx="2" fill="#2a78d6"/>
+<text x="42.0" y="240.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">rewritten, same output</text>
+<rect x="194" y="230" width="12" height="12" rx="2" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<text x="212.0" y="240.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">AMD's shader, untouched</text>
+<line x1="24" y1="260" x2="736" y2="260" stroke="#e1e0d9" stroke-width="1"/>
+<text x="24.0" y="288.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#0b0b0b">Upscaler time per frame</text>
+<text x="360.0" y="288.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="end" fill="#0b0b0b">27% less</text>
+<text x="24.0" y="306.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT</text>
+<text x="110.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#0b0b0b">AMD's shaders</text>
+<path d="M120,322 H236.0 Q240.0,322 240.0,326 V334 Q240.0,338 236.0,338 H120 Z" fill="#c3c2b7"/>
+<text x="248.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">4.16 ms  ·  97 FPS</text>
+<text x="110.0" y="362.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#0b0b0b">This project</text>
+<path d="M120,350 H204.0 Q208.0,350 208.0,354 V362 Q208.0,366 204.0,366 H120 Z" fill="#2a78d6"/>
+<text x="216.0" y="362.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">3.05 ms  ·  109 FPS</text>
+<text x="400.0" y="288.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#0b0b0b">Memory read per frame</text>
+<text x="736.0" y="288.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="end" fill="#0b0b0b">31% less</text>
+<text x="400.0" y="306.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">All of FSR 4 at 4K, RX 7800 XT</text>
+<text x="486.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#0b0b0b">AMD's shaders</text>
+<path d="M496,322 H612.0 Q616.0,322 616.0,326 V334 Q616.0,338 612.0,338 H496 Z" fill="#c3c2b7"/>
+<text x="624.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">7,668 MB</text>
+<text x="486.0" y="362.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#0b0b0b">This project</text>
+<path d="M496,350 H575.3 Q579.3,350 579.3,354 V362 Q579.3,366 575.3,366 H496 Z" fill="#2a78d6"/>
+<text x="587.3" y="362.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">5,321 MB</text>
+</svg>

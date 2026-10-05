@@ -4,6 +4,13 @@ Makes AMD FSR 4.1.1 upscaling about 25 to 30% cheaper on Radeon RX 7000 graphics
 and Windows, by replacing FSR 4's slowest compute shaders with faster ones. **The image is
 unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/overview-dark.svg">
+  <img src="docs/img/overview-light.svg" width="760" alt="Overview. Of FSR 4.1.1's fourteen main passes, twelve are rewritten with the same output: the prepass (10% less time), ten model passes (the same arithmetic in fewer steps; pass 11 takes 62% less time and reads 77% less memory) and the postpass (about 70% less time, 68% less memory read). Model passes 3 and 6 are untouched. On a Radeon RX 7800 XT at 4K in Shadow of the Tomb Raider the upscaler time goes from 4.16 to 3.05 ms per frame (97 to 109 FPS), 27% less, and the memory FSR 4 reads per frame from 7,668 to 5,321 MB, 31% less.">
+</picture>
+
+Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
+
 ## What's new: 2026-10-05, latest ([release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3))
 
 - **An opt-in test build that is NOT bit-exact: `test-lossy.zip` (Windows DLL) and
