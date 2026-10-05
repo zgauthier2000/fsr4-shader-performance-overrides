@@ -295,6 +295,29 @@ therefore means "identical in this benchmark"; none of them was shipped. Anythin
 has to be checked in the full pipeline with varied inputs, as the shipped postpass and pass 11
 were.
 
+**A bit-exact prepass rewrite that does gain (2026-10-05): `prepass_gather.py`.** The part of the
+prepass that prepares the model's input works on quads of four pixels. In AMD's shader every lane
+forms 16 channel sums from its own pixel's seven features, 4 dot-product instructions each; two
+quad swaps and two additions per channel then combine the four pixels' sums, and finally one lane
+of the quad rounds and stores all 16 channels while the other three wait. In the rewrite each
+lane first fetches the other three pixels' features (12 quad swaps instead of 32) and then
+computes, for the four channels of one output word only, all four pixels' sums itself, with the
+same instructions in the same order and the same grouping of the additions, and stores that word.
+The same arithmetic on the same numbers gives the same bits.
+
+| | AMD's prepass | `prepass_gather.py` |
+|---|---|---|
+| Time at 4K, RX 7800 XT (the inverted-depth version, `5d9ed7b71cbbcfd0`) | 0.497 ms | 0.445 ms (10% less; 0.05 ms, 1.7% of FSR 4's time) |
+| Standalone benchmark | | identical |
+| AMD's whole pipeline, random inputs, four size combinations | | identical |
+| AMD's whole pipeline, the moving scene, 8 frames | | identical |
+
+For comparison, the community prepass measured in [community shader set](../community-lossy-set)
+is 12% faster and fails the two pipeline checks. The script handles all nine prepass versions
+found in the dumps made here. It is not shipped yet: AMD's DLL contains many more prepass
+versions (they vary with the game's depth and motion-vector options), and the DLL's shader format
+needs its own port.
+
 **The prepass on RDNA2 (2026-10-05).** Compiled for an RX 6800, AMD's prepass is the same code as
 on RDNA3: the same dot-product instructions and about 660 instructions per thread. It needs 56
 registers there against 48 on RDNA3, so fewer threads run at once, but on RDNA3 the prepass was
@@ -374,6 +397,7 @@ GPUs have not been measured here.
 | `nomem.py`, `run_nm.sh` | the no-memory probes and the script that ran them over the model passes |
 | `nullify.py` | replaces a shader's body with an empty one (used for the in-game breakdown of FSR 4's time) |
 | `postpass_shuffle.py` | the lane-swap postpass |
+| `prepass_gather.py` | the bit-exact prepass rewrite: each lane gathers its quad's inputs and computes one output word |
 | `postpass_taps.py` | the postpass's nine neighbourhood reads without their branches (idea from a [community set](../community-lossy-set)): bit-exact, 3% slower on an RX 7800 XT, reported faster on RDNA2 |
 | `prepass_quad.py` | the prepass rewrite |
 | `prepass_sync.py` | the prepass with its stores moved to the end (`late`) and synchronised (`sync`) |
