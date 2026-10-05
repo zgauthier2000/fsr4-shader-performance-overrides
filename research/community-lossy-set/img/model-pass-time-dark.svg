@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="262" viewBox="0 0 760 262" role="img" aria-label="Time of the twelve model passes on a Radeon RX 7800 XT: AMD 2.42 ms, this repository 2.04 ms, community set 2.03 ms, community set with this repository's pass 11 1.70 ms.">
+<rect width="760" height="262" rx="8" fill="#1a1a19"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">Time of the twelve model passes</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Milliseconds per frame at 4K, Radeon RX 7800 XT. Lower is better.</text>
+<line x1="290.0" y1="72" x2="290.0" y2="212" stroke="#383835" stroke-width="1"/>
+<text x="290.0" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0</text>
+<line x1="362.0" y1="72" x2="362.0" y2="212" stroke="#2c2c2a" stroke-width="1"/>
+<text x="362.0" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0.5</text>
+<line x1="434.0" y1="72" x2="434.0" y2="212" stroke="#2c2c2a" stroke-width="1"/>
+<text x="434.0" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">1</text>
+<line x1="506.0" y1="72" x2="506.0" y2="212" stroke="#2c2c2a" stroke-width="1"/>
+<text x="506.0" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">1.5</text>
+<line x1="578.0" y1="72" x2="578.0" y2="212" stroke="#2c2c2a" stroke-width="1"/>
+<text x="578.0" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">2</text>
+<line x1="650.0" y1="72" x2="650.0" y2="212" stroke="#2c2c2a" stroke-width="1"/>
+<text x="650.0" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">2.5</text>
+<text x="650.0" y="250.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">ms</text>
+<text x="278.0" y="97.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">AMD's shaders</text>
+<path d="M290,85.0 H634.5 Q638.5,85.0 638.5,89.0 V97.0 Q638.5,101.0 634.5,101.0 H290 Z" fill="#4a4a46"/>
+<text x="646.5" y="97.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">2.42  ·  reference</text>
+<text x="278.0" y="131.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">This repository</text>
+<path d="M290,119.0 H579.8 Q583.8,119.0 583.8,123.0 V131.0 Q583.8,135.0 579.8,135.0 H290 Z" fill="#3987e5"/>
+<text x="591.8" y="131.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">2.04  ·  same output</text>
+<text x="278.0" y="165.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">Community set</text>
+<path d="M290,153.0 H578.3 Q582.3,153.0 582.3,157.0 V165.0 Q582.3,169.0 578.3,169.0 H290 Z" fill="#e8823a"/>
+<text x="590.3" y="165.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">2.03  ·  output changed</text>
+<text x="278.0" y="199.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">Community set + this repository’s pass 11</text>
+<path d="M290,187.0 H530.8 Q534.8,187.0 534.8,191.0 V199.0 Q534.8,203.0 530.8,203.0 H290 Z" fill="#e8823a"/>
+<text x="542.8" y="199.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">1.70  ·  output changed</text>
+</svg>

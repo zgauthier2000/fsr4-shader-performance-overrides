@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="272" viewBox="0 0 760 272" role="img" aria-label="Which FSR 4 passes each shader set replaces. This repository: model pass 11 and the postpass, both with unchanged output. Community set: all fourteen; two with unchanged output, four with changed rounding, seven with weights removed, one not measured.">
+<rect width="760" height="272" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">What each shader set replaces</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">The fourteen main passes of FSR 4.1.1 in the order they run, and what happens to each one's output.</text>
+<text x="182.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">Pre</text>
+<text x="224.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">1</text>
+<text x="266.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">2</text>
+<text x="308.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">3</text>
+<text x="350.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">4</text>
+<text x="392.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">5</text>
+<text x="434.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">6</text>
+<text x="476.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">7</text>
+<text x="518.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">8</text>
+<text x="560.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">9</text>
+<text x="602.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">10</text>
+<text x="644.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">11</text>
+<text x="686.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">12</text>
+<text x="728.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">Post</text>
+<text x="150.0" y="113.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#0b0b0b">This repository</text>
+<rect x="164" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="206" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="248" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="290" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="332" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="374" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="416" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="458" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="500" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="542" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="584" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="626" y="94" width="36" height="30" rx="4" fill="#2a78d6"/>
+<text x="644.0" y="139.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">=</text>
+<rect x="668" y="94" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<rect x="710" y="94" width="36" height="30" rx="4" fill="#2a78d6"/>
+<text x="728.0" y="139.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">=</text>
+<text x="150.0" y="171.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#0b0b0b">Community set</text>
+<rect x="164" y="152" width="36" height="30" rx="4" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="182.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">?</text>
+<rect x="206" y="152" width="36" height="30" rx="4" fill="#c2570c"/>
+<text x="224.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≠</text>
+<rect x="248" y="152" width="36" height="30" rx="4" fill="#c2570c"/>
+<text x="266.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≠</text>
+<rect x="290" y="152" width="36" height="30" rx="4" fill="#2a78d6"/>
+<text x="308.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">=</text>
+<rect x="332" y="152" width="36" height="30" rx="4" fill="#c2570c"/>
+<text x="350.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≠</text>
+<rect x="374" y="152" width="36" height="30" rx="4" fill="#c2570c"/>
+<text x="392.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≠</text>
+<rect x="416" y="152" width="36" height="30" rx="4" fill="#2a78d6"/>
+<text x="434.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">=</text>
+<rect x="458" y="152" width="36" height="30" rx="4" fill="#f0b46a"/>
+<text x="476.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≈</text>
+<rect x="500" y="152" width="36" height="30" rx="4" fill="#f0b46a"/>
+<text x="518.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≈</text>
+<rect x="542" y="152" width="36" height="30" rx="4" fill="#f0b46a"/>
+<text x="560.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≈</text>
+<rect x="584" y="152" width="36" height="30" rx="4" fill="#c2570c"/>
+<text x="602.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≠</text>
+<rect x="626" y="152" width="36" height="30" rx="4" fill="#f0b46a"/>
+<text x="644.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≈</text>
+<rect x="668" y="152" width="36" height="30" rx="4" fill="#c2570c"/>
+<text x="686.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≠</text>
+<rect x="710" y="152" width="36" height="30" rx="4" fill="#c2570c"/>
+<text x="728.0" y="197.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#52514e">≠</text>
+<rect x="24" y="216" width="12" height="12" rx="2" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1"/>
+<text x="42.0" y="226.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">AMD's shader, untouched</text>
+<rect x="198.9" y="216" width="12" height="12" rx="2" fill="#2a78d6"/>
+<text x="216.9" y="226.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">=  rewritten, same output</text>
+<rect x="386.4" y="216" width="12" height="12" rx="2" fill="#f0b46a"/>
+<text x="404.4" y="226.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">≈  rounding changed</text>
+<rect x="24" y="238" width="12" height="12" rx="2" fill="#c2570c"/>
+<text x="42.0" y="248.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">≠  weights removed</text>
+<rect x="167.39999999999998" y="238" width="12" height="12" rx="2" fill="#fcfcfb" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="185.4" y="248.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">?  replaced, not measured here</text>
+</svg>
