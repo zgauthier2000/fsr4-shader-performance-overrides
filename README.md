@@ -117,7 +117,7 @@ How this was measured, and everything that was tried on each part:
 |---|---|---|
 | RX 7900, 7800, 7700, 7600 (desktop RDNA3) | yes, measured on an RX 7800 XT | yes, testers report large gains |
 | Radeon 780M, 890M and other RDNA3 integrated GPUs | not the normal build (pass 11 is reported much slower there) | experimental `test-igpu.zip`: one report, 2% faster than fsr4xyz's `4.1.1b` on a 780M |
-| RX 6000 (RDNA2) | experimental, untested | experimental: `test-rdna2.zip` runs and fixes the shimmering; reported 2 to 11% faster at 1440p and 29% at 4K |
+| RX 6000 (RDNA2) | not yet: one tester reports a darker image with the launch option; use the DLL | experimental: `test-rdna2.zip` runs and fixes the shimmering; reported 2 to 11% faster at 1440p and 29% at 4K |
 | RX 9000 (RDNA4) | no: it runs a different FSR 4 ([open for someone to pick up](docs/rdna4.md)) | no, and do not install the DLL there |
 
 You also need:

@@ -12,6 +12,10 @@
   find nothing they recognise.
 - An RDNA3 card on the RADV driver. The slow pattern these rewrites remove was measured there.
   Other cards are untested, and RDNA4 runs a different FSR 4 model that this does not touch.
+- **Not RDNA2 (RX 6000) for now.** A tester with an RX 6900 XT reports that the launch option
+  works there but the image comes out darker than with AMD's shaders (2026-10-05). The cause is
+  not known yet. On RDNA2, use the DLL (`test-rdna2.zip`) instead, which the same tester runs
+  without that problem.
 - Only if you build your own files: `python3` and SPIRV-Tools (`spirv-dis`, `spirv-as`,
   `spirv-val`).
 
