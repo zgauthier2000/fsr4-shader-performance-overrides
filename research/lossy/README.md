@@ -329,3 +329,16 @@ has been run on the hardware it is for, and the settings were tuned on an RX 780
 neither the gain nor the visible cost is known there. `build_lossy_dxil.sh` takes the exact set
 to start from as its second argument. Compare each with its exact build: `test-rdna2.zip`,
 `test-rdna2-compact.zip` or `test-igpu.zip`.
+
+**First tester report (2026-10-05): RX 6750 XT, Windows 11, Wuthering Waves, 1707x961 to
+2560x1440 (Quality), one reading each at the same spot.**
+
+| | Exact build | Lossy build | Difference |
+|---|---|---|---|
+| RDNA2 | 2.51 ms, 106.6 FPS | 2.45 ms, 104.2 FPS | 0.06 ms (2%) |
+| RDNA2 compact | 2.52 ms, 106.1 FPS | 2.50 ms, 106.9 FPS | 0.02 ms (1%) |
+
+That is 1 to 2% of the upscaler time, about the spread of single readings, and the frame rate
+does not follow it. On the RX 7800 XT at 4K the same shaders saved 4.6%. So on this RDNA2 card at
+1440p output the lossy build gives next to nothing in exchange for a changed image: use the exact
+build there. Reports at 4K output on RDNA2, where the exact builds gained most, are still wanted.

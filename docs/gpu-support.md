@@ -274,6 +274,21 @@ slower. So on a desktop RDNA2 card the unrolled pass 11 is not what holds the ga
 and `test-rdna2.zip` stays the build for RX 6000 cards. The compact build remains a candidate for
 the Steam Deck only, where it has not been tried yet.
 
+**Second report (2026-10-05), RX 6750 XT, Windows 11, Wuthering Waves (Unreal Engine 4), 1707x961
+to 2560x1440 (Quality), four builds at the same spot, one reading each:**
+
+| Build | Upscaler time | Frame rate |
+|---|---|---|
+| `test-rdna2.zip` | 2.51 ms | 106.6 FPS |
+| `test-rdna2-compact.zip` | 2.52 ms | 106.1 FPS |
+| `test-lossy-rdna2.zip` (changes the image) | 2.45 ms | 104.2 FPS |
+| `test-lossy-rdna2-compact.zip` (changes the image) | 2.50 ms | 106.9 FPS |
+
+- The compact build again equals the normal one (0.01 ms apart), as in the first report.
+- The lossy builds are 0.02 to 0.06 ms (1 to 2%) below their exact builds, which is about the
+  spread of the readings, and the frame rate does not follow. On this card at 1440p the lossy
+  build is not worth its image change. See [`research/lossy`](../research/lossy).
+
 ### Withdrawn: RDNA2 with the postpass's reads unbranched (2026-10-05)
 
 **Result: testers saw no improvement on RDNA2, and the build has been removed from the release.**
