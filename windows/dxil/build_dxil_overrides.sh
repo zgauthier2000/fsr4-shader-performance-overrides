@@ -7,6 +7,9 @@
 # model pass 11 is rewritten, assembled and signed, and written as <hash>.dxil, where <hash> is
 # the hash in the original container's header (the name the add-on looks for).
 # The input can be a vkd3d-proton shader dump (VKD3D_SHADER_DUMP_PATH writes the DXIL too).
+# Options (environment): PASS11=rows (compact pass 11, for integrated GPUs), DOT4=split (dot
+# products as product + add, for RDNA2), TAPS=1 (postpass neighbourhood reads without branches,
+# an RDNA2 experiment).
 # Needs DXC (dxc and libdxcompiler.so; set DXC_DIR to the unpacked Linux release) and g++.
 set -euo pipefail
 here=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -34,6 +37,10 @@ for f in "$src"/*.dxil; do
     grep -q 'dot4AddPacked' "$work/in.ll" || continue
     grep -q 'rw_debug_visualization' "$work/in.ll" && continue
     arg=; [[ $script == pass11_stores_dxil.py ]] && arg=rowc
+    # TAPS=1: the postpass's nine neighbourhood reads without their branches (for RDNA2).
+    if [[ ${TAPS:-} == 1 && $name == *_postpass ]]; then
+        python3 "$here/postpass_taps_dxil.py" < "$work/in.ll" > "$work/in2.ll" && mv "$work/in2.ll" "$work/in.ll"
+    fi
     if ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll"; then
         echo "skipped $(basename "$f"): not the expected structure"
         continue
