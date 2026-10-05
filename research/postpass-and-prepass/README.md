@@ -217,11 +217,12 @@ within 3 MB of AMD's): they save arithmetic, not traffic. Pass 11 with AMD's sha
 this run (975 to 1,006 MB over three captures) against 1,018 MB the day before; the other passes
 repeat within 1%.
 
-The prepass and postpass figures depend on the version the game selects. The table uses the
-versions Elden Ring selects. Shadow of the Tomb Raider's versions read less in the same benchmark:
-prepass 1,119 MB (rewritten: 1,089 MB), postpass 1,400 MB (rewritten: 531 MB), which makes the
-totals 6,152 and 4,498 MB (27% less). The benchmark programs were written around Elden Ring's
-versions, so treat the Tomb Raider figures as less certain.
+**Correction (2026-10-05, later the same day).** This paragraph first said that Shadow of the
+Tomb Raider's versions of the prepass and postpass read less memory than Elden Ring's (1,119 and
+1,400 MB) and gave lower totals. That was a measuring mistake: those two shaders had been run
+without the step that points their input images at the benchmark's slots, so they worked on blank
+inputs. Measured properly, the Tomb Raider versions read the same as Elden Ring's: prepass
+1,708 MB (rewritten: 1,707 MB), postpass 2,331 MB (rewritten: 729 MB). The totals above stand.
 
 Pass 11, the model's upsampling step, stands out among the model passes: ten times the write
 requests of passes that write the same amount. It computes a 2x2 block of outputs per thread, four
