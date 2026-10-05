@@ -52,7 +52,7 @@ What is known about why:
 **An experimental build for integrated GPUs is available for testing.** Its pass 11 keeps AMD's
 loops, so the pass stays small (6.5 KB as compiled for a Radeon 780M), and only stores each row of
 its output together, which cuts the memory the pass reads to about a quarter. It is attached to
-the [release `dll-2026-10-04.5`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.5)
+the [release `dll-2026-10-05`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05)
 as `test-igpu.zip` (AMD's GPU check is lifted in it, as in every released DLL). Its output is
 byte-identical to AMD's.
 
@@ -186,16 +186,40 @@ because its shaders are translated on the machine that runs them. See
 previous frame in each output pixel), which was suggested as a fix. It looks bad in motion; see
 [history clamp](../research/history-clamp).
 
-The builds are attached to the [release `dll-2026-10-04.5`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.5):
+The builds are attached to the [release `dll-2026-10-05`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05):
 
 | File | Contents |
 |---|---|
 | `test-rdna2.zip` | **for RDNA2, fixes the shimmering:** check lifted, both rewrites, and the postpass's dot products split (see above) |
+| `test-rdna2-compact.zip` | **test build for RDNA2 and the Steam Deck:** as `test-rdna2.zip`, with the compact pass 11 of the integrated-GPU build (see below) |
 | `amd_fidelityfx_upscaler_dx12.dll` | the main DLL for desktop RDNA3: check lifted, both rewrites |
 | `test-igpu.zip` | for integrated GPUs: check lifted, postpass rewrite and the compact pass 11 ([above](#integrated-gpus-radeon-780m-and-similar)) |
 
 Other combinations (check lifted with AMD's shaders unchanged, or with one rewrite only) are built
 with `dll/patch_upscaler_dll.py --any-gpu --only none|pass11|postpass`.
+
+### Test build: RDNA2 with the compact pass 11 (2026-10-05)
+
+`test-rdna2-compact.zip` (shows as `4.1.1-cyboman-r2c`) is `test-rdna2.zip` with one change: model
+pass 11 is the compact version from the integrated-GPU build, which keeps AMD's loops and only
+stores each row of its output together. Compiled for an RX 6000 card or the Steam Deck, that pass
+is 4.7 KB of code, against 21.4 KB for the unrolled version in `test-rdna2.zip` and 4.4 KB for
+AMD's. On an RX 7800 XT the two versions are almost equally fast (0.24 ms and 0.22 to 0.23 ms,
+AMD's 0.60 ms), so little is given up if the large one is fine on RDNA2 too.
+
+Why try it:
+
+- **Steam Deck.** Its chip is RDNA2 and integrated. On RDNA3 integrated GPUs the unrolled pass 11
+  was what made FSR 4 slower, for a reason that was never pinned down (code size or the shared
+  memory). The Deck shares the memory system, so the compact pass may suit it better.
+- **Desktop RDNA2 at 1440p.** The reports above show smaller gains at 1440p than the pass 11
+  rewrite alone gives on RDNA3. If the unrolled pass costs time on RDNA2, this build would show it.
+
+Output is byte-for-byte identical to AMD's DLL at four sizes (4K, 1440p, 1080p and 1280x720
+output) on an RX 7800 XT. It has not been run on RDNA2 or a Steam Deck. The useful report is
+OptiScaler's upscaler time with `test-rdna2.zip` and with this build, at the same spot: on desktop
+at 1440p and at 4K, on the Deck at its own resolution. If it is equal or better on desktop, it
+will replace `test-rdna2.zip`.
 
 If you try them, please report your GPU, Windows or Linux and driver version, the game, whether FSR
 4 starts and looks right, and OptiScaler's upscaler time for each.

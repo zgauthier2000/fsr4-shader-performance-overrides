@@ -7,7 +7,7 @@ alike.
 
 ## Download it
 
-A patched DLL is attached to the [release `dll-2026-10-04.5`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-04.5), with AMD's notice and
+A patched DLL is attached to the [release `dll-2026-10-05`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05), with AMD's notice and
 SHA-256 checksums. It was made by this script from AMD's original (SHA-256
 `d0dcccc74a43c44ba435b7a369b456e0970d8a4464e4bd683119b374f2c9fb46`), and running the script on that
 file with `--any-gpu --name 4.1.1-cyboman-r3` reproduces it exactly. Install it as described below, from step 1 under "Then, in the game
@@ -35,7 +35,8 @@ Not for RDNA4. **All released DLLs are built with it** since release `dll-2026-1
 `--name <text>` changes the version name the DLL reports ("4.1.1" in AMD's), which is what
 OptiScaler displays, so that a patched DLL can be told from AMD's and the builds from each other.
 The released DLLs use `4.1.1-cyboman-r3` (desktop RDNA3), `4.1.1-cyboman-ig` (integrated GPUs)
-and `4.1.1-cyboman-r2` (RDNA2). Keep `4.1.1` at the start
+`4.1.1-cyboman-r2` (RDNA2) and `4.1.1-cyboman-r2c` (RDNA2 with the compact pass 11, a test
+build). Keep `4.1.1` at the start
 in case a front end reads the name as a number. The file version in the DLL's properties stays
 4.1.1.2740.
 
