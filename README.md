@@ -14,8 +14,9 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
 > **New: a timing kit for testers (2026-10-05).** A 9 MB download that times every FSR 4 pass on
 > your GPU, with AMD's shaders and this project's side by side. It runs on Linux and on a Steam
 > Deck in desktop mode, needs no game, installs nothing, and can send its results to the project
-> when it finishes (it asks first). Reports from RX 6000 cards, integrated GPUs and the Steam
-> Deck are what it is for; so far it has only run on an RX 7800 XT.
+> when it finishes (it asks first). The goal of sending this data is to further optimize this
+> project, and with it FSR 4's performance, for your GPU. Reports from RX 6000 cards, integrated
+> GPUs and the Steam Deck are what it is for; so far it has only run on an RX 7800 XT.
 > [Instructions](timing-kit) · [Download](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05)
 
 ## What's new: 2026-10-05, latest ([release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4))
