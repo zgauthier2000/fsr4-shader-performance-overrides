@@ -50,9 +50,9 @@ from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-
   suggested against the shimmering. It looks bad in motion, and its test
   builds have been removed from the release.
 
-First speed reports from testers: 2 to 3% less upscaler time than the fsr4xyz DLL (RX 6800,
-RX 6700 XT), and against a DLL reporting plain `4.1.1` on an RX 6900 XT, 3.79 ms down to 2.70 ms at 4K output
-and 1.38 ms down to 1.23 ms at 1440p. The gain is largest at 4K. Details:
+Speed reports from testers on five RX 6000 cards: about 30% less upscaler time at 4K output
+(RX 6900 XT, 3.79 ms down to 2.57 and 2.70 ms in two games), 19% at 3440x1440, and 1 to 11% at
+1440p and 1080p. Details:
 [GPU support](docs/gpu-support.md#rdna2-needs-one-more-change-the-dot-products).
 
 ## What's new: 2026-10-04, 14:55 EDT (commit `9298321`)
