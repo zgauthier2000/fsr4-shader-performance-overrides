@@ -43,6 +43,18 @@ numbers as AMD's code:
   be computed with a few integer instructions.
 
 Together they save 0.05 ms at 4K on an RX 7800 XT with the Linux files, 1.6% of FSR 4's time.
+
+**The prepass (added 2026-10-05).** The part that prepares the model's input works on blocks of
+four pixels (quads). In AMD's shader every lane forms 16 channel sums from its own pixel's seven
+features; two quad swaps and two additions per channel combine the four pixels' sums; then one
+lane rounds and stores all 16 channels while three wait. In the rewrite (`prepass_gather.py`,
+`prepass_gather_dxil.py`) each lane first fetches the other three pixels' features and then
+computes all four pixels' sums itself for the four channels of one output word, with the same
+instructions in the same order and the additions grouped the same way, and stores that word. The
+same arithmetic on the same numbers gives the same bits. The prepass takes 10% less time.
+One detail matters for the DLL's format: the features are exchanged as half-precision values,
+because converting them to float for the exchange makes vkd3d-proton translate the whole shader
+with different floating-point rules, and the image then no longer matches.
 They were found while measuring a [community shader set](../research/community-lossy-set), whose
 write-up pointed at both spots.
 

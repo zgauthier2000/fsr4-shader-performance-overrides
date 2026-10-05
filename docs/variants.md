@@ -44,6 +44,10 @@ which postpass or pass 11 runs.
 - **Patched DLL and ReShade add-on (since 2026-10-04):** every normal version is covered, so the
   speedup no longer depends on how the game sets FSR up. Only FSR's debug view falls back to
   AMD's postpass.
+- **The prepass (since 2026-10-05):** 90 versions, 30 for each output-size class. Which one a game
+  uses depends on five context options (display-resolution motion vectors, jitter cancellation,
+  inverted depth, auto exposure, non-linear colour space) and the colour-space dispatch flags. The
+  DLL replaces all 90. On Linux `build_override.sh` rewrites the one in your dump.
 - **The other model passes (since 2026-10-05):** two more exact rewrites apply to model passes
   other than 11. Those passes come in up to six versions each (three output-size classes, two
   models), independent of the option sets. `prebuilt/` has 45 such files and the DLL replaces 39

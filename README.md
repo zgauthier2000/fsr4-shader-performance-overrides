@@ -4,7 +4,21 @@ Makes AMD FSR 4.1.1 upscaling about 25 to 30% cheaper on Radeon RX 7000 graphics
 and Windows, by replacing FSR 4's slowest compute shaders with faster ones. **The image is
 unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
-## What's new: 2026-10-05, 14:10 EDT ([release `dll-2026-10-05.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.2))
+## What's new: 2026-10-05, 17:05 EDT ([release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3))
+
+- **The prepass is rewritten too, with AMD's image still byte for byte.** The prepass prepares
+  the model's input in blocks of four pixels. In AMD's shader the four threads of a block each
+  compute partial sums, exchange them 32 times, and then one of them rounds and stores everything
+  while three wait. Now each thread fetches the other three pixels' inputs once and computes a
+  quarter of the result on its own. The prepass takes 10% less time: 0.50 ms down to 0.45 ms at 4K
+  on an RX 7800 XT, about 1.7% of FSR 4's time.
+- **In the DLLs now:** all 90 versions of the prepass (it varies with a game's depth, motion-vector
+  and colour options). The DLLs replace 183 shaders. The main DLL was checked in 24 combinations
+  covering all output-size classes and six option sets; every one is identical to AMD's.
+- **On Linux:** `build_override.sh` rewrites the prepass of whatever game you dump. The prebuilt
+  folder gets its prepass files once all 90 versions have been collected and checked.
+
+## Earlier on 2026-10-05, 14:10 EDT (release `dll-2026-10-05.2`)
 
 - **The other model passes get a small exact speedup too.** Until now two shaders were rewritten
   (the postpass and model pass 11). Two more rewrites now apply to the rest of the model: the
@@ -17,7 +31,7 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 - **More files:** `prebuilt/` has 99 (48 postpass, 6 pass 11, 45 other model passes); the DLLs
   replace 93 shaders. Update by downloading again; nothing else changes.
 
-## Earlier on 2026-10-05, 10:16 EDT ([release `dll-2026-10-05.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.2))
+## Earlier on 2026-10-05, 10:16 EDT ([release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3))
 
 - **A test build for RDNA2 and the Steam Deck: `test-rdna2-compact.zip`.** It is the RDNA2 build
   with a much smaller model pass 11 (4.7 KB of code on those chips instead of 21.4 KB), the same
@@ -52,7 +66,7 @@ The main DLL for RX 7000 cards and the Linux files are unchanged since 2026-10-0
 ## RDNA2 (RX 6000): shimmering in motion fixed (2026-10-04, 15:43 EDT)
 
 FSR 4.1.1's INT8 model can be made to run on RDNA2, but there it shimmers in motion. A test build
-from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-05.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.2)
+from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3)
 (Windows DLL).
 
 - **The cause is one instruction form in the postpass.** AMD's postpass adds each int8 dot
@@ -109,7 +123,7 @@ frame than with AMD's shaders.
   never slower, and they may help GPUs with less memory bandwidth, where they have not been
   measured yet.
 - **To get it:** download the files again, or run `build_override.sh` again if you built your own.
-  The patched DLL is in the [release `dll-2026-10-05.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.2).
+  The patched DLL is in the [release `dll-2026-10-05.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3).
 - **Integrated GPUs:** still not recommended, but there is an experimental build to test; see
   [GPU support](docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 - The figures are read requests between the GPU's cache and memory, counted in a standalone
@@ -220,7 +234,7 @@ faster: [Linux guide](docs/linux.md).
 This also works under Proton, but on Linux the launch option above is faster.
 
 1. Download `amd_fidelityfx_upscaler_dx12.dll` from the
-   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.2).
+   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.3).
 2. In the game folder, rename the existing `amd_fidelityfx_upscaler_dx12.dll` (often next to
    OptiScaler) to `amd_fidelityfx_upscaler_dx12.dll.orig`. It must be version 4.1.1.2740.
 3. Put the downloaded DLL in its place.

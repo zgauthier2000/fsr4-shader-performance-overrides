@@ -10,7 +10,7 @@
 # The input can be a vkd3d-proton shader dump (VKD3D_SHADER_DUMP_PATH writes the DXIL too).
 # Options (environment): PASS11=rows (compact pass 11, for integrated GPUs), DOT4=split (dot
 # products as product + add, for RDNA2), TAPS=1 (postpass neighbourhood reads without branches,
-# an RDNA2 experiment).
+# an RDNA2 experiment), PREPASS=0 / MODEL=0 (leave the prepass / the other model passes alone).
 # Needs DXC (dxc and libdxcompiler.so; set DXC_DIR to the unpacked Linux release) and g++.
 set -euo pipefail
 here=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -26,9 +26,10 @@ g++ -std=c++17 -O1 -I"$dxc_dir/include" "$here/../tools/dxilasm.cpp" -ldl -o "$w
 mkdir -p "$out"
 built=0
 for f in "$src"/*.dxil; do
-    name=$(strings -n 8 "$f" | grep -m1 -oE 'fsr4_model_v07_fp8_no_scale_(postpass|pass[0-9]+)$' || true)
+    name=$(strings -n 8 "$f" | grep -m1 -oE 'fsr4_model_v07_fp8_no_scale_(postpass|prepass|pass[0-9]+)$' || true)
     case $name in
         *_postpass) script=postpass_lds_dxil.py ;;
+        *_prepass) [[ ${PREPASS:-1} == 1 ]] || continue; script=prepass_gather_dxil.py ;;
         *_pass11) script=zconst_dxil.py; [[ ${PASS11:-1} == rows ]] && script=pass11_stores_dxil.py ;;
         *_pass[0-9]*) [[ ${MODEL:-1} == 1 ]] || continue; script=model_tail_dxil.py ;;
         *) continue ;;
@@ -36,7 +37,7 @@ for f in "$src"/*.dxil; do
     hash=$(xxd -s 4 -l 16 -p "$f")
     "$dxc_dir/bin/dxc" -dumpbin "$f" > "$work/in.ll"
     # Only the INT8 model's shaders (packed int8 dot products), and not the debug-view versions.
-    grep -q 'dot4AddPacked' "$work/in.ll" || continue
+    [[ $name == *_prepass ]] || grep -q 'dot4AddPacked' "$work/in.ll" || continue
     grep -q 'rw_debug_visualization' "$work/in.ll" && continue
     arg=; [[ $script == pass11_stores_dxil.py ]] && arg=rowc
     # TAPS=1: the postpass's nine neighbourhood reads without their branches (for RDNA2).
@@ -44,7 +45,7 @@ for f in "$src"/*.dxil; do
         python3 "$here/postpass_taps_dxil.py" < "$work/in.ll" > "$work/in2.ll" && mv "$work/in2.ll" "$work/in.ll"
     fi
     if ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
-        [[ $script == model_tail_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"
+        [[ $script == model_tail_dxil.py || $script == prepass_gather_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"
         continue                                   # a model pass without that code is left alone
     fi
     if [[ $script == zconst_dxil.py ]] && python3 "$here/pass11_stores_dxil.py" < "$work/out.ll" > "$work/out2.ll" 2>/dev/null; then

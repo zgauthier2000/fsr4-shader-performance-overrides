@@ -295,7 +295,7 @@ therefore means "identical in this benchmark"; none of them was shipped. Anythin
 has to be checked in the full pipeline with varied inputs, as the shipped postpass and pass 11
 were.
 
-**A bit-exact prepass rewrite that does gain (2026-10-05): `prepass_gather.py`.** The part of the
+**A bit-exact prepass rewrite that does gain (2026-10-05): [`prepass_gather.py`](../../prepass_gather.py) (in the repository's root, since it is shipped).** The part of the
 prepass that prepares the model's input works on quads of four pixels. In AMD's shader every lane
 forms 16 channel sums from its own pixel's seven features, 4 dot-product instructions each; two
 quad swaps and two additions per channel then combine the four pixels' sums, and finally one lane
@@ -397,7 +397,6 @@ GPUs have not been measured here.
 | `nomem.py`, `run_nm.sh` | the no-memory probes and the script that ran them over the model passes |
 | `nullify.py` | replaces a shader's body with an empty one (used for the in-game breakdown of FSR 4's time) |
 | `postpass_shuffle.py` | the lane-swap postpass |
-| `prepass_gather.py` | the bit-exact prepass rewrite: each lane gathers its quad's inputs and computes one output word |
 | `postpass_taps.py` | the postpass's nine neighbourhood reads without their branches (idea from a [community set](../community-lossy-set)): bit-exact, 3% slower on an RX 7800 XT, reported faster on RDNA2 |
 | `prepass_quad.py` | the prepass rewrite |
 | `prepass_sync.py` | the prepass with its stores moved to the end (`late`) and synchronised (`sync`) |

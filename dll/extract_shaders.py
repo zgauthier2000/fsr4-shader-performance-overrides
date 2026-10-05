@@ -22,7 +22,7 @@ while (i := d.find(b'DXBC', i)) >= 0:
     size = struct.unpack_from('<I', d, i + 24)[0]
     if 32 < size < 5_000_000 and i + size <= len(d):
         blob = d[i:i + size]
-        if re.search(rb'fsr4_model_v07_fp8_no_scale_(postpass|pass[0-9]+)\x00', blob):
+        if re.search(rb'fsr4_model_v07_fp8_no_scale_(postpass|prepass|pass[0-9]+)\x00', blob):
             open(os.path.join(sys.argv[2], blob[4:20].hex() + '.dxil'), 'wb').write(blob)
             n += 1
     i += 4

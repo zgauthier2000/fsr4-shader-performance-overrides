@@ -8,6 +8,8 @@
 #
 #   postpass       image stores go through workgroup memory and are written in contiguous rows
 #                  (postpass_lds_vkd3d.py). POSTPASS=0 skips it.
+#   prepass        each lane of a quad gathers the other three pixels' inputs and computes one
+#                  word of the model's input itself (prepass_gather.py). PREPASS=0 skips it.
 #   model passes   every model pass: the int8 rounding-and-clamping between layers is done with the
 #                  clamp first (model_clamp.py) and the floating-point output scaling in integers
 #                  (model_tail.py). MODEL=0 skips them.
@@ -41,7 +43,7 @@ for f in sorted(glob.glob(os.environ['DUMP_DIR'] + '/*.spv')):
     w = struct.unpack('<%dI' % (len(d) // 4), d[:len(d) // 4 * 4])
     if len(w) < 5 or w[0] != 0x07230203:
         continue
-    i, compute, local, writes, dots, loops = 5, False, None, 0, 0, 0
+    i, compute, local, writes, dots, loops, swaps = 5, False, None, 0, 0, 0, 0
     while i < len(w) and w[i] >> 16:
         op, n = w[i] & 0xffff, w[i] >> 16
         if op == 15: compute = w[i + 1] == 5                      # OpEntryPoint GLCompute
@@ -49,11 +51,14 @@ for f in sorted(glob.glob(os.environ['DUMP_DIR'] + '/*.spv')):
         elif op == 99: writes += 1                                # OpImageWrite
         elif 4450 <= op <= 4455: dots += 1                        # OpSDot ... OpSUDotAccSat
         elif op == 246: loops += 1                                # OpLoopMerge
+        elif op == 366: swaps += 1                                # OpGroupNonUniformQuadSwap
         i += n
     name = os.path.basename(f)[:-4]
     # 12 image writes, or 13 in the variants that also store the exposure value
     if os.environ.get('POSTPASS', '1') == '1' and compute and local == (256, 1, 1) and writes in (12, 13) and dots == 960:
         print('postpass', name)
+    if os.environ.get('PREPASS', '1') == '1' and compute and local == (256, 1, 1) and writes == 1 and swaps == 32:
+        print('prepass', name)
     is11 = compute and local == (64, 1, 1) and writes == 0 and dots == 272 and loops == 6
     if os.environ.get('PASS11', '1') != '0' and is11:
         print('pass11', name)
@@ -61,7 +66,7 @@ for f in sorted(glob.glob(os.environ['DUMP_DIR'] + '/*.spv')):
         print('model', name)
 PY
 if [[ ! -s $work/candidates ]]; then
-    echo "No FSR 4.1.1 INT8 postpass or pass 11 found in $dump."
+    echo "No FSR 4.1.1 INT8 shaders found in $dump."
     echo "Either FSR 4.1.1 (INT8) was not running during the dump, or this is another FSR version."
     exit 1
 fi
@@ -83,6 +88,8 @@ while read -r kind hash; do
     fi
     if [[ $kind == postpass ]]; then
         script=postpass_lds_vkd3d.py
+    elif [[ $kind == prepass ]]; then
+        script=prepass_gather.py
     elif [[ ${PASS11:-1} == rows ]]; then
         script=pass11_stores.py      # loops kept: only the stores change (for integrated GPUs)
     else

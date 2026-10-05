@@ -2,7 +2,8 @@
 
 ## `fsr4-overrides/*.dxil`
 
-93 files: every normal version of the FSR 4.1.1 INT8 postpass (48) and model pass 11 (6), and,
+183 files (93 until the prepass was added on 2026-10-05: all 90 versions of the INT8 prepass,
+rewritten by `../dxil/prepass_gather_dxil.py`). The other 93: every normal version of the FSR 4.1.1 INT8 postpass (48) and model pass 11 (6), and,
 since 2026-10-05, every version of model passes 1, 2, 4, 5, 9, 10 and 12 (39), whose floating-point
 output scaling is done in integers (`../dxil/model_tail_dxil.py`).
 
