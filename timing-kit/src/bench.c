@@ -122,7 +122,11 @@ int main(int argc, char** argv) {
     VkPhysicalDeviceProperties props;
     for (uint32_t i = 0; i < n; i++) {
         vkGetPhysicalDeviceProperties(devices[i], &props);
-        if (props.deviceType != VK_PHYSICAL_DEVICE_TYPE_CPU) { phys = devices[i]; break; }   /* first real GPU, integrated or not */
+        if (props.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU) continue;
+        /* A discrete GPU if there is one, else the integrated one; KIT_GPU=integrated picks the integrated one. */
+        int want_int = getenv("KIT_GPU") && !strcmp(getenv("KIT_GPU"), "integrated");
+        int is_int = props.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
+        if (!phys || (want_int ? is_int : !is_int)) { phys = devices[i]; if (want_int ? is_int : !is_int) break; }
     }
     if (!phys) { fprintf(stderr, "no GPU found\n"); return 1; }
     vkGetPhysicalDeviceProperties(phys, &props);

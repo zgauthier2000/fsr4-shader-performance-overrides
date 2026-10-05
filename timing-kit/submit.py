@@ -33,7 +33,7 @@ def f(x):                      # milliseconds, short: .116  2.02  12.4
 
 sysinfo = read('system.txt')
 get = lambda pat: (re.search(pat, sysinfo, re.M) or [None, '?'])[1].strip()
-gpu = get(r'deviceName\s*=\s*(.+)')
+gpu = (re.search(r'^GPU: (.+)$', read('selftest.txt'), re.M) or [None, get(r'deviceName\s*=\s*(.+)')])[1].strip()   # the GPU the benchmark used
 if gpu == '?':
     gpu = (re.search(r'^(.+), output \d+x\d+, render', read('timing-round1.txt'), re.M) or [None, '?'])[1]
 lines = [f'kit {open(os.path.join(kit, "VERSION")).read().strip() if os.path.exists(os.path.join(kit, "VERSION")) else "?"}',

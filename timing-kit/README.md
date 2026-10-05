@@ -6,7 +6,18 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
-**Version 2026-10-05.2** fixes a measuring mistake in the first archive (the prepass and postpass of the 1080p and 4K sets ran on blank inputs, so their times were wrong; the model passes were right) and adds sending the results. If you downloaded the first one, download again.
+**Version 2026-10-05.3** (download again if you have an earlier one):
+
+- **Fixes "CPU ISA level is lower than required".** The first two archives only started on CPUs
+  with AVX-512 (Ryzen 7000 and newer); the first tester, on a Ryzen 5000 laptop, hit this. The
+  programs now run on any 64-bit CPU.
+- **On a machine with two GPUs the discrete one is tested,** and the summary names the GPU that
+  was actually used. `KIT_GPU=integrated bash run.sh quick` tests the integrated one instead.
+- Since 2026-10-05.2: the prepass and postpass of the 1080p and 4K sets run on real inputs (in
+  the first archive they ran on blank ones, so their times were wrong), and the results can be
+  sent at the end.
+- The optional `traffic` step still needs a CPU with AVX-512 (its bundled driver build was made
+  for one) and is skipped elsewhere.
 
 **Status: new and barely tested.** It has run on one machine, a Radeon RX 7800 XT with Mesa 26.2
 on CachyOS. It has not run on an RX 6000 card, an integrated GPU or a Steam Deck, which are the
@@ -94,7 +105,7 @@ earlier run's summary.
 This folder of the repository has `run.sh`, `NOTICE.txt` and `src/` (`bench.c` for the postpass,
 `mbench.c` for the model passes, `pbench2.c` for the prepass). To build the programs:
 
-    gcc -std=gnu11 -O2 src/bench.c -o bin/bench -lvulkan -lm       # likewise mbench and pbench2
+    gcc -std=gnu11 -O2 -march=x86-64 src/bench.c -o bin/bench -lvulkan -lm       # likewise mbench and pbench2
 
 The shaders are not in the repository. AMD's are what vkd3d-proton writes with
 `VKD3D_SHADER_DUMP_PATH` for a 720p-to-1080p and a 1440p-to-4K run; the exact versions are the

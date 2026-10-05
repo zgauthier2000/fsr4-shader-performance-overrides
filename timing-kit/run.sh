@@ -3,6 +3,7 @@
 # FSR 4.1.1 shader timings on this machine's GPU. Run from a terminal:   bash run.sh
 # Options:  bash run.sh quick     timings only, one round (about 8 minutes on a desktop card)
 #           bash run.sh traffic   also try the memory-traffic capture (needs the bundled driver to load)
+# On a machine with two GPUs the discrete one is used;  KIT_GPU=integrated bash run.sh  uses the integrated one.
 # Nothing is installed or changed on the machine; results go into results/<name>-<time>/ next to this file.
 set -u
 KIT=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -81,7 +82,9 @@ if [ "$MODE" != quick ]; then
 } > "$OUT/compiled.txt" 2>&1
 fi
 
-if [ "$MODE" = traffic ]; then
+if [ "$MODE" = traffic ] && ! grep -q avx512f /proc/cpuinfo; then
+    echo; echo "Skipping the memory-traffic capture: the bundled driver build needs a CPU with AVX-512 (this one has none)." | tee "$OUT/traffic.txt"
+elif [ "$MODE" = traffic ]; then
 {
     say "memory traffic (bundled driver build)"
     cp -r "$KIT/mesa" "$W/mesa"
