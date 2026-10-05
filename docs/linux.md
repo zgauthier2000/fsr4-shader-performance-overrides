@@ -30,8 +30,9 @@
 
 The [`prebuilt/`](../prebuilt) folder holds overrides for every normal version of the two shaders
 in AMD's DLL version 4.1.1.2740: every output size, every preset, and every way a game can set up
-exposure and colour space, and for the other model passes that have something to rewrite (99
-files in all; see [shader variants](variants.md)).
+exposure and colour space, and for the other model passes that have something to rewrite (189
+files in all: 48 postpass, 90 prepass, 6 pass 11, 45 other model passes; see
+[shader variants](variants.md)).
 
 1. Clone or download this repository.
 2. Add this to the game's launch options in Steam (keep anything already there in front of

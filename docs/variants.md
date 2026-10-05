@@ -47,7 +47,8 @@ which postpass or pass 11 runs.
 - **The prepass (since 2026-10-05):** 90 versions, 30 for each output-size class. Which one a game
   uses depends on five context options (display-resolution motion vectors, jitter cancellation,
   inverted depth, auto exposure, non-linear colour space) and the colour-space dispatch flags. The
-  DLL replaces all 90. On Linux `build_override.sh` rewrites the one in your dump.
+  DLL replaces all 90 and `prebuilt/` has all 90 (collected by running FSR 4 in every combination
+  of those options at the three size classes). `build_override.sh` rewrites the one in your dump.
 - **The other model passes (since 2026-10-05):** two more exact rewrites apply to model passes
   other than 11. Those passes come in up to six versions each (three output-size classes, two
   models), independent of the option sets. `prebuilt/` has 45 such files and the DLL replaces 39

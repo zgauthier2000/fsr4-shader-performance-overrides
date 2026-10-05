@@ -15,8 +15,10 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 - **In the DLLs now:** all 90 versions of the prepass (it varies with a game's depth, motion-vector
   and colour options). The DLLs replace 183 shaders. The main DLL was checked in 24 combinations
   covering all output-size classes and six option sets; every one is identical to AMD's.
-- **On Linux:** `build_override.sh` rewrites the prepass of whatever game you dump. The prebuilt
-  folder gets its prepass files once all 90 versions have been collected and checked.
+- **On Linux:** the prebuilt folder has all 90 prepass versions as well since 19:05 EDT (189 files
+  in all), checked in 48 combinations of output size and options, every one identical to AMD's.
+  Download the folder again to get them. `build_override.sh` also rewrites the prepass of whatever
+  game you dump.
 
 ## Earlier on 2026-10-05, 14:10 EDT (release `dll-2026-10-05.2`)
 
