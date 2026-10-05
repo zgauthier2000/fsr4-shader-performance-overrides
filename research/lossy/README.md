@@ -163,6 +163,45 @@ The lossy set with these rewrites added (`wfold.py`, `wround.py`, `model_clamp.p
 Per pass, the lossy set now saves 0.034 ms in pass 1 (the community set: 0.054 ms), 0.090 ms in
 pass 12, 0.023 ms each in passes 5 and 10, and 0.016 ms in pass 2.
 
+## How far each pass can go
+
+Added 2026-10-05: one pass at a time with more words folded (plus the rounding change and the
+exact rewrites), in the moving scene. AMD: whole frame 30.53 dB; change 0.079 (background), 0.106
+(texture), 2.04 (stripes), 0.913 (railing).
+
+| Pass | Words folded | Time of the pass (AMD) | Whole frame | Background | Texture | Stripes | Railing | Verdict |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 4 | 0.262 ms (0.295) | see the sets above | | | | | used |
+| 1 | 8 | 0.247 ms | 30.65 dB | 0.107 | 0.070 | 2.18 | 0.973 | background +35%: no |
+| 1 | 12 | | 30.84 dB | 0.096 | 0.043 | 2.97 | 0.915 | stripes +46%: no |
+| 2 | 4 | | 30.48 dB | 0.106 | 0.110 | 2.17 | 0.978 | background +34%: no |
+| 2 | 8 | | 30.12 dB | 0.112 | 0.101 | 2.28 | 0.958 | no |
+| 4 | 8 | 0.128 ms (0.141) | 30.47 dB | 0.080 | 0.109 | 2.17 | 0.947 | mild: a candidate |
+| 4 | 16 | 0.121 ms | 30.11 dB | 0.079 | 0.107 | 2.52 | 0.997 | stripes +23%: no |
+| 5 | 18 | 0.118 ms (0.141) | see the sets above | | | | | used |
+| 5 | 24 | 0.112 ms | 30.04 dB | 0.083 | 0.121 | 4.07 | 0.909 | stripes doubled: no |
+| 10 | 18 | 0.119 ms (0.141) | see the sets above | | | | | used |
+| 10 | 24 | 0.111 ms | 30.41 dB | 0.074 | 0.107 | 2.20 | 0.926 | mild: a candidate |
+| 10 | 28 | 0.107 ms | 30.18 dB | 0.077 | 0.105 | 2.53 | 0.894 | stripes +24%: no |
+
+- The settings already in use (pass 1 at 4, pass 5 at 18, pass 10 at 18, pass 12 at 20) sit just
+  below where each pass starts to show: one step more costs a region 20 to 100% more change.
+- **Pass 2 does not tolerate folding at all** in this test, even at 4 words. It keeps only the
+  rounding change.
+- Two mild additions exist: pass 4 at 8 words and pass 10 at 24 instead of 18.
+
+With both additions (set 3):
+
+| | Saved against AMD, RX 7800 XT at 4K | Whole frame | Background | Texture | Stripes | Railing |
+|---|---|---|---|---|---|---|
+| AMD's shaders | | 30.53 dB | 0.079 | 0.106 | 2.04 | 0.913 |
+| Exact rewrites (shipped) | 0.048 ms | identical | | | | |
+| Lossy set 2 | 0.202 ms | 30.70 dB | 0.079 | 0.105 | 1.95 | 0.948 |
+| Lossy set 3 | 0.221 ms | 30.54 dB | 0.081 | 0.108 | 2.10 | 0.961 |
+
+Set 3 buys 0.019 ms more than set 2 and gives up a little everywhere (every region 2 to 5% above
+AMD's). Set 2 is the better stopping point: the remaining passes have nothing cheap left.
+
 ## What these figures do and do not mean
 
 - **The image is not AMD's.** About 48 to 50 dB from it: small, everywhere.
@@ -174,8 +213,6 @@ pass 12, 0.023 ms each in passes 5 and 10, and 0.016 ms in pass 2.
 
 ## Not done yet
 
-- Sweeps for passes 1, 5, 10 (more than the fractions above) and pass 2; pass 4 looked like a bad
-  trade in the community set.
 - Folding the rounding constant into the bias, the one finer rewrite not done.
 - The prepass: a faster, not bit-exact prepass with no measurable effect exists in that set; an
   implementation of its own is needed here.
