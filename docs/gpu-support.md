@@ -174,10 +174,19 @@ in the tester's, at bytes 108 and 112, after 25 more words. Everything else is i
 6,129 instructions. A prebuilt file dropped into the tester's setup therefore reads its table
 offsets from the wrong place and fetches the wrong textures, which explains the darker image.
 
-**Why the layout differs is not established.** The layout follows the root signature the
-upscaler DLL creates, so the candidates are the tester's DLL or OptiScaler build being different
-from the ones used here, or something that depends on the card. It should not be read as "RDNA2
-translates differently" until that is known.
+**Why the layout differs is not established.** Ruled out so far:
+
+- the DLL: the tester's is AMD's unmodified 4.1.1.2740 (same SHA-256 as the one used here);
+- the Proton version: GE-Proton 11-7 on both machines;
+- the game, at least on the RX 7800 XT: three different programs give identical dumps there;
+- seven vkd3d-proton options (`VKD3D_CONFIG`: `mutable_single_set`, `force_raw_va_cbv`,
+  `force_static_cbv`, `skip_driver_workarounds`, `skip_application_workarounds`,
+  `enable_experimental_features`, `descriptor_qa_checks`): none changes the layout on the
+  RX 7800 XT.
+
+What is left: the tester's OptiScaler build (a `v10.0.0-dev` build, newer than any used here), the
+game they tested, or the card. It should not be read as "RDNA2 translates differently" until that
+is known.
 `check_prebuilt.sh` compares a dump with the shaders the prebuilt files were made from. The DLL build does not have this problem,
 because its shaders are translated on the machine that runs them. See
 [Making a shader dump](linux.md#building-your-own).
