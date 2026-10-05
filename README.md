@@ -4,6 +4,31 @@ Makes AMD FSR 4.1.1 upscaling about 25 to 30% cheaper on Radeon RX 7000 graphics
 and Windows, by replacing two of FSR 4's compute shaders with faster ones. **The image is
 unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
 
+## What's new: 2026-10-05, 10:16 EDT ([release `dll-2026-10-05`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05))
+
+- **A test build for RDNA2 and the Steam Deck: `test-rdna2-compact.zip`.** It is the RDNA2 build
+  with a much smaller model pass 11 (4.7 KB of code on those chips instead of 21.4 KB), the same
+  one the integrated-GPU build uses. The Steam Deck is both RDNA2 and integrated, so this is the
+  build to try there; on desktop RX 6000 cards it shows whether the large pass 11 was holding the
+  gain back at 1440p. Untested on both so far: please compare it with `test-rdna2.zip` and report
+  the upscaler time of each. [Details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05).
+- **The DLLs now say what they are.** OptiScaler shows `4.1.1-cyboman-r3` (RX 7000),
+  `-ig` (integrated), `-r2` (RX 6000) or `-r2c` (the new test build) instead of `4.1.1`, so you can
+  see that the patched DLL is the one loaded. All of them have AMD's GPU check lifted; none is for
+  RX 9000 cards.
+- **First results from testers on other GPUs.** RX 6900 XT: 3.79 ms down to 2.70 ms at 4K output
+  and 1.38 ms to 1.23 ms at 1440p. Radeon 780M with the integrated-GPU build: 5.15 ms to 5.04 ms.
+  [All reports](docs/gpu-support.md).
+- **Linux: the prebuilt files do not fit every setup.** On one RX 6900 XT they give a darker image,
+  while files built from that user's own shader dump are correct. `./check_prebuilt.sh` now tells
+  you whether they fit yours, and [Making a shader dump](docs/shader-dump.md) walks through it. On
+  RDNA2 the DLL is the simpler route and just as fast.
+- **New research:** a [motion test](research/pruning#motion-test) that measures shimmer, and a
+  measured look at a [community shader set](research/community-lossy-set) that trades image
+  quality for more speed.
+
+The main DLL for RX 7000 cards and the Linux files are unchanged since 2026-10-04.
+
 ## RDNA2 (RX 6000): shimmering in motion fixed (2026-10-04, 15:43 EDT)
 
 FSR 4.1.1's INT8 model can be made to run on RDNA2, but there it shimmers in motion. A test build
