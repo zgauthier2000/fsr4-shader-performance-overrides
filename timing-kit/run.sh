@@ -18,7 +18,7 @@ levels=(0 1 1 2 2 2 3 3 3 3 2 2 1)
 
 {
 say "system"
-date; uname -a
+date; uname -sr
 grep -m1 'model name' /proc/cpuinfo
 free -h | head -2
 for f in /sys/class/power_supply/A*/online; do [ -e "$f" ] && echo "AC online ($f): $(cat "$f")"; done
@@ -96,3 +96,22 @@ if [ "$MODE" = traffic ]; then
 fi
 rm -rf "$W"
 echo; echo "Done. Results are in: $OUT"
+
+# Summary and a link that opens a pre-filled issue on the project's GitHub page. Nothing is sent
+# from here: the issue exists only once you press "Submit new issue" in the browser.
+if command -v python3 >/dev/null && python3 "$KIT/submit.py" "$OUT" 2>/dev/null; then
+    echo; echo "=== summary (also in $OUT/summary.txt)"; cat "$OUT/summary.txt"
+    if [ -t 0 ]; then
+        printf '\nSend this summary (and nothing else) to the Discord results channel of the project? [Y/n] '; read -r answer
+        case $answer in n*|N*) ;; *) python3 "$KIT/submit.py" "$OUT" --discord ;; esac
+    fi
+    echo; echo "It can also be sent as a GitHub issue: open this link and press \"Submit new issue\" (needs a GitHub account):"
+    echo; cat "$OUT/submit-link.txt"
+    echo "The link is also saved in $OUT/submit-link.txt. Only the summary above is in it."
+    if [ -t 0 ] && command -v xdg-open >/dev/null && [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+        printf '\nOpen it in your browser now? [Y/n] '; read -r answer
+        case $answer in n*|N*) ;; *) xdg-open "$(cat "$OUT/submit-link.txt")" >/dev/null 2>&1 & ;; esac
+    fi
+else
+    echo "No summary could be made (python3 missing?). Please send the results folder instead."
+fi

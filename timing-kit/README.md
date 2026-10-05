@@ -6,6 +6,8 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
+**Version 2026-10-05.2** fixes a measuring mistake in the first archive (the prepass and postpass of the 1080p and 4K sets ran on blank inputs, so their times were wrong; the model passes were right) and adds sending the results. If you downloaded the first one, download again.
+
 **Status: new and barely tested.** It has run on one machine, a Radeon RX 7800 XT with Mesa 26.2
 on CachyOS. It has not run on an RX 6000 card, an integrated GPU or a Steam Deck, which are the
 GPUs it is meant for. Expect rough edges and please report them.
@@ -40,8 +42,22 @@ Unpack the archive, open a terminal in the folder and type one of:
 Slower GPUs take longer; an integrated GPU may take several times as long. Plug a laptop into the
 wall and close games and browsers first.
 
-The results are in `results/<machine>-<date>/` inside the folder. Send that whole folder (it is a
-few small text files), with your GPU's name, to the project's Discord thread or as an issue here.
+## Sending the results
+
+At the end the script prints a short summary and asks whether to send it.
+
+- **Answer Y** and the summary is posted to the project's Discord results channel. No account is
+  needed. What is sent is exactly what was printed: the GPU, driver and kernel versions, the CPU
+  model, the amount of memory, and the timings. Nothing else leaves the machine, and the machine's
+  name is not recorded.
+- **Answer N** and nothing is sent.
+- The script also prints a link that opens a pre-filled issue on this repository with the same
+  summary, for those who prefer GitHub (it needs an account; nothing is sent until you press
+  "Submit new issue").
+
+Everything is also kept in `results/<machine>-<date>/` inside the folder: the full output, plus
+`summary.txt` and `submit-link.txt`. `python3 submit.py results/<folder> --discord` sends an
+earlier run's summary.
 
 ## What it measures
 
@@ -73,7 +89,7 @@ few small text files), with your GPU's name, to the project's Discord thread or 
 | `bin/` | the three benchmark programs, built from `src/` |
 | `shaders/` | the shader sets and versions listed above, as SPIR-V |
 | `mesa/` | a Mesa RADV build that prints the GPU's memory counters (the change is in [`mesa-tiling-override.patch`](../research/postpass-and-prepass/mesa-tiling-override.patch)) |
-| `run.sh`, `README.txt`, `NOTICE.txt` | the script, short instructions, licence notice |
+| `run.sh`, `submit.py`, `README.txt`, `NOTICE.txt` | the script, the summary and sending step, short instructions, licence notice |
 
 This folder of the repository has `run.sh`, `NOTICE.txt` and `src/` (`bench.c` for the postpass,
 `mbench.c` for the model passes, `pbench2.c` for the prepass). To build the programs:
@@ -82,6 +98,6 @@ This folder of the repository has `run.sh`, `NOTICE.txt` and `src/` (`bench.c` f
 
 The shaders are not in the repository. AMD's are what vkd3d-proton writes with
 `VKD3D_SHADER_DUMP_PATH` for a 720p-to-1080p and a 1440p-to-4K run; the exact versions are the
-matching files of [`prebuilt/`](../prebuilt); the lossy ones come from
+matching files of [`prebuilt/`](../prebuilt). The prepass and postpass files need `prep.py` (it moves their input images to the slot the benchmark binds; without it they run on blank inputs); the lossy ones come from
 [`research/lossy`](../research/lossy); the pass 11 versions from `zconst.py` and
 `pass11_stores.py`.
