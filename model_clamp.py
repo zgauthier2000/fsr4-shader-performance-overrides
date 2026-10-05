@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# wclamp.py < passN.spvasm > out.spvasm
+# model_clamp.py < passN.spvasm > out.spvasm
 #
-# BIT-EXACT: gives the same output as its input, on AMD's pass or after wround.py. A pass turns
+# BIT-EXACT: gives the same output as its input, on AMD's pass or after research/lossy/wround.py. A pass turns
 # each sum into an int8 like this, four at a time (r(m) is m + h, or AMD's rounding to even):
 #     m = max(x, 0)   (in layers with a ReLU)      y = r(m) >> n
 #     pack = bytes of clamp(vec4(y0..y3), -128, 127)
@@ -113,5 +113,5 @@ out = [l for l in out if l is not None]
 if consts:
     at = max(n for n, l in enumerate(out) if re.match(r'\s*%\S+ = OpConstant %uint ', l))
     out[at] += ''.join(f'\n{k} = OpConstant %uint {v}' for k, v in consts.items())
-sys.stderr.write(f'wclamp: {done} groups of four rewritten\n')
+sys.stderr.write(f'model_clamp: {done} groups of four rewritten\n')
 sys.stdout.write('\n'.join(out))

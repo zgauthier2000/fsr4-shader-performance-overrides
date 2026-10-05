@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# wtail.py [up] < passN.spvasm > out.spvasm
+# model_tail.py [up] < passN.spvasm > out.spvasm
 #
 # A model pass ends by combining two integers in floating point for each output value:
 #     out = int16(RoundEven((float(a) * ca + float(b) * cb) * cs))        ca, cb, cs powers of two
@@ -100,5 +100,5 @@ for n, l in enumerate(L):
 if consts:
     at = max(n for n, l in enumerate(L) if re.match(r'\s*%\S+ = OpConstant %uint ', l))
     out[at] += ''.join(f'\n{k_} = OpConstant %uint {v}' for k_, v in consts.items())
-sys.stderr.write(f'wtail: {done} output values converted ({"halves up" if up else "exact"})\n')
+sys.stderr.write(f'model_tail: {done} output values converted ({"halves up" if up else "exact"})\n')
 sys.stdout.write('\n'.join(out))

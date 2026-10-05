@@ -3,8 +3,9 @@
 # build_dxil_overrides.sh <dir-with-dxil> <out-dir>
 #
 # Builds the DXIL replacements the ReShade add-on loads (Windows / native D3D12) from AMD's
-# original FSR 4.1.1 shaders: every *.dxil in the input directory that is the INT8 postpass or
-# model pass 11 is rewritten, assembled and signed, and written as <hash>.dxil, where <hash> is
+# original FSR 4.1.1 shaders: every *.dxil in the input directory that is the INT8 postpass or a
+# model pass with something to rewrite (pass 11: the store and loop rewrites; passes 1, 2, 9, 10, 11
+# and 12: the floating-point output scaling in integers, model_tail_dxil.py; MODEL=0 skips that) is rewritten, assembled and signed, and written as <hash>.dxil, where <hash> is
 # the hash in the original container's header (the name the add-on looks for).
 # The input can be a vkd3d-proton shader dump (VKD3D_SHADER_DUMP_PATH writes the DXIL too).
 # Options (environment): PASS11=rows (compact pass 11, for integrated GPUs), DOT4=split (dot
@@ -25,10 +26,11 @@ g++ -std=c++17 -O1 -I"$dxc_dir/include" "$here/../tools/dxilasm.cpp" -ldl -o "$w
 mkdir -p "$out"
 built=0
 for f in "$src"/*.dxil; do
-    name=$(strings -n 8 "$f" | grep -m1 -oE 'fsr4_model_v07_fp8_no_scale_(postpass|pass11)$' || true)
+    name=$(strings -n 8 "$f" | grep -m1 -oE 'fsr4_model_v07_fp8_no_scale_(postpass|pass[0-9]+)$' || true)
     case $name in
         *_postpass) script=postpass_lds_dxil.py ;;
         *_pass11) script=zconst_dxil.py; [[ ${PASS11:-1} == rows ]] && script=pass11_stores_dxil.py ;;
+        *_pass[0-9]*) [[ ${MODEL:-1} == 1 ]] || continue; script=model_tail_dxil.py ;;
         *) continue ;;
     esac
     hash=$(xxd -s 4 -l 16 -p "$f")
@@ -41,12 +43,16 @@ for f in "$src"/*.dxil; do
     if [[ ${TAPS:-} == 1 && $name == *_postpass ]]; then
         python3 "$here/postpass_taps_dxil.py" < "$work/in.ll" > "$work/in2.ll" && mv "$work/in2.ll" "$work/in.ll"
     fi
-    if ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll"; then
-        echo "skipped $(basename "$f"): not the expected structure"
-        continue
+    if ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
+        [[ $script == model_tail_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"
+        continue                                   # a model pass without that code is left alone
     fi
     if [[ $script == zconst_dxil.py ]] && python3 "$here/pass11_stores_dxil.py" < "$work/out.ll" > "$work/out2.ll" 2>/dev/null; then
         mv "$work/out2.ll" "$work/out.ll"      # pass 11, second step: store each row together
+    fi
+    # pass 11, last step: its output scaling in integers
+    if [[ $name == *_pass11 && ${MODEL:-1} == 1 ]]; then
+        python3 "$here/model_tail_dxil.py" < "$work/out.ll" > "$work/out2.ll" 2>/dev/null && mv "$work/out2.ll" "$work/out.ll"
     fi
     # DOT4=split: the postpass's accumulating int8 dot products become dot + add (for RDNA2).
     if [[ ${DOT4:-} == split && $name == *_postpass ]]; then

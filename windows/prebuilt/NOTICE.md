@@ -2,7 +2,9 @@
 
 ## `fsr4-overrides/*.dxil`
 
-54 files: every normal version of the FSR 4.1.1 INT8 postpass (48) and model pass 11 (6).
+93 files: every normal version of the FSR 4.1.1 INT8 postpass (48) and model pass 11 (6), and,
+since 2026-10-05, every version of model passes 1, 2, 4, 5, 9, 10 and 12 (39), whose floating-point
+output scaling is done in integers (`../dxil/model_tail_dxil.py`).
 
 These are modified versions of compute shaders from AMD's FSR 4.1.1 upscaler, in DXIL form. They
 are not AMD's originals and are not provided or endorsed by AMD.

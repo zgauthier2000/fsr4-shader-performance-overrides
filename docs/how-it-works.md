@@ -4,6 +4,9 @@
 
 ## What the two rewrites do
 
+(Two smaller rewrites were added on 2026-10-05 for the other model passes; they are described at
+the end of this section.)
+
 - **Postpass** (`postpass_lds_vkd3d.py`). FSR 4's last pass computes a 2x2 block of pixels per
   thread and writes each pixel separately into three images, so every store instruction writes
   every other pixel. That scattered pattern is slow on RDNA3. The rewrite keeps the values in
@@ -26,6 +29,22 @@
 
 Both rewrites leave the arithmetic untouched. In a standalone benchmark on the same GPU, the
 rewritten shaders produced output byte-for-byte identical to AMD's.
+
+**The other model passes (added 2026-10-05).** Two small rewrites that give exactly the same
+numbers as AMD's code:
+
+- *Clamp first* (`model_clamp.py`, Linux files). Between layers a pass turns each sum into an
+  int8: round, shift right, then clamp to -128..127. Clamping before the shift gives the same
+  number, and when the shift is by 8 bits the result is simply one byte of the clamped value, so
+  the shift is not needed.
+- *Output scaling in integers* (`model_tail.py`, and `model_tail_dxil.py` for the DLL). Several
+  passes end by combining two integers in floating point and rounding. The numbers are small
+  integers scaled by powers of two, so every floating-point step is exact and the same value can
+  be computed with a few integer instructions.
+
+Together they save 0.05 ms at 4K on an RX 7800 XT with the Linux files, 1.6% of FSR 4's time.
+They were found while measuring a [community shader set](../research/community-lossy-set), whose
+write-up pointed at both spots.
 
 ## Where FSR 4's time goes
 

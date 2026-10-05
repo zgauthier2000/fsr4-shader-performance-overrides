@@ -83,17 +83,17 @@ rounds halves to the even neighbour, `(x + (h - 1) + ((x >> n) & 1)) >> n`. The 
 only for sums that are exactly halfway. It applies to ten of the twelve passes (48 to 80 values
 each in the six passes with constant weights).
 
-**`wtail.py` (bit-exact).** Six passes (1, 2, 9, 10, 11, 12) end by combining two integers in
+**`model_tail.py` (bit-exact).** Six passes (1, 2, 9, 10, 11, 12) end by combining two integers in
 floating point for each output value: `int16(RoundEven((float(a) * 2^-6 + float(b) * 2^-12) * 64))`.
 Every floating-point step there is exact, because the numbers are small integers scaled by powers
 of two, so the same value can be computed in integers: `n = 64a + b`, then
 `(n + 31 + ((n >> 6) & 1)) >> 6`. The output is byte-identical to AMD's in the standalone
 benchmark, with the real weights and with random ones, on random inputs. This one could go into
-the exact files; it is small. (`wtail.py up` rounds halves up instead, which is not exact.)
+the exact files; it is small. (`model_tail.py up` rounds halves up instead, which is not exact.)
 
 Time saved per pass, RX 7800 XT at 4K:
 
-| Pass | Rounding (`wround.py`) | Integer output scaling (`wtail.py`, exact) |
+| Pass | Rounding (`wround.py`) | Integer output scaling (`model_tail.py`, exact) |
 |---|---|---|
 | 1 | 0.007 ms | 0.006 ms |
 | 2 | 0.007 ms | 0.006 ms |
@@ -131,14 +131,14 @@ ReLU merged into the clamp, values extracted as bytes), not another idea.
 
 ## Finer rewrites, and a bit-exact by-product
 
-Added 2026-10-05. `wclamp.py` rewrites how a pass turns its sums into int8 values, four at a time.
+Added 2026-10-05. `model_clamp.py` rewrites how a pass turns its sums into int8 values, four at a time.
 AMD's code rounds, shifts, then clamps a vector of four to -128..127. Clamping before the shift
 gives the same number; in layers with a ReLU the ReLU becomes the clamp's lower bound; and when
 the shift is by 8 bits, the result is simply byte 1 of the clamped value, so the shift goes too.
 It works on AMD's rounding as well as on `wround.py`'s, and in both cases its output is identical
 to its input's.
 
-That makes two of the four tools bit-exact: `wclamp.py` and `wtail.py`. Applied alone to nine
+That makes two of the four tools bit-exact: `model_clamp.py` and `model_tail.py`. Applied alone to nine
 model passes (1, 2, 4, 5, 7, 8, 9, 10, 12):
 
 | Check | Result |
@@ -152,7 +152,7 @@ So this part does not belong to the lossy track at all: it is a small exact gain
 added to the shipped files. It has only been built for the pass versions used at 1440p-to-4K-class
 output, and only as SPIR-V.
 
-The lossy set with these rewrites added (`wfold.py`, `wround.py`, `wclamp.py`, `wtail.py`):
+The lossy set with these rewrites added (`wfold.py`, `wround.py`, `model_clamp.py`, `model_tail.py`):
 
 | | Saved, RX 7800 XT at 4K | Output |
 |---|---|---|

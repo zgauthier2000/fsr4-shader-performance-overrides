@@ -52,7 +52,7 @@ AMD's DLL 4.1.1.2740: all 48 versions of the postpass and all 6 of model pass 11
 the hash in the original shader's header. Which one a game uses depends on its output size, the
 preset and how it sets up exposure and colour space; see [shader variants](../docs/variants.md).
 
-All 54 were built from the DLL's own copies of the shaders (`../dll/extract_shaders.py`, then
+All 93 (54 until 2026-10-05, when the model passes' output-scaling rewrite was added) were built from the DLL's own copies of the shaders (`../dll/extract_shaders.py`, then
 `dxil/build_dxil_overrides.sh`), validated and signed by Microsoft's DXC, and checked under
 Proton: in each of the 48 combinations that select a different version, the upscaled image is
 byte-for-byte identical to AMD's ([`../dll/test/run_all_variants.sh`](../dll/test/run_all_variants.sh)).

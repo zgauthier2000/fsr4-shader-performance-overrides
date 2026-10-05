@@ -44,6 +44,11 @@ which postpass or pass 11 runs.
 - **Patched DLL and ReShade add-on (since 2026-10-04):** every normal version is covered, so the
   speedup no longer depends on how the game sets FSR up. Only FSR's debug view falls back to
   AMD's postpass.
+- **The other model passes (since 2026-10-05):** two more exact rewrites apply to model passes
+  other than 11. Those passes come in up to six versions each (three output-size classes, two
+  models), independent of the option sets. `prebuilt/` has 45 such files and the DLL replaces 39
+  (the DLL-format rewrite covers passes 1, 2, 4, 5, 9, 10 and 12; the Linux one 1, 2, 4, 5, 7, 8,
+  9, 10 and 12).
 - **Linux launch option (since 2026-10-04):** `prebuilt/` has all 54 as well. They were made by
   running AMD's unmodified DLL under Proton in each of the 48 combinations with shader dumping on,
   which gives Proton's own translation of every version, and building the overrides from those

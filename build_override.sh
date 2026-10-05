@@ -8,6 +8,9 @@
 #
 #   postpass       image stores go through workgroup memory and are written in contiguous rows
 #                  (postpass_lds_vkd3d.py). POSTPASS=0 skips it.
+#   model passes   every model pass: the int8 rounding-and-clamping between layers is done with the
+#                  clamp first (model_clamp.py) and the floating-point output scaling in integers
+#                  (model_tail.py). MODEL=0 skips them.
 #   model pass 11  the always-zero z coordinate becomes a constant, so the driver can unroll the
 #                  pass's loops (zconst.py), and each row of its output is stored together
 #                  (pass11_stores.py). PASS11=0 skips it; PASS11=rows changes only the stores and
@@ -51,8 +54,11 @@ for f in sorted(glob.glob(os.environ['DUMP_DIR'] + '/*.spv')):
     # 12 image writes, or 13 in the variants that also store the exposure value
     if os.environ.get('POSTPASS', '1') == '1' and compute and local == (256, 1, 1) and writes in (12, 13) and dots == 960:
         print('postpass', name)
-    if os.environ.get('PASS11', '1') != '0' and compute and local == (64, 1, 1) and writes == 0 and dots == 272 and loops == 6:
+    is11 = compute and local == (64, 1, 1) and writes == 0 and dots == 272 and loops == 6
+    if os.environ.get('PASS11', '1') != '0' and is11:
         print('pass11', name)
+    elif os.environ.get('MODEL', '1') == '1' and compute and local == (64, 1, 1) and writes == 0 and dots > 0 and not is11:
+        print('model', name)
 PY
 if [[ ! -s $work/candidates ]]; then
     echo "No FSR 4.1.1 INT8 postpass or pass 11 found in $dump."
@@ -64,6 +70,17 @@ mkdir -p "$out"
 built=0
 while read -r kind hash; do
     spirv-dis "$dump/$hash.spv" -o "$work/$hash.spvasm"
+    if [[ $kind == model ]]; then
+        # a model pass other than 11: the two exact rewrites, where the pass has what they look for
+        python3 "$here/model_clamp.py" < "$work/$hash.spvasm" 2>/dev/null | python3 "$here/model_tail.py" > "$work/$hash.new.spvasm" 2>/dev/null
+        cmp -s "$work/$hash.spvasm" "$work/$hash.new.spvasm" && continue      # nothing to rewrite in this pass
+        spirv-as --target-env spv1.3 "$work/$hash.new.spvasm" -o "$work/$hash.spv"
+        spirv-val --target-env vulkan1.3 "$work/$hash.spv"
+        cp "$work/$hash.spv" "$out/$hash.spv"
+        echo "$out/$hash.spv ($kind)"
+        built=$((built + 1))
+        continue
+    fi
     if [[ $kind == postpass ]]; then
         script=postpass_lds_vkd3d.py
     elif [[ ${PASS11:-1} == rows ]]; then
@@ -82,6 +99,10 @@ while read -r kind hash; do
             mv "$work/$hash.new2.spvasm" "$work/$hash.new.spvasm"
         else
             echo "note: $hash (pass11): stores left as they are"
+        fi
+        if [[ ${MODEL:-1} == 1 ]]; then
+            python3 "$here/model_clamp.py" < "$work/$hash.new.spvasm" 2>/dev/null | python3 "$here/model_tail.py" > "$work/$hash.new2.spvasm" 2>/dev/null \
+                && mv "$work/$hash.new2.spvasm" "$work/$hash.new.spvasm"
         fi
     fi
     spirv-as --target-env spv1.3 "$work/$hash.new.spvasm" -o "$work/$hash.spv"
