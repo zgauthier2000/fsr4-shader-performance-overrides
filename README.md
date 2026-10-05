@@ -32,6 +32,10 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
   integrated GPUs). Each is the exact build for that GPU with the same lossy model passes, and
   **the same warning applies: they change the image.** None has been run on the hardware it is
   for yet; please report the upscaler time against the exact build for your GPU, and what you see.
+- **A timing kit for testers (new, barely tested):** a 9 MB download that times every FSR 4 pass
+  on your GPU under Linux or on a Steam Deck in desktop mode, with AMD's shaders and ours side by
+  side. No game is needed. It has only run on an RX 7800 XT so far; reports from RX 6000 cards,
+  integrated GPUs and the Deck are what it is for. [Instructions](timing-kit).
 - **`test-rdna2-taps.zip` is withdrawn.** Testers saw no improvement from it on RDNA2.
   `test-rdna2.zip` remains the build for RX 6000 cards.
 
@@ -329,6 +333,7 @@ Remove the launch option, or put the original DLL back.
 | [All results](docs/results.md) | every game measured, benchmark pages with screenshots |
 | [Linux guide](docs/linux.md) | requirements, building your own files, troubleshooting |
 | [Making a shader dump](docs/shader-dump.md) | step by step, for reporting a wrong image or a missing speedup on Linux |
+| [Timing kit](timing-kit) | a download for Linux and the Steam Deck that times every FSR 4 pass on your GPU, no game needed (new, barely tested) |
 | [GPU support](docs/gpu-support.md) | Windows, integrated GPUs, the RDNA2 build and its shimmering fix |
 | [Shader variants](docs/variants.md) | which versions of FSR 4's shaders are covered, and what to do if your game's is not |
 | [How it works](docs/how-it-works.md) | what the two rewrites do, where the time goes, what else was tried |
