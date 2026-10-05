@@ -184,9 +184,22 @@ offsets from the wrong place and fetches the wrong textures, which explains the 
   `enable_experimental_features`, `descriptor_qa_checks`): none changes the layout on the
   RX 7800 XT.
 
-What is left: the tester's OptiScaler build (a `v10.0.0-dev` build, newer than any used here), the
-game they tested, or the card. It should not be read as "RDNA2 translates differently" until that
-is known.
+- OptiScaler v10: the nightly of 2026-10-05 on the RX 7800 XT (Shadow of the Tomb Raider, INT8
+  forced with `Fsr4ForceModel = 2`) gives the same layout as before, and `check_prebuilt.sh`
+  reports that the prebuilt files fit;
+- AMD's driver-side FSR DLL (`amdxcffx64.dll`, which contains the same shaders) taking over: in
+  that same run OptiScaler's log shows it loaded and its provider update for upscaling succeeding,
+  and the layout was still the usual one;
+- three Vulkan extensions hidden from vkd3d-proton one at a time (`VK_EXT_descriptor_buffer`,
+  `VK_EXT_mutable_descriptor_type`, `VK_EXT_inline_uniform_block`): no change.
+
+What is left: the game the tester used (Final Fantasy VII Rebirth) or the card. It should not be
+read as "RDNA2 translates differently" until that is known. A dump from the same card in another
+game, or from another RDNA2 card, would decide it.
+
+The other layout can be produced from the usual one: a converter reproduces all four of the
+tester's dumped shaders byte for byte from the RX 7800 XT's. A second set of prebuilt files for
+that layout has been built that way and is not published yet.
 `check_prebuilt.sh` compares a dump with the shaders the prebuilt files were made from. The DLL build does not have this problem,
 because its shaders are translated on the machine that runs them. See
 [Making a shader dump](linux.md#building-your-own).
