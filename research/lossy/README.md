@@ -4,7 +4,7 @@
 
 Everything this repository ships keeps AMD's image byte for byte. This page is about an
 experiment that does not: doing less arithmetic in the model passes, and looking for the settings
-that cost the least. **None of it is in the main files.** Since 2026-10-05 the result is
+that cost the least. The figures are made by [`img/make_figures.py`](img/make_figures.py). **None of it is in the main files.** Since 2026-10-05 the result is
 available as a separate, opt-in test build; see [the last section](#the-opt-in-test-build-2026-10-05).
 
 > **WARNING: the test build changes the image.** It is not the same as the main DLL, the prebuilt
@@ -26,6 +26,11 @@ showed that some model passes can lose weights without a measurable cost, and th
   (*folding*). Neighbouring pixels are similar, so the sum changes little, and the layer's
   response to a flat area is unchanged. One tap is always kept for each group of input channels.
 - The compiler then removes the dot products whose weights are zero.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/folding-dark.svg">
+  <img src="img/folding-light.svg" width="760" alt="Schematic of folding. A 3 by 3 set of weights has four large and five small entries. The five small ones are removed and each is added to the nearest entry that is kept, leaving four dot products instead of nine.">
+</picture>
 
 `wfold.py info < passN.spvasm` prints the layers it finds. The folding idea is from VALKKKS's notes;
 this is an independent implementation. Folding 23 of 36 words in pass 12 reproduces the behaviour
@@ -245,6 +250,11 @@ Lossy set 2 from above, attached to the
 Do not use the DLL on RX 9000 (RDNA4) cards. The Linux folder was built on an RX 7800 XT with
 GE-Proton 11-7 and has the same limits as the [prebuilt folder](../../docs/linux.md).
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/what-is-lossy-dark.svg">
+  <img src="img/what-is-lossy-light.svg" width="760" alt="Diagram of FSR 4.1.1's fourteen main passes for two builds. Main files: twelve passes rewritten with unchanged output, passes 3 and 6 untouched. Lossy test build: passes 1, 5, 10 and 12 have weights folded and the rounding changed; passes 2, 4, 7, 8 and 9 have the rounding changed; the prepass, pass 11 and the postpass are the exact rewrites; passes 3 and 6 are untouched.">
+</picture>
+
 **What is in it.** The exact files, with 27 model-pass shaders replaced: passes 1, 2, 4, 5, 7, 8,
 9, 10 and 12 of the normal model, for the three output-size classes. Weights are folded in passes
 1 (4 words of 36), 5 (18), 10 (18) and 12 (20); the rounding change is in all nine. The postpass,
@@ -265,12 +275,29 @@ RX 7800 XT. `build_lossy_dxil.sh` builds the DXIL set from AMD's shaders.
 | Main files (exact) | 3.05 ms | 109 | 16884 |
 | Lossy test build | 2.91 ms | 111 | 17148 |
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/upscaler-time-dark.svg">
+  <img src="img/upscaler-time-light.svg" width="760" alt="Bar chart of upscaler time in Shadow of the Tomb Raider's benchmark at 4K Balanced on a Radeon RX 7800 XT: AMD's shaders 4.16 ms and 97 FPS; main files 3.05 ms and 109 FPS with AMD's image; lossy test build 2.91 ms and 111 FPS with a changed image.">
+</picture>
+
 That is 0.14 ms less than the exact files (4.6%). No difference was visible in that run. It is
 one game at one size.
 
 **At other output sizes.** The still scene and the moving scene, scaled to each output size so
 that lower resolutions have finer detail per pixel. Each cell is AMD's shaders, then the lossy
 set. "Change" is the frame-to-frame change of a scene point (lower is steadier).
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/still-accuracy-dark.svg">
+  <img src="img/still-accuracy-light.svg" width="760" alt="Dot plot of the still scene's accuracy against the true image at eight output sizes and presets, AMD's shaders and the lossy test build. The lossy build is lower by 0.60 dB at 4K Balanced, 0.67 at 4K Performance, 0.35, 0.45 and 0.47 at 1440p Quality, Balanced and Performance, and 0.27, 0.31 and 0.36 at 1080p Quality, Balanced and Performance.">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/motion-change-dark.svg">
+  <img src="img/motion-change-light.svg" width="760" alt="Three bar charts of frame-to-frame change in the moving scene with the lossy test build, as a difference from AMD's shaders, at eight output sizes and presets. Background: between minus 7% and plus 4%. Railing bars: within 4% except plus 14% at 4K Performance. Fine stripes: plus 31%, plus 17% and plus 31% at 1440p Quality, Balanced and Performance; minus 19% at 1080p Quality; within 6% elsewhere.">
+</picture>
+
+The same figures as a table:
 
 | Output, preset | Still scene against the true image | Change: background | Change: railing bars | Change: fine stripes |
 |---|---|---|---|---|

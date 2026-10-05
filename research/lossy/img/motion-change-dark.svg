@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="398" viewBox="0 0 760 398" role="img" aria-label="Frame-to-frame change in the moving scene with the lossy test build, relative to AMD's shaders. Background: 4K Balanced +0%, 4K Performance -7%, 1440p Quality +4%, 1440p Balanced +1%, 1440p Performance -7%, 1080p Quality +4%, 1080p Balanced +0%, 1080p Performance -6%; Railing bars: 4K Balanced +4%, 4K Performance +14%, 1440p Quality -3%, 1440p Balanced +2%, 1440p Performance +4%, 1080p Quality +4%, 1080p Balanced -0%, 1080p Performance +0%; Fine stripes: 4K Balanced -4%, 4K Performance +4%, 1440p Quality +31%, 1440p Balanced +17%, 1440p Performance +31%, 1080p Quality -19%, 1080p Balanced -4%, 1080p Performance +6%.">
+<rect width="760" height="398" rx="8" fill="#1a1a19"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">Stability in motion: the lossy build against AMD’s shaders</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Frame-to-frame change of a scene point, difference from AMD’s shaders. Right of the line means more shimmer.</text>
+<text x="148.0" y="118.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">4K Balanced</text>
+<text x="148.0" y="146.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">4K Performance</text>
+<text x="148.0" y="174.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1440p Quality</text>
+<text x="148.0" y="202.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1440p Balanced</text>
+<text x="148.0" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1440p Performance</text>
+<text x="148.0" y="258.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1080p Quality</text>
+<text x="148.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1080p Balanced</text>
+<text x="148.0" y="314.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#ffffff">1080p Performance</text>
+<text x="248.0" y="86.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff">Background</text>
+<line x1="160.0" y1="96" x2="160.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<text x="160.0" y="342.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">−40%</text>
+<line x1="204.0" y1="96" x2="204.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="248.0" y1="96" x2="248.0" y2="324" stroke="#383835" stroke-width="2"/>
+<text x="248.0" y="342.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0</text>
+<line x1="292.0" y1="96" x2="292.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="336.0" y1="96" x2="336.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<text x="336.0" y="342.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">+40%</text>
+<text x="254.0" y="118.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0%</text>
+<path d="M248.0,135.0 H237.7 Q233.7,135.0 233.7,139.0 V145.0 Q233.7,149.0 237.7,149.0 H248.0 Z" fill="#3987e5"/>
+<text x="227.7" y="146.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#c3c2b7">−7%</text>
+<path d="M248.0,163.0 H252.6 Q256.6,163.0 256.6,167.0 V173.0 Q256.6,177.0 252.6,177.0 H248.0 Z" fill="#e8823a"/>
+<text x="262.6" y="174.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+4%</text>
+<path d="M248.0,191.0 H248.0 Q250.4,191.0 250.4,193.41758241758242 V202.58241758241758 Q250.4,205.0 248.0,205.0 H248.0 Z" fill="#e8823a"/>
+<text x="256.4" y="202.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+1%</text>
+<path d="M248.0,219.0 H236.8 Q232.8,219.0 232.8,223.0 V229.0 Q232.8,233.0 236.8,233.0 H248.0 Z" fill="#3987e5"/>
+<text x="226.8" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#c3c2b7">−7%</text>
+<path d="M248.0,247.0 H252.0 Q256.0,247.0 256.0,251.0 V257.0 Q256.0,261.0 252.0,261.0 H248.0 Z" fill="#e8823a"/>
+<text x="262.0" y="258.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+4%</text>
+<text x="254.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0%</text>
+<path d="M248.0,303.0 H239.2 Q235.2,303.0 235.2,307.0 V313.0 Q235.2,317.0 239.2,317.0 H248.0 Z" fill="#3987e5"/>
+<text x="229.2" y="314.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#c3c2b7">−6%</text>
+<text x="442.0" y="86.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff">Railing bars</text>
+<line x1="354.0" y1="96" x2="354.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<text x="354.0" y="342.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">−40%</text>
+<line x1="398.0" y1="96" x2="398.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="442.0" y1="96" x2="442.0" y2="324" stroke="#383835" stroke-width="2"/>
+<text x="442.0" y="342.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0</text>
+<line x1="486.0" y1="96" x2="486.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="530.0" y1="96" x2="530.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<text x="530.0" y="342.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">+40%</text>
+<path d="M442.0,107.0 H446.4 Q450.4,107.0 450.4,111.0 V117.0 Q450.4,121.0 446.4,121.0 H442.0 Z" fill="#e8823a"/>
+<text x="456.4" y="118.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+4%</text>
+<path d="M442.0,135.0 H468.9 Q472.9,135.0 472.9,139.0 V145.0 Q472.9,149.0 468.9,149.0 H442.0 Z" fill="#e8823a"/>
+<text x="478.9" y="146.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+14%</text>
+<path d="M442.0,163.0 H439.8 Q435.8,163.0 435.8,167.0 V173.0 Q435.8,177.0 439.8,177.0 H442.0 Z" fill="#3987e5"/>
+<text x="429.8" y="174.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#c3c2b7">−3%</text>
+<path d="M442.0,191.0 H442.8 Q446.8,191.0 446.8,195.0 V201.0 Q446.8,205.0 442.8,205.0 H442.0 Z" fill="#e8823a"/>
+<text x="452.8" y="202.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+2%</text>
+<path d="M442.0,219.0 H446.6 Q450.6,219.0 450.6,223.0 V229.0 Q450.6,233.0 446.6,233.0 H442.0 Z" fill="#e8823a"/>
+<text x="456.6" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+4%</text>
+<path d="M442.0,247.0 H446.8 Q450.8,247.0 450.8,251.0 V257.0 Q450.8,261.0 446.8,261.0 H442.0 Z" fill="#e8823a"/>
+<text x="456.8" y="258.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+4%</text>
+<text x="435.4" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#c3c2b7">0%</text>
+<text x="448.5" y="314.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0%</text>
+<text x="636.0" y="86.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff">Fine stripes</text>
+<line x1="548.0" y1="96" x2="548.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<text x="548.0" y="342.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">−40%</text>
+<line x1="592.0" y1="96" x2="592.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="636.0" y1="96" x2="636.0" y2="324" stroke="#383835" stroke-width="2"/>
+<text x="636.0" y="342.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0</text>
+<line x1="680.0" y1="96" x2="680.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="724.0" y1="96" x2="724.0" y2="324" stroke="#2c2c2a" stroke-width="1"/>
+<text x="724.0" y="342.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">+40%</text>
+<path d="M636.0,107.0 H630.7 Q626.7,107.0 626.7,111.0 V117.0 Q626.7,121.0 630.7,121.0 H636.0 Z" fill="#3987e5"/>
+<text x="620.7" y="118.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#c3c2b7">−4%</text>
+<path d="M636.0,135.0 H640.4 Q644.4,135.0 644.4,139.0 V145.0 Q644.4,149.0 640.4,149.0 H636.0 Z" fill="#e8823a"/>
+<text x="650.4" y="146.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+4%</text>
+<path d="M636.0,163.0 H699.7 Q703.7,163.0 703.7,167.0 V173.0 Q703.7,177.0 699.7,177.0 H636.0 Z" fill="#e8823a"/>
+<text x="709.7" y="174.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+31%</text>
+<path d="M636.0,191.0 H669.7 Q673.7,191.0 673.7,195.0 V201.0 Q673.7,205.0 669.7,205.0 H636.0 Z" fill="#e8823a"/>
+<text x="679.7" y="202.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+17%</text>
+<path d="M636.0,219.0 H699.6 Q703.6,219.0 703.6,223.0 V229.0 Q703.6,233.0 699.6,233.0 H636.0 Z" fill="#e8823a"/>
+<text x="709.6" y="230.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+31%</text>
+<path d="M636.0,247.0 H599.1 Q595.1,247.0 595.1,251.0 V257.0 Q595.1,261.0 599.1,261.0 H636.0 Z" fill="#3987e5"/>
+<text x="589.1" y="258.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#c3c2b7">−19%</text>
+<path d="M636.0,275.0 H632.2 Q628.2,275.0 628.2,279.0 V285.0 Q628.2,289.0 632.2,289.0 H636.0 Z" fill="#3987e5"/>
+<text x="622.2" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#c3c2b7">−4%</text>
+<path d="M636.0,303.0 H644.5 Q648.5,303.0 648.5,307.0 V313.0 Q648.5,317.0 644.5,317.0 H636.0 Z" fill="#e8823a"/>
+<text x="654.5" y="314.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">+6%</text>
+<rect x="24" y="370" width="12" height="12" rx="2" fill="#e8823a"/>
+<text x="42.0" y="380.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">less steady than AMD’s shaders</text>
+<rect x="247.0" y="370" width="12" height="12" rx="2" fill="#3987e5"/>
+<text x="265.0" y="380.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">steadier than AMD’s shaders</text>
+</svg>
