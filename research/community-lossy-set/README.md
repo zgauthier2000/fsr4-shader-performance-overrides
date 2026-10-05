@@ -15,7 +15,7 @@
   the background and 20 to 25% higher on thin detail. This repository's shaders stay identical to
   AMD's, frame for frame.
 - **Its bit-exact parts gain nothing on RDNA3.** They may on RDNA2, which could not be measured
-  here.
+  here. Its prepass is 12% faster and changes the image only minutely, but it is not bit-exact.
 - **Outcome:** nothing from it goes into the main files. The lossy direction is worth pursuing as
   an opt-in extra, but that needs the set's source and per-pass tuning against the motion test;
   see [what would help](#what-would-help-to-take-this-further).
@@ -95,8 +95,23 @@ full 4K frame, and 3% slower on the RX 7800 XT (0.617 to 0.622 ms against 0.600 
 reports it 10% faster on the RX 6700M (581 to 525 microseconds at 1440p), so it may be worth having
 on RDNA2; that has not been measured here.
 
-Not tested: the prepass file (it is for a prepass version the benchmark here is not set up for) and
-the border shaders, which are in the write-up but not in the zip.
+Prepass (`5d9ed7b71cbbcfd0`, the version used with inverted depth), 4K, added 2026-10-05:
+
+| | AMD | Community set | Output |
+|---|---|---|---|
+| Standalone benchmark (constant colour, depth and motion) | 0.495 ms | 0.434 ms (12% less) | identical |
+| AMD's whole pipeline, random inputs, 4K and 1440p output | | | differs |
+| AMD's whole pipeline, the moving test scene | | | differs: 93% of pixels, 55.8 dB against AMD's frames, single pixels by up to 72 of 255 |
+
+So the prepass is not bit-exact either, although the write-up lists its changes as exact. The
+standalone benchmark's inputs are too uniform to show it; varied inputs do. The file has fewer
+divisions (18 to 9), fewer float additions and fewer quad swaps than AMD's, which fits shared
+reciprocals and regrouped sums: the same value mathematically, not the same bits. In the moving
+scene the difference has no measurable effect: 30.51 dB against the true image (AMD's 30.50) and
+the same frame-to-frame change to three decimals. It is the mildest of the set's lossy changes,
+worth about 0.06 ms at 4K on an RX 7800 XT.
+
+Not tested: the border shaders, which are in the write-up but not in the zip.
 
 ## Image quality: still scene
 

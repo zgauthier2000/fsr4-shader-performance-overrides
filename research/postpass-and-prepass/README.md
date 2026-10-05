@@ -286,6 +286,20 @@ the compiler group the reads, gains 3%. Not shipped.
 
 ## The prepass
 
+**A caution about the prepass benchmark (2026-10-05).** `pbench.c` feeds the prepass constant
+colour, depth and motion. A rewrite that regroups floating-point sums or shares reciprocals gives
+identical output on such inputs and different output on real ones: a community prepass that this
+benchmark calls identical differs in 93% of pixels when run in AMD's pipeline on a moving scene
+(see [community shader set](../community-lossy-set)). "Bit-exact" for the prepass rewrites below
+therefore means "identical in this benchmark"; none of them was shipped. Anything for the prepass
+has to be checked in the full pipeline with varied inputs, as the shipped postpass and pass 11
+were.
+
+**The prepass on RDNA2 (2026-10-05).** Compiled for an RX 6800, AMD's prepass is the same code as
+on RDNA3: the same dot-product instructions and about 660 instructions per thread. It needs 56
+registers there against 48 on RDNA3, so fewer threads run at once, but on RDNA3 the prepass was
+not sensitive to that. There is no RDNA2-specific flaw in it to fix.
+
 AMD's prepass takes 0.47 ms in the benchmark (0.44 ms in the game), runs 32 waves per SIMD with 48
 registers, and has about 506 arithmetic instructions per thread.
 
