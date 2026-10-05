@@ -315,6 +315,40 @@ channels while the other three idled, and the rewrite gives each lane a quarter 
 is not shipped, because 0.007 ms is not worth one more override file per game. The rest of the
 prepass is reprojection arithmetic at full occupancy, with nothing found to remove.
 
+## The thirteen border shaders
+
+After most model passes FSR 4 runs a tiny extra dispatch (thirteen in all, 32 threads per group,
+about 240 lines of SPIR-V each). Each one writes zeros into a thin strip of the pass's output
+tensor just outside the valid area: up to five columns and one row, wherever the tensor is larger
+than the current render size. The next pass's convolution reads that strip as padding.
+
+What they cost:
+
+| | RX 7800 XT, 4K (this repository's in-game probes) | RX 6700M, 1440p (a community member's profile) |
+|---|---|---|
+| All thirteen | at most about 0.09 ms of 3.09 ms (3%) | 0.124 ms of 2.39 ms (5%) |
+| of which launching the dispatches | about 0.05 ms | about 57% |
+| of which the shaders' own work | at most 0.04 ms | about 43% |
+
+Can they be dropped? No. With all thirteen replaced by empty shaders, FSR 4's output differs in
+42% of pixels after six frames (2260x1272 to 3840x2160, random inputs). The model passes
+themselves write computed values into that strip, from threads that fall outside the valid area,
+and the border shaders clean it up every frame. So the zeros are not left over from start-up;
+they are needed each frame.
+
+What it would take to save the time:
+
+- **The shaders' own work (about 1 to 2%):** make every model pass write zeros to the strip
+  itself, then empty the border shaders. That is a rewrite of all twelve model passes, in every
+  version, for Linux and for the DLL, where two shaders are rewritten today, and each one would
+  have to be proven to cover exactly the cells its border shader covers.
+- **The launch cost (about 2 to 3% more):** the dispatches themselves have to go, which no shader
+  change can do. It needs a patch to the DLL's code that schedules the passes, on top of the
+  rewrite above.
+
+Not attempted: the whole of it is worth 3 to 5%, and the cheap half does not exist without the
+expensive half.
+
 ## Occupancy on other GPUs
 
 Compiled, not run: Mesa's `amdgpu` drm-shim lets RADV compile for a GPU that is not installed.
