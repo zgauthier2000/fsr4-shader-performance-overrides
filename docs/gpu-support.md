@@ -135,6 +135,7 @@ upscaler time:
 |---|---|---|---|---|---|
 | RX 6900 XT | Final Fantasy VII Rebirth | 1920x1080 to 3840x2160 | 3.79 ms, 66.6 FPS (a DLL reporting `4.1.1`) | 2.70 ms, 73.2 FPS | -29% |
 | RX 6900 XT (same tester) | Final Fantasy VII Rebirth | 1280x720 to 2560x1440 | 1.38 ms, 93.1 FPS (a DLL reporting `4.1.1`) | 1.23 ms, 92.8 FPS | -11% |
+| RX 6900 XT (same tester) | Final Fantasy VII Rebirth | 1920x1080 to 3840x2160 | 2.70 ms (`4.1.1-cyboman-r2` DLL) | 2.68 ms with Linux override files built from their own dump | -1% |
 | RX 6800 | Control Resonant | 1707x960 to 2560x1440 | 1.96 ms, 73.7 FPS (fsr4xyz `4.1.1b`) | 1.92 ms, 73.2 FPS | -2% |
 | RX 6700 XT | not stated | not stated | 2.46 ms (not stated) | 2.38 ms | -3% |
 
@@ -153,6 +154,8 @@ How to read these:
   128 MB on-chip cache, where that penalty is small, while at 4K (66 MB each) they do not.
 - The two 4K screenshots differ in one sharpening setting (the override was on in the "before"
   one), so treat the 29% as approximate. The 1440p pair has sharpening off in both.
+- On this RDNA2 card the Linux override files (built from the tester's own dump) and the DLL are
+  equally fast, 2.68 ms against 2.70 ms. On RDNA3 the override route is a little faster.
 - These are single readings from testers' screenshots, not repeated runs.
 
 **On Linux with RDNA2, build the override files from your own dump (2026-10-05).** The tester
