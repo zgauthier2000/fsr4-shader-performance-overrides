@@ -9,7 +9,7 @@
   weights, which changes the image**.
 - **Speed on an RX 7800 XT:** its twelve model passes take 2.03 ms, the same as this repository's
   set (2.04 ms; AMD's take 2.42 ms). Combined with this repository's pass 11 they would take
-  1.70 ms, about 0.4 ms less than what is shipped.
+  1.70 ms, 0.34 ms less than what is shipped (about 0.4 ms with its pruned postpass as well).
 - **Quality at rest:** a small loss, 0.7 dB against the true image.
 - **Quality in motion:** less stable than AMD's shaders. Frame-to-frame change is 75% higher on
   the background and 20 to 25% higher on thin detail. This repository's shaders stay identical to
