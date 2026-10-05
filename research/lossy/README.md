@@ -129,6 +129,40 @@ For comparison, the community set's version of pass 1 saves 0.054 ms and this on
 difference is finer rewriting of the same code (the rounding constant folded into the bias, the
 ReLU merged into the clamp, values extracted as bytes), not another idea.
 
+## Finer rewrites, and a bit-exact by-product
+
+Added 2026-10-05. `wclamp.py` rewrites how a pass turns its sums into int8 values, four at a time.
+AMD's code rounds, shifts, then clamps a vector of four to -128..127. Clamping before the shift
+gives the same number; in layers with a ReLU the ReLU becomes the clamp's lower bound; and when
+the shift is by 8 bits, the result is simply byte 1 of the clamped value, so the shift goes too.
+It works on AMD's rounding as well as on `wround.py`'s, and in both cases its output is identical
+to its input's.
+
+That makes two of the four tools bit-exact: `wclamp.py` and `wtail.py`. Applied alone to nine
+model passes (1, 2, 4, 5, 7, 8, 9, 10, 12):
+
+| Check | Result |
+|---|---|
+| Standalone benchmark, each pass, real and random weights | identical to AMD's |
+| AMD's whole pipeline, random inputs, 1440p-to-4K, 720p-to-1440p, 1080p-to-4K | identical to AMD's |
+| AMD's whole pipeline, the moving scene, 8 frames | identical to AMD's |
+| Time, RX 7800 XT at 4K | 0.048 ms less (1.6% of FSR 4's time) |
+
+So this part does not belong to the lossy track at all: it is a small exact gain that could be
+added to the shipped files. It has only been built for the pass versions used at 1440p-to-4K-class
+output, and only as SPIR-V.
+
+The lossy set with these rewrites added (`wfold.py`, `wround.py`, `wclamp.py`, `wtail.py`):
+
+| | Saved, RX 7800 XT at 4K | Output |
+|---|---|---|
+| Exact rewrites only | 0.048 ms | identical to AMD's |
+| Lossy set as in the previous section | 0.174 ms | as measured above |
+| Lossy set with the finer rewrites | 0.202 ms (6.5% of FSR 4's time) | identical to the previous lossy set |
+
+Per pass, the lossy set now saves 0.034 ms in pass 1 (the community set: 0.054 ms), 0.090 ms in
+pass 12, 0.023 ms each in passes 5 and 10, and 0.016 ms in pass 2.
+
 ## What these figures do and do not mean
 
 - **The image is not AMD's.** About 48 to 50 dB from it: small, everywhere.
@@ -142,7 +176,7 @@ ReLU merged into the clamp, values extracted as bytes), not another idea.
 
 - Sweeps for passes 1, 5, 10 (more than the fractions above) and pass 2; pass 4 looked like a bad
   trade in the community set.
-- The finer rewrites listed above, worth perhaps another 0.02 ms per pass in passes 1, 2 and 12.
+- Folding the rounding constant into the bias, the one finer rewrite not done.
 - The prepass: a faster, not bit-exact prepass with no measurable effect exists in that set; an
   implementation of its own is needed here.
 - Every version of the passes (three output-size classes, two models) and the DLL's shader
