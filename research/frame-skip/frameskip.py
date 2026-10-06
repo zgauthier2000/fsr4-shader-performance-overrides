@@ -14,6 +14,12 @@
 # under half the output size (there the border clearing after the prepass would reach into the
 # kept output).
 #
+# For the postpass's correction on skipped frames (skipblend.py) the jitter of the last frame that
+# ran the model is carried over: prepass -> pass 11 -> pass 12 -> two words next to the mark.
+# FS_TEST=same (prepass): test rule, skip a frame whose jitter equals that of the last frame that
+# ran (used with a jitter list that repeats every entry, to show that jitter mismatch is the cause
+# of the extra flicker).
+#
 # On a skipped frame the prepass leaves the model's input tensor as it is (each store writes back
 # the word that was there) and its first thread writes a two-word mark into the working buffer; on
 # other frames it clears it. Every model pass returns at once when it finds the mark.
@@ -28,6 +34,8 @@ import re
 import sys
 
 mode = sys.argv[1]
+import os
+TEST = os.environ.get('FS_TEST', '')        # FS_TEST=same: the test rule described below
 L = sys.stdin.read().split('\n')
 defs = {}
 for l in L:
@@ -48,6 +56,18 @@ width = S // 16 - 2
 REGION = (width * 9 // 16 + 2) * S                   # where the second tensor region starts
 W_MARK = (REGION + S + 128) // 4
 M1, M2 = 0x5A17C0DE, 0x0A110E57
+# The jitter of the last frame that ran the model, for the postpass of the skipped frame after it.
+# The model passes do not see the frame's constants, so the prepass leaves the jitter in a cell
+# that nothing writes before pass 11 (the left edge cell of a row near the end of pass 11's
+# output, which pass 11 itself does not write), and pass 11, the last pass to write in the second
+# region's neighbourhood, copies it next to the mark, where it stays through the skipped frame.
+W_RELAY = (REGION * 3 // 2 + (width * 9 // 16 * 15 // 16) * S) // 4
+W_SAVE = W_MARK + 2
+# Pass 11 reads the cell next to the mark (it is part of pass 10's output), so it cannot put the
+# jitter there itself: it parks it in the buffer's first cell (a corner edge cell that no pass
+# reads and that the border clearing zeroes again later), and pass 12, which reads only pass 11's
+# output, moves it next to the mark.
+W_HOP = 0
 
 # How this shader writes to the working buffer (heap slot 11 of its table of writable buffers):
 # taken from one of its own stores, because the same buffer is also bound read-only.
@@ -101,6 +121,22 @@ if mode == 'model':
         'OpSelectionMerge %fs_cont None', 'OpBranchConditional %fs_skip %fs_ret %fs_cont', '%fs_ret = OpLabel',
         'OpReturn', '%fs_cont = OpLabel']
     last = '%fs_cont'
+    if npass in (11, 12):
+        SRC, DST = (W_RELAY, W_HOP) if npass == 11 else (W_HOP, W_SAVE)
+        if '%gl_GlobalInvocationID' in defs:
+            ft, acc = first_thread('%fs_g', '%gl_GlobalInvocationID', (0, 1, 2))
+        else:
+            ft1, a1 = first_thread('%fs_wg', '%gl_WorkGroupID', (0, 1, 2))
+            ft2, a2 = first_thread('%fs_li', '%gl_LocalInvocationID', (0, 1, 2))
+            ft, acc = ft1 + ft2 + [f'%fs_gor = OpBitwiseOr %uint {a1} {a2}'], '%fs_gor'
+        consts += [f'%fs_s1 = OpConstant %uint {DST}', f'%fs_s2 = OpConstant %uint {DST + 1}',
+                   f'%fs_r1 = OpConstant %uint {SRC}', f'%fs_r2 = OpConstant %uint {SRC + 1}']
+        code += ft + [f'%fs_first = OpIEqual %bool {acc} %fs_u0', 'OpSelectionMerge %fs_cont2 None',
+                      'OpBranchConditional %fs_first %fs_save %fs_cont2', '%fs_save = OpLabel'] + \
+            word_ptr('%fs_e', '%fs_r1') + word_ptr('%fs_f', '%fs_r2') + word_ptr('%fs_p', '%fs_s1') + word_ptr('%fs_q', '%fs_s2') + [
+            '%fs_jx = OpLoad %uint %fs_ew', '%fs_jy = OpLoad %uint %fs_fw',
+            'OpStore %fs_pw %fs_jx', 'OpStore %fs_qw %fs_jy', 'OpBranch %fs_cont2', '%fs_cont2 = OpLabel']
+        last = '%fs_cont2'
     rest = [re.sub(rf'{re.escape(entry)}(?=\s|$)', last, x) if 'OpPhi' in x else x for x in L[k:]]
     out = L[:main_i] + [PAD + c for c in consts] + L[main_i:k] + [PAD + c for c in code] + rest
 else:
@@ -124,12 +160,23 @@ else:
             '%fs_jmag = OpBitwiseAnd %uint %fs_jbits %fs_absmask', '%fs_jnz = OpINotEqual %bool %fs_jmag %fs_u0',
             '%fs_jsign = OpUGreaterThan %bool %fs_jbits %fs_absmask', '%fs_neg = OpLogicalAnd %bool %fs_jsign %fs_jnz',
             '%fs_k1 = OpLogicalAnd %bool %fs_neg ' + '%fs_big',
-            '%fs_skip = OpLogicalAnd %bool %fs_k1 ' + '%fs_noreset'] + \
+            '%fs_skipn = OpLogicalAnd %bool %fs_k1 ' + '%fs_noreset',
+            '%fs_jyy = OpCompositeExtract %uint %fs_e1 3'] + word_ptr('%fs_t', '%fs_t1') + word_ptr('%fs_u', '%fs_t2') + [
+            '%fs_tv = OpLoad %uint %fs_tw', '%fs_uv = OpLoad %uint %fs_uw', '%fs_sx = OpIEqual %bool %fs_tv %fs_jbits',
+            '%fs_sy = OpIEqual %bool %fs_uv %fs_jyy', '%fs_same = OpLogicalAnd %bool %fs_sx %fs_sy',
+            # test rule: skip a frame whose jitter equals that of the last frame that ran
+            '%fs_skip = OpLogicalAnd %bool ' + ('%fs_same %fs_noreset' if TEST == 'same' else '%fs_skipn %fs_skipn')] + \
         ft1 + ft2 + [f'%fs_or = OpBitwiseOr %uint {a1} {a2}', '%fs_first = OpIEqual %bool %fs_or %fs_u0',
                      'OpSelectionMerge %fs_cont None', 'OpBranchConditional %fs_first %fs_do %fs_cont', '%fs_do = OpLabel'] + \
         word_ptr('%fs_a', '%fs_w1') + word_ptr('%fs_b', '%fs_w2') + [
             '%fs_v1 = OpSelect %uint %fs_skip %fs_m1 %fs_u0', '%fs_v2 = OpSelect %uint %fs_skip %fs_m2 %fs_u0',
-            'OpStore %fs_aw %fs_v1', 'OpStore %fs_bw %fs_v2', 'OpBranch %fs_cont', '%fs_cont = OpLabel']
+            'OpStore %fs_aw %fs_v1', 'OpStore %fs_bw %fs_v2', '%fs_jy = OpCompositeExtract %uint %fs_e1 3'] + \
+        word_ptr('%fs_y', '%fs_r1') + word_ptr('%fs_z', '%fs_r2') + [
+            '%fs_ox = OpLoad %uint %fs_yw', '%fs_oy = OpLoad %uint %fs_zw',
+            '%fs_nx = OpSelect %uint %fs_skip %fs_ox %fs_jbits', '%fs_ny = OpSelect %uint %fs_skip %fs_oy %fs_jy',
+            'OpStore %fs_yw %fs_nx', 'OpStore %fs_zw %fs_ny', 'OpBranch %fs_cont', '%fs_cont = OpLabel']
+    consts += [f'%fs_r1 = OpConstant %uint {W_RELAY}', f'%fs_r2 = OpConstant %uint {W_RELAY + 1}']
+    consts += [f'%fs_t1 = OpConstant %uint {W_SAVE}', f'%fs_t2 = OpConstant %uint {W_SAVE + 1}']
     consts.append('%fs_absmask = OpConstant %uint 2147483647')
     for need in ('%v4uint', '%_ptr_PhysicalStorageBuffer_v4uint', '%uint_4', '%uint_1', '%uint_0', '%bool'):
         if need not in defs:

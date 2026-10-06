@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # frameskip_dxil.py prepass < prepass.ll > out.ll
-# frameskip_dxil.py model <row bytes of the class: 15392, 30752 or 61472> < passN.ll > out.ll
+# frameskip_dxil.py model <row bytes of the class: 15392, 30752 or 61472> <pass number> < passN.ll > out.ll
 #
 # NOT bit-exact. The DXIL form of frameskip.py (see there): every other frame the model is skipped
 # and the postpass uses the model's output of the frame before. Same decisions, same mark, same
@@ -19,11 +19,15 @@ def die(msg):
 
 text = '\n'.join(L)
 if mode == 'model':
-    S = int(sys.argv[2])
+    S = int(sys.argv[2]); npass = int(sys.argv[3]) if len(sys.argv) > 3 else 0
 else:
     S = next((x for x in (15392, 30752, 61472) if re.search(rf'\bi32 {x}\b', text)), None) or die('no known row size in the prepass')
 width = S // 16 - 2
-BYTE = (width * 9 // 16 + 2) * S + S + 128
+REGION = (width * 9 // 16 + 2) * S
+BYTE = REGION + S + 128
+# the jitter of the last frame that ran the model, carried to the postpass of the skipped frame (see frameskip.py)
+RELAY = REGION * 3 // 2 + (width * 9 // 16 * 15 // 16) * S
+HOP, SAVE = 0, BYTE + 8
 M1, M2 = 0x5A17C0DE, 0x0A110E57
 s32 = lambda v: v - (1 << 32) if v & 0x80000000 else v
 
@@ -65,6 +69,20 @@ if mode == 'model':
         f'  %fs.ea = icmp eq i32 %fs.ma, {s32(M1)}', f'  %fs.eb = icmp eq i32 %fs.mb, {s32(M2)}',
         '  %fs.skip = and i1 %fs.ea, %fs.eb', '  br i1 %fs.skip, label %fs.ret, label %fs.cont', '',
         'fs.ret:', '  ret void', '', 'fs.cont:']
+    if npass in (11, 12):
+        src, dst = (RELAY, HOP) if npass == 11 else (HOP, SAVE)
+        if not any(l.startswith('declare') and '@dx.op.threadId.i32(' in l for l in L):
+            die('@dx.op.threadId.i32 is not declared in this shader')
+        for fn in ('@dx.op.rawBufferLoad.i32', '@dx.op.rawBufferStore.i32'):
+            if not any(l.startswith('declare') and fn + '(' in l for l in L):
+                die(f'{fn} is not declared in this shader')
+        code += ['  %fs.i0 = call i32 @dx.op.threadId.i32(i32 93, i32 0)', '  %fs.i1 = call i32 @dx.op.threadId.i32(i32 93, i32 1)',
+                 '  %fs.i2 = call i32 @dx.op.threadId.i32(i32 93, i32 2)', '  %fs.io = or i32 %fs.i0, %fs.i1', '  %fs.ip = or i32 %fs.io, %fs.i2',
+                 '  %fs.first = icmp eq i32 %fs.ip, 0', '  br i1 %fs.first, label %fs.hop, label %fs.cont2', '', 'fs.hop:',
+                 f'  %fs.jr = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle {H}, i32 {src}, i32 undef, i8 3, i32 4)',
+                 '  %fs.jx = extractvalue %dx.types.ResRet.i32 %fs.jr, 0', '  %fs.jy = extractvalue %dx.types.ResRet.i32 %fs.jr, 1',
+                 f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i32 {dst}, i32 undef, i32 %fs.jx, i32 %fs.jy, i32 undef, i32 undef, i8 3, i32 4)',
+                 '  br label %fs.cont2', '', 'fs.cont2:']
     out = L[:split + 1] + code + L[split + 1:]
 else:
     cb = next((m for l in L for m in [re.search(r'@dx\.op\.cbufferLoadLegacy\.\w+\(i32 59, %dx\.types\.Handle (%[\w.]+),', l)] if m), None) or die('no constant buffer load')
@@ -90,6 +108,11 @@ else:
         '  br i1 %fs.first, label %fs.do, label %fs.cont', '', 'fs.do:',
         f'  %fs.v1 = select i1 %fs.skip, i32 {s32(M1)}, i32 0', f'  %fs.v2 = select i1 %fs.skip, i32 {s32(M2)}, i32 0',
         f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i32 {BYTE}, i32 undef, i32 %fs.v1, i32 %fs.v2, i32 undef, i32 undef, i8 3, i32 4)',
+        '  %fs.jy = extractvalue %dx.types.CBufRet.i32 %fs.c1, 3',
+        f'  %fs.or = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle {H}, i32 {RELAY}, i32 undef, i8 3, i32 4)',
+        '  %fs.ox = extractvalue %dx.types.ResRet.i32 %fs.or, 0', '  %fs.oy = extractvalue %dx.types.ResRet.i32 %fs.or, 1',
+        '  %fs.nx = select i1 %fs.skip, i32 %fs.ox, i32 %fs.jb', '  %fs.ny = select i1 %fs.skip, i32 %fs.oy, i32 %fs.jy',
+        f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i32 {RELAY}, i32 undef, i32 %fs.nx, i32 %fs.ny, i32 undef, i32 undef, i8 3, i32 4)',
         '  br label %fs.cont', '', 'fs.cont:']
     out, n_st = [], 0
     for n, l in enumerate(L):
@@ -116,10 +139,11 @@ else:
     sys.stderr.write(f'frameskip_dxil: {n_st} tensor stores made conditional, row size {S}\n')
 # the rest of the entry block is now the block fs.cont
 res, past = [], False
+LAST = 'fs.cont2' if 'fs.cont2:' in out else 'fs.cont'
 for l in out:
-    if l == 'fs.cont:':
+    if l == LAST + ':':
         past = True
     elif past and ' = phi ' in l:
-        l = re.sub(r'%0 \]', '%fs.cont ]', l)
+        l = re.sub(r'%0 \]', f'%{LAST} ]', l)
     res.append(l)
 sys.stdout.write('\n'.join(res))

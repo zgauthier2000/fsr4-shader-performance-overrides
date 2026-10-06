@@ -20,7 +20,33 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
 > Machine, an RX 6700M, an RX 6800 XT and an RX 6600 ([results](timing-kit/RESULTS.md)).
 > [Instructions](timing-kit) · [Download](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05)
 
-## What's new: 2026-10-06 ([release `dll-2026-10-06`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06))
+## What's new: 2026-10-06, release 2 ([release `dll-2026-10-06.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.2))
+
+- **Less shimmer in the lossy test builds.** A tester reported shimmer on distant objects with
+  frame skip, and measurement confirmed it: at rest, fine detail changed about 55% more from frame
+  to frame than with AMD's shaders. The cause is that a skipped frame reuses a model result worked
+  out for the previous frame's camera jitter. The builds now carry the previous jitter over and
+  lower the new frame's weight where its nearest sample has moved away.
+
+  | Test scene, 4K Balanced (lossy build) | AMD's shaders | Before | Now |
+  |---|---|---|---|
+  | Frame-to-frame change at rest, fine detail (lower is steadier) | 0.110 | 0.172 (+56%) | 0.145 (+32%) |
+  | Still picture against the true image | 44.31 dB | 43.75 dB | 44.04 dB |
+  | Moving scene, areas just uncovered | 34.48 dB | 30.09 dB | 29.17 dB |
+
+  About half of the extra flicker is gone, not all of it. Speed is unchanged (2.09 ms, 122 FPS
+  in the benchmark below). [What was tried and how it works](research/frame-skip#reducing-the-shimmer).
+
+  > **WARNING: the lossy builds change the image.** They are not the same as the main files or
+  > AMD's DLL. With frame skip, fine detail such as distant objects still shimmers more than
+  > with AMD's DLL (about 30% more frame-to-frame change at rest in tests); where the picture
+  > has just changed the upscaler is one frame behind; and frame times alternate between a
+  > shorter and a longer frame.
+- **Files:** the five `test-lossy…` files are replaced; the names shown in OptiScaler stay the
+  same, so say which release you used. The main DLL and the other test builds are carried over
+  unchanged.
+
+## Earlier on 2026-10-06: release `dll-2026-10-06`
 
 - **The lossy test builds now skip the model on every other frame.** FSR 4's model is about 60%
   of its time. The lossy builds now run it on alternate frames and reuse its last result in
@@ -32,12 +58,6 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
   | Main files (AMD's image, byte for byte) | 3.05 ms | 109 |
   | Lossy test build, as it was | 2.91 ms | 111 |
   | Lossy test build, with frame skip | 2.09 ms | 122 |
-
-  > **WARNING: the lossy builds change the image.** They are not the same as the main files or
-  > AMD's DLL. Frame skip adds three things to know: fine detail, such as distant objects,
-  > shimmers more (about 55% more frame-to-frame change at rest in tests, and a tester sees it);
-  > where the picture has just changed the upscaler is one frame behind; and frame times
-  > alternate between a shorter and a longer frame.
 
   It turns itself off in Ultra Performance. The main files are unchanged.
   [How it works, what it costs, and the frame-time caveat](research/frame-skip).
@@ -163,7 +183,7 @@ The main DLL for RX 7000 cards and the Linux files are unchanged since 2026-10-0
 ## RDNA2 (RX 6000): shimmering in motion fixed (2026-10-04, 15:43 EDT)
 
 FSR 4.1.1's INT8 model can be made to run on RDNA2, but there it shimmers in motion. A test build
-from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-06`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06)
+from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-06.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.2)
 (Windows DLL).
 
 - **The cause is one instruction form in the postpass.** AMD's postpass adds each int8 dot
@@ -224,7 +244,7 @@ memory they read is unchanged, so the total is where it was (7,668 to 5,321 MB t
   never slower, and they may help GPUs with less memory bandwidth, where they have not been
   measured yet.
 - **To get it:** download the files again, or run `build_override.sh` again if you built your own.
-  The patched DLL is in the [release `dll-2026-10-06`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06).
+  The patched DLL is in the [release `dll-2026-10-06.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.2).
 - **Integrated GPUs:** still not recommended, but there is an experimental build to test; see
   [GPU support](docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 - The figures are read requests between the GPU's cache and memory, counted in a standalone
@@ -335,7 +355,7 @@ faster: [Linux guide](docs/linux.md).
 This also works under Proton, but on Linux the launch option above is faster.
 
 1. Download `amd_fidelityfx_upscaler_dx12.dll` from the
-   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06).
+   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.2).
 2. In the game folder, rename the existing `amd_fidelityfx_upscaler_dx12.dll` (often next to
    OptiScaler) to `amd_fidelityfx_upscaler_dx12.dll.orig`. It must be version 4.1.1.2740.
 3. Put the downloaded DLL in its place.
