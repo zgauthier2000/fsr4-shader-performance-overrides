@@ -51,21 +51,27 @@ ORDER = ['prepass'] + [f'pass{k}' for k in range(1, 13)] + ['postpass']
 SHORT = {'prepass': 'pre', 'postpass': 'post', **{f'pass{k}': f'p{k}' for k in range(1, 13)}}
 
 
+SIZES = {'1920x1080': '1080p', '2560x1440': '1440p', '3840x2160': '4k'}
+
+
 def timings(text):
-    t = {}
+    t, size = {}, None
     for l in text.split('\n'):
+        h = re.match(r'=== class \S+ output (\d+x\d+):', l.replace(',', ''))
+        if h:
+            size = SIZES.get(h[1], h[1])
         if l.startswith('round 0'):
             continue
         m = re.search(r'(1080p|4k)/(amd|exact|lossy)/(\w+)\.spv .*median ([\d.]+) ms', l)
         if m:
-            t[(m[1], m[3], m[2])] = float(m[4])
+            t[(size or m[1], m[3], m[2])] = float(m[4])
     return t
 
 
 t1, t2 = timings(read('timing-round1.txt')), timings(read('timing-round2.txt'))
 lines.append('')
 lines.append('ms per pass: AMD / exact / lossy')
-for cls in ('1080p', '4k'):
+for cls in ('1080p', '1440p', '4k'):
     row, tot = [], {'amd': 0.0, 'exact': 0.0, 'lossy': 0.0}
     for p in ORDER:
         if (cls, p, 'amd') not in t1:

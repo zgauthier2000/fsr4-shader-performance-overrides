@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-or-later
-# FSR 4.1.1 shader timings on this machine's GPU. Run from a terminal:   bash run.sh
+# Options:  bash run.sh quick     timings only, one round (about 12 minutes on a desktop card)
 # Options:  bash run.sh quick     timings only, one round (about 8 minutes on a desktop card)
 #           bash run.sh traffic   also try the memory-traffic capture (needs the bundled driver to load)
 # On a machine with two GPUs the discrete one is used;  KIT_GPU=integrated bash run.sh  uses the integrated one.
@@ -37,6 +37,7 @@ fi
 timing() {  # timing <class dir> <WxH> <render W H>
     local c=$1 o=$2 nd=100
     [ "$c" = 1080p ] && nd=300        # short passes need a longer burst for a steady reading
+    [ "$o" = 2560x1440 ] && nd=200
     say "class $c, output $o: prepass  (AMD, exact)"
     OUT=$o N_DISP=60 "$W/pbench2" "$S/$c/amd/prepass.spv" "$S/$c/exact/prepass.spv" 2>&1 | grep -E 'round 1|differ|DIFFER|IDENTICAL' | sed "s#$S/##"
     for k in 1 2 3 4 5 6 7 8 9 10 11 12; do
@@ -49,7 +50,8 @@ timing() {  # timing <class dir> <WxH> <render W H>
 }
 
 rounds=2; [ "$MODE" = quick ] && rounds=1
-{ timing 1080p 1920x1080 1280 720; timing 4k 3840x2160 2560 1440; } 2>&1 | tee "$OUT/timing-round1.txt"
+# 1440p output uses the same shader versions as 4K (the "4k" set)
+{ timing 1080p 1920x1080 1280 720; timing 4k 2560x1440 1707 960; timing 4k 3840x2160 2560 1440; } 2>&1 | tee "$OUT/timing-round1.txt"
 # second round at 1080p only, to see how well the readings repeat
 [ $rounds = 2 ] && timing 1080p 1920x1080 1280 720 2>&1 | tee "$OUT/timing-round2.txt"
 

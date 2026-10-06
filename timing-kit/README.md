@@ -6,9 +6,12 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
-**Version 2026-10-05.3** (download again if you have an earlier one):
+**Version 2026-10-05.4** (download again if you have an earlier one):
 
-- **Fixes "CPU ISA level is lower than required".** The first two archives only started on CPUs
+- **Times 1440p output as well** as 1080p and 4K. FSR 4 uses the same shader versions at 1440p
+  as at 4K, so this shows how the same code behaves on a smaller picture; it is the size where
+  the RX 6000 game reports are least clear.
+- Since 2026-10-05.3: **fixes "CPU ISA level is lower than required".** The first two archives only started on CPUs
   with AVX-512 (Ryzen 7000 and newer); the first tester, on a Ryzen 5000 laptop, hit this. The
   programs now run on any 64-bit CPU.
 - **On a machine with two GPUs the discrete one is tested,** and the summary names the GPU that
@@ -49,9 +52,9 @@ Unpack the archive, open a terminal in the folder and type one of:
 
 | Command | What it does | Time on an RX 7800 XT |
 |---|---|---|
-| `bash run.sh quick` | times all 14 passes at 1080p and 4K output | about 8 minutes |
-| `bash run.sh` | adds the pass 11 and postpass versions, the store probes and compiler statistics | about 16 minutes |
-| `bash run.sh traffic` | adds a capture of memory traffic with a bundled driver build | about 20 minutes |
+| `bash run.sh quick` | times all 14 passes at 1080p, 1440p and 4K output | about 12 minutes |
+| `bash run.sh` | adds the pass 11 and postpass versions, the store probes and compiler statistics | about 20 minutes |
+| `bash run.sh traffic` | adds a capture of memory traffic with a bundled driver build | about 25 minutes |
 
 Slower GPUs take longer; an integrated GPU may take several times as long. Plug a laptop into the
 wall and close games and browsers first.
@@ -75,7 +78,7 @@ earlier run's summary.
 
 ## What it measures
 
-- **Each pass** (prepass, model passes 1 to 12, postpass) at 1080p and at 4K output: AMD's
+- **Each pass** (prepass, model passes 1 to 12, postpass) at 1080p, 1440p and 4K output: AMD's
   shader, the exact rewrite, and the lossy version where there is one.
 - **Four versions of model pass 11 and eight of the postpass,** to see which suits a GPU. The
   integrated-GPU and RDNA2 builds differ from the main one in exactly these two places.
