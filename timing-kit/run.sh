@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-or-later
 # FSR 4.1.1 shader timings on this machine's GPU. Run from a terminal:   bash run.sh
-# With no option it runs the postpass comparison at 1080p, 1440p and 4K (a minute or two): AMD's
-# postpass, the shipped rewrite, the candidate, and AMD's with its stores removed.
-# Options:  bash run.sh quick     also times all 14 passes at the three sizes (about 12 minutes on a desktop card)
-#           bash run.sh full      adds pass 11 and postpass versions, store probes, compiler statistics
-#           bash run.sh traffic   everything, plus the memory-traffic capture with the bundled driver build
+# With no option it runs the full set (about 20 minutes on a desktop card): all 14 passes at 1080p,
+# 1440p and 4K, the postpass comparison with its candidates, the pass 11 and postpass versions, the
+# store probes and compiler statistics.
+# Options:  bash run.sh postpass  only the postpass comparison (a minute or two)
+#           bash run.sh quick     all 14 passes and the postpass comparison, without the versions and probes (about 12 minutes)
+#           bash run.sh traffic   the full set, plus the memory-traffic capture with the bundled driver build
 # On a machine with two GPUs the discrete one is used;  KIT_GPU=integrated bash run.sh  uses the integrated one.
 # Nothing is installed or changed on the machine; results go into results/<name>-<time>/ next to this file.
 set -u
 KIT=$(cd -- "$(dirname -- "$0")" && pwd)
-MODE=${1:-postpass}
-case $MODE in postpass|quick|full|traffic) ;; *) echo "unknown option: $MODE (use: quick, full or traffic, or nothing for the postpass test)"; exit 1 ;; esac
+MODE=${1:-full}
+case $MODE in postpass|quick|full|traffic) ;; *) echo "unknown option: $MODE (use: postpass, quick or traffic, or nothing for the full run)"; exit 1 ;; esac
 STAMP=$(date +%Y%m%d-%H%M%S)
 OUT=$KIT/results/$(cat /sys/class/dmi/id/product_name 2>/dev/null | tr -c 'A-Za-z0-9\n' '_' | head -c 24)-$STAMP
 mkdir -p "$OUT" 2>/dev/null || { OUT=$HOME/fsr4-results-$STAMP; mkdir -p "$OUT"; }

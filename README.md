@@ -14,7 +14,7 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
 
 > **New: a timing kit for testers (2026-10-05).** A 9 MB download that times every FSR 4 pass on
 > your GPU, with AMD's shaders and this project's side by side. It runs on Linux and on a Steam
-> Deck in desktop mode, needs no game, installs nothing, takes about a minute (`bash run.sh`), and can send its results to the project
+> Deck in desktop mode, needs no game, installs nothing, takes about 20 minutes on a desktop card (`bash run.sh`; `bash run.sh postpass` is a two-minute version), and can send its results to the project
 > when it finishes (it asks first). The goal of sending this data is to further optimize this
 > project, and with it FSR 4's performance, for your GPU. Reports from RX 6000 cards, integrated
 > GPUs and the Steam Deck are what it is for. So far it has run on an RX 7800 XT, a Steam
