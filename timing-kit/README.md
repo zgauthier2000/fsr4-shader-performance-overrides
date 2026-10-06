@@ -6,8 +6,19 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
-**Version 2026-10-05.6** (download again if you have an earlier one). It applies what the first
-three machines' results showed:
+**Version 2026-10-05.7** (download again if you have an earlier one).
+
+- **It carries a candidate postpass for the smaller GPUs, and a quick way to time it.** On RX 6000
+  cards, the Steam Machine, the Steam Deck and integrated GPUs the shipped postpass runs with
+  fewer threads at once than AMD's (12 waves per SIMD against 16), because it holds more values
+  in registers. The candidate ("direct") puts one of the three images into workgroup memory as
+  soon as each pixel is computed, so it needs fewer registers and compiles at 16 waves there. Its
+  output is byte-for-byte AMD's. On an RX 7800 XT it is exactly as fast as the shipped one; whether
+  it is faster on the smaller GPUs is what needs measuring:
+  **`bash run.sh postpass`** (under a minute on a desktop card) times it against AMD's and the
+  shipped version at 1080p, 1440p and 4K.
+
+Since 2026-10-05.6, which applied what the first three machines' results showed:
 
 - **A closer look at the postpass,** the pass where GPUs differ most. At 1080p, 1440p and 4K it
   times AMD's postpass several times, the shipped rewrite, and AMD's with its stores removed

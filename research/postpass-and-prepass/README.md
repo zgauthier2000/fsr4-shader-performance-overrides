@@ -148,6 +148,43 @@ So the shader rewrite is the right place for this fix: even with the written ima
 shader takes 1.06 ms against 0.60 ms for the phased one on the default layout, and the driver
 cannot know which images a shader will write sparsely.
 
+## A candidate for the smaller register file: one image straight to workgroup memory
+
+Added 2026-10-05, after the first [timing-kit results](../../timing-kit/RESULTS.md) from an
+RX 6700M and a Steam Machine. On those chips the shipped postpass is about a third faster than
+AMD's at 4K but stays 0.2 ms above what the shader costs with no stores at all (1.32 against
+1.13 ms, 1.42 against 1.21 ms), and at 1080p it is no faster than AMD's.
+
+The cause is occupancy. The shipped rewrite holds all twelve stored texels in registers until the
+end. The compiler needs 70 registers for it; AMD's shader needs 45. RDNA2, Navi 33, the Steam
+Deck's chip and the RDNA3 integrated GPUs have the smaller register file, where 16 waves per SIMD
+fit only up to 64 registers. So the shipped postpass runs at 12 waves there and AMD's at 16. The
+RX 7800 XT has 1.5 times the registers and runs the shipped one at 16.
+
+`postpass_direct.py` changes one thing: the first of the three images (four values per pixel)
+goes into the workgroup buffer as soon as each pixel is computed, instead of waiting in
+registers, and is the first to be flushed. The other two images wait in registers as before.
+
+| Compiled for | AMD's | Shipped | Direct |
+|---|---|---|---|
+| Registers needed (before scheduling) | 45 | 70 | 60 |
+| RX 7800 XT (Navi 32): waves per SIMD | 24 | 16 | 16 |
+| Navi 33, Navi 21 (RDNA2), Phoenix, Van Gogh: waves per SIMD | 16 | 12 | 16 |
+
+(All but the RX 7800 XT compiled with Mesa's `amdgpu` drm-shim: compile only, nothing runs.)
+
+- **Bit-exact:** identical to AMD's output in the standalone benchmark and in AMD's whole
+  pipeline at five size combinations (1080p, 1440p and 4K output).
+- **RX 7800 XT:** same time as the shipped version at all three sizes (0.67 against 0.68 ms at 4K).
+- **Smaller chips: not measured yet.** It is in the timing kit as a candidate since version
+  2026-10-05.7; `bash run.sh postpass` times it.
+
+A first attempt stored that image's values as packed half floats (the shader converts them to
+half precision and back before writing), which would have cut the buffer to 12 KB. It was not
+bit-exact: on Mesa the round trip through half precision is evidently optimised away in AMD's
+shader, so packing rounded values that the original never rounds. The same was seen earlier with
+the DXIL version. The shipped variant stores full floats.
+
 ## How much of each pass is memory traffic
 
 `nomem.py` makes probe versions of a shader that keep all the arithmetic but drop memory traffic:
