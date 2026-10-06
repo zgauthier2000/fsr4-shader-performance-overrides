@@ -38,10 +38,38 @@ Still scene and moving scene at 4K Balanced, as on the [lossy page](../lossy):
 | fine stripes | 2.04 | 1.95 | 2.51 |
 | railing bars | 0.913 | 0.948 | 0.823 |
 
-- **At rest it costs nothing measurable.**
+- **At rest the final picture is as accurate, but fine detail flickers more** (next table). The
+  table above compares one finished frame with the true image, which does not show flicker; an
+  earlier version of this page concluded from it that a still picture costs nothing. A tester
+  then reported shimmer on distant objects, and measuring frame-to-frame change confirmed it.
 - **In motion the loss is where the picture changed since the frame before:** areas just uncovered
   by a moving object are 4 dB less accurate, the background about 1 dB. The model's output is one
   frame old there.
+
+**Flicker at rest.** A completely still scene; how much two consecutive output frames differ, in
+8-bit steps (0 would be a perfectly steady picture). "Fine detail" is the tenth of the pixels with
+the strongest edges, "flat" the half with the weakest.
+
+| Output, preset | | All | Fine detail | Flat areas |
+|---|---|---|---|---|
+| 4K Balanced | AMD's | 0.037 | 0.110 | 0.020 |
+| | exact files with frame skip | 0.053 | 0.176 (+60%) | 0.025 |
+| | lossy, no frame skip | 0.034 | 0.123 (+12%) | 0.015 |
+| | lossy with frame skip | 0.047 | 0.172 (+56%) | 0.018 |
+| 1440p Balanced | AMD's | 0.042 | 0.130 | 0.022 |
+| | exact files with frame skip | 0.060 | 0.206 (+58%) | 0.028 |
+| | lossy, no frame skip | 0.046 | 0.162 (+25%) | 0.021 |
+| | lossy with frame skip | 0.053 | 0.202 (+55%) | 0.022 |
+| 1440p Quality | AMD's | 0.035 | 0.117 | 0.017 |
+| | lossy with frame skip | 0.046 | 0.170 (+45%) | 0.019 |
+
+- **Frame skip makes fine detail about 55 to 60% less steady at rest,** with or without the
+  weight folding. Flat areas hardly change. Distant objects are fine detail: this is the shimmer
+  that was reported.
+- **Why:** the model's result depends on where the frame's jitter put the samples. On a skipped
+  frame the postpass uses a result worked out for the previous frame's jitter, so on edges and
+  thin features every second frame is combined slightly wrongly, and the picture alternates
+  between two states.
 
 Still scene at other sizes and presets (against the true image, dB):
 
@@ -127,6 +155,7 @@ border shaders erased it.)
   game with another sequence could skip two frames in a row now and then, or skip unevenly.
   A game that passes no jitter never skips.
 - **Not in Ultra Performance** or at any render size under half the output size.
+- **Fine detail shimmers more,** at rest as well as in motion (the flicker table above).
 - **Uneven frame times,** as above.
 - **Tested in one game** and in the test scenes.
 

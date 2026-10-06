@@ -34,9 +34,10 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
   | Lossy test build, with frame skip | 2.09 ms | 122 |
 
   > **WARNING: the lossy builds change the image.** They are not the same as the main files or
-  > AMD's DLL. Frame skip adds two things to know: where the picture has just changed (the edge
-  > behind a moving object) the upscaler is one frame behind, and frame times alternate between a
-  > shorter and a longer frame.
+  > AMD's DLL. Frame skip adds three things to know: fine detail, such as distant objects,
+  > shimmers more (about 55% more frame-to-frame change at rest in tests, and a tester sees it);
+  > where the picture has just changed the upscaler is one frame behind; and frame times
+  > alternate between a shorter and a longer frame.
 
   It turns itself off in Ultra Performance. The main files are unchanged.
   [How it works, what it costs, and the frame-time caveat](research/frame-skip).
