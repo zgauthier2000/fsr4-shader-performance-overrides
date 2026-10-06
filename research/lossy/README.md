@@ -272,6 +272,35 @@ So set 2 stands. What it leaves unfolded is the arithmetic the image depends on 
 passes whose weights are not constants in the shader (3 and 6 to 9). Going faster from here means
 accepting a visible cost.
 
+## The five passes that fetch their weights (2026-10-06)
+
+Model passes 3 and 6 to 9 read their weights from a buffer while they run, so the folding tools,
+which change constants, have nothing to work on. They looked like the one sizeable area left: on
+an RX 7800 XT at 4K they take 0.05, 0.05, 0.12, 0.12 and 0.18 ms, and passes 7 and 8 looked four
+to five times slower per dot product than the passes with constant weights. They are not.
+
+- **Passes 7 and 8 are loops with large trip counts.** Each has three convolutions written as
+  loops whose end is `gl_WorkGroupID.z + 7`, `+ 31` and `+ 15`; the z component is always zero,
+  so they run 8, 32 and 16 times, with 144, 64 and 128 dot products per round. That is 5,248 dot
+  products per thread, not the few hundred the shader text suggests, at 1.7e-13 seconds each.
+  Pass 1, with constant weights and no loops, runs at 1.6e-13. **They are already as efficient
+  as the fastest passes.**
+- **Unrolling changes nothing.** The inner loops are unrolled by the driver's compiler already
+  (unrolling them in the shader gives the same 1,165 instructions and the same time), and a
+  compiler hint to unroll the outer ones has no effect. Since the time is the arithmetic, there
+  is nothing for unrolling to remove.
+- **Constant weights change nothing either** where they can be tested fairly: passes 3 and 6 are
+  written out without loops, and replacing every fetched weight by a constant takes them from
+  0.052 to 0.051 ms and from 0.050 to 0.045 ms. (The same probe on passes 7 and 8 is not valid:
+  with the same constants in every round the compiler computes one round and reuses it.)
+- **What folding could save there is small.** Only the first convolution of passes 7 and 8 is
+  3x3: 1,152 of the 5,248 dot products. Folding half of it would save about a tenth of each pass,
+  0.01 ms, and would first need each model's weights built into the shader with a check for which
+  model is running, since both models share these shaders.
+
+So this area holds no exact gain and almost no lossy one. The time of these passes is
+multiplications that the image needs.
+
 ## The opt-in test build (2026-10-05)
 
 > **WARNING: this build changes the image.** It is not the same as this repository's main DLL or
