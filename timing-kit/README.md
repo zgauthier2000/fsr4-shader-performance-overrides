@@ -6,7 +6,18 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
-**Version 2026-10-06.1** (download again if you have an earlier one).
+**Version 2026-10-06.2** (download again if you have an earlier one).
+
+- **Three new postpass candidates replace the two earlier ones,** which the first RDNA2 results
+  showed do not help. All three give AMD's output byte for byte:
+  - `taps`: AMD's own postpass with its nine neighbourhood reads made branch-free and nothing
+    else, for the sizes where the rewrite loses to AMD's (1080p and 1440p on an RX 6800 XT);
+  - `shipped_taps`: the shipped rewrite with the same branch-free reads, the recipe a tester
+    described for their own fastest exact postpass on an RX 6700M;
+  - `direct_taps`: the same on top of the leaner "direct trim" version.
+- The summary names any candidate whose output differs from AMD's, per size.
+
+Since 2026-10-06.1:
 
 - **A test for RX 6000-series (RDNA2) GPUs: two forms of the dot product.** FSR 4's model is
   mostly int8 dot products. On RDNA2, Mesa compiles nearly all of them as `v_dot4c_i32_i8`, a

@@ -177,7 +177,17 @@ if tr:
 
 # anything that did not match AMD's output where it should
 bad = []
-for name in ('timing-round1.txt', 'timing-round2.txt', 'postpass.txt'):
+sec, cand_bad = None, {}
+for l in read('postpass.txt').split('\n'):
+    h = re.match(r'=== postpass at (\d+x\d+): (.*)$', l)
+    if h:
+        c = re.search(r'candidate (\S+)', h[2])
+        sec = (SIZES.get(h[1], h[1]), c[1].replace('postpass_', '')) if c else None
+    elif sec and re.search(r': [1-9]\d* of \d+ bytes differ', l):
+        cand_bad.setdefault(sec[1], set()).add(sec[0])
+if cand_bad:
+    lines.append('candidates whose output differs from AMD\'s: ' + '  '.join(f'{k} ({", ".join(sorted(v))})' for k, v in cand_bad.items()))
+for name in ('timing-round1.txt', 'timing-round2.txt'):
     txt = read(name)
     for l in txt.split('\n'):
         if 'DIFFERS' in l or re.search(r'^\s*[1-9]\d* (pixels differ|of \d+ bytes differ)', l) or re.search(r': [1-9]\d* of \d+ bytes differ', l):

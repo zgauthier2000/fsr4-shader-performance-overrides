@@ -189,6 +189,19 @@ against 0.684 ms at 16. (A probe that simply drops stored channels is not valid 
 compiler then removes the arithmetic that produced them.) Scaled by how much slower the smaller
 chips are, the same overhead accounts for the 0.2 ms gap measured there.
 
+**Next candidates (2026-10-06): branch-free reads.** A tester's own exact postpass, described in
+their notes as this repository's phased version with the nine neighbourhood reads made
+branch-free, beat the shipped rewrite on their RX 6700M by 12 to 18% at 1440p. Rebuilt here from
+that description with [`postpass_taps.py`](postpass_taps.py), in three forms: on AMD's postpass
+alone (`taps`), on the shipped rewrite (`shipped_taps`) and on "direct trim" (`direct_taps`).
+All three are byte-identical to AMD's in the standalone benchmark and in AMD's whole pipeline at
+five sizes each. Compiled for RDNA2 (Navi 21) the shipped rewrite is 3,278 instructions and 42
+branches; with the reads branch-free 3,242 and 33; `direct_taps` 3,212 and 23, at 16 waves per
+SIMD; AMD's own 2,977 and 14, with `taps` 2,942 and 5. On an RX 7800 XT: 4K 0.676 ms shipped,
+0.666 `shipped_taps`, 0.660 `direct_taps`; 1440p 0.310, 0.301, 0.295; at 1080p `taps` alone
+(0.168 ms) is as fast as the rewrite (0.173) and 16% faster than AMD's. They are in the timing
+kit since version 2026-10-06.2; what they do on RDNA2 is not measured yet.
+
 **Result (2026-10-06): the candidates do not help.** On an RX 6800 XT both time the same as the
 shipped version at 1080p, 1440p and 4K, although they run at 16 waves per SIMD there against
 its 12. See the [timing-kit results](../../timing-kit/RESULTS.md). They stay here as a record.
