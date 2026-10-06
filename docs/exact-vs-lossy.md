@@ -14,6 +14,13 @@ and only one of them keeps AMD's picture.
 > **The lossy builds change the image.** They are opt-in experiments, not the same as the main
 > files and not the same as AMD's DLL.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
+  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass reuse the last result with two repairs, 1.26 ms. The two kinds of frame alternate, 2.09 ms on average, 50% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 44.04 dB against 44.31, flicker on fine detail at rest 0.145 against 0.110 (32% more), areas just uncovered by a moving object 29.23 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+</picture>
+
+The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py).
+
 ## At a glance
 
 | | Exact files | Lossy test builds |
