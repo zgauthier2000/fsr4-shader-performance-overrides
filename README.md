@@ -9,7 +9,8 @@ unchanged, byte for byte.** Nothing in the game or in OptiScaler is modified.
   <img src="docs/img/overview-light.svg" width="760" alt="Overview. Of FSR 4.1.1's fourteen main passes, twelve are rewritten with the same output: the prepass (10% less time), ten model passes (the same arithmetic in fewer steps; pass 11 takes 62% less time and reads 76% less memory) and the postpass (about 70% less time, 68% less memory read). Model passes 3 and 6 are untouched. On a Radeon RX 7800 XT at 4K in Shadow of the Tomb Raider the upscaler time goes from 4.16 to 3.05 ms per frame (97 to 109 FPS), 27% less, and the memory FSR 4 reads per frame from 7,639 to 5,317 MB, 30% less.">
 </picture>
 
-Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
+Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
+[exact and lossy builds compared](docs/exact-vs-lossy.md).
 
 > **New: a timing kit for testers (2026-10-05).** A 9 MB download that times every FSR 4 pass on
 > your GPU, with AMD's shaders and this project's side by side. It runs on Linux and on a Steam

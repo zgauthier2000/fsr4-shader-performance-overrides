@@ -1,6 +1,6 @@
 # A lossy track: folding away part of the model's weights
 
-[Back to the research index](../README.md)
+[Back to the research index](../README.md) · [Exact and lossy builds compared](../../docs/exact-vs-lossy.md)
 
 Everything this repository ships keeps AMD's image byte for byte. This page is about an
 experiment that does not: doing less arithmetic in the model passes, and looking for the settings

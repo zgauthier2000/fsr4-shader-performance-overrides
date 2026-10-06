@@ -1,6 +1,6 @@
 # Frame skip: running the model every other frame
 
-[Back to the research index](../README.md)
+[Back to the research index](../README.md) · [Exact and lossy builds compared](../../docs/exact-vs-lossy.md)
 
 > **This changes the image.** It is part of the opt-in lossy test builds only. Everything in the
 > main files still produces AMD's image byte for byte.
