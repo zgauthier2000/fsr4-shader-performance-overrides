@@ -16,7 +16,7 @@ and only one of them keeps AMD's picture.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
-  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass reuse the last result with two repairs, 1.26 ms. The two kinds of frame alternate, 2.09 ms on average, 50% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 44.04 dB against 44.31, flicker on fine detail at rest 0.145 against 0.110 (32% more), areas just uncovered by a moving object 29.23 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass reuse the last result with three repairs, 1.26 ms. The two kinds of frame alternate, 2.09 ms on average, 50% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.98 dB against 44.31, flicker on fine detail at rest 0.146 against 0.110 (33% more), areas just uncovered by a moving object 33.13 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
 </picture>
 
 The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py).
@@ -88,7 +88,7 @@ model's result from the frame before, which is still in memory.
 
 Details: [frame skip](../research/frame-skip).
 
-### Two repairs that exist only because of frame skip
+### Three repairs that exist only because of frame skip
 
 Both act on skipped frames only. Frames that run the model are not touched.
 
@@ -96,23 +96,25 @@ Both act on skipped frames only. Frames that run the model are not touched.
 |---|---|
 | **Shimmer on fine detail.** The reused result was worked out for the previous frame's camera jitter, so it gives too much weight to the new frame in pixels whose nearest sample has moved away. | The previous jitter is carried over to the skipped frame, and the new frame's weight is lowered where its nearest sample is now farther from the pixel. About half of the extra flicker goes. |
 | **A dark band at the screen edge** for one frame when the camera starts to turn. The strip that scrolls in has no history, and the reused result still says "mostly history". | Where the history is far darker than the new frame, the new frame is used alone. The band is gone in the test scene. |
+| **A smear behind moving objects.** Where something has just been uncovered, the reused result keeps a history that is out of date. | The history is limited to the colour range of the new frame's samples around the pixel. Most of the loss there goes. |
 
 ## What the lossy builds cost, measured
 
-Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip and both repairs.
+Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip and the three repairs.
 
 | | AMD's (= exact files) | Folding only | Lossy |
 |---|---|---|---|
-| Still picture against the true image | 44.31 dB | 43.71 dB | 44.04 dB |
-| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.145 |
+| Still picture against the true image | 44.31 dB | 43.71 dB | 43.98 dB |
+| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.146 |
 | Moving scene: background | 49.27 dB | 48.67 dB | 47.80 dB |
-| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 29.23 dB |
+| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 33.13 dB |
 | Revealed strip when a pan starts on a skipped frame | 100% of true brightness | no frame skip | 100% |
 
 - **Fine detail still shimmers about 30% more than with AMD's shaders** at rest. Before the
   repair it was about 55%.
-- **Just-uncovered areas are about 5 dB less accurate:** the edge behind a moving object is one
-  frame behind, which can show as a brief smear.
+- **Just-uncovered areas are about 1 dB less accurate** in this scene: the edge behind a moving
+  object is one frame behind. Before the history clamp of release `dll-2026-10-06.4` it was
+  about 5 dB.
 - **Frame times alternate.** With a frame cap or normal V-Sync the average is what counts. With
   low-latency modes or unbuffered V-Sync the longer frames can miss.
 
@@ -136,8 +138,9 @@ has not been timed there.
 - **Frame skip is off in Ultra Performance** and on frames the game marks as a reset. In Ultra
   Performance the lossy build does very little: that model's own passes are left exact.
 - **Frame skip costs more at low real frame rates.** In the moving test scene at a fixed
-  on-screen speed, just-uncovered areas are about 3 dB below AMD's at 120 FPS and about 12 dB
-  below at 30 ([by frame rate](../research/frame-skip#by-frame-rate)). The shimmer also
+  on-screen speed, just-uncovered areas are level with AMD's at 120 FPS, about 1 dB below at 60
+  and about 5 dB below at 30, and thin structures 1.5 to 2.7 dB below
+  ([by frame rate](../research/frame-skip#by-frame-rate)). The shimmer also
   alternates at half the real frame rate, so it is slower and easier to see (that part is
   reasoning, not a measurement). With frame generation on top of a low base rate, the exact
   build is the safer choice.

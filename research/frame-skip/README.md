@@ -12,7 +12,9 @@ On the frames in between, the postpass uses the model's output from the frame be
 causes on fine detail: it roughly halves the extra flicker, at no cost in speed. See
 [Reducing the shimmer](#reducing-the-shimmer). **Release `dll-2026-10-06.3`** fixes dark bands
 that flashed at the screen edge when the camera started to turn; see
-[Dark bands at the screen edge](#dark-bands-at-the-screen-edge-fixed-in-release-dll-2026-10-063). The tables before that section describe frame skip
+[Dark bands at the screen edge](#dark-bands-at-the-screen-edge-fixed-in-release-dll-2026-10-063).
+**Release `dll-2026-10-06.4`** adds a [history clamp](#history-clamp-on-skipped-frames-release-dll-2026-10-064)
+that removes most of the smear behind moving objects. The tables before that section describe frame skip
 without the correction.
 
 ## Result
@@ -225,14 +227,66 @@ frame in every colour channel, the postpass outputs the new frame alone.
 Verified in the test rig; the game the report came from is Final Fantasy VII Rebirth through
 OptiScaler.
 
+## History clamp on skipped frames (release `dll-2026-10-06.4`)
+
+The largest remaining cost of frame skip was in places where the picture has changed since the
+model last ran: behind a moving object the reused result still says "keep the history", and the
+history there is out of date.
+
+**The clamp.** The postpass already has the nine samples of the new frame around each output
+pixel. On a skipped frame the history is limited, per colour channel, to the range of those nine
+samples, widened by half the range on either side. A history value that no longer fits the new
+frame is pulled to a plausible colour before it is mixed in. This is neighbourhood clamping as
+ordinary temporal anti-aliasing does it, applied only on the frames the model did not run for.
+
+| Range widened by | Flicker at rest, fine detail | Still picture | Just-uncovered at 60 FPS, against AMD's |
+|---|---|---|---|
+| no clamp (release 3) | 0.145 | 44.05 dB | −5.7 dB |
+| nothing (tight) | 0.158 | 43.42 dB | −0.8 dB |
+| half the range (used) | 0.146 | 43.99 dB | −0.9 dB |
+| the whole range | 0.145 | 44.02 dB | −1.0 dB |
+
+A tight clamp costs at rest, as expected: a correct history value can lie outside the range of
+the nearest samples. Widening the range removes that cost and keeps nearly all of the gain.
+
+**Result** in the first moving scene (4K Balanced): just-uncovered areas 29.23 → 33.13 dB
+(AMD's 34.48), everything else within 0.1 dB or 1% of release 3. By frame rate, see the next
+section. Ultra Performance output is identical to release 3, and the pan-start test still gives
+100%.
+
+**No cost on frames that run the model.** The shimmer correction, the clamp and the edge guard
+now sit in one branch per output pixel that is taken on skipped frames only (the condition is
+the same for the whole dispatch). Postpass time at 4K on a frame that runs the model: 0.681 ms
+against 0.678 ms for release 3; without the branch the clamp cost 0.05 ms on every frame. The
+branched form gives byte-identical output to the unbranched one in the 12 combinations compared.
+
+**A build mistake worth recording.** The first clamp build covered only 36 of the 48 postpass
+versions: the 12 that handle colour without the tone curve did not match the pattern the tool
+looked for, and the build script carried on, leaving them with no correction at all. The
+DLL-against-Linux comparison still passed, because both sides were missing the same thing. The
+tool now finds the samples from the weighted sum itself, and the build stops if any version
+fails. The moving-scene figures here are from the tone-curve family; the other 12 versions build
+and match between DLL and Linux, but their motion figures were not measured.
+
 ## By frame rate
 
 The shaders never see the frame time, so FSR 4 does not behave differently at 30 or at 120 FPS as
 such. What changes is how far things move between two frames. To measure that, the moving scene
 was run at a fixed on-screen speed (camera pan 720 by 360 pixels per second at 4K, objects 360
 pixels per second the other way) with the per-frame motion that each frame rate gives: a pan step
-of 24, 12, 8 and 6 pixels at 30, 60, 90 and 120 FPS. 4K Balanced, one run each, the lossy build of
-release `dll-2026-10-06.3`. dB against the true image.
+of 24, 12, 8 and 6 pixels at 30, 60, 90 and 120 FPS. 4K Balanced, one run each. dB against the true
+image; "release 3" is the lossy build of `dll-2026-10-06.3`, "release 4" adds the history clamp.
+
+| As if at | Just-uncovered: AMD's | Release 3 | Release 4 | Railing: AMD's | Release 3 | Release 4 |
+|---|---|---|---|---|---|---|
+| 30 FPS | 39.45 | 27.08 (−12.4) | 34.56 (−4.9) | 39.25 | 34.96 (−4.3) | 36.53 (−2.7) |
+| 60 FPS | 33.21 | 27.56 (−5.7) | 32.29 (−0.9) | 41.61 | 38.87 (−2.7) | 39.97 (−1.6) |
+| 90 FPS | 35.61 | 29.08 (−6.5) | 31.27 (−4.3) | 43.22 | 40.63 (−2.6) | 40.90 (−2.3) |
+| 120 FPS | 33.69 | 30.92 (−2.8) | 34.69 (+1.0) | 41.95 | 40.37 (−1.6) | 40.50 (−1.5) |
+
+The clamp closes most of the gap behind moving objects at every rate, and nearly all of it at 60
+and 120 FPS. The background is unchanged by it. The rest of this section describes release 3,
+the build without the clamp:
 
 | As if at | Just-uncovered areas: AMD's | Lossy | Railing: AMD's | Lossy | Background: AMD's | Lossy |
 |---|---|---|---|---|---|---|
@@ -364,5 +418,5 @@ And each output pixel depends on about 50 pixels around it.
 |---|---|
 | `frameskip.py` | the change for the prepass and the model passes as vkd3d-proton translates them (SPIR-V text) |
 | `frameskip_dxil.py` | the same for the DLL's shaders (DXIL text); same decisions, same mark, same place |
-| `skipblend.py` | the shimmer correction and the edge guard for the postpass (SPIR-V text); run it on AMD's postpass before the store rewrite |
+| `skipblend.py` | the shimmer correction, the history clamp and the edge guard for the postpass (SPIR-V text); run it on AMD's postpass before the store rewrite |
 | `skipblend_dxil.py` | the same for the DLL's postpass (DXIL text) |

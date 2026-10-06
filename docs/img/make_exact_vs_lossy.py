@@ -11,7 +11,7 @@ THEMES = {
                  amd='#4a4a46', exact='#3987e5', lossy='#d95926', onlossy='#0b0b0b'),
 }
 FONT = "font-family=\"-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif\""
-W, H = 760, 808
+W, H = 760, 824
 PASSES = ['Prepass', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'Postpass']
 MODEL = PASSES[1:13]
 # state of every pass in each kind of frame: a = AMD's code, e = rewritten with the same output,
@@ -28,9 +28,10 @@ ROWS = [
      ['Passes 1, 5, 10 and 12: the smallest weights are folded into their neighbours, so fewer products are computed.',
       'Passes 2, 4, 7, 8 and 9 (and the four above): simpler rounding between layers.']),
     ('Lossy build', 'a skipped frame (every other frame)', LOSSY_SKIP, 1.26, '1.26 ms', 'lossy',
-     ["The model does not run. The prepass keeps the model's last result, and the postpass reuses it with two repairs:",
-      'less weight for the new frame where its nearest sample moved away (less shimmer), and the new frame alone',
-      'where the history is nearly black (no dark band at the screen edge when the camera starts to turn).']),
+     ["The model does not run. The prepass keeps the model's last result, and the postpass reuses it with three repairs:",
+      'less weight for the new frame where its nearest sample moved away (less shimmer); the history limited to the',
+      "new frame's colours around the pixel (less smear behind moving objects); and the new frame alone where the",
+      'history is nearly black (no dark band at the screen edge when the camera starts to turn).']),
 ]
 
 
@@ -80,9 +81,9 @@ def figure(t):
          "AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output "
          '(model passes 3 and 6 untouched), 3.05 ms, the image is AMD\'s byte for byte. Lossy build on a frame that runs the model: '
          'nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. '
-         'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass reuse the last result with two repairs, 1.26 ms. '
+         'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass reuse the last result with three repairs, 1.26 ms. '
          'The two kinds of frame alternate, 2.09 ms on average, 50% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
-         'still picture 44.04 dB against 44.31, flicker on fine detail at rest 0.145 against 0.110 (32% more), areas just uncovered by a moving object 29.23 dB against 34.48. '
+         'still picture 43.98 dB against 44.31, flicker on fine detail at rest 0.146 against 0.110 (33% more), areas just uncovered by a moving object 33.13 dB against 34.48. '
          'Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 34, 'Exact files and lossy builds, pass by pass', t, 16, 'ink', weight=600),
@@ -130,8 +131,8 @@ def figure(t):
     o.append(text(x2, y + 30, "Test scene, 4K Balanced. Exact files = AMD's.", t, 11, 'muted'))
     o.append(text(x2 + 196, y + 52, "AMD's", t, 11, 'muted', 'end'))
     o.append(text(x2 + 284, y + 52, 'Lossy', t, 11, 'muted', 'end'))
-    for i, (lab, a, b) in enumerate([('Still picture', '44.31 dB', '44.04 dB'), ('Flicker at rest, fine detail', '0.110', '0.145 (+32%)'),
-                                     ('Areas just uncovered', '34.48 dB', '29.23 dB')]):
+    for i, (lab, a, b) in enumerate([('Still picture', '44.31 dB', '43.98 dB'), ('Flicker at rest, fine detail', '0.110', '0.146 (+33%)'),
+                                     ('Areas just uncovered', '34.48 dB', '33.13 dB')]):
         yy = y + 72 + i * 22
         o.append(text(x2, yy, lab, t, 12, 'ink'))
         o.append(text(x2 + 196, yy, a, t, 12, 'ink2', 'end'))
