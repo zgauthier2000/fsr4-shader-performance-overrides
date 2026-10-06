@@ -6,9 +6,12 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
-**Version 2026-10-05.4** (download again if you have an earlier one):
+**Version 2026-10-05.5** (download again if you have an earlier one):
 
-- **Times 1440p output as well** as 1080p and 4K. FSR 4 uses the same shader versions at 1440p
+- **The summary flags unsteady postpass readings.** AMD's postpass does not always give a steady
+  time at 4K, most of all when something else is using the GPU, so close games, browsers and
+  video before a run.
+- Since 2026-10-05.4: **times 1440p output as well** as 1080p and 4K. FSR 4 uses the same shader versions at 1440p
   as at 4K, so this shows how the same code behaves on a smaller picture; it is the size where
   the RX 6000 game reports are least clear.
 - Since 2026-10-05.3: **fixes "CPU ISA level is lower than required".** The first two archives only started on CPUs

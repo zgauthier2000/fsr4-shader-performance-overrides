@@ -85,6 +85,17 @@ for cls in ('1080p', '1440p', '4k'):
     if row:
         lines.append(f'{cls}: ' + '  '.join(row))
         lines.append(f'{cls} sum: {f(tot["amd"])} / {f(tot["exact"])} / {f(tot["lossy"])}')
+# postpass readings whose individual runs spread widely (AMD's postpass does this on some machines)
+size, spread = None, []
+for l in read('timing-round1.txt').split('\n'):
+    h = re.match(r'=== class \S+ output (\d+x\d+):', l.replace(',', ''))
+    if h:
+        size = SIZES.get(h[1], h[1])
+    m = re.match(r'round 1\s+\S+/(amd|exact)/postpass\.spv .*min ([\d.]+) ms\s+median ([\d.]+) ms\s+max ([\d.]+) ms', l)
+    if m and float(m[4]) > 1.25 * float(m[2]):
+        spread.append(f'{size} post {m[1]} {f(float(m[2]))} to {f(float(m[4]))} (median {f(float(m[3]))})')
+if spread:
+    lines.append('unsteady postpass readings (min to max of 15 runs): ' + '  '.join(spread))
 if t2:
     dev = [abs(t2[k] / t1[k] - 1) for k in t2 if k in t1 and t1[k] > 0]
     if dev:
