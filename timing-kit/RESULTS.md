@@ -135,6 +135,23 @@ Compiled code at 1080p (registers / waves per SIMD / instructions): AMD's prepas
 pass 1 56/18/1350, pass 11 56/18/899, pass 12 56/18/1351, postpass 64/16/2977; exact prepass
 48/20/739, pass 1 56/18/1282, pass 11 56/18/4014, pass 12 56/18/1283, postpass 80/12/3269.
 
+### RX 6700M, second (quick) run
+
+The same machine, kit 2026-10-05.3, `quick`. It repeats the full run closely, including the
+slower rewritten postpass at 1080p:
+
+| | Full run | Quick run |
+|---|---|---|
+| 4K sum (AMD's / exact / lossy) | 7.53 / 6.45 / 6.16 ms | 7.48 / 6.46 / 6.18 ms |
+| 1080p sum | 1.66 / 1.65 / 1.57 ms | 1.66 / 1.64 / 1.56 ms |
+| Postpass, 4K (AMD's / exact) | 2.37 / 1.54 ms | 2.31 / 1.53 ms |
+| Postpass, 1080p | .328 / .376 ms | .327 / .374 ms |
+| Pass 11, 4K | .498 / .407 ms | .496 / .409 ms |
+
+So on this card AMD's postpass reads steadily (unlike on the Steam Machine), and the 1080p result
+is not noise: the rewritten postpass is 14 to 15% slower there in both runs. Two single readings
+differ between the runs (pass 4 lossy .243 against .267, pass 5 AMD's .245 against .264).
+
 ## Steam Machine (RADV NAVI33), 2026-10-05, full run with memory traffic
 
 Kit 2026-10-05.3, `bash run.sh traffic`. Same machine and software as the quick run above. All
