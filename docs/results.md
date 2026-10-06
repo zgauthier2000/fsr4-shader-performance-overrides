@@ -31,7 +31,8 @@ saved matches the upscaler time saved:
 - [Shadow of the Tomb Raider](../results/shadow-of-the-tomb-raider): 97 → 104 FPS at 4K (+7%,
   upscaler −16.6%), 171 → 176 FPS at 1440p (+3%, upscaler −11.9%).
 - [Rise of the Tomb Raider](../results/rise-of-the-tomb-raider): 97.6 → 107.9 FPS at 4K (+11%,
-  upscaler −22.6%), 186.6 → 199.6 FPS at 1440p (+7%, upscaler −16.8%).
+  upscaler −22.6%), 186.6 → 199.6 FPS at 1440p (+7%, upscaler −16.8%). Re-run on 2026-10-06 with the
+  current files: 97.7 → 109.6 FPS at 4K (+12%, upscaler 4.29 → 2.97 ms, −31%).
 
 Each links to the full numbers and the results screenshots.
 

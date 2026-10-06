@@ -73,6 +73,40 @@ settings, through the same launch option (phased postpass and pass 11). One run.
 
 <img src="4k-phased.jpg" width="800" alt="4K benchmark with the phased postpass: overall score 108.60 FPS, upscaler time 3.02 ms">
 
+## 4K on 2026-10-06: the current files and the lossy test build
+
+Run on 2026-10-06 with the same settings (4K output, FSR 4.1.1 Balanced), one run each: AMD's
+shaders, the current main files (which give AMD's image byte for byte), and the opt-in
+[lossy test build](../../research/lossy) of release `dll-2026-10-06.3` with
+[frame skip](../../research/frame-skip).
+
+> **The lossy build changes the image.** It is not the same as the main files or AMD's shaders.
+
+| | AMD's shaders | Main files (AMD's image) | Lossy test build |
+|---|---|---|---|
+| Mountain Peak | 106.76 (78.45, 152.14) | 123.71 (69.57, 193.91) | 139.58 (80.59, 230.71) |
+| Syria | 96.29 (71.93, 115.28) | 102.57 (27.32, 140.95) | 113.55 (33.21, 147.22) |
+| Geothermal Valley | 89.75 (40.57, 125.73) | 101.39 (84.40, 121.71) | 112.45 (89.42, 139.28) |
+| **Overall score** | **97.67** | **109.61** | **122.34** |
+| OptiScaler upscaler time (average) | 4.29 ms | 2.97 ms (−30.8%) | 2.05 ms (−52.2%) |
+
+- **Main files against AMD's shaders:** upscaler time −1.32 ms (−30.8%), overall score +12.2%.
+  The frame time saved, from the overall score, is 1.12 ms.
+- **Lossy test build against AMD's shaders:** upscaler time −2.24 ms (−52.2%), overall score
+  +25.3%. The frame time saved is 2.06 ms. Against the main files: −0.92 ms, +11.6%.
+- **With frame skip the upscaler time alternates:** the screenshot shows a skipped frame at
+  1.23 ms next to the 2.05 ms average.
+- **AMD's shaders read the same as on the first day** (97.59 then, 97.67 now; 4.30 and 4.29 ms),
+  so the runs are comparable across dates.
+- No shimmer or edge flashes were noticed during the lossy run. That is one person's impression
+  of a benchmark run, not a measurement.
+
+<img src="4k-2026-10-06-original.jpg" width="800" alt="4K benchmark on 2026-10-06 with AMD's shaders: overall score 97.67 FPS, upscaler time 4.29 ms">
+
+<img src="4k-2026-10-06-exact.jpg" width="800" alt="4K benchmark on 2026-10-06 with the main files: overall score 109.61 FPS, upscaler time 2.97 ms">
+
+<img src="4k-2026-10-06-lossy.jpg" width="800" alt="4K benchmark on 2026-10-06 with the lossy test build: overall score 122.34 FPS, upscaler time 2.05 ms">
+
 ## Screenshots
 
 The four results screens, unedited apart from conversion to JPEG.
