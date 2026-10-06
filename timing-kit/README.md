@@ -6,9 +6,20 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
-**Version 2026-10-05.5** (download again if you have an earlier one):
+**Version 2026-10-05.6** (download again if you have an earlier one). It applies what the first
+three machines' results showed:
 
-- **The summary flags unsteady postpass readings.** AMD's postpass does not always give a steady
+- **A closer look at the postpass,** the pass where GPUs differ most. At 1080p, 1440p and 4K it
+  times AMD's postpass several times, the shipped rewrite, and AMD's with its stores removed
+  (the floor a rewrite can reach), and reports how they compile on your GPU.
+  `bash run.sh postpass` runs only this, in a few minutes.
+- **Steadier postpass readings.** The first runs after a change of shader are no longer counted,
+  the script checks before starting whether something else is using the GPU, and the summary
+  shows the range when AMD's postpass does not repeat.
+- **Room for candidate shaders.** Versions placed in `shaders/<set>/candidates/` are timed against
+  AMD's automatically, so new rewrites can be tried on testers' GPUs without a new script.
+- **The memory-traffic step works on any CPU** (it was wrongly limited to CPUs with AVX-512).
+- Since 2026-10-05.5: **the summary flags unsteady postpass readings.** AMD's postpass does not always give a steady
   time at 4K, most of all when something else is using the GPU, so close games, browsers and
   video before a run.
 - Since 2026-10-05.4: **times 1440p output as well** as 1080p and 4K. FSR 4 uses the same shader versions at 1440p
@@ -22,8 +33,6 @@ and writes the readings to a results folder. No game, no OptiScaler and no DLL a
 - Since 2026-10-05.2: the prepass and postpass of the 1080p and 4K sets run on real inputs (in
   the first archive they ran on blank ones, so their times were wrong), and the results can be
   sent at the end.
-- The optional `traffic` step still needs a CPU with AVX-512 (its bundled driver build was made
-  for one) and is skipped elsewhere.
 
 **Status: new and lightly tested.** It has run on three machines: a Radeon RX 7800 XT, a Steam
 Machine (Navi 33, SteamOS) and a laptop RX 6700M (RDNA2). It has not yet run on an integrated
@@ -58,6 +67,7 @@ Unpack the archive, open a terminal in the folder and type one of:
 | `bash run.sh quick` | times all 14 passes at 1080p, 1440p and 4K output | about 12 minutes |
 | `bash run.sh` | adds the pass 11 and postpass versions, the store probes and compiler statistics | about 20 minutes |
 | `bash run.sh traffic` | adds a capture of memory traffic with a bundled driver build | about 25 minutes |
+| `bash run.sh postpass` | only the postpass comparison at the three sizes | under a minute |
 
 Slower GPUs take longer; an integrated GPU may take several times as long. Plug a laptop into the
 wall and close games and browsers first.
@@ -85,6 +95,8 @@ earlier run's summary.
   shader, the exact rewrite, and the lossy version where there is one.
 - **Four versions of model pass 11 and eight of the postpass,** to see which suits a GPU. The
   integrated-GPU and RDNA2 builds differ from the main one in exactly these two places.
+- **The postpass on its own** at each size: AMD's, the shipped rewrite, the no-stores floor and
+  any candidate versions, with how each compiles.
 - **Probes with the stores removed,** which show how much of a pass's time goes to writing.
 - **Compiler statistics** for a few shaders as your GPU's driver compiles them: registers, waves
   per SIMD, instruction counts.

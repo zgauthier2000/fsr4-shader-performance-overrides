@@ -36,8 +36,10 @@ get = lambda pat: (re.search(pat, sysinfo, re.M) or [None, '?'])[1].strip()
 gpu = (re.search(r'^GPU: (.+)$', read('selftest.txt'), re.M) or [None, get(r'deviceName\s*=\s*(.+)')])[1].strip()   # the GPU the benchmark used
 if gpu == '?':
     gpu = (re.search(r'^(.+), output \d+x\d+, render', read('timing-round1.txt'), re.M) or [None, '?'])[1]
+mode = (re.search(r'^mode: (.+)$', sysinfo, re.M) or [None, '?'])[1]
+load = (re.search(r'GPU load before the run: (\d+%)', sysinfo) or [None, '?'])[1]
 lines = [f'kit {open(os.path.join(kit, "VERSION")).read().strip() if os.path.exists(os.path.join(kit, "VERSION")) else "?"}',
-         f'GPU: {gpu}', f'driver: {get(r"driverInfo\s*=\s*(.+)")}', f'kernel: {get(r"^Linux (?:\S+ )?(\d\S+)")}',
+         f'GPU: {gpu}', f'run: {mode}; GPU load before: {load}', f'driver: {get(r"driverInfo\s*=\s*(.+)")}', f'kernel: {get(r"^Linux (?:\S+ )?(\d\S+)")}',
          f'CPU: {get(r"model name\s*:\s*(.+)")}', f'RAM: {get(r"Mem:\s+(\S+)")}']
 for label, pat in (('RAM modules', None), ('on AC', r'AC online[^:]*:\s*(\d)'), ('governor', r'cpu governor:\s*(\S+)'), ('profile', r'platform profile:\s*(\S+)')):
     if pat is None:
@@ -70,7 +72,8 @@ def timings(text):
 
 t1, t2 = timings(read('timing-round1.txt')), timings(read('timing-round2.txt'))
 lines.append('')
-lines.append('ms per pass: AMD / exact / lossy')
+if t1:
+    lines.append('ms per pass: AMD / exact / lossy')
 for cls in ('1080p', '1440p', '4k'):
     row, tot = [], {'amd': 0.0, 'exact': 0.0, 'lossy': 0.0}
     for p in ORDER:
@@ -101,6 +104,39 @@ if t2:
     if dev:
         lines.append(f'second round at 1080p: readings differ by up to {100 * max(dev):.0f}% (typical {100 * sorted(dev)[len(dev) // 2]:.0f}%)')
 
+# the postpass on its own (postpass.txt): several readings of AMD's, the rewrite, the no-stores floor, candidates
+pp, size = {}, None
+for l in read('postpass.txt').split('\n'):
+    h = re.match(r'=== postpass at (\d+x\d+):', l)
+    if h:
+        size = SIZES.get(h[1], h[1])
+    m = re.match(r'round 1\s+\S+?/(amd|exact|probes|candidates)/postpass(\w*)\.spv .*median ([\d.]+) ms', l)
+    if m and size:
+        kind = {'amd': 'amd', 'exact': 'ours', 'probes': 'nostores'}.get(m[1], 'cand' + m[2])
+        pp.setdefault(size, {}).setdefault(kind, []).append(float(m[3]))
+for size in ('1080p', '1440p', '4k'):
+    if size not in pp:
+        continue
+    d_ = pp[size]
+    for k in ('amd', 'exact'):                       # the reading from the main timing table counts too
+        if (size, 'postpass', k) in t1:
+            d_.setdefault('amd' if k == 'amd' else 'ours', []).append(t1[(size, 'postpass', k)])
+    med = lambda v: sorted(v)[len(v) // 2]
+    a = med(d_['amd'])
+    parts = [f"AMD {f(a)}" + (f" ({f(min(d_['amd']))} to {f(max(d_['amd']))} in {len(d_['amd'])} readings)" if max(d_['amd']) > 1.1 * min(d_['amd']) else '')]
+    for k, v in d_.items():
+        if k == 'amd':
+            continue
+        name = {'ours': 'shipped', 'nostores': 'no stores'}.get(k, k.replace('cand_', 'candidate '))
+        parts.append(f'{name} {f(med(v))} ({100 * med(v) / a - 100:+.0f}%)')
+    lines.append(f'postpass {size}: ' + '  '.join(parts))
+c = []
+for name, body in re.findall(r'--- (\S+ \S+)\n((?:[A-Za-z ]+: \d+\n)+)', read('postpass.txt')):
+    g = dict(re.findall(r'([A-Za-z ]+): (\d+)', body))
+    c.append(f'{name.replace("/postpass", "").replace("candidates/postpass_", "")} {g.get("VGPRs", "?")}r/{g.get("Subgroups per SIMD", "?")}w/{g.get("LDS size", "?")}lds')
+if c:
+    lines.append('postpass compiled (registers/waves/workgroup bytes): ' + '  '.join(c))
+
 var = read('variants.txt')
 main_part = var.split('=== probes')[0]
 for cls in ('1080p', '4k'):
@@ -129,7 +165,7 @@ if tr:
 
 # anything that did not match AMD's output where it should
 bad = []
-for name in ('timing-round1.txt', 'timing-round2.txt'):
+for name in ('timing-round1.txt', 'timing-round2.txt', 'postpass.txt'):
     txt = read(name)
     for l in txt.split('\n'):
         if 'DIFFERS' in l or re.search(r'^\s*[1-9]\d* (pixels differ|of \d+ bytes differ)', l) or re.search(r': [1-9]\d* of \d+ bytes differ', l):
@@ -142,8 +178,7 @@ if blank:
     bad.append(f'{blank} postpass runs wrote an empty image (inputs not bound?)')
 lines.append('')
 lines.append('output check: all versions matched AMD\'s' if not bad else f'OUTPUT MISMATCHES ({len(bad)}): ' + ' ; '.join(bad[:6]))
-missing = [n for n in ('timing-round1.txt',) if not read(n)]
-if missing or not t1:
+if not t1 and not pp:
     lines.append('INCOMPLETE RUN: no timings found. selftest: ' + read('selftest.txt').strip()[-300:])
 
 summary = '\n'.join(lines)

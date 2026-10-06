@@ -269,12 +269,14 @@ int main(int argc, char** argv) {
     CHECK(vkCreateQueryPool(dev, &qpi, 0, &qp));
     uint32_t gx = (ow / 2 + 15) / 16, gy = (oh / 2 + 15) / 16;
     uint8_t* results[2][3];
-    enum { RUNS = 15 }; int DISPATCHES = getenv("N_DISP") ? atoi(getenv("N_DISP")) : 50;
+    enum { WARM = 3, RUNS = 15 }; int DISPATCHES = getenv("N_DISP") ? atoi(getenv("N_DISP")) : 50;
 
     for (int round = 0; round < 2; round++) {
         for (int v = 0; v < 2; v++) {
             double ms[RUNS];
-            for (int run = 0; run < RUNS; run++) {
+            /* The first runs after a change of shader are not representative (the GPU ramps up, and the
+               first run on freshly cleared images is fast): WARM runs are made and not counted. */
+            for (int run = -WARM; run < RUNS; run++) {
                 cb = begin();
                 vkCmdResetQueryPool(cb, qp, 0, 2);
                 vkCmdBindPipeline(cb, VK_PIPELINE_BIND_POINT_COMPUTE, pipes[v]);
@@ -286,7 +288,7 @@ int main(int argc, char** argv) {
                 submit(cb);
                 uint64_t t[2];
                 CHECK(vkGetQueryPoolResults(dev, qp, 0, 2, sizeof(t), t, 8, VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT));
-                ms[run] = (double)(t[1] - t[0]) * props.limits.timestampPeriod / 1e6 / DISPATCHES;
+                if (run >= 0) ms[run] = (double)(t[1] - t[0]) * props.limits.timestampPeriod / 1e6 / DISPATCHES;
             }
             qsort(ms, RUNS, sizeof(double), cmp_double);
             printf("round %d  %-8s  %ux%u groups  min %.3f ms  median %.3f ms  max %.3f ms\n", round, names[v], gx, gy,

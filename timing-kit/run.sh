@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Options:  bash run.sh quick     timings only, one round (about 12 minutes on a desktop card)
 # Options:  bash run.sh quick     timings only, one round (about 8 minutes on a desktop card)
+#           bash run.sh postpass  only the postpass comparison at the three sizes (about 3 minutes)
 #           bash run.sh traffic   also try the memory-traffic capture (needs the bundled driver to load)
 # On a machine with two GPUs the discrete one is used;  KIT_GPU=integrated bash run.sh  uses the integrated one.
 # Nothing is installed or changed on the machine; results go into results/<name>-<time>/ next to this file.
@@ -27,8 +28,25 @@ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null | sed 's/^
 cat /sys/firmware/acpi/platform_profile 2>/dev/null | sed 's/^/platform profile: /'
 for d in /sys/class/drm/card?/device; do [ -e "$d/mem_info_vram_total" ] && echo "$d: vram $(( $(cat $d/mem_info_vram_total) >> 20 )) MB, gtt $(( $(cat $d/mem_info_gtt_total) >> 20 )) MB"; done
 command -v vulkaninfo >/dev/null && vulkaninfo --summary 2>/dev/null | grep -E 'deviceName|driverInfo|deviceType|apiVersion'
+for d in /sys/class/drm/card?/device; do [ -e "$d/gpu_busy_percent" ] && echo "$d: PCI $(cat $d/vendor):$(cat $d/device), busy now $(cat $d/gpu_busy_percent)%, power state $(grep -h "\*" $d/pp_dpm_sclk 2>/dev/null | tr -d "\n")"; done
+for f in /sys/class/power_supply/BAT*/status; do [ -e "$f" ] && echo "battery: $(cat "$f")"; done
+echo "mode: $MODE, GPU choice: ${KIT_GPU:-default}"
 command -v dmidecode >/dev/null && sudo -n dmidecode -t memory 2>/dev/null | grep -E 'Size:|Speed:|Locator:|Type:' | grep -v 'No Module'
 } 2>&1 | tee "$OUT/system.txt"
+
+# Is something else using the GPU? AMD's postpass in particular reads differently when it is.
+busy=0; n=0
+for i in 1 2 3 4 5 6; do
+    for f in /sys/class/drm/card?/device/gpu_busy_percent; do [ -e "$f" ] && { busy=$((busy + $(cat "$f" 2>/dev/null || echo 0))); n=$((n + 1)); }; done
+    sleep 0.4
+done
+if [ $n -gt 0 ]; then
+    echo "GPU load before the run: $((busy / n))%" | tee -a "$OUT/system.txt"
+    if [ $((busy / n)) -ge 15 ]; then
+        echo; echo "NOTE: something is using the GPU ($((busy / n))% busy). Close games, browsers and video for"
+        echo "      readings that can be trusted. Continuing in 5 seconds."; sleep 5
+    fi
+fi
 
 if ! "$W/mbench" 1 "$S/1080p/amd/pass1.spv" > "$OUT/selftest.txt" 2>&1; then
     echo; echo "The benchmark could not start on this GPU. See $OUT/selftest.txt:"; tail -5 "$OUT/selftest.txt"; exit 1
@@ -49,13 +67,44 @@ timing() {  # timing <class dir> <WxH> <render W H>
     A="$S/$c/amd/postpass.spv" B="$S/$c/exact/postpass.spv" N_DISP=30 "$W/bench" ${o%x*} ${o#*x} $3 $4 2>&1 | grep -E 'round|differ|DIFFER|IDENTICAL|output' | sed "s#$S/##"
 }
 
+# The postpass on its own: AMD's, the shipped rewrite, AMD's with its stores removed (the floor a
+# rewrite can reach), and any candidate versions in shaders/<set>/candidates/postpass_*.spv.
+postpass_section() {
+    for c in "1080p 1920x1080 1280 720" "4k 2560x1440 1707 960" "4k 3840x2160 2560 1440"; do set -- $c
+        say "postpass at $2: AMD's against the shipped rewrite, second reading"
+        A="$S/$1/amd/postpass.spv" B="$S/$1/exact/postpass.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1|DIFFER' | sed "s#$S/##"
+        say "postpass at $2: AMD's against AMD's with its stores removed"
+        A="$S/$1/amd/postpass.spv" B="$S/$1/probes/postpass_no_stores.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
+        for f in "$S/$1"/candidates/postpass_*.spv; do
+            [ -e "$f" ] || continue
+            say "postpass at $2: AMD's against candidate $(basename "$f" .spv)"
+            A="$S/$1/amd/postpass.spv" B="$f" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1|bytes differ|DIFFER' | sed "s#$S/##"
+        done
+    done
+    say "compiled code of the postpass versions"
+    for c in 1080p 4k; do
+        for f in "$S/$c/amd/postpass.spv" "$S/$c/exact/postpass.spv" "$S/$c"/candidates/postpass_*.spv; do
+            [ -e "$f" ] || continue
+            echo "--- $c $(basename "$(dirname "$f")")/$(basename "$f" .spv)"
+            RADV_DEBUG=shaderstats,nocache A="$f" B="$f" N_DISP=1 "$W/bench" 1920 1080 1280 720 2>&1 | grep -E '^(VGPRs|Code size|LDS size|Subgroups per SIMD|Instructions|Branches):' | head -6
+        done
+    done
+}
+if [ "$MODE" = postpass ]; then
+    postpass_section 2>&1 | tee "$OUT/postpass.txt"
+    MODE=postpass-only
+fi
+
 rounds=2; [ "$MODE" = quick ] && rounds=1
+if [ "$MODE" != postpass-only ]; then
 # 1440p output uses the same shader versions as 4K (the "4k" set)
 { timing 1080p 1920x1080 1280 720; timing 4k 2560x1440 1707 960; timing 4k 3840x2160 2560 1440; } 2>&1 | tee "$OUT/timing-round1.txt"
 # second round at 1080p only, to see how well the readings repeat
 [ $rounds = 2 ] && timing 1080p 1920x1080 1280 720 2>&1 | tee "$OUT/timing-round2.txt"
+postpass_section 2>&1 | tee "$OUT/postpass.txt"
+fi
 
-if [ "$MODE" != quick ]; then
+if [ "$MODE" != quick ] && [ "$MODE" != postpass-only ]; then
 {
     for c in "1080p 1920x1080" "4k 3840x2160"; do set -- $c
         say "pass 11 versions, class $1"
@@ -84,9 +133,7 @@ if [ "$MODE" != quick ]; then
 } > "$OUT/compiled.txt" 2>&1
 fi
 
-if [ "$MODE" = traffic ] && ! grep -q avx512f /proc/cpuinfo; then
-    echo; echo "Skipping the memory-traffic capture: the bundled driver build needs a CPU with AVX-512 (this one has none)." | tee "$OUT/traffic.txt"
-elif [ "$MODE" = traffic ]; then
+if [ "$MODE" = traffic ]; then
 {
     say "memory traffic (bundled driver build)"
     cp -r "$KIT/mesa" "$W/mesa"
