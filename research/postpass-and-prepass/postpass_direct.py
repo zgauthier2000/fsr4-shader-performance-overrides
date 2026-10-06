@@ -16,6 +16,8 @@
 # waves run per SIMD. In the flush each wave writes an aligned 8x8 block of pixels per store, which
 # reads about a tenth less memory than writing two rows of 32 (same speed on an RX 7800 XT).
 # Nothing else in the shader changes, so the output is bit-exact.
+# v4 (experiment): as v3, plus four words per pixel for every image (one aligned 16-byte access) and no
+# row test when the whole block is flushed at once.
 # v3 (experiment): the first image stored (4 half-precision channels) goes into workgroup memory as soon as
 # each pixel is computed, instead of waiting in registers.
 #
@@ -179,15 +181,17 @@ def flush():
                          f'{lx} = OpISub %uint {x} %bb_x0', f'{c} = OpULessThan %bool {d}h %bb_urows']
                 yes, no = new('kin'), new('kdone')
                 pix, base = new('pix'), new('base')
-                code += [f'OpSelectionMerge {no} None', f'OpBranchConditional {c} {yes} {no}', f'{yes} = OpLabel',
-                         f'{pix}r = OpShiftLeftLogical %uint {d}h %bb_u5', f'{pix} = OpIAdd %uint {pix}r {lx}',
-                         f'{base} = OpIMul %uint {pix} {ncc}']
+                if ROWS < 32:
+                    code += [f'OpSelectionMerge {no} None', f'OpBranchConditional {c} {yes} {no}', f'{yes} = OpLabel']
+                code += [f'{pix}r = OpShiftLeftLogical %uint {d}h %bb_u5', f'{pix} = OpIAdd %uint {pix}r {lx}',
+                         f'{base} = OpShiftLeftLogical %uint {pix} %bb_u2']
                 for comp in range(nc):
                     e, ptr, v = new('e'), new('p'), new('v')
                     code += [f'{v} = OpLoad %float %bb_fv{t}_{k}_{comp}', f'{v}u = OpBitcast %uint {v}',
                              f'{e} = OpIAdd %uint {base} %bb_c{comp}',
                              f'{ptr} = OpAccessChain %bb_ptr_f %bb_lds {e}', f'OpStore {ptr} {v}u']
-                code += [f'OpBranch {no}', f'{no} = OpLabel']
+                if ROWS < 32:
+                    code += [f'OpBranch {no}', f'{no} = OpLabel']
             code += [f'OpBranch {putd}', f'{putd} = OpLabel', 'OpControlBarrier %bb_u2 %bb_u2 %bb_u264']
             # 2. the workgroup writes those rows of the image, one row of 32 pixels per 32 invocations
             for k in range(ROWS // 8):
@@ -213,7 +217,7 @@ def flush():
                     c = c2
                 then, done, base = new('then'), new('done'), new('base')
                 code += [f'OpSelectionMerge {done} None', f'OpBranchConditional {c} {then} {done}', f'{then} = OpLabel',
-                         f'{base} = OpIMul %uint {pixi} {ncc}']
+                         f'{base} = OpShiftLeftLogical %uint {pixi} %bb_u2']
                 vals = []
                 for comp in range(nc):
                     e, ptr, v = new('e'), new('p'), new('v')

@@ -179,6 +179,22 @@ registers, and is the first to be flushed. The other two images wait in register
 - **Smaller chips: not measured yet.** It is in the timing kit as a candidate since version
   2026-10-05.7; `bash run.sh postpass` times it.
 
+**Where the rest of the gap is (RX 7800 XT, 4K).** AMD's postpass with no stores at all takes
+0.59 ms; the shipped rewrite with only its final image writes removed 0.65 ms; the shipped rewrite
+0.68 ms. So about 0.02 ms is the image writes themselves, which any version must do, and about
+0.06 ms is the rewrite's own work: putting 40 values per thread into the workgroup buffer,
+reading them back, and the barriers between phases. It is not occupancy on this card: a probe
+that keeps all the arithmetic but holds fewer values runs at 20 waves per SIMD and takes 0.682 ms
+against 0.684 ms at 16. (A probe that simply drops stored channels is not valid for this: the
+compiler then removes the arithmetic that produced them.) Scaled by how much slower the smaller
+chips are, the same overhead accounts for the 0.2 ms gap measured there.
+
+A second candidate, "direct trim" (the current `postpass_direct.py`), also uses four words per
+pixel for every image, so that a pixel is one aligned 16-byte access, and drops a row test that is
+always true when the whole block is flushed at once. That is 43 instructions and 10 branches fewer
+than the shipped version, bit-exact in the same checks, and no faster on the RX 7800 XT (0.670
+against 0.672 ms). Both candidates are in the timing kit since version 2026-10-05.9.
+
 A first attempt stored that image's values as packed half floats (the shader converts them to
 half precision and back before writing), which would have cut the buffer to 12 KB. It was not
 bit-exact: on Mesa the round trip through half precision is evidently optimised away in AMD's

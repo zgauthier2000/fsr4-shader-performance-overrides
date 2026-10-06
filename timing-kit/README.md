@@ -6,8 +6,10 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
-**Version 2026-10-05.8** (download again if you have an earlier one).
+**Version 2026-10-05.9** (download again if you have an earlier one).
 
+- **A second candidate postpass** ("direct trim": the first candidate with leaner flush code) is
+  timed alongside the first.
 - **`bash run.sh` on its own now runs the short postpass test** (a minute or two). The longer
   runs are options: `quick`, `full`, `traffic`.
 - **It carries a candidate postpass for the smaller GPUs, and a quick way to time it.** On RX 6000
