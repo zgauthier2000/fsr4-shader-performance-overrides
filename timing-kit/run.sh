@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Options:  bash run.sh quick     timings only, one round (about 12 minutes on a desktop card)
-# Options:  bash run.sh quick     timings only, one round (about 8 minutes on a desktop card)
-#           bash run.sh postpass  only the postpass comparison at the three sizes (about 3 minutes)
-#           bash run.sh traffic   also try the memory-traffic capture (needs the bundled driver to load)
+# FSR 4.1.1 shader timings on this machine's GPU. Run from a terminal:   bash run.sh
+# With no option it runs the postpass comparison at 1080p, 1440p and 4K (a minute or two): AMD's
+# postpass, the shipped rewrite, the candidate, and AMD's with its stores removed.
+# Options:  bash run.sh quick     also times all 14 passes at the three sizes (about 12 minutes on a desktop card)
+#           bash run.sh full      adds pass 11 and postpass versions, store probes, compiler statistics
+#           bash run.sh traffic   everything, plus the memory-traffic capture with the bundled driver build
 # On a machine with two GPUs the discrete one is used;  KIT_GPU=integrated bash run.sh  uses the integrated one.
 # Nothing is installed or changed on the machine; results go into results/<name>-<time>/ next to this file.
 set -u
 KIT=$(cd -- "$(dirname -- "$0")" && pwd)
-MODE=${1:-full}
+MODE=${1:-postpass}
+case $MODE in postpass|quick|full|traffic) ;; *) echo "unknown option: $MODE (use: quick, full or traffic, or nothing for the postpass test)"; exit 1 ;; esac
 STAMP=$(date +%Y%m%d-%H%M%S)
 OUT=$KIT/results/$(cat /sys/class/dmi/id/product_name 2>/dev/null | tr -c 'A-Za-z0-9\n' '_' | head -c 24)-$STAMP
 mkdir -p "$OUT" 2>/dev/null || { OUT=$HOME/fsr4-results-$STAMP; mkdir -p "$OUT"; }

@@ -6,8 +6,10 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
-**Version 2026-10-05.7** (download again if you have an earlier one).
+**Version 2026-10-05.8** (download again if you have an earlier one).
 
+- **`bash run.sh` on its own now runs the short postpass test** (a minute or two). The longer
+  runs are options: `quick`, `full`, `traffic`.
 - **It carries a candidate postpass for the smaller GPUs, and a quick way to time it.** On RX 6000
   cards, the Steam Machine, the Steam Deck and integrated GPUs the shipped postpass runs with
   fewer threads at once than AMD's (12 waves per SIMD against 16), because it holds more values
@@ -15,15 +17,15 @@ and writes the readings to a results folder. No game, no OptiScaler and no DLL a
   soon as each pixel is computed, so it needs fewer registers and compiles at 16 waves there. Its
   output is byte-for-byte AMD's. On an RX 7800 XT it is exactly as fast as the shipped one; whether
   it is faster on the smaller GPUs is what needs measuring:
-  **`bash run.sh postpass`** (under a minute on a desktop card) times it against AMD's and the
-  shipped version at 1080p, 1440p and 4K.
+  **`bash run.sh`** (under a minute on a desktop card) times it against AMD's and the shipped
+  version at 1080p, 1440p and 4K.
 
 Since 2026-10-05.6, which applied what the first three machines' results showed:
 
 - **A closer look at the postpass,** the pass where GPUs differ most. At 1080p, 1440p and 4K it
   times AMD's postpass several times, the shipped rewrite, and AMD's with its stores removed
   (the floor a rewrite can reach), and reports how they compile on your GPU.
-  `bash run.sh postpass` runs only this, in a few minutes.
+  `bash run.sh` with no option runs only this.
 - **Steadier postpass readings.** The first runs after a change of shader are no longer counted,
   the script checks before starting whether something else is using the GPU, and the summary
   shows the range when AMD's postpass does not repeat.
@@ -40,7 +42,7 @@ Since 2026-10-05.6, which applied what the first three machines' results showed:
   with AVX-512 (Ryzen 7000 and newer); the first tester, on a Ryzen 5000 laptop, hit this. The
   programs now run on any 64-bit CPU.
 - **On a machine with two GPUs the discrete one is tested,** and the summary names the GPU that
-  was actually used. `KIT_GPU=integrated bash run.sh quick` tests the integrated one instead.
+  was actually used. `KIT_GPU=integrated bash run.sh` tests the integrated one instead.
 - Since 2026-10-05.2: the prepass and postpass of the 1080p and 4K sets run on real inputs (in
   the first archive they ran on blank ones, so their times were wrong), and the results can be
   sent at the end.
@@ -71,14 +73,21 @@ Nothing is installed, nothing on the machine is changed, and no root access is n
 
 ## Run it
 
-Unpack the archive, open a terminal in the folder and type one of:
+Unpack the archive, open a terminal in the folder and type:
 
-| Command | What it does | Time on an RX 7800 XT |
+    bash run.sh
+
+That runs the postpass test: AMD's postpass, the shipped rewrite, a candidate rewrite and AMD's
+with its stores removed, at 1080p, 1440p and 4K output. It takes about 30 seconds on an
+RX 7800 XT, and it is the measurement that helps most right now.
+
+With more time, add an option:
+
+| Command | What it adds | Time on an RX 7800 XT |
 |---|---|---|
-| `bash run.sh quick` | times all 14 passes at 1080p, 1440p and 4K output | about 12 minutes |
-| `bash run.sh` | adds the pass 11 and postpass versions, the store probes and compiler statistics | about 20 minutes |
-| `bash run.sh traffic` | adds a capture of memory traffic with a bundled driver build | about 25 minutes |
-| `bash run.sh postpass` | only the postpass comparison at the three sizes | under a minute |
+| `bash run.sh quick` | all 14 passes at 1080p, 1440p and 4K output | about 12 minutes |
+| `bash run.sh full` | the pass 11 and postpass versions, the store probes and compiler statistics | about 20 minutes |
+| `bash run.sh traffic` | a capture of memory traffic with a bundled driver build | about 25 minutes |
 
 Slower GPUs take longer; an integrated GPU may take several times as long. Plug a laptop into the
 wall and close games and browsers first.
