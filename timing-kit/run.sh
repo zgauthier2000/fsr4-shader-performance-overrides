@@ -84,6 +84,22 @@ postpass_section() {
             A="$S/$1/amd/postpass.spv" B="$f" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1|bytes differ|DIFFER' | sed "s#$S/##"
         done
     done
+    # RDNA2 only: Mesa compiles most int8 dot products there as v_dot4c_i32_i8 (two operands, adds
+    # onto its result). The bundled driver build can keep the three-operand v_dot4_i32_i8 instead
+    # (AC_NO_DOT4C=1). Same shaders, same driver, both ways; on other GPUs the two are the same code.
+    say "dot product form (bundled driver): as compiled, then with AC_NO_DOT4C=1"
+    cp -r "$KIT/mesa" "$W/mesa" 2>/dev/null
+    for c in "1080p 1920x1080 1280 720 300" "4k 3840x2160 2560 1440 100"; do set -- $c
+        for e in dot4c dot4; do
+            x=""; [ $e = dot4 ] && x="AC_NO_DOT4C=1"
+            for p in 1 12; do
+                v=$(env $x VK_DRIVER_FILES="$W/mesa/icd.json" RADV_DEBUG=nocache OUT=$2 N_DISP=$5 "$W/mbench" 1 "$S/$1/exact/pass$p.spv" 2>/dev/null | grep -o 'median [0-9.]* ms' | head -1)
+                echo "dotform $1 $2 pass$p $e ${v:-failed}"
+            done
+            v=$(env $x VK_DRIVER_FILES="$W/mesa/icd.json" RADV_DEBUG=nocache A="$S/$1/amd/postpass.spv" B="$S/$1/exact/postpass.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>/dev/null | grep 'round 1' | grep -o 'median [0-9.]* ms' | tr '\n' ' ')
+            echo "dotform $1 $2 postpass(AMD,shipped) $e ${v:-failed}"
+        done
+    done
     say "compiled code of the postpass versions"
     for c in 1080p 4k; do
         for f in "$S/$c/amd/postpass.spv" "$S/$c/exact/postpass.spv" "$S/$c"/candidates/postpass_*.spv; do

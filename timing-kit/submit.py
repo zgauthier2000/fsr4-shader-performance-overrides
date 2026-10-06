@@ -130,6 +130,18 @@ for size in ('1080p', '1440p', '4k'):
         name = {'ours': 'shipped', 'nostores': 'no stores'}.get(k, k.replace('cand_', 'candidate '))
         parts.append(f'{name} {f(med(v))} ({100 * med(v) / a - 100:+.0f}%)')
     lines.append(f'postpass {size}: ' + '  '.join(parts))
+df = {}
+for m in re.finditer(r'^dotform (\S+) (\S+) (\S+) (dot4c|dot4) (.*)$', read('postpass.txt'), re.M):
+    vals = re.findall(r'median ([\d.]+) ms', m[5])
+    df.setdefault((SIZES.get(m[2], m[2]), m[3]), {})[m[4]] = vals
+if df:
+    parts = []
+    for (size, what), v in df.items():
+        a, b = v.get('dot4c', []), v.get('dot4', [])
+        if not a or not b or len(a) != len(b):
+            parts.append(f'{size} {what} failed'); continue
+        parts.append(f'{size} {what} ' + ', '.join(f'{f(float(x))}/{f(float(y))} ({100 * float(y) / float(x) - 100:+.0f}%)' for x, y in zip(a, b)))
+    lines.append('dot product form, bundled driver, dot4c/dot4: ' + '  '.join(parts))
 c = []
 for name, body in re.findall(r'--- (\S+ \S+)\n((?:[A-Za-z ]+: \d+\n)+)', read('postpass.txt')):
     g = dict(re.findall(r'([A-Za-z ]+): (\d+)', body))

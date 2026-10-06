@@ -76,3 +76,18 @@ index 9eed327..75f9ea4 100644
           break;
  
        default:
+diff --git a/src/amd/compiler/aco_register_allocation.cpp b/src/amd/compiler/aco_register_allocation.cpp
+index 8acc881..2fd5713 100644
+--- a/src/amd/compiler/aco_register_allocation.cpp
++++ b/src/amd/compiler/aco_register_allocation.cpp
+@@ -3428,6 +3428,10 @@ optimize_encoding_vop2(ra_ctx& ctx, RegisterFile& register_file, aco_ptr<Instruc
+    if (!vop3_can_use_vop2acc(ctx, instr.get()))
+       return;
+ 
++   /* EXPERIMENT: AC_NO_DOT4C=1 keeps v_dot4_i32_i8 in its three-operand form (RDNA2). */
++   if (instr->opcode == aco_opcode::v_dot4_i32_i8 && getenv("AC_NO_DOT4C"))
++      return;
++
+    for (unsigned i = ctx.program->gfx_level < GFX11 ? 0 : 2; i < 3; i++) {
+       if (instr->operands[i].physReg().byte())
+          return;

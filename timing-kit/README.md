@@ -6,7 +6,16 @@ A folder you download and run on Linux. It times each of FSR 4.1.1's shader pass
 with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
 and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
-**Version 2026-10-05.9** (download again if you have an earlier one).
+**Version 2026-10-06.1** (download again if you have an earlier one).
+
+- **A test for RX 6000-series (RDNA2) GPUs: two forms of the dot product.** FSR 4's model is
+  mostly int8 dot products. On RDNA2, Mesa compiles nearly all of them as `v_dot4c_i32_i8`, a
+  two-operand instruction that adds onto its own result (768 of the 832 in model pass 1), because
+  that encoding is shorter. A community member reports that the three-operand `v_dot4_i32_i8` is
+  faster on that hardware. The kit's bundled driver build can keep the three-operand form
+  (`AC_NO_DOT4C=1`), and the default run now times model passes 1 and 12 and the postpass both
+  ways, with the same shaders and the same driver. On other GPUs the two are the same code. If the
+  claim holds it applies to every model pass, and the place to fix it is the driver.
 
 - **A second candidate postpass** ("direct trim": the first candidate with leaner flush code) is
   timed alongside the first.
@@ -80,8 +89,8 @@ Unpack the archive, open a terminal in the folder and type:
     bash run.sh
 
 That runs the postpass test: AMD's postpass, the shipped rewrite, a candidate rewrite and AMD's
-with its stores removed, at 1080p, 1440p and 4K output. It takes about 30 seconds on an
-RX 7800 XT, and it is the measurement that helps most right now.
+with its stores removed, at 1080p, 1440p and 4K output. It also runs the RDNA2 dot-product test described above. Together they
+take about two minutes on an RX 7800 XT, and they are the measurements that help most right now.
 
 With more time, add an option:
 
