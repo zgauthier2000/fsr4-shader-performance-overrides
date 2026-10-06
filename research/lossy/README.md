@@ -229,6 +229,49 @@ AMD's). Set 2 is the better stopping point: the remaining passes have nothing ch
   format. The tool has only been run on the versions used at 1440p-to-4K output.
 - More scenes, ideally frames captured from a game.
 
+## Looking for more: the postpass and the smaller layers (2026-10-06)
+
+Two places the lossy set does not touch were tried, to see whether it could be made faster. Both
+cost more than they save. Same tests as above, at 4K Balanced, each added on top of set 2.
+
+**The postpass's own 3x3 convolution** (`wfold_post.py`). The postpass starts with a 3x3
+convolution over the model's 16-channel output: 576 of its 960 dot products. It is the largest
+single block of arithmetic the lossy set leaves alone.
+
+| Words folded of 36 | Postpass time, RX 7800 XT | Background change | Texture | Stripes | Railing | Still scene |
+|---|---|---|---|---|---|---|
+| none (set 2) | 0.670 ms | 0.079 | 0.105 | 1.95 | 0.948 | 43.71 dB |
+| 9 | 0.661 ms | 0.136 (+72%) | 0.118 | 2.03 | 1.005 | 43.74 dB |
+| 18 | 0.636 ms | 0.207 (+162%) | 0.118 | 1.93 | 1.050 | 43.34 dB |
+| 24 | 0.617 ms | 0.333 (+321%) | 0.203 | 4.65 | 1.097 | 42.25 dB |
+
+Even the mildest setting makes the background 72% less steady for 0.009 ms. Folded on its own,
+with every other shader exact, 18 words gives a background change of 0.252. **The postpass does
+not tolerate folding.** This is probably where the background shimmer of the
+[community set](../community-lossy-set) came from: it removes weights in the postpass too.
+
+**The smaller layers of pass 5.** Besides its 3x3 convolution, pass 5 has 16 layers of two taps
+and 8 of four taps, 1,024 of its 1,600 weight words. Folding half of each:
+
+| Folded in pass 5 | Pass time (AMD 0.141 ms) | Background change | Stripes | Railing | Just-uncovered areas | Still scene |
+|---|---|---|---|---|---|---|
+| 3x3 only (set 2) | 0.117 ms | 0.079 | 1.95 | 0.948 | | 43.71 dB |
+| plus the two-tap layers | 0.100 ms | 0.033 | 1.44 | 0.597 | 32.5 dB (AMD 34.5) | 43.64 dB |
+| plus the four-tap layers | 0.102 ms | 0.072 | 3.87 (+90%) | 0.822 | | 42.41 dB |
+| plus both | 0.086 ms | 0.037 | 3.90 | 0.484 | | 43.44 dB |
+
+- **The four-tap layers do not fold:** the fine stripes become 90% less steady and the still
+  scene loses 1.3 dB.
+- **The two-tap layers look steadier, but the picture is less accurate in motion:** 2 dB worse
+  where the moving objects have just uncovered the background, 1.9 dB worse on the railing,
+  1.4 dB on the background. Lower frame-to-frame change with lower accuracy means the image
+  follows the scene less closely, the kind of error that shows as trails behind moving things.
+  Not used.
+
+So set 2 stands. What it leaves unfolded is the arithmetic the image depends on most, and the
+passes whose weights are not constants in the shader (3 and 6 to 9). Going faster from here means
+accepting a visible cost.
+
 ## The opt-in test build (2026-10-05)
 
 > **WARNING: this build changes the image.** It is not the same as this repository's main DLL or
