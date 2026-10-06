@@ -311,11 +311,11 @@ By frame rate (the scene of the next section), against AMD's:
   and 2.11 ms, against 122 FPS and 2.09 ms for release 4.
 - At 1440p Quality the flicker at rest is 0.124 against AMD's 0.117 (release 4: 0.148).
 - **A tester's report** (a third-person game at native 1440p with XeSS inputs, RX 7800 XT,
-  Linux): with an earlier lossy release a translucent second copy of the character appeared
+  Linux): with release 4's lossy build a translucent second copy of the character appeared
   beside him while the camera orbited; with release 5 that is "improved significantly". The
-  test rig did not reproduce the ghost with any release (an object fixed on screen with the
+  test rig did not reproduce the ghost with either release (an object fixed on screen with the
   background panning behind it, at native resolution, 12 and 60 pixels per frame), so this rests
-  on the report alone, and which earlier release it was is not known.
+  on the report alone.
 
 ### Tried and not shipped: following the picture's motion
 
