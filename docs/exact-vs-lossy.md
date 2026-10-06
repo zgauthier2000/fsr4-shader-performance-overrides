@@ -14,6 +14,9 @@ and only one of them keeps AMD's picture.
 > **The lossy builds change the image.** They are opt-in experiments, not the same as the main
 > files and not the same as AMD's DLL.
 
+This page describes the builds of release `dll-2026-10-06.5`. Earlier lossy releases behaved
+differently on skipped frames; their history is on the [frame-skip page](../research/frame-skip).
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
   <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with three repairs, 1.32 ms. The two kinds of frame alternate, 2.11 ms on average, 49% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.74 dB against 44.31, flicker on fine detail at rest 0.119 against 0.110 (8% more), areas just uncovered by a moving object 32.04 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
@@ -28,10 +31,10 @@ The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py)
 | Image | AMD's, byte for byte | close to AMD's, not the same |
 | How the time is saved | same work, done more efficiently | less work |
 | Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 3.05 ms | 2.11 ms |
-| Upscaler time, Rise of the Tomb Raider, 4K Balanced (AMD's: 4.29 ms) | 2.97 ms | 2.05 ms |
+| Upscaler time, Rise of the Tomb Raider, 4K Balanced (AMD's: 4.29 ms) | 2.97 ms | 2.05 ms (an earlier lossy release) |
 | Frame times | even | alternate between a shorter and a longer frame |
 | Checked how | output compared with AMD's, byte for byte | measured against the true image and against AMD's output |
-| Tested on | several GPUs and games ([results](results.md)) | one GPU and two games by the author, one tester on RDNA2 |
+| Tested on | several GPUs and games ([results](results.md)) | one RDNA3 card by the author (two games, the current release in one), one tester on RDNA2 with an earlier release |
 | Files | main DLL, `prebuilt/`, `test-rdna2…`, `test-igpu.zip` | `test-lossy…` only |
 
 All timings on this page are from a Radeon RX 7800 XT on Linux.
@@ -81,10 +84,10 @@ Details: [the lossy track](../research/lossy).
 On alternate frames the twelve model passes return immediately, and the postpass reuses the
 model's result from the frame before, which is still in memory.
 
-- **What it saves:** about 0.8 ms on average (2.91 to 2.09 ms). A skipped frame takes about
+- **What it saves:** about 0.8 ms on average (2.91 to 2.11 ms). A skipped frame takes about
   1.3 ms, a normal one about 2.9 ms.
-- **What it costs:** the reused result is one frame old. That shows in three ways, described
-  below, two of which needed a repair.
+- **What it costs:** the reused result is one frame old, so a skipped frame cannot be trusted to
+  mix the new frame in properly. What it does instead is described next.
 
 Details: [frame skip](../research/frame-skip).
 
@@ -99,7 +102,7 @@ honest:
 
 | Problem with a reused result | Repair in the builds |
 |---|---|
-| **Shimmer on fine detail.** The reused result was worked out for the previous frame's camera jitter, so it gives too much weight to the new frame in pixels whose nearest sample has moved away. | The previous jitter is carried over to the skipped frame, and the new frame's weight is lowered where its nearest sample is now farther from the pixel. About half of the extra flicker goes. |
+| **Shimmer on fine detail.** The reused result was worked out for the previous frame's camera jitter, so it gives too much weight to the new frame in pixels whose nearest sample has moved away. | The previous jitter is carried over to the skipped frame, and the new frame's weight is lowered where its nearest sample is now farther from the pixel. |
 | **A dark band at the screen edge** for one frame when the camera starts to turn. The strip that scrolls in has no history, and the reused result still says "mostly history". | Where the history is far darker than the new frame, the new frame is used alone. The band is gone in the test scene. |
 | **A smear behind moving objects.** Where something has just been uncovered, the reused result keeps a history that is out of date. | The history is limited to the colour range of the new frame's samples around the pixel. Most of the loss there goes. |
 
@@ -123,14 +126,45 @@ Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip and
 - **Frame times alternate.** With a frame cap or normal V-Sync the average is what counts. With
   low-latency modes or unbuffered V-Sync the longer frames can miss.
 
+## What the difference looks like
+
+Pieces of the test rig's 4K output, exact files against the current lossy build. The exact files
+give the same bytes as AMD's shaders, so their panels are also AMD's picture. **These are the
+places where the two differ most, enlarged;** over a whole frame the differences are far smaller,
+and each caption gives the whole-frame figure. The images are made by
+[`img/make_comparison_crops.py`](img/make_comparison_crops.py) from rig output.
+
+**At rest.** The largest difference in a still frame is on thin structures. Over the whole frame
+the two differ by 0.12 of 255 on average.
+
+<img src="img/cmp-still.png" width="760" alt="Still scene, a 90 by 90 pixel piece of the 4K output enlarged four times, at the spot where the exact files and the lossy build differ most: the true image, the exact files, the lossy build, and their difference amplified 16 times. The pictures look alike; the difference image shows faint traces along thin rails and edges. Whole-frame mean difference 0.12 of 255.">
+
+**Shimmer at rest.** How much each pixel changes between consecutive frames when nothing moves.
+In this piece, the worst for the lossy build, it changes 0.064 of 255 per frame against 0.040.
+Over the whole frame the lossy build changes slightly less than the exact files (0.035 against
+0.037), because flat areas are steadier; on fine detail alone it changes 8% more.
+
+<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of dark textured ground, and maps of how much each pixel changes from frame to frame with the exact files (mean 0.040 of 255) and with the lossy build (0.064). The lossy map shows more scattered bright specks. Whole frame: exact 0.037, lossy 0.035.">
+
+**In motion, on a skipped frame.** Camera panning as if at 60 FPS. Thin bars in front of a moving
+background are where frame skip is weakest: in the lossy panel some bars are broken up near the
+bottom. The edge a moving block has just uncovered is slightly rougher. Whole frame, the error
+against the true image is 1.23 of 255 against 1.14.
+
+<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy build skips the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, lossy build and their difference amplified 8 times. First: thin vertical bars in front of a moving background; in the lossy build some bars are broken near the bottom (error against the true image 4.2 of 255, exact 2.8). Second: the edge a moving block has just uncovered; slightly rougher in the lossy build (1.8 against 1.2). Whole frame: lossy 1.23, exact 1.14 of 255.">
+
 ## Speed side by side
 
 | Benchmark, 4K Balanced, RX 7800 XT | AMD's shaders | Exact files | Lossy |
 |---|---|---|---|
 | Shadow of the Tomb Raider: upscaler time | 4.16 ms | 3.05 ms (−27%) | 2.11 ms (−49%) |
 | Shadow of the Tomb Raider: average FPS | 97 | 109 | 122 |
-| Rise of the Tomb Raider: upscaler time | 4.29 ms | 2.97 ms (−31%) | 2.05 ms (−52%) |
-| Rise of the Tomb Raider: overall score | 97.67 FPS | 109.61 FPS | 122.34 FPS |
+| Rise of the Tomb Raider: upscaler time | 4.29 ms | 2.97 ms (−31%) | 2.05 ms (−52%) * |
+| Rise of the Tomb Raider: overall score | 97.67 FPS | 109.61 FPS | 122.34 FPS * |
+
+\* The Rise of the Tomb Raider lossy run used the lossy build of release `dll-2026-10-06.3`; it
+has not been repeated with the current one. In Shadow of the Tomb Raider the current release and
+that one ran at the same speed (2.11 and 2.09 ms).
 
 On RDNA2 at 1440p output, one tester measured only 1 to 2% from the folding alone; frame skip
 has not been timed there.
@@ -149,9 +183,12 @@ has not been timed there.
   alternates at half the real frame rate, so it is slower and easier to see (that part is
   reasoning, not a measurement). With frame generation on top of a low base rate, the exact
   build is the safer choice.
-- **Little testing.** Two games on one RDNA3 card by the author, and one tester on RDNA2. The
-  repairs were verified in a test rig; the edge-band fix has not been confirmed in the game it
-  was reported in.
+- **Thin free-standing things in motion are the weak spot.** Bars or wires moving against a
+  different background change about 1.6 times as much from frame to frame as with AMD's shaders
+  at 60 FPS (see the image above).
+- **Little testing.** The current release was run by the author in one game on one RDNA3 card;
+  earlier lossy releases in two games, and by one tester on RDNA2. The repairs were verified in
+  a test rig; the edge-band fix has not been confirmed in the game it was reported in.
 
 ## Which to use
 
@@ -165,5 +202,5 @@ has not been timed there.
 
 - [How the exact rewrites work](how-it-works.md) and [all results](results.md)
 - [The lossy track](../research/lossy): folding, rounding, what was tried and rejected
-- [Frame skip](../research/frame-skip): the mechanism, the shimmer correction and the edge guard
+- [Frame skip](../research/frame-skip): the mechanism, each repair, results by frame rate, and what was tried and not shipped
 - [GPU support](gpu-support.md): which build is for which GPU
