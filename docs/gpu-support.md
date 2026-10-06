@@ -240,6 +240,7 @@ The builds are attached to the [release `dll-2026-10-05.4`](https://github.com/z
 |---|---|
 | `test-rdna2.zip` | **for RDNA2, fixes the shimmering:** check lifted, both rewrites, and the postpass's dot products split (see above) |
 | `test-rdna2-compact.zip` | **test build for RDNA2 and the Steam Deck:** as `test-rdna2.zip`, with the compact pass 11 of the integrated-GPU build (see below) |
+| `test-rdna2-hybrid.zip` | **test build for RDNA2 at 1080p output:** as `test-rdna2.zip`, but with AMD's postpass (dot products split) at 1080p output and below (see below) |
 | `amd_fidelityfx_upscaler_dx12.dll` | the main DLL for desktop RDNA3: check lifted, both rewrites |
 | `test-igpu.zip` | for integrated GPUs: check lifted, postpass rewrite and the compact pass 11 ([above](#integrated-gpus-radeon-780m-and-similar)) |
 
@@ -288,6 +289,36 @@ to 2560x1440 (Quality), four builds at the same spot, one reading each:**
 - The lossy builds are 0.02 to 0.06 ms (1 to 2%) below their exact builds, which is about the
   spread of the readings, and the frame rate does not follow. On this card at 1440p the lossy
   build is not worth its image change. See [`research/lossy`](../research/lossy).
+
+### Test build: RDNA2 hybrid (2026-10-05)
+
+`test-rdna2-hybrid.zip` (shows as `4.1.1-r2h-cyboman`) is `test-rdna2.zip` with one change: at
+1080p output and below it keeps AMD's own postpass, with only the dot-product split that fixes
+the shimmering, and it uses the rewritten postpass at 1440p output and above.
+
+It follows from the first [timing-kit result on an RDNA2 card](../timing-kit/RESULTS.md), an
+RX 6700M on Linux:
+
+| Postpass on the RX 6700M | AMD's | Rewritten |
+|---|---|---|
+| 4K output | 2.37 ms | 1.54 ms (35% faster) |
+| 1080p output | 0.33 ms | 0.38 ms (15% slower) |
+
+The stores the rewrite speeds up are only slow at large sizes. At 1080p there is nothing to
+remove, and the rewrite's extra registers (80 against 64 on that chip, so 12 waves per SIMD
+against 16) are a net cost. That fits the RX 6000 game reports above: about 30% at 4K, a few
+percent at 1440p and 1080p.
+
+- **Who it is for:** RX 6000 owners at 1080p output. Compare it with `test-rdna2.zip` at the same
+  spot; the hybrid should be the faster of the two there, by a few percent of FSR 4's time.
+- **At 1440p and 4K it is identical to `test-rdna2.zip`.** FSR 4 uses one set of shader versions
+  for 1440p and 4K output and another for 1080p and below, so a DLL can choose per set but cannot
+  treat 1440p differently from 4K. Whether the rewrite helps or hurts at 1440p on RDNA2 is not
+  known yet; the timing kit measures it since version 2026-10-05.4.
+- **Not known on Windows.** The measurement is from the Linux driver; AMD's Windows driver
+  compiles the shaders differently. This build is how to find out.
+- Output is byte-for-byte AMD's at six sizes from 720p to 4K (Proton, RX 7800 XT). Built with
+  `DOT4=split POSTPASS_SMALL=amd` in `windows/dxil/build_dxil_overrides.sh`.
 
 ### Withdrawn: RDNA2 with the postpass's reads unbranched (2026-10-05)
 

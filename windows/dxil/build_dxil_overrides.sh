@@ -10,7 +10,9 @@
 # The input can be a vkd3d-proton shader dump (VKD3D_SHADER_DUMP_PATH writes the DXIL too).
 # Options (environment): PASS11=rows (compact pass 11, for integrated GPUs), DOT4=split (dot
 # products as product + add, for RDNA2), TAPS=1 (postpass neighbourhood reads without branches,
-# an RDNA2 experiment), PREPASS=0 / MODEL=0 (leave the prepass / the other model passes alone).
+# an RDNA2 experiment), PREPASS=0 / MODEL=0 (leave the prepass / the other model passes alone),
+# POSTPASS_SMALL=amd (keep AMD's postpass code in the versions used at 1080p output and below,
+# where the rewrite is slower on RDNA2; DOT4 and TAPS still apply to them).
 # Needs DXC (dxc and libdxcompiler.so; set DXC_DIR to the unpacked Linux release) and g++.
 set -euo pipefail
 here=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -44,7 +46,11 @@ for f in "$src"/*.dxil; do
     if [[ ${TAPS:-} == 1 && $name == *_postpass ]]; then
         python3 "$here/postpass_taps_dxil.py" < "$work/in.ll" > "$work/in2.ll" && mv "$work/in2.ll" "$work/in.ll"
     fi
-    if ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
+    # POSTPASS_SMALL=amd: the small output-size class (tensor rows of 962 pixels, 15392 bytes) keeps AMD's postpass.
+    if [[ ${POSTPASS_SMALL:-} == amd && $name == *_postpass ]] && grep -q 'i32 15392' "$work/in.ll"; then
+        [[ ${DOT4:-} == split || ${TAPS:-} == 1 ]] || continue          # nothing to change: leave AMD's shader in place
+        cp "$work/in.ll" "$work/out.ll"
+    elif ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
         [[ $script == model_tail_dxil.py || $script == prepass_gather_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"
         continue                                   # a model pass without that code is left alone
     fi

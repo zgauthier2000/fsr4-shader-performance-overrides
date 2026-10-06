@@ -39,6 +39,11 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
   Only the name differs from release `dll-2026-10-05.3`: the exact builds still give AMD's image
   byte for byte and the lossy ones the same output as before. If you are sending screenshots,
   please use these builds.
+- **A new RDNA2 test build for 1080p: `test-rdna2-hybrid.zip`** (`4.1.1-r2h-cyboman`). The first
+  timing-kit result from an RX 6000-series card showed this project's postpass 35% faster than
+  AMD's at 4K but 15% slower at 1080p. The hybrid build keeps AMD's postpass at 1080p output and
+  below and uses the rewrite above that. RX 6000 owners at 1080p: please compare it with
+  `test-rdna2.zip`. [Details](docs/gpu-support.md#test-build-rdna2-hybrid-2026-10-05).
 
 ## Earlier on 2026-10-05 (release `dll-2026-10-05.3`): lossy test builds and the timing kit
 
@@ -319,6 +324,7 @@ patched DLL is the one in use. The test builds for other GPUs carry their own na
 | `test-igpu.zip` | `4.1.1-ig-cyboman` | RDNA3 integrated GPUs (experimental) |
 | `test-rdna2.zip` | `4.1.1-r2-cyboman` | RDNA2 (RX 6000) |
 | `test-rdna2-compact.zip` | `4.1.1-r2c-cyboman` | RDNA2 and Steam Deck, test build with a smaller pass 11 ([details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05)) |
+| `test-rdna2-hybrid.zip` | `4.1.1-r2h-cyboman` | RDNA2 at 1080p output, test build: AMD's postpass at 1080p and below, the rewrite above ([details](docs/gpu-support.md#test-build-rdna2-hybrid-2026-10-05)) |
 | `test-lossy.zip` | `4.1.1-r3-lossy-cyboman` | desktop RDNA3, **opt-in test build that changes the image** ([details](research/lossy#the-opt-in-test-build-2026-10-05)) |
 | `test-lossy-rdna2.zip` | `4.1.1-r2-lossy-cyboman` | RDNA2, **changes the image** |
 | `test-lossy-rdna2-compact.zip` | `4.1.1-r2c-lossy-cyboman` | RDNA2 and Steam Deck, **changes the image** |
