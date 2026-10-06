@@ -10,7 +10,9 @@ On the frames in between, the postpass uses the model's output from the frame be
 
 **Since release `dll-2026-10-06.2`** the builds also carry a correction for the shimmer this
 causes on fine detail: it roughly halves the extra flicker, at no cost in speed. See
-[Reducing the shimmer](#reducing-the-shimmer). The tables before that section describe frame skip
+[Reducing the shimmer](#reducing-the-shimmer). **Release `dll-2026-10-06.3`** fixes dark bands
+that flashed at the screen edge when the camera started to turn; see
+[Dark bands at the screen edge](#dark-bands-at-the-screen-edge-fixed-in-release-dll-2026-10-063). The tables before that section describe frame skip
 without the correction.
 
 ## Result
@@ -179,6 +181,50 @@ postpass reads. Both mistakes showed up as Ultra Performance output no longer ma
 bit. With the published postpasses in place, the carry-over alone changes no byte of output in
 the six size and preset combinations tested.
 
+## Dark bands at the screen edge (fixed in release `dll-2026-10-06.3`)
+
+A tester saw black bars flash at the edges of the screen while turning the camera, with the lossy
+builds and not with the exact one. Their video showed a band about 21 pixels wide on one edge for
+a single frame.
+
+**Cause.** When the camera starts to turn, a strip scrolls in at one edge that has no history: it
+reprojects from outside the screen and reads as nearly black. On a frame that runs the model, the
+model says "take the new frame" there. On a skipped frame the reused result is the one of the
+frame before, when the camera was still, and says "mostly history": mostly black history plus a
+few percent of the new frame is a dark band.
+
+A pan that is already under way does not show it. The reused result then still has a
+"take the new frame" strip at the edge, as wide as the new one, because the pan step has not
+changed. That is why the moving test scene, which pans at a constant speed, never showed it, at
+4 or at 20 pixels per frame. It takes a pan that starts, speeds up or changes direction on a
+skipped frame.
+
+**Reproduced** with a camera that is still for 35 frames and then moves 20 pixels sideways and 8
+vertically per frame, starting on a skipped frame. Brightness of the newly revealed strips on
+that frame, against the true image:
+
+| | Side strip | Top or bottom strip |
+|---|---|---|
+| AMD's shaders | 100% | 99% |
+| Lossy builds of releases `dll-2026-10-06` and `.2` | 10% | 17% |
+| With the guard | 100% | 100% |
+
+The same in the opposite direction and at 4K Balanced, 4K Quality, 1440p Quality and 1080p Quality.
+
+**The guard.** On a skipped frame, where the history is at most a tenth of the resampled new
+frame in every colour channel, the postpass outputs the new frame alone.
+
+- Testing for exactly black history does nothing: the off-screen history is not exactly zero.
+- A limit of a tenth leaves everything else as it was: flicker at rest is unchanged at the three
+  sizes compared, and the moving scene's figures are the same (just-uncovered areas 29.23 dB
+  against 29.17). A limit of a half made the still picture 0.3 dB less accurate and fine
+  stripes 6% less steady.
+- Ultra Performance output is identical to the release before, and the Windows DLLs still match
+  the Linux folder byte for byte in the 20 combinations compared.
+
+Verified in the test rig; the game the report came from is Final Fantasy VII Rebirth through
+OptiScaler.
+
 ## Frame times alternate
 
 A skipped frame is about 1.7 ms shorter than a normal one on an RX 7800 XT, so consecutive frames
@@ -282,5 +328,5 @@ And each output pixel depends on about 50 pixels around it.
 |---|---|
 | `frameskip.py` | the change for the prepass and the model passes as vkd3d-proton translates them (SPIR-V text) |
 | `frameskip_dxil.py` | the same for the DLL's shaders (DXIL text); same decisions, same mark, same place |
-| `skipblend.py` | the shimmer correction for the postpass (SPIR-V text); run it on AMD's postpass before the store rewrite |
+| `skipblend.py` | the shimmer correction and the edge guard for the postpass (SPIR-V text); run it on AMD's postpass before the store rewrite |
 | `skipblend_dxil.py` | the same for the DLL's postpass (DXIL text) |

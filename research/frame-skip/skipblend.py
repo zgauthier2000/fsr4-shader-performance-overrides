@@ -11,8 +11,13 @@
 # words frameskip.py leaves next to the mark):
 #     (1 - a)  is multiplied by  1 - a * (1 - min(1, 2^(K * (Dp - Dn))))
 # The factor a leaves areas alone where the model wants little history (just uncovered ones).
+# Guard: where the history is far darker than the new frame in every channel (at most SB_REL of
+# it), a skipped frame outputs the resampled new frame alone. That is the strip that scrolls in
+# from outside the screen when the camera starts to turn: its history is nearly black, and the
+# stale a would leave a dark band there for one frame.
 # Frames that ran the model keep the model's values bit for bit.
 # Options (environment): SB_K (default 32), SB_AW (0, 1 or 2: power of a in the factor, default 1),
+# SB_REL (default 0.1), SB_THR (absolute floor of the guard's limit, default 0), SB_GUARD=0 (no guard),
 # SB_CONST (a further constant factor on skipped frames), SB_CAP (upper limit of the 2^ term,
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
 import os, re, sys
@@ -29,7 +34,7 @@ br = next(n for n in range(ge[1], len(L)) if 'OpBranchConditional' in L[n])
 lab = L[br].split()[-1]
 at = next(n for n, l in enumerate(L) if re.match(rf'\s*{re.escape(lab)} = OpLabel', l))
 c = ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
-     f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0'] + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
+     f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0', f"%sb_thr = OpConstant %float {float(os.environ.get('SB_THR', '0'))}", f"%sb_rel = OpConstant %float {float(os.environ.get('SB_REL', '0.1'))}"] + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
 if CONST:
     c.append(f'%sb_const = OpConstant %float {float(CONST)}')
 head = ['%sb_r1 = OpAccessChain %_ptr_PushConstant_uint %registers %uint_1', '%sb_r = OpLoad %uint %sb_r1', '%sb_bi = OpIAdd %uint %sb_r %uint_11',
@@ -44,7 +49,8 @@ head += ['%sb_e1 = OpIEqual %bool %sb_v0 %sb_m1', '%sb_e2 = OpIEqual %bool %sb_v
          '%sb_jx = OpCompositeExtract %float %sb_f1 2', '%sb_jy = OpCompositeExtract %float %sb_f1 3',
          '%sb_djx = OpFSub %float %sb_pjx %sb_jx', '%sb_djy = OpFSub %float %sb_pjy %sb_jy']
 out = L[:main] + c + L[main:at + 1] + head
-posx = posy = None; n_sites = 0; ren = {}
+n_guard = 0
+posx = posy = None; n_sites = 0; ren = {}; pend = None; GUARD = os.environ.get('SB_GUARD', '1') == '1'
 for n in range(at + 1, len(L)):
     l = L[n]
     for a, b in ren.items():
@@ -58,6 +64,29 @@ for n in range(at + 1, len(L)):
                 if j[1] == '2': posx = m[1]
                 else: posy = m[1]
     out.append(l)
+    if pend and GUARD:
+        # the guard: where the reprojected history is far darker than the new frame in every channel (it
+        # scrolled in from outside the screen when a pan started, and is nearly black), a skipped frame
+        # takes the new frame alone; the stale weight would leave a dark band at the screen edge
+        m = re.match(r'\s*(%\w+) = OpFMul %float (%\w+) (%\w+)$', L[n])
+        if m and pend['w'] in (m[2], m[3]) and len(pend['cur']) < 3:
+            pend['cur'][m[1]] = m[3] if m[2] == pend['w'] else m[2]
+        elif m and pend['a'] in (m[2], m[3]) and len(pend['hist']) < 3:
+            pend['hist'].append(m[3] if m[2] == pend['a'] else m[2])
+        m = re.match(r'\s*(%\w+) = OpFAdd %float (%\w+) (%\w+)$', L[n])
+        if m and len(pend['hist']) == 3 and (m[2] in pend['cur'] or m[3] in pend['cur']):
+            pend['sum'].append((m[1], pend['cur'][m[2]] if m[2] in pend['cur'] else pend['cur'][m[3]]))
+            if len(pend['sum']) == 3:
+                k = pend['k']; h = pend['hist']
+                curs = [cur for r, cur in pend['sum']]
+                out += [x for c in range(3) for x in (f'%sb_zm{c}{k} = OpFMul %float {curs[c]} %sb_rel', f'%sb_zt{c}{k} = OpExtInst %float {GLSL} NMax %sb_zm{c}{k} %sb_thr',
+                                                      f'%sb_z{c}{k} = OpFOrdLessThanEqual %bool {h[c]} %sb_zt{c}{k}')] + [
+                    f'%sb_zz{k} = OpLogicalAnd %bool %sb_z0{k} %sb_z1{k}', f'%sb_zb{k} = OpLogicalAnd %bool %sb_zz{k} %sb_z2{k}',
+                    f'%sb_gd{k} = OpLogicalAnd %bool %sb_zb{k} %sb_skip'] + [
+                    f'%sb_r{c}{k} = OpSelect %float %sb_gd{k} {cur} {r}' for c, (r, cur) in enumerate(pend['sum'])]
+                for c, (r, cur) in enumerate(pend['sum']):
+                    ren[r] = f'%sb_r{c}{k}'
+                n_guard += 1; pend = None
     m = re.match(r'\s*(%\w+) = OpFSub %float %float_1 (%\w+)$', L[n])
     if m and re.match(r'OpFDiv %float %float_1 ', defs.get(m[2], '')):
         k = n_sites; n_sites += 1; w, a = m[1], m[2]
@@ -80,6 +109,9 @@ for n in range(at + 1, len(L)):
                  f'%sb_an{k} = OpFSub %float %sb_one %sb_wn{k}', f'%sb_w2{k} = OpSelect %float %sb_skip %sb_wn{k} {w}',
                  f'%sb_a2{k} = OpSelect %float %sb_skip %sb_an{k} {a}']
         out += code; ren[w] = f'%sb_w2{k}'; ren[a] = f'%sb_a2{k}'
+        pend = {'k': k, 'w': w, 'a': a, 'cur': {}, 'hist': [], 'sum': []}
+if GUARD and n_guard != 4:
+    sys.exit(f'skipblend: {n_guard} guard sites found, expected 4')
 if n_sites != 4:
     sys.exit(f'skipblend: {n_sites} blend sites found, expected 4')
 sys.stdout.write('\n'.join(out))

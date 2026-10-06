@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# skipblend_dxil.py < postpass.ll > out.ll      env SB_K (default 32), SB_CONST (as in skipblend.py)
+# skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD (as in skipblend.py)
 # The DXIL form of skipblend.py (see there): on a skipped frame the weight of the new frame is
 # reduced where the nearest sample is farther from the pixel than it was in the frame the model
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
 import os, re, sys
 K = float(os.environ.get('SB_K', '32'))
+GUARD = os.environ.get('SB_GUARD', '1') == '1'; REL = float(os.environ.get('SB_REL', '0.1')); THR = float(os.environ.get('SB_THR', '0'))
 CONST = float(os.environ['SB_CONST']) if os.environ.get('SB_CONST') else None   # a further constant factor on skipped frames
 L = sys.stdin.read().split('\n')
 text = '\n'.join(L)
@@ -36,7 +37,7 @@ head = [f'  %sb.h = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.typ
         '  %sb.djx = fsub fast float %sb.pjx, %sb.jx', '  %sb.djy = fsub fast float %sb.pjy, %sb.jy']
 fl = lambda v: '0x%016X' % __import__('struct').unpack('<Q', __import__('struct').pack('<d', __import__('struct').unpack('<f', __import__('struct').pack('<f', v))[0]))[0]
 out = L[:e1] + head
-posx = posy = None; n_sites = 0; ren = {}
+posx = posy = None; n_sites = 0; ren = {}; pend = None; n_guard = 0
 for n in range(e1, len(L)):
     l = L[n]
     for a, b in ren.items():
@@ -53,6 +54,25 @@ for n in range(e1, len(L)):
         attr = l.rsplit(' ', 1)[1]
         out += [f'declare float @dx.op.bitcastI32toF32(i32, i32) {attr}', '']
     out.append(l)
+    if pend and GUARD:      # the guard against dark bands at the screen edge, as in skipblend.py
+        m = re.match(r'\s*(%[\w.]+) = fmul fast float (%[\w.]+), (%[\w.]+)\s*$', L[n])
+        if m and pend['w'] in (m[2], m[3]) and len(pend['cur']) < 3:
+            pend['cur'][m[1]] = m[3] if m[2] == pend['w'] else m[2]
+        elif m and pend['a'] in (m[2], m[3]) and len(pend['hist']) < 3:
+            pend['hist'].append(m[3] if m[2] == pend['a'] else m[2])
+        m = re.match(r'\s*(%[\w.]+) = fadd fast float (%[\w.]+), (%[\w.]+)\s*$', L[n])
+        if m and len(pend['hist']) == 3 and (m[2] in pend['cur'] or m[3] in pend['cur']):
+            pend['sum'].append((m[1], pend['cur'][m[2]] if m[2] in pend['cur'] else pend['cur'][m[3]]))
+            if len(pend['sum']) == 3:
+                k = pend['k']; h = pend['hist']; curs = [cur for r, cur in pend['sum']]
+                for c in range(3):
+                    out += [f'  %sb.zm{c}{k} = fmul fast float {curs[c]}, {fl(REL)}',
+                            f'  %sb.zt{c}{k} = call float @dx.op.binary.f32(i32 35, float %sb.zm{c}{k}, float {fl(THR)})',
+                            f'  %sb.z{c}{k} = fcmp fast ole float {h[c]}, %sb.zt{c}{k}']
+                out += [f'  %sb.zz{k} = and i1 %sb.z0{k}, %sb.z1{k}', f'  %sb.zb{k} = and i1 %sb.zz{k}, %sb.z2{k}', f'  %sb.gd{k} = and i1 %sb.zb{k}, %sb.skip']
+                for c, (r, cur) in enumerate(pend['sum']):
+                    out.append(f'  %sb.r{c}{k} = select i1 %sb.gd{k}, float {cur}, float {r}'); ren[r] = f'%sb.r{c}{k}'
+                n_guard += 1; pend = None
     m = re.match(r'\s*(%[\w.]+) = fsub fast float 1\.000000e\+00, (%[\w.]+)\s*$', L[n])
     if m and re.match(r'fdiv fast float 1\.000000e\+00, ', defs.get(m[2], '')):
         k = n_sites; n_sites += 1; w, a = m[1], m[2]; c = []
@@ -72,6 +92,9 @@ for n in range(e1, len(L)):
               f'  %sb.an{k} = fsub fast float 1.000000e+00, %sb.wn{k}',
               f'  %sb.w2{k} = select i1 %sb.skip, float %sb.wn{k}, float {w}', f'  %sb.a2{k} = select i1 %sb.skip, float %sb.an{k}, float {a}']
         out += c; ren[w] = f'%sb.w2{k}'; ren[a] = f'%sb.a2{k}'
+        pend = {'k': k, 'w': w, 'a': a, 'cur': {}, 'hist': [], 'sum': []}
+if GUARD and n_guard != 4:
+    sys.exit(f'skipblend_dxil: {n_guard} guard sites found, expected 4')
 if n_sites != 4:
     sys.exit(f'skipblend_dxil: {n_sites} blend sites found, expected 4')
 sys.stdout.write('\n'.join(out))

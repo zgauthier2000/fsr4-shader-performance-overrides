@@ -316,7 +316,7 @@ multiplications that the image needs.
 > you want AMD's image, do not use it.
 
 Lossy set 2 from above, attached to the
-[release `dll-2026-10-06.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.2):
+[release `dll-2026-10-06.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.3):
 
 | File | What it is | Use |
 |---|---|---|
