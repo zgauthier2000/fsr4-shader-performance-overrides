@@ -320,6 +320,31 @@ percent at 1440p and 1080p.
 - Output is byte-for-byte AMD's at six sizes from 720p to 4K (Proton, RX 7800 XT). Built with
   `DOT4=split POSTPASS_SMALL=amd` in `windows/dxil/build_dxil_overrides.sh`.
 
+**First report (2026-10-06), Windows, Clair Obscur: Expedition 33, 1080p output, one reading
+each. The tester's GPU model was not given.**
+
+| Session | Build | Render size | Upscaler time | Frame rate (average) |
+|---|---|---|---|---|
+| A (DLSS inputs) | a release 3 build (name cut off in the picture) | 1279x720 | 1.98 ms | 85.1 FPS |
+| A | fsr4xyz `4.1.1b` | 1279x720 | 2.01 ms | 84.3 FPS |
+| B (XeSS inputs) | hybrid (`4.1.1-r2h-cyboman`) | 1280x720 | 1.89 ms | 87.4 FPS |
+| B | fsr4xyz `4.1.1b` | 1280x720 | 1.85 ms | 88.2 FPS |
+| B | hybrid | 1130x636 | 1.90 ms | 94.0 FPS |
+| B | fsr4xyz `4.1.1b` | 1130x636 | 1.87 ms | 95.2 FPS |
+
+- **The hybrid build is not faster than `4.1.1b` here: it is 0.03 to 0.04 ms (2%) slower** at both
+  render sizes, and the frame rate agrees.
+- In the other session an earlier build of this project was 0.03 ms (1.5%) faster than `4.1.1b`.
+  The two sessions cannot be compared with each other (`4.1.1b` itself reads 2.01 ms in one and
+  1.85 ms in the other), so this does not show that the hybrid is slower than `test-rdna2.zip`,
+  only that it did not deliver the gain the Linux measurement suggested.
+- At 1080p the hybrid's postpass is AMD's with the dot products split, which is also what
+  `4.1.1b` has. So the 2% it loses to `4.1.1b` would come from the other rewrites it carries
+  (pass 11, the prepass, the model passes) under AMD's Windows compiler at this size. That is an
+  inference from one report, not a measurement.
+- **What would settle it:** `test-rdna2.zip`, the hybrid and `4.1.1b` in one session at the same
+  spot, and the GPU model.
+
 ### Withdrawn: RDNA2 with the postpass's reads unbranched (2026-10-05)
 
 **Result: testers saw no improvement on RDNA2, and the build has been removed from the release.**
