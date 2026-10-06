@@ -337,6 +337,33 @@ ago, so the direct fix is to fetch it from where each pixel's content was.
   118 against 122 FPS in one run) and no difference was visible. The change above gives a
   visible improvement for nothing.
 
+### Checked and left alone: what skipped frames write into the model's memory
+
+Besides the picture, the postpass writes four values per pixel that the model reads back on the
+next frame. On a skipped frame they are worked out again from the reused result, at the old
+screen positions. Does that hurt the frames that do run the model? Measured separately for
+frames that ran and frames that were skipped (4K Balanced; error is the mean difference from the
+true image, of 255):
+
+| | Moving scene (60 FPS step): ran | skipped | Still scene: ran | Flicker at rest |
+|---|---|---|---|---|
+| Exact files (= AMD's) | 1.140 | 1.142 | 44.33 dB | 0.110 |
+| Folding only, no frame skip | 1.204 | 1.207 | 43.71 dB | 0.123 |
+| Release 5 | 1.223 | 1.239 | 43.77 dB | 0.119 |
+| Probe: constant 0.5 written on skipped frames | 1.224 | 1.238 | 42.51 dB | 0.556 |
+| Probe: constant 0 written on skipped frames | 1.343 | 1.370 | 40.52 dB | 2.040 |
+
+- **Most of the lossy build's distance from AMD's on full frames is the weight folding,** not
+  frame skip: folding alone is 5.6% further off in motion, release 5 is 7.3%.
+- **At rest the memory matters a great deal** (a constant there costs 1.3 to 3.8 dB and
+  multiplies the flicker), and there the values a skipped frame writes are exactly right: nothing
+  has moved, so they are the previous frame's values in the right place.
+- **In motion it hardly matters what is written:** a neutral constant gives the same error as
+  release 5's values (1.224 against 1.223). So moving those values along with the picture, which
+  is what they lack on a skipped frame, has nothing to gain.
+
+Nothing was changed.
+
 ## By frame rate
 
 The shaders never see the frame time, so FSR 4 does not behave differently at 30 or at 120 FPS as
