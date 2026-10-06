@@ -58,9 +58,9 @@ Since 2026-10-05.6, which applied what the first three machines' results showed:
   the first archive they ran on blank ones, so their times were wrong), and the results can be
   sent at the end.
 
-**Status: new and lightly tested.** It has run on three machines: a Radeon RX 7800 XT, a Steam
-Machine (Navi 33, SteamOS) and a laptop RX 6700M (RDNA2). It has not yet run on an integrated
-GPU or a Steam Deck. Expect rough edges and
+**Status: new and lightly tested.** It has run on five machines: a Radeon RX 7800 XT, a Steam
+Machine (Navi 33, SteamOS), a laptop RX 6700M, an RX 6800 XT and an RX 6600 (where its readings
+are not usable yet). It has not yet run on an integrated GPU or a Steam Deck. Expect rough edges and
 please report them.
 
 Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05) (9 MB).

@@ -59,6 +59,65 @@ AMD's shader, then the exact rewrite, in ms. Steam Machine figures are from its 
 - **The lossy version is worth relatively more on the smaller chips:** about 5% of the whole on
   top of the exact files, most of it in pass 12 (-31% on the RX 6700M, -32% on the Steam Machine).
 
+## What the runs of 2026-10-06 added
+
+Three more machines and a second look at the RX 6700M, with kit versions 2026-10-05.9 and
+2026-10-06.1, which time the postpass on its own.
+
+**The postpass on RDNA2, by output size** (AMD's, the shipped rewrite, AMD's with its stores
+removed; ms):
+
+| GPU | 1080p | 1440p | 4K |
+|---|---|---|---|
+| RX 6800 XT (Navi 21) | .149, .172 (+15%), .147 | .305, .322 (+6%), .265 | 3.46, 1.44 (-58%), .609 |
+| RX 6700M (Navi 22), new run | .428, .344 (-20%), .306 | 1.08, .785 (-28%), .596 | 2.49, 2.12 (-15%), 1.88 |
+| RX 7800 XT (Navi 32), for reference | .204, .172 (-16%), .153 | .818, .307 (-62%), .269 | 2.14, .679 (-68%), .588 |
+
+- **On the RX 6800 XT the scattered-store slowdown exists only at 4K.** At 1080p and 1440p AMD's
+  postpass already runs at the speed of the no-stores probe, so the rewrite can only cost: 15%
+  and 6% slower. At 4K AMD's takes 3.46 ms and the rewrite 1.44 ms. This is the pattern of the
+  RX 6800 and 6900 XT reports from games: about 30% of FSR 4's time at 4K, next to nothing below.
+- **The RX 6700M's new run disagrees with its earlier ones at 1080p** (rewrite 20% faster here,
+  15% slower before) and all its 4K figures are slower than before (no-stores probe 1.88 ms
+  against 1.13). The kit changed in between (warm-up runs are no longer counted) and so, it
+  seems, did the machine's state. Its figures should be compared within one run only.
+- **The two candidates ("direct", "direct trim") do not help.** They compile at 16 waves per SIMD
+  on these chips against the shipped version's 12, as intended, and time the same as the shipped
+  version on the RX 6800 XT at all three sizes. So the thread count is not what holds the rewrite
+  back on RDNA2 either; the cost is the buffer round trip itself. They will be dropped.
+- **At 4K on the RX 6800 XT the rewrite is still 0.8 ms above the no-stores probe** (1.44 against
+  0.61 ms), a much larger gap than on the RX 7800 XT (0.09 ms). Three 4K images, 166 MB, are
+  written every frame whatever the write pattern.
+
+**The two forms of the dot product on RDNA2** (RX 6700M, the same shaders compiled with
+`v_dot4c_i32_i8` and with `v_dot4_i32_i8`, ms):
+
+| | 1080p | 4K |
+|---|---|---|
+| Model pass 1 | .187, .178 (-5%) | .702, .713 (+2%) |
+| Model pass 12 | .174, .184 (+6%) | .764, .765 (0%) |
+| Postpass, AMD's | .334, .349 (+4%) | 2.41, 2.46 (+2%) |
+| Postpass, shipped | .430, .412 (-4%) | 2.09, 2.05 (-2%) |
+
+No consistent difference: within 2% at 4K and plus or minus 6% at 1080p, in both directions. The
+three-operand form is not faster on this card.
+
+**A tester's own postpass versions.** The RX 6700M's run included candidates the tester had
+added (names as given: `arbol2`, `arbol4`, `arbol6`, `sinlds`, `v57b`). Three of them beat the
+shipped rewrite at 1440p (0.65 to 0.69 ms against 0.79 ms, with the no-stores probe at 0.60) and
+all by 5 to 8% at 4K; one uses no workgroup memory at all and compiles at 16 waves per SIMD. The
+kit reported output mismatches against AMD's for that run, which may mean they change the image
+or only that they were built from a different version of the postpass. Not yet looked into.
+
+**RX 6600 (Navi 23): not usable as it stands.** Every pass that writes an image, and every pass
+on the largest tensors at 4K, read 10 to 30 times slower than on the RX 6700M (postpass at 1080p
+11.6 ms for AMD's, 5.7 ms for the rewrite, 0.39 ms with the stores removed; model pass 1 at 4K
+4.97 ms against 0.38 ms at 1440p), while the small passes are normal. The throughput of the slow
+passes is about what a PCIe 3.0 x8 link carries, which would fit memory that is not on the card,
+but that is a guess. In games the same card runs all of FSR 4 in a few milliseconds, so this is
+about the benchmark on that machine, not the shaders. The relative results there: the rewrite
+halves the postpass at all three sizes; the candidates equal the shipped version.
+
 ## Steam Machine (RADV NAVI33), 2026-10-05, first (quick) run
 
 Kit 2026-10-05.3, quick run. Its 4K postpass reading for AMD's shader (1.77 ms) was low; see the correction above and the full run below. Mesa 26.2.0-devel, kernel 7.2.7-valve1 (SteamOS), 15 GB RAM,

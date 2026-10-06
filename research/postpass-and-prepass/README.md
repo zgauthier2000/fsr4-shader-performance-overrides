@@ -189,6 +189,10 @@ against 0.684 ms at 16. (A probe that simply drops stored channels is not valid 
 compiler then removes the arithmetic that produced them.) Scaled by how much slower the smaller
 chips are, the same overhead accounts for the 0.2 ms gap measured there.
 
+**Result (2026-10-06): the candidates do not help.** On an RX 6800 XT both time the same as the
+shipped version at 1080p, 1440p and 4K, although they run at 16 waves per SIMD there against
+its 12. See the [timing-kit results](../../timing-kit/RESULTS.md). They stay here as a record.
+
 A second candidate, "direct trim" (the current `postpass_direct.py`), also uses four words per
 pixel for every image, so that a pixel is one aligned 16-byte access, and drops a row test that is
 always true when the whole block is flushed at once. That is 43 instructions and 10 branches fewer

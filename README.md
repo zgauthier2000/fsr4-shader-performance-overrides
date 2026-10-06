@@ -17,7 +17,7 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
 > when it finishes (it asks first). The goal of sending this data is to further optimize this
 > project, and with it FSR 4's performance, for your GPU. Reports from RX 6000 cards, integrated
 > GPUs and the Steam Deck are what it is for. So far it has run on an RX 7800 XT, a Steam
-> Machine and an RX 6700M ([results](timing-kit/RESULTS.md)).
+> Machine, an RX 6700M, an RX 6800 XT and an RX 6600 ([results](timing-kit/RESULTS.md)).
 > [Instructions](timing-kit) · [Download](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05)
 
 ## What's new: 2026-10-06 ([release `dll-2026-10-06`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06))
@@ -394,7 +394,7 @@ Remove the launch option, or put the original DLL back.
 | [All results](docs/results.md) | every game measured, benchmark pages with screenshots |
 | [Linux guide](docs/linux.md) | requirements, building your own files, troubleshooting |
 | [Making a shader dump](docs/shader-dump.md) | step by step, for reporting a wrong image or a missing speedup on Linux |
-| [Timing kit](timing-kit) | a download for Linux and the Steam Deck that times every FSR 4 pass on your GPU, no game needed (new; three GPUs so far) |
+| [Timing kit](timing-kit) | a download for Linux and the Steam Deck that times every FSR 4 pass on your GPU, no game needed (new; five GPUs so far) |
 | [GPU support](docs/gpu-support.md) | Windows, integrated GPUs, the RDNA2 build and its shimmering fix |
 | [Shader variants](docs/variants.md) | which versions of FSR 4's shaders are covered, and what to do if your game's is not |
 | [How it works](docs/how-it-works.md) | what the two rewrites do, where the time goes, what else was tried |
