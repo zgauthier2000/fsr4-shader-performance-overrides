@@ -135,9 +135,12 @@ has not been timed there.
   never skips.
 - **Frame skip is off in Ultra Performance** and on frames the game marks as a reset. In Ultra
   Performance the lossy build does very little: that model's own passes are left exact.
-- **Low real frame rates make the shimmer easier to see,** because it alternates at half the
-  real frame rate. With frame generation on top of a low base rate, the exact build is the safer
-  choice. This is reasoning, not a measurement.
+- **Frame skip costs more at low real frame rates.** In the moving test scene at a fixed
+  on-screen speed, just-uncovered areas are about 3 dB below AMD's at 120 FPS and about 12 dB
+  below at 30 ([by frame rate](../research/frame-skip#by-frame-rate)). The shimmer also
+  alternates at half the real frame rate, so it is slower and easier to see (that part is
+  reasoning, not a measurement). With frame generation on top of a low base rate, the exact
+  build is the safer choice.
 - **Little testing.** Two games on one RDNA3 card by the author, and one tester on RDNA2. The
   repairs were verified in a test rig; the edge-band fix has not been confirmed in the game it
   was reported in.

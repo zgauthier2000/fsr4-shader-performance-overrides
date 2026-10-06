@@ -225,6 +225,42 @@ frame in every colour channel, the postpass outputs the new frame alone.
 Verified in the test rig; the game the report came from is Final Fantasy VII Rebirth through
 OptiScaler.
 
+## By frame rate
+
+The shaders never see the frame time, so FSR 4 does not behave differently at 30 or at 120 FPS as
+such. What changes is how far things move between two frames. To measure that, the moving scene
+was run at a fixed on-screen speed (camera pan 720 by 360 pixels per second at 4K, objects 360
+pixels per second the other way) with the per-frame motion that each frame rate gives: a pan step
+of 24, 12, 8 and 6 pixels at 30, 60, 90 and 120 FPS. 4K Balanced, one run each, the lossy build of
+release `dll-2026-10-06.3`. dB against the true image.
+
+| As if at | Just-uncovered areas: AMD's | Lossy | Railing: AMD's | Lossy | Background: AMD's | Lossy |
+|---|---|---|---|---|---|---|
+| 30 FPS | 39.45 | 27.08 (−12.4) | 39.25 | 34.96 (−4.3) | 50.24 | 49.33 (−0.9) |
+| 60 FPS | 33.21 | 27.56 (−5.7) | 41.61 | 38.87 (−2.7) | 50.82 | 49.30 (−1.5) |
+| 90 FPS | 35.61 | 29.08 (−6.5) | 43.22 | 40.63 (−2.6) | 49.72 | 48.93 (−0.8) |
+| 120 FPS | 33.69 | 30.92 (−2.8) | 41.95 | 40.37 (−1.6) | 49.93 | 48.65 (−1.3) |
+
+- **Frame skip costs more the lower the frame rate.** Behind moving objects the lossy build is
+  about 3 dB below AMD's at 120 FPS and about 12 dB below at 30. On the thin railing the gap grows
+  from 1.6 to 4.3 dB, and its frame-to-frame change is 2.3 times AMD's at 30 FPS (1.5 to 1.8
+  times at the other rates).
+- **The affected strip is also wider and stays longer.** The strip uncovered per frame is 12
+  pixels wide at 30 FPS against 3 at 120, and a frame is on screen for 33 ms against 8.
+- **The background does not care:** about 1 dB below AMD's at every rate.
+- **The weight folding alone does not care either:** with no frame skip the lossy set stays
+  within 1.5 dB of AMD's in just-uncovered areas and within 1 dB on the railing at every rate.
+- **So frame skip suits high real frame rates.** At a low base rate, with or without frame
+  generation on top, the exact files are the better choice.
+
+Limits of this table: one scene, one run per cell, whole-pixel steps. AMD's own figures move by
+several dB between rates because the regions change size with the step, so read the differences,
+not the levels. It says nothing about how visible any of this is; shimmer that alternates at half
+the frame rate is at 15 Hz at 30 FPS and at 60 Hz at 120, and that part is not measured.
+
+The scene's speeds are set with `SCENE_VB`, `SCENE_VO` and `SCENE_PAD` in
+[`motion_scene.py`](../pruning/motion_scene.py).
+
 ## Frame times alternate
 
 A skipped frame is about 1.7 ms shorter than a normal one on an RX 7800 XT, so consecutive frames

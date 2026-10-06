@@ -8,9 +8,9 @@ import os
 OW, OH, RW, RH = (int(x) for x in os.environ.get('SCENE', '3840 2160 2260 1272').split())
 S = OW / 3840                  # the 4K scene scaled to the output size
 _s = lambda *v: tuple(int(round(x * S)) for x in v)
-PAD = 384                      # mirror padding of the background, room for the pan
-VB = (4, 2)                    # the camera pans: the background moves by -VB on screen each frame
-VO = (-5, 3)                   # the foreground objects move by VO on screen each frame
+PAD = int(os.environ.get('SCENE_PAD', '384'))   # mirror padding of the background, room for the pan
+VB = tuple(int(x) for x in os.environ.get('SCENE_VB', '4 2').split())   # the camera pans: the background moves by -VB on screen each frame
+VO = tuple(int(x) for x in os.environ.get('SCENE_VO', '-5 3').split())   # the foreground objects move by VO on screen each frame
 BLOCK = _s(2300, 300, 800, 560)  # solid textured block: x, y, w, h at frame 0
 RAIL = _s(2300, 1000, 900, 420)  # railing: thin bars with see-through gaps
 BAR_W, BAR_STEP = max(1, int(round(3 * S))), int(round(24 * S))        # bar width and spacing
