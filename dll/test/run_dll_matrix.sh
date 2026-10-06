@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Runs AMD's FSR 4.1.1 DLL under Proton for several output sizes and ratios, first unchanged and
 # then patched by ../patch_upscaler_dll.py, and compares the output images byte for byte. A shader
-# dump of the patched run confirms that the patched shaders ran (vkd3d-proton translates the
-# phased postpass with a 3072-float workgroup array, which AMD's original does not have).
+# dump of the patched run confirms that the rewritten postpass ran: it is the only FSR 4 shader
+# that has int8 dot products, image writes and a workgroup-memory variable all at once (AMD's
+# postpass has no workgroup memory; the model passes write no images; the downsampling shader has
+# no dot products).
+# POSTPASS_SMALL=amd: for a set built with that option (the RDNA2 hybrid build), AMD's postpass
+# is the expected one at 1080p output and below.
 #
 # Put these next to this script first:
 #   fsr4cap.exe                        built from tools/fsr4cap of bbport
@@ -30,9 +34,16 @@ for cfg in "2560x1440 3840x2160" "2260x1272 3840x2160" "1920x1080 3840x2160" "12
     mv "output_$out.raw" "dll/$tag/original.raw" 2>/dev/null || { echo "$tag: original run failed"; continue; }
     run dll/patched.dll "$render" "$out" "dll/$tag/dump"
     mv "output_$out.raw" "dll/$tag/patched.raw" 2>/dev/null || { echo "$tag: patched run failed"; continue; }
-    phased=$(for f in "dll/$tag/dump"/*.spv; do spirv-dis "$f" 2>/dev/null | grep -q 'OpConstant %uint 3072' && echo x; done | wc -l)
+    phased=0
+    for f in "dll/$tag/dump"/*.spv; do
+        a=$(spirv-dis "$f" 2>/dev/null)
+        if grep -qE 'OpVariable %\S+ Workgroup' <<< "$a" && grep -q 'OpImageWrite' <<< "$a" && grep -qE 'Op(S|SU|U)Dot' <<< "$a"; then phased=1; fi
+    done
+    want=1; [[ ${POSTPASS_SMALL:-} == amd && ${out#*x} -le 1080 ]] && want=0
     if cmp -s "dll/$tag/original.raw" "dll/$tag/patched.raw"; then verdict=IDENTICAL; else verdict=DIFFERS; fi
-    [[ $phased -ge 1 ]] || verdict="$verdict (NOT A VALID TEST: the patched postpass did not run)"
+    if [[ $phased -ne $want ]]; then
+        [[ $want == 1 ]] && verdict="$verdict (NOT A VALID TEST: the rewritten postpass did not run)" || verdict="$verdict (UNEXPECTED: the rewritten postpass ran at this size)"
+    fi
     printf '%-22s output %s\n' "$tag" "$verdict"
     rm -rf "noise_capture_${render}_${out}" "dll/$tag/dump" "dll/$tag"/*.raw
 done
