@@ -8,7 +8,7 @@ import os, re, sys
 K = float(os.environ.get('SB_K', '32'))
 CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0.5'))
 GUARD = os.environ.get('SB_GUARD', '1') == '1'; REL = float(os.environ.get('SB_REL', '0.1')); THR = float(os.environ.get('SB_THR', '0'))
-CONST = float(os.environ['SB_CONST']) if os.environ.get('SB_CONST') else None   # a further constant factor on skipped frames
+CONST = None if os.environ.get('SB_CONST') == 'off' else float(os.environ.get('SB_CONST', '0'))   # a further constant factor on skipped frames
 L = sys.stdin.read().split('\n')
 text = '\n'.join(L)
 S = next((x for x in (15392, 30752, 61472) if re.search(rf'\bi32 {x}\b', text)), None) or sys.exit('skipblend_dxil: no known row size')

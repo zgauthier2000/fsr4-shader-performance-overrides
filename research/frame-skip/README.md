@@ -14,7 +14,9 @@ causes on fine detail: it roughly halves the extra flicker, at no cost in speed.
 that flashed at the screen edge when the camera started to turn; see
 [Dark bands at the screen edge](#dark-bands-at-the-screen-edge-fixed-in-release-dll-2026-10-063).
 **Release `dll-2026-10-06.4`** adds a [history clamp](#history-clamp-on-skipped-frames-release-dll-2026-10-064)
-that removes most of the smear behind moving objects. The tables before that section describe frame skip
+that removes most of the smear behind moving objects. **Release `dll-2026-10-06.5`**
+[leans on the history](#leaning-on-the-history-on-skipped-frames-release-dll-2026-10-065) on
+skipped frames: shimmer at rest close to AMD's and steadier lines in motion, at the same speed. The tables before that section describe frame skip
 without the correction.
 
 ## Result
@@ -267,6 +269,67 @@ DLL-against-Linux comparison still passed, because both sides were missing the s
 tool now finds the samples from the weighted sum itself, and the build stops if any version
 fails. The moving-scene figures here are from the tone-curve family; the other 12 versions build
 and match between DLL and Linux, but their motion figures were not measured.
+
+## Leaning on the history on skipped frames (release `dll-2026-10-06.5`)
+
+Up to release 4 a skipped frame mixed the new frame in with the weight the model had chosen for
+the frame before, corrected for where the samples fall. That weight is still one frame old, and
+in motion it sits where the picture used to be: straight lines shimmered while the camera moved.
+
+**The change.** On a skipped frame the new frame's weight `(1 - a)` becomes `(1 - a)^2`. Where the
+model keeps history (a typical `a` of 0.93 at rest) the new frame's share drops from 7% to about
+0.5%, so the frame is almost entirely the reprojected history, kept honest by the clamp and the
+edge guard. Where the model had asked for the new frame (`a` near 0, just-uncovered areas) it
+still gets it. In the tool this is `SB_CONST=0`, now the default.
+
+| 4K Balanced | AMD's | Release 4 | Release 5 |
+|---|---|---|---|
+| Flicker at rest, fine detail | 0.110 | 0.146 (+33%) | 0.119 (+8%) |
+| Still picture against the true image | 44.31 dB | 43.98 dB | 43.74 dB |
+| First moving scene: fine stripes, frame-to-frame change | 2.04 | 2.16 | 1.66 |
+| background, frame-to-frame change | 0.079 | 0.079 | 0.065 |
+| background | 49.27 dB | 47.80 dB | 47.68 dB |
+| railing | 41.82 dB | 40.26 dB | 39.84 dB |
+| just-uncovered areas | 34.48 dB | 33.13 dB | 32.04 dB |
+
+By frame rate (the scene of the next section), against AMD's:
+
+| As if at | Fine stripes, change: release 4 | Release 5 | Just-uncovered: release 4 | Release 5 | Railing, change: release 4 | Release 5 |
+|---|---|---|---|---|---|---|
+| 30 FPS | 1.36 times | 1.13 times | −4.9 dB | −5.3 dB | 2.34 times | 2.32 times |
+| 60 FPS | 1.25 times | 1.02 times | −0.9 dB | −0.9 dB | 1.58 times | 1.55 times |
+| 90 FPS | 1.28 times | 1.09 times | −4.3 dB | −4.8 dB | 1.75 times | 1.73 times |
+| 120 FPS | 1.01 times | 0.77 times | +1.0 dB | +0.5 dB | 1.68 times | 1.64 times |
+
+- **Shimmer at rest is close to AMD's,** and lines that are part of a surface are steadier in
+  motion than with release 4, at every frame rate.
+- **It costs** about 0.2 dB in the still picture (the picture converges on half as many new
+  samples) and up to 1 dB in just-uncovered areas.
+- **It does not help thin free-standing things** moving against a different background: the
+  railing flickers as before.
+- **Speed is the same:** Shadow of the Tomb Raider benchmark, 4K Balanced, RX 7800 XT: 122 FPS
+  and 2.11 ms, against 122 FPS and 2.09 ms for release 4.
+- At 1440p Quality the flicker at rest is 0.124 against AMD's 0.117 (release 4: 0.148).
+
+### Tried and not shipped: following the picture's motion
+
+The line shimmer in motion comes from the reused result sitting where the picture was a frame
+ago, so the direct fix is to fetch it from where each pixel's content was.
+
+- **Displaced by whole cells** (2x2 output pixels), with the prepass storing its reprojection
+  vector per cell in memory the skipped model leaves unused: where the motion is a whole number
+  of cells, thin lines become as steady as AMD's (railing at the 60 FPS step: 1.58 → 1.01 times).
+  Where it is an odd number of pixels, fine lines get about twice as unsteady as before
+  (stripes 2.16 → 4.39). One pixel off is worse than several: the model's edge decisions land
+  beside the edge instead of on a flat area, where they do no harm.
+- **Pixel-exact:** the postpass's small network runs once per distinct source cell (up to four
+  times per thread where the motion is odd in both directions), and each of the four pixel
+  positions in a cell, which has its own last layer, is handed the right cell. That fixes the odd
+  case (stripes 0.57 times AMD's in the first scene, railing 1.0 to 1.2 times at all four frame
+  rates) at 1 to 2 dB in just-uncovered areas.
+- **Why it is not in the builds:** in the game it cost 0.07 ms on average (2.16 against 2.09 ms,
+  118 against 122 FPS in one run) and no difference was visible. The change above gives a
+  visible improvement for nothing.
 
 ## By frame rate
 

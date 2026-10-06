@@ -25,10 +25,12 @@
 # SB_REL (default 0.1), SB_THR (absolute floor of the guard's limit, default 0), SB_GUARD=0 (no guard),
 # SB_CLAMP (default 0.5; "off" for none), SB_BRANCH=0 (the layout of releases dll-2026-10-06.2 and .3:
 # no branch, selects instead; with SB_CLAMP=off it rebuilds release .3's files),
-# SB_CONST (a further constant factor on skipped frames), SB_CAP (upper limit of the 2^ term,
+# SB_CONST (a constant factor on the 2^ term on skipped frames, default 0: (1 - a) becomes (1 - a)^2,
+# the new frame counts for very little where the model keeps history; "off" for none, as in release
+# dll-2026-10-06.4), SB_CAP (upper limit of the 2^ term,
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
 import os, re, sys
-K = float(os.environ.get('SB_K', '32')); CONST = os.environ.get('SB_CONST'); CAP = float(os.environ.get('SB_CAP', '1')); AW = int(os.environ.get('SB_AW', '1'))
+K = float(os.environ.get('SB_K', '32')); CONST = None if os.environ.get('SB_CONST') == 'off' else os.environ.get('SB_CONST', '0'); CAP = float(os.environ.get('SB_CAP', '1')); AW = int(os.environ.get('SB_AW', '1'))
 CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0.5'))
 GUARD = os.environ.get('SB_GUARD', '1') == '1'
 L = sys.stdin.read().split('\n')

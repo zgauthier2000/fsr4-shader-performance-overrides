@@ -16,7 +16,7 @@ and only one of them keeps AMD's picture.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
-  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass reuse the last result with three repairs, 1.26 ms. The two kinds of frame alternate, 2.09 ms on average, 50% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.98 dB against 44.31, flicker on fine detail at rest 0.146 against 0.110 (33% more), areas just uncovered by a moving object 33.13 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with three repairs, 1.32 ms. The two kinds of frame alternate, 2.11 ms on average, 49% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.74 dB against 44.31, flicker on fine detail at rest 0.119 against 0.110 (8% more), areas just uncovered by a moving object 32.04 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
 </picture>
 
 The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py).
@@ -27,7 +27,7 @@ The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py)
 |---|---|---|
 | Image | AMD's, byte for byte | close to AMD's, not the same |
 | How the time is saved | same work, done more efficiently | less work |
-| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 3.05 ms | 2.09 ms |
+| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 3.05 ms | 2.11 ms |
 | Upscaler time, Rise of the Tomb Raider, 4K Balanced (AMD's: 4.29 ms) | 2.97 ms | 2.05 ms |
 | Frame times | even | alternate between a shorter and a longer frame |
 | Checked how | output compared with AMD's, byte for byte | measured against the true image and against AMD's output |
@@ -88,9 +88,14 @@ model's result from the frame before, which is still in memory.
 
 Details: [frame skip](../research/frame-skip).
 
-### Three repairs that exist only because of frame skip
+### What a skipped frame does instead, and three repairs
 
-Both act on skipped frames only. Frames that run the model are not touched.
+All of this acts on skipped frames only. Frames that run the model are not touched.
+
+A skipped frame leans on the history: it shows the previous picture moved along with the scene,
+and takes very little from the new frame (the new frame's weight is squared, so a typical 7%
+becomes about 0.5%), except where the model had asked for the new frame. Three repairs keep that
+honest:
 
 | Problem with a reused result | Repair in the builds |
 |---|---|
@@ -104,17 +109,17 @@ Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip and
 
 | | AMD's (= exact files) | Folding only | Lossy |
 |---|---|---|---|
-| Still picture against the true image | 44.31 dB | 43.71 dB | 43.98 dB |
-| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.146 |
-| Moving scene: background | 49.27 dB | 48.67 dB | 47.80 dB |
-| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 33.13 dB |
+| Still picture against the true image | 44.31 dB | 43.71 dB | 43.74 dB |
+| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.119 |
+| Moving scene: background | 49.27 dB | 48.67 dB | 47.68 dB |
+| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 32.04 dB |
 | Revealed strip when a pan starts on a skipped frame | 100% of true brightness | no frame skip | 100% |
 
-- **Fine detail still shimmers about 30% more than with AMD's shaders** at rest. Before the
-  repair it was about 55%.
-- **Just-uncovered areas are about 1 dB less accurate** in this scene: the edge behind a moving
-  object is one frame behind. Before the history clamp of release `dll-2026-10-06.4` it was
-  about 5 dB.
+- **Fine detail shimmers about 8% more than with AMD's shaders** at rest (0.119 against 0.110).
+  It was about 55% with the first frame-skip build and about 30% up to release 4.
+- **The still picture is about 0.6 dB less accurate,** the same as with folding alone.
+- **Just-uncovered areas are about 2.5 dB less accurate** in this scene: the edge behind a moving
+  object is one frame behind. Before the history clamp it was about 5 dB.
 - **Frame times alternate.** With a frame cap or normal V-Sync the average is what counts. With
   low-latency modes or unbuffered V-Sync the longer frames can miss.
 
@@ -122,7 +127,7 @@ Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip and
 
 | Benchmark, 4K Balanced, RX 7800 XT | AMD's shaders | Exact files | Lossy |
 |---|---|---|---|
-| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 3.05 ms (−27%) | 2.09 ms (−50%) |
+| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 3.05 ms (−27%) | 2.11 ms (−49%) |
 | Shadow of the Tomb Raider: average FPS | 97 | 109 | 122 |
 | Rise of the Tomb Raider: upscaler time | 4.29 ms | 2.97 ms (−31%) | 2.05 ms (−52%) |
 | Rise of the Tomb Raider: overall score | 97.67 FPS | 109.61 FPS | 122.34 FPS |
@@ -139,7 +144,7 @@ has not been timed there.
   Performance the lossy build does very little: that model's own passes are left exact.
 - **Frame skip costs more at low real frame rates.** In the moving test scene at a fixed
   on-screen speed, just-uncovered areas are level with AMD's at 120 FPS, about 1 dB below at 60
-  and about 5 dB below at 30, and thin structures 1.5 to 2.7 dB below
+  and about 5 dB below at 30, and thin structures 1.5 to 2.9 dB below
   ([by frame rate](../research/frame-skip#by-frame-rate)). The shimmer also
   alternates at half the real frame rate, so it is slower and easier to see (that part is
   reasoning, not a measurement). With frame generation on top of a low base rate, the exact

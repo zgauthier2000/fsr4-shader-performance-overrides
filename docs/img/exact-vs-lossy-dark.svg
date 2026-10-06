@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="824" viewBox="0 0 760 824" role="img" aria-label="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass reuse the last result with three repairs, 1.26 ms. The two kinds of frame alternate, 2.09 ms on average, 50% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.98 dB against 44.31, flicker on fine detail at rest 0.146 against 0.110 (33% more), areas just uncovered by a moving object 33.13 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="824" viewBox="0 0 760 824" role="img" aria-label="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with three repairs, 1.32 ms. The two kinds of frame alternate, 2.11 ms on average, 49% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.74 dB against 44.31, flicker on fine detail at rest 0.119 against 0.110 (8% more), areas just uncovered by a moving object 32.04 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
 <rect width="760" height="824" rx="8" fill="#1a1a19"/>
 <text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">Exact files and lossy builds, pass by pass</text>
 <text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">FSR 4.1.1's passes in the order they run each frame, and what each build does with them.</text>
@@ -133,7 +133,7 @@
 <line x1="24" y1="496" x2="736" y2="496" stroke="#2c2c2a" stroke-width="1"/>
 <text x="24.0" y="518.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#ffffff">Lossy build</text>
 <text x="115.6" y="518.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">a skipped frame (every other frame)</text>
-<text x="736.0" y="518.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="end" fill="#ffffff">1.26 ms</text>
+<text x="736.0" y="518.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="end" fill="#ffffff">1.32 ms</text>
 <rect x="24.0" y="530" width="84.0" height="30" rx="4" fill="#d95926"/>
 <text x="66.0" y="549.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">Prepass</text>
 <path d="M98.0,530 H104.0 Q108.0,530 108.0,534 V540 Z" fill="#0b0b0b"/>
@@ -177,11 +177,11 @@
 <text x="694.0" y="549.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">Postpass</text>
 <path d="M726.0,530 H732.0 Q736.0,530 736.0,534 V540 Z" fill="#0b0b0b"/>
 <rect x="24" y="568" width="712" height="8" rx="4" fill="#2c2c2a"/>
-<path d="M24,568 H235.7 Q239.7,568 239.7,572 V572 Q239.7,576 235.7,576 H24 Z" fill="#d95926"/>
-<text x="24.0" y="594.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">The model does not run. The prepass keeps the model's last result, and the postpass reuses it with three repairs:</text>
-<text x="24.0" y="610.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">less weight for the new frame where its nearest sample moved away (less shimmer); the history limited to the</text>
-<text x="24.0" y="626.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">new frame's colours around the pixel (less smear behind moving objects); and the new frame alone where the</text>
-<text x="24.0" y="642.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">history is nearly black (no dark band at the screen edge when the camera starts to turn).</text>
+<path d="M24,568 H245.9 Q249.9,568 249.9,572 V572 Q249.9,576 245.9,576 H24 Z" fill="#d95926"/>
+<text x="24.0" y="594.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">The model does not run. The picture is almost entirely the previous one moved along with the scene; the new</text>
+<text x="24.0" y="610.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">frame counts for very little, except where the model had asked for it. Three repairs: the history limited to the</text>
+<text x="24.0" y="626.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">new frame's colours around the pixel, less weight where the nearest sample moved away, and the new frame alone</text>
+<text x="24.0" y="642.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">where the history is nearly black (no dark band at the screen edge when the camera starts to turn).</text>
 <line x1="24" y1="666" x2="736" y2="666" stroke="#2c2c2a" stroke-width="1"/>
 <text x="24.0" y="692.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#ffffff">Upscaler time, average</text>
 <text x="24.0" y="710.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT</text>
@@ -192,19 +192,19 @@
 <path d="M108,752 H214.0 Q218.0,752 218.0,756 V764 Q218.0,768 214.0,768 H108 Z" fill="#3987e5"/>
 <text x="226.0" y="764.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">3.05 ms  ·  109 FPS  ·  27% less</text>
 <text x="98.0" y="790.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#ffffff">Lossy</text>
-<path d="M108,778 H179.4 Q183.4,778 183.4,782 V790 Q183.4,794 179.4,794 H108 Z" fill="#d95926"/>
-<text x="191.4" y="790.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">2.09 ms  ·  122 FPS  ·  50% less</text>
+<path d="M108,778 H180.1 Q184.1,778 184.1,782 V790 Q184.1,794 180.1,794 H108 Z" fill="#d95926"/>
+<text x="192.1" y="790.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">2.11 ms  ·  122 FPS  ·  49% less</text>
 <text x="452.0" y="692.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#ffffff">What the lossy build costs</text>
 <text x="452.0" y="710.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Test scene, 4K Balanced. Exact files = AMD's.</text>
 <text x="648.0" y="732.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">AMD's</text>
 <text x="736.0" y="732.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">Lossy</text>
 <text x="452.0" y="752.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#ffffff">Still picture</text>
 <text x="648.0" y="752.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#c3c2b7">44.31 dB</text>
-<text x="736.0" y="752.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="end" fill="#ffffff">43.98 dB</text>
+<text x="736.0" y="752.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="end" fill="#ffffff">43.74 dB</text>
 <text x="452.0" y="774.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#ffffff">Flicker at rest, fine detail</text>
 <text x="648.0" y="774.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#c3c2b7">0.110</text>
-<text x="736.0" y="774.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="end" fill="#ffffff">0.146 (+33%)</text>
+<text x="736.0" y="774.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="end" fill="#ffffff">0.119 (+8%)</text>
 <text x="452.0" y="796.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#ffffff">Areas just uncovered</text>
 <text x="648.0" y="796.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#c3c2b7">34.48 dB</text>
-<text x="736.0" y="796.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="end" fill="#ffffff">33.13 dB</text>
+<text x="736.0" y="796.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="end" fill="#ffffff">32.04 dB</text>
 </svg>
