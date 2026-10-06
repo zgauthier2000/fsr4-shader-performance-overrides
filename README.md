@@ -20,7 +20,31 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md).
 > Machine and an RX 6700M ([results](timing-kit/RESULTS.md)).
 > [Instructions](timing-kit) · [Download](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05)
 
-## What's new: 2026-10-05, latest ([release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4))
+## What's new: 2026-10-06 ([release `dll-2026-10-06`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06))
+
+- **The lossy test builds now skip the model on every other frame.** FSR 4's model is about 60%
+  of its time. The lossy builds now run it on alternate frames and reuse its last result in
+  between. In Shadow of the Tomb Raider's benchmark at 4K Balanced on an RX 7800 XT:
+
+  | | Upscaler time | Average FPS |
+  |---|---|---|
+  | AMD's shaders | 4.16 ms | 97 |
+  | Main files (AMD's image, byte for byte) | 3.05 ms | 109 |
+  | Lossy test build, as it was | 2.91 ms | 111 |
+  | Lossy test build, with frame skip | 2.09 ms | 122 |
+
+  > **WARNING: the lossy builds change the image.** They are not the same as the main files or
+  > AMD's DLL. Frame skip adds two things to know: where the picture has just changed (the edge
+  > behind a moving object) the upscaler is one frame behind, and frame times alternate between a
+  > shorter and a longer frame.
+
+  It turns itself off in Ultra Performance. The main files are unchanged.
+  [How it works, what it costs, and the frame-time caveat](research/frame-skip).
+- **Files:** `test-lossy.zip` (desktop RX 7000), `test-lossy-rdna2.zip`, `test-lossy-rdna2-compact.zip`,
+  `test-lossy-igpu.zip` and `test-lossy-linux.zip` are replaced; the names shown in OptiScaler stay
+  the same. The other files are carried over unchanged from release `dll-2026-10-05.4`.
+
+## Earlier: 2026-10-05, release `dll-2026-10-05.4`
 
 - **New names in OptiScaler, same shaders.** The GPU tag now comes before "cyboman", so it is
   readable in OptiScaler's closed dropdown and in screenshots:
@@ -138,7 +162,7 @@ The main DLL for RX 7000 cards and the Linux files are unchanged since 2026-10-0
 ## RDNA2 (RX 6000): shimmering in motion fixed (2026-10-04, 15:43 EDT)
 
 FSR 4.1.1's INT8 model can be made to run on RDNA2, but there it shimmers in motion. A test build
-from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4)
+from this repository fixes that: **`test-rdna2.zip`** in the [release `dll-2026-10-06`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06)
 (Windows DLL).
 
 - **The cause is one instruction form in the postpass.** AMD's postpass adds each int8 dot
@@ -199,7 +223,7 @@ memory they read is unchanged, so the total is where it was (7,668 to 5,321 MB t
   never slower, and they may help GPUs with less memory bandwidth, where they have not been
   measured yet.
 - **To get it:** download the files again, or run `build_override.sh` again if you built your own.
-  The patched DLL is in the [release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4).
+  The patched DLL is in the [release `dll-2026-10-06`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06).
 - **Integrated GPUs:** still not recommended, but there is an experimental build to test; see
   [GPU support](docs/gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 - The figures are read requests between the GPU's cache and memory, counted in a standalone
@@ -310,7 +334,7 @@ faster: [Linux guide](docs/linux.md).
 This also works under Proton, but on Linux the launch option above is faster.
 
 1. Download `amd_fidelityfx_upscaler_dx12.dll` from the
-   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4).
+   [release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06).
 2. In the game folder, rename the existing `amd_fidelityfx_upscaler_dx12.dll` (often next to
    OptiScaler) to `amd_fidelityfx_upscaler_dx12.dll.orig`. It must be version 4.1.1.2740.
 3. Put the downloaded DLL in its place.

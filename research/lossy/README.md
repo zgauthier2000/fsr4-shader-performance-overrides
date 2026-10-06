@@ -303,13 +303,19 @@ multiplications that the image needs.
 
 ## The opt-in test build (2026-10-05)
 
+> **Since release `dll-2026-10-06` the test builds also skip the model on every other frame**
+> ([frame skip](../frame-skip)): 2.09 ms and 122 FPS in the benchmark below, against 2.91 ms and
+> 111 FPS for the lossy set alone. That adds its own cost in motion and alternating frame times;
+> see that page. The figures in this section are for the lossy set alone, as attached to
+> releases `dll-2026-10-05.3` and `.4`.
+
 > **WARNING: this build changes the image.** It is not the same as this repository's main DLL or
 > prebuilt folder, and not the same as AMD's DLL. Those three produce the same image, byte for
 > byte. This one produces a different, slightly less accurate picture in exchange for speed. If
 > you want AMD's image, do not use it.
 
 Lossy set 2 from above, attached to the
-[release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4):
+[release `dll-2026-10-06`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06):
 
 | File | What it is | Use |
 |---|---|---|

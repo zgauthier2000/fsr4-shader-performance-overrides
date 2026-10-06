@@ -7,7 +7,7 @@ alike.
 
 ## Download it
 
-A patched DLL is attached to the [release `dll-2026-10-05.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-05.4), with AMD's notice and
+A patched DLL is attached to the [release `dll-2026-10-06`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06), with AMD's notice and
 SHA-256 checksums. It was made by this script from AMD's original (SHA-256
 `d0dcccc74a43c44ba435b7a369b456e0970d8a4464e4bd683119b374f2c9fb46`), and running the script on that
 file with `--any-gpu --name 4.1.1-r3-cyboman` reproduces it exactly. Install it as described below, from step 1 under "Then, in the game
