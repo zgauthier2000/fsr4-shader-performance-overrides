@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# skipblend_dxil.py < postpass.ll > out.ll      env SB_K (default 32)
+# skipblend_dxil.py < postpass.ll > out.ll      env SB_K (default 32), SB_CONST (as in skipblend.py)
 # The DXIL form of skipblend.py (see there): on a skipped frame the weight of the new frame is
 # reduced where the nearest sample is farther from the pixel than it was in the frame the model
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
 import os, re, sys
 K = float(os.environ.get('SB_K', '32'))
+CONST = float(os.environ['SB_CONST']) if os.environ.get('SB_CONST') else None   # a further constant factor on skipped frames
 L = sys.stdin.read().split('\n')
 text = '\n'.join(L)
 S = next((x for x in (15392, 30752, 61472) if re.search(rf'\bi32 {x}\b', text)), None) or sys.exit('skipblend_dxil: no known row size')
@@ -64,7 +65,8 @@ for n in range(e1, len(L)):
               f'  %sb.dd{k} = fsub fast float %sb.Dp{k}, %sb.Dn{k}', f'  %sb.ex{k} = fmul fast float %sb.dd{k}, {fl(K)}',
               f'  %sb.g{k} = call float @dx.op.unary.f32(i32 21, float %sb.ex{k})',
               f'  %sb.gc{k} = call float @dx.op.binary.f32(i32 36, float %sb.g{k}, float 1.000000e+00)',
-              f'  %sb.om{k} = fsub fast float 1.000000e+00, %sb.gc{k}', f'  %sb.ao{k} = fmul fast float {a}, %sb.om{k}',
+              ] + ([f'  %sb.gm{k} = fmul fast float %sb.gc{k}, {fl(CONST)}'] if CONST is not None else []) + [
+              f'  %sb.om{k} = fsub fast float 1.000000e+00, ' + (f'%sb.gm{k}' if CONST is not None else f'%sb.gc{k}'), f'  %sb.ao{k} = fmul fast float {a}, %sb.om{k}',
               f'  %sb.gw{k} = fsub fast float 1.000000e+00, %sb.ao{k}', f'  %sb.wm{k} = fmul fast float {w}, %sb.gw{k}',
               f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wm{k}, float 1.000000e+00)',
               f'  %sb.an{k} = fsub fast float 1.000000e+00, %sb.wn{k}',
