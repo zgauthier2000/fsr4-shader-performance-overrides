@@ -570,6 +570,8 @@ Remove the launch option, or put the original DLL back.
 | [Research](research) | the probes, data and scripts behind all of it |
 
 
+## Star History
+
 <a href="https://www.star-history.com/?repos=zgauthier2000%2Ffsr4-shader-performance-overrides&type=date&legend=top-left">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=zgauthier2000/fsr4-shader-performance-overrides&type=date&theme=dark&legend=top-left" />
