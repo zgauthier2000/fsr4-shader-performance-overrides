@@ -422,6 +422,59 @@ channels while the other three idled, and the rewrite gives each lane a quarter 
 is not shipped, because 0.007 ms is not worth one more override file per game. The rest of the
 prepass is reprojection arithmetic at full occupancy, with nothing found to remove.
 
+## Two ideas from a community set, rebuilt here (2026-10-07)
+
+Not shipped yet: the prebuilt folder and the DLLs still carry the earlier rewrites. A community
+member's exact shader set ([measured here](../community-lossy-set#a-later-set-that-keeps-amds-image-2026-10-07))
+was slightly faster than this repository's in the prepass and the postpass. Both ideas were
+rebuilt from AMD's shaders with this repository's own tools.
+
+**Prepass: each thread finishes one word** ([`prepass_route.py`](prepass_route.py)). The prepass
+ends in a 2x2-stride convolution. In AMD's shader each of a quad's four threads works out its
+share of 16 output channels, the shares are summed with two exchanges per channel (32 in all), and
+the quad's first thread rounds, packs and stores all four words. Here a thread at position p
+groups the same 16 shares by whose word they belong to (its own B, its horizontal neighbour's A,
+its vertical neighbour's D, the diagonal one's C), and
+
+    word(p) = (swapH(A) + B) + swapV(swapH(C) + D)
+
+That is 12 exchanges, and the rounding and the stores are spread over the four threads. The
+additions are AMD's, in the same grouping, so the result is the same bits.
+
+**Postpass: three rewrites this repository already had, used together.** The neighbour reads
+without branches ([`postpass_taps.py`](postpass_taps.py), slower on its own when first tried),
+the integer clamp of the model passes (`model_clamp.py`), and their integer rounding extended to
+the form the postpass's last layer uses
+([`model_tail_postpass.py`](model_tail_postpass.py)), all before the store rewrite.
+
+| 4K, RX 7800 XT, timing kit, same slot | AMD's | Shipped rewrite | Community set | Rebuilt here |
+|---|---|---|---|---|
+| Prepass | 0.494 ms | 0.447 ms | 0.435 ms | 0.434 ms |
+| Postpass | 2.20 ms | 0.667 ms | 0.648 ms | 0.644 ms |
+
+| Postpass, step by step (first slot / second slot) | |
+|---|---|
+| Shipped rewrite | 0.667 / 0.684 ms |
+| + neighbour reads without branches | 0.660 / 0.680 ms |
+| + integer clamp | 0.651 / 0.675 ms |
+| + integer rounding in the last layer | 0.644 / 0.666 ms |
+
+- **Gain over the shipped files: about 0.036 ms at 4K** (0.013 ms prepass, 0.023 ms postpass),
+  about 1% of what is left of FSR 4's time. At 1440p the prepass goes from 0.204 to 0.199 ms.
+- **Exact:** all 90 prepass and 48 postpass versions build, and AMD's whole pipeline with them
+  gives AMD's output byte for byte in 28 of 28 comparisons: four output-size classes, render
+  sizes from Ultra Performance to native, ten option settings, and the moving test scene.
+- Turning the stored values into plain values (`spirv-opt --ssa-rewrite`) changes nothing; the
+  driver does that itself.
+- Not done: the same for the DLL's shaders, and a run in a game.
+
+**A trap in the test rig, found on the way.** One comparison first failed, and the shipped exact
+files failed it too. The cause was vkd3d-proton's shader cache in the rig's folder: a setting that
+had first been run with an override folder had the overridden shader cached under AMD's shader's
+key, so the later "AMD" run was not AMD's. The rig's scripts now run with
+`VKD3D_SHADER_CACHE_PATH=0`. A cached exact shader could in principle make an exactness check
+pass trivially, so the 28 comparisons above were all run with the cache off.
+
 ## The thirteen border shaders
 
 After most model passes FSR 4 runs a tiny extra dispatch (thirteen in all, 32 threads per group,
@@ -481,6 +534,8 @@ GPUs have not been measured here.
 | `nomem.py`, `run_nm.sh` | the no-memory probes and the script that ran them over the model passes |
 | `nullify.py` | replaces a shader's body with an empty one (used for the in-game breakdown of FSR 4's time) |
 | `postpass_shuffle.py` | the lane-swap postpass |
+| `prepass_route.py` | the prepass with each thread finishing one word (12 exchanges instead of 32); bit-exact, not shipped yet |
+| `model_tail_postpass.py` | `model_tail.py` extended to the postpass's last layer; bit-exact, not shipped yet |
 | `postpass_taps.py` | the postpass's nine neighbourhood reads without their branches (idea from a [community set](../community-lossy-set)): bit-exact, 3% slower on an RX 7800 XT, reported faster on RDNA2 |
 | `prepass_quad.py` | the prepass rewrite |
 | `prepass_sync.py` | the prepass with its stores moved to the end (`late`) and synchronised (`sync`) |

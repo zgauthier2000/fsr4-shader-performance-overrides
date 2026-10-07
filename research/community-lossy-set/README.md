@@ -274,9 +274,11 @@ pair timed in both slot orders (the tool favours its first slot by about 0.02 ms
 | Postpass: memory reads | 121 | 234 | 132 |
 | Postpass: branches | 15 | 42 | 33 |
 
-Fewer exchanges in the prepass and a tidier postpass on the same store rewrite. Both ideas are
-being tried in this repository's own tools, so that every version and the Windows DLL would get
-them; the result will be recorded on the [postpass and prepass page](../postpass-and-prepass).
+Fewer exchanges in the prepass and a tidier postpass on the same store rewrite. Both ideas were
+then rebuilt in this repository's own tools, for every version: the prepass at 0.434 ms and the
+postpass at 0.644 ms at 4K, byte-identical to AMD's. See the
+[postpass and prepass page](../postpass-and-prepass#two-ideas-from-a-community-set-rebuilt-here-2026-10-07).
+They are not in the shipped files yet.
 
 **Limits of the folder.** It holds 14 of the shaders FSR 4.1.1 can use; this repository's prebuilt
 folder holds 191. Other output-size classes and option combinations fall back to AMD's shaders for
