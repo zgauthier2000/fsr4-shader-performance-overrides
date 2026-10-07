@@ -469,8 +469,8 @@ the form the postpass's last layer uses (`model_tail.py`), all before the store 
   (one run each, 109 FPS both).
 - **The DLLs** carry the prepass rewrite, the integer rounding of the postpass's last layer and
   the neighbour reads without branches (`windows/dxil`); not the integer clamp, which the DLL's
-  format expresses as one packing instruction already. Each of the five DLLs gives AMD's DLL's
-  output byte for byte in 53 of 53 comparisons under Proton. Their speed on Windows has not
+  format expresses as one packing instruction already. Each of the four DLLs gives AMD's DLL's
+  output byte for byte in 44 of 44 comparisons under Proton. Their speed on Windows has not
   been measured; an earlier Windows test of the branch-free reads alone on RDNA2 showed no
   difference.
 

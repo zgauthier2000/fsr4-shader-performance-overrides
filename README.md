@@ -36,8 +36,8 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
   | Postpass | 2.20 ms | 0.667 ms | 0.644 ms |
   | Shadow of the Tomb Raider, 4K Balanced: upscaler time | 4.16 ms | 3.05 ms | 2.99 ms |
 
-  Image quality is 100% of AMD's, not close to it but the same picture. The output is still AMD's, byte for byte: 28 of 28 comparisons with the Linux files and 53 of
-  53 with the DLLs (run under Proton), over four output-size classes, render sizes from
+  Image quality is 100% of AMD's, not close to it but the same picture. The output is still AMD's, byte for byte: 28 of 28 comparisons with the Linux files and 44 of
+  44 with the DLLs (run under Proton), over four output-size classes, render sizes from
   Ultra Performance to native, several option settings and a moving scene. Both ideas came from
   a community member's shader set and were rebuilt here from AMD's shaders
   ([details](research/postpass-and-prepass#two-ideas-from-a-community-set-rebuilt-here-2026-10-07)).
