@@ -186,6 +186,42 @@ against the true image is 1.19 of 255 against 1.14.
 
 <img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy build skips the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, lossy build and their difference amplified 8 times. First: thin vertical bars in front of a moving background; in the lossy build the bars are rougher near the bottom (error against the true image 3.1 of 255, exact 2.4). Second: the edge a moving block has just uncovered; slightly rougher in the lossy build (1.3 against 1.0). Whole frame: lossy 1.19, exact 1.14 of 255.">
 
+**Ghosting beside moving objects.** A ghost is an object's image of a frame ago showing through
+where the object no longer is. With frame skip the risk is on skipped frames, in the area an
+object has just uncovered: the history there still shows the object, and it has to be thrown away.
+The lossy build does that by looking up which surface was at each spot a frame ago.
+
+The table gives the error against the true image, on skipped frames, exactly where an object's
+old image would land if the history were shown unchanged. "Outline" is the object's edge,
+"thin bars" the 3-pixel bars of the railing. 8-bit steps; lower is better.
+
+| Camera / objects (pixels per frame at 4K) | Area | AMD's (= exact files) | Lossy | Lossy, against AMD's |
+|---|---|---|---|---|
+| 40,0 / 6,0 (fast pan, object drifting) | outline | 0.50 | 0.48 | level |
+| 40,0 / 6,0 | thin bars | 0.33 | 0.38 | 15% more |
+| 40,0 / 14,0 | outline | 0.75 | 0.77 | 3% more |
+| 40,0 / 14,0 | thin bars | 0.55 | 0.67 | 22% more |
+| 40,0 / −10,4 | thin bars | 0.57 | 0.66 | 16% more |
+| 30,12 / 3,−5 (diagonal pan) | outline | 0.54 | 0.53 | level |
+| 30,12 / 3,−5 | thin bars | 0.54 | 0.58 | 7% more |
+| still camera / 20,0 (fast object) | outline | 1.39 | 1.34 | level |
+| still camera / 20,0 | thin bars | 0.65 | 0.73 | 12% more |
+| 12,6 / −6,6 (the standard moving scene) | thin bars | 0.77 | 0.86 | 12% more |
+
+- **No second image.** In all ten cases the lossy build is within a tenth of an 8-bit step of
+  AMD's shaders. These are errors of well under one step of 255: nothing to see.
+- **For comparison, release `dll-2026-10-06.6`** scored 1.1 to 3.8 on the outlines and 1.3 to
+  4.3 on the thin bars in the same cases, two to seven times AMD's, and that was visible: a
+  broken second outline beside a character while the camera turned fast around them. It guessed
+  where the object was instead of looking it up.
+- **Limits.** The record works in blocks of 4x4 output pixels and whole pixels of motion, and it
+  relies on the game's motion vectors and depth. Where a game gives none for an object (some
+  particles and transparent things), nothing is recorded for it. Some prepass versions have no
+  depth search; there the lookup is off. One synthetic scene at six motion settings; the author
+  also no longer sees the ghost in the game it was reported and recorded in.
+
+<img src="img/cmp-ghost.png" width="760" alt="A second outline beside a moving object on a skipped frame, camera panning 40 pixels per frame and objects drifting 6. Two 128 by 64 pixel pieces of the 4K output, each as true image, exact files, the lossy build of release dll-2026-10-06.6 and the lossy build of this release, with the error against the true image below each. Beside the block's left edge the earlier release shows a broken dark vertical line, the block's edge of a frame ago, which the exact files and this release do not show (error in the piece: 0.52, 0.66 and 0.57 of 255). Beside the railing the earlier release shows two faint extra bars, which the others do not (0.74, 0.95 and 0.82 of 255).">
+
 ## Speed side by side
 
 | Benchmark, 4K Balanced, RX 7800 XT | AMD's shaders | Exact files | Lossy |
