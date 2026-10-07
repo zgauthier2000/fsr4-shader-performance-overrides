@@ -186,6 +186,68 @@ else:
         a = re.match(r'OpAccessChain %\w+ (%\w+) %uint_0 %\w+$', defs.get(p, ''))
         b = a and re.match(r'OpAccessChain %\w+ %\w+ (%\w+)$', defs.get(a[1], ''))
         return bool(b and re.match(r'OpIAdd %uint %\w+ %uint_11$', defs.get(b[1], '')))
+    # Motion for the postpass of a skipped frame: where the prepass has a valid motion vector, the
+    # thread of every even output pixel stores the displacement to the previous frame (in output
+    # pixels, two signed 16-bit halves) into the second region, which is unused while
+    # the model is skipped. Row 2 + Y/2 of the region, two blocks of words per row (even and odd
+    # cell rows), clear of the edge cells the border clearing zeroes at full size; a zeroed entry
+    # reads as "no motion".
+    MV = os.environ.get('FS_MOTION', '1') == '1'
+    mvx = mvy = None
+    if MV:
+        for n in range(at, len(L) - 3):
+            a = re.match(r'\s*(%\w+) = OpFAdd %float (%\w+) (%\w+)$', L[n]); b = re.match(r'\s*(%\w+) = OpFAdd %float (%\w+) (%\w+)$', L[n + 1])
+            c = re.match(r'\s*%\w+ = OpFAdd %float (%\w+) %float_0_5$', L[n + 2]); d = re.match(r'\s*%\w+ = OpFAdd %float (%\w+) %float_0_5$', L[n + 3])
+            if a and b and c and d and c[1] == a[1] and d[1] == b[1]:
+                def split(m):
+                    p, q = m[2], m[3]
+                    if defs.get(q, '').startswith('OpConvertUToF') and defs.get(p, '').startswith('OpFMul'): return p, q
+                    if defs.get(p, '').startswith('OpConvertUToF') and defs.get(q, '').startswith('OpFMul'): return q, p
+                sa, sb = split(a), split(b)
+                if sa and sb:
+                    mvx, mvy, mv_at = sa[0], sb[0], n + 1
+                    px = re.match(r'OpConvertUToF %float (%\w+)$', defs[sa[1]])[1]; py = re.match(r'OpConvertUToF %float (%\w+)$', defs[sb[1]])[1]
+                    break
+        if mvx is None:
+            die('the reprojection displacement was not found in the prepass')
+        # the depth the prepass already picks as nearest around the pixel (it takes the motion vector from there):
+        # the last comparison of its search before the motion-vector fetch. Stored so that smaller = nearer.
+        fetch_at = None
+        for k in range(at, mv_at):
+            m = re.match(r'\s*%\w+ = OpFMul %float (%\w+) (%\w+)$', L[k])
+            if m:
+                for p_, q_ in ((m[1], m[2]), (m[2], m[1])):
+                    e = re.match(r'OpCompositeExtract %float (%\w+) 0$', defs.get(p_, '')); f = re.match(r'OpCompositeExtract %float (%\w+) 0$', defs.get(q_, ''))
+                    ld = e and re.match(r'OpLoad %v4float (%\w+)', defs.get(e[1], ''))
+                    ch = ld and re.match(r'OpInBoundsAccessChain %_ptr_PhysicalStorageBuffer_v4float %\w+ %uint_0 %uint_2$', defs.get(ld[1], ''))
+                    if ch and f and defs.get(f[1], '').startswith('OpImageFetch'):
+                        fetch_at = next(n for n in range(at, mv_at) if re.match(rf'\s*{re.escape(f[1])} = ', L[n]))
+            if fetch_at:
+                break
+        if fetch_at is None:
+            die('the motion-vector fetch was not found in the prepass')
+        dc = next((m for n in range(fetch_at, at, -1) for m in [re.match(r'\s*(%\w+) = OpFOrd(LessThan|GreaterThan) %bool (%\w+) (%\w+)$', L[n])] if m), None)
+        mv_block = next(re.match(r'\s*(%\w+) = OpLabel', L[k])[1] for k in range(mv_at, 0, -1) if 'OpLabel' in L[k])
+        glsl = next(m[1] for l in L for m in [re.match(r'\s*(%\w+) = OpExtInstImport "GLSL.std.450"', l)] if m)
+        consts += [f'%fs_mbase = OpConstant %uint {(REGION + S) // 4}', f'%fs_mrow = OpConstant %uint {S // 4}', '%fs_mb0 = OpConstant %uint 48', '%fs_mb1 = OpConstant %uint 4096',
+                   '%fs_u1 = OpConstant %uint 1', '%fs_u2 = OpConstant %uint 2', '%fs_u3 = OpConstant %uint 3', '%fs_u16 = OpConstant %uint 16', '%fs_u65535 = OpConstant %uint 65535',
+                   '%fs_fone = OpConstant %float 1', '%fs_fm = OpConstant %float -254', '%fs_fp = OpConstant %float 254']
+        mv_code = [f'%fs_mxy = OpBitwiseOr %uint {px} {py}', '%fs_mev = OpBitwiseAnd %uint %fs_mxy %fs_u3', '%fs_mis = OpIEqual %bool %fs_mev %fs_u0',
+                   '%fs_mdo = OpLogicalAnd %bool %fs_mis %fs_skip', 'OpSelectionMerge %fs_mM None', 'OpBranchConditional %fs_mdo %fs_mT %fs_mM', '%fs_mT = OpLabel',
+                   f'%fs_mrx = OpExtInst %float {glsl} RoundEven {mvx}', f'%fs_mry = OpExtInst %float {glsl} RoundEven {mvy}',
+                   f'%fs_mcx = OpExtInst %float {glsl} NClamp %fs_mrx %fs_fm %fs_fp', f'%fs_mcy = OpExtInst %float {glsl} NClamp %fs_mry %fs_fm %fs_fp',
+                   '%fs_mix = OpConvertFToS %uint %fs_mcx', '%fs_miy = OpConvertFToS %uint %fs_mcy',
+                   '%fs_mlx = OpBitwiseAnd %uint %fs_mix %fs_u65535', '%fs_mly = OpShiftLeftLogical %uint %fs_miy %fs_u16', '%fs_mval = OpBitwiseOr %uint %fs_mlx %fs_mly',
+                   f'%fs_mX = OpShiftRightLogical %uint {px} %fs_u2', f'%fs_mY = OpShiftRightLogical %uint {py} %fs_u2',
+                   '%fs_mYr = OpShiftRightLogical %uint %fs_mY %fs_u1', '%fs_mYo = OpBitwiseAnd %uint %fs_mY %fs_u1', '%fs_mYb = OpINotEqual %bool %fs_mYo %fs_u0',
+                   '%fs_mblk = OpSelect %uint %fs_mYb %fs_mb1 %fs_mb0', '%fs_mrw = OpIMul %uint %fs_mYr %fs_mrow', '%fs_ma1 = OpIAdd %uint %fs_mbase %fs_mrw',
+                   '%fs_ma2 = OpIAdd %uint %fs_ma1 %fs_mblk', '%fs_mX2 = OpShiftLeftLogical %uint %fs_mX %fs_u1', '%fs_midx = OpIAdd %uint %fs_ma2 %fs_mX2',
+                   '%fs_mid2 = OpIAdd %uint %fs_midx %fs_u1'] + word_ptr('%fs_mv', '%fs_midx') + word_ptr('%fs_dv', '%fs_mid2') + (
+                   [f'%fs_mdn = OpSelect %float {dc[1]} {dc[3]} {dc[4]}'] + (['%fs_mds = OpFNegate %float %fs_mdn'] if dc[2] == 'GreaterThan' else ['%fs_mds = OpFMul %float %fs_mdn %fs_fone']) + [
+                   '%fs_mdb = OpBitcast %uint %fs_mds'] if dc else
+                   # versions without a depth search (the game hands in motion vectors that need none): no depth, so nothing is ever flagged
+                   ['%fs_mdb = OpBitwiseAnd %uint %fs_u0 %fs_u0']) + [
+                   'OpStore %fs_mvw %fs_mval', 'OpStore %fs_dvw %fs_mdb', 'OpBranch %fs_mM', '%fs_mM = OpLabel']
     out, n_st = [], 0
     for n, l in enumerate(L):
         if n == main_i:
@@ -198,7 +260,11 @@ else:
             continue
         if n > at and 'OpPhi' in l:
             l = re.sub(rf'{re.escape(blk)}(?=\s|$)', '%fs_cont', l)
+            if MV and n > mv_at:
+                l = re.sub(rf'{re.escape(mv_block)}(?=\s|$)', '%fs_mM', l)
         out.append(l)
+        if MV and n == mv_at:
+            out += [PAD + c for c in mv_code]
         if n == at:
             out += [PAD + c for c in code]
     if not n_st:

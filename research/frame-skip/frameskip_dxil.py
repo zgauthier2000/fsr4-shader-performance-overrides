@@ -136,6 +136,72 @@ else:
             out += code
     if not n_st:
         die('no tensor stores found in the prepass')
+    # Motion and nearest depth for the postpass of a skipped frame, as in frameskip.py: one entry (two words) per 4x4 output
+    # pixels, written by the thread of the block's first pixel, into the second region of the working buffer.
+    D = {k: v[1] for k, v in defs.items()}
+    mv = None
+    for n in range(split, len(L) - 3):
+        a = re.match(r'\s*(%[\w.]+) = fadd fast float (%[\w.]+), (%[\w.]+)\s*$', L[n]); b = re.match(r'\s*(%[\w.]+) = fadd fast float (%[\w.]+), (%[\w.]+)\s*$', L[n + 1])
+        c = re.match(r'\s*%[\w.]+ = fadd fast float (%[\w.]+), 5\.000000e-01\s*$', L[n + 2]); d = re.match(r'\s*%[\w.]+ = fadd fast float (%[\w.]+), 5\.000000e-01\s*$', L[n + 3])
+        if a and b and c and d and c[1] == a[1] and d[1] == b[1]:
+            def sp(m):
+                p, q = m[2], m[3]
+                if D.get(q, '').startswith('uitofp i32') and D.get(p, '').startswith('fmul fast float'): return p, q
+                if D.get(p, '').startswith('uitofp i32') and D.get(q, '').startswith('fmul fast float'): return q, p
+            sa, sb = sp(a), sp(b)
+            if sa and sb:
+                px = re.match(r'uitofp i32 (%[\w.]+) to float', D[sa[1]])[1]; py = re.match(r'uitofp i32 (%[\w.]+) to float', D[sb[1]])[1]
+                mv = (sa[0], sb[0], n + 1, px, py); break
+    if mv is None:
+        die('the reprojection displacement was not found in the prepass')
+    mvx, mvy, mv_at, px, py = mv
+    fetch_at = None
+    for k in range(split, mv_at):
+        m = re.match(r'\s*%[\w.]+ = fmul fast float (%[\w.]+), (%[\w.]+)\s*$', L[k])
+        if m:
+            for p_, q_ in ((m[1], m[2]), (m[2], m[1])):
+                e = re.match(r'extractvalue %dx\.types\.CBufRet\.f32 (%[\w.]+), 0$', D.get(p_, '')); f = re.match(r'extractvalue %dx\.types\.ResRet\.f32 (%[\w.]+), 0$', D.get(q_, ''))
+                if e and f and re.search(r'@dx\.op\.cbufferLoadLegacy\.f32\(i32 59, %dx\.types\.Handle %[\w.]+, i32 2\)', D.get(e[1], '')) and '@dx.op.textureLoad.f32(' in D.get(f[1], ''):
+                    fetch_at = defs[f[1]][0]
+        if fetch_at:
+            break
+    if fetch_at is None:
+        die('the motion-vector fetch was not found in the prepass')
+    dc = next((m for n in range(fetch_at, split, -1) for m in [re.match(r'\s*(%[\w.]+) = fcmp fast o(lt|gt) float (%[\w.]+), (%[\w.]+)\s*$', L[n])] if m), None)
+    blk = next(('%' + m[1] for k in range(mv_at, split, -1) for m in [re.match(r'; <label>:(\d+)', L[k])] if m), '%fs.cont')
+    for fn in ('@dx.op.unary.f32', '@dx.op.binary.f32', '@dx.op.rawBufferStore.i32'):
+        if not any(l.startswith('declare') and fn + '(' in l for l in L):
+            die(f'{fn} is not declared in this shader')
+    need_bc = not any(l.startswith('declare') and '@dx.op.bitcastF32toI32(' in l for l in L)
+    MB, MR = REGION + S, S
+    mv_code = [f'  %fs.mxy = or i32 {px}, {py}', '  %fs.mev = and i32 %fs.mxy, 3', '  %fs.mis = icmp eq i32 %fs.mev, 0', '  %fs.mdo = and i1 %fs.mis, %fs.skip',
+               '  br i1 %fs.mdo, label %fs.mT, label %fs.mM', '', 'fs.mT:',
+               f'  %fs.mrx = call float @dx.op.unary.f32(i32 26, float {mvx})', f'  %fs.mry = call float @dx.op.unary.f32(i32 26, float {mvy})',
+               '  %fs.mcx1 = call float @dx.op.binary.f32(i32 35, float %fs.mrx, float -2.540000e+02)', '  %fs.mcx = call float @dx.op.binary.f32(i32 36, float %fs.mcx1, float 2.540000e+02)',
+               '  %fs.mcy1 = call float @dx.op.binary.f32(i32 35, float %fs.mry, float -2.540000e+02)', '  %fs.mcy = call float @dx.op.binary.f32(i32 36, float %fs.mcy1, float 2.540000e+02)',
+               '  %fs.mix = fptosi float %fs.mcx to i32', '  %fs.miy = fptosi float %fs.mcy to i32', '  %fs.mlx = and i32 %fs.mix, 65535', '  %fs.mly = shl i32 %fs.miy, 16', '  %fs.mval = or i32 %fs.mlx, %fs.mly',
+               f'  %fs.mX = lshr i32 {px}, 2', f'  %fs.mY = lshr i32 {py}, 2', '  %fs.mYr = lshr i32 %fs.mY, 1', '  %fs.mYo = and i32 %fs.mY, 1', '  %fs.mYb = icmp ne i32 %fs.mYo, 0',
+               f'  %fs.mblk = select i1 %fs.mYb, i32 {4096 * 4}, i32 {48 * 4}', f'  %fs.mrw = mul i32 %fs.mYr, {MR}', f'  %fs.ma1 = add i32 %fs.mrw, {MB}', '  %fs.ma2 = add i32 %fs.ma1, %fs.mblk',
+               '  %fs.mX2 = shl i32 %fs.mX, 3', '  %fs.madr = add i32 %fs.ma2, %fs.mX2']
+    if dc:
+        mv_code += [f'  %fs.mdn = select i1 {dc[1]}, float {dc[3]}, float {dc[4]}'] + (['  %fs.mds = fsub fast float -0.000000e+00, %fs.mdn'] if dc[2] == 'gt' else ['  %fs.mds = fmul fast float %fs.mdn, 1.000000e+00']) + [
+                    '  %fs.mdb = call i32 @dx.op.bitcastF32toI32(i32 127, float %fs.mds)']
+    else:
+        mv_code += ['  %fs.mdb = and i32 0, 0']
+    mv_code += [f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i32 %fs.madr, i32 undef, i32 %fs.mval, i32 %fs.mdb, i32 undef, i32 undef, i8 3, i32 4)',
+                '  br label %fs.mM', '', 'fs.mM:']
+    # put it after the line L[mv_at] of the output; later phis that named the block now name fs.mM
+    marker = L[mv_at]
+    i = next(k for k, l in enumerate(out) if l == marker)
+    tail = out[i + 1:]
+    for k, l in enumerate(tail):
+        if ' = phi ' in l:
+            tail[k] = re.sub(rf'{re.escape(blk if blk != "%fs.cont" else "%0")} \]', '%fs.mM ]', l)
+    out = out[:i + 1] + mv_code + tail
+    if need_bc and dc:
+        j = next(k for k, l in enumerate(out) if l.startswith('declare float @dx.op.unary.f32('))
+        out[j:j] = [f'declare i32 @dx.op.bitcastF32toI32(i32, float) {out[j].rsplit(" ", 1)[1]}', '']
+    sys.stderr.write(f"frameskip_dxil: motion store after line {mv_at}, depth {'yes' if dc else 'no'}\n")
     sys.stderr.write(f'frameskip_dxil: {n_st} tensor stores made conditional, row size {S}\n')
 # the rest of the entry block is now the block fs.cont
 res, past = [], False

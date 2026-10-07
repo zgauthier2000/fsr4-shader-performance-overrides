@@ -16,8 +16,12 @@ that flashed at the screen edge when the camera started to turn; see
 **Release `dll-2026-10-06.4`** adds a [history clamp](#history-clamp-on-skipped-frames-release-dll-2026-10-064)
 that removes most of the smear behind moving objects. **Release `dll-2026-10-06.5`**
 [leans on the history](#leaning-on-the-history-on-skipped-frames-release-dll-2026-10-065) on
-skipped frames: shimmer at rest close to AMD's and steadier lines in motion, at the same speed. The tables before that section describe frame skip
-without the correction.
+skipped frames: shimmer at rest close to AMD's and steadier lines in motion, at the same speed.
+**Release `dll-2026-10-06.6`** makes the reused result
+[follow the picture's motion](#following-the-pictures-motion-release-dll-2026-10-066), gives
+just-uncovered pixels the new frame, and no longer reruns the network's last layers on skipped
+frames: thin things in motion about as steady as AMD's, slightly faster. The tables before the
+first of those sections describe frame skip without any of this.
 
 ## Result
 
@@ -317,26 +321,6 @@ By frame rate (the scene of the next section), against AMD's:
   background panning behind it, at native resolution, 12 and 60 pixels per frame), so this rests
   on the report alone.
 
-### Tried and not shipped: following the picture's motion
-
-The line shimmer in motion comes from the reused result sitting where the picture was a frame
-ago, so the direct fix is to fetch it from where each pixel's content was.
-
-- **Displaced by whole cells** (2x2 output pixels), with the prepass storing its reprojection
-  vector per cell in memory the skipped model leaves unused: where the motion is a whole number
-  of cells, thin lines become as steady as AMD's (railing at the 60 FPS step: 1.58 → 1.01 times).
-  Where it is an odd number of pixels, fine lines get about twice as unsteady as before
-  (stripes 2.16 → 4.39). One pixel off is worse than several: the model's edge decisions land
-  beside the edge instead of on a flat area, where they do no harm.
-- **Pixel-exact:** the postpass's small network runs once per distinct source cell (up to four
-  times per thread where the motion is odd in both directions), and each of the four pixel
-  positions in a cell, which has its own last layer, is handed the right cell. That fixes the odd
-  case (stripes 0.57 times AMD's in the first scene, railing 1.0 to 1.2 times at all four frame
-  rates) at 1 to 2 dB in just-uncovered areas.
-- **Why it is not in the builds:** in the game it cost 0.07 ms on average (2.16 against 2.09 ms,
-  118 against 122 FPS in one run) and no difference was visible. The change above gives a
-  visible improvement for nothing.
-
 ### Checked and left alone: what skipped frames write into the model's memory
 
 Besides the picture, the postpass writes four values per pixel that the model reads back on the
@@ -364,7 +348,111 @@ true image, of 255):
 
 Nothing was changed.
 
+## Following the picture's motion (release `dll-2026-10-06.6`)
+
+The line shimmer in motion came from the reused result sitting where the picture was a frame ago.
+The direct fix is to fetch it from where each pixel's content was. Three things had to be solved.
+
+**1. It has to be exact to the pixel.**
+
+- **Displaced by whole cells** (2x2 output pixels): where the motion is a whole number of cells,
+  thin lines become as steady as AMD's (railing at the 60 FPS step: 1.58 → 1.01 times). Where it
+  is an odd number of pixels, fine lines get about twice as unsteady as before (stripes
+  2.16 → 4.39). One pixel off is worse than several: the model's edge decisions land beside the
+  edge instead of on a flat area, where they do no harm.
+- **Pixel-exact:** the model's result is one packed vector per cell, and each of the four pixel
+  positions in a cell has its own last layer. A pixel whose content was an odd distance away
+  needs the vector of another cell and the layer of the other position. So each position's code
+  keeps its layer, is handed the vector of the cell that holds that position of the displaced
+  picture, and writes the pixel this content lands on.
+
+**2. Where the motion comes from.** On skipped frames the prepass stores, for each 4x4 block of
+output pixels, the displacement it already works out for its own reprojection and the nearest
+depth of its own search around the pixel (two words; about 0.02 ms). They go into the second
+region of the working buffer, which nothing uses while the model is skipped. About a quarter of
+the prepass versions have no depth search; those store no depth and nothing is ever flagged.
+
+**3. The cost.** The part of the postpass that turns the model's output into a cell's vector (a
+3x3 convolution and two 1x1 layers) costs about 0.37 ms per evaluation at 4K, and odd motion
+needs up to four cells per thread. A first version that reran it cost 0.07 to 0.27 ms per frame
+in the game, depending on how much moved (118 against 122 FPS in one run).
+
+| Postpass at 4K, RX 7800 XT, benchmark tool | Release 5 | Rerunning the layers | Release 6 |
+|---|---|---|---|
+| Skipped frame, even motion | 0.72 ms | 0.73 ms | 0.51 ms |
+| Skipped frame, odd motion on one axis | 0.72 ms | 1.04 ms | 0.51 ms |
+| Skipped frame, odd motion on both axes | 0.72 ms | 1.66 ms | 0.51 ms |
+| Frame that runs the model | 0.67 ms | 0.70 ms | 0.71 ms |
+
+Those layers depend only on the model's output, and a skipped frame leaves that unchanged. So the
+frame that runs the model keeps every cell's vector (four words, in the half of the working
+buffer that holds pass 11's output, which nothing reads between pass 12 and the next run of the
+model), and the skipped frame reads vectors back instead of working them out, however many cells
+it needs.
+
+- FSR's border-clearing shaders still run on a skipped frame and zero some lines of cells in that
+  memory. The vectors are kept xored with a pattern, so a zero word means "cleared", and such a
+  cell is worked out as before. In the test rig this is rare; it has not been counted exactly.
+- The skipped-frame figures in the table are from a forced probe in which no cell needs working
+  out again.
+- Splitting the work so that only a few threads run the layers twice does not help: a wave of 64
+  threads covers a strip as wide as the whole workgroup, so every wave pays (1.27 ms in a trial).
+- Under vkd3d-proton the postpass sees the working buffer as read-only; the tool removes that
+  declaration. In the DLL's own shaders it is bound for reading and writing already.
+
+**Just-uncovered pixels.** A cell is flagged when something nearer, moving differently, was in
+front of its content a frame ago: the surface now at the cell's position shifted by the difference
+of the two motions (and at points 8 cells to each side) moves differently from the cell and is in
+front of it. Flagged pixels take the new frame alone. The candidates' motion is read first; the
+rest of the test runs in a branch taken only where one of them differs.
+
+**Measured**, 4K Balanced, against AMD's shaders, the scene at a fixed on-screen speed:
+
+| As if at | 30 FPS | 60 FPS | 90 FPS | 120 FPS |
+|---|---|---|---|---|
+| Thin railing, frame-to-frame change: release 5 | 2.32 times | 1.55 times | 1.73 times | 1.64 times |
+| Thin railing, frame-to-frame change: release 6 | 1.16 times | 1.04 times | 0.99 times | 1.14 times |
+| Thin railing, accuracy: release 6 | −2.2 dB | −1.2 dB | −2.3 dB | −1.2 dB |
+| Just-uncovered areas: release 5 | −5.3 dB | −0.9 dB | −4.8 dB | +0.5 dB |
+| Just-uncovered areas: release 6 | −2.2 dB | +0.4 dB | −1.6 dB | +2.2 dB |
+| Background: release 5 | −1.1 dB | −1.7 dB | −0.9 dB | −1.4 dB |
+| Background: release 6 | −0.8 dB | −1.1 dB | −0.6 dB | −0.9 dB |
+
+| First moving scene (odd motion) | AMD's | Release 5 | Release 6 |
+|---|---|---|---|
+| Background | 49.27 dB | 47.68 dB | 48.60 dB |
+| Thin railing | 41.82 dB | 39.84 dB | 40.73 dB |
+| Just-uncovered areas | 34.48 dB | 32.04 dB | 33.96 dB |
+| Fine stripes, frame-to-frame change | 2.04 | 1.66 | 0.95 |
+| Thin railing, frame-to-frame change | 0.91 | 0.66 | 1.02 |
+
+- The last row is the one figure that gets worse: release 5 happened to hold the railing steadier
+  than AMD's in that scene.
+- The flag alone, without motion following, does better behind moving objects at 30 and 90 FPS
+  (−0.8 and +0.3 dB): motion following pulls the other way there.
+- At rest nothing changes: still scenes are byte-identical to release 5 at five output and render
+  sizes, including Ultra Performance.
+- The pan-start test (the dark edge band) still passes.
+
+**In the game** (Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT, Linux files, one run each):
+2.06 ms and 18893 frames, against 2.11 ms and 18850 with release 5; 122 FPS both. The overlay's
+upscaler time on the benchmark's result screen is taken on a still menu and hides anything that
+depends on motion; the frame count is the better figure for a change like this.
+
+**The DLLs.** `motionpost_dxil.py`, `frameskip_dxil.py` and `skipblend_dxil.py` do the same in the
+DLL's shaders. The four lossy DLLs give byte-identical output to the Linux files in the test rig:
+the moving scene at two speeds and still scenes at five sizes with two option sets. They were run
+under Proton only, and their speed on Windows has not been measured.
+
+**Limits.** The reused result now depends on the game's motion vectors on skipped frames. Where
+they are wrong or missing, it is taken from the wrong place; the test rig's motion vectors are
+exact, so this is not measured. The motion is stored in whole output pixels, one value per 4x4
+block.
+
 ## By frame rate
+
+The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
+[the section above](#following-the-pictures-motion-release-dll-2026-10-066).
 
 The shaders never see the frame time, so FSR 4 does not behave differently at 30 or at 120 FPS as
 such. What changes is how far things move between two frames. To measure that, the moving scene
@@ -514,5 +602,7 @@ And each output pixel depends on about 50 pixels around it.
 |---|---|
 | `frameskip.py` | the change for the prepass and the model passes as vkd3d-proton translates them (SPIR-V text) |
 | `frameskip_dxil.py` | the same for the DLL's shaders (DXIL text); same decisions, same mark, same place |
-| `skipblend.py` | the shimmer correction, the history clamp and the edge guard for the postpass (SPIR-V text); run it on AMD's postpass before the store rewrite |
+| `motionpost.py` | motion following and the kept vectors for the postpass (SPIR-V text); run it on AMD's postpass, before `skipblend.py` |
+| `motionpost_dxil.py` | the same for the DLL's postpass (DXIL text) |
+| `skipblend.py` | the shimmer correction, the history clamp, the edge guard and the uncovered-pixel flag for the postpass (SPIR-V text); run it after `motionpost.py` and before the store rewrite |
 | `skipblend_dxil.py` | the same for the DLL's postpass (DXIL text) |

@@ -27,11 +27,11 @@ ROWS = [
     ('Lossy build', 'a frame that runs the model (every other frame)', LOSSY_RUN, 2.9, 'about 2.9 ms', 'lossy',
      ['Passes 1, 5, 10 and 12: the smallest weights are folded into their neighbours, so fewer products are computed.',
       'Passes 2, 4, 7, 8 and 9 (and the four above): simpler rounding between layers.']),
-    ('Lossy build', 'a skipped frame (every other frame)', LOSSY_SKIP, 1.32, '1.32 ms', 'lossy',
-     ["The model does not run. The picture is almost entirely the previous one moved along with the scene; the new",
-      "frame counts for very little, except where the model had asked for it. Three repairs: the history limited to the",
-      "new frame's colours around the pixel, less weight where the nearest sample moved away, and the new frame alone",
-      'where the history is nearly black (no dark band at the screen edge when the camera starts to turn).']),
+    ('Lossy build', 'a skipped frame (every other frame)', LOSSY_SKIP, 1.20, '1.20 ms', 'lossy',
+     ["The model does not run, and its last result follows the picture's motion. The picture is almost entirely the",
+      "previous one moved along with the scene; the new frame counts for very little, except where the model had asked",
+      "for it. Four repairs: the history limited to the new frame's colours around the pixel, less weight where the nearest",
+      "sample moved away, and the new frame alone where the history is nearly black or was hidden behind a moving object."]),
 ]
 
 
@@ -81,9 +81,9 @@ def figure(t):
          "AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output "
          '(model passes 3 and 6 untouched), 3.05 ms, the image is AMD\'s byte for byte. Lossy build on a frame that runs the model: '
          'nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. '
-         'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with three repairs, 1.32 ms. '
-         'The two kinds of frame alternate, 2.11 ms on average, 49% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
-         'still picture 43.74 dB against 44.31, flicker on fine detail at rest 0.119 against 0.110 (8% more), areas just uncovered by a moving object 32.04 dB against 34.48. '
+         'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and four repairs, 1.20 ms. '
+         'The two kinds of frame alternate, 2.06 ms on average, 50% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
+         'still picture 43.74 dB against 44.31, flicker on fine detail at rest 0.119 against 0.110 (8% more), areas just uncovered by a moving object 33.96 dB against 34.48. '
          'Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 34, 'Exact files and lossy builds, pass by pass', t, 16, 'ink', weight=600),
@@ -121,7 +121,7 @@ def figure(t):
     o.append(text(24, y + 30, 'Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT', t, 11, 'muted'))
     bx, bw = 24 + 84, 150
     for i, (lab, v, kind, note) in enumerate([("AMD's", 4.16, 'amd', '4.16 ms  ·  97 FPS'), ('Exact', 3.05, 'exact', '3.05 ms  ·  109 FPS  ·  27% less'),
-                                              ('Lossy', 2.11, 'lossy', '2.11 ms  ·  122 FPS  ·  49% less')]):
+                                              ('Lossy', 2.06, 'lossy', '2.06 ms  ·  122 FPS  ·  50% less')]):
         yy = y + 46 + i * 26
         o.append(text(bx - 10, yy + 12, lab, t, 12, 'ink', 'end'))
         o.append(hbar(bx, yy, bw * v / 4.16, 16, t[kind]))
@@ -132,7 +132,7 @@ def figure(t):
     o.append(text(x2 + 196, y + 52, "AMD's", t, 11, 'muted', 'end'))
     o.append(text(x2 + 284, y + 52, 'Lossy', t, 11, 'muted', 'end'))
     for i, (lab, a, b) in enumerate([('Still picture', '44.31 dB', '43.74 dB'), ('Flicker at rest, fine detail', '0.110', '0.119 (+8%)'),
-                                     ('Areas just uncovered', '34.48 dB', '32.04 dB')]):
+                                     ('Areas just uncovered', '34.48 dB', '33.96 dB')]):
         yy = y + 72 + i * 22
         o.append(text(x2, yy, lab, t, 12, 'ink'))
         o.append(text(x2 + 196, yy, a, t, 12, 'ink2', 'end'))

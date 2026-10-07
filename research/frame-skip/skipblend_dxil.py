@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_CLAMP, SB_BRANCH (as in skipblend.py)
+# skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS (as in skipblend.py)
 # The DXIL form of skipblend.py (see there): on a skipped frame the weight of the new frame is
 # reduced where the nearest sample is farther from the pixel than it was in the frame the model
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
@@ -36,6 +36,63 @@ head = [f'  %sb.h = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.typ
         f'  %sb.c1 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle {cb[1]}, i32 1)',
         '  %sb.jx = extractvalue %dx.types.CBufRet.f32 %sb.c1, 2', '  %sb.jy = extractvalue %dx.types.CBufRet.f32 %sb.c1, 3',
         '  %sb.djx = fsub fast float %sb.pjx, %sb.jx', '  %sb.djy = fsub fast float %sb.pjy, %sb.jy']
+UNCOV = os.environ.get('SB_UNCOV', 'depth') == 'depth'
+ENTRY_LABEL = '%0'
+if UNCOV:
+    # as in skipblend.py: a cell is flagged when a nearer surface that moves differently was in front of its content a frame ago
+    gl_ = [n for n in range(d0, len(L)) if re.match(r'\s*%[\w.]+ = icmp uge i32 (%[\w.]+), (%[\w.]+)', L[n])][:2]
+    ge_ = [re.match(r'\s*%[\w.]+ = icmp uge i32 (%[\w.]+), (%[\w.]+)', L[n]) for n in gl_]
+    if len(ge_) != 2:
+        sys.exit('skipblend_dxil: thread bounds not found')
+    BLINE = next(n for n in range(gl_[1], len(L)) if re.match(r'\s*br i1 ', L[n]))      # the pass's own early-out: the flag is worked out just before it
+    FL_BLOCK = next(('%' + m[1] for k in range(BLINE, e1, -1) for m in [re.match(r'; <label>:(\d+)', L[k])] if m), '%0')
+    Xc, WCc = ge_[0][1], ge_[0][2]; Yc, HCc = ge_[1][1], ge_[1][2]
+    REGION_ = (width * 9 // 16 + 2) * S; MBASE = REGION_ + S
+
+    def sclamp(p, v, lo, hi):
+        return [f'  {p}k1 = icmp slt i32 {v}, {lo}', f'  {p}k2 = select i1 {p}k1, i32 {lo}, i32 {v}', f'  {p}k3 = icmp sgt i32 {p}k2, {hi}', f'  {p} = select i1 {p}k3, i32 {hi}, i32 {p}k2']
+
+    def sabs(p, v):
+        return [f'  {p}n = sub i32 0, {v}', f'  {p}s = icmp slt i32 {v}, 0', f'  {p} = select i1 {p}s, i32 {p}n, i32 {v}']
+
+    def mread(p, x, y):
+        return sclamp(f'{p}xc', x, 0, '%sm.wm') + sclamp(f'{p}yc', y, 0, '%sm.hm') + [
+            f'  {p}xq = lshr i32 {p}xc, 1', f'  {p}yq = lshr i32 {p}yc, 1', f'  {p}yr = lshr i32 {p}yq, 1', f'  {p}yo = and i32 {p}yq, 1', f'  {p}yb = icmp ne i32 {p}yo, 0',
+            f'  {p}bk = select i1 {p}yb, i32 {4096 * 4}, i32 {48 * 4}', f'  {p}rw = mul i32 {p}yr, {S}', f'  {p}a1 = add i32 {p}rw, {MBASE}', f'  {p}a2 = add i32 {p}a1, {p}bk',
+            f'  {p}x2 = shl i32 {p}xq, 3', f'  {p}ix = add i32 {p}a2, {p}x2',
+            f'  {p}mr = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %sb.h, i32 {p}ix, i32 undef, i8 1, i32 4)', f'  {p}m = extractvalue %dx.types.ResRet.i32 {p}mr, 0',
+            f'  {p}xs = shl i32 {p}m, 16', f'  {p}d0 = ashr i32 {p}xs, 16', f'  {p}e0 = ashr i32 {p}m, 16'] + sclamp(f'{p}dx', f'{p}d0', -254, 254) + sclamp(f'{p}dy', f'{p}e0', -254, 254)
+
+    def dread(p):
+        return [f'  {p}di = add i32 {p}ix, 4', f'  {p}dr = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %sb.h, i32 {p}di, i32 undef, i8 1, i32 4)',
+                f'  {p}du = extractvalue %dx.types.ResRet.i32 {p}dr, 0', f'  {p}z = call float @dx.op.bitcastI32toF32(i32 126, i32 {p}du)']
+
+    def near(p, ax, ay, bx, by, lim):
+        return [f'  {p}sx = sub i32 {ax}, {bx}', f'  {p}sy = sub i32 {ay}, {by}'] + sabs(f'{p}ux', f'{p}sx') + sabs(f'{p}uy', f'{p}sy') + [
+                f'  {p}mc = icmp ugt i32 {p}ux, {p}uy', f'  {p}mx = select i1 {p}mc, i32 {p}ux, i32 {p}uy', f'  {p} = icmp ule i32 {p}mx, {lim}']
+
+    mh = ['  br i1 %sb.skip, label %sm.T, label %sm.M', '', 'sm.T:', f'  %sm.wm = add i32 {WCc}, -1', f'  %sm.hm = add i32 {HCc}, -1'] + mread('%sm.p', Xc, Yc)
+    OFFS = [int(x) for x in os.environ.get('SB_UNCOV_OFFS', '8').split(',') if x]
+    offs = [o for d in OFFS for o in ((d, 0), (-d, 0), (0, d), (0, -d))]
+    flag, any_, stage2 = 'false', None, []
+    for i, nm in enumerate(['q'] + [f'n{i}' for i in range(len(offs))]):
+        p = f'%sm.{nm}'
+        if nm == 'q':
+            mh += [f'  {p}hx = ashr i32 %sm.pdx, 1', f'  {p}hy = ashr i32 %sm.pdy, 1', f'  {p}X = add i32 {Xc}, {p}hx', f'  {p}Y = add i32 {Yc}, {p}hy']
+        else:
+            mh += [f'  {p}X = add i32 {Xc}, {offs[i - 1][0]}', f'  {p}Y = add i32 {Yc}, {offs[i - 1][1]}']
+        mh += mread(p, f'{p}X', f'{p}Y') + near(f'{p}same', f'{p}dx', f'{p}dy', '%sm.pdx', '%sm.pdy', 1) + [f'  {p}diff = xor i1 {p}same, true']
+        if any_:
+            mh.append(f'  {p}any = or i1 {any_}, {p}diff'); any_ = f'{p}any'
+        else:
+            any_ = f'{p}diff'
+        stage2 += [f'  {p}tx = sub i32 %sm.pdx, {p}dx', f'  {p}ty = sub i32 %sm.pdy, {p}dy', f'  {p}thx = ashr i32 {p}tx, 1', f'  {p}thy = ashr i32 {p}ty, 1',
+                   f'  {p}tX = add i32 {Xc}, {p}thx', f'  {p}tY = add i32 {Yc}, {p}thy'] + mread(f'{p}t', f'{p}tX', f'{p}tY') + near(f'{p}there', f'{p}tdx', f'{p}tdy', f'{p}dx', f'{p}dy', 1) + \
+                  dread(f'{p}t') + [f'  {p}front = fcmp olt float {p}tz, %sm.pz', f'  {p}okd = icmp ne i32 {p}tdu, 0', f'  {p}fr = and i1 {p}front, {p}okd', f'  {p}th2 = and i1 {p}there, {p}fr',
+                                    f'  {p}hit = and i1 {p}diff, {p}th2', f'  {p}acc = or i1 {flag}, {p}hit']
+        flag = f'{p}acc'
+    mh += [f'  br i1 {any_}, label %sm.T2, label %sm.M2', '', 'sm.T2:'] + dread('%sm.p') + stage2 + ['  br label %sm.M2', '', 'sm.M2:', f'  %sm.fl2 = phi i1 [ {flag}, %sm.T2 ], [ false, %sm.T ]',
+           '  br label %sm.M', '', 'sm.M:', f'  %sm.flag = phi i1 [ %sm.fl2, %sm.M2 ], [ false, {FL_BLOCK} ]']
 fl = lambda v: '0x%016X' % __import__('struct').unpack('<Q', __import__('struct').pack('<d', __import__('struct').unpack('<f', __import__('struct').pack('<f', v))[0]))[0]
 out = L[:e1] + head
 
@@ -152,6 +209,9 @@ else:
         m = re.match(r'; <label>:(\d+)', L[n])
         if m:
             cur_label = '%' + m[1]
+        m = re.match(r'([\w.]+):\s*$', L[n])
+        if m:
+            cur_label = '%' + m[1]
         m = re.match(r'\s*(%[\w.]+) = fadd fast float (%[\w.]+), (%[\w.]+)\s*$', L[n])
         if m:
             for u in (m[2], m[3]):
@@ -163,6 +223,10 @@ else:
         if l.startswith('declare float @dx.op.unary.f32(') and not any('@dx.op.bitcastI32toF32(' in x for x in L if x.startswith('declare')):
             attr = l.rsplit(' ', 1)[1]
             out += [f'declare float @dx.op.bitcastI32toF32(i32, i32) {attr}', '']
+        if UNCOV and n == BLINE:
+            if cur_label != FL_BLOCK:
+                sys.exit('skipblend_dxil: lost track of the block that holds the early-out')
+            out += mh; lab[cur_label] = '%sm.M'; cur_label = '%sm.M'
         out.append(l)
         if pend:
             m = re.match(r'\s*(%[\w.]+) = fmul fast float (%[\w.]+), (%[\w.]+)\s*$', L[n])
@@ -220,7 +284,7 @@ else:
                             c_ += [f'  %sb.zm{c}{k} = fmul fast float {curs[c]}, {fl(REL)}',
                                    f'  %sb.zt{c}{k} = call float @dx.op.binary.f32(i32 35, float %sb.zm{c}{k}, float {fl(THR)})',
                                    f'  %sb.z{c}{k} = fcmp fast ole float {h[c]}, %sb.zt{c}{k}']
-                        c_ += [f'  %sb.zz{k} = and i1 %sb.z0{k}, %sb.z1{k}', f'  %sb.gd{k} = and i1 %sb.zz{k}, %sb.z2{k}'] + [
+                        c_ += [f'  %sb.zz{k} = and i1 %sb.z0{k}, %sb.z1{k}'] + ([f'  %sb.gda{k} = and i1 %sb.zz{k}, %sb.z2{k}', f'  %sb.gd{k} = or i1 %sb.gda{k}, %sm.flag'] if UNCOV else [f'  %sb.gd{k} = and i1 %sb.zz{k}, %sb.z2{k}']) + [
                                f'  %sb.rg.{c}{k} = select i1 %sb.gd{k}, float {curs[c]}, float {mix[c]}' for c in range(3)]
                         mix = [f'%sb.rg.{c}{k}' for c in range(3)]
                     c_ += [f'  br label %sb.M{k}', '', f'sb.M{k}:'] + [f'  %sb.r{c}{k} = phi float [ {mix[c]}, %sb.T{k} ], [ {sums[c]}, {cur_label} ]' for c in range(3)]
