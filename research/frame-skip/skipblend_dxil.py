@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS (as in skipblend.py)
+# skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS, SB_REST (as in skipblend.py)
 # The DXIL form of skipblend.py (see there): on a skipped frame the weight of the new frame is
 # reduced where the nearest sample is farther from the pixel than it was in the frame the model
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
@@ -37,6 +37,7 @@ head = [f'  %sb.h = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.typ
         '  %sb.jx = extractvalue %dx.types.CBufRet.f32 %sb.c1, 2', '  %sb.jy = extractvalue %dx.types.CBufRet.f32 %sb.c1, 3',
         '  %sb.djx = fsub fast float %sb.pjx, %sb.jx', '  %sb.djy = fsub fast float %sb.pjy, %sb.jy']
 UNCOV = os.environ.get('SB_UNCOV', 'depth') == 'depth'
+REST = UNCOV and os.environ.get('SB_REST', '1') == '1'
 ENTRY_LABEL = '%0'
 if UNCOV:
     # as in skipblend.py: a cell is flagged when a nearer surface that moves differently was in front of its content a frame ago
@@ -72,7 +73,7 @@ if UNCOV:
                 f'  {p}mc = icmp ugt i32 {p}ux, {p}uy', f'  {p}mx = select i1 {p}mc, i32 {p}ux, i32 {p}uy', f'  {p} = icmp ule i32 {p}mx, {lim}']
 
     mh = ['  br i1 %sb.skip, label %sm.T, label %sm.M', '', 'sm.T:', f'  %sm.wm = add i32 {WCc}, -1', f'  %sm.hm = add i32 {HCc}, -1'] + mread('%sm.p', Xc, Yc)
-    OFFS = [int(x) for x in os.environ.get('SB_UNCOV_OFFS', '8').split(',') if x]
+    OFFS = [int(x) for x in os.environ.get('SB_UNCOV_OFFS', '3,8').split(',') if x]
     offs = [o for d in OFFS for o in ((d, 0), (-d, 0), (0, d), (0, -d))]
     flag, any_, stage2 = 'false', None, []
     for i, nm in enumerate(['q'] + [f'n{i}' for i in range(len(offs))]):
@@ -91,8 +92,11 @@ if UNCOV:
                   dread(f'{p}t') + [f'  {p}front = fcmp olt float {p}tz, %sm.pz', f'  {p}okd = icmp ne i32 {p}tdu, 0', f'  {p}fr = and i1 {p}front, {p}okd', f'  {p}th2 = and i1 {p}there, {p}fr',
                                     f'  {p}hit = and i1 {p}diff, {p}th2', f'  {p}acc = or i1 {flag}, {p}hit']
         flag = f'{p}acc'
+    # at rest: this cell does not move, and neither does anything looked at around it
+    if REST:
+        mh += ['  %sm.por = or i32 %sm.pdx, %sm.pdy', '  %sm.c0u = icmp eq i32 %sm.por, 0', f'  %sm.nany = xor i1 {any_}, true', '  %sm.rin = and i1 %sm.c0u, %sm.nany']
     mh += [f'  br i1 {any_}, label %sm.T2, label %sm.M2', '', 'sm.T2:'] + dread('%sm.p') + stage2 + ['  br label %sm.M2', '', 'sm.M2:', f'  %sm.fl2 = phi i1 [ {flag}, %sm.T2 ], [ false, %sm.T ]',
-           '  br label %sm.M', '', 'sm.M:', f'  %sm.flag = phi i1 [ %sm.fl2, %sm.M2 ], [ false, {FL_BLOCK} ]']
+           '  br label %sm.M', '', 'sm.M:', f'  %sm.flag = phi i1 [ %sm.fl2, %sm.M2 ], [ false, {FL_BLOCK} ]'] + ([f'  %sm.rest = phi i1 [ %sm.rin, %sm.M2 ], [ false, {FL_BLOCK} ]'] if REST else [])
 fl = lambda v: '0x%016X' % __import__('struct').unpack('<Q', __import__('struct').pack('<d', __import__('struct').unpack('<f', __import__('struct').pack('<f', v))[0]))[0]
 out = L[:e1] + head
 
@@ -252,8 +256,9 @@ else:
                            f'  %sb.gc{k} = call float @dx.op.binary.f32(i32 36, float %sb.g{k}, float 1.000000e+00)'] + (
                            [f'  %sb.gm{k} = fmul fast float %sb.gc{k}, {fl(CONST)}'] if CONST is not None else []) + [
                            f'  %sb.om{k} = fsub fast float 1.000000e+00, ' + (f'%sb.gm{k}' if CONST is not None else f'%sb.gc{k}'), f'  %sb.ao{k} = fmul fast float {a}, %sb.om{k}',
-                           f'  %sb.gw{k} = fsub fast float 1.000000e+00, %sb.ao{k}', f'  %sb.wm{k} = fmul fast float {w}, %sb.gw{k}',
-                           f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wm{k}, float 1.000000e+00)',
+                           f'  %sb.gw{k} = fsub fast float 1.000000e+00, %sb.ao{k}', f'  %sb.wm{k} = fmul fast float {w}, %sb.gw{k}'] + (
+                           [f'  %sb.wq{k} = select i1 %sm.rest, float 0.000000e+00, float %sb.wm{k}', f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wq{k}, float 1.000000e+00)']
+                           if REST else [f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wm{k}, float 1.000000e+00)']) + [
                            f'  %sb.an{k} = fsub fast float 1.000000e+00, %sb.wn{k}']
                     sub = {w: f'%sb.wn{k}', a: f'%sb.an{k}'}
                     for x in pend['lines']:

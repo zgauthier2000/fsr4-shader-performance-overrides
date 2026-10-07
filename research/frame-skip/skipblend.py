@@ -28,7 +28,10 @@
 # SB_UNCOV (default "depth": a pixel whose content was hidden a frame ago behind a nearer surface that moves
 # differently takes the new frame alone, from the motion and depth frameskip.py's prepass stores; "off" for none,
 # as up to release dll-2026-10-06.5; "1": without the depth test), SB_UNCOV_OFFS (how far, in cells, the other
-# surface is looked for on each side, default 8),
+# surface is looked for on each side, default "3,8"; "8" in release dll-2026-10-06.6),
+# SB_REST (default 1: where the cell's stored motion is zero and nothing looked at around it moves differently, a
+# skipped frame takes nothing from the new frame, so fine detail at rest shimmers no more than with AMD's shaders;
+# 0 for release dll-2026-10-06.6's behaviour),
 # SB_CONST (a constant factor on the 2^ term on skipped frames, default 0: (1 - a) becomes (1 - a)^2,
 # the new frame counts for very little where the model keeps history; "off" for none, as in release
 # dll-2026-10-06.4), SB_CAP (upper limit of the 2^ term,
@@ -65,6 +68,7 @@ head += ['%sb_e1 = OpIEqual %bool %sb_v0 %sb_m1', '%sb_e2 = OpIEqual %bool %sb_v
          '%sb_djx = OpFSub %float %sb_pjx %sb_jx', '%sb_djy = OpFSub %float %sb_pjy %sb_jy']
 CLAMPM = float(os.environ['SB_CLAMPM']) if os.environ.get('SB_CLAMPM') else None
 UNCOV = os.environ.get('SB_UNCOV', 'depth') in ('1', 'depth'); DEPTH = os.environ.get('SB_UNCOV', 'depth') == 'depth'
+REST = UNCOV and os.environ.get('SB_REST', '1') == '1'
 HEAD_LABEL = None
 if CLAMPM is not None or UNCOV:
     Xc, WCc = L[ge[0]].split()[-2:]; Yc, HCc = L[ge[1]].split()[-2:]
@@ -103,7 +107,7 @@ if CLAMPM is not None or UNCOV:
         # way off on each side (SB_UNCOV_OFFS, in cells). First only their motion is read; the rest of the test
         # (two more reads per candidate) runs in a branch taken only where one of them moves differently from this
         # pixel, which is a small part of the picture.
-        OFFS = [int(x) for x in os.environ.get('SB_UNCOV_OFFS', '8').split(',') if x]
+        OFFS = [int(x) for x in os.environ.get('SB_UNCOV_OFFS', '3,8').split(',') if x]
         offs = [o for d in OFFS for o in ((d, 0), (-d, 0), (0, d), (0, -d))]
         cands = ['q'] + [f'n{i}' for i in range(len(offs))]
         consts_done = set(); any_ = None; stage2 = []
@@ -139,10 +143,13 @@ if CLAMPM is not None or UNCOV:
                                          f'{p}fr = OpLogicalAnd %bool {p}front {p}okd', f'{p}th2 = OpLogicalAnd %bool {p}there {p}fr'] if DEPTH else [f'{p}th2 = OpLogicalAnd %bool {p}there {p}there']) + [
                        f'{p}hit = OpLogicalAnd %bool {p}diff {p}th2', f'{p}acc = OpLogicalOr %bool {flag} {p}hit']
             flag = f'{p}acc'
+        # at rest: this cell does not move, and neither does anything looked at around it
+        if REST:
+            mh += ['%sm_c0u = OpIEqual %bool %sm_am %sb_c0', f'%sm_nany = OpLogicalNot %bool {any_}', '%sm_rin = OpLogicalAnd %bool %sm_c0u %sm_nany']
         mh += ['OpSelectionMerge %sm_M2 None', f'OpBranchConditional {any_} %sm_T2 %sm_M2', '%sm_T2 = OpLabel'] + own_depth + stage2 + [
                'OpBranch %sm_M2', '%sm_M2 = OpLabel', f'%sm_fl2 = OpPhi %bool {flag} %sm_T2 %sm_false %sm_T']
         flag = '%sm_fl2'; pred = '%sm_M2'
-    mh += ['OpBranch %sm_M', '%sm_M = OpLabel', f'%sm_flag = OpPhi %bool {flag} {pred} %sm_false {lab0}', f'%sm_mag = OpPhi %float %sm_af {pred} %sm_fz {lab0}']
+    mh += ['OpBranch %sm_M', '%sm_M = OpLabel', f'%sm_flag = OpPhi %bool {flag} {pred} %sm_false {lab0}', f'%sm_mag = OpPhi %float %sm_af {pred} %sm_fz {lab0}'] + ([f'%sm_rest = OpPhi %bool %sm_rin {pred} %sm_false {lab0}'] if REST else [])
     head = head + mh
     HEAD_LABEL = '%sm_M'
 out = L[:main] + c + L[main:at + 1] + head
@@ -304,7 +311,10 @@ else:
                              f'%sb_gm{k} = OpFMul %float %sb_gc{k} ' + ('%sb_const' if CONST else '%sb_one'), f'%sb_om{k} = OpFSub %float %sb_one %sb_gm{k}'] + (
                              [f'%sb_ap{k} = OpFMul %float {a} {a}'] if AW == 2 else [f'%sb_ap{k} = OpFMul %float {a} %sb_one'] if AW == 1 else [f'%sb_ap{k} = OpFMul %float %sb_one %sb_one']) + [
                              f'%sb_ao{k} = OpFMul %float %sb_ap{k} %sb_om{k}', f'%sb_gw{k} = OpFSub %float %sb_one %sb_ao{k}',
-                             f'%sb_wm{k} = OpFMul %float {w} %sb_gw{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wm{k} %sb_one',
+                             f'%sb_wm{k} = OpFMul %float {w} %sb_gw{k}'] + (
+                             # where the picture does not move, a skipped frame takes nothing from the new frame
+                             [f'%sb_wq{k} = OpSelect %float %sm_rest %sm_fz %sb_wm{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wq{k} %sb_one']
+                             if REST else [f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wm{k} %sb_one']) + [
                              f'%sb_an{k} = OpFSub %float %sb_one %sb_wn{k}']
                     # the mix again with the corrected weights: the shader's own nine lines, renamed
                     sub = {w: f'%sb_wn{k}', a: f'%sb_an{k}'}

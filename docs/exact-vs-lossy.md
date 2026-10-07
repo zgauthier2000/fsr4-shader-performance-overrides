@@ -14,14 +14,12 @@ and only one of them keeps AMD's picture.
 > **The lossy builds change the image.** They are opt-in experiments, not the same as the main
 > files and not the same as AMD's DLL.
 
-This page describes the builds of release `dll-2026-10-06.6`. Earlier lossy releases behaved
+This page describes the builds of release `dll-2026-10-06.7`. Earlier lossy releases behaved
 differently on skipped frames; their history is on the [frame-skip page](../research/frame-skip).
-A lossy build that is still being tested, with less shimmer at rest, has
-[its own section below](#in-testing-less-shimmer-at-rest).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
-  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the picture's motion and four repairs, 1.20 ms. The two kinds of frame alternate, 2.06 ms on average, 50% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.74 dB against 44.31, flicker on fine detail at rest 0.119 against 0.110 (8% more), areas just uncovered by a moving object 33.96 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the picture's motion and four repairs, and nothing taken from the new frame where the picture is at rest, 1.19 ms. The two kinds of frame alternate, 2.07 ms on average, 50% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.60 dB against 44.31, flicker on fine detail at rest 0.109 against 0.110, areas just uncovered by a moving object 34.21 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
 </picture>
 
 The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py).
@@ -32,7 +30,7 @@ The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py)
 |---|---|---|
 | Image | AMD's, byte for byte | close to AMD's, not the same |
 | How the time is saved | same work, done more efficiently | less work |
-| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 3.05 ms | 2.06 ms |
+| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 3.05 ms | 2.07 ms |
 | Upscaler time, Rise of the Tomb Raider, 4K Balanced (AMD's: 4.29 ms) | 2.97 ms | 2.05 ms (an earlier lossy release) |
 | Frame times | even | alternate between a shorter and a longer frame |
 | Checked how | output compared with AMD's, byte for byte | measured against the true image and against AMD's output |
@@ -88,7 +86,7 @@ model's result from the frame before, which is still in memory. The last layers 
 sit in the postpass; their result is saved by the frame that runs the model and read back on the
 skipped frame, so they are not rerun either.
 
-- **What it saves:** about 0.85 ms on average (2.91 to 2.06 ms). A skipped frame takes about
+- **What it saves:** about 0.85 ms on average (2.91 to 2.07 ms). A skipped frame takes about
   1.2 ms, a normal one about 2.9 ms.
 - **What it costs:** the reused result is one frame old, so a skipped frame cannot be trusted to
   mix the new frame in properly. What it does instead is described next.
@@ -109,6 +107,12 @@ model's result for each pixel from where that pixel's content was a frame ago, t
 Earlier releases reused the result where it was, which made thin things shimmer while the camera
 moved.
 
+**Where the picture is at rest, nothing is taken from the new frame** (new in release
+`dll-2026-10-06.7`). "At rest" means the motion stored for the pixel's block is zero and nothing
+looked at around it (3 and 8 cells to each side) moves differently. The small share of the new
+frame that skipped frames used to mix in was what made fine detail shimmer more than with AMD's
+shaders while nothing moved.
+
 Four repairs keep the rest honest:
 
 | Problem with a reused result | Repair in the builds |
@@ -120,21 +124,27 @@ Four repairs keep the rest honest:
 
 ## What the lossy builds cost, measured
 
-Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip, motion following and the four repairs.
+Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip, motion following, the rest rule and the four repairs.
 
 | | AMD's (= exact files) | Folding only | Lossy |
 |---|---|---|---|
-| Still picture against the true image | 44.31 dB | 43.71 dB | 43.74 dB |
-| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.119 |
+| Still picture against the true image | 44.31 dB | 43.71 dB | 43.60 dB |
+| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.109 |
 | Moving scene: background | 49.27 dB | 48.67 dB | 48.60 dB |
-| Moving scene: thin railing | 41.82 dB | not measured | 40.73 dB |
-| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 33.96 dB |
+| Moving scene: thin railing | 41.82 dB | not measured | 40.75 dB |
+| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 34.21 dB |
+| Still camera, objects moving: thin railing | 42.20 dB | not measured | 40.60 dB |
+| Still camera, objects moving: just-uncovered areas | 32.62 dB | not measured | 30.85 dB |
 | Revealed strip when a pan starts on a skipped frame | 100% of true brightness | no frame skip | 100% |
 
-- **Fine detail shimmers about 8% more than with AMD's shaders** at rest (0.119 against 0.110).
-  It was about 55% with the first frame-skip build and about 30% up to release 4.
-- **The still picture is about 0.6 dB less accurate,** the same as with folding alone.
-- **Just-uncovered areas are about 0.5 dB less accurate** in this scene. It was about 2.5 dB in
+- **Fine detail at rest shimmers no more than with AMD's shaders** (0.109 against 0.110). It was
+  about 55% more with the first frame-skip build, about 30% up to release 4 and 8% in releases 5
+  and 6. The cause was the skipped frames, not the folding: frame skip on the unfolded model
+  shimmered just as much.
+- **The still picture is about 0.7 dB less accurate:** 0.6 dB from the folding and 0.14 dB from
+  the rest rule.
+- **Just-uncovered areas are about 0.3 dB less accurate** in the panning scene, and about 1.8 dB
+  with the camera still and objects moving. It was about 2.5 dB in
   release 5 and about 5 dB before the history clamp.
 - **The moving background is about 0.7 dB less accurate,** nearly all of it from the folding; in
   release 5 frame skip cost a further 1 dB there.
@@ -150,101 +160,36 @@ and each caption gives the whole-frame figure. The images are made by
 [`img/make_comparison_crops.py`](img/make_comparison_crops.py) from rig output.
 
 **At rest.** The largest difference in a still frame is on thin structures. Over the whole frame
-the two differ by 0.12 of 255 on average.
+the two differ by 0.14 of 255 on average.
 
-<img src="img/cmp-still.png" width="760" alt="Still scene, a 90 by 90 pixel piece of the 4K output enlarged four times, at the spot where the exact files and the lossy build differ most: the true image, the exact files, the lossy build, and their difference amplified 16 times. The pictures look alike; the difference image shows faint traces along thin rails and edges. Whole-frame mean difference 0.12 of 255.">
+<img src="img/cmp-still.png" width="760" alt="Still scene, a 90 by 90 pixel piece of the 4K output enlarged four times, at the spot where the exact files and the lossy build differ most: the true image, the exact files, the lossy build, and their difference amplified 16 times. The pictures look alike; the difference image shows faint traces along thin rails and edges. Whole-frame mean difference 0.14 of 255.">
 
 **Shimmer at rest.** How much each pixel changes between consecutive frames when nothing moves.
-In this piece, the worst for the lossy build, it changes 0.064 of 255 per frame against 0.040.
-Over the whole frame the lossy build changes slightly less than the exact files (0.035 against
-0.037), because flat areas are steadier; on fine detail alone it changes 8% more.
+In this piece, the worst for the lossy build, it changes 0.053 of 255 per frame against 0.040
+(release 6: 0.064). Over the whole frame the lossy build changes less than the exact files (0.033
+against 0.037), because flat areas are steadier; on fine detail alone the two are level.
 
-<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of dark textured ground, and maps of how much each pixel changes from frame to frame with the exact files (mean 0.040 of 255) and with the lossy build (0.064). The lossy map shows more scattered bright specks. Whole frame: exact 0.037, lossy 0.035.">
+<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still scene, and maps of how much each pixel changes from frame to frame with the exact files (mean 0.040 of 255) and with the lossy build (0.053). The lossy map shows somewhat more scattered bright specks. Whole frame: exact 0.037, lossy 0.033.">
 
 **In motion, on a skipped frame.** Camera panning as if at 60 FPS. Thin bars in front of a moving
 background are where frame skip is weakest: in the lossy panel the bars are rougher near the
 bottom. The edge a moving block has just uncovered is slightly rougher. Whole frame, the error
-against the true image is 1.19 of 255 against 1.14 (release 5: 1.23).
+against the true image is 1.19 of 255 against 1.14.
 
-<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy build skips the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, lossy build and their difference amplified 8 times. First: thin vertical bars in front of a moving background; in the lossy build the bars are rougher near the bottom (error against the true image 3.4 of 255, exact 2.4). Second: the edge a moving block has just uncovered; slightly rougher in the lossy build (1.5 against 1.1). Whole frame: lossy 1.19, exact 1.14 of 255.">
-
-## In testing: less shimmer at rest
-
-> **Not released yet, coming soon.** The build is finished for Linux and for all four lossy
-> DLLs, and their output matches byte for byte in the test rig (under Proton). It is in no
-> download yet. Everything else on this page describes the released build.
->
-> The same release will bring **slightly faster exact files**: a rewritten prepass and postpass
-> take the upscaler time in Shadow of the Tomb Raider from 3.05 to 2.99 ms, with AMD's image
-> unchanged (28 of 28 comparisons byte-identical with the Linux files, 53 of 53 with the DLLs).
-> See [the two rewrites](../research/postpass-and-prepass#two-ideas-from-a-community-set-rebuilt-here-2026-10-07).
-
-**Where the remaining shimmer at rest comes from.** Not from the weight folding: frame skip on
-the unfolded model shimmers just as much (0.121 against 0.119). It comes from the skipped frames
-themselves. The history clamp and the edge guard play no part.
-
-**The change.** Where the picture is not moving, a skipped frame takes nothing from the new
-frame and shows the history as it is. "Not moving" means the motion stored for the pixel's block
-is zero and nothing looked at around it (3 and 8 cells to each side) moves differently. Anywhere
-else a skipped frame behaves as in the released build.
-
-| Test rig, 4K Balanced | AMD's (= exact files) | Released lossy | In testing | In testing, against AMD's |
-|---|---|---|---|---|
-| Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 | within 1% (released: 8% more) |
-| Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB | within 1.6%; 9% more error |
-| Panning scene: background | 49.27 dB | 48.60 dB | 48.60 dB | within 1.4%; 8% more error |
-| Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB | within 2.6%; 13% more error |
-| Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB | within 0.8%; 3% more error |
-| Still camera, moving objects: background | 46.36 dB | 45.76 dB | 45.68 dB | within 1.5%; 8% more error |
-| Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.60 dB | within 3.8%; 20% more error |
-| Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB | within 5.4%; 23% more error |
-
-"Within x%" compares the quality scores (PSNR, in dB). dB is a logarithmic scale, so the last
-column also gives the same gap as error: how much further the picture is from the true image than
-AMD's is. These are one synthetic scene's figures; they rank builds and do not say how visible a
-difference is in a game.
-
-- **Shimmer at rest is at AMD's level** in this scene, from 8% above it.
-- **The cost is 0.14 dB on the still picture.**
-- **Motion is unchanged or slightly better.** By frame rate (30, 60, 90 and 120 FPS) every figure
-  is within 0.1 dB of the released build or better.
-- **Applying it everywhere does not work:** with nothing taken from the new frame on any skipped
-  frame, shimmer at rest is the same 0.109, but just-uncovered areas and thin things in motion
-  lose 1.5 to 5 dB. A first version that looked only at the pixel's own block lost 0.7 dB on the
-  railing with the camera still and objects moving; looking around the block removed that.
-
-The piece of the still scene where the released build shimmers most, with the build in testing
-next to it. It gets about half of the way back to the exact files there (0.053 of 255 per frame
-against 0.064; exact 0.040); over fine detail as a whole it is level with them.
-
-<img src="img/cmp-flicker-test.png" width="760" alt="Shimmer at rest in a 240 by 160 pixel piece of dark textured ground: the picture, and maps of how much each pixel changes from frame to frame with the exact files (mean 0.040 of 255), the released lossy build (0.064) and the lossy build in testing (0.053). The map of the build in testing shows fewer scattered bright specks than the released one. Whole frame: exact 0.037, released 0.035, in testing 0.033.">
-
-**Speed.** Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT, one run each: 2.07 ms and 18874
-frames, against 2.06 ms and 18893 with the released build; 122 FPS both. That difference is
-within what two runs of the same build give. In the benchmark tool the postpass takes the same
-time as the released build's on both kinds of frame.
-
-**In the game** the author could see the improvement: patterns that used to show on stairs in
-that benchmark while the camera moved were gone. That is one person's impression in one game.
-
-**What is open:** nothing has been run or timed on Windows (the DLLs ran under Proton only);
-tested by the author only; the look-around reads more points than the released build, and what
-that costs where many things move has not been timed on its own. The lossy build that will be
-released also carries the new prepass and postpass; its output is the same, and it has not been
-timed in a game with them.
+<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy build skips the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, lossy build and their difference amplified 8 times. First: thin vertical bars in front of a moving background; in the lossy build the bars are rougher near the bottom (error against the true image 3.3 of 255, exact 2.4). Second: the edge a moving block has just uncovered; slightly rougher in the lossy build (1.4 against 1.1). Whole frame: lossy 1.19, exact 1.14 of 255.">
 
 ## Speed side by side
 
 | Benchmark, 4K Balanced, RX 7800 XT | AMD's shaders | Exact files | Lossy |
 |---|---|---|---|
-| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 3.05 ms (−27%) | 2.06 ms (−50%) |
+| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 3.05 ms (−27%) | 2.07 ms (−50%) |
 | Shadow of the Tomb Raider: average FPS | 97 | 109 | 122 |
 | Rise of the Tomb Raider: upscaler time | 4.29 ms | 2.97 ms (−31%) | 2.05 ms (−52%) * |
 | Rise of the Tomb Raider: overall score | 97.67 FPS | 109.61 FPS | 122.34 FPS * |
 
 \* The Rise of the Tomb Raider lossy run used the lossy build of release `dll-2026-10-06.3`; it
 has not been repeated with the current one. In Shadow of the Tomb Raider the current release and
-that one ran at nearly the same speed (2.06 and 2.09 ms).
+that one ran at nearly the same speed (2.07 and 2.09 ms).
 
 The lossy figures for Shadow of the Tomb Raider are from the Linux files. The Windows DLLs carry
 the same shaders (their output is byte-identical to the Linux files' in the test rig, under
@@ -273,7 +218,9 @@ has not been timed there.
   release 5 was at 1.5 to 2.3 times.
 - **A skipped frame trusts the game's motion vectors more than AMD's shaders do.** Where they are
   wrong or missing (some particles, transparent things), the reused result is taken from the
-  wrong place. Not measured; the test rig's motion vectors are exact.
+  wrong place, and where they say "not moving" a skipped frame shows no change at all, so
+  something that changes without moving (a light, an animated surface) updates on every other
+  frame. Not measured; the test rig's motion vectors are exact.
 - **Little testing.** The current release was run by the author in one game on one RDNA3 card,
   on Linux; its Windows DLLs were only compared with the Linux files in the test rig, under
   Proton. Earlier lossy releases ran in two games and with a few testers. The edge-band fix has

@@ -20,7 +20,9 @@ skipped frames: shimmer at rest close to AMD's and steadier lines in motion, at 
 **Release `dll-2026-10-06.6`** makes the reused result
 [follow the picture's motion](#following-the-pictures-motion-release-dll-2026-10-066), gives
 just-uncovered pixels the new frame, and no longer reruns the network's last layers on skipped
-frames: thin things in motion about as steady as AMD's, slightly faster. The tables before the
+frames: thin things in motion about as steady as AMD's, slightly faster. **Release `dll-2026-10-06.7`** takes
+[nothing from the new frame at rest](#nothing-from-the-new-frame-at-rest-release-dll-2026-10-067),
+which brings shimmer at rest to AMD's level. The tables before the
 first of those sections describe frame skip without any of this.
 
 ## Result
@@ -449,12 +451,9 @@ they are wrong or missing, it is taken from the wrong place; the test rig's moti
 exact, so this is not measured. The motion is stored in whole output pixels, one value per 4x4
 block.
 
-## In testing: nothing from the new frame at rest
+## Nothing from the new frame at rest (release `dll-2026-10-06.7`)
 
-Not released yet, coming soon: built for Linux and for the four lossy DLLs (matching output,
-under Proton); `skipblend.py` here gets the change with that release.
-
-Release 6 still shimmers about 8% more than AMD's shaders at rest (0.119 against 0.110 on fine
+Release 6 still shimmered about 8% more than AMD's shaders at rest (0.119 against 0.110 on fine
 detail). What was tried, 4K Balanced:
 
 | On skipped frames | Shimmer at rest | Note |
@@ -468,10 +467,29 @@ detail). What was tried, 4K Balanced:
 | Nothing from the new frame where the block's stored motion is zero | 0.109 | motion as release 6 when the camera pans; 0.7 dB lost on the railing with the camera still and objects moving |
 | The same, and only where nothing 3 or 8 cells to each side moves differently | 0.109 | no loss in either moving scene |
 
-The last row is the build in testing. It reuses the motion that the uncovered-pixel test already
-reads, so it adds four reads per thread and one comparison per pixel on skipped frames. Figures,
-a comparison image and the game run are on the
-[overview page](../../docs/exact-vs-lossy.md#in-testing-less-shimmer-at-rest).
+The last row is the release (`SB_REST`, on by default in `skipblend.py`; `SB_REST=0
+SB_UNCOV_OFFS=8` rebuilds release 6's files). It reuses the motion that the uncovered-pixel test already
+reads, so it adds four reads per thread and one comparison per pixel on skipped frames.
+
+| Test rig, 4K Balanced | AMD's | Release 6 | Release 7 |
+|---|---|---|---|
+| Shimmer at rest on fine detail | 0.110 | 0.119 | 0.109 |
+| Still picture | 44.31 dB | 43.74 dB | 43.60 dB |
+| Panning scene: background | 49.27 dB | 48.60 dB | 48.60 dB |
+| Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB |
+| Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB |
+| Still camera, moving objects: background | 46.36 dB | 45.76 dB | 45.68 dB |
+| Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.60 dB |
+| Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB |
+
+- By frame rate (30, 60, 90 and 120 FPS) every figure is within 0.1 dB of release 6 or better.
+- Postpass time in the benchmark tool is the same as release 6's on both kinds of frame. In the
+  game: 2.07 ms and 18874 frames, against 2.06 ms and 18893 (one run each, within run-to-run
+  difference).
+- The four lossy DLLs give byte-identical output to the Linux files in the test rig (panning and
+  still-camera moving scenes, still scenes in 20 combinations), under Proton only.
+- Limit: where the motion vectors say "not moving", a skipped frame shows no change at all, so
+  something that changes without moving updates on every other frame.
 
 ## By frame rate
 
