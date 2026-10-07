@@ -16,6 +16,8 @@ and only one of them keeps AMD's picture.
 
 This page describes the builds of release `dll-2026-10-06.5`. Earlier lossy releases behaved
 differently on skipped frames; their history is on the [frame-skip page](../research/frame-skip).
+A lossy build that is still being tested, and is in no release yet, has
+[its own section below](#in-testing-the-next-lossy-build).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
@@ -152,6 +154,70 @@ bottom. The edge a moving block has just uncovered is slightly rougher. Whole fr
 against the true image is 1.23 of 255 against 1.14.
 
 <img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy build skips the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, lossy build and their difference amplified 8 times. First: thin vertical bars in front of a moving background; in the lossy build some bars are broken near the bottom (error against the true image 4.2 of 255, exact 2.8). Second: the edge a moving block has just uncovered; slightly rougher in the lossy build (1.8 against 1.2). Whole frame: lossy 1.23, exact 1.14 of 255.">
+
+## In testing: the next lossy build
+
+> **Not released.** This build exists only as Linux shader files on the author's machine. It is
+> in no download, and its tools are not in this repository yet. Everything above describes the
+> released build.
+
+It changes skipped frames only, in three ways:
+
+| Change on a skipped frame | What it is for |
+|---|---|
+| **The reused result follows the picture.** The prepass stores the motion and nearest depth of each 4x4 block of output pixels, and the postpass takes the model's result from where each pixel's content was a frame ago, to the pixel. | The released build reuses the result where it was, so thin things shimmer while the camera pans. |
+| **Just-uncovered pixels take the new frame alone.** A pixel counts as uncovered when something nearer, moving differently, was in front of it a frame ago. | The history there belongs to the object that has moved away. |
+| **The last layers of the network are not rerun.** They sit in the postpass and depend only on the model's output, which a skipped frame leaves unchanged. The frame that runs the model saves their result in a part of the working buffer that is unused until the model runs again; the skipped frame reads it back. | It pays for the two changes above and a little more: a skipped frame's postpass takes about 0.5 ms instead of 0.7 ms. |
+
+**Measured in the test rig, 4K Balanced.** The first table is the moving scene used above; the
+second is the same content at a fixed on-screen speed, as if at four frame rates, against AMD's
+shaders.
+
+| Moving scene | AMD's (= exact files) | Released lossy | In testing |
+|---|---|---|---|
+| Background | 49.27 dB | 47.68 dB | 48.60 dB |
+| Thin railing | 41.82 dB | 39.84 dB | 40.73 dB |
+| Areas a moving object has just uncovered | 34.48 dB | 32.04 dB | 33.96 dB |
+| Fine stripes on a moving block, change from frame to frame (lower is steadier) | 2.04 | 1.66 | 0.95 |
+| Thin railing, change from frame to frame | 0.91 | 0.66 | 1.02 |
+
+| Against AMD's, as if at | 30 FPS | 60 FPS | 90 FPS | 120 FPS |
+|---|---|---|---|---|
+| Thin railing, change from frame to frame: released | 2.32 times | 1.55 times | 1.73 times | 1.64 times |
+| Thin railing, change from frame to frame: in testing | 1.16 times | 1.04 times | 0.99 times | 1.14 times |
+| Just-uncovered areas: released | −5.3 dB | −0.9 dB | −4.8 dB | +0.5 dB |
+| Just-uncovered areas: in testing | −2.2 dB | +0.4 dB | −1.6 dB | +2.2 dB |
+| Background: released | −1.1 dB | −1.7 dB | −0.9 dB | −1.4 dB |
+| Background: in testing | −0.8 dB | −1.1 dB | −0.6 dB | −0.9 dB |
+
+- **Thin things in motion are about as steady as with AMD's shaders** at all four frame rates,
+  where the released build changes 1.5 to 2.3 times as much.
+- **One figure is worse:** in the first scene the released build happened to hold the railing
+  steadier than AMD's (0.66 against 0.91), and the build in testing is back near AMD's (1.02).
+- **Nothing changes at rest.** Still scenes are byte-identical to the released build at five
+  output and render sizes, so the still-picture and shimmer-at-rest figures above apply as they
+  are.
+
+The same two pieces as in the image above, with the build in testing next to the released one:
+
+<img src="img/cmp-motion-test.png" width="760" alt="The moving scene on a skipped frame, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, released lossy build and lossy build in testing. Thin bars in front of a moving background: error against the true image 2.8 of 255 with the exact files, 4.2 with the released lossy build, where some bars are broken up near the bottom, and 3.5 with the build in testing, where the break-up is smaller. The edge a moving block has just uncovered: 1.2, 1.8 and 1.5. Whole frame: exact 1.14, released 1.23, in testing 1.19 of 255.">
+
+**Speed,** Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT, one run each:
+
+| | Released lossy | In testing |
+|---|---|---|
+| Upscaler time, average | 2.11 ms | 2.06 ms |
+| Frames rendered in the benchmark | 18850 | 18893 |
+| Average FPS | 122 | 122 |
+
+**What is open:**
+
+- **Linux only so far.** Saving the last layers' result writes to a buffer that the postpass can
+  only read under Direct3D, so the Windows DLL needs another way to do it. None has been worked
+  out.
+- **Tested by the author only,** in one game, plus the test rig.
+- Some saved results are wiped between frames by FSR's own border clearing and are worked out
+  again as before. In the rig this is rare; it has not been counted exactly.
 
 ## Speed side by side
 

@@ -5,6 +5,7 @@
 # gen_inputs.py / gen_motion.py, 4K Balanced, 40 frames, the last 8 kept). <dir> holds
 #   still_exact/, still_lossy/, motion_exact/, motion_lossy/   output_3840x2160_fNNN.raw (RGBA16F)
 #   still_truth.npy, truth_037.npy                              the true 4K images
+#   motion_next/ (optional)   a lossy build still in testing: adds cmp-motion-test.png, the same pieces with that build
 # "exact" is the main files (the same bytes as AMD's shaders give), "lossy" the lossy test build.
 # The moving scene is the "as if at 60 FPS" one: SCENE_VB="12 6" SCENE_VO="-6 6" SCENE_PAD=1000.
 import sys
@@ -116,3 +117,20 @@ for label, (x0, y0, x1, y1) in (('Thin bars moving in front of a moving backgrou
 sheet('In motion, on a frame the lossy build skips the model for',
       f'As if at 60 FPS (12 pixels of camera pan per frame). {K} x {K} pixel pieces where the lossy build is furthest off, enlarged 4 times.',
       rows, 'cmp-motion.png', note=f'Whole frame, error against the true image: exact {de.mean() * 255:.2f}, lossy {dl.mean() * 255:.2f} of 255.')
+
+# ---- the same pieces with a build still in testing, next to the released one
+import os
+if os.path.isdir(f'{D}/motion_next'):
+    nx = load('motion_next', N); dn = np.abs(nx - t).mean(2)
+    rows = []
+    for label, (x0, y0, x1, y1) in (('Thin bars moving in front of a moving background', (2078, 1222, 2978, 1642)),
+                                     ('The edge a moving block has just uncovered', (1978, 422, 2178, 1182))):
+        s = box(dl - de, K)[y0:y1 - K, x0:x1 - K]; y, x = np.unravel_index(np.argmax(s), s.shape); y += y0; x += x0
+        c = lambda a: a[y:y + K, x:x + K]
+        print(label, 'window', x, y, 'error exact %.2f released %.2f test %.2f of 255' % (c(de).mean() * 255, c(dl).mean() * 255, c(dn).mean() * 255))
+        rows.append((f'{label}   (error against the true image, of 255)',
+                     [('true image', rgb8(zoom(c(t), 4))), (f"exact files (= AMD's): {c(de).mean() * 255:.1f}", rgb8(zoom(c(e), 4))),
+                      (f'released lossy build: {c(dl).mean() * 255:.1f}', rgb8(zoom(c(l), 4))), (f'lossy build in testing: {c(dn).mean() * 255:.1f}', rgb8(zoom(c(nx), 4)))]))
+    sheet('In motion, on a skipped frame: the released lossy build and the one in testing',
+          f'As if at 60 FPS. The same {K} x {K} pixel pieces as above (where the released build is furthest off), enlarged 4 times.',
+          rows, 'cmp-motion-test.png', note=f'Whole frame, error against the true image: exact {de.mean() * 255:.2f}, released {dl.mean() * 255:.2f}, in testing {dn.mean() * 255:.2f} of 255.')
