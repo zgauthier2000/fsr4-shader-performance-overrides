@@ -37,11 +37,30 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
   | Shadow of the Tomb Raider, 4K Balanced: upscaler time | 4.16 ms | 3.05 ms | 2.99 ms |
 
   Image quality is 100% of AMD's, not close to it but the same picture. The output is still AMD's, byte for byte: 28 of 28 comparisons with the Linux files and 53 of
-  53 with the five DLLs (run under Proton), over four output-size classes, render sizes from
+  53 with the DLLs (run under Proton), over four output-size classes, render sizes from
   Ultra Performance to native, several option settings and a moving scene. Both ideas came from
   a community member's shader set and were rebuilt here from AMD's shaders
   ([details](research/postpass-and-prepass#two-ideas-from-a-community-set-rebuilt-here-2026-10-07)).
   The timings are from Linux; what the DLLs gain on Windows has not been measured.
+- **A ghost beside moving characters is fixed, in the lossy test builds.** With the camera turning
+  fast around a third-person character, release 6 could show a second, broken outline of the
+  character's edge, or of something thin like a rifle, a little way off in the background. The
+  skipped frames' test for "this pixel was hidden a frame ago" looked for the object where the
+  pixel's content used to be, and missed it when the object had itself moved. The prepass now
+  records which surface was at each spot a frame ago, and the postpass looks it up.
+
+  | Error where the object's old image would land, skipped frames, 8-bit steps | AMD's shaders | Release 6 | This release |
+  |---|---|---|---|
+  | Camera 40, object 6 pixels per frame: outline band | 0.50 | 1.44 | 0.48 |
+  | Same: thin bars' old image | 0.33 | 1.32 | 0.38 |
+  | Camera still, object 20 pixels per frame: thin bars' old image | 0.65 | 4.34 | 0.73 |
+
+  The author no longer sees it in the game it was reported and reproduced in.
+  [Details](research/frame-skip#who-was-here-a-frame-ago-release-dll-2026-10-07).
+- **If you use a lossy build of release 6 at 1080p output or below, update.** There the per-block
+  motion was stored in overlapping places, and motion was less steady than in release 5
+  (background frame-to-frame change 0.146 against AMD's 0.089; now 0.072). Larger outputs were
+  not affected.
 - **The lossy test builds no longer shimmer more than AMD's at rest.** On the frames that skip the
   model, where the picture is not moving, nothing is taken from the new frame. The small share
   that used to be mixed in was what made fine detail shimmer; the weight folding was not the
@@ -51,17 +70,18 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
   |---|---|---|---|---|
   | Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 | within 1% (release 6: 8% more) |
   | Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB | within 1.6%; 9% more error |
-  | Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB | within 2.6%; 13% more error |
-  | Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB | within 0.8%; 3% more error |
-  | Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.60 dB | within 3.8%; 20% more error |
-  | Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB | within 5.4%; 23% more error |
+  | Panning scene: thin railing | 41.82 dB | 40.73 dB | 41.12 dB | within 1.7%; 8% more error |
+  | Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 36.56 dB | 6% above; 21% less error |
+  | Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.99 dB | within 2.9%; 15% more error |
+  | Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.93 dB | within 5.2%; 21% more error |
 
   "Within x%" compares the quality scores (PSNR, in dB). dB is a logarithmic scale, so the last
   column also gives the same gap as error: how much further the picture is from the true image
   than AMD's is.
 
-  Speed is unchanged: 2.07 ms and 18874 frames in Shadow of the Tomb Raider's benchmark (4K
-  Balanced, RX 7800 XT, Linux files, one run each), against 2.06 ms and 18893; 122 FPS both. In
+  Speed is unchanged: 2.05 ms and 18879 frames in Shadow of the Tomb Raider's benchmark (4K
+  Balanced, RX 7800 XT, Linux files, one run each), against 2.06 ms and 18893 with release 6;
+  122 FPS both. In
   that benchmark the author could see the difference: patterns that used to show on stairs were
   gone. One person's impression in one game.
   [How it was found](research/frame-skip#nothing-from-the-new-frame-at-rest-release-dll-2026-10-07).
@@ -78,9 +98,10 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
   Windows has not been measured.
 - **Files:** every file is replaced: the main DLL, the test builds, the lossy builds and the
   Linux prebuilt folder. Names in OptiScaler stay the same, so say which release you used. The
-  lossy builds carry the new prepass and postpass too; their output is the same as it would be
-  without them, and with them the Linux lossy files read 2.05 ms and 18953 frames in the same
-  benchmark (122 FPS).
+  lossy builds carry the new prepass and postpass too.
+- **`test-rdna2-hybrid.zip` is gone.** The RDNA2 build that kept AMD's postpass at 1080p output
+  did not prove useful (a tester found it no faster than the alternatives) and is no longer
+  built. `test-rdna2.zip` and `test-rdna2-compact.zip` remain.
 
 ## Earlier on 2026-10-06: release 6 (`dll-2026-10-06.6`)
 
@@ -530,7 +551,6 @@ patched DLL is the one in use. The test builds for other GPUs carry their own na
 | `test-igpu.zip` | `4.1.1-ig-cyboman` | RDNA3 integrated GPUs (experimental) |
 | `test-rdna2.zip` | `4.1.1-r2-cyboman` | RDNA2 (RX 6000) |
 | `test-rdna2-compact.zip` | `4.1.1-r2c-cyboman` | RDNA2 and Steam Deck, test build with a smaller pass 11 ([details](docs/gpu-support.md#test-build-rdna2-with-the-compact-pass-11-2026-10-05)) |
-| `test-rdna2-hybrid.zip` | `4.1.1-r2h-cyboman` | RDNA2 at 1080p output, test build: AMD's postpass at 1080p and below, the rewrite above ([details](docs/gpu-support.md#test-build-rdna2-hybrid-2026-10-05)) |
 | `test-lossy.zip` | `4.1.1-r3-lossy-cyboman` | desktop RDNA3, **opt-in test build that changes the image** ([details](research/lossy#the-opt-in-test-build-2026-10-05)) |
 | `test-lossy-rdna2.zip` | `4.1.1-r2-lossy-cyboman` | RDNA2, **changes the image** |
 | `test-lossy-rdna2-compact.zip` | `4.1.1-r2c-lossy-cyboman` | RDNA2 and Steam Deck, **changes the image** |

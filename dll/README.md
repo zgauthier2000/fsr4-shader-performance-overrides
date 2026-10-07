@@ -36,7 +36,7 @@ Not for RDNA4. **All released DLLs are built with it** since release `dll-2026-1
 OptiScaler displays, so that a patched DLL can be told from AMD's and the builds from each other.
 The released DLLs use `4.1.1-r3-cyboman` (desktop RDNA3), `4.1.1-ig-cyboman` (integrated GPUs)
 `4.1.1-r2-cyboman` (RDNA2), `4.1.1-r2c-cyboman` (RDNA2 with the compact pass 11, a test
-build), `4.1.1-r2h-cyboman` (RDNA2 with AMD's postpass at 1080p output and below, a test build) and `4.1.1-r3-lossy-cyboman` (the opt-in build that changes the image; `4.1.1-r2-lossy-cyboman`,
+build), (`4.1.1-r2h-cyboman`, RDNA2 with AMD's postpass at 1080p output and below, was a test build until release `dll-2026-10-06.6`) and `4.1.1-r3-lossy-cyboman` (the opt-in build that changes the image; `4.1.1-r2-lossy-cyboman`,
 `4.1.1-r2c-lossy-cyboman` and `4.1.1-ig-lossy-cyboman` for the other GPUs; see
 [`research/lossy`](../research/lossy)). The GPU tag comes before `cyboman` since release
 `dll-2026-10-05.4`, so that it stays visible in OptiScaler's closed dropdown; earlier releases

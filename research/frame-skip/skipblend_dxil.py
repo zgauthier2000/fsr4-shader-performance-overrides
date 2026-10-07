@@ -59,7 +59,7 @@ if UNCOV:
     def mread(p, x, y):
         return sclamp(f'{p}xc', x, 0, '%sm.wm') + sclamp(f'{p}yc', y, 0, '%sm.hm') + [
             f'  {p}xq = lshr i32 {p}xc, 1', f'  {p}yq = lshr i32 {p}yc, 1', f'  {p}yr = lshr i32 {p}yq, 1', f'  {p}yo = and i32 {p}yq, 1', f'  {p}yb = icmp ne i32 {p}yo, 0',
-            f'  {p}bk = select i1 {p}yb, i32 {4096 * 4}, i32 {48 * 4}', f'  {p}rw = mul i32 {p}yr, {S}', f'  {p}a1 = add i32 {p}rw, {MBASE}', f'  {p}a2 = add i32 {p}a1, {p}bk',
+            f'  {p}bk = select i1 {p}yb, i32 {(2048 if S == 15392 else 4096) * 4}, i32 {48 * 4}', f'  {p}rw = mul i32 {p}yr, {S}', f'  {p}a1 = add i32 {p}rw, {MBASE}', f'  {p}a2 = add i32 {p}a1, {p}bk',
             f'  {p}x2 = shl i32 {p}xq, 3', f'  {p}ix = add i32 {p}a2, {p}x2',
             f'  {p}mr = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %sb.h, i32 {p}ix, i32 undef, i8 1, i32 4)', f'  {p}m = extractvalue %dx.types.ResRet.i32 {p}mr, 0',
             f'  {p}xs = shl i32 {p}m, 16', f'  {p}d0 = ashr i32 {p}xs, 16', f'  {p}e0 = ashr i32 {p}m, 16'] + sclamp(f'{p}dx', f'{p}d0', -254, 254) + sclamp(f'{p}dy', f'{p}e0', -254, 254)
@@ -95,6 +95,25 @@ if UNCOV:
     # at rest: this cell does not move, and neither does anything looked at around it
     if REST:
         mh += ['  %sm.por = or i32 %sm.pdx, %sm.pdy', '  %sm.c0u = icmp eq i32 %sm.por, 0', f'  %sm.nany = xor i1 {any_}, true', '  %sm.rin = and i1 %sm.c0u, %sm.nany']
+    if os.environ.get('SB_PLANE', '1') == '1':
+        # the exact test, as in skipblend.py: who was, a frame ago, where this pixel's content was (the plane frameskip.py records)
+        from frameskip_layout import plane_layout
+        L_ = plane_layout(S); B1_ = (2048 if S == 15392 else 4096)
+        mh += [f'  %sm.Px0 = shl i32 {Xc}, 1', f'  %sm.Py0 = shl i32 {Yc}, 1', '  %sm.Px = add i32 %sm.Px0, %sm.pdx', '  %sm.Py = add i32 %sm.Py0, %sm.pdy', '  %sm.Pbx = ashr i32 %sm.Px, 2', '  %sm.Pby = ashr i32 %sm.Py, 2',
+               f'  %sm.Pix = icmp ult i32 %sm.Pbx, {L_["nx"]}', f'  %sm.Piy = icmp ult i32 %sm.Pby, {L_["ny"]}', '  %sm.Pin = and i1 %sm.Pix, %sm.Piy',
+               '  %sm.Pxs = select i1 %sm.Pin, i32 %sm.Pbx, i32 0', '  %sm.Pys = select i1 %sm.Pin, i32 %sm.Pby, i32 0', '  %sm.Pyr = lshr i32 %sm.Pys, 1', '  %sm.Pyo = and i32 %sm.Pys, 1', '  %sm.Pyb = icmp ne i32 %sm.Pyo, 0',
+               f'  %sm.Pbk = select i1 %sm.Pyb, i32 {L_["pb1"] * 4}, i32 {L_["pb0"] * 4}', f'  %sm.Prw = mul i32 %sm.Pyr, {S}', f'  %sm.Pa1 = add i32 %sm.Prw, {MBASE}', '  %sm.Pa2 = add i32 %sm.Pa1, %sm.Pbk',
+               '  %sm.Px4 = shl i32 %sm.Pxs, 2', '  %sm.Padr = add i32 %sm.Pa2, %sm.Px4',
+               '  %sm.Pr = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %sb.h, i32 %sm.Padr, i32 undef, i8 1, i32 4)', '  %sm.Pk0 = extractvalue %dx.types.ResRet.i32 %sm.Pr, 0',
+               '  %sm.Pk = select i1 %sm.Pin, i32 %sm.Pk0, i32 0', '  %sm.Pany = icmp ne i32 %sm.Pk, 0']
+        win = [f'  %sm.Wid = and i32 %sm.Pk, {(1 << L_["idb"]) - 1}', f'  %sm.Wx = and i32 %sm.Wid, {(1 << L_["xb"]) - 1}', f'  %sm.Wy = lshr i32 %sm.Wid, {L_["xb"]}',
+               '  %sm.Wyr = lshr i32 %sm.Wy, 1', '  %sm.Wyo = and i32 %sm.Wy, 1', '  %sm.Wyb = icmp ne i32 %sm.Wyo, 0', f'  %sm.Wbk = select i1 %sm.Wyb, i32 {B1_ * 4}, i32 {48 * 4}',
+               f'  %sm.Wrw = mul i32 %sm.Wyr, {S}', f'  %sm.Wa1 = add i32 %sm.Wrw, {MBASE}', '  %sm.Wa2 = add i32 %sm.Wa1, %sm.Wbk', '  %sm.Wx2 = shl i32 %sm.Wx, 3', '  %sm.Wix = add i32 %sm.Wa2, %sm.Wx2',
+               '  %sm.Wmr = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %sb.h, i32 %sm.Wix, i32 undef, i8 1, i32 4)', '  %sm.Wm = extractvalue %dx.types.ResRet.i32 %sm.Wmr, 0',
+               '  %sm.Wxs = shl i32 %sm.Wm, 16', '  %sm.Wd0 = ashr i32 %sm.Wxs, 16', '  %sm.We0 = ashr i32 %sm.Wm, 16'] + sclamp('%sm.Wdx', '%sm.Wd0', -254, 254) + sclamp('%sm.Wdy', '%sm.We0', -254, 254) + \
+              near('%sm.Wsame', '%sm.Wdx', '%sm.Wdy', '%sm.pdx', '%sm.pdy', 1) + dread('%sm.W') + [
+               '  %sm.Wdiff = xor i1 %sm.Wsame, true', '  %sm.Wfront = fcmp olt float %sm.Wz, %sm.pz', '  %sm.Wokd = icmp ne i32 %sm.Wdu, 0', '  %sm.Wh1 = and i1 %sm.Wdiff, %sm.Wfront', '  %sm.Whit = and i1 %sm.Wh1, %sm.Wokd']
+        any_, stage2, flag = '%sm.Pany', win, '%sm.Whit'
     mh += [f'  br i1 {any_}, label %sm.T2, label %sm.M2', '', 'sm.T2:'] + dread('%sm.p') + stage2 + ['  br label %sm.M2', '', 'sm.M2:', f'  %sm.fl2 = phi i1 [ {flag}, %sm.T2 ], [ false, %sm.T ]',
            '  br label %sm.M', '', 'sm.M:', f'  %sm.flag = phi i1 [ %sm.fl2, %sm.M2 ], [ false, {FL_BLOCK} ]'] + ([f'  %sm.rest = phi i1 [ %sm.rin, %sm.M2 ], [ false, {FL_BLOCK} ]'] if REST else [])
 fl = lambda v: '0x%016X' % __import__('struct').unpack('<Q', __import__('struct').pack('<d', __import__('struct').unpack('<f', __import__('struct').pack('<f', v))[0]))[0]

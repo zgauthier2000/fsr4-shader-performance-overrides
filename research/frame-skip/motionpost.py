@@ -57,7 +57,7 @@ TAG = 0xA5A5A5A5
 rn = lambda l, a, b: re.sub(rf'{re.escape(a)}(?!\w)', b, l)
 c = ([f"%mp_jlo = OpConstant %float {float(os.environ['MP_SPOILJ'].split(',')[0])}", f"%mp_jhi = OpConstant %float {float(os.environ['MP_SPOILJ'].split(',')[1])}"] if os.environ.get('MP_SPOILJ') else []) + ([f"%mp_len = OpConstant %uint {int(os.environ['MP_LEN']) // 4}"] if os.environ.get('MP_LEN') else []) + [f'%mp_cbase = OpConstant %uint {CBASE}', f'%mp_tag = OpConstant %uint {TAG}', '%mp_false = OpConstantFalse %bool', '%mp_c2 = OpConstant %uint 2', '%mp_m1 = OpConstant %uint 1511506142', '%mp_m2 = OpConstant %uint 168889943', '%mp_c0 = OpConstant %uint 0', '%mp_c1 = OpConstant %uint 1', '%mp_c16 = OpConstant %uint 16',
      f'%mp_w0 = OpConstant %uint {WM}', f'%mp_w1 = OpConstant %uint {WM + 1}', f'%mp_base = OpConstant %uint {(REGION + S) // 4}', f'%mp_row = OpConstant %uint {S // 4}',
-     '%mp_b0 = OpConstant %uint 48', '%mp_b1 = OpConstant %uint 4096', f'%mp_lo = OpConstant %uint {(-254) & 0xffffffff}', '%mp_hi = OpConstant %uint 254']
+     '%mp_b0 = OpConstant %uint 48', f'%mp_b1 = OpConstant %uint {(2048 if S == 15392 else 4096)}', f'%mp_lo = OpConstant %uint {(-254) & 0xffffffff}', '%mp_hi = OpConstant %uint 254']
 if os.environ.get('MP_FORCE'):
     c += [f"%mp_fx = OpConstant %uint {int(os.environ['MP_FORCE'].split(',')[0]) & 0xffffffff}", f"%mp_fy = OpConstant %uint {int(os.environ['MP_FORCE'].split(',')[1]) & 0xffffffff}"]
 head = ['%mp_r1 = OpAccessChain %_ptr_PushConstant_uint %registers %uint_1', '%mp_r = OpLoad %uint %mp_r1', '%mp_bi = OpIAdd %uint %mp_r %uint_11',
@@ -136,6 +136,19 @@ if os.environ.get('MP_SPOILJ'):      # probe: on the one frame with this jitter 
             '%mp_j5 = OpLogicalAnd %bool %mp_j3 %mp_j4', '%mp_j6 = OpLogicalAnd %bool %mp_j5 %mp_skip'] + [f'%mp_Q{i} = OpSelect %uint %mp_j6 %mp_c0 {W["00"][i]}' for i in range(4)]
     W['00'] = [f'%mp_Q{i}' for i in range(4)]
 cur = '%mp_M00'
+if os.environ.get('MP_PLANE', '1') == '1':
+    # the plane the prepass of a skipped frame records "who was here a frame ago" in (frameskip.py): cleared by every frame that runs
+    from frameskip_layout import plane_layout
+    L_ = plane_layout(S)
+    c_extra = [f'%mp_pb0 = OpConstant %uint {L_["pb0"]}', f'%mp_pb1 = OpConstant %uint {L_["pb1"]}']
+    out[main:main] = c_extra
+    out += [f'%mp_cxy = OpBitwiseOr %uint {X} {Y}', '%mp_cev = OpBitwiseAnd %uint %mp_cxy %mp_c1', '%mp_ce = OpIEqual %bool %mp_cev %mp_c0', '%mp_nsk = OpLogicalNot %bool %mp_skip',
+            '%mp_cd = OpLogicalAnd %bool %mp_ce %mp_nsk', 'OpSelectionMerge %mp_CM None', 'OpBranchConditional %mp_cd %mp_CT %mp_CM', '%mp_CT = OpLabel',
+            f'%mp_cxq = OpShiftRightLogical %uint {X} %mp_c1', f'%mp_cyq = OpShiftRightLogical %uint {Y} %mp_c1', '%mp_cyr = OpShiftRightLogical %uint %mp_cyq %mp_c1',
+            '%mp_cyo = OpBitwiseAnd %uint %mp_cyq %mp_c1', '%mp_cyb = OpINotEqual %bool %mp_cyo %mp_c0', '%mp_cblk = OpSelect %uint %mp_cyb %mp_pb1 %mp_pb0',
+            '%mp_crw = OpIMul %uint %mp_cyr %mp_row', '%mp_ca1 = OpIAdd %uint %mp_base %mp_crw', '%mp_ca2 = OpIAdd %uint %mp_ca1 %mp_cblk', '%mp_cidx = OpIAdd %uint %mp_ca2 %mp_cxq',
+            '%mp_cp = OpAccessChain %_ptr_StorageBuffer_uint %mp_bp %uint_0 %mp_cidx', 'OpStore %mp_cp %mp_c0', 'OpBranch %mp_CM', '%mp_CM = OpLabel']
+    cur = '%mp_CM'
 for k, (xs, ys, cond) in (('10', ('%mp_X1', '%mp_Y0', '%mp_ox')), ('01', ('%mp_X0', '%mp_Y1', '%mp_oy')), ('11', ('%mp_X1', '%mp_Y1', '%mp_oxy'))):
     b, bw, blast = body(k, xs, ys)
     out += [f'OpSelectionMerge %mp_M{k} None', f'OpBranchConditional {cond} %mp_C{k} %mp_M{k}', f'%mp_C{k} = OpLabel'] + kept(f'%mp_k{k}', xs, ys)

@@ -85,6 +85,9 @@ rp, heap, elem_t = st
 PAD = '               '
 
 
+from frameskip_layout import plane_layout
+
+
 def word_ptr(p, word):
     return [f'{p}rp = OpAccessChain {rp[1]} {rp[2]} {rp[3]}', f'{p}r = OpLoad %uint {p}rp', f'{p}i = OpIAdd %uint {p}r %uint_11',
             f'{p}b = OpAccessChain {heap[1]} {heap[2]} {p}i', f'{p}w = OpAccessChain {elem_t} {p}b %uint_0 {word}']
@@ -229,7 +232,7 @@ else:
         dc = next((m for n in range(fetch_at, at, -1) for m in [re.match(r'\s*(%\w+) = OpFOrd(LessThan|GreaterThan) %bool (%\w+) (%\w+)$', L[n])] if m), None)
         mv_block = next(re.match(r'\s*(%\w+) = OpLabel', L[k])[1] for k in range(mv_at, 0, -1) if 'OpLabel' in L[k])
         glsl = next(m[1] for l in L for m in [re.match(r'\s*(%\w+) = OpExtInstImport "GLSL.std.450"', l)] if m)
-        consts += [f'%fs_mbase = OpConstant %uint {(REGION + S) // 4}', f'%fs_mrow = OpConstant %uint {S // 4}', '%fs_mb0 = OpConstant %uint 48', '%fs_mb1 = OpConstant %uint 4096',
+        consts += [f'%fs_mbase = OpConstant %uint {(REGION + S) // 4}', f'%fs_mrow = OpConstant %uint {S // 4}', '%fs_mb0 = OpConstant %uint 48', f'%fs_mb1 = OpConstant %uint {(2048 if S == 15392 else 4096)}',
                    '%fs_u1 = OpConstant %uint 1', '%fs_u2 = OpConstant %uint 2', '%fs_u3 = OpConstant %uint 3', '%fs_u16 = OpConstant %uint 16', '%fs_u65535 = OpConstant %uint 65535',
                    '%fs_fone = OpConstant %float 1', '%fs_fm = OpConstant %float -254', '%fs_fp = OpConstant %float 254']
         mv_code = [f'%fs_mxy = OpBitwiseOr %uint {px} {py}', '%fs_mev = OpBitwiseAnd %uint %fs_mxy %fs_u3', '%fs_mis = OpIEqual %bool %fs_mev %fs_u0',
@@ -247,7 +250,32 @@ else:
                    '%fs_mdb = OpBitcast %uint %fs_mds'] if dc else
                    # versions without a depth search (the game hands in motion vectors that need none): no depth, so nothing is ever flagged
                    ['%fs_mdb = OpBitwiseAnd %uint %fs_u0 %fs_u0']) + [
-                   'OpStore %fs_mvw %fs_mval', 'OpStore %fs_dvw %fs_mdb', 'OpBranch %fs_mM', '%fs_mM = OpLabel']
+                   'OpStore %fs_mvw %fs_mval', 'OpStore %fs_dvw %fs_mdb']
+        if dc and os.environ.get('FS_PLANE', '1') == '1':
+            # For the postpass's test "was this pixel's content hidden a frame ago": this block's surface was, a frame ago, at
+            # the block's position plus its motion. It leaves its nearness and its own block number in the (up to four)
+            # blocks that area touches; of several surfaces the nearest one stays (atomic maximum). The postpass of the last
+            # frame that ran the model has cleared the plane.
+            L_ = plane_layout(S)
+            consts += [f'%fs_psh = OpConstant %uint {23 - L_["m"]}', f'%fs_pbias = OpConstant %uint {(127 - 31) << L_["m"]}', f'%fs_pmax = OpConstant %uint {(1 << L_["kb"]) - 1}',
+                       f'%fs_pxb = OpConstant %uint {L_["xb"]}', f'%fs_pidb = OpConstant %uint {L_["idb"]}', f'%fs_pnx = OpConstant %uint {L_["nx"]}', f'%fs_pny = OpConstant %uint {L_["ny"]}',
+                       f'%fs_pb0 = OpConstant %uint {L_["pb0"]}', f'%fs_pb1 = OpConstant %uint {L_["pb1"]}']
+            mv_code += ['%fs_pw = OpCopyObject %float %fs_mdn' if dc[2] == 'GreaterThan' else '%fs_pw = OpFSub %float %fs_fone %fs_mdn',      # nearness: larger = nearer, fine steps far away
+                        '%fs_pbits = OpBitcast %uint %fs_pw', '%fs_pk0 = OpShiftRightLogical %uint %fs_pbits %fs_psh', '%fs_pk1 = OpISub %uint %fs_pk0 %fs_pbias',
+                        f'%fs_pk = OpExtInst %uint {glsl} SClamp %fs_pk1 %fs_u1 %fs_pmax',
+                        '%fs_pidy = OpShiftLeftLogical %uint %fs_mY %fs_pxb', '%fs_pid = OpBitwiseOr %uint %fs_pidy %fs_mX',
+                        '%fs_pkh = OpShiftLeftLogical %uint %fs_pk %fs_pidb', '%fs_pkey = OpBitwiseOr %uint %fs_pkh %fs_pid',
+                        f'%fs_pBx = OpIAdd %uint {px} %fs_mix', f'%fs_pBy = OpIAdd %uint {py} %fs_miy', '%fs_pBx3 = OpIAdd %uint %fs_pBx %fs_u3', '%fs_pBy3 = OpIAdd %uint %fs_pBy %fs_u3',
+                        '%fs_ptx0 = OpShiftRightArithmetic %uint %fs_pBx %fs_u2', '%fs_ptx1 = OpShiftRightArithmetic %uint %fs_pBx3 %fs_u2',
+                        '%fs_pty0 = OpShiftRightArithmetic %uint %fs_pBy %fs_u2', '%fs_pty1 = OpShiftRightArithmetic %uint %fs_pBy3 %fs_u2']
+            for i_, (tx, ty) in enumerate((('0', '0'), ('1', '0'), ('0', '1'), ('1', '1'))):
+                q = f'%fs_pt{i_}'
+                mv_code += [f'{q}ix = OpULessThan %bool %fs_ptx{tx} %fs_pnx', f'{q}iy = OpULessThan %bool %fs_pty{ty} %fs_pny', f'{q}in = OpLogicalAnd %bool {q}ix {q}iy',
+                            f'{q}x = OpSelect %uint {q}in %fs_ptx{tx} %fs_u0', f'{q}y = OpSelect %uint {q}in %fs_pty{ty} %fs_u0', f'{q}v = OpSelect %uint {q}in %fs_pkey %fs_u0',
+                            f'{q}yr = OpShiftRightLogical %uint {q}y %fs_u1', f'{q}yo = OpBitwiseAnd %uint {q}y %fs_u1', f'{q}yb = OpINotEqual %bool {q}yo %fs_u0',
+                            f'{q}blk = OpSelect %uint {q}yb %fs_pb1 %fs_pb0', f'{q}rw = OpIMul %uint {q}yr %fs_mrow', f'{q}a1 = OpIAdd %uint %fs_mbase {q}rw', f'{q}a2 = OpIAdd %uint {q}a1 {q}blk',
+                            f'{q}idx = OpIAdd %uint {q}a2 {q}x'] + word_ptr(q, f'{q}idx') + [f'{q}old = OpAtomicUMax %uint {q}w %fs_u1 %fs_u0 {q}v']
+        mv_code += ['OpBranch %fs_mM', '%fs_mM = OpLabel']
     out, n_st = [], 0
     for n, l in enumerate(L):
         if n == main_i:

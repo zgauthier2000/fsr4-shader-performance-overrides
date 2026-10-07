@@ -476,8 +476,8 @@ reads, so it adds four reads per thread and one comparison per pixel on skipped 
 | Shimmer at rest on fine detail | 0.110 | 0.119 | 0.109 |
 | Still picture | 44.31 dB | 43.74 dB | 43.60 dB |
 | Panning scene: background | 49.27 dB | 48.60 dB | 48.60 dB |
-| Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB |
-| Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB |
+| Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB (41.12 with the record below) |
+| Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB (36.56 with the record below) |
 | Still camera, moving objects: background | 46.36 dB | 45.76 dB | 45.68 dB |
 | Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.60 dB |
 | Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB |
@@ -485,11 +485,89 @@ reads, so it adds four reads per thread and one comparison per pixel on skipped 
 - By frame rate (30, 60, 90 and 120 FPS) every figure is within 0.1 dB of release 6 or better.
 - Postpass time in the benchmark tool is the same as release 6's on both kinds of frame. In the
   game: 2.07 ms and 18874 frames, against 2.06 ms and 18893 (one run each, within run-to-run
-  difference). With the release's new prepass and postpass underneath: 2.05 ms and 18953 frames.
+  difference). With the release's new prepass and postpass underneath: 2.05 ms and 18953 frames;
+  with the record of the next section as well: 2.05 ms and 18879 frames.
 - The four lossy DLLs give byte-identical output to the Linux files in the test rig (panning and
   still-camera moving scenes, still scenes in 20 combinations), under Proton only.
 - Limit: where the motion vectors say "not moving", a skipped frame shows no change at all, so
   something that changes without moving updates on every other frame.
+
+## Who was here a frame ago (release `dll-2026-10-07`)
+
+**The report.** In a third-person game, with the camera turning fast around the character, a
+second image showed a little way off the character: a pale outline of a shoulder, or a broken
+copy of a rifle barrel. First reported by a tester, then recorded by the author.
+
+**The cause.** A pixel that a foreground object has just uncovered must take the new frame,
+because its history still shows the object. Release 6 tested for that by looking where the
+pixel's content was a frame ago (p + D_p) and asking whether a nearer, differently moving
+surface is there now. That holds only while the object does not itself move on screen. When it
+does, it is not at that spot but up to its own motion away from it, so a band as wide as the
+object's motion kept its stale history: a second outline, separated from the object by the
+background's motion. Anything thinner than that band was missed whole. (An earlier attempt to
+reproduce a tester's report failed for the same reason: the test object was fixed on screen.)
+
+**The fix.** The prepass, on a skipped frame, has every 4x4 block write its nearness and its own
+block number into the blocks it occupied a frame ago, with an atomic maximum, so that of several
+surfaces the nearest one stays. The postpass reads that record at p + D_p. If the surface found
+there is another one (its motion differs by 2 pixels or more) and nearer, the pixel takes the
+new frame alone.
+
+- The record is one word per block, in the rows of the working buffer that already hold the
+  motion entries. The frame that runs the model clears it (the postpass, after the model is done).
+- Nearness is 1 − depth, or the depth itself with reversed depth, so that its steps are fine far
+  away; it is cut to 10 to 14 bits depending on the output-size class. The exact depths for the
+  final comparison come from the motion entries.
+- Prepass versions without a depth search record nothing, and nothing is flagged there, as before.
+- `frameskip_layout.py` holds the layout; `SB_PLANE=0`, `FS_PLANE=0` and `MP_PLANE=0` rebuild the
+  earlier behaviour.
+
+**Measured.** [`ghost.py`](../pruning) in the test rig: the error against the true image, on
+skipped frames, where the object's image of a frame ago would land if the history were shown
+unchanged. "Outline" is the part of that area the earlier test could not see; "bars" is where the
+thin railing bars' old image lands. 8-bit steps, 4K Balanced.
+
+| Camera / objects (pixels per frame) | Area | AMD's | Release 6 | With probes around the spot | This release |
+|---|---|---|---|---|---|
+| 40,0 / 6,0 | outline | 0.50 | 1.44 | 0.61 | 0.48 |
+| 40,0 / 6,0 | bars | 0.33 | 1.32 | 0.45 | 0.38 |
+| 40,0 / 14,0 | outline | 0.75 | 3.75 | 0.91 | 0.77 |
+| 40,0 / 14,0 | bars | 0.55 | 1.57 | 1.18 | 0.67 |
+| 40,0 / −10,4 | bars | 0.57 | 1.74 | 1.16 | 0.66 |
+| 30,12 / 3,−5 | outline | 0.54 | 1.14 | 0.85 | 0.53 |
+| 30,12 / 3,−5 | bars | 0.54 | 1.70 | 1.30 | 0.58 |
+| still camera / 20,0 | outline | 1.39 | 2.62 | 2.62 | 1.34 |
+| still camera / 20,0 | bars | 0.65 | 4.34 | 4.34 | 0.73 |
+| 12,6 / −6,6 | bars | 0.77 | 1.99 | 2.12 | 0.86 |
+
+- "With probes around the spot" was a first fix (more guesses near p + D_p). It removed the
+  ghost in the reported case and nothing with a still camera, so it was not kept.
+- **Other figures:** just-uncovered areas in the first moving scene 36.56 dB (34.21 before, AMD's
+  34.48), railing 41.12 dB (40.75). By frame rate everything is equal or better, except the
+  railing's frame-to-frame change against AMD's at 60 and 120 FPS: 1.16 and 1.29 times (1.03 and
+  1.15 before). More pixels near thin things take the new frame alone, which is less steady.
+- **At rest nothing changes:** still scenes are byte-identical at three sizes.
+- **Speed:** prepass and postpass on a frame that runs the model take the same time in the
+  benchmark tool. In the game: 2.05 ms and 18879 frames (2.05 ms and 18953 without the record;
+  one run each).
+- The four lossy DLLs give the Linux files' output byte for byte in the scene above, in the
+  other moving scenes and in 20 still combinations, under Proton.
+
+### A storage fault at 1080p output and below (release `dll-2026-10-06.6`, fixed)
+
+The motion entries sit in two blocks of words per buffer row. The second block's position was a
+fixed 4096 words, which is past the end of a row in the smallest output-size class (1080p output
+and below), so it ran into the next row's first block and half the entries were overwritten.
+Moving scene at 1080p output, frame-to-frame change:
+
+| | AMD's | Release 5 | Release 6 | This release |
+|---|---|---|---|---|
+| Background | 0.089 | 0.059 | 0.146 | 0.072 |
+| Fine stripes | 2.05 | 1.14 | 3.62 | 0.95 |
+
+Larger outputs were not affected, and still scenes hid it (all motion zero). The second block is
+now at word 2048 in that class. The rig's moving scenes had only been run at 4K output; a 1080p
+run is part of the checks now.
 
 ## By frame rate
 
@@ -644,6 +722,7 @@ And each output pixel depends on about 50 pixels around it.
 |---|---|
 | `frameskip.py` | the change for the prepass and the model passes as vkd3d-proton translates them (SPIR-V text) |
 | `frameskip_dxil.py` | the same for the DLL's shaders (DXIL text); same decisions, same mark, same place |
+| `frameskip_layout.py` | where the record of "who was here a frame ago" sits in the working buffer and how its words are packed |
 | `motionpost.py` | motion following and the kept vectors for the postpass (SPIR-V text); run it on AMD's postpass, before `skipblend.py` |
 | `motionpost_dxil.py` | the same for the DLL's postpass (DXIL text) |
 | `skipblend.py` | the shimmer correction, the history clamp, the edge guard and the uncovered-pixel flag for the postpass (SPIR-V text); run it after `motionpost.py` and before the store rewrite |

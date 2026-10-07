@@ -73,7 +73,7 @@ HEAD_LABEL = None
 if CLAMPM is not None or UNCOV:
     Xc, WCc = L[ge[0]].split()[-2:]; Yc, HCc = L[ge[1]].split()[-2:]
     c += ['%sm_c1 = OpConstant %uint 1', '%sm_c16 = OpConstant %uint 16', f'%sm_base = OpConstant %uint {(REGION + S) // 4}', f'%sm_row = OpConstant %uint {S // 4}',
-          '%sm_b0 = OpConstant %uint 48', '%sm_b1 = OpConstant %uint 4096', f'%sm_lo = OpConstant %uint {(-254) & 0xffffffff}', '%sm_hi = OpConstant %uint 254',
+          '%sm_b0 = OpConstant %uint 48', f'%sm_b1 = OpConstant %uint {(2048 if S == 15392 else 4096)}', f'%sm_lo = OpConstant %uint {(-254) & 0xffffffff}', '%sm_hi = OpConstant %uint 254',
           f'%sm_dbase = OpConstant %uint {(REGION * 3 // 2 + 2 * S) // 4}', '%sm_db1 = OpConstant %uint 5120', '%sm_two = OpConstant %uint 2', '%sm_false = OpConstantFalse %bool', '%sm_m1 = OpConstant %uint 4294967295', '%sm_fz = OpConstant %float 0', '%sm_fone = OpConstant %float 1'] + (
           [f'%sm_inv = OpConstant %float {1.0 / CLAMPM}'] if CLAMPM is not None else [])
 
@@ -109,7 +109,11 @@ if CLAMPM is not None or UNCOV:
         # pixel, which is a small part of the picture.
         OFFS = [int(x) for x in os.environ.get('SB_UNCOV_OFFS', '3,8').split(',') if x]
         offs = [o for d in OFFS for o in ((d, 0), (-d, 0), (0, d), (0, -d))]
-        cands = ['q'] + [f'n{i}' for i in range(len(offs))]
+        # more candidates around q (SB_UNCOV_QOFFS, in cells): an object that has itself moved on screen is no longer exactly
+        # where this pixel's content was, but close to it
+        QOFFS = [int(x) for x in os.environ.get('SB_UNCOV_QOFFS', '').split(',') if x]
+        qoffs = [o for d in QOFFS for o in ((d, 0), (-d, 0), (0, d), (0, -d))]
+        cands = ['q'] + [f'n{i}' for i in range(len(offs))] + [f'm{i}' for i in range(len(qoffs))]
         consts_done = set(); any_ = None; stage2 = []
         if DEPTH:
             i0 = mh.index(dread('%sm_p')[0]); own_depth = mh[i0:]; mh = mh[:i0]       # this pixel's own depth: only needed in the branch
@@ -120,6 +124,12 @@ if CLAMPM is not None or UNCOV:
             if nm == 'q':
                 mh += [f'{p}hx = OpShiftRightArithmetic %uint %sm_pdx %sm_c1', f'{p}hy = OpShiftRightArithmetic %uint %sm_pdy %sm_c1',
                        f'{p}X = OpIAdd %uint {Xc} {p}hx', f'{p}Y = OpIAdd %uint {Yc} {p}hy']
+            elif nm[0] == 'm':
+                ox, oy = qoffs[int(nm[1:])]
+                for v in (ox, oy):
+                    if v not in consts_done:
+                        c.append(f'%sm_k{v & 0xffffffff} = OpConstant %uint {v & 0xffffffff}'); consts_done.add(v)
+                mh += [f'{p}X0 = OpIAdd %uint {Xc} %sm_qhx', f'{p}Y0 = OpIAdd %uint {Yc} %sm_qhy', f'{p}X = OpIAdd %uint {p}X0 %sm_k{ox & 0xffffffff}', f'{p}Y = OpIAdd %uint {p}Y0 %sm_k{oy & 0xffffffff}']
             else:
                 ox, oy = offs[i - 1]
                 for v in (ox, oy):
@@ -146,8 +156,38 @@ if CLAMPM is not None or UNCOV:
         # at rest: this cell does not move, and neither does anything looked at around it
         if REST:
             mh += ['%sm_c0u = OpIEqual %bool %sm_am %sb_c0', f'%sm_nany = OpLogicalNot %bool {any_}', '%sm_rin = OpLogicalAnd %bool %sm_c0u %sm_nany']
-        mh += ['OpSelectionMerge %sm_M2 None', f'OpBranchConditional {any_} %sm_T2 %sm_M2', '%sm_T2 = OpLabel'] + own_depth + stage2 + [
-               'OpBranch %sm_M2', '%sm_M2 = OpLabel', f'%sm_fl2 = OpPhi %bool {flag} %sm_T2 %sm_false %sm_T']
+        if DEPTH and os.environ.get('SB_PLANE', '1') == '1':
+            # The exact form of that test: the prepass has recorded, for every block, the nearest surface that was there a
+            # frame ago (frameskip.py). This pixel's content was at p + D_p then; if the surface recorded there is another
+            # one (it moves differently) and nearer, the content was hidden behind it. One read, and three more where
+            # anything is recorded; it replaces the guessing above, which missed objects that had themselves moved.
+            from frameskip_layout import plane_layout
+            L_ = plane_layout(S)
+            c += [f'%sm_pb0 = OpConstant %uint {L_["pb0"]}', f'%sm_pb1 = OpConstant %uint {L_["pb1"]}', f'%sm_pnx = OpConstant %uint {L_["nx"]}', f'%sm_pny = OpConstant %uint {L_["ny"]}',
+                  f'%sm_pxb = OpConstant %uint {L_["xb"]}', f'%sm_pxm = OpConstant %uint {(1 << L_["xb"]) - 1}', f'%sm_pim = OpConstant %uint {(1 << L_["idb"]) - 1}']
+            mh += [f'%sm_Px0 = OpShiftLeftLogical %uint {Xc} %sm_c1', f'%sm_Py0 = OpShiftLeftLogical %uint {Yc} %sm_c1', '%sm_Px = OpIAdd %uint %sm_Px0 %sm_pdx', '%sm_Py = OpIAdd %uint %sm_Py0 %sm_pdy',
+                   '%sm_Pbx = OpShiftRightArithmetic %uint %sm_Px %sm_two', '%sm_Pby = OpShiftRightArithmetic %uint %sm_Py %sm_two',
+                   '%sm_Pix = OpULessThan %bool %sm_Pbx %sm_pnx', '%sm_Piy = OpULessThan %bool %sm_Pby %sm_pny', '%sm_Pin = OpLogicalAnd %bool %sm_Pix %sm_Piy',
+                   '%sm_Pxs = OpSelect %uint %sm_Pin %sm_Pbx %sb_c0', '%sm_Pys = OpSelect %uint %sm_Pin %sm_Pby %sb_c0',
+                   '%sm_Pyr = OpShiftRightLogical %uint %sm_Pys %sm_c1', '%sm_Pyo = OpBitwiseAnd %uint %sm_Pys %sm_c1', '%sm_Pyb = OpINotEqual %bool %sm_Pyo %sb_c0',
+                   '%sm_Pbk = OpSelect %uint %sm_Pyb %sm_pb1 %sm_pb0', '%sm_Prw = OpIMul %uint %sm_Pyr %sm_row', '%sm_Pa1 = OpIAdd %uint %sm_base %sm_Prw', '%sm_Pa2 = OpIAdd %uint %sm_Pa1 %sm_Pbk',
+                   '%sm_Pidx = OpIAdd %uint %sm_Pa2 %sm_Pxs', '%sm_Pp = OpAccessChain %_ptr_StorageBuffer_uint %sb_bp %uint_0 %sm_Pidx', '%sm_Pk0 = OpLoad %uint %sm_Pp',
+                   '%sm_Pk = OpSelect %uint %sm_Pin %sm_Pk0 %sb_c0', '%sm_Pany = OpINotEqual %bool %sm_Pk %sb_c0']
+            win = ['%sm_Wid = OpBitwiseAnd %uint %sm_Pk %sm_pim', '%sm_Wx = OpBitwiseAnd %uint %sm_Wid %sm_pxm', '%sm_Wy = OpShiftRightLogical %uint %sm_Wid %sm_pxb',
+                   '%sm_Wyr = OpShiftRightLogical %uint %sm_Wy %sm_c1', '%sm_Wyo = OpBitwiseAnd %uint %sm_Wy %sm_c1', '%sm_Wyb = OpINotEqual %bool %sm_Wyo %sb_c0',
+                   '%sm_Wbk = OpSelect %uint %sm_Wyb %sm_b1 %sm_b0', '%sm_Wrw = OpIMul %uint %sm_Wyr %sm_row', '%sm_Wa1 = OpIAdd %uint %sm_base %sm_Wrw', '%sm_Wa2 = OpIAdd %uint %sm_Wa1 %sm_Wbk',
+                   '%sm_Wx2 = OpShiftLeftLogical %uint %sm_Wx %sm_c1', '%sm_Wix = OpIAdd %uint %sm_Wa2 %sm_Wx2',
+                   '%sm_Wpm = OpAccessChain %_ptr_StorageBuffer_uint %sb_bp %uint_0 %sm_Wix', '%sm_Wm = OpLoad %uint %sm_Wpm',
+                   '%sm_Wxs = OpShiftLeftLogical %uint %sm_Wm %sm_c16', '%sm_Wd0 = OpShiftRightArithmetic %uint %sm_Wxs %sm_c16', '%sm_We0 = OpShiftRightArithmetic %uint %sm_Wm %sm_c16',
+                   f'%sm_Wdx = OpExtInst %uint {GLSL} SClamp %sm_Wd0 %sm_lo %sm_hi', f'%sm_Wdy = OpExtInst %uint {GLSL} SClamp %sm_We0 %sm_lo %sm_hi'] + \
+                  near('%sm_Wsame', '%sm_Wdx', '%sm_Wdy', '%sm_pdx', '%sm_pdy', '%sm_c1') + dread('%sm_W') + [
+                   '%sm_Wdiff = OpLogicalNot %bool %sm_Wsame', '%sm_Wfront = OpFOrdLessThan %bool %sm_Wz %sm_pz', '%sm_Wokd = OpINotEqual %bool %sm_Wdu %sb_c0',
+                   '%sm_Wh1 = OpLogicalAnd %bool %sm_Wdiff %sm_Wfront', '%sm_Whit = OpLogicalAnd %bool %sm_Wh1 %sm_Wokd']
+            mh += ['OpSelectionMerge %sm_M2 None', 'OpBranchConditional %sm_Pany %sm_T2 %sm_M2', '%sm_T2 = OpLabel'] + own_depth + win + [
+                   'OpBranch %sm_M2', '%sm_M2 = OpLabel', '%sm_fl2 = OpPhi %bool %sm_Whit %sm_T2 %sm_false %sm_T']
+        else:
+            mh += ['OpSelectionMerge %sm_M2 None', f'OpBranchConditional {any_} %sm_T2 %sm_M2', '%sm_T2 = OpLabel'] + own_depth + stage2 + [
+                   'OpBranch %sm_M2', '%sm_M2 = OpLabel', f'%sm_fl2 = OpPhi %bool {flag} %sm_T2 %sm_false %sm_T']
         flag = '%sm_fl2'; pred = '%sm_M2'
     mh += ['OpBranch %sm_M', '%sm_M = OpLabel', f'%sm_flag = OpPhi %bool {flag} {pred} %sm_false {lab0}', f'%sm_mag = OpPhi %float %sm_af {pred} %sm_fz {lab0}'] + ([f'%sm_rest = OpPhi %bool %sm_rin {pred} %sm_false {lab0}'] if REST else [])
     head = head + mh

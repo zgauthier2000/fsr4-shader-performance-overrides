@@ -6,6 +6,7 @@
 # NOT bit-exact. The DXIL form of frameskip.py (see there): every other frame the model is skipped
 # and the postpass uses the model's output of the frame before. Same decisions, same mark, same
 # place in the working buffer, so a DLL built with this and the Linux files give the same output.
+import os
 import re
 import sys
 
@@ -181,15 +182,34 @@ else:
                '  %fs.mcy1 = call float @dx.op.binary.f32(i32 35, float %fs.mry, float -2.540000e+02)', '  %fs.mcy = call float @dx.op.binary.f32(i32 36, float %fs.mcy1, float 2.540000e+02)',
                '  %fs.mix = fptosi float %fs.mcx to i32', '  %fs.miy = fptosi float %fs.mcy to i32', '  %fs.mlx = and i32 %fs.mix, 65535', '  %fs.mly = shl i32 %fs.miy, 16', '  %fs.mval = or i32 %fs.mlx, %fs.mly',
                f'  %fs.mX = lshr i32 {px}, 2', f'  %fs.mY = lshr i32 {py}, 2', '  %fs.mYr = lshr i32 %fs.mY, 1', '  %fs.mYo = and i32 %fs.mY, 1', '  %fs.mYb = icmp ne i32 %fs.mYo, 0',
-               f'  %fs.mblk = select i1 %fs.mYb, i32 {4096 * 4}, i32 {48 * 4}', f'  %fs.mrw = mul i32 %fs.mYr, {MR}', f'  %fs.ma1 = add i32 %fs.mrw, {MB}', '  %fs.ma2 = add i32 %fs.ma1, %fs.mblk',
+               f'  %fs.mblk = select i1 %fs.mYb, i32 {(2048 if S == 15392 else 4096) * 4}, i32 {48 * 4}', f'  %fs.mrw = mul i32 %fs.mYr, {MR}', f'  %fs.ma1 = add i32 %fs.mrw, {MB}', '  %fs.ma2 = add i32 %fs.ma1, %fs.mblk',
                '  %fs.mX2 = shl i32 %fs.mX, 3', '  %fs.madr = add i32 %fs.ma2, %fs.mX2']
     if dc:
         mv_code += [f'  %fs.mdn = select i1 {dc[1]}, float {dc[3]}, float {dc[4]}'] + (['  %fs.mds = fsub fast float -0.000000e+00, %fs.mdn'] if dc[2] == 'gt' else ['  %fs.mds = fmul fast float %fs.mdn, 1.000000e+00']) + [
                     '  %fs.mdb = call i32 @dx.op.bitcastF32toI32(i32 127, float %fs.mds)']
     else:
         mv_code += ['  %fs.mdb = and i32 0, 0']
-    mv_code += [f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i32 %fs.madr, i32 undef, i32 %fs.mval, i32 %fs.mdb, i32 undef, i32 undef, i8 3, i32 4)',
-                '  br label %fs.mM', '', 'fs.mM:']
+    mv_code += [f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i32 %fs.madr, i32 undef, i32 %fs.mval, i32 %fs.mdb, i32 undef, i32 undef, i8 3, i32 4)']
+    need_at = False
+    if dc and os.environ.get('FS_PLANE', '1') == '1':
+        # "who was here a frame ago", as in frameskip.py: the block's nearness and number go to the blocks its previous position touches (atomic maximum)
+        from frameskip_layout import plane_layout
+        L_ = plane_layout(S); need_at = not any(l.startswith('declare') and '@dx.op.atomicBinOp.i32(' in l for l in L)
+        mv_code += ['  %fs.pw = fadd float %fs.mdn, -0.000000e+00' if dc[2] == 'gt' else '  %fs.pw = fsub float 1.000000e+00, %fs.mdn',
+                    '  %fs.pbits = call i32 @dx.op.bitcastF32toI32(i32 127, float %fs.pw)', f'  %fs.pk0 = lshr i32 %fs.pbits, {23 - L_["m"]}', f'  %fs.pk1 = sub i32 %fs.pk0, {(127 - 31) << L_["m"]}',
+                    '  %fs.pc1 = icmp slt i32 %fs.pk1, 1', '  %fs.pc2 = select i1 %fs.pc1, i32 1, i32 %fs.pk1', f'  %fs.pc3 = icmp sgt i32 %fs.pc2, {(1 << L_["kb"]) - 1}',
+                    f'  %fs.pk = select i1 %fs.pc3, i32 {(1 << L_["kb"]) - 1}, i32 %fs.pc2',
+                    f'  %fs.pidy = shl i32 %fs.mY, {L_["xb"]}', '  %fs.pid = or i32 %fs.pidy, %fs.mX', f'  %fs.pkh = shl i32 %fs.pk, {L_["idb"]}', '  %fs.pkey = or i32 %fs.pkh, %fs.pid',
+                    f'  %fs.pBx = add i32 {px}, %fs.mix', f'  %fs.pBy = add i32 {py}, %fs.miy', '  %fs.pBx3 = add i32 %fs.pBx, 3', '  %fs.pBy3 = add i32 %fs.pBy, 3',
+                    '  %fs.ptx0 = ashr i32 %fs.pBx, 2', '  %fs.ptx1 = ashr i32 %fs.pBx3, 2', '  %fs.pty0 = ashr i32 %fs.pBy, 2', '  %fs.pty1 = ashr i32 %fs.pBy3, 2']
+        for i_, (tx, ty) in enumerate((('0', '0'), ('1', '0'), ('0', '1'), ('1', '1'))):
+            q = f'%fs.pt{i_}'
+            mv_code += [f'  {q}ix = icmp ult i32 %fs.ptx{tx}, {L_["nx"]}', f'  {q}iy = icmp ult i32 %fs.pty{ty}, {L_["ny"]}', f'  {q}in = and i1 {q}ix, {q}iy',
+                        f'  {q}x = select i1 {q}in, i32 %fs.ptx{tx}, i32 0', f'  {q}y = select i1 {q}in, i32 %fs.pty{ty}, i32 0', f'  {q}v = select i1 {q}in, i32 %fs.pkey, i32 0',
+                        f'  {q}yr = lshr i32 {q}y, 1', f'  {q}yo = and i32 {q}y, 1', f'  {q}yb = icmp ne i32 {q}yo, 0', f'  {q}blk = select i1 {q}yb, i32 {L_["pb1"] * 4}, i32 {L_["pb0"] * 4}',
+                        f'  {q}rw = mul i32 {q}yr, {MR}', f'  {q}a1 = add i32 {q}rw, {MB}', f'  {q}a2 = add i32 {q}a1, {q}blk', f'  {q}x4 = shl i32 {q}x, 2', f'  {q}adr = add i32 {q}a2, {q}x4',
+                        f'  {q}old = call i32 @dx.op.atomicBinOp.i32(i32 78, %dx.types.Handle {H}, i32 7, i32 {q}adr, i32 undef, i32 undef, i32 {q}v)']
+    mv_code += ['  br label %fs.mM', '', 'fs.mM:']
     # put it after the line L[mv_at] of the output; later phis that named the block now name fs.mM
     marker = L[mv_at]
     i = next(k for k, l in enumerate(out) if l == marker)
@@ -198,6 +218,10 @@ else:
         if ' = phi ' in l:
             tail[k] = re.sub(rf'{re.escape(blk if blk != "%fs.cont" else "%0")} \]', '%fs.mM ]', l)
     out = out[:i + 1] + mv_code + tail
+    if need_at:
+        grp = next((m[1] for l in out for m in [re.match(r'attributes (#\d+) = \{ nounwind \}\s*$', l)] if m), None) or die('no plain "nounwind" attribute group')
+        j = next(k for k, l in enumerate(out) if l.startswith('declare float @dx.op.unary.f32('))
+        out[j:j] = [f'declare i32 @dx.op.atomicBinOp.i32(i32, %dx.types.Handle, i32, i32, i32, i32, i32) {grp}', '']
     if need_bc and dc:
         j = next(k for k, l in enumerate(out) if l.startswith('declare float @dx.op.unary.f32('))
         out[j:j] = [f'declare i32 @dx.op.bitcastF32toI32(i32, float) {out[j].rsplit(" ", 1)[1]}', '']

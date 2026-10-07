@@ -58,7 +58,7 @@ head = [f'  {H} = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types
         f'  %mp.e1 = icmp eq i32 %mp.v0, {s32(M1)}', f'  %mp.e2 = icmp eq i32 %mp.v1, {s32(M2)}', '  %mp.skip = and i1 %mp.e1, %mp.e2',
         # one stored entry per 4x4 output pixels (2x2 cells)
         f'  %mp.xq = lshr i32 {X}, 1', f'  %mp.yq = lshr i32 {Y}, 1', '  %mp.yr = lshr i32 %mp.yq, 1', '  %mp.yo = and i32 %mp.yq, 1', '  %mp.yb = icmp ne i32 %mp.yo, 0',
-        f'  %mp.blk = select i1 %mp.yb, i32 {4096 * 4}, i32 {48 * 4}', f'  %mp.rw = mul i32 %mp.yr, {S}', f'  %mp.a1 = add i32 %mp.rw, {MBASE}', '  %mp.a2 = add i32 %mp.a1, %mp.blk',
+        f'  %mp.blk = select i1 %mp.yb, i32 {(2048 if S == 15392 else 4096) * 4}, i32 {48 * 4}', f'  %mp.rw = mul i32 %mp.yr, {S}', f'  %mp.a1 = add i32 %mp.rw, {MBASE}', '  %mp.a2 = add i32 %mp.a1, %mp.blk',
         '  %mp.x2 = shl i32 %mp.xq, 3', '  %mp.adr = add i32 %mp.a2, %mp.x2'] + ld('%mp.m', '%mp.adr', 1) + [
         '  %mp.xs = shl i32 %mp.m0, 16', '  %mp.dx0 = ashr i32 %mp.xs, 16', '  %mp.dy0 = ashr i32 %mp.m0, 16'] + sclamp('%mp.dx1', '%mp.dx0', -254, 254) + sclamp('%mp.dy1', '%mp.dy0', -254, 254) + [
         '  %mp.dx = select i1 %mp.skip, i32 %mp.dx1, i32 0', '  %mp.dy = select i1 %mp.skip, i32 %mp.dy1, i32 0',
@@ -114,6 +114,18 @@ out += [f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i
 W = {'00': [f'%mp.W00.{i}' for i in range(4)]}
 out += [f'  {W["00"][i]} = phi i32 [ %mp.h{i}, %mp.L00 ], [ {bw[i]}, {blast} ]' for i in range(4)]
 cur = '%mp.M00'
+if os.environ.get('MP_PLANE', '1') == '1':
+    # the plane of "who was here a frame ago" (frameskip.py) is cleared by every frame that runs the model, as in motionpost.py
+    from frameskip_layout import plane_layout
+    L_ = plane_layout(S)
+    out += [f'  %mp.cxy = or i32 {X}, {Y}', '  %mp.cev = and i32 %mp.cxy, 1', '  %mp.ce = icmp eq i32 %mp.cev, 0', '  %mp.nsk = xor i1 %mp.skip, true', '  %mp.cd = and i1 %mp.ce, %mp.nsk',
+            '  br i1 %mp.cd, label %mp.CT, label %mp.CM', '', 'mp.CT:',
+            f'  %mp.cxq = lshr i32 {X}, 1', f'  %mp.cyq = lshr i32 {Y}, 1', '  %mp.cyr = lshr i32 %mp.cyq, 1', '  %mp.cyo = and i32 %mp.cyq, 1', '  %mp.cyb = icmp ne i32 %mp.cyo, 0',
+            f'  %mp.cblk = select i1 %mp.cyb, i32 {L_["pb1"] * 4}, i32 {L_["pb0"] * 4}', f'  %mp.crw = mul i32 %mp.cyr, {S}', f'  %mp.ca1 = add i32 %mp.crw, {MBASE}', '  %mp.ca2 = add i32 %mp.ca1, %mp.cblk',
+            '  %mp.cx4 = shl i32 %mp.cxq, 2', '  %mp.cadr = add i32 %mp.ca2, %mp.cx4',
+            f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i32 %mp.cadr, i32 undef, i32 0, i32 undef, i32 undef, i32 undef, i8 1, i32 4)',
+            '  br label %mp.CM', '', 'mp.CM:']
+    cur = '%mp.CM'
 for k, (xs, ys, cond) in (('10', ('%mp.X1', '%mp.Y0', '%mp.ox')), ('01', ('%mp.X0', '%mp.Y1', '%mp.oy')), ('11', ('%mp.X1', '%mp.Y1', '%mp.oxy'))):
     b, bw, blast = body(k, xs, ys)
     out += [f'  br i1 {cond}, label %mp.C{k}, label %mp.M{k}', '', f'mp.C{k}:'] + kept(f'%mp.k{k}', xs, ys)

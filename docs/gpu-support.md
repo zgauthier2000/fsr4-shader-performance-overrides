@@ -240,7 +240,6 @@ The builds are attached to the [release `dll-2026-10-07`](https://github.com/zga
 |---|---|
 | `test-rdna2.zip` | **for RDNA2, fixes the shimmering:** check lifted, both rewrites, and the postpass's dot products split (see above) |
 | `test-rdna2-compact.zip` | **test build for RDNA2 and the Steam Deck:** as `test-rdna2.zip`, with the compact pass 11 of the integrated-GPU build (see below) |
-| `test-rdna2-hybrid.zip` | **test build for RDNA2 at 1080p output:** as `test-rdna2.zip`, but with AMD's postpass (dot products split) at 1080p output and below (see below) |
 | `amd_fidelityfx_upscaler_dx12.dll` | the main DLL for desktop RDNA3: check lifted, both rewrites |
 | `test-igpu.zip` | for integrated GPUs: check lifted, postpass rewrite and the compact pass 11 ([above](#integrated-gpus-radeon-780m-and-similar)) |
 
@@ -290,7 +289,10 @@ to 2560x1440 (Quality), four builds at the same spot, one reading each:**
   spread of the readings, and the frame rate does not follow. On this card at 1440p the lossy
   build is not worth its image change. See [`research/lossy`](../research/lossy).
 
-### Test build: RDNA2 hybrid (2026-10-05)
+### Test build: RDNA2 hybrid (2026-10-05; withdrawn 2026-10-07)
+
+**No longer built.** It did not prove useful (see the report below), and release
+`dll-2026-10-07` does not contain it. What follows is kept as a record.
 
 `test-rdna2-hybrid.zip` (shows as `4.1.1-r2h-cyboman`) is `test-rdna2.zip` with one change: at
 1080p output and below it keeps AMD's own postpass, with only the dot-product split that fixes

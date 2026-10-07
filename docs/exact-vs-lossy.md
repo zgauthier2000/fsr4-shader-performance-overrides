@@ -19,7 +19,7 @@ differently on skipped frames; their history is on the [frame-skip page](../rese
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
-  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 2.99 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the picture's motion and four repairs, and nothing taken from the new frame where the picture is at rest, 1.19 ms. The two kinds of frame alternate, 2.05 ms on average, 51% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.60 dB against 44.31, flicker on fine detail at rest 0.109 against 0.110, areas just uncovered by a moving object 34.21 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 2.99 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the picture's motion and four repairs, and nothing taken from the new frame where the picture is at rest, 1.19 ms. The two kinds of frame alternate, 2.05 ms on average, 51% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.60 dB against 44.31, flicker on fine detail at rest 0.109 against 0.110, areas just uncovered by a moving object 36.56 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
 </picture>
 
 The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py).
@@ -121,7 +121,7 @@ Four repairs keep the rest honest:
 | **Shimmer on fine detail.** The reused result was worked out for the previous frame's camera jitter, so it gives too much weight to the new frame in pixels whose nearest sample has moved away. | The previous jitter is carried over to the skipped frame, and the new frame's weight is lowered where its nearest sample is now farther from the pixel. |
 | **A dark band at the screen edge** for one frame when the camera starts to turn. The strip that scrolls in has no history, and the reused result still says "mostly history". | Where the history is far darker than the new frame, the new frame is used alone. The band is gone in the test scene. |
 | **A smear behind moving objects.** Where something has just been uncovered, the reused result keeps a history that is out of date. | The history is limited to the colour range of the new frame's samples around the pixel. |
-| **What is left of that smear.** The colour limit cannot tell an outdated history from a valid one of a similar colour. | New in release `dll-2026-10-06.6`: a pixel whose content was hidden a frame ago behind something nearer that moves differently takes the new frame alone. |
+| **What is left of that smear.** The colour limit cannot tell an outdated history from a valid one of a similar colour. | A pixel whose content was hidden a frame ago behind something nearer that moves differently takes the new frame alone. Since release `dll-2026-10-07` this is looked up exactly: the prepass records which surface was at each spot a frame ago. Release `dll-2026-10-06.6` guessed where the object was, and left a second outline beside characters when the camera turned fast around them. |
 
 ## What the lossy builds cost, measured
 
@@ -132,10 +132,10 @@ Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip, mo
 | Still picture against the true image | 44.31 dB | 43.71 dB | 43.60 dB | within 1.6%; 9% more error |
 | Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.109 | within 1% |
 | Moving scene: background | 49.27 dB | 48.67 dB | 48.60 dB | within 1.4%; 8% more error |
-| Moving scene: thin railing | 41.82 dB | not measured | 40.75 dB | within 2.6%; 13% more error |
-| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 34.21 dB | within 0.8%; 3% more error |
-| Still camera, objects moving: thin railing | 42.20 dB | not measured | 40.60 dB | within 3.8%; 20% more error |
-| Still camera, objects moving: just-uncovered areas | 32.62 dB | not measured | 30.85 dB | within 5.4%; 23% more error |
+| Moving scene: thin railing | 41.82 dB | not measured | 41.12 dB | within 1.7%; 8% more error |
+| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 36.56 dB | 6% above; 21% less error |
+| Still camera, objects moving: thin railing | 42.20 dB | not measured | 40.99 dB | within 2.9%; 15% more error |
+| Still camera, objects moving: just-uncovered areas | 32.62 dB | not measured | 30.93 dB | within 5.2%; 21% more error |
 | Revealed strip when a pan starts on a skipped frame | 100% of true brightness | no frame skip | 100% | the same |
 
 "Within x%" compares the quality scores (PSNR, in dB). dB is a logarithmic scale, so the last
@@ -148,9 +148,13 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
   shimmered just as much.
 - **The still picture is about 0.7 dB less accurate:** 0.6 dB from the folding and 0.14 dB from
   the rest rule.
-- **Just-uncovered areas are about 0.3 dB less accurate** in the panning scene, and about 1.8 dB
-  with the camera still and objects moving. It was about 2.5 dB in
-  release 5 and about 5 dB before the history clamp.
+- **Just-uncovered areas score above AMD's in the panning scene** (36.56 against 34.48 dB) and
+  about 1.7 dB below with the camera still and objects moving. In the panning scene they were
+  0.5 dB below in release 6, about 2.5 dB in release 5 and about 5 dB before the history clamp.
+- **No second outline beside moving objects.** Where an object's image of a frame ago would land
+  in the history, the error is at AMD's level (0.48 against 0.50 in 8-bit steps with a fast pan
+  and a slowly drifting object; release 6: 1.44). See the
+  [frame-skip page](../research/frame-skip#who-was-here-a-frame-ago-release-dll-2026-10-07).
 - **The moving background is about 0.7 dB less accurate,** nearly all of it from the folding; in
   release 5 frame skip cost a further 1 dB there.
 - **Frame times alternate.** With a frame cap or normal V-Sync the average is what counts. With
@@ -177,11 +181,10 @@ against 0.037), because flat areas are steadier; on fine detail alone the two ar
 <img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still scene, and maps of how much each pixel changes from frame to frame with the exact files (mean 0.040 of 255) and with the lossy build (0.053). The lossy map shows somewhat more scattered bright specks. Whole frame: exact 0.037, lossy 0.033.">
 
 **In motion, on a skipped frame.** Camera panning as if at 60 FPS. Thin bars in front of a moving
-background are where frame skip is weakest: in the lossy panel the bars are rougher near the
-bottom. The edge a moving block has just uncovered is slightly rougher. Whole frame, the error
+background are where frame skip is weakest: in the lossy panel the bars are a little rougher. The edge a moving block has just uncovered is slightly rougher. Whole frame, the error
 against the true image is 1.19 of 255 against 1.14.
 
-<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy build skips the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, lossy build and their difference amplified 8 times. First: thin vertical bars in front of a moving background; in the lossy build the bars are rougher near the bottom (error against the true image 3.3 of 255, exact 2.4). Second: the edge a moving block has just uncovered; slightly rougher in the lossy build (1.4 against 1.1). Whole frame: lossy 1.19, exact 1.14 of 255.">
+<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy build skips the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, lossy build and their difference amplified 8 times. First: thin vertical bars in front of a moving background; in the lossy build the bars are rougher near the bottom (error against the true image 3.1 of 255, exact 2.4). Second: the edge a moving block has just uncovered; slightly rougher in the lossy build (1.3 against 1.0). Whole frame: lossy 1.19, exact 1.14 of 255.">
 
 ## Speed side by side
 
