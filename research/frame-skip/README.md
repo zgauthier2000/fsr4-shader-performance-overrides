@@ -451,8 +451,8 @@ block.
 
 ## In testing: nothing from the new frame at rest
 
-Not released: Linux files on the author's machine only, and `skipblend.py` here does not have the
-change yet.
+Not released yet, coming soon: built for Linux and for the four lossy DLLs (matching output,
+under Proton); `skipblend.py` here gets the change with that release.
 
 Release 6 still shimmers about 8% more than AMD's shaders at rest (0.119 against 0.110 on fine
 detail). What was tried, 4K Balanced:

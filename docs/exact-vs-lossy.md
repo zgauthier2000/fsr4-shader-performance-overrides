@@ -170,9 +170,14 @@ against the true image is 1.19 of 255 against 1.14 (release 5: 1.23).
 
 ## In testing: less shimmer at rest
 
-> **Not released.** This build exists only as Linux shader files on the author's machine. It is
-> in no download, there are no Windows DLLs of it, and its change is not in this repository's
-> tools yet. Everything else on this page describes the released build.
+> **Not released yet, coming soon.** The build is finished for Linux and for all four lossy
+> DLLs, and their output matches byte for byte in the test rig (under Proton). It is in no
+> download yet. Everything else on this page describes the released build.
+>
+> The same release will bring **slightly faster exact files**: a rewritten prepass and postpass
+> take the upscaler time in Shadow of the Tomb Raider from 3.05 to 2.99 ms, with AMD's image
+> unchanged (28 of 28 comparisons byte-identical with the Linux files, 53 of 53 with the DLLs).
+> See [the two rewrites](../research/postpass-and-prepass#two-ideas-from-a-community-set-rebuilt-here-2026-10-07).
 
 **Where the remaining shimmer at rest comes from.** Not from the weight folding: frame skip on
 the unfolded model shimmers just as much (0.121 against 0.119). It comes from the skipped frames
@@ -217,9 +222,11 @@ time as the released build's on both kinds of frame.
 **In the game** the author could see the improvement: patterns that used to show on stairs in
 that benchmark while the camera moved were gone. That is one person's impression in one game.
 
-**What is open:** no Windows DLLs yet; tested by the author only; the look-around reads more
-points than the released build, and what that costs where many things move has not been timed
-on its own.
+**What is open:** nothing has been run or timed on Windows (the DLLs ran under Proton only);
+tested by the author only; the look-around reads more points than the released build, and what
+that costs where many things move has not been timed on its own. The lossy build that will be
+released also carries the new prepass and postpass; its output is the same, and it has not been
+timed in a game with them.
 
 ## Speed side by side
 

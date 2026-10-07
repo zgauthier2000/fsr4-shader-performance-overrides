@@ -21,15 +21,41 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
 > Machine, an RX 6700M, an RX 6800 XT and an RX 6600 ([results](timing-kit/RESULTS.md)).
 > [Instructions](timing-kit) · [Download](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05)
 
-## In testing, not released yet: lossy builds with less shimmer at rest
+## Coming soon: slightly faster main files, and lossy builds that no longer shimmer at rest
 
-- **What it is:** on the frames that skip the model, where the picture is not moving, nothing is
-  taken from the new frame. In the test rig, shimmer at rest on fine detail drops to AMD's level
-  (0.109 against 0.110; release 6: 0.119) for 0.14 dB on the still picture, with motion unchanged
-  and the same speed (2.07 ms against 2.06 ms in Shadow of the Tomb Raider, one run each).
-- **Where it stands:** Linux files on the author's machine only. No download, no Windows DLLs.
-  In one game the author could see the difference.
-- [Figures and a comparison image](docs/exact-vs-lossy.md#in-testing-less-shimmer-at-rest) ·
+Both are built and checked, and not released yet. Nothing below is in a download today.
+
+- **Main files (AMD's image, byte for byte): about 2% faster.** The prepass and the postpass were
+  rewritten again. In Shadow of the Tomb Raider's benchmark (4K Balanced, RX 7800 XT, Linux
+  files) the upscaler time is 2.99 ms, against 3.05 ms with the current release and 4.16 ms with
+  AMD's shaders; 109 FPS as before.
+
+  | 4K, RX 7800 XT | AMD's shaders | Current release | Coming |
+  |---|---|---|---|
+  | Prepass | 0.494 ms | 0.447 ms | 0.434 ms |
+  | Postpass | 2.20 ms | 0.667 ms | 0.644 ms |
+
+  **Image quality: unchanged.** The new Linux files give AMD's output byte for byte in 28 of 28
+  comparisons, and the five new DLLs in 53 of 53 against AMD's DLL (run under Proton).
+- **Lossy test builds: shimmer at rest down to AMD's level.** On the frames that skip the model,
+  where the picture is not moving, nothing is taken from the new frame.
+
+  | Test rig, 4K Balanced | AMD's shaders | Current release | Coming |
+  |---|---|---|---|
+  | Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 |
+  | Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB |
+  | Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB |
+  | Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB |
+
+  **Image quality:** steadier at rest for 0.14 dB on the still picture; in motion the same as the
+  current release or slightly better. **Speed:** the same as the current release (2.07 ms against
+  2.06 ms in Shadow of the Tomb Raider, one run each). The lossy builds will also carry the new
+  prepass and postpass; with those they have not been timed in a game yet. The lossy builds
+  still change the image and stay opt-in.
+- **Not known yet:** what any of this does on Windows. All timings are from Linux, and the DLLs
+  have only been run under Proton.
+- More: [the two rewrites](research/postpass-and-prepass#two-ideas-from-a-community-set-rebuilt-here-2026-10-07) ·
+  [the lossy change, with a comparison image](docs/exact-vs-lossy.md#in-testing-less-shimmer-at-rest) ·
   [how it was found](research/frame-skip#in-testing-nothing-from-the-new-frame-at-rest)
 
 ## What's new: 2026-10-06, release 6 ([release `dll-2026-10-06.6`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.6))

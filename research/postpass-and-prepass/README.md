@@ -424,7 +424,8 @@ prepass is reprojection arithmetic at full occupancy, with nothing found to remo
 
 ## Two ideas from a community set, rebuilt here (2026-10-07)
 
-Not shipped yet: the prebuilt folder and the DLLs still carry the earlier rewrites. A community
+Coming with the next release: the prebuilt folder and the DLLs of the current release still
+carry the earlier rewrites. A community
 member's exact shader set ([measured here](../community-lossy-set#a-later-set-that-keeps-amds-image-2026-10-07))
 was slightly faster than this repository's in the prepass and the postpass. Both ideas were
 rebuilt from AMD's shaders with this repository's own tools.
@@ -466,7 +467,13 @@ the form the postpass's last layer uses
   sizes from Ultra Performance to native, ten option settings, and the moving test scene.
 - Turning the stored values into plain values (`spirv-opt --ssa-rewrite`) changes nothing; the
   driver does that itself.
-- Not done: the same for the DLL's shaders, and a run in a game.
+- **In a game:** Shadow of the Tomb Raider, 4K Balanced: 2.99 ms upscaler time against 3.05 ms
+  (one run each, 109 FPS both).
+- **The DLLs** are built with the prepass rewrite, the integer rounding of the postpass's last
+  layer and the neighbour reads without branches (not the integer clamp, which the DLL's format
+  already expresses as one packing instruction). Each of the five gives AMD's DLL's output byte
+  for byte in 53 of 53 comparisons under Proton. Their speed on Windows has not been measured;
+  an earlier Windows test of the branch-free reads alone on RDNA2 showed no difference.
 
 **A trap in the test rig, found on the way.** One comparison first failed, and the shipped exact
 files failed it too. The cause was vkd3d-proton's shader cache in the rig's folder: a setting that
