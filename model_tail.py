@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# model_tail.py [up] < passN.spvasm > out.spvasm
+# model_tail.py [up] < passN.spvasm > out.spvasm      (a model pass, or the postpass)
 #
 # A model pass ends by combining two integers in floating point for each output value:
 #     out = int16(RoundEven((float(a) * ca + float(b) * cb) * cs))        ca, cb, cs powers of two
@@ -54,6 +54,9 @@ done = 0
 for n, l in enumerate(L):
     m = re.match(r'(\s*)(%\S+) = OpSConvert %uint (%\S+)$', l)
     c = re.match(r'OpConvertFToS %ushort (%\S+)$', rhs(m[3])) if m else None
+    wide = False
+    if not c:      # the postpass's form: straight to a 32-bit integer
+        m = re.match(r'(\s*)(%\S+) = OpConvertFToS %uint (%\S+)$', l); c = m and [None, m[3]]; wide = bool(m)
     r = re.match(r'OpExtInst %float %\S+ RoundEven (%\S+)$', rhs(c[1])) if c else None
     t = re.match(r'OpFMul %float (%\S+) (%\S+)$', rhs(r[1])) if r else None
     if not t:
@@ -93,8 +96,11 @@ for n, l in enumerate(L):
         code.append(f'{ind}{res}_r = OpShiftRightArithmetic %uint {res}_g {uc(k)}')
         val = f'{res}_r'
     # the original converts to a 16-bit integer and widens again: keep that
-    code.append(f'{ind}{res}_t = OpUConvert %ushort {val}')
-    code.append(f'{ind}{res} = OpSConvert %uint {res}_t')
+    if wide:
+        code.append(f'{ind}{res} = OpCopyObject %uint {val}')
+    else:
+        code.append(f'{ind}{res}_t = OpUConvert %ushort {val}')
+        code.append(f'{ind}{res} = OpSConvert %uint {res}_t')
     out[n] = '\n'.join(code)
     done += 1
 if consts:

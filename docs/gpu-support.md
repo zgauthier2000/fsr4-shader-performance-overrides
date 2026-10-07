@@ -52,7 +52,7 @@ What is known about why:
 **An experimental build for integrated GPUs is available for testing.** Its pass 11 keeps AMD's
 loops, so the pass stays small (6.5 KB as compiled for a Radeon 780M), and only stores each row of
 its output together, which cuts the memory the pass reads to about a quarter. It is attached to
-the [release `dll-2026-10-06.7`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.7)
+the [release `dll-2026-10-07`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-07)
 as `test-igpu.zip` (AMD's GPU check is lifted in it, as in every released DLL). Its output is
 byte-identical to AMD's.
 
@@ -234,7 +234,7 @@ because its shaders are translated on the machine that runs them. See
 previous frame in each output pixel), which was suggested as a fix. It looks bad in motion; see
 [history clamp](../research/history-clamp).
 
-The builds are attached to the [release `dll-2026-10-06.7`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.7):
+The builds are attached to the [release `dll-2026-10-07`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-07):
 
 | File | Contents |
 |---|---|
@@ -348,7 +348,10 @@ each. The tester's GPU model was not given.**
 ### Withdrawn: RDNA2 with the postpass's reads unbranched (2026-10-05)
 
 **Result: testers saw no improvement on RDNA2, and the build has been removed from the release.**
-The change remains available as `TAPS=1` in `windows/dxil/build_dxil_overrides.sh`.
+Since the 2026-10-07 release every DLL carries this change again (`TAPS=0` in
+`windows/dxil/build_dxil_overrides.sh` leaves it out): together with the integer rounding in
+the postpass it is a small gain on RDNA3 with the Linux driver. On RDNA2 under Windows the
+testers' finding stands: no difference was seen.
 
 `test-rdna2-taps.zip` (showed as `4.1.1-cyboman-r2t`) was `test-rdna2.zip` with one more change to
 the postpass. For each pixel the postpass reads a 3x3 neighbourhood of the model's output; each of

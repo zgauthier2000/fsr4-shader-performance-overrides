@@ -9,8 +9,8 @@
 # the hash in the original container's header (the name the add-on looks for).
 # The input can be a vkd3d-proton shader dump (VKD3D_SHADER_DUMP_PATH writes the DXIL too).
 # Options (environment): PASS11=rows (compact pass 11, for integrated GPUs), DOT4=split (dot
-# products as product + add, for RDNA2), TAPS=1 (postpass neighbourhood reads without branches,
-# an RDNA2 experiment), PREPASS=0 / MODEL=0 (leave the prepass / the other model passes alone),
+# products as product + add, for RDNA2), TAPS=0 (keep the branches around the postpass's
+# neighbourhood reads), PREPASS=0 / MODEL=0 (leave the prepass / the integer output scaling alone),
 # POSTPASS_SMALL=amd (keep AMD's postpass code in the versions used at 1080p output and below,
 # where the rewrite is slower on RDNA2; DOT4 and TAPS still apply to them).
 # Needs DXC (dxc and libdxcompiler.so; set DXC_DIR to the unpacked Linux release) and g++.
@@ -31,7 +31,7 @@ for f in "$src"/*.dxil; do
     name=$(strings -n 8 "$f" | grep -m1 -oE 'fsr4_model_v07_fp8_no_scale_(postpass|prepass|pass[0-9]+)$' || true)
     case $name in
         *_postpass) script=postpass_lds_dxil.py ;;
-        *_prepass) [[ ${PREPASS:-1} == 1 ]] || continue; script=prepass_gather_dxil.py ;;
+        *_prepass) [[ ${PREPASS:-1} == 1 ]] || continue; script=prepass_route_dxil.py ;;
         *_pass11) script=zconst_dxil.py; [[ ${PASS11:-1} == rows ]] && script=pass11_stores_dxil.py ;;
         *_pass[0-9]*) [[ ${MODEL:-1} == 1 ]] || continue; script=model_tail_dxil.py ;;
         *) continue ;;
@@ -42,16 +42,20 @@ for f in "$src"/*.dxil; do
     [[ $name == *_prepass ]] || grep -q 'dot4AddPacked' "$work/in.ll" || continue
     grep -q 'rw_debug_visualization' "$work/in.ll" && continue
     arg=; [[ $script == pass11_stores_dxil.py ]] && arg=rowc
-    # TAPS=1: the postpass's nine neighbourhood reads without their branches (for RDNA2).
-    if [[ ${TAPS:-} == 1 && $name == *_postpass ]]; then
+    # the postpass's last layer: its floating-point output scaling in integers (leaves the text alone where it finds none)
+    if [[ $name == *_postpass && ${MODEL:-1} == 1 ]]; then
+        python3 "$here/model_tail_dxil.py" < "$work/in.ll" > "$work/in2.ll" 2>/dev/null && mv "$work/in2.ll" "$work/in.ll"
+    fi
+    # the postpass's nine neighbourhood reads without their branches (TAPS=0 keeps the branches)
+    if [[ ${TAPS:-1} == 1 && $name == *_postpass ]]; then
         python3 "$here/postpass_taps_dxil.py" < "$work/in.ll" > "$work/in2.ll" && mv "$work/in2.ll" "$work/in.ll"
     fi
     # POSTPASS_SMALL=amd: the small output-size class (tensor rows of 962 pixels, 15392 bytes) keeps AMD's postpass.
     if [[ ${POSTPASS_SMALL:-} == amd && $name == *_postpass ]] && grep -q 'i32 15392' "$work/in.ll"; then
-        [[ ${DOT4:-} == split || ${TAPS:-} == 1 ]] || continue          # nothing to change: leave AMD's shader in place
+        [[ ${DOT4:-} == split || ${TAPS:-1} == 1 || ${MODEL:-1} == 1 ]] || continue          # nothing to change: leave AMD's shader in place
         cp "$work/in.ll" "$work/out.ll"
     elif ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
-        [[ $script == model_tail_dxil.py || $script == prepass_gather_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"
+        [[ $script == model_tail_dxil.py || $script == prepass_route_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"
         continue                                   # a model pass without that code is left alone
     fi
     if [[ $script == zconst_dxil.py ]] && python3 "$here/pass11_stores_dxil.py" < "$work/out.ll" > "$work/out2.ll" 2>/dev/null; then

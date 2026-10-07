@@ -29,9 +29,9 @@ def hbar(x0, y, w, h, fill):
 
 def figure(t):
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" '
-         'aria-label="Overview. Of FSR 4.1.1\'s fourteen main passes, twelve are rewritten with the same output: the prepass (10% less time), '
+         'aria-label="Overview. Of FSR 4.1.1\'s fourteen main passes, twelve are rewritten with the same output: the prepass (12% less time), '
          'ten model passes (the same arithmetic in fewer steps; pass 11 takes 62% less time and reads 76% less memory) and the postpass '
-         '(about 70% less time, 68% less memory read). On a Radeon RX 7800 XT at 4K the upscaler time goes from 4.16 to 3.05 ms per frame '
+         '(about 70% less time, 68% less memory read). On a Radeon RX 7800 XT at 4K the upscaler time goes from 4.16 to 2.99 ms per frame '
          'and the memory read per frame from 7,639 to 5,317 MB.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 34, 'What this project changes in FSR 4.1.1', t, 16, 'ink', weight=600),
@@ -56,7 +56,7 @@ def figure(t):
     o.append(f'<path d="M{m0:.1f},{Y - 3} V{Y - 6} H{m1:.1f} V{Y - 3}" fill="none" stroke="{t["axis"]}" stroke-width="1"/>')
     # what was done, under each group
     yb = Y + BH + 22
-    notes = [(xs[0][0], 'start', 'Prepass', ['each thread fetches its', "neighbours' inputs once"], '−10% time'),
+    notes = [(xs[0][0], 'start', 'Prepass', ['each thread finishes', 'one output word'], '−12% time'),
              ((m0 + m1) / 2, 'middle', 'Model passes', ['same arithmetic in fewer steps;', 'pass 11 stores its output in groups'], 'pass 11: −62% time, −76% memory read'),
              (xs[13][0] + xs[13][1], 'end', 'Postpass', ['writes its output in phases', 'instead of scattered stores'], 'about −70% time, −68% memory read')]
     for x, anchor, title, lines, gain in notes:
@@ -73,7 +73,7 @@ def figure(t):
     ys = yb + 108
     o.append(f'<line x1="24" y1="{ys}" x2="{W - 24}" y2="{ys}" stroke="{t["grid"]}" stroke-width="1"/>')
     panels = [(24, 'Upscaler time per frame', 'Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT',
-               [("AMD's shaders", 4.16, 'amd', '4.16 ms  ·  97 FPS'), ('This project', 3.05, 'exact', '3.05 ms  ·  109 FPS')], 4.16, '27% less'),
+               [("AMD's shaders", 4.16, 'amd', '4.16 ms  ·  97 FPS'), ('This project', 2.99, 'exact', '2.99 ms  ·  109 FPS')], 4.16, '28% less'),
               (400, 'Memory read per frame', 'All of FSR 4 at 4K, RX 7800 XT',
                [("AMD's shaders", 7639, 'amd', '7,639 MB'), ('This project', 5317, 'exact', '5,317 MB')], 7639, '30% less')]
     for x0, title, sub, rows, mx, verdict in panels:

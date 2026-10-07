@@ -22,7 +22,7 @@ LOSSY_SKIP = {p: 's' for p in MODEL} | {'Prepass': 'l', 'Postpass': 'l'}
 ROWS = [
     ("AMD's shaders", 'every frame', {p: 'a' for p in PASSES}, 4.16, '4.16 ms', 'amd',
      ['The reference: all fourteen passes as AMD ships them.']),
-    ('Exact files', 'every frame', EXACT, 3.05, '3.05 ms', 'exact',
+    ('Exact files', 'every frame', EXACT, 2.99, '2.99 ms', 'exact',
      ["Twelve passes do the same arithmetic, laid out so the GPU gets through it faster. The image is AMD's, byte for byte."]),
     ('Lossy build', 'a frame that runs the model (every other frame)', LOSSY_RUN, 2.9, 'about 2.9 ms', 'lossy',
      ['Passes 1, 5, 10 and 12: the smallest weights are folded into their neighbours, so fewer products are computed.',
@@ -80,7 +80,7 @@ def figure(t):
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" '
          'aria-label="How the exact files and the lossy test builds differ from AMD\'s FSR 4.1.1 shaders, pass by pass. '
          "AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output "
-         '(model passes 3 and 6 untouched), 3.05 ms, the image is AMD\'s byte for byte. Lossy build on a frame that runs the model: '
+         '(model passes 3 and 6 untouched), 2.99 ms, the image is AMD\'s byte for byte. Lossy build on a frame that runs the model: '
          'nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. '
          'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest, 1.19 ms. '
          'The two kinds of frame alternate, 2.07 ms on average, 50% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
@@ -121,7 +121,7 @@ def figure(t):
     o.append(text(24, y + 12, 'Upscaler time, average', t, 14, 'ink', weight=600))
     o.append(text(24, y + 30, 'Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT', t, 11, 'muted'))
     bx, bw = 24 + 84, 150
-    for i, (lab, v, kind, note) in enumerate([("AMD's", 4.16, 'amd', '4.16 ms  ·  97 FPS'), ('Exact', 3.05, 'exact', '3.05 ms  ·  109 FPS  ·  27% less'),
+    for i, (lab, v, kind, note) in enumerate([("AMD's", 4.16, 'amd', '4.16 ms  ·  97 FPS'), ('Exact', 2.99, 'exact', '2.99 ms  ·  109 FPS  ·  28% less'),
                                               ('Lossy', 2.07, 'lossy', '2.07 ms  ·  122 FPS  ·  50% less')]):
         yy = y + 46 + i * 26
         o.append(text(bx - 10, yy + 12, lab, t, 12, 'ink', 'end'))

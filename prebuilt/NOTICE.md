@@ -20,11 +20,11 @@ upscaler. They are not AMD's originals and are not provided or endorsed by AMD.
   wrong image. `ORIGINALS.sha256` lists the checksums of the translated shaders they were made
   from, and `../check_prebuilt.sh <dump>` compares a dump against it.
 
-189 files. 90 are the prepass in every version (each lane of a quad computes one word of the
-model's input itself, `prepass_gather.py`; added 2026-10-05). 45 are model passes other than pass 11, in every version (rounding and clamping
+189 files. 90 are the prepass in every version (each lane of a quad finishes one word of the
+model's input, with 12 exchanges between lanes instead of 32, `prepass_route.py`; since 2026-10-07, replacing the first prepass rewrite of 2026-10-05). 45 are model passes other than pass 11, in every version (rounding and clamping
 between layers with the clamp first, `model_clamp.py`; output scaling in integers, `model_tail.py`;
 added 2026-10-05). The other 54 are one for every normal version of the two shaders rewritten first: 48 of the FSR 4.1.1 postpass
-(stores written in solid blocks through workgroup memory, one image at a time) and 6 of model
+(stores written in solid blocks through workgroup memory, one image at a time; since 2026-10-07 also integer rounding and clamping in its small network and its neighbour reads without branches) and 6 of model
 pass 11 (always-zero z coordinate replaced by a constant; each row of its output stored
 together). They were made from dumps of AMD's DLL running in a test program under Proton
 (GE-Proton 11-7) in each combination that selects a different version; see

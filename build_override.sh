@@ -7,9 +7,11 @@
 # (default: override/ next to this script), ready for VKD3D_SHADER_OVERRIDE.
 #
 #   postpass       image stores go through workgroup memory and are written in contiguous rows
-#                  (postpass_lds_vkd3d.py). POSTPASS=0 skips it.
-#   prepass        each lane of a quad gathers the other three pixels' inputs and computes one
-#                  word of the model's input itself (prepass_gather.py). PREPASS=0 skips it.
+#                  (postpass_lds_vkd3d.py); before that, its small network gets the model passes'
+#                  integer rounding and clamping (model_tail.py, model_clamp.py) and reads its
+#                  nine neighbour cells without branches (postpass_taps.py). POSTPASS=0 skips it.
+#   prepass        each thread of a quad finishes one of the four words of the model's input:
+#                  12 exchanges between threads instead of 32 (prepass_route.py). PREPASS=0 skips it.
 #   model passes   every model pass: the int8 rounding-and-clamping between layers is done with the
 #                  clamp first (model_clamp.py) and the floating-point output scaling in integers
 #                  (model_tail.py). MODEL=0 skips them.
@@ -88,8 +90,11 @@ while read -r kind hash; do
     fi
     if [[ $kind == postpass ]]; then
         script=postpass_lds_vkd3d.py
+        # first the exact rewrites of the postpass's own small network (each leaves the text alone where it finds nothing)
+        python3 "$here/model_tail.py" < "$work/$hash.spvasm" 2>/dev/null | python3 "$here/model_clamp.py" 2>/dev/null | python3 "$here/postpass_taps.py" > "$work/$hash.pre.spvasm" 2>/dev/null \
+            && mv "$work/$hash.pre.spvasm" "$work/$hash.spvasm"
     elif [[ $kind == prepass ]]; then
-        script=prepass_gather.py
+        script=prepass_route.py
     elif [[ ${PASS11:-1} == rows ]]; then
         script=pass11_stores.py      # loops kept: only the stores change (for integrated GPUs)
     else

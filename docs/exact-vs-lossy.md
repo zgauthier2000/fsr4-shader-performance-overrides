@@ -14,12 +14,12 @@ and only one of them keeps AMD's picture.
 > **The lossy builds change the image.** They are opt-in experiments, not the same as the main
 > files and not the same as AMD's DLL.
 
-This page describes the builds of release `dll-2026-10-06.7`. Earlier lossy releases behaved
+This page describes the builds of release `dll-2026-10-07`. Earlier lossy releases behaved
 differently on skipped frames; their history is on the [frame-skip page](../research/frame-skip).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
-  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 3.05 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the picture's motion and four repairs, and nothing taken from the new frame where the picture is at rest, 1.19 ms. The two kinds of frame alternate, 2.07 ms on average, 50% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.60 dB against 44.31, flicker on fine detail at rest 0.109 against 0.110, areas just uncovered by a moving object 34.21 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 2.99 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the picture's motion and four repairs, and nothing taken from the new frame where the picture is at rest, 1.19 ms. The two kinds of frame alternate, 2.07 ms on average, 50% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.60 dB against 44.31, flicker on fine detail at rest 0.109 against 0.110, areas just uncovered by a moving object 34.21 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
 </picture>
 
 The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py).
@@ -30,7 +30,7 @@ The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py)
 |---|---|---|
 | Image | AMD's, byte for byte | close to AMD's, not the same |
 | How the time is saved | same work, done more efficiently | less work |
-| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 3.05 ms | 2.07 ms |
+| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 2.99 ms | 2.07 ms |
 | Upscaler time, Rise of the Tomb Raider, 4K Balanced (AMD's: 4.29 ms) | 2.97 ms | 2.05 ms (an earlier lossy release) |
 | Frame times | even | alternate between a shorter and a longer frame |
 | Checked how | output compared with AMD's, byte for byte | measured against the true image and against AMD's output |
@@ -46,10 +46,10 @@ only how the work is laid out for the GPU.
 
 | Part of FSR 4 | What changes | Why it is faster |
 |---|---|---|
-| Postpass | each thread's pixels are collected and written out in contiguous blocks, one image at a time | AMD's version writes single pixels scattered over three images, which is slow on these GPUs |
+| Postpass | each thread's pixels are collected and written out in contiguous blocks, one image at a time; its small network rounds and clamps in integers and reads its neighbour cells without branches | AMD's version writes single pixels scattered over three images, which is slow on these GPUs; the rest is fewer instructions per thread |
 | Model pass 11 | constants made visible to the compiler; each row's results stored together | fewer registers per thread, so more threads run at once; far fewer separate writes |
 | Other model passes | the final scaling and clamping done in integers where that gives the same result | fewer instructions per thread |
-| Prepass | each thread gathers its neighbours' values once and reuses them | fewer exchanges between threads |
+| Prepass | each of a quad's four threads finishes one of the four output words | 12 exchanges between threads instead of 32, and the rounding and storing spread over four threads |
 
 Every rewrite is verified by running the whole upscaler and comparing its output with AMD's, byte
 for byte, across output sizes, presets and option combinations. A rewrite that differs in a
@@ -73,7 +73,8 @@ intermediate values are rounded.
 - **How much is dropped** was tuned pass by pass against a moving test scene: 4 of 36 in pass 1,
   18 in passes 5 and 10, 20 in pass 12. One step further in any of them made something visibly
   less steady, and pass 2 tolerates none.
-- **What it saves:** about 0.14 ms (3.05 to 2.91 ms).
+- **What it saves:** about 0.14 ms on a frame that runs the model (measured as 3.05 to 2.91 ms
+  before the prepass and postpass were rewritten again on 2026-10-07).
 - **What it costs:** the still picture is about 0.6 dB less accurate, and fine repeating patterns
   can be less steady in motion, most at 1440p output.
 
@@ -108,7 +109,7 @@ Earlier releases reused the result where it was, which made thin things shimmer 
 moved.
 
 **Where the picture is at rest, nothing is taken from the new frame** (new in release
-`dll-2026-10-06.7`). "At rest" means the motion stored for the pixel's block is zero and nothing
+`dll-2026-10-07`). "At rest" means the motion stored for the pixel's block is zero and nothing
 looked at around it (3 and 8 cells to each side) moves differently. The small share of the new
 frame that skipped frames used to mix in was what made fine detail shimmer more than with AMD's
 shaders while nothing moved.
@@ -182,7 +183,7 @@ against the true image is 1.19 of 255 against 1.14.
 
 | Benchmark, 4K Balanced, RX 7800 XT | AMD's shaders | Exact files | Lossy |
 |---|---|---|---|
-| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 3.05 ms (−27%) | 2.07 ms (−50%) |
+| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 2.99 ms (−28%) | 2.07 ms (−50%) |
 | Shadow of the Tomb Raider: average FPS | 97 | 109 | 122 |
 | Rise of the Tomb Raider: upscaler time | 4.29 ms | 2.97 ms (−31%) | 2.05 ms (−52%) * |
 | Rise of the Tomb Raider: overall score | 97.67 FPS | 109.61 FPS | 122.34 FPS * |
@@ -191,7 +192,9 @@ against the true image is 1.19 of 255 against 1.14.
 has not been repeated with the current one. In Shadow of the Tomb Raider the current release and
 that one ran at nearly the same speed (2.07 and 2.09 ms).
 
-The lossy figures for Shadow of the Tomb Raider are from the Linux files. The Windows DLLs carry
+The lossy figure for Shadow of the Tomb Raider was measured before the lossy build received the
+new prepass and postpass of the 2026-10-07 release (0.06 ms in the exact build); it has not been
+measured again. The lossy figures are from the Linux files. The Windows DLLs carry
 the same shaders (their output is byte-identical to the Linux files' in the test rig, under
 Proton); their speed on Windows has not been measured.
 

@@ -20,8 +20,8 @@ skipped frames: shimmer at rest close to AMD's and steadier lines in motion, at 
 **Release `dll-2026-10-06.6`** makes the reused result
 [follow the picture's motion](#following-the-pictures-motion-release-dll-2026-10-066), gives
 just-uncovered pixels the new frame, and no longer reruns the network's last layers on skipped
-frames: thin things in motion about as steady as AMD's, slightly faster. **Release `dll-2026-10-06.7`** takes
-[nothing from the new frame at rest](#nothing-from-the-new-frame-at-rest-release-dll-2026-10-067),
+frames: thin things in motion about as steady as AMD's, slightly faster. **Release `dll-2026-10-07`** takes
+[nothing from the new frame at rest](#nothing-from-the-new-frame-at-rest-release-dll-2026-10-07),
 which brings shimmer at rest to AMD's level. The tables before the
 first of those sections describe frame skip without any of this.
 
@@ -451,7 +451,7 @@ they are wrong or missing, it is taken from the wrong place; the test rig's moti
 exact, so this is not measured. The motion is stored in whole output pixels, one value per 4x4
 block.
 
-## Nothing from the new frame at rest (release `dll-2026-10-06.7`)
+## Nothing from the new frame at rest (release `dll-2026-10-07`)
 
 Release 6 still shimmered about 8% more than AMD's shaders at rest (0.119 against 0.110 on fine
 detail). What was tried, 4K Balanced:
@@ -471,7 +471,7 @@ The last row is the release (`SB_REST`, on by default in `skipblend.py`; `SB_RES
 SB_UNCOV_OFFS=8` rebuilds release 6's files). It reuses the motion that the uncovered-pixel test already
 reads, so it adds four reads per thread and one comparison per pixel on skipped frames.
 
-| Test rig, 4K Balanced | AMD's | Release 6 | Release 7 |
+| Test rig, 4K Balanced | AMD's | Release 6 | `dll-2026-10-07` |
 |---|---|---|---|
 | Shimmer at rest on fine detail | 0.110 | 0.119 | 0.109 |
 | Still picture | 44.31 dB | 43.74 dB | 43.60 dB |

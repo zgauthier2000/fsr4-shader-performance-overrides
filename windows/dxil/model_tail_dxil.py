@@ -48,6 +48,9 @@ done = 0
 for n, l in enumerate(L):
     m = re.match(r'(\s*)(%[\w.]+) = sext i16 (%[\w.]+) to i32', l)
     c = re.match(r'fptosi float (%[\w.]+) to i16$', rhs(m[3])) if m else None
+    wide = False
+    if not c:      # the postpass's form: straight to a 32-bit integer
+        m = re.match(r'(\s*)(%[\w.]+) = fptosi float (%[\w.]+) to i32', l); c = m and [None, m[3]]; wide = bool(m)
     r = re.match(r'call float @dx\.op\.unary\.f32\(i32 26, float (%[\w.]+)\)$', rhs(c[1])) if c else None
     t = re.match(r'fmul fast float (\S+), (\S+)$', rhs(r[1])) if r else None
     if not t:
@@ -81,8 +84,11 @@ for n, l in enumerate(L):
         code.append(f'{ind}{p}.g = add i32 {p}.h, {p}.e')
         code.append(f'{ind}{p}.r = ashr i32 {p}.g, {k}')
         val = f'{p}.r'
-    code.append(f'{ind}{p}.t = trunc i32 {val} to i16')       # the original goes through a 16-bit integer: keep that
-    code.append(f'{ind}{m[2]} = sext i16 {p}.t to i32')
+    if wide:
+        code.append(f'{ind}{m[2]} = add i32 {val}, 0')
+    else:
+        code.append(f'{ind}{p}.t = trunc i32 {val} to i16')       # the original goes through a 16-bit integer: keep that
+        code.append(f'{ind}{m[2]} = sext i16 {p}.t to i32')
     out[n] = '\n'.join(code)
 if not done:
     sys.exit('model_tail_dxil: no floating-point output scaling in this shader')

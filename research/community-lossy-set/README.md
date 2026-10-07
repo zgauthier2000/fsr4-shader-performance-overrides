@@ -94,7 +94,7 @@ Postpass, 4K:
 | Exposure-writing version (`4d657fb0eed077d6`), weights removed | 0.603 ms | 0.691 ms | differs (about half the pixels) |
 
 Both are built on this repository's phased postpass. The branch removal was also rebuilt here from
-the write-up ([`postpass_taps.py`](../postpass-and-prepass/postpass_taps.py)): bit-exact over a
+the write-up ([`postpass_taps.py`](../../postpass_taps.py)): bit-exact over a
 full 4K frame, and 3% slower on the RX 7800 XT (0.617 to 0.622 ms against 0.600 ms). The write-up
 reports it 10% faster on the RX 6700M (581 to 525 microseconds at 1440p), so it may be worth having
 on RDNA2; that has not been measured here.
@@ -278,8 +278,7 @@ Fewer exchanges in the prepass and a tidier postpass on the same store rewrite. 
 then rebuilt in this repository's own tools, for every version: the prepass at 0.434 ms and the
 postpass at 0.644 ms at 4K, byte-identical to AMD's. See the
 [postpass and prepass page](../postpass-and-prepass#two-ideas-from-a-community-set-rebuilt-here-2026-10-07).
-They are not in the released files yet; they come with the next release (2.99 ms against
-3.05 ms in Shadow of the Tomb Raider with the exact files).
+They are in the files since release `dll-2026-10-07`.
 
 **Limits of the folder.** It holds 14 of the shaders FSR 4.1.1 can use; this repository's prebuilt
 folder holds 191. Other output-size classes and option combinations fall back to AMD's shaders for
