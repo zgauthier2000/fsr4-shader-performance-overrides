@@ -208,7 +208,7 @@ old image would land if the history were shown unchanged. "Outline" is the objec
 | still camera / 20,0 | thin bars | 0.65 | 0.73 | 12% more |
 | 12,6 / −6,6 (the standard moving scene) | thin bars | 0.77 | 0.86 | 12% more |
 
-- **No second image.** In all ten cases the lossy build is within a tenth of an 8-bit step of
+- **No second image.** In all ten cases the lossy build is within 0.12 of an 8-bit step of
   AMD's shaders. These are errors of well under one step of 255: nothing to see.
 - **For comparison, release `dll-2026-10-06.6`** scored 1.1 to 3.8 on the outlines and 1.3 to
   4.3 on the thin bars in the same cases, two to seven times AMD's, and that was visible: a
