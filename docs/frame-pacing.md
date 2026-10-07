@@ -68,7 +68,7 @@ This is arithmetic on the 1.7 ms measured on an RX 7800 XT at 4K Balanced. Two t
 **Uncapped, GPU-bound, variable refresh (VRR).** Each frame is shown for as long as it took, so
 the display alternates between a slightly longer and a slightly shorter frame. The pattern
 repeats every two frames, which is 60 times a second at 120 FPS. Whether that is visible has not
-been tested here; the author has not noticed it at about 120 FPS.
+been tested here.
 
 **Uncapped, fixed refresh, no V-Sync.** Tearing as usual. The tear line moves in a two-frame
 pattern instead of drifting evenly. Not tested.
