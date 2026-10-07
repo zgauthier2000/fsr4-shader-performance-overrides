@@ -36,7 +36,7 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
   | Postpass | 2.20 ms | 0.667 ms | 0.644 ms |
   | Shadow of the Tomb Raider, 4K Balanced: upscaler time | 4.16 ms | 3.05 ms | 2.99 ms |
 
-  The output is still AMD's, byte for byte: 28 of 28 comparisons with the Linux files and 53 of
+  Image quality is 100% of AMD's, not close to it but the same picture. The output is still AMD's, byte for byte: 28 of 28 comparisons with the Linux files and 53 of
   53 with the five DLLs (run under Proton), over four output-size classes, render sizes from
   Ultra Performance to native, several option settings and a moving scene. Both ideas came from
   a community member's shader set and were rebuilt here from AMD's shaders
@@ -47,14 +47,18 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
   that used to be mixed in was what made fine detail shimmer; the weight folding was not the
   cause.
 
-  | Test rig, 4K Balanced | AMD's shaders | Release 6 | This release |
-  |---|---|---|---|
-  | Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 |
-  | Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB |
-  | Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB |
-  | Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB |
-  | Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.60 dB |
-  | Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB |
+  | Test rig, 4K Balanced | AMD's shaders | Release 6 | This release | This release, against AMD's |
+  |---|---|---|---|---|
+  | Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 | within 1% (release 6: 8% more) |
+  | Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB | within 1.6%; 9% more error |
+  | Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB | within 2.6%; 13% more error |
+  | Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB | within 0.8%; 3% more error |
+  | Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.60 dB | within 3.8%; 20% more error |
+  | Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB | within 5.4%; 23% more error |
+
+  "Within x%" compares the quality scores (PSNR, in dB). dB is a logarithmic scale, so the last
+  column also gives the same gap as error: how much further the picture is from the true image
+  than AMD's is.
 
   Speed is unchanged: 2.07 ms and 18874 frames in Shadow of the Tomb Raider's benchmark (4K
   Balanced, RX 7800 XT, Linux files, one run each), against 2.06 ms and 18893; 122 FPS both. In

@@ -127,16 +127,20 @@ Four repairs keep the rest honest:
 
 Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip, motion following, the rest rule and the four repairs.
 
-| | AMD's (= exact files) | Folding only | Lossy |
-|---|---|---|---|
-| Still picture against the true image | 44.31 dB | 43.71 dB | 43.60 dB |
-| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.109 |
-| Moving scene: background | 49.27 dB | 48.67 dB | 48.60 dB |
-| Moving scene: thin railing | 41.82 dB | not measured | 40.75 dB |
-| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 34.21 dB |
-| Still camera, objects moving: thin railing | 42.20 dB | not measured | 40.60 dB |
-| Still camera, objects moving: just-uncovered areas | 32.62 dB | not measured | 30.85 dB |
-| Revealed strip when a pan starts on a skipped frame | 100% of true brightness | no frame skip | 100% |
+| | AMD's (= exact files) | Folding only | Lossy | Lossy, against AMD's |
+|---|---|---|---|---|
+| Still picture against the true image | 44.31 dB | 43.71 dB | 43.60 dB | within 1.6%; 9% more error |
+| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.109 | within 1% |
+| Moving scene: background | 49.27 dB | 48.67 dB | 48.60 dB | within 1.4%; 8% more error |
+| Moving scene: thin railing | 41.82 dB | not measured | 40.75 dB | within 2.6%; 13% more error |
+| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 34.21 dB | within 0.8%; 3% more error |
+| Still camera, objects moving: thin railing | 42.20 dB | not measured | 40.60 dB | within 3.8%; 20% more error |
+| Still camera, objects moving: just-uncovered areas | 32.62 dB | not measured | 30.85 dB | within 5.4%; 23% more error |
+| Revealed strip when a pan starts on a skipped frame | 100% of true brightness | no frame skip | 100% | the same |
+
+"Within x%" compares the quality scores (PSNR, in dB). dB is a logarithmic scale, so the last
+column also gives the same gap as error: how much further the picture is from the true image than
+AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 
 - **Fine detail at rest shimmers no more than with AMD's shaders** (0.109 against 0.110). It was
   about 55% more with the first frame-skip build, about 30% up to release 4 and 8% in releases 5
