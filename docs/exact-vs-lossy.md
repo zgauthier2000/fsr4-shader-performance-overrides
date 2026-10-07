@@ -188,16 +188,21 @@ frame and shows the history as it is. "Not moving" means the motion stored for t
 is zero and nothing looked at around it (3 and 8 cells to each side) moves differently. Anywhere
 else a skipped frame behaves as in the released build.
 
-| Test rig, 4K Balanced | AMD's (= exact files) | Released lossy | In testing |
-|---|---|---|---|
-| Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 |
-| Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB |
-| Panning scene: background | 49.27 dB | 48.60 dB | 48.60 dB |
-| Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB |
-| Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB |
-| Still camera, moving objects: background | 46.36 dB | 45.76 dB | 45.68 dB |
-| Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.60 dB |
-| Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB |
+| Test rig, 4K Balanced | AMD's (= exact files) | Released lossy | In testing | In testing, against AMD's |
+|---|---|---|---|---|
+| Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 | within 1% (released: 8% more) |
+| Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB | within 1.6%; 9% more error |
+| Panning scene: background | 49.27 dB | 48.60 dB | 48.60 dB | within 1.4%; 8% more error |
+| Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB | within 2.6%; 13% more error |
+| Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB | within 0.8%; 3% more error |
+| Still camera, moving objects: background | 46.36 dB | 45.76 dB | 45.68 dB | within 1.5%; 8% more error |
+| Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.60 dB | within 3.8%; 20% more error |
+| Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB | within 5.4%; 23% more error |
+
+"Within x%" compares the quality scores (PSNR, in dB). dB is a logarithmic scale, so the last
+column also gives the same gap as error: how much further the picture is from the true image than
+AMD's is. These are one synthetic scene's figures; they rank builds and do not say how visible a
+difference is in a game.
 
 - **Shimmer at rest is at AMD's level** in this scene, from 8% above it.
 - **The cost is 0.14 dB on the still picture.**

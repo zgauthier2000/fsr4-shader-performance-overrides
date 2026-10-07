@@ -35,20 +35,30 @@ Both are built and checked, and not released yet. Nothing below is in a download
   | Prepass | 0.494 ms | 0.447 ms | 0.434 ms |
   | Postpass | 2.20 ms | 0.667 ms | 0.644 ms |
 
-  **Image quality: unchanged.** The new Linux files give AMD's output byte for byte in 28 of 28
-  comparisons, and the five new DLLs in 53 of 53 against AMD's DLL (run under Proton).
+  **Image quality: 100% of AMD's.** Not close to it but the same picture: the new Linux files
+  give AMD's output byte for byte in 28 of 28 comparisons, and the five new DLLs in 53 of 53
+  against AMD's DLL (run under Proton).
 - **Lossy test builds: shimmer at rest down to AMD's level.** On the frames that skip the model,
   where the picture is not moving, nothing is taken from the new frame.
 
-  | Test rig, 4K Balanced | AMD's shaders | Current release | Coming |
-  |---|---|---|---|
-  | Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 |
-  | Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB |
-  | Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB |
-  | Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB |
+  | Test rig, 4K Balanced | AMD's shaders | Current release | Coming | Coming, against AMD's |
+  |---|---|---|---|---|
+  | Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 | within 1% (current release: 8% more) |
+  | Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB | within 1.6%; 9% more error |
+  | Panning scene: background | 49.27 dB | 48.60 dB | 48.60 dB | within 1.4%; 8% more error |
+  | Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB | within 2.6%; 13% more error |
+  | Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB | within 0.8%; 3% more error |
+  | Still camera, objects moving: thin railing | 42.20 dB | 40.60 dB | 40.60 dB | within 3.8%; 20% more error |
+  | Still camera, objects moving: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB | within 5.4%; 23% more error |
 
-  **Image quality:** steadier at rest for 0.14 dB on the still picture; in motion the same as the
-  current release or slightly better. **Speed:** the same as the current release (2.07 ms against
+  "Within x%" compares the quality scores (PSNR, in dB). dB is a logarithmic scale, so the last
+  column also gives the same gap as error: how much further the picture is from the true image
+  than AMD's is.
+
+  **Image quality:** in this test scene the quality scores are within 1 to 3% of AMD's with the
+  camera panning or at rest, and within 4 to 5% in the hardest case measured (thin things and
+  just-uncovered areas with the camera still and objects moving). Against the current release:
+  steadier at rest for 0.14 dB on the still picture, and in motion the same or slightly better. **Speed:** the same as the current release (2.07 ms against
   2.06 ms in Shadow of the Tomb Raider, one run each). The lossy builds will also carry the new
   prepass and postpass; with those they have not been timed in a game yet. The lossy builds
   still change the image and stay opt-in.
