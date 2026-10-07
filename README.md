@@ -569,15 +569,7 @@ Remove the launch option, or put the original DLL back.
 | [RDNA4](docs/rdna4.md) | what is known about the FP8 model on RX 9000 cards; open for anyone who can test on one |
 | [Research](research) | the probes, data and scripts behind all of it |
 
-## Example images
-
-Before
-
-<img src="before.jpg" width="800" alt="Before">
-
-After
-
-<img src="after.jpg" width="800" alt="After">
+<img src="[before.jpg](https://www.star-history.com/?repos=zgauthier2000%2Ffsr4-shader-performance-overrides&type=date&legend=top-left)" width="800" alt="Before">
 
 ## Credits and licence
 
