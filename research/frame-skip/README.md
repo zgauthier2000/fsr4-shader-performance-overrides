@@ -462,7 +462,7 @@ detail). What was tried, 4K Balanced:
 | Release 6 | 0.119 | |
 | Release 6 on the unfolded model | 0.121 | so the folding is not the cause; still picture 44.03 dB instead of 43.74, about 0.07 ms slower |
 | No history clamp, or a wider one; no edge guard | 0.119 | no part in it |
-| The new frame's weight cut less (cubed term instead of squared) | 0.128 | worse |
+| The new frame's weight cut less (multiplied by 1 − a² instead of 1 − a) | 0.128 | worse |
 | A quarter of the new frame's weight everywhere | 0.117 | |
 | Nothing from the new frame, everywhere | 0.109 | 1.5 to 5 dB lost behind moving objects and on thin things in motion |
 | Nothing from the new frame where the block's stored motion is zero | 0.109 | motion as release 6 when the camera pans; 0.7 dB lost on the railing with the camera still and objects moving |
