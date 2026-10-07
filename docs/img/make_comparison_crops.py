@@ -92,7 +92,8 @@ fe = np.mean([np.abs(a - b).mean(2) for a, b in zip(E, E[1:])], 0) * 255
 fl = np.mean([np.abs(a - b).mean(2) for a, b in zip(L, L[1:])], 0) * 255
 kw, kh = 240, 160
 s = box(fl - fe, kh)[200:-200, 200:-200 - (kw - kh)]; y, x = np.unravel_index(np.argmax(s), s.shape); y += 200; x += 200
-cr = lambda a: a[y:y + kh, x:x + kw]
+fy, fx0 = y, x
+cr = lambda a: a[fy:fy + kh, fx0:fx0 + kw]
 print('flicker: window', x, y, 'exact %.3f lossy %.3f; whole frame %.3f %.3f' % (cr(fe).mean(), cr(fl).mean(), fe.mean(), fl.mean()))
 heat = lambda a: gray(zoom(np.clip(cr(a) / 1.0, 0, 1), 2))        # white = 1 step of 255 per frame or more
 sheet('Shimmer at rest: how much each pixel changes from frame to frame',
@@ -116,3 +117,16 @@ for label, (x0, y0, x1, y1) in (('Thin bars moving in front of a moving backgrou
 sheet('In motion, on a frame the lossy build skips the model for',
       f'As if at 60 FPS (12 pixels of camera pan per frame). {K} x {K} pixel pieces where the lossy build is furthest off, enlarged 4 times.',
       rows, 'cmp-motion.png', note=f'Whole frame, error against the true image: exact {de.mean() * 255:.2f}, lossy {dl.mean() * 255:.2f} of 255.')
+
+# ---- shimmer at rest with a build still in testing, next to the released one (optional: <dir>/still_next/)
+import os
+if os.path.isdir(f'{D}/still_next'):
+    X = [load('still_next', n) for n in range(32, 40)]
+    fx = np.mean([np.abs(a - b).mean(2) for a, b in zip(X, X[1:])], 0) * 255
+    heat = lambda a: gray(zoom(np.clip(cr(a) / 1.0, 0, 1), 2))
+    print('flicker, in testing: window %.3f, whole frame %.3f' % (cr(fx).mean(), fx.mean()))
+    sheet('Shimmer at rest: the released lossy build and the one in testing',
+          f'Nothing moves. The same {kw} x {kh} pixel piece as above (the worst for the released build), enlarged 2 times.',
+          [('', [('the picture', rgb8(zoom(cr(E[7]), 2))), (f"exact files (= AMD's): {cr(fe).mean():.3f}", heat(fe)), (f'released lossy build: {cr(fl).mean():.3f}', heat(fl)),
+                 (f'lossy build in testing: {cr(fx).mean():.3f}', heat(fx))])],
+          'cmp-flicker-test.png', note=f'Black: no change. White: 1 step of 255 per frame or more. Whole frame: exact {fe.mean():.3f}, released {fl.mean():.3f}, in testing {fx.mean():.3f}.')

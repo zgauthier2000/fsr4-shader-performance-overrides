@@ -449,6 +449,30 @@ they are wrong or missing, it is taken from the wrong place; the test rig's moti
 exact, so this is not measured. The motion is stored in whole output pixels, one value per 4x4
 block.
 
+## In testing: nothing from the new frame at rest
+
+Not released: Linux files on the author's machine only, and `skipblend.py` here does not have the
+change yet.
+
+Release 6 still shimmers about 8% more than AMD's shaders at rest (0.119 against 0.110 on fine
+detail). What was tried, 4K Balanced:
+
+| On skipped frames | Shimmer at rest | Note |
+|---|---|---|
+| Release 6 | 0.119 | |
+| Release 6 on the unfolded model | 0.121 | so the folding is not the cause; still picture 44.03 dB instead of 43.74, about 0.07 ms slower |
+| No history clamp, or a wider one; no edge guard | 0.119 | no part in it |
+| The new frame's weight cut less (cubed term instead of squared) | 0.128 | worse |
+| A quarter of the new frame's weight everywhere | 0.117 | |
+| Nothing from the new frame, everywhere | 0.109 | 1.5 to 5 dB lost behind moving objects and on thin things in motion |
+| Nothing from the new frame where the block's stored motion is zero | 0.109 | motion as release 6 when the camera pans; 0.7 dB lost on the railing with the camera still and objects moving |
+| The same, and only where nothing 3 or 8 cells to each side moves differently | 0.109 | no loss in either moving scene |
+
+The last row is the build in testing. It reuses the motion that the uncovered-pixel test already
+reads, so it adds four reads per thread and one comparison per pixel on skipped frames. Figures,
+a comparison image and the game run are on the
+[overview page](../../docs/exact-vs-lossy.md#in-testing-less-shimmer-at-rest).
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in

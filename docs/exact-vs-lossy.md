@@ -16,6 +16,8 @@ and only one of them keeps AMD's picture.
 
 This page describes the builds of release `dll-2026-10-06.6`. Earlier lossy releases behaved
 differently on skipped frames; their history is on the [frame-skip page](../research/frame-skip).
+A lossy build that is still being tested, with less shimmer at rest, has
+[its own section below](#in-testing-less-shimmer-at-rest).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
@@ -165,6 +167,59 @@ bottom. The edge a moving block has just uncovered is slightly rougher. Whole fr
 against the true image is 1.19 of 255 against 1.14 (release 5: 1.23).
 
 <img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy build skips the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, lossy build and their difference amplified 8 times. First: thin vertical bars in front of a moving background; in the lossy build the bars are rougher near the bottom (error against the true image 3.4 of 255, exact 2.4). Second: the edge a moving block has just uncovered; slightly rougher in the lossy build (1.5 against 1.1). Whole frame: lossy 1.19, exact 1.14 of 255.">
+
+## In testing: less shimmer at rest
+
+> **Not released.** This build exists only as Linux shader files on the author's machine. It is
+> in no download, there are no Windows DLLs of it, and its change is not in this repository's
+> tools yet. Everything else on this page describes the released build.
+
+**Where the remaining shimmer at rest comes from.** Not from the weight folding: frame skip on
+the unfolded model shimmers just as much (0.121 against 0.119). It comes from the skipped frames
+themselves. The history clamp and the edge guard play no part.
+
+**The change.** Where the picture is not moving, a skipped frame takes nothing from the new
+frame and shows the history as it is. "Not moving" means the motion stored for the pixel's block
+is zero and nothing looked at around it (3 and 8 cells to each side) moves differently. Anywhere
+else a skipped frame behaves as in the released build.
+
+| Test rig, 4K Balanced | AMD's (= exact files) | Released lossy | In testing |
+|---|---|---|---|
+| Shimmer at rest on fine detail (lower is steadier) | 0.110 | 0.119 | 0.109 |
+| Still picture against the true image | 44.31 dB | 43.74 dB | 43.60 dB |
+| Panning scene: background | 49.27 dB | 48.60 dB | 48.60 dB |
+| Panning scene: thin railing | 41.82 dB | 40.73 dB | 40.75 dB |
+| Panning scene: just-uncovered areas | 34.48 dB | 33.96 dB | 34.21 dB |
+| Still camera, moving objects: background | 46.36 dB | 45.76 dB | 45.68 dB |
+| Still camera, moving objects: thin railing | 42.20 dB | 40.60 dB | 40.60 dB |
+| Still camera, moving objects: just-uncovered areas | 32.62 dB | 30.77 dB | 30.85 dB |
+
+- **Shimmer at rest is at AMD's level** in this scene, from 8% above it.
+- **The cost is 0.14 dB on the still picture.**
+- **Motion is unchanged or slightly better.** By frame rate (30, 60, 90 and 120 FPS) every figure
+  is within 0.1 dB of the released build or better.
+- **Applying it everywhere does not work:** with nothing taken from the new frame on any skipped
+  frame, shimmer at rest is the same 0.109, but just-uncovered areas and thin things in motion
+  lose 1.5 to 5 dB. A first version that looked only at the pixel's own block lost 0.7 dB on the
+  railing with the camera still and objects moving; looking around the block removed that.
+
+The piece of the still scene where the released build shimmers most, with the build in testing
+next to it. It gets about half of the way back to the exact files there (0.053 of 255 per frame
+against 0.064; exact 0.040); over fine detail as a whole it is level with them.
+
+<img src="img/cmp-flicker-test.png" width="760" alt="Shimmer at rest in a 240 by 160 pixel piece of dark textured ground: the picture, and maps of how much each pixel changes from frame to frame with the exact files (mean 0.040 of 255), the released lossy build (0.064) and the lossy build in testing (0.053). The map of the build in testing shows fewer scattered bright specks than the released one. Whole frame: exact 0.037, released 0.035, in testing 0.033.">
+
+**Speed.** Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT, one run each: 2.07 ms and 18874
+frames, against 2.06 ms and 18893 with the released build; 122 FPS both. That difference is
+within what two runs of the same build give. In the benchmark tool the postpass takes the same
+time as the released build's on both kinds of frame.
+
+**In the game** the author could see the improvement: patterns that used to show on stairs in
+that benchmark while the camera moved were gone. That is one person's impression in one game.
+
+**What is open:** no Windows DLLs yet; tested by the author only; the look-around reads more
+points than the released build, and what that costs where many things move has not been timed
+on its own.
 
 ## Speed side by side
 

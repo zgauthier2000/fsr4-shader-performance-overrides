@@ -21,6 +21,17 @@ Details: [how it works](docs/how-it-works.md), [results](docs/results.md),
 > Machine, an RX 6700M, an RX 6800 XT and an RX 6600 ([results](timing-kit/RESULTS.md)).
 > [Instructions](timing-kit) · [Download](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05)
 
+## In testing, not released yet: lossy builds with less shimmer at rest
+
+- **What it is:** on the frames that skip the model, where the picture is not moving, nothing is
+  taken from the new frame. In the test rig, shimmer at rest on fine detail drops to AMD's level
+  (0.109 against 0.110; release 6: 0.119) for 0.14 dB on the still picture, with motion unchanged
+  and the same speed (2.07 ms against 2.06 ms in Shadow of the Tomb Raider, one run each).
+- **Where it stands:** Linux files on the author's machine only. No download, no Windows DLLs.
+  In one game the author could see the difference.
+- [Figures and a comparison image](docs/exact-vs-lossy.md#in-testing-less-shimmer-at-rest) ·
+  [how it was found](research/frame-skip#in-testing-nothing-from-the-new-frame-at-rest)
+
 ## What's new: 2026-10-06, release 6 ([release `dll-2026-10-06.6`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-06.6))
 
 - **The lossy test builds are steadier and sharper in motion, and slightly faster.** Three changes,
