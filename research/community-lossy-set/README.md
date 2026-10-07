@@ -16,6 +16,10 @@
   AMD's, frame for frame.
 - **Its bit-exact parts gain nothing on RDNA3.** They may on RDNA2, which could not be measured
   here. Its prepass is 12% faster and changes the image only minutely, but it is not bit-exact.
+- **Update, 2026-10-07:** the same member sent a later set that keeps AMD's image. It is
+  byte-identical to AMD's in every comparison run here, and its prepass and postpass are slightly
+  faster than this repository's (about 0.03 ms at 4K on an RX 7800 XT). See
+  [the later exact set](#a-later-set-that-keeps-amds-image-2026-10-07).
 - **Outcome:** nothing from it goes into the main files. The lossy direction is worth pursuing as
   an opt-in extra, but that needs the set's source and per-pass tuning against the motion test;
   see [what would help](#what-would-help-to-take-this-further).
@@ -203,6 +207,82 @@ whole frame 30.53 dB against the true image; frame-to-frame change 0.079 (backgr
   the whole-frame figure by 0.75 dB for 0.04 ms. It should be left alone or pruned far less.
 - These figures come from one synthetic scene. They rank the passes; they are not a promise about
   any game.
+
+## A later set that keeps AMD's image (2026-10-07)
+
+On 2026-10-07 the same community member sent a newer folder ("v80", 14 `.spv` files) with a note
+describing it as the fastest set that does **not** change the image. According to the note it was
+put together from the member's own run of this repository's [timing kit](../../timing-kit) on
+their card at 2560x1440: for each pass, whichever file measured faster. **None of those files are
+in this repository.**
+
+**What is in it.** One output-size class only (1440p and 4K output):
+
+| Passes | Whose |
+|---|---|
+| 1, 2, 4, 5, 10, 11, 12 | this repository's rewrites, lightly edited (fewer repeated reads) |
+| 7, 8, 9 | their own |
+| Prepass, two versions (`5d9ed7b71cbbcfd0`, `06bf58da86ed7bf9`) | their own |
+| Postpass, two versions (`4d657fb0eed077d6`, `000fd316e19e1bfe`) | their own, built on this repository's phased postpass |
+
+**Is it exact?** In everything run here, yes. AMD's whole pipeline with the folder as the
+override, last 8 of 40 frames compared with AMD's shaders byte for byte:
+
+| Scene | Output from render size | Option flags 0x0 | 0x8 | 0x28 |
+|---|---|---|---|---|
+| Still | 2560x1440 from 1707x960 | identical | identical | identical |
+| Still | 3840x2160 from 2260x1272 | identical | identical | identical |
+| Still | 2560x1440 from 2560x1440 | identical | identical | identical |
+| Moving (the test scene, as if at 60 FPS) | 3840x2160 from 2260x1272 | identical | identical | identical |
+
+- Flags 0x8 and 0x28 are the settings that select the set's two prepass versions and, between
+  them, both of its postpass versions; a shader dump confirmed that those files were the ones in
+  use.
+- This matters because the earlier set's prepass looked exact in a standalone benchmark and was
+  not (see above). This one is identical in the moving scene, where that one differed in 93% of
+  pixels.
+- Not checked: other render sizes within the class, other option combinations, and the member's
+  note that eight passes of an earlier folder of theirs were exact only for the model's real
+  weights (those are not in this folder).
+
+**Is it faster?** A little, in two passes. Radeon RX 7800 XT, this repository's timing kit, each
+pair timed in both slot orders (the tool favours its first slot by about 0.02 ms):
+
+| Pass | AMD's | This repository's | The later set |
+|---|---|---|---|
+| Prepass, 4K | 0.49 ms | 0.445 ms | 0.432 ms |
+| Postpass, 4K | 2.20 ms | 0.667 ms | 0.649 ms |
+| Passes 7, 8, 9, 4K | 0.133 / 0.133 / 0.181 ms | 0.133 / 0.131 / 0.177 ms | 0.131 / 0.130 / 0.182 ms |
+| Passes 1, 2, 12, 4K | 0.300 / 0.299 / 0.299 ms | 0.287 / 0.290 / 0.287 ms | 0.287 / 0.290 / 0.287 ms |
+| Pass 11, 4K | 0.61 ms | 0.198 ms | 0.198 ms |
+| Prepass, 1440p | 0.214 ms | 0.204 ms | 0.199 ms |
+| Postpass, 1440p | 0.85 ms | 0.31 ms | 0.29 to 0.30 ms |
+
+- **Total gain over this repository's files: about 0.03 ms at 4K** (0.013 ms in the prepass,
+  0.017 ms in the postpass), roughly 1% of what is left of FSR 4's time. About 0.02 ms at 1440p.
+- **Passes 7, 8 and 9 are level** with this repository's on this card. The member's note reports
+  them 5 to 6% faster on their card (0.095 against 0.101 ms).
+- The member's own figures at 1440p, from their note: 3.41 ms for AMD's shaders, 2.96 ms for this
+  repository's, 2.94 ms for their mix.
+
+**How it differs inside** (from the compiled files):
+
+| | AMD's | This repository's | The later set |
+|---|---|---|---|
+| Prepass: exchanges between neighbouring threads | 32 | 44 | 12 |
+| Prepass: memory reads | 130 | 194 | 86 |
+| Postpass: memory reads | 121 | 234 | 132 |
+| Postpass: branches | 15 | 42 | 33 |
+
+Fewer exchanges in the prepass and a tidier postpass on the same store rewrite. Both ideas are
+being tried in this repository's own tools, so that every version and the Windows DLL would get
+them; the result will be recorded on the [postpass and prepass page](../postpass-and-prepass).
+
+**Limits of the folder.** It holds 14 of the shaders FSR 4.1.1 can use; this repository's prebuilt
+folder holds 191. Other output-size classes and option combinations fall back to AMD's shaders for
+what is not covered. The member's note reaches the same conclusion as this project about what is
+left: with AMD's image unchanged there is little more to gain, and going lower means changing the
+image.
 
 ## Where this stands
 
