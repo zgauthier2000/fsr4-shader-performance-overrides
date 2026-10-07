@@ -31,7 +31,7 @@ The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py)
 | Image | AMD's, byte for byte | close to AMD's, not the same |
 | How the time is saved | same work, done more efficiently | less work |
 | Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 2.99 ms | 2.05 ms |
-| Upscaler time, Rise of the Tomb Raider, 4K Balanced (AMD's: 4.29 ms) | 2.97 ms | 2.05 ms (an earlier lossy release) |
+| Upscaler time, Rise of the Tomb Raider, 4K Balanced (AMD's: 4.29 ms) | 2.97 ms (the previous exact files) | 2.05 ms (an earlier lossy release) |
 | Frame times | even | alternate between a shorter and a longer frame |
 | Checked how | output compared with AMD's, byte for byte | measured against the true image and against AMD's output |
 | Tested on | several GPUs and games ([results](results.md)) | one RDNA3 card by the author (two games, the current release in one, on Linux), testers with earlier releases |
@@ -194,7 +194,8 @@ against the true image is 1.19 of 255 against 1.14.
 
 \* The Rise of the Tomb Raider lossy run used the lossy build of release `dll-2026-10-06.3`; it
 has not been repeated with the current one. In Shadow of the Tomb Raider the current release and
-that one ran at nearly the same speed (2.05 and 2.09 ms).
+that one ran at nearly the same speed (2.05 and 2.09 ms). The Rise of the Tomb Raider exact figure is also
+from before this release's faster prepass and postpass.
 
 The lossy figures are from the Linux files. The Windows DLLs carry
 the same shaders (their output is byte-identical to the Linux files' in the test rig, under
