@@ -569,7 +569,6 @@ Remove the launch option, or put the original DLL back.
 | [RDNA4](docs/rdna4.md) | what is known about the FP8 model on RX 9000 cards; open for anyone who can test on one |
 | [Research](research) | the probes, data and scripts behind all of it |
 
-## Star History
 
 <a href="https://www.star-history.com/?repos=zgauthier2000%2Ffsr4-shader-performance-overrides&type=date&legend=top-left">
  <picture>
@@ -578,6 +577,7 @@ Remove the launch option, or put the original DLL back.
    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=zgauthier2000/fsr4-shader-performance-overrides&type=date&legend=top-left" />
  </picture>
 </a>
+
 ## Credits and licence
 
 The postpass rewrite is adapted from `tools/fsr4cap/postpass_lds.py` in
