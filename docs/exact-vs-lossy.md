@@ -159,6 +159,7 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
   release 5 frame skip cost a further 1 dB there.
 - **Frame times alternate.** With a frame cap or normal V-Sync the average is what counts. With
   low-latency modes or unbuffered V-Sync the longer frames can miss.
+  [What that means in practice](frame-pacing.md).
 
 ## What the difference looks like
 

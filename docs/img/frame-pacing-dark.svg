@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="400" viewBox="0 0 760 400" role="img" aria-label="Frame time of eight consecutive frames, in milliseconds, against a 120 Hz refresh interval of 8.33 ms. Exact files: every frame takes 9.14 ms, above the interval. Lossy build: frames alternate between 9.05 ms when the model runs and 7.35 ms when it is skipped; the average, 8.20 ms, is below the interval, but every other frame is above it. Derived from averages in Shadow of the Tomb Raider at 4K Balanced on a Radeon RX 7800 XT.">
+<rect width="760" height="400" rx="8" fill="#1a1a19"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">The average fits a 120 Hz refresh; every other frame does not</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Frame time of eight consecutive frames, in ms. Dashed line: one 120 Hz refresh, 8.33 ms.</text>
+<text x="24.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#ffffff">Exact files</text>
+<text x="24.0" y="102.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">every frame 9.14 ms  ·  109 FPS</text>
+<line x1="50" y1="318.0" x2="340" y2="318.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="44.0" y="322.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">0</text>
+<line x1="50" y1="278.0" x2="340" y2="278.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="44.0" y="282.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">2</text>
+<line x1="50" y1="238.0" x2="340" y2="238.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="44.0" y="242.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">4</text>
+<line x1="50" y1="198.0" x2="340" y2="198.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="44.0" y="202.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">6</text>
+<line x1="50" y1="158.0" x2="340" y2="158.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="44.0" y="162.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">8</text>
+<line x1="50" y1="118.0" x2="340" y2="118.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="44.0" y="122.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">10</text>
+<path d="M60,318 V139.2 Q60,135.2 64,135.2 H82 Q86,135.2 86,139.2 V318 Z" fill="#3987e5"/>
+<text x="73.0" y="129.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#ffffff">9.14</text>
+<text x="73.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">1</text>
+<path d="M95,318 V139.2 Q95,135.2 99,135.2 H117 Q121,135.2 121,139.2 V318 Z" fill="#3987e5"/>
+<text x="108.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">2</text>
+<path d="M130,318 V139.2 Q130,135.2 134,135.2 H152 Q156,135.2 156,139.2 V318 Z" fill="#3987e5"/>
+<text x="143.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">3</text>
+<path d="M165,318 V139.2 Q165,135.2 169,135.2 H187 Q191,135.2 191,139.2 V318 Z" fill="#3987e5"/>
+<text x="178.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">4</text>
+<path d="M200,318 V139.2 Q200,135.2 204,135.2 H222 Q226,135.2 226,139.2 V318 Z" fill="#3987e5"/>
+<text x="213.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">5</text>
+<path d="M235,318 V139.2 Q235,135.2 239,135.2 H257 Q261,135.2 261,139.2 V318 Z" fill="#3987e5"/>
+<text x="248.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">6</text>
+<path d="M270,318 V139.2 Q270,135.2 274,135.2 H292 Q296,135.2 296,139.2 V318 Z" fill="#3987e5"/>
+<text x="283.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">7</text>
+<path d="M305,318 V139.2 Q305,135.2 309,135.2 H327 Q331,135.2 331,139.2 V318 Z" fill="#3987e5"/>
+<text x="318.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">8</text>
+<line x1="50" y1="151.3" x2="340" y2="151.3" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="195.5" y="352.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">frame</text>
+<text x="404.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#ffffff">Lossy build</text>
+<text x="404.0" y="102.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">average 8.20 ms  ·  122 FPS</text>
+<line x1="430" y1="318.0" x2="720" y2="318.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="424.0" y="322.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">0</text>
+<line x1="430" y1="278.0" x2="720" y2="278.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="424.0" y="282.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">2</text>
+<line x1="430" y1="238.0" x2="720" y2="238.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="424.0" y="242.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">4</text>
+<line x1="430" y1="198.0" x2="720" y2="198.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="424.0" y="202.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">6</text>
+<line x1="430" y1="158.0" x2="720" y2="158.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="424.0" y="162.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">8</text>
+<line x1="430" y1="118.0" x2="720" y2="118.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="424.0" y="122.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">10</text>
+<path d="M440,318 V141.0 Q440,137.0 444,137.0 H462 Q466,137.0 466,141.0 V318 Z" fill="#d95926"/>
+<text transform="translate(457.0,308) rotate(-90)" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#0b0b0b">runs the model</text>
+<text x="453.0" y="131.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#ffffff">9.05</text>
+<text x="453.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">1</text>
+<path d="M475,318 V175.0 Q475,171.0 479,171.0 H497 Q501,171.0 501,175.0 V318 Z" fill="#d95926"/>
+<text transform="translate(492.0,308) rotate(-90)" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#0b0b0b">skipped</text>
+<text x="488.0" y="165.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#ffffff">7.35</text>
+<text x="488.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">2</text>
+<path d="M510,318 V141.0 Q510,137.0 514,137.0 H532 Q536,137.0 536,141.0 V318 Z" fill="#d95926"/>
+<text x="523.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">3</text>
+<path d="M545,318 V175.0 Q545,171.0 549,171.0 H567 Q571,171.0 571,175.0 V318 Z" fill="#d95926"/>
+<text x="558.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">4</text>
+<path d="M580,318 V141.0 Q580,137.0 584,137.0 H602 Q606,137.0 606,141.0 V318 Z" fill="#d95926"/>
+<text x="593.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">5</text>
+<path d="M615,318 V175.0 Q615,171.0 619,171.0 H637 Q641,171.0 641,175.0 V318 Z" fill="#d95926"/>
+<text x="628.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">6</text>
+<path d="M650,318 V141.0 Q650,137.0 654,137.0 H672 Q676,137.0 676,141.0 V318 Z" fill="#d95926"/>
+<text x="663.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">7</text>
+<path d="M685,318 V175.0 Q685,171.0 689,171.0 H707 Q711,171.0 711,175.0 V318 Z" fill="#d95926"/>
+<text x="698.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">8</text>
+<line x1="430" y1="151.3" x2="720" y2="151.3" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="575.5" y="352.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">frame</text>
+<text x="24.0" y="380.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT. Derived from the measured averages and the two upscaler times, not captured frame by frame.</text>
+</svg>

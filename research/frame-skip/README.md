@@ -622,7 +622,8 @@ The scene's speeds are set with `SCENE_VB`, `SCENE_VO` and `SCENE_PAD` in
 ## Frame times alternate
 
 A skipped frame is about 1.7 ms shorter than a normal one on an RX 7800 XT, so consecutive frames
-alternate around the average.
+alternate around the average. The practical side (caps, V-Sync, latency, what overlays show) is
+on [its own page](../../docs/frame-pacing.md).
 
 - **With a frame cap or V-Sync and normal buffering** the average is what counts: a short frame
   finishes early and the next one uses the slack.
