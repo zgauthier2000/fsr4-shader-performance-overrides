@@ -252,7 +252,7 @@ pair timed in both slot orders (the tool favours its first slot by about 0.02 ms
 |---|---|---|---|
 | Prepass, 4K | 0.49 ms | 0.445 ms | 0.432 ms |
 | Postpass, 4K | 2.20 ms | 0.667 ms | 0.649 ms |
-| Passes 7, 8, 9, 4K | 0.133 / 0.133 / 0.181 ms | 0.133 / 0.131 / 0.177 ms | 0.131 / 0.130 / 0.182 ms |
+| Passes 7, 8, 9, 4K | 0.135 / 0.134 / 0.181 ms | 0.135 / 0.131 / 0.177 ms | 0.132 / 0.131 / 0.182 ms |
 | Passes 1, 2, 12, 4K | 0.300 / 0.299 / 0.299 ms | 0.287 / 0.290 / 0.287 ms | 0.287 / 0.290 / 0.287 ms |
 | Pass 11, 4K | 0.61 ms | 0.198 ms | 0.198 ms |
 | Prepass, 1440p | 0.214 ms | 0.204 ms | 0.199 ms |
