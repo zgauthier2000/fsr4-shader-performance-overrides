@@ -83,7 +83,7 @@ def figure(t):
          '(model passes 3 and 6 untouched), 2.99 ms, the image is AMD\'s byte for byte. Lossy build on a frame that runs the model: '
          'nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. '
          'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest, 1.19 ms. '
-         'The two kinds of frame alternate, 2.07 ms on average, 50% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
+         'The two kinds of frame alternate, 2.05 ms on average, 51% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
          'still picture 43.60 dB against 44.31, flicker on fine detail at rest 0.109 against 0.110, areas just uncovered by a moving object 34.21 dB against 34.48. '
          'Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
@@ -122,7 +122,7 @@ def figure(t):
     o.append(text(24, y + 30, 'Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT', t, 11, 'muted'))
     bx, bw = 24 + 84, 150
     for i, (lab, v, kind, note) in enumerate([("AMD's", 4.16, 'amd', '4.16 ms  ·  97 FPS'), ('Exact', 2.99, 'exact', '2.99 ms  ·  109 FPS  ·  28% less'),
-                                              ('Lossy', 2.07, 'lossy', '2.07 ms  ·  122 FPS  ·  50% less')]):
+                                              ('Lossy', 2.05, 'lossy', '2.05 ms  ·  122 FPS  ·  51% less')]):
         yy = y + 46 + i * 26
         o.append(text(bx - 10, yy + 12, lab, t, 12, 'ink', 'end'))
         o.append(hbar(bx, yy, bw * v / 4.16, 16, t[kind]))

@@ -485,7 +485,7 @@ reads, so it adds four reads per thread and one comparison per pixel on skipped 
 - By frame rate (30, 60, 90 and 120 FPS) every figure is within 0.1 dB of release 6 or better.
 - Postpass time in the benchmark tool is the same as release 6's on both kinds of frame. In the
   game: 2.07 ms and 18874 frames, against 2.06 ms and 18893 (one run each, within run-to-run
-  difference).
+  difference). With the release's new prepass and postpass underneath: 2.05 ms and 18953 frames.
 - The four lossy DLLs give byte-identical output to the Linux files in the test rig (panning and
   still-camera moving scenes, still scenes in 20 combinations), under Proton only.
 - Limit: where the motion vectors say "not moving", a skipped frame shows no change at all, so
