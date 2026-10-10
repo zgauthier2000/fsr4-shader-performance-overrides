@@ -49,6 +49,11 @@ Options (from a command prompt in this folder)
   fsr4time.exe --quick           1080p and 4K only
   fsr4time.exe --no-questions    no questions at the end, nothing is sent
 
+Other graphics cards
+  The kit is not limited to Radeon. If you have a GeForce or an Intel Arc card, please run it too:
+  these DLLs were made for Radeon chips, nobody has measured them elsewhere yet, and your result
+  shows whether they help there and whether the exact DLL still gives AMD's picture.
+
 Not for Radeon RX 9000 cards: they run a different FSR 4.
 
 The DLLs are modified versions of AMD's; see NOTICE.md. The program is licensed under the GNU

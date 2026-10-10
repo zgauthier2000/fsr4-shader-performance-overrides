@@ -48,7 +48,9 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 > `fsr4time.exe`, wait about five minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, checks that the exact DLL gives AMD's picture on your machine, and offers to
 > send the result. **Nobody has measured these DLLs on Windows yet; your run would be among the
-> first.** On Linux and the Steam Deck: [the Linux kit](timing-kit).
+> first.** It also runs on GeForce and Intel Arc graphics: people use these DLLs there, nothing has
+> been measured, and a result from such a card would be the first. On Linux and the Steam Deck:
+> [the Linux kit](timing-kit).
 > [What the kits do](timing-kit#windows-experimental)
 
 ### The lossy DLL shows particles properly, and is closer to AMD's picture
@@ -145,6 +147,7 @@ More games and resolutions: [all results](docs/results.md).
 | RX 6000 (RDNA2) | `fsr4.1.1-cyboman.zip` | runs, and includes the fix for the shimmering these cards show with AMD's file; about 30% at 4K, a few percent at 1440p and below (tester reports) |
 | Radeon 780M, 890M and other integrated graphics, Steam Deck | `fsr4.1.1-igpu-cyboman.zip` | experimental: few reports, small gains |
 | RX 9000 (RDNA4) | none | no: a different FSR 4 runs there ([open for someone to pick up](docs/rdna4.md)) |
+| Nvidia GeForce, Intel Arc | `fsr4.1.1-cyboman.zip` | **untested.** Users report that the DLLs run on a GeForce laptop and on an Arc A770. The rewrites were made for Radeon chips, so they may or may not be faster than AMD's shaders there, and "same picture" has only been verified on Radeon. A [timing-kit](timing-kit#windows-experimental) result tells both |
 
 You also need a DirectX 12 game in which FSR 4.1.1 already runs, with
 `amd_fidelityfx_upscaler_dx12.dll` version 4.1.1.2740.
