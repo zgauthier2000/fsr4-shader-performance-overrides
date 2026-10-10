@@ -107,12 +107,8 @@ More games and resolutions: [all results](docs/results.md).
 **The technical pages behind this release:**
 
 - [Shimmer after the previous release: two causes](research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes): grain let through by the particle test, and bright flat areas on the unfolded network; how each was found and what the fix costs
-- [Particles, sparks and embers on skipped frames](research/frame-skip#content-without-motion-vectors-particles-sparks-embers-release-dll-2026-10-09): what went wrong, the three tests that fix it, what was tried and rejected, what it costs
-- [Exact and lossy compared](docs/exact-vs-lossy.md): every measurement of the lossy DLL against AMD's, with comparison pictures of the previous release and this one
-- [Why weight folding was taken out](research/lossy): the record of the experiment the lossy DLL no longer uses
-- [The Windows DLL's last pass, and code left in the files](research/postpass-and-prepass#the-windows-dlls-last-pass-and-code-left-in-the-files-release-dll-2026-10-09): what changed inside the DLLs, how it compiles for each chip, timed alone and as a whole upscaler
-- [Which download for which graphics chip](docs/gpu-support.md#which-download-dll-2026-10-09-and-later): how four builds became two, and the RX 6000 fix that is now in both
-- [Frame pacing with the lossy DLL](docs/frame-pacing.md): what the alternating frame cost means for frame caps, V-Sync and latency
+- [Exact and lossy compared](docs/exact-vs-lossy.md): every measurement of the lossy DLL against AMD's, with pictures of the shimmer in the last three releases
+- [Weight folding](research/lossy): the earlier experiment that the first-layer change comes from
 - [The timing kits](timing-kit): what the Linux and Windows kits measure, and how to read their summaries
 
 ### Less shimmer in the lossy DLL (release `dll-2026-10-10`)
@@ -151,64 +147,7 @@ The same with grain in every frame, in the piece where this release gained most:
 - **An unexpected find:** merging a few of the smallest weights in the network's first layer makes flat areas as steady as with AMD's shaders, at a cost of about 0.05 dB in a still picture and no measurable change in speed. Why it works is not yet understood.
   [How the two causes were found](research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
 
-### Earlier: release `dll-2026-10-09`
-
-#### The lossy DLL shows particles properly, and is closer to AMD's picture
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/lossy-improved-dark.svg">
-  <img src="docs/img/lossy-improved-light.svg" width="760" alt="What changed in the lossy DLL, measured in the test rig at 4K. Share of a particle drawn without motion vectors that is shown where it truly is, on the frames that skip the model: tiny fast sparks, 16 percent in the previous release, 77 percent now, 83 percent with AMD's shaders; tiny slow embers, 67, 77 and 81 percent; larger particles, 70, 98 and 98 percent. How far a still picture is from AMD's: 0.71 dB in the previous release, 0.25 dB now.">
-</picture>
-
-- **Particles, sparks and embers no longer flicker or move at half the frame rate.** Games draw
-  them without telling FSR that they move, and the previous lossy DLL kept them where they had
-  been, or dimmed them, on every other frame. Seen and fixed in Elden Ring and in the menu of
-  Mafia: The Old Country.
-- **The still picture is closer to AMD's.** The lossy DLL no longer simplifies the neural
-  network's arithmetic; it only skips it on every other frame.
-- **It costs about 2% of the previous lossy DLL's speed** (Shadow of the Tomb Raider, 4K: 120 FPS
-  against 122; the exact DLL gives 109, AMD's shaders 97).
-
-The same skipped frame with the previous release and with this one, enlarged five times:
-
-<img src="docs/img/cmp-particles.png" width="760" alt="Particles drawn without motion vectors on a frame that skips the model, camera still, pieces of the 4K output enlarged five times, each shown as the true image, the exact files, the lossy build of the previous release and this release's lossy build. Tiny fast sparks: the previous release shows one displaced and one nearly gone; this release shows all three in place, slightly blocky. Larger particles: the previous release shows them displaced and broken up; this release shows them in place with thin seams across them.">
-
-Enlarged like this, this release's particles are a little blocky and have thin seams; at normal
-size and in motion that was not visible in the games it was checked in. More comparisons, and
-what the lossy DLL still does worse than AMD's: [exact and lossy compared](docs/exact-vs-lossy.md).
-
-#### A possible speed-up on Windows, and how to help find out
-
-Two things changed inside both DLLs, with the same picture as before:
-
-- **The last pass writes all three of its images in ordered rows.** The previous DLL did that for
-  two of them and left the third to AMD's scattered writes, the slow part of AMD's own shader.
-- **The code our rewrites replaced is gone from the file.** The previous DLL left it in for the
-  graphics driver to discard.
-
-Both can make the DLLs faster on Windows, where AMD's own driver compiles these shaders. How much
-depends on what that driver did with the leftover code and the scattered writes. The first
-reports from Windows are in and differ a lot from card to card; more are needed. **That is what the [Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) is for:** it times the DLLs on
-your graphics card, and the previous release's too if you put its file into a folder of its own
-under `dlls`.
-
-What is known so far, from one RX 7800 XT on Linux with Proton:
-
-| | Result |
-|---|---|
-| The last pass, timed alone | faster: 0.42 → 0.30 ms at 1440p; at 4K steady at 0.66 ms where it varied between 0.69 and 0.90 |
-| The whole upscaler through the DLL, as a game runs it | the same as the previous DLL: 3.16 ms at 4K, 1.46 against 1.43 ms at 1440p |
-| On Windows, any graphics card | not measured yet |
-
-Proton's driver was already discarding the leftover code, so that machine cannot show what
-Windows will do.
-
-**Two downloads instead of eight.** One zip for Radeon RX 7000 and RX 6000 graphics cards, one for
-graphics built into the processor; each holds the exact and the lossy DLL. The separate RX 6000
-builds are gone: their fix is in both DLLs now. It cost nothing measurable here; on Windows with
-an RX 7000 card that has not been measured either.
-
-Earlier releases: [changelog](docs/changelog.md).
+Earlier releases, including `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
 
 ## Will it work for me?
 
