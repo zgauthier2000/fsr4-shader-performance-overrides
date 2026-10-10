@@ -8,7 +8,8 @@
   files and about 2.15 ms with the lossy ones. In a benchmark that is 97, 109 and 120 frames per second.
 - **The gain shrinks with the output resolution.** At 1440p the exact files gain less, and at 1080p almost nothing; the
   lossy files still help there, because they skip work.
-- **On RX 6000 cards** testers report about 30% at 4K and a few percent at 1440p and below. On integrated graphics, a
+- **On RX 6000 cards** tester reports with the exact files range from a few percent to about 30% at 4K, and we do not yet know
+  what decides it; at 1440p and below they show a few percent. On integrated graphics, a
   couple of percent.
 - **Most of what is on this page was measured with earlier versions** of the files; each table says which. Only the first
   table below is the current release.

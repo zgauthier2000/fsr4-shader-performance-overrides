@@ -57,8 +57,8 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   DLL gains little, sometimes nothing you can measure; the lossy DLL still helps there, because it
   skips work instead of only doing the same work faster.
 - **It depends on your graphics chip, too.** The numbers here are from one card, a Radeon RX 7800 XT. Testers with
-  RX 7000 and RX 6000 cards report about 30% less FSR 4 time at 4K; at 1440p and below, RX 6000 cards gain only a
-  few percent. On graphics built into the processor the reports so far show a couple of percent. On GeForce and Intel
+  RX 7000 cards report up to about 30% less FSR 4 time at 4K. On RX 6000 cards, reports at 4K range from a few percent to
+  about 30%, and we do not yet know what decides it; at 1440p and below they gain only a few percent. On graphics built into the processor the reports so far show a couple of percent. On GeForce and Intel
   Arc nothing has been measured, and a gain is not certain there. [Results by graphics chip](docs/results.md#by-gpu-type).
 - **It only shows when the graphics card is the limit.** If the processor limits your frame rate,
   the frame rate does not change.
@@ -163,7 +163,7 @@ Earlier releases, including `dll-2026-10-10` (less shimmer on grain and flat are
 | Graphics card | Which zip | Status |
 |---|---|---|
 | RX 7900, 7800, 7700, 7600 (desktop RDNA3) | `fsr4.1.1-cyboman.zip` | measured here on an RX 7800 XT; testers report large gains on Windows |
-| RX 6000 (RDNA2) | `fsr4.1.1-cyboman.zip` | runs, and includes the fix for the shimmering these cards show with AMD's file; about 30% at 4K, a few percent at 1440p and below (tester reports) |
+| RX 6000 (RDNA2) | `fsr4.1.1-cyboman.zip` | runs, and includes the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact DLL range from a few percent to about 30%, and we do not yet know what decides it; a few percent at 1440p and below (tester reports) |
 | Radeon 780M, 890M and other integrated graphics, Steam Deck | `fsr4.1.1-igpu-cyboman.zip` | experimental: few reports, small gains |
 | RX 9000 (RDNA4) | none | no: a different FSR 4 runs there ([open for someone to pick up](docs/rdna4.md)) |
 | Any other graphics chip: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-cyboman.zip`; for a chip built into the processor try `fsr4.1.1-igpu-cyboman.zip` first | **should run, untested.** FSR 4.1.1's shaders are ordinary DirectX 12 compute shaders: they need Shader Model 6.6 with 8-bit integer dot products, 16-bit types and wave operations, which current drivers from all three makers provide. Users report the DLLs running on a GeForce laptop and on an Arc A770. Nothing has been measured there: the rewrites were made for Radeon chips, so they may or may not be faster than AMD's shaders, and "same picture" has only been verified on Radeon. A [timing-kit](timing-kit#windows-experimental) result tells both |

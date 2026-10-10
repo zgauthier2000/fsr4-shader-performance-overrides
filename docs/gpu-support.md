@@ -12,7 +12,7 @@
 | Your graphics chip | Download | Status |
 |---|---|---|
 | Radeon RX 7900, 7800, 7700, 7600 | `fsr4.1.1-cyboman.zip` | measured on an RX 7800 XT (Linux): faster; testers report large gains on Windows |
-| Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.1-cyboman.zip` | runs, with the fix for the shimmering these cards show with AMD's file; about 30% at 4K, a few percent below (tester reports) |
+| Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.1-cyboman.zip` | runs, with the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact files range from a few percent to about 30%, and we do not yet know what decides it; a few percent below 4K (tester reports) |
 | Graphics built into the processor: Radeon 780M, 890M and the like, Steam Deck | `fsr4.1.1-igpu-cyboman.zip` | experimental: few reports, small gains |
 | Radeon RX 9000 | none | not covered: it runs a different FSR 4; see [RDNA4](rdna4.md) |
 | Any other chip with DirectX 12 and Shader Model 6.6: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-cyboman.zip`; `fsr4.1.1-igpu-cyboman.zip` for a chip built into the processor | should run (reported on a GeForce laptop and an Arc A770); nothing measured, and "same picture" is verified on Radeon only |
