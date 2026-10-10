@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="232" viewBox="0 0 760 232" role="img" aria-label="What weight folding traded in the lossy DLL. With folding: 122 frames per second and a still picture 0.71 dB from AMD's. The same build without folding: 121 frames per second and 0.36 dB from AMD's.">
+<rect x="0.0" y="0.0" width="760.0" height="232.0" rx="8" fill="#1a1a19"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">Why weight folding was taken out</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Folding skipped part of the neural network's arithmetic. Once the network ran on every other frame only, it saved little.</text>
+<text x="24.0" y="100.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Frame rate</text>
+<text x="24.0" y="118.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Shadow of the Tomb Raider, 4K; more is better</text>
+<rect x="300.0" y="84.0" width="225.2" height="18.0" rx="4" fill="#6d6c66"/>
+<text x="533.2" y="97.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">122 FPS  with folding (previous release)</text>
+<rect x="300.0" y="106.0" width="223.4" height="18.0" rx="4" fill="#d95926"/>
+<text x="531.4" y="119.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">121 FPS  the same without folding</text>
+<text x="24.0" y="166.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Still picture: distance from AMD's</text>
+<text x="24.0" y="184.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">test scene, 4K; less is better</text>
+<rect x="300.0" y="150.0" width="213.0" height="18.0" rx="4" fill="#6d6c66"/>
+<text x="521.0" y="163.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.71 dB  with folding (previous release)</text>
+<rect x="300.0" y="172.0" width="108.0" height="18.0" rx="4" fill="#d95926"/>
+<text x="416.0" y="185.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">0.36 dB  the same without folding</text>
+<text x="24.0" y="218.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">One frame per second for a picture about twice as close to AMD's. With its other changes, this release is at 0.25 dB.</text>
+</svg>

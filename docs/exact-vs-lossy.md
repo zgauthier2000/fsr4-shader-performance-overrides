@@ -2,6 +2,23 @@
 
 [Back to the README](../README.md)
 
+## In short
+
+- **Exact:** the same picture as AMD's, byte for byte, in less time. Nothing to weigh up; it is the default.
+- **Lossy:** faster again, because it runs FSR 4's neural network on every other frame only. The picture is very close to
+  AMD's but not the same.
+- **What you would notice with lossy, if anything:** slightly softer fine detail in a still view, and edges of fast-moving
+  things a little rougher for a frame. Sparks and embers, which the previous release got wrong, are handled now.
+- **Which to pick:** exact if you are unsure or use frame generation at a low frame rate; lossy if you run at a high frame
+  rate and want more.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/explain-skip-dark.svg">
+  <img src="img/explain-skip-light.svg" width="760" alt="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and reuses the last result on the frames in between: about 3.0 ms on a frame that runs the network and about 1.3 ms on one that skips it, at 4K on a Radeon RX 7800 XT.">
+</picture>
+
+## The two kinds in detail
+
 This project ships two kinds of faster FSR 4.1.1 shaders. They get their speed in different ways,
 and only one of them keeps AMD's picture.
 

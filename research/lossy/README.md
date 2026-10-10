@@ -2,6 +2,25 @@
 
 [Back to the research index](../README.md) · [Exact and lossy builds compared](../../docs/exact-vs-lossy.md)
 
+## In short
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../docs/img/explain-folding-dark.svg">
+  <img src="../../docs/img/explain-folding-light.svg" width="760" alt="Why weight folding was taken out. With folding: 122 frames per second and a still picture 0.71 dB from AMD's. The same build without folding: 121 frames per second and 0.36 dB from AMD's.">
+</picture>
+
+- **What folding was:** FSR 4's neural network multiplies each pixel's surroundings by thousands of small numbers. Folding
+  left out the smallest ones and added them to their neighbors, so there was less to multiply.
+- **Why it was used:** it saved about 0.14 ms on every frame that runs the network (about 3.0 ms in all at 4K on an RX 7800 XT), with
+  a small loss in accuracy.
+- **Why it is gone from the downloads:** the lossy DLL now runs the network on every other frame. Half as many runs means
+  half the saving: about one frame per second in the benchmark. For that it cost about half of the lossy DLL's whole
+  difference from AMD's picture.
+- **What this page is:** the record of that experiment: how the settings were tuned, what else was tried on the network's
+  arithmetic, and one by-product that turned out to be exact and went into the main files.
+
+## The details
+
 Everything this repository ships keeps AMD's image byte for byte. This page is about an
 experiment that does not: doing less arithmetic in the model passes, and looking for the settings
 that cost the least. The figures are made by [`img/make_figures.py`](img/make_figures.py). **None of it is in the main files.** Since 2026-10-05 the result is

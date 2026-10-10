@@ -1,5 +1,19 @@
 # Postpass, prepass and model-pass probes
 
+## In short
+
+- **What FSR 4 does each frame:** a first pass prepares the frame, twelve passes run a small neural network, and a last
+  pass writes the finished picture. This page is about the first and the last, and about measurements of all of them.
+- **The main finding:** AMD's last pass writes its output pixels in a scattered order. On Radeon chips that is slow, and it
+  was most of that pass's time. Collecting the pixels and writing them row after row gives the same picture much faster.
+  That one change is most of what the exact files gain at 4K.
+- **What else is here:** many attempts that did not pay off, kept so that nobody has to repeat them, and the newest
+  change, to [the Windows DLLs](#the-windows-dlls-last-pass-and-code-left-in-the-files-release-dll-2026-10-09).
+- **How to read it:** each section says what was tried, what was measured and whether it shipped. "Bit-exact" means the
+  output is the same as AMD's, byte for byte.
+
+## The details
+
 What was measured while looking for more speed in FSR 4.1.1 (INT8) after the first postpass
 rewrite, including the attempts that did not work. Everything here was run on a Radeon RX 7800 XT
 with Mesa 26.2.3 (RADV), at 4K output unless noted.
@@ -485,6 +499,17 @@ key, so the later "AMD" run was not AMD's. The rig's scripts now run with
 pass trivially, so the 28 comparisons above were all run with the cache off.
 
 ## The Windows DLL's last pass, and code left in the files (release `dll-2026-10-09`)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../docs/img/explain-rows-dark.svg">
+  <img src="../../docs/img/explain-rows-light.svg" width="760" alt="Two changes inside the Windows DLLs. AMD's shader writes its output pixels in a scattered order; the rewrite writes them row after row. The previous DLL carried 45 exchanges between threads in one shader file where 13 are used; this release keeps only the 13. Measured so far on one Linux machine: the last pass alone is faster, the whole upscaler is the same; Windows is not measured yet.">
+</picture>
+
+**In plain words:** the Windows DLL already wrote two of the last pass's three images row by row; now it does so for all
+three. And the DLL used to contain both our new code and the old code it replaced, trusting the graphics driver to notice
+that the old code was unused. Now only the code that runs is in the file. Neither changes the picture. On the one machine
+where it could be measured, the upscaler as a whole is as fast as before; on Windows, with a different driver, it may be
+faster, and that has not been measured.
 
 Two changes to the DXIL shaders in the DLLs. Both leave the output as it was (24 of 24 comparisons with AMD's DLL, byte for byte,
 720p to 5K output, still and moving, under Proton).

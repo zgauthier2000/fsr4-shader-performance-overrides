@@ -5,6 +5,27 @@
 > **This changes the image.** It is part of the opt-in lossy test builds only. Everything in the
 > main files still produces AMD's image byte for byte.
 
+## In short
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../docs/img/explain-skip-dark.svg">
+  <img src="../../docs/img/explain-skip-light.svg" width="760" alt="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and reuses the last result on the frames in between: about 3.0 ms on a frame that runs the network and about 1.3 ms on one that skips it, at 4K on a Radeon RX 7800 XT.">
+</picture>
+
+- **What it is:** FSR 4 uses a small neural network to decide, for every pixel, how much of the new frame to mix into the
+  picture it has built up. That network is more than half of FSR 4's work. The lossy DLL runs it on every other frame only.
+- **What happens on the frames in between:** the last answer is reused, moved along with the picture's motion, and the
+  picture leans almost entirely on what was already there.
+- **What it gains:** about a quarter of the frame rate over AMD's shaders at 4K on an RX 7800 XT (120 against 97 FPS), about
+  a tenth over the exact DLL.
+- **What it costs:** the picture is no longer exactly AMD's. A still picture is slightly less accurate, strips that a moving
+  object has just uncovered are less sharp for a frame, and frame times alternate between a long and a short frame.
+- **What this page is:** the full record, release by release, of what went wrong with that idea and how each problem was
+  measured and repaired. The newest repair, for [particles](#content-without-motion-vectors-particles-sparks-embers-release-dll-2026-10-09),
+  is the one in the current release.
+
+## The details
+
 FSR 4's model, twelve passes, is about 60% of its time. Frame skip runs it on every other frame.
 On the frames in between, the postpass uses the model's output from the frame before.
 
@@ -570,6 +591,17 @@ now at word 2048 in that class. The rig's moving scenes had only been run at 4K 
 run is part of the checks now.
 
 ## Content without motion vectors: particles, sparks, embers (release `dll-2026-10-09`)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../docs/img/explain-particles-dark.svg">
+  <img src="../../docs/img/explain-particles-light.svg" width="760" alt="A spark drawn without motion information, over four frames. As it should look, it moves a step every frame. In the previous lossy release it stayed where it was on every other frame. In this release it moves every frame again. Measured on tiny fast sparks: 16 percent of their brightness shown on skipped frames before, 77 percent now, 83 percent with AMD's shaders.">
+</picture>
+
+**In plain words:** a game tells FSR how the picture moves, but not for everything. Sparks, embers and similar effects are
+drawn straight into the picture. On the frames where the network is skipped, the old lossy DLL saw "nothing moved here" and
+kept the old picture, so a spark stayed behind and jumped on the next frame. This release checks whether the new frame
+shows something the old picture cannot explain, and where it does, takes the new frame. The rest of this section is how
+that check works and what it costs.
 
 Reported from two games: in Elden Ring particles updated at half the frame rate, and in the menu of
 Mafia: The Old Country embers over a still picture flickered. Games draw such things into the color

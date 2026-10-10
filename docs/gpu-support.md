@@ -2,13 +2,27 @@
 
 [Back to the front page](../README.md)
 
-| GPU | System | Status |
+## In short
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/explain-downloads-dark.svg">
+  <img src="img/explain-downloads-light.svg" width="760" alt="Four builds became two downloads. The builds for RX 7000 and RX 6000 are now fsr4.1.1-cyboman.zip. The compact RX 6000 build and the integrated-graphics build are now fsr4.1.1-igpu-cyboman.zip. Each holds an exact DLL with AMD's picture and a faster lossy DLL. Neither is for Radeon RX 9000 cards.">
+</picture>
+
+| Your graphics chip | Download | Status |
 |---|---|---|
-| Desktop RDNA3 (RX 7900, 7800, 7700, 7600) | Linux, Proton | measured on an RX 7800 XT: faster |
-| Desktop RDNA3 | Windows | testers report large gains |
-| RDNA3 integrated (Radeon 780M, 890M) | any | do not use the normal build (pass 11 is reported much slower there); the experimental `test-igpu.zip` is reported 2% faster than fsr4xyz's `4.1.1b` on a 780M |
-| RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; the experimental `test-rdna2.zip` runs on Windows and fixes the shimmering in motion; testers report about 30% less upscaler time at 4K, 19% at 3440x1440 and 1 to 11% at 1440p and below ([below](#rdna2-needs-one-more-change-the-dot-products)) |
-| RDNA4 (RX 9000) | any | not covered: it runs a different FSR 4 model; see [RDNA4](rdna4.md) |
+| Radeon RX 7900, 7800, 7700, 7600 | `fsr4.1.1-cyboman.zip` | measured on an RX 7800 XT (Linux): faster; testers report large gains on Windows |
+| Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.1-cyboman.zip` | runs, with the fix for the shimmering these cards show with AMD's file; about 30% at 4K, a few percent below (tester reports) |
+| Graphics built into the processor: Radeon 780M, 890M and the like, Steam Deck | `fsr4.1.1-igpu-cyboman.zip` | experimental: few reports, small gains |
+| Radeon RX 9000 | none | not covered: it runs a different FSR 4; see [RDNA4](rdna4.md) |
+| Nvidia GeForce, Intel Arc | `fsr4.1.1-cyboman.zip` | reported to run; nothing measured, and "same picture" is verified on Radeon only |
+
+- **Why two downloads:** the two differ in one shader, which is built large and fast for RX cards and small for the
+  chips built into processors, where the large one is slower.
+- **Why AMD's own file refuses most of these chips:** AMD offers this FSR 4 on desktop RX 7000 cards only. The DLLs here
+  have that check lifted, which is also why they must not go on an RX 9000 card.
+- **The rest of this page** is the history: how each kind of chip was first supported, what testers measured, and the
+  builds that existed before the two downloads.
 
 ## Which download (dll-2026-10-09 and later)
 

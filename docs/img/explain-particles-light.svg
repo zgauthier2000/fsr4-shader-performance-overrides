@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="334" viewBox="0 0 760 334" role="img" aria-label="A spark that the game draws without motion information, over four frames. As it should look and with AMD's shaders, it moves a step every frame. In the previous lossy release it stayed where it was on every other frame, so it moved at half the frame rate, or showed dimmed. In this release it moves every frame again.">
+<rect x="0.0" y="0.0" width="760.0" height="334.0" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">A spark over four frames</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Games draw sparks and embers without telling FSR that they move. On skipped frames the old lossy DLL left them behind.</text>
+<text x="256.0" y="86.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">frame 1</text>
+<text x="392.0" y="86.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">frame 2  (skipped)</text>
+<text x="528.0" y="86.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">frame 3</text>
+<text x="664.0" y="86.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">frame 4  (skipped)</text>
+<text x="24.0" y="122.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">As it should look</text>
+<text x="24.0" y="140.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">(and with AMD's shaders)</text>
+<rect x="200.0" y="98.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="220" cy="125" r="9" fill="#f2c56a" opacity="0.35"/><circle cx="220" cy="125" r="4.5" fill="#ffe4a8" opacity="1.00"/>
+<rect x="336.0" y="98.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="380" cy="125" r="9" fill="#f2c56a" opacity="0.35"/><circle cx="380" cy="125" r="4.5" fill="#ffe4a8" opacity="1.00"/>
+<rect x="472.0" y="98.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="540" cy="125" r="9" fill="#f2c56a" opacity="0.35"/><circle cx="540" cy="125" r="4.5" fill="#ffe4a8" opacity="1.00"/>
+<rect x="608.0" y="98.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="700" cy="125" r="9" fill="#f2c56a" opacity="0.35"/><circle cx="700" cy="125" r="4.5" fill="#ffe4a8" opacity="1.00"/>
+<text x="24.0" y="188.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Previous lossy release</text>
+<text x="24.0" y="206.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">stuck on skipped frames</text>
+<rect x="200.0" y="164.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="220" cy="191" r="9" fill="#f2c56a" opacity="0.35"/><circle cx="220" cy="191" r="4.5" fill="#ffe4a8" opacity="1.00"/>
+<rect x="336.0" y="164.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="380" cy="191" r="6" fill="none" stroke="#8a8a84" stroke-width="1" stroke-dasharray="2 2"/>
+<circle cx="356" cy="191" r="9" fill="#f2c56a" opacity="0.19"/><circle cx="356" cy="191" r="4.5" fill="#ffe4a8" opacity="0.55"/>
+<rect x="472.0" y="164.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="540" cy="191" r="9" fill="#f2c56a" opacity="0.35"/><circle cx="540" cy="191" r="4.5" fill="#ffe4a8" opacity="1.00"/>
+<rect x="608.0" y="164.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="700" cy="191" r="6" fill="none" stroke="#8a8a84" stroke-width="1" stroke-dasharray="2 2"/>
+<circle cx="676" cy="191" r="9" fill="#f2c56a" opacity="0.19"/><circle cx="676" cy="191" r="4.5" fill="#ffe4a8" opacity="0.55"/>
+<text x="24.0" y="254.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">This release</text>
+<text x="24.0" y="272.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">taken from the new frame</text>
+<rect x="200.0" y="230.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="220" cy="257" r="9" fill="#f2c56a" opacity="0.35"/><circle cx="220" cy="257" r="4.5" fill="#ffe4a8" opacity="1.00"/>
+<rect x="336.0" y="230.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="380" cy="257" r="9" fill="#f2c56a" opacity="0.33"/><circle cx="380" cy="257" r="4.5" fill="#ffe4a8" opacity="0.93"/>
+<rect x="472.0" y="230.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="540" cy="257" r="9" fill="#f2c56a" opacity="0.35"/><circle cx="540" cy="257" r="4.5" fill="#ffe4a8" opacity="1.00"/>
+<rect x="608.0" y="230.0" width="112.0" height="54.0" rx="4" fill="#101010" stroke="#e1e0d9" stroke-width="1.5"/>
+<circle cx="700" cy="257" r="9" fill="#f2c56a" opacity="0.33"/><circle cx="700" cy="257" r="4.5" fill="#ffe4a8" opacity="0.93"/>
+<text x="24.0" y="304.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Dashed circle: where the spark really is. Measured on tiny fast sparks: 16% of their brightness was shown on</text>
+<text x="24.0" y="320.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">skipped frames before, 77% now (AMD's shaders: 83%).</text>
+</svg>

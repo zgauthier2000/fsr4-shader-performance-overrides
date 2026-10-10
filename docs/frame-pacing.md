@@ -2,13 +2,22 @@
 
 [Back to the README](../README.md) · [Exact and lossy builds compared](exact-vs-lossy.md)
 
-The lossy test builds run FSR 4's model on every other frame. So the upscaler does not take the
+The lossy DLL runs FSR 4's model, a small neural network, on every other frame. So the upscaler does not take the
 same time every frame: it alternates between a long frame and a short one. This page is about
 what that does to frame pacing, frame caps, V-Sync, latency and the numbers an overlay shows.
 
-It applies to the `test-lossy…` builds only. The exact files take the same time every frame.
+It applies to the lossy DLL (the `lossy` folder of each download) only. The exact files take the same time every frame.
 
-## TL;DR
+## In short
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/explain-skip-dark.svg">
+  <img src="img/explain-skip-light.svg" width="760" alt="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and reuses the last result on the frames in between: about 3.0 ms on a frame that runs the network and about 1.3 ms on one that skips it, at 4K on a Radeon RX 7800 XT.">
+</picture>
+
+**In plain words:** with the lossy DLL every second frame is cheaper than the one before it. If your frame rate is free to
+vary, you simply get the average, and it is higher. If something forces every frame to fit a fixed slot (V-Sync without a
+frame queue, some low-latency modes), the expensive frames are the ones that have to fit.
 
 - **Uncapped, the average is what you get.** FPS counters, benchmarks and the gain over the exact
   files are all about the average, and that is real.

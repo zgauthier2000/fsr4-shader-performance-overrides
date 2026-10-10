@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="250" viewBox="0 0 760 250" role="img" aria-label="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and, on the frames in between, reuses the last result moved along with the picture. About 3.0 ms on a frame that runs the network and about 1.3 ms on one that skips it, at 4K on a Radeon RX 7800 XT.">
+<rect x="0.0" y="0.0" width="760.0" height="250.0" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">How the lossy DLL saves time</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">FSR 4's neural network is about 60% of its work. The lossy DLL runs it on every other frame.</text>
+<text x="24.0" y="96.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">AMD's shaders and the exact DLL</text>
+<rect x="24.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="24.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#2a78d6"/>
+<text x="32.0" y="127.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">network runs</text>
+<rect x="144.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="144.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#2a78d6"/>
+<text x="152.0" y="127.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">network runs</text>
+<rect x="264.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="264.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#2a78d6"/>
+<text x="272.0" y="127.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">network runs</text>
+<rect x="384.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="384.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#2a78d6"/>
+<text x="392.0" y="127.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">network runs</text>
+<rect x="504.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="504.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#2a78d6"/>
+<text x="512.0" y="127.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">network runs</text>
+<rect x="624.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="624.0" y="106.0" width="112.0" height="34.0" rx="4" fill="#2a78d6"/>
+<text x="632.0" y="127.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">network runs</text>
+<text x="24.0" y="174.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Lossy DLL</text>
+<rect x="24.0" y="184.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="24.0" y="184.0" width="112.0" height="34.0" rx="4" fill="#eb6834"/>
+<text x="32.0" y="205.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">network runs</text>
+<rect x="144.0" y="184.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="144.0" y="184.0" width="48.0" height="34.0" rx="4" fill="#eb6834"/>
+<text x="200.0" y="205.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">skipped</text>
+<rect x="264.0" y="184.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="264.0" y="184.0" width="112.0" height="34.0" rx="4" fill="#eb6834"/>
+<text x="272.0" y="205.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">network runs</text>
+<rect x="384.0" y="184.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="384.0" y="184.0" width="48.0" height="34.0" rx="4" fill="#eb6834"/>
+<text x="440.0" y="205.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">skipped</text>
+<rect x="504.0" y="184.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="504.0" y="184.0" width="112.0" height="34.0" rx="4" fill="#eb6834"/>
+<text x="512.0" y="205.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">network runs</text>
+<rect x="624.0" y="184.0" width="112.0" height="34.0" rx="4" fill="#efeee8"/>
+<rect x="624.0" y="184.0" width="48.0" height="34.0" rx="4" fill="#eb6834"/>
+<text x="680.0" y="205.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">skipped</text>
+<text x="24.0" y="236.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Each box is one frame; the colored part is the time FSR 4 takes. 4K on an RX 7800 XT: about 3.0 ms with the network, about 1.3 ms without.</text>
+</svg>
