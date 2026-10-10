@@ -223,9 +223,12 @@ at the spot where the previous release was furthest off, 0.67 against 0.71.
 
 **Shimmer at rest.** How much each pixel changes between consecutive frames when nothing moves.
 The piece shown is the worst one for a lossy build, and it is worse in this release than in the
-previous one: 0.157 of 255 per frame against 0.111, with the exact files at 0.126. That is the
-price of the particle handling: where a new sample falls outside what the previous picture shows
-around it, the pixel now takes it. Over the whole frame all three are close (exact 0.037,
+previous one: 0.157 of 255 per frame against 0.111, with the exact files at 0.126. It comes
+from the other change in this release, the move from the folded network back to AMD's exact one:
+with frame skip, bright flat areas move more from a skipped frame to the next full one, and the
+folded first layer of the earlier builds happened to damp that. The particle handling is not the
+cause; a build without it reads the same 0.157 here (corrected 2026-10-10: this page first blamed
+the particle handling). Over the whole frame all three are close (exact 0.037,
 previous release 0.033, this release 0.036), and on fine detail overall this release is level
 with AMD's (0.109 against 0.110).
 
