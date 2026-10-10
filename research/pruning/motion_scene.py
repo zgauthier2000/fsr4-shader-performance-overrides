@@ -96,6 +96,48 @@ def draw_foliage(img, t):
     return img
 
 
+# wires: thin lines hanging between poles, fixed to the scene, far thinner than a render pixel (distant power lines). Each new sample either
+# hits a wire or misses it, so the samples flicker between the wire's and the background's color; the upscaler has to average that into a line.
+# SCENE_WIRES = "count width brightness": width in output pixels, brightness 0..1 (linear) of the wire.
+WIRES = tuple(float(x) for x in os.environ['SCENE_WIRES'].split()) if os.environ.get('SCENE_WIRES') else None
+WBOX = _s(250, 250, 1700, 1650)
+
+
+def wire_rows(t):
+    """for every wire: (first column, array of the wire's height at each column), on screen at frame t"""
+    n = int(WIRES[0]); r = np.random.default_rng(23); out = []
+    for i in range(n):
+        xa = WBOX[0] + int(r.integers(0, WBOX[2] // 4)); xb = WBOX[0] + WBOX[2] - int(r.integers(0, WBOX[2] // 4))
+        ya = WBOX[1] + (i + 0.5) * WBOX[3] / n + r.uniform(-20, 20) * S; yb = ya + r.uniform(-60, 60) * S; sag = r.uniform(20, 90) * S
+        xs = np.arange(xa, xb); u = (xs - xa) / max(xb - xa, 1)
+        out.append((xa - VB[0] * t, ya + (yb - ya) * u + sag * 4 * u * (1 - u) - VB[1] * t))
+    return out
+
+
+def wire_mask(t, grow=2):
+    m = np.zeros((OH, OW), bool)
+    for x0, ys in wire_rows(t):
+        xs = x0 + np.arange(len(ys)); ok = (xs >= 0) & (xs < OW)
+        for d in range(-grow, grow + 1):
+            yy = np.rint(ys).astype(int) + d; k = ok & (yy >= 0) & (yy < OH); m[yy[k], xs[k]] = True
+    return m
+
+
+def draw_wires(img, t):
+    if not WIRES:
+        return img
+    w, br = WIRES[1], WIRES[2]; col = np.float32([br, br, br * 1.05])
+    for x0, ys in wire_rows(t):
+        xs = x0 + np.arange(len(ys)); ok = (xs >= 0) & (xs < OW)
+        for d in (-1, 0, 1, 2):
+            yy = np.floor(ys).astype(int) + d
+            a = np.clip(w / 2 + 0.5 - np.abs(yy + 0.5 - ys - 0.5), 0, 1) * min(1.0, w) if w < 1 else np.clip(w / 2 + 0.5 - np.abs(yy - ys), 0, 1)
+            k = ok & (yy >= 0) & (yy < OH) & (a > 0)
+            A = a[k][:, None].astype(np.float32)
+            img[yy[k], xs[k]] = img[yy[k], xs[k]] * (1 - A) + col * A
+    return img
+
+
 def masks(t):
     """(block, bars, rail_box) boolean 4K masks at frame t."""
     yy, xx = np.mgrid[0:OH, 0:OW]
@@ -123,4 +165,4 @@ def truth(world, t):
     tex = np.where(stripe[:, None], np.float32(0.9), tex)
     img[by, bx] = tex
     img[bars] = np.float32([0.02, 0.02, 0.025])
-    return draw_particles(draw_foliage(img, t), t)
+    return draw_particles(draw_wires(draw_foliage(img, t), t), t)

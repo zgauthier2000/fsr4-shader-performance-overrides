@@ -22,6 +22,10 @@ for f in range(frames):
     jx, jy = halton(f % 16 + 1, 2) - 0.5, halton(f % 16 + 1, 3) - 0.5
     jit.append((jx, jy))
     img = sc.truth(world, f)
+    truth_img = img
+    wires = getattr(sc, 'WIRES', None)
+    if wires:      # the game does not anti-alias a wire: a render pixel shows it only if its (jittered) center falls on it. Sample the picture without the wires...
+        sc.WIRES = None; img = sc.truth(world, f); sc.WIRES = wires
     block, bars, _ = sc.masks(f)
     fg = block | bars
     u = (np.arange(sc.RW) + 0.5 - jx) / sx - 0.5          # jitter signs -1 -1, as in gen_inputs.py
@@ -30,6 +34,13 @@ for f in range(frames):
     v0 = np.clip(np.floor(v).astype(int), 0, sc.OH - 2); fv = np.clip(v - v0, 0, 1).astype(np.float32)[:, None, None]
     a = img[v0][:, u0]; b = img[v0][:, u0 + 1]; c = img[v0 + 1][:, u0]; d = img[v0 + 1][:, u0 + 1]
     col = (a * (1 - fu) + b * fu) * (1 - fv) + (c * (1 - fu) + d * fu) * fv
+    if wires:      # ...and draw each wire into the render pixels whose centers it covers
+        wcol = np.float32([wires[2], wires[2], wires[2] * 1.05])
+        for x0, ys in sc.wire_rows(f):
+            yw = np.interp(u, x0 + np.arange(len(ys)), ys, left=np.nan, right=np.nan)       # the wire's height above each render column
+            for i in np.nonzero(~np.isnan(yw))[0]:
+                hit = np.nonzero(np.abs(v + 0.5 - (yw[i] + 0.5)) < wires[1] / 2)[0]
+                col[hit, i] = wcol
     np.concatenate([col, np.ones((sc.RH, sc.RW, 1), np.float32)], axis=2).astype(np.float16).tofile(f'{out}/color_{f:03d}.raw')
     un = np.clip(np.rint(u).astype(int), 0, sc.OW - 1); vn = np.clip(np.rint(v).astype(int), 0, sc.OH - 1)
     m = fg[vn][:, un]
@@ -39,5 +50,5 @@ for f in range(frames):
     mv.astype(np.float16).tofile(f'{out}/motion_{f:03d}.raw')
     np.where(m, np.float32(sc.DEPTH_FG), np.float32(sc.DEPTH_BG)).astype(np.float32).tofile(f'{out}/depth_{f:03d}.raw')
     if f >= frames - keep:
-        np.save(f'{out}/truth_{f:03d}.npy', img.astype(np.float16))
+        np.save(f'{out}/truth_{f:03d}.npy', truth_img.astype(np.float16))
 open(f'{out}/jitter.txt', 'w').write(''.join(f'{x:.6f} {y:.6f}\n' for x, y in jit))
