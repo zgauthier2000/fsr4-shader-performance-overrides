@@ -41,8 +41,11 @@ browsers, and double-click `fsr4time.exe`; it takes about five minutes.
   its `dlls` folder: AMD's shaders (the reference), this project's exact and lossy DLLs, and the two for integrated graphics.
   1080p, 1440p and 4K output, picture still and camera moving. For a lossy DLL the frame that runs the model and the skipped
   frame are given apart. Put another FSR 4.1.1 DLL into a new folder under `dlls` to time it as well.
-- **What it checks:** that each DLL's picture from the still scene is the same as the first DLL's, byte for byte. The exact
-  DLLs must say "same picture"; the lossy ones say "picture differs".
+- **What it checks:** it takes a fingerprint of each DLL's picture from the still scene and names the first DLL that gave the
+  same picture, byte for byte. The exact DLLs must match AMD's shaders; the lossy ones differ. **RX 6000 cards under Windows
+  are the exception:** AMD's own shaders show ghosting there, so the exact DLLs are expected to differ from them and to match
+  the second reference instead, AMD's shaders with only the last shader's dot products split into two steps. A third
+  reference carries all three changes of the community's 4.1.1b fix for those cards, rebuilt here from AMD's shaders.
 - **Other makes of graphics card:** nothing in the kit is specific to Radeon, and the DLLs should run on any graphics chip whose driver supports DirectX 12 with Shader Model 6.6.
   People run them on GeForce and Intel Arc graphics as well, and no timing from such a card exists yet. A run there shows whether the rewrites, which were made for
   Radeon chips, help or cost time, and whether the exact DLL's picture is AMD's on that driver too.

@@ -71,7 +71,8 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 - **It only shows when the graphics card is the limit.** If the processor limits your frame rate,
   the frame rate does not change.
 - **The exact DLL cannot change the picture.** Its output was compared with AMD's byte for byte at
-  720p, 1080p, 1440p, 4K and 5K, in still and moving scenes.
+  720p, 1080p, 1440p, 4K and 5K, in still and moving scenes. One intended exception: on RX 6000 cards under
+  Windows, AMD's own file shows ghosting, and the exact DLL carries the fix, so its picture differs from AMD's there.
 - **The lossy DLL trades a little accuracy for speed.** It runs FSR 4's neural network on every
   other frame and carries its result along with the picture's motion in between. Measured
   differences and comparison crops: [exact and lossy compared](docs/exact-vs-lossy.md). What the

@@ -11,8 +11,8 @@
 //
 // What is timed: the GPU time of one upscale call (prepass, 12 model passes, postpass and the small shaders around
 // them), from a timestamp before to one after, 200 calls back to back after 40 to warm up. For a lossy DLL the
-// two kinds of frame are also given apart. The picture a DLL produces from the still scene is compared with what
-// the first DLL (AMD's shaders) produced: "same picture" means byte for byte.
+// two kinds of frame are also given apart. The summary gives a fingerprint of the picture each DLL produces from
+// the still scene and names the first DLL above it that produced the same picture, byte for byte.
 //
 // Build (llvm-mingw): x86_64-w64-mingw32-clang -std=c11 -O1 -I<FidelityFX>/api/include -I<FidelityFX>/upscalers/include
 //                     fsr4time.c -o fsr4time.exe -ld3d12 -ldxgi -ldxguid -lwinhttp -ladvapi32 -static
@@ -37,7 +37,7 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-09.1, experimental"
+#define KIT_VERSION "windows 2026-10-10.1, experimental"
 #define WARM 40
 #define TIMED 200
 #define PHASES 16
@@ -453,7 +453,7 @@ int main(int argc, char** argv) {
     static struct Row rows[256];
     int nr = 0;
     char gpu[256] = "?", line[512];
-    static char summary[8192];
+    static char summary[16384];
     int sn = 0;
     FILE* r = fopen(raw, "r");
     static char fails[1024];
@@ -491,7 +491,15 @@ int main(int argc, char** argv) {
         if (w->even > 1.25 * w->odd || w->odd > 1.25 * w->even) ADD(" (%.3f / %.3f)", w->even > w->odd ? w->even : w->odd, w->even > w->odd ? w->odd : w->even);
         if (ref && ref != w) {
             ADD("  %+.0f%%", 100.0 * w->mean / ref->mean - 100.0);
-            if (!strcmp(w->scene, "still")) ADD(strcmp(ref->hash, w->hash) ? "  picture differs" : "  same picture");
+        }
+        if (!strcmp(w->scene, "still")) {
+            // the picture's fingerprint, and the first DLL above that produced the same one
+            const struct Row* same = NULL;
+            for (int j = 0; j < i && !same; ++j)
+                if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene) && !strcmp(rows[j].hash, w->hash)) same = &rows[j];
+            ADD("  picture %s", w->hash);
+            if (same) ADD(" = %s", same->name);
+            else if (ref && ref != w) ADD(" (differs from those above)");
         }
         ADD("\n");
     }
