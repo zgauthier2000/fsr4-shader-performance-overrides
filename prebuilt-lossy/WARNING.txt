@@ -32,6 +32,7 @@ Good to know
 - Frame skip turns itself off in Ultra Performance (render size under half the output size)
   and on frames the game marks as a reset. It picks frames from the game's camera jitter; a
   game with an unusual jitter pattern may skip unevenly.
+- Not tested at output sizes above 4K.
 - It is opt-in and experimental.
 - These are the Linux files: use them with AMD's ORIGINAL DLL and the launch option
   VKD3D_SHADER_OVERRIDE='Z:/path/to/fsr4-shader-performance-overrides/prebuilt-lossy' %command%

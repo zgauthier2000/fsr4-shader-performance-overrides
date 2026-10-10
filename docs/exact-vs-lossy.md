@@ -343,6 +343,9 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
   on Linux. Its Windows DLLs were only compared with the Linux files in the test rig, under
   Proton (identical output at 4K, 1440p and 1080p, moving scenes and particles). Nobody has
   run it on Windows, on RDNA2 or on integrated graphics yet.
+- **Not tested above 4K output.** Outputs larger than 4K use a third set of shaders, in which the lossy build keeps its
+  extra data at other positions. The exact files are verified there (5K); the lossy ones were checked in motion at 1080p,
+  1440p and 4K only.
 
 ## Which to use
 
