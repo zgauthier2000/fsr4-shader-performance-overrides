@@ -66,6 +66,11 @@ Against the true image; higher dB is better, lower error is better.
 - The lossy DLL is the most accurate after FSR 4 in the first four rows, and the best of all five in just-uncovered areas.
 - **Behind a still bright object over fast ground it is behind HelixSR and XeSS** and ahead of FSR 3.1; FSR 4 is clearly best there.
   This row is new with release `dll-2026-10-11.2`, which fixed a ghost in that case (the release before it scored 6.06).
+
+<img src="img/cmp5-plate.png" width="760" alt="A white object with dark marks at the top and ground moving fast below it, the piece just below the object enlarged two times, as true image and from the five upscalers. FSR 4.1.1 (error 1.6 of 255), HelixSR (2.4) and XeSS (2.0) show the ground clean; the lossy DLL (2.1) shows a faint lighter patch below each dark mark, what is left of the object's old image; FSR 3.1 (3.6) shows a ragged lower edge on the object.">
+
+The lossy DLL is the only one of the five that leaves a visible trace of the object on the ground here, faint as it is. The object
+and the ground are at the same depth in this scene; with distinct depths the lossy DLL is at FSR 4's level (1.46 against 1.58).
 - **In swaying foliage it is the least accurate of the five.** Its picture there is averaged over about one more frame
   than FSR 4's ([why](exact-vs-lossy.md#limits-of-the-lossy-builds)).
 

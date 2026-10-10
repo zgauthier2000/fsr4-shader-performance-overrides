@@ -3,7 +3,7 @@
 # make_upscaler_comparison.py [<dir>]: the figures of docs/upscaler-comparison.md.
 #   cmp5-quality-{light,dark}.svg, cmp5-speed-{light,dark}.svg, cmp5-tradeoff-{light,dark}.svg: charts; the numbers in them are the
 #       tables of that page (test rig, 4K output from 2260x1272, Radeon RX 7800 XT under Proton, single runs).
-#   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png: the same piece of one frame from the
+#   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-plate.png (frame 39 of the plate scene): the same piece of one frame from the
 #       five upscalers beside the true image. <dir> holds <scene>_<name>/output_3840x2160_f037.raw (RGBA16F) for scene in still,
 #       wires, sparks, foliage, motion and name in fsr4, lossy, fsr3, helix, xess, and <scene>_truth.npy (the true 4K image).
 import sys
@@ -123,10 +123,10 @@ def box(a, kh, kw):
     return (c[kh:, kw:] - c[:-kh, kw:] - c[kh:, :-kw] + c[:-kh, :-kw]) / kh / kw
 
 
-def crops(scene, title, sub, kw, kh, z, area, gain=1.0, name=None, only_changed=False):
+def crops(scene, title, sub, kw, kh, z, area, gain=1.0, name=None, only_changed=False, frame=37):
     """the kw x kh piece inside `area` (x0, y0, x1, y1) where the five differ most from each other, enlarged z times"""
     tru = srgb(np.load(f'{D}/{scene}_truth.npy').astype(np.float32))
-    out = {k: srgb(np.fromfile(f'{D}/{scene}_{k}/output_3840x2160_f037.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3]) for k in KEYS}
+    out = {k: srgb(np.fromfile(f'{D}/{scene}_{k}/output_3840x2160_f{frame:03d}.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3]) for k in KEYS}
     spread = np.std(np.stack([out[k].mean(2) for k in KEYS]), 0)
     if only_changed:      # only where this scene's true image differs from the still scene's: the particles, not the picture behind them
         spread = spread * (np.abs(tru - srgb(np.load(f'{D}/still_truth.npy').astype(np.float32))).mean(2) > 0.02)
@@ -152,3 +152,4 @@ crops('wires', 'A wire far thinner than a rendered pixel, camera still', f'Where
 crops('sparks', 'Tiny fast sparks drawn without motion vectors', f'Camera still. Where the five differ most, enlarged 5 times. {E}', 120, 72, 5, (250, 250, 1950, 1900), only_changed=True)
 crops('foliage', 'Leaves swaying without motion vectors, camera still', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (300, 300, 1900, 1850))
 crops('motion', 'Moving scene: fine stripes on a moving object', f'Camera panning. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (1900, 250, 3300, 1500))
+crops('plate', 'A still bright object over ground that moves fast', f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is, at the same depth.\nThe piece just below it where the five differ most, enlarged 2 times. {E}', 240, 160, 2, (2300, 800, 3100, 1000), frame=39)
