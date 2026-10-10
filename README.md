@@ -91,6 +91,23 @@ More games and resolutions: [all results](docs/results.md).
 
 ## New in this release
 
+> [!TIP]
+> **The lossy DLL is better in this release, and it now has a page that puts it beside other upscalers.**
+> - **About half of AMD's FSR 4 time,** with a still picture within 0.2 dB of AMD's: 2.34 ms against 4.76 ms per frame at 4K
+>   on a Radeon RX 7800 XT.
+> - **New in this release:** the white dots that crawled along distant power lines are gone, large glows and slow embers
+>   are close to AMD's, and fine detail at rest is 9 to 14% steadier. [Details below](#wires-particles-and-steadier-detail-in-the-lossy-dll-release-dll-2026-10-11).
+> - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
+>   timing for all five, with charts and side-by-side crops. It shows where the lossy DLL leads (accuracy close to FSR 4, areas
+>   a moving object has just uncovered) and where it is last of the five (moving foliage, a thin wire in a slow pan).
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/cmp5-tradeoff-dark.svg">
+  <img src="docs/img/cmp5-tradeoff-light.svg" width="760" alt="Still-picture accuracy against time per upscale call at 4K. FSR 4.1.1: 4.76 ms, 44.33 dB, This project's exact DLL: 3.17 ms, 44.33 dB, Lossy: 2.34 ms, 44.15 dB, FSR 3.1: 1.16 ms, 39.94 dB, HelixSR: 1.99 ms, 41.99 dB, XeSS: 4.98 ms, 42.14 dB.">
+</picture>
+
+One test scene on one graphics card; [the comparison page](docs/upscaler-comparison.md) has the other scenes, including the ones the lossy DLL does worst in.
+
 > ### Help test it: the timing kit
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 150 MB, updated 2026-10-11): unpack, double-click
 > `fsr4time.exe`, wait about seven minutes. It times FSR 4 with AMD's shaders and with these DLLs on
@@ -112,6 +129,7 @@ More games and resolutions: [all results](docs/results.md).
 **The technical pages behind this release:**
 
 - [Thin wires, particles and light folds](research/frame-skip#thin-wires-particles-and-light-folds-release-dll-2026-10-11): what erased the wires, the network's own verdict as a signal, and which further layers were folded
+- [The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md): five upscalers on the same scenes and the same timing, with charts and crops
 - [Exact and lossy compared](docs/exact-vs-lossy.md): every measurement of the lossy DLL against AMD's, with comparison pictures, and its limits (moving foliage, wires under a slow pan)
 - [Weight folding](research/lossy): the earlier experiment the light folds come from
 - [The timing kits](timing-kit): what the Linux and Windows kits measure, and how to read their summaries
@@ -237,6 +255,7 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 | [Shader variants](docs/variants.md) | which versions of FSR 4's shaders are covered, and what to do if your game's is not |
 | [How it works](docs/how-it-works.md) | what the rewrites do, where the time goes, what else was tried |
 | [Exact and lossy compared](docs/exact-vs-lossy.md) | what the lossy DLL changes in the picture, with measurements and crops |
+| [Lossy beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md) | five upscalers on the same test scenes and timing, for comparison |
 | [Frame pacing with the lossy builds](docs/frame-pacing.md) | what the alternating upscaler time means for frame caps, V-Sync, latency and overlay readings |
 | [RDNA4](docs/rdna4.md) | what is known about the FP8 model on RX 9000 cards; open for anyone who can test on one |
 | [Earlier releases](docs/changelog.md) | what each release changed, newest first |
