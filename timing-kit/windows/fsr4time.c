@@ -7,6 +7,7 @@
 //                           prints a summary, saves it as results-<time>.txt and offers to send it
 //   fsr4time.exe --run <name> <results file>     (used by the first form: one DLL, in a process of its own)
 //   fsr4time.exe --quick    1080p and 4K only
+//   fsr4time.exe --send-test   sends one message that says it is a test (to check that sending works)
 //
 // What is timed: the GPU time of one upscale call (prepass, 12 model passes, postpass and the small shaders around
 // them), from a timestamp before to one after, 200 calls back to back after 40 to warm up. For a lossy DLL the
@@ -401,6 +402,13 @@ int main(int argc, char** argv) {
     if (argc >= 4 && !strcmp(argv[1], "--run")) {
         out = fopen(argv[3], "a");
         return RunOne(argv[2], argc > 4 && !strcmp(argv[4], "quick"));
+    }
+    if (argc > 1 && !strcmp(argv[1], "--send-test")) {      // for the project: checks that sending works, with a message that says what it is
+        const bool ok = Send("Test message from the timing kit's Windows program (kit " KIT_VERSION "), sent by the project while setting it up.\nNot a result: please ignore.");
+        FILE* t = fopen("send-test.txt", "w");
+        if (t) { fprintf(t, "%s\n", ok ? "sent" : "failed"); fclose(t); }
+        printf("%s\n", ok ? "sent" : "failed");
+        return ok ? 0 : 1;
     }
     const bool quick = argc > 1 && !strcmp(argv[1], "--quick");
     const bool unattended = argc > 1 && !strcmp(argv[argc - 1], "--no-questions");
