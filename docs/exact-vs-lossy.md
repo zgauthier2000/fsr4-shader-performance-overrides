@@ -31,14 +31,14 @@ and only one of them keeps AMD's picture.
 > **The lossy builds change the image.** They are opt-in experiments, not the same as the main
 > files and not the same as AMD's DLL.
 
-This page describes the builds of release `dll-2026-10-10`. Up to release `dll-2026-10-07` the lossy
+This page describes the builds of release `dll-2026-10-11`. Up to release `dll-2026-10-07` the lossy
 builds also simplified the model's arithmetic in several layers (weight folding). They no longer do,
-except for a light form of it in the first layer, which keeps flat areas steady. The history of
+except for a light form of it in three layers, which keeps flat areas and fine detail steady. The history of
 the skipped-frame handling is on the [frame-skip page](../research/frame-skip).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
-  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 2.99 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: the same shaders as the exact files except model pass 1, which merges a few of its smallest weights and so changes the output slightly, about 3.0 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.3 ms. The two kinds of frame alternate, 2.15 ms on average, 48% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 44.06 dB against 44.31, flicker on fine detail at rest 0.101 against 0.110, areas just uncovered by a moving object 36.45 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 2.99 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: the same shaders as the exact files except model passes 1, 10 and 12, which merge a few of their smallest weights and so change the output slightly, about 3.0 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.3 ms. The two kinds of frame alternate, 2.15 ms on average, 48% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 44.15 dB against 44.31, flicker on fine detail at rest 0.092 against 0.110, areas just uncovered by a moving object 36.12 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
 </picture>
 
 The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py).
@@ -92,7 +92,9 @@ out in release `dll-2026-10-09`. Release `dll-2026-10-10` put a small part back,
 first pass's 36 weight groups merged into their neighbors, bright flat areas at rest are as steady as with
 AMD's shaders, where without it frame skip made them move more
 ([how that was found](../research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes)). It costs about
-0.05 dB in a still picture, and why it works is not yet understood. The record of the folding experiment:
+0.05 dB in a still picture, and why it works is not yet understood. Release `dll-2026-10-11` does the same, as lightly,
+in two more passes (10 and 12), which steadies fine detail at rest and moderate grain a little further
+([details](../research/frame-skip#two-more-light-folds)). The record of the folding experiment:
 [the lossy track](../research/lossy).
 
 ### The model runs on every other frame (frame skip)
@@ -149,23 +151,28 @@ Five repairs keep the rest honest (the fifth is the one just described):
 
 ## What the lossy builds cost, measured
 
-> **Updated for release `dll-2026-10-10`,** which changed the lossy build again: less shimmer on grain and on bright flat
-> areas. The "Lossy" column and the pictures are this release's. [What changed and why](../research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
+> **Updated for release `dll-2026-10-11`,** which changed the lossy build again: thin wires no longer break into bright beads,
+> large particles and slow embers are close to AMD's, and fine detail at rest is steadier. The "Lossy" column and the pictures
+> are this release's. [What changed and why](../research/frame-skip#thin-wires-particles-and-light-folds-release-dll-2026-10-11).
 
-Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's model with its first pass lightly folded, motion following, the rest rule and the repairs.
-"Release `dll-2026-10-07`" is an earlier lossy build, which folded weights in six of the model's layers; the current one does so lightly in the first layer only.
+Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's model with three of its passes lightly folded, motion following, the rest rule and the repairs.
+"Release `dll-2026-10-07`" is an earlier lossy build, which folded weights in six of the model's layers, and far more strongly.
 
 | | AMD's (= exact files) | Release `dll-2026-10-07` | Lossy | Lossy, against AMD's |
 |---|---|---|---|---|
-| Still picture against the true image | 44.31 dB | 43.60 dB | 44.06 dB | within 0.6%; 6% more error |
-| Thin vertical / horizontal detail in the still picture | 27.09 / 28.23 dB | 25.89 / 27.64 dB | 26.29 / 27.99 dB | 0.8 / 0.25 dB below |
-| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.109 | 0.101 | 8% less |
-| Frame-to-frame change on thin vertical detail at rest | 0.364 | 0.380 | 0.352 | 3% less |
-| Moving scene: background | 49.27 dB | 48.61 dB | 48.72 dB | within 1.1%; 14% more error |
-| Moving scene: thin railing | 41.82 dB | 41.12 dB | 41.30 dB | within 1.2%; 13% more error |
-| Moving scene: areas a moving object has just uncovered | 34.48 dB | 36.56 dB | 36.45 dB | 6% above; 36% less error |
-| Still camera, objects moving: thin railing | 42.20 dB | 40.99 dB | 41.11 dB | within 2.6%; 29% more error |
-| Still camera, objects moving: just-uncovered areas | 32.62 dB | 30.93 dB | 31.98 dB | within 2.0%; 16% more error |
+| Still picture against the true image | 44.31 dB | 43.60 dB | 44.15 dB | within 0.4%; 4% more error |
+| Thin vertical / horizontal detail in the still picture | 27.09 / 28.23 dB | 25.89 / 27.64 dB | 26.64 / 28.19 dB | 0.45 / 0.05 dB below |
+| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.109 | 0.092 | 16% less |
+| Frame-to-frame change on thin vertical detail at rest | 0.364 | 0.380 | 0.322 | 12% less |
+| Moving scene: background | 49.27 dB | 48.61 dB | 48.73 dB | within 1.1%; 13% more error |
+| Moving scene: thin railing | 41.82 dB | 41.12 dB | 41.32 dB | within 1.2%; 12% more error |
+| Moving scene: areas a moving object has just uncovered | 34.48 dB | 36.56 dB | 36.12 dB | 5% above; 31% less error |
+| Still camera, objects moving: thin railing | 42.20 dB | 40.99 dB | 41.08 dB | within 2.7%; 29% more error |
+| Still camera, objects moving: just-uncovered areas | 32.62 dB | 30.93 dB | 32.01 dB | within 1.9%; 15% more error |
+| A wire half a pixel wide, camera still: change per frame along it | 2.9 | 15.7 | 3.3 | 14% more |
+| The same wire under a slow pan | 7.2 | not measured | 16.9 | 2.3 times |
+| Large particles without motion vectors, skipped frames: error | 0.66 | not measured | 1.38 | 2.1 times |
+| Slow embers / fast sparks shown on skipped frames | 81% / 83% | not measured / 16% | 81% / 76% | level / 7 points below |
 | Revealed strip when a pan starts on a skipped frame | 100% of true brightness | 100% | 99 to 100% | the same |
 
 The pan-start row was measured on the build without the particle tests; they do not act on that strip's test.
@@ -174,12 +181,12 @@ The pan-start row was measured on the build without the particle tests; they do 
 column also gives the same gap as error: how much further the picture is from the true image than
 AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 
-- **Fine detail at rest shimmers slightly less than with AMD's shaders** (0.101 against 0.110), and so
-  does thin vertical detail alone (3% less; it was 4% more in release `dll-2026-10-09`).
-- **The still picture is about 0.25 dB less accurate** (0.7 dB in release `dll-2026-10-07`): running
+- **Fine detail at rest shimmers less than with AMD's shaders** (0.092 against 0.110), and so
+  does thin vertical detail alone (12% less; it was 4% more in release `dll-2026-10-09`).
+- **The still picture is about 0.15 dB less accurate** (0.7 dB in release `dll-2026-10-07`): running
   the model on half the frames builds the picture from half the jitter positions.
-- **Just-uncovered areas score above AMD's in the panning scene** (36.45 against 34.48 dB) and
-  about 0.6 dB below with the camera still and objects moving.
+- **Just-uncovered areas score above AMD's in the panning scene** (36.12 against 34.48 dB; 36.45 in the
+  previous release, part of which went to the wire fix) and about 0.6 dB below with the camera still and objects moving.
 - **Beside moving objects, most cases are at AMD's level; two are not.** On the measure of what
   is left where an object's previous image would land (8-bit steps, skipped frames):
 
@@ -218,64 +225,80 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 ## What the difference looks like
 
 Pieces of the test rig's 4K output with three builds side by side: the exact files, the lossy
-build of release `dll-2026-10-07` and this release's lossy build (`dll-2026-10-10`); the two shimmer
-pictures also show release `dll-2026-10-09`, whose shimmer this release fixes. The exact files
+build of release `dll-2026-10-07` and this release's lossy build (`dll-2026-10-11`); the two shimmer
+pictures also show release `dll-2026-10-09`, and the wire picture release `dll-2026-10-10`. The exact files
 give the same bytes as AMD's shaders, so their panels are also AMD's picture. **These are the
 places where the builds differ most, enlarged;** over a whole frame the differences are far
 smaller, and each caption gives the whole-frame figure. The places are picked by the script from
 the data, not by hand: [`img/make_comparison_crops.py`](img/make_comparison_crops.py).
 
 **At rest.** The largest difference in a still frame is on thin structures. Over the whole frame
-this release differs from the exact files by 0.11 of 255 on average, release `dll-2026-10-07` by 0.14;
-at the spot where that release was furthest off, 0.66 against 0.71.
+this release differs from the exact files by 0.10 of 255 on average, release `dll-2026-10-07` by 0.14;
+at the spot where that release was furthest off, 0.57 against 0.71.
 
-<img src="img/cmp-still.png" width="760" alt="Still scene, a 90 by 90 pixel piece of the 4K output enlarged four times, at the spot where the lossy build of release dll-2026-10-07 differed most from the exact files: the true image, the exact files, the lossy build of release dll-2026-10-07 and this release's lossy build, and under the two lossy panels their difference from the exact files amplified sixteen times: 0.71 and 0.66 of 255. Thin railings look slightly softer in both lossy panels.">
+<img src="img/cmp-still.png" width="760" alt="Still scene, a 90 by 90 pixel piece of the 4K output enlarged four times, at the spot where the lossy build of release dll-2026-10-07 differed most from the exact files: the true image, the exact files, the lossy build of release dll-2026-10-07 and this release's lossy build, and under the two lossy panels their difference from the exact files amplified sixteen times: 0.71 and 0.57 of 255. Thin railings look slightly softer in both lossy panels.">
 
 **Shimmer at rest.** How much each pixel changes between consecutive frames when nothing moves.
 The piece shown is the one where a lossy build is furthest above the exact files. Release
 `dll-2026-10-09` read 0.157 of 255 per frame there, against 0.126 for the exact files: with frame
 skip on AMD's unchanged network, bright flat areas (the wall and sky in this piece) moved more
-from a skipped frame to the next full one. This release reads 0.109, below the exact files and
-level with release `dll-2026-10-07` (0.111). The change that did it is small: a few of the smallest
-weights in the network's first layer are merged into their neighbors. Over the whole frame:
-exact 0.037, `dll-2026-10-07` 0.033, `dll-2026-10-09` 0.036, this release 0.030.
+from a skipped frame to the next full one. This release reads 0.094, below the exact files and
+below release `dll-2026-10-07` (0.111). What did it is small: a few of the smallest weights in three
+of the network's layers are merged into their neighbors. Over the whole frame:
+exact 0.037, `dll-2026-10-07` 0.033, `dll-2026-10-09` 0.036, this release 0.027.
 
-<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still scene showing a bright wall, sky and a water tank, and four maps of how much each pixel changes from frame to frame: the exact files (mean 0.126 of 255), the lossy build of release dll-2026-10-07 (0.111), of release dll-2026-10-09 (0.157) and of this release (0.109). Edges look alike in all four; the flat wall and sky carry a faint texture that is strongest in the dll-2026-10-09 map and weakest in this release's.">
+<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still scene showing a bright wall, sky and a water tank, and four maps of how much each pixel changes from frame to frame: the exact files (mean 0.126 of 255), the lossy build of release dll-2026-10-07 (0.111), of release dll-2026-10-09 (0.157) and of this release (0.094). Edges look alike in all four; the flat wall and sky carry a faint texture that is strongest in the dll-2026-10-09 map and weakest in this release's.">
 
 **Grain in the picture.** The same still scene with random grain added to every input frame, as a
 game with film grain or noisy reflections gives FSR. AMD's shaders pass the grain on, so their
 picture changes most. The lossy builds hold the picture steadier on the frames they skip, but in
 release `dll-2026-10-09` the test that lets sparks through also let grain through, and the picture
 changed more than twice as much as in the release before (0.550 of 255 per frame over the whole
-frame, against 0.249). This release reads 0.316. The piece shown is the one where it gained most.
-The grain is synthetic, at one strength; stronger grain would still get through.
+frame, against 0.249). This release reads 0.294. The piece shown is the one where it gained most.
+The grain is synthetic and of moderate strength (6 of 255). Strong grain gets through more: at 10 of 255
+this release reads 1.05 against 0.94 for release `dll-2026-10-10` and 1.72 for AMD's shaders.
 
-<img src="img/cmp-grain.png" width="760" alt="Grain in the picture: a 240 by 160 pixel piece of a dark flat area of the still scene with random grain in every input frame, and four maps of how much each pixel changes from frame to frame: the exact files (mean 2.216 of 255, a dense bright speckle), the lossy build of release dll-2026-10-07 (0.218, nearly black), of release dll-2026-10-09 (1.361, a dense speckle again) and of this release (0.397, dark with scattered points).">
+<img src="img/cmp-grain.png" width="760" alt="Grain in the picture: a 240 by 160 pixel piece of a dark flat area of the still scene with random grain in every input frame, and four maps of how much each pixel changes from frame to frame: the exact files (mean 2.100 of 255, a dense bright speckle), the lossy build of release dll-2026-10-07 (0.198, nearly black), of release dll-2026-10-09 (1.371, a dense speckle again) and of this release (0.357, dark with scattered points).">
 
 **In motion, on a skipped frame.** Camera panning as if at 60 FPS. Thin bars in front of a moving
 background are where frame skip is weakest: in both lossy panels the bars are a little rougher
-(error 3.0 of 255 in this release, 3.1 in release `dll-2026-10-07`, 2.4 with the exact files). The edge a
+(error 3.1 of 255 in this release and in release `dll-2026-10-07`, 2.4 with the exact files). The edge a
 moving block has just uncovered is the same in both lossy builds (1.3 against 1.0). Whole frame,
 the error against the true image is 1.19 of 255 in this release and in release `dll-2026-10-07`, and
 1.14 with the exact files.
 
-<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy builds skip the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Thin dark bars in front of a moving background: error 2.4, 3.1 and 3.0 of 255. The edge a moving block has just uncovered: 1.0, 1.3 and 1.3.">
+<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy builds skip the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Thin dark bars in front of a moving background: error 2.4, 3.1 and 3.1 of 255. The edge a moving block has just uncovered: 1.0, 1.3 and 1.3.">
 
 **Particles without motion vectors, on a skipped frame.** This is where the lossy builds before
 and since release `dll-2026-10-09` differ most. Games draw sparks and embers into the picture without telling FSR that they move.
 Release `dll-2026-10-07` kept them where they had been a frame ago, or showed them dimmed, on every
-other frame; since `dll-2026-10-09` they are taken from the new frame.
+other frame; since `dll-2026-10-09` they are taken from the new frame, and since `dll-2026-10-11` also
+wherever the network itself had asked for the new frame on the frame before.
 
-<img src="img/cmp-particles.png" width="760" alt="Particles drawn without motion vectors on a skipped frame, camera still, two 72 by 72 pixel pieces enlarged five times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Tiny fast sparks: release dll-2026-10-07 shows one of three sparks displaced and one nearly gone (error 3.3 of 255); this release shows all three in place, slightly blocky (1.1; exact files 0.8). Larger particles: release dll-2026-10-07 shows them displaced and broken up (15.1); this release shows them in place with seams across them (2.7; exact files 0.7).">
+<img src="img/cmp-particles.png" width="760" alt="Particles drawn without motion vectors on a skipped frame, camera still, two 72 by 72 pixel pieces enlarged five times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Tiny fast sparks: release dll-2026-10-07 shows one of three sparks displaced and one nearly gone (error 3.3 of 255); this release shows all three in place (0.9; exact files 0.8). Larger particles: release dll-2026-10-07 shows them displaced and broken up (15.1); this release shows them in place and smooth, with slightly rough edges (1.4; exact files 0.7).">
 
-- **In place, not yet clean.** In this release's panels the sparks are a little blocky and the
-  larger particles have seams across them. The seams on large soft particles are stronger than in
-  release `dll-2026-10-09` (error around large particles 2.8 against 1.7 over the whole scene): that is the price of the grain fix. Neighboring pixels are judged one by one, and
-  some take the new frame while the one beside them keeps part of the old picture. At normal
-  size and in motion this was not visible in the two games it was checked in; enlarged five
-  times on a still frame it is.
+- **In place, and nearly clean.** In this release's panels the sparks and the larger particles sit where they
+  should, and the seams that crossed large particles in the two releases before are gone; their edges are slightly
+  rough. Over the whole scene the error around large particles is 1.4 against 0.7 for AMD's shaders (2.8 in release
+  `dll-2026-10-10`). Fast sparks are still shown a little dimmer than with AMD's (76% against 83%).
 - The numbers behind this, for more kinds of particle and with the camera moving, are in
   [the table above](#what-the-lossy-builds-cost-measured).
+
+**A wire far thinner than a rendered pixel.** Distant power lines and fences. A game does not smooth such
+a wire: each rendered pixel either hits it or misses it, so the samples flicker between the wire and what is behind
+it, and the upscaler has to average that into a line. AMD's shaders do. The lossy builds up to `dll-2026-10-10` did
+not: on skipped frames a rule that limits the previous picture to the range of the new samples erased the wire wherever
+no sample hit it, and since `dll-2026-10-09` every sample that did hit was shown at full strength as if it were a
+spark. The result was bright dashes crawling along the wire. This release drops that limit where the picture is at
+rest and, in motion, applies it only where the network had already given up on the previous picture.
+
+<img src="img/cmp-wires.png" width="760" alt="A wire far thinner than a rendered pixel on a skipped frame, camera still, a 150 by 60 pixel piece of the 4K output enlarged four times: the true image shows two thin continuous lines; the exact files show the same lines dimmer but continuous (unevenness along the wire 14 of 255); the lossy build of release dll-2026-10-10 shows separate bright dashes with gaps between them (79); this release's lossy build shows continuous dim lines like the exact files (11).">
+
+- With the camera still the wire is as steady as with AMD's shaders (change per frame along it 3.3 against 2.9; 40.5 in
+  release `dll-2026-10-10`). In a fast pan it is as even as AMD's.
+- **Under a slow pan it still flickers about twice as much as with AMD's** (16.9 against 7.2; 58.6 before). Going
+  further would cost the lossy build its lead in just-uncovered areas
+  ([the trade](../research/frame-skip#thin-wires-what-the-history-clamp-did-to-them)).
 
 **Ghosting beside moving objects.** A ghost is an object's image of a frame ago showing through
 where the object no longer is. With frame skip the risk is on skipped frames, in the area an
@@ -284,7 +307,7 @@ The lossy build does that by looking up which surface was at each spot a frame a
 
 The table below was made with the lossy build of release `dll-2026-10-07`, which introduced this
 lookup. The image is redrawn with this release's lossy build: it shows no second outline and no
-extra bars. In the railing piece its error is 0.95 of 255 against 0.74 for the exact files, as high
+extra bars. In the railing piece its error is 0.97 of 255 against 0.74 for the exact files, as high
 as the old release's, but it sits on the two real bars, not beside them; that figure was 0.82 in
 `dll-2026-10-07` and has been 0.92 to 0.95 since the folding was taken out in `dll-2026-10-09`.
 Cases measured with this release, including two that are not at AMD's level, are in [the section above](#what-the-lossy-builds-cost-measured).
@@ -318,7 +341,7 @@ old image would land if the history were shown unchanged. "Outline" is the objec
   depth search; there the lookup is off. One synthetic scene at six motion settings; the author
   also no longer sees the ghost in the game it was reported and recorded in.
 
-<img src="img/cmp-ghost.png" width="760" alt="A second outline beside a moving object on a skipped frame, camera panning 40 pixels per frame and objects drifting 6. Two 128 by 64 pixel pieces of the 4K output, each as true image, exact files, the lossy build of release dll-2026-10-06.6 and the lossy build of this release, with the error against the true image below each. Beside the block's left edge the earlier release shows a broken dark vertical line, the block's edge of a frame ago, which the exact files and this release do not show (error in the piece: 0.52, 0.66 and 0.58 of 255). Beside the railing the earlier release shows two faint extra bars, which the others do not; this release's error there sits on the two real bars instead (0.74, 0.95 and 0.95 of 255).">
+<img src="img/cmp-ghost.png" width="760" alt="A second outline beside a moving object on a skipped frame, camera panning 40 pixels per frame and objects drifting 6. Two 128 by 64 pixel pieces of the 4K output, each as true image, exact files, the lossy build of release dll-2026-10-06.6 and the lossy build of this release, with the error against the true image below each. Beside the block's left edge the earlier release shows a broken dark vertical line, the block's edge of a frame ago, which the exact files and this release do not show (error in the piece: 0.52, 0.66 and 0.57 of 255). Beside the railing the earlier release shows two faint extra bars, which the others do not; this release's error there sits on the two real bars instead (0.74, 0.95 and 0.97 of 255).">
 
 ## Speed side by side
 
@@ -364,6 +387,10 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
   tests catch content that differs clearly from the previous picture; something that changes
   slowly and faintly without moving (a dim light fading, a subtle animated surface) can still
   update on every other frame.
+- **A very thin wire under a slow pan flickers about twice as much as with AMD's shaders** (see the wire picture above).
+  With the camera still, or in a fast pan, it is at AMD's level.
+- **Strong film grain is passed on more than moderate grain.** At 6 of 255 the lossy build's picture changes 0.29 per
+  frame (AMD's 0.79); at 10 of 255, 1.05 (AMD's 1.72); at 15 of 255, 2.00 (AMD's 2.55).
 - **Moving foliage is the lossy build's weakest case.** Leaves that sway without motion vectors, as wind-animated foliage
   often does in games, come out softer than with AMD's shaders. It is a time lag, not an artifact: in swaying foliage FSR 4's
   network deliberately keeps much of the previous picture, and with the network running on every other frame the picture

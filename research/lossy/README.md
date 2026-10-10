@@ -6,7 +6,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../../docs/img/explain-folding-dark.svg">
-  <img src="../../docs/img/explain-folding-light.svg" width="760" alt="Weight folding in the lossy DLL over three releases. Still picture, distance from AMD's: 0.65 dB with heavy folding in several layers in release dll-2026-10-07, 0.21 dB with no folding in dll-2026-10-09, 0.27 dB with light folding in the first layer only in dll-2026-10-10. Flat areas at rest, change per frame in the worst piece: 0.111, 0.157 and 0.109, against 0.126 with AMD's shaders. Frame rate in Shadow of the Tomb Raider at 4K: 122, 120, and not measured for the last, whose upscaler time is unchanged.">
+  <img src="../../docs/img/explain-folding-light.svg" width="760" alt="Weight folding in the lossy DLL over four releases. Still picture, distance from AMD's: 0.65 dB with heavy folding in several layers in release dll-2026-10-07, 0.21 dB with no folding in dll-2026-10-09, 0.27 dB with light folding in the first layer in dll-2026-10-10, 0.18 dB with light folding in three layers in dll-2026-10-11. Flat areas at rest, change per frame in the worst piece: 0.111, 0.157, 0.109 and 0.094, against 0.126 with AMD's shaders. Frame rate in Shadow of the Tomb Raider at 4K: 122, 120, and not measured for the last two, whose upscaler time is unchanged.">
 </picture>
 
 - **What folding is:** FSR 4's neural network multiplies each pixel's surroundings by thousands of small numbers. Folding
@@ -16,7 +16,7 @@
 - **Why the heavy form was taken out (release `dll-2026-10-09`):** the lossy DLL runs the network on every other frame. Half
   as many runs means half the saving: about one frame per second in the benchmark. For that it cost about half of the lossy
   DLL's whole difference from AMD's picture.
-- **Why a light form is back (release `dll-2026-10-10`):** an unexpected find. Without any folding, bright flat areas at rest
+- **Why a light form is back (releases `dll-2026-10-10` and `dll-2026-10-11`):** an unexpected find. Without any folding, bright flat areas at rest
   shimmered more than with AMD's shaders. Merging just 2 of the first layer's 36 weight groups makes them as steady as with
   AMD's shaders, at a cost of about 0.05 dB in a still picture and no measurable change in speed. Why it works is not yet
   understood. [How it was found](../frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
@@ -34,8 +34,9 @@ available as a separate, opt-in test build; see [the last section](#the-opt-in-t
 > simpler rounding) were taken out in release `dll-2026-10-09`: with the model running on every other frame
 > ([frame skip](../frame-skip)), they saved about 0.07 ms per frame (1% of the frame rate in Shadow of the Tomb Raider at 4K) and cost
 > about 0.35 dB in a still picture. Since release `dll-2026-10-10` the lossy build folds 2 of pass 1's 36 weight words again
-> (`wfold.py 2`), not for speed but because it keeps bright flat areas steady under frame skip
-> ([how that was found](../frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes)). Everything below is the record of
+> (`wfold.py 2`), and since `dll-2026-10-11` 18 of pass 10's and 4 of pass 12's ([details](../frame-skip#two-more-light-folds)), not for speed but because it keeps bright flat areas and fine detail steady under frame skip
+> ([how that was found](../frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes)). Release `dll-2026-10-11` adds 18 words in pass 10 and 4 in pass 12, for steadier
+> fine detail and moderate grain ([details](../frame-skip#two-more-light-folds)). Everything below is the record of
 > the original experiment; the tools still work.
 
 > **WARNING: the test build changes the image.** It is not the same as the main DLL, the prebuilt

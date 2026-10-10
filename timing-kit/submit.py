@@ -95,7 +95,7 @@ def timings(text):
 t1, t2 = timings(read('timing-round1.txt')), timings(read('timing-round2.txt'))
 lines.append('')
 if t1:
-    lines.append('ms per pass: AMD / exact' + (' / lossy (pass 1: the lossy build folds a few of its weights)' if any(k[2] == 'lossy' for k in t1) else ''))
+    lines.append('ms per pass: AMD / exact' + (' / lossy (passes 1, 10 and 12: the lossy build folds a few of their weights)' if any(k[2] == 'lossy' for k in t1) else ''))
 for cls in ('1080p', '1440p', '4k'):
     row, tot = [], {'amd': 0.0, 'exact': 0.0, 'lossy': 0.0}
     for p in ORDER:
@@ -257,7 +257,7 @@ if blank:
 lines.append('')
 lines.append('output check: all versions matched AMD\'s' if not bad else f'OUTPUT MISMATCHES ({len(bad)}): ' + ' ; '.join(bad[:6]))
 if lossy_seen:
-    lines.append('lossy pass 1: ' + ('differs from AMD\'s, as it should' if lossy_seen == {'differs'} else 'NOT TOLD APART from AMD\'s (the output check may be blind on this machine)'))
+    lines.append('lossy passes: ' + ('differ from AMD\'s, as they should' if lossy_seen == {'differs'} else 'NOT TOLD APART from AMD\'s (the output check may be blind on this machine)'))
 if not t1 and not pp:
     lines.append('INCOMPLETE RUN: no timings found. selftest: ' + read('selftest.txt').strip()[-300:])
 

@@ -77,7 +77,7 @@ output, FSR 4.1.1 Balanced. Your card and your game will give other numbers:
 |---|---|---|---|
 | AMD's shaders | 4.16 ms | 97 FPS | the reference |
 | Exact | 2.99 ms (−28%) | 109 FPS (+12%) | identical |
-| Lossy | 2.15 ms (−48%) | 120 FPS (+24%) | still picture within 0.3 dB of AMD's |
+| Lossy | 2.15 ms (−48%) | 120 FPS (+24%) | still picture within 0.2 dB of AMD's |
 
 More games and resolutions: [all results](docs/results.md).
 
@@ -92,66 +92,71 @@ More games and resolutions: [all results](docs/results.md).
 ## New in this release
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 150 MB, updated 2026-10-10): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 150 MB, updated 2026-10-11): unpack, double-click
 > `fsr4time.exe`, wait about seven minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **The first reports from Windows are in, from eight graphics cards; every further
 > card helps.**
-> - **Both kits now carry this release's lossy files.** If you ran an earlier kit, please download again.
+> - **Both kits carry this release's lossy files** (updated 2026-10-11). If you ran an earlier kit, please download again.
 > - **RX 6000 owners:** AMD's own shaders show ghosting on these cards under Windows. The kit has two
 >   extra reference DLLs and prints a fingerprint of each picture, so your run tells us whether the
 >   exact DLL gives the corrected picture there.
 > - **Not only Radeon:** the DLLs should run on any graphics chip whose driver supports DirectX 12 with
 >   Shader Model 6.6, which includes GeForce and Intel Arc.
 > - **Linux and the Steam Deck:** [the Linux kit](timing-kit), updated the same day. It now times the lossy
->   build's first pass, and its check that the model passes give AMD's output was blind before and is fixed.
+>   build's three changed model passes, and its check that the model passes give AMD's output, blind in kits before
+>   2026-10-10, is fixed.
 >
 > [What the kits do](timing-kit#windows-experimental)
 
 **The technical pages behind this release:**
 
-- [Shimmer after the previous release: two causes](research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes): grain let through by the particle test, and bright flat areas on the unfolded network; how each was found and what the fix costs
-- [Exact and lossy compared](docs/exact-vs-lossy.md): every measurement of the lossy DLL against AMD's, with pictures of the shimmer in the last three releases
-- [Weight folding](research/lossy): the earlier experiment that the first-layer change comes from
+- [Thin wires, particles and light folds](research/frame-skip#thin-wires-particles-and-light-folds-release-dll-2026-10-11): what erased the wires, the network's own verdict as a signal, and which further layers were folded
+- [Exact and lossy compared](docs/exact-vs-lossy.md): every measurement of the lossy DLL against AMD's, with comparison pictures, and its limits (moving foliage, wires under a slow pan)
+- [Weight folding](research/lossy): the earlier experiment the light folds come from
 - [The timing kits](timing-kit): what the Linux and Windows kits measure, and how to read their summaries
 
-### Less shimmer in the lossy DLL (release `dll-2026-10-10`)
+### Wires, particles and steadier detail in the lossy DLL (release `dll-2026-10-11`)
 
-Testers of the previous release reported more shimmer than before. Two causes were found in the
-test rig, and both are fixed in the lossy DLL. **The exact DLL is unchanged.**
+Three changes to the lossy DLL, all from tester reports. **The exact DLL is unchanged.**
 
-- **Film grain and noisy surfaces.** The test that lets sparks through on skipped frames also let
-  grain through. It is now less sensitive.
-- **Bright, flat areas at rest** (sky, walls). With the neural network back to AMD's arithmetic,
-  frame skip made such areas move more than with AMD's shaders. Merging a few of the smallest
-  weights in the network's first layer brings that back to AMD's level.
+- **White beads on distant power lines are fixed.** Thin things far away, such as power lines, showed bright
+  dots that crawled along them. On the frames that skip the neural network, a rule that keeps the previous
+  picture in line with the new frame was erasing anything thinner than a rendered pixel, and each time a new
+  sample hit the wire again it was shown as a spark. That rule no longer applies where the picture is at rest,
+  and while the camera moves it applies only where the network had already given up on the previous picture.
+- **Large glows and slow embers are close to AMD's now.** Where the network itself asked for the new frame
+  on the frame before, a skipped frame now takes it.
+- **Fine detail and flat areas at rest are a little steadier.** A few of the smallest weights are merged in
+  two more of the network's layers, the same light touch as in the first layer since the last release.
 
-| Measured in the test rig at 4K, lower is steadier | AMD's shaders | `dll-2026-10-07` | `dll-2026-10-09` | This release |
-|---|---|---|---|---|
-| Change per frame at rest, worst piece of the picture | 0.126 | 0.111 | 0.157 | 0.109 |
-| Change per frame at rest, fine detail | 0.110 | 0.109 | 0.109 | 0.101 |
-| Change per frame with grain in the picture | 0.785 | 0.249 | 0.550 | 0.316 |
-| Fine stripes on a moving object, change per frame | 2.039 | 0.953 | 0.784 | 0.778 |
-| Tiny fast sparks shown on skipped frames | 83% | 16% | 77% | 76% |
-| Still picture against the true image | 44.33 dB | 43.68 dB | 44.12 dB | 44.06 dB |
+| Measured in the test rig at 4K | AMD's shaders | `dll-2026-10-10` | This release |
+|---|---|---|---|
+| Thin wire, camera still: change per frame along it | 2.9 | 40.5 | 3.3 |
+| Thin wire, slow pan: change per frame along it | 7.2 | 58.6 | 16.9 |
+| Thin wire, fast pan: unevenness along it | +9 | +50 | +11 |
+| Large glowing particles on skipped frames: error | 0.66 | 2.79 | 1.38 |
+| Slow embers shown on skipped frames | 81% | 74% | 81% |
+| Thin vertical detail in a still picture | 27.09 dB | 26.29 dB | 26.64 dB |
+| Change per frame at rest, fine detail | 0.110 | 0.101 | 0.092 |
+| Change per frame at rest, worst flat piece | 0.126 | 0.109 | 0.094 |
 
-How much each pixel changes from frame to frame when nothing moves, in the piece of the test
-picture where the previous release was worst (black is steady):
+One wire on a frame that skips the network, camera still, enlarged:
 
-<img src="docs/img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still test scene showing a bright wall, sky and a water tank, and four maps of how much each pixel changes from frame to frame: the exact files (mean 0.126 of 255), the lossy build of release dll-2026-10-07 (0.111), of release dll-2026-10-09 (0.157) and of this release (0.109). The flat wall and sky carry a faint texture that is strongest in the dll-2026-10-09 map and weakest in this release's.">
+<img src="docs/img/cmp-wires.png" width="760" alt="A thin wire on a dark background on a frame that skips the neural network, camera still, enlarged: the true image shows a thin continuous line; the exact files show a continuous, dimmer line; the lossy build of release dll-2026-10-10 shows separate bright dashes where samples hit the wire; this release's lossy build shows a continuous dim line like the exact files.">
 
-The same with grain in every frame, in the piece where this release gained most:
+- **Speed is unchanged:** 2.34 ms against 2.36 ms for the whole upscaler at 4K (timing kit, RX 7800 XT under Proton).
+- **What got worse:**
+  - Areas a moving object has just uncovered keep less of their lead over AMD's: 36.1 dB against 36.5 in the
+    moving test scene (AMD's 34.5), and 0.5 dB worse than before at 30 FPS.
+  - Strong film grain is passed on 11 to 14% more than in the last release (still well below AMD's).
+- **Still open:** a thin wire under a slow pan flickers about twice as much as with AMD's shaders, fast sparks are
+  shown at 76% against AMD's 83%, and [moving foliage](docs/exact-vs-lossy.md#limits-of-the-lossy-builds) is
+  softer than with AMD's.
+- These are single runs on made-up scenes; in games it was looked at on one machine.
+  [How each cause was found](research/frame-skip#thin-wires-particles-and-light-folds-release-dll-2026-10-11).
 
-<img src="docs/img/cmp-grain.png" width="760" alt="Grain in the picture: a 240 by 160 pixel piece of a dark flat area of the still test scene with random grain in every input frame, and four maps of how much each pixel changes from frame to frame: the exact files (mean 2.216 of 255, a dense bright speckle), the lossy build of release dll-2026-10-07 (0.218, nearly black), of release dll-2026-10-09 (1.361, a dense speckle again) and of this release (0.397, dark with scattered points).">
-
-- **Speed is unchanged:** 2.37 ms against 2.38 ms for the whole upscaler at 4K (timing kit, RX 7800 XT under Proton).
-- **What got worse:** large, soft glowing particles show more of a seam on skipped frames
-  (error around them 2.8 against 1.7 in the rig; AMD's shaders 0.7), and the still picture is
-  0.06 dB further from AMD's.
-- **An unexpected find:** merging a few of the smallest weights in the network's first layer makes flat areas as steady as with AMD's shaders, at a cost of about 0.05 dB in a still picture and no measurable change in speed. Why it works is not yet understood.
-  [How the two causes were found](research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
-
-Earlier releases, including `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
+Earlier releases, including `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
 
 ## Will it work for me?
 

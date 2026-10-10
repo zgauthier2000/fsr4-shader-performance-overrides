@@ -718,6 +718,120 @@ frame-rate sweep, with a still camera, in the ghost scenes and at a pan start it
 The lossy DLLs give the Linux files' output byte for byte in 14 of 14 rig runs (4K, 1440p, 1080p; moving, particles,
 still, grain). Speed is unchanged. Not checked: output sizes above 4K, and anything on Windows.
 
+## Thin wires, particles and light folds (release `dll-2026-10-11`)
+
+Three changes, each found from a tester's report. Figures are single runs in the test rig at 4K Balanced; where a row says
+"skipped frames" it is measured on the frames that do not run the model.
+
+### The model's own verdict (particles)
+
+After `dll-2026-10-10` large soft particles and slow embers were worse than before: the thresholds that keep film grain out
+also kept their dim edges out. Tuning the thresholds only moved along a trade between particles and grain. What worked is a
+signal the build already has. On the last frame it ran, the model gave every pixel a weight for the new frame. Where that
+weight was nearly 1, the model had given up on the history there, and a skipped frame at rest now takes the new frame too
+(`SB_RESTW`, a ramp from 0.95 to 0.995).
+
+| Skipped frames, camera at rest | AMD's | `dll-2026-10-10` | Thresholds retuned (best) | With the verdict |
+|---|---|---|---|---|
+| Large particles, error | 0.66 | 2.79 | 2.13 | 1.27 |
+| Slow embers shown | 81.2% | 74.1% | 78.2% | 81.3% |
+| Fast sparks shown | 83.2% | 75.5% | 76.4% | 76.9% |
+| Grain 6 of 255, change per frame | 0.785 | 0.316 | 0.318 | 0.318 |
+| Grain 10 of 255 | 1.724 | 0.940 | 1.039 | 1.021 |
+
+- A lower line (0.7 to 0.9) gives 1.03 for large particles but passes strong grain 57% more: in heavy grain the model
+  asks for the new frame as well.
+- It does nothing under a pan (the rest rule is not what limits particles there) and nothing for fast sparks.
+- Tried and dropped on the way: requiring several new samples to agree (safe with all nine, but weak; with fewer it passes
+  grain and makes thin still detail shimmer), and averaging the samples (loses slow embers).
+
+### Thin wires: what the history clamp did to them
+
+Users reported white dots crawling along distant power lines. The rig showed nothing until its wires were drawn the way a
+game draws them: not smoothed, so that a render pixel either hits the wire or misses it
+([`SCENE_WIRES`](../pruning/motion_scene.py), measured by [`wires.py`](../pruning/wires.py)). Wires half an output pixel wide,
+on skipped frames:
+
+| Camera still | Change per frame along the wire | Unevenness along it ("beads") | Wire brightness (true: 111) |
+|---|---|---|---|
+| AMD's shaders | 2.9 | +6 | 67 |
+| `dll-2026-10-07` | 15.7 | +16 | 31 |
+| `dll-2026-10-09`, `dll-2026-10-10` | 40 to 42 | +47 to +48 | 60 to 61 |
+| History clamp off | 3.3 | +4 | 69 |
+| Sample test off (clamp on) | 12.9 | +17 | 31 |
+
+- **The cause is the history clamp.** On a skipped frame the history is limited to the range of the nine new samples around
+  the pixel. All nine miss a sub-pixel wire on most frames, so the clamp erased it. That is the fading in `dll-2026-10-07`.
+  The particle sample test of `dll-2026-10-09` then took every sample that did hit the wire for a spark and showed it at full
+  strength: the beads.
+- **Switching the clamp off everywhere costs what it was for:** just-uncovered areas in the moving scene fall from 36.45 to
+  34.03 dB (AMD's 34.48), by 4 dB at 120 FPS, and one ghost measure doubles.
+- **At rest the clamp is not needed** (`SB_CLAMPREST`, default: off at rest). That alone fixes wires seen with a still camera,
+  bright, dark and thicker ones alike, and gains 0.35 dB on thin vertical detail in a still picture (26.33 to 26.68 dB): the
+  clamp had been wearing thin still detail down on every skipped frame.
+- **In motion the clamp follows the model's verdict** (`SB_CLAMPW`): in full where the model's weight for the new frame
+  was above the line, none where it was 0. The model trusts the history on a wire, so most of the wire is spared:
+
+| In motion: line where the clamp is full | Wire, slow pan: change per frame | Wire, fast pan: beads | Just-uncovered, moving scene | at 120 FPS, against AMD's |
+|---|---|---|---|---|
+| AMD's shaders | 7.2 | +9 | 34.48 dB | |
+| clamp always (as before) | 58.6 | +50 | 36.45 dB | +2.9 dB |
+| 0.1 | 20.4 | +17 | 36.48 dB | +2.5 dB |
+| 0.2 | 18.0 | +12 | 36.23 dB | +2.0 dB |
+| **0.3 (released)** | **15.4** | **+10** | **36.07 dB** | **+1.6 dB** |
+| 0.2 to 0.5 | 8.9 | +10 | 34.82 dB | −0.2 dB |
+| clamp only where the whole 3x3 history is out of range | 18.0 | +23 | 34.36 dB | −0.1 dB |
+
+  A smooth trade with no free setting. At 0.3 a fast pan is at AMD's level and a slow pan still flickers about twice as much.
+
+### Two more light folds
+
+`dll-2026-10-07` was steadier in grain than later releases (0.249 against 0.316 at grain 6). Swapping its model passes into
+the current build one at a time showed where that came from, and what it cost at that release's heavy settings:
+
+| Pass taken from `dll-2026-10-07` | Grain 6 | Grain 10 | Still picture | Thin vertical detail, change per frame | Moving stripes, change per frame |
+|---|---|---|---|---|---|
+| none | 0.316 | 0.940 | 44.06 dB | 0.352 | 0.778 |
+| 12 (23 of 36 words folded) | 0.270 | 0.596 | 43.80 dB | 0.423 | 1.290 |
+| 10 (24 words) | 0.296 | 0.969 | 44.06 dB | 0.339 | 0.788 |
+| 5 (18 words) | 0.320 | 1.093 | 44.02 dB | 0.344 | 0.786 |
+| 2, 4, 7 to 9 | no change | | | | |
+
+Light settings keep part of the gain without the cost. The release folds 18 words in pass 10 and 4 in pass 12 (`wfold.py`),
+beside the 2 in pass 1; pass 12 hurts thin detail and moving stripes from 8 words on. On top of the two changes above:
+
+| | Without the two folds | With them |
+|---|---|---|
+| Flat areas at rest, worst piece | 0.107 | 0.094 |
+| Fine detail at rest, change per frame | 0.100 | 0.092 |
+| Thin vertical detail, change per frame | 0.338 | 0.322 |
+| Grain 6 / grain 10 | 0.317 / 1.021 | 0.294 / 1.046 |
+| Just-uncovered at 30 FPS / 60 FPS, against AMD's | −1.4 / +1.6 dB | −1.8 / +1.2 dB |
+| Ghost outline, pan against the object (AMD's 3.11) | 4.92 | 5.08 |
+
+A trap found on the way: the row-size constant inside a model pass is not its output-size class (passes at other tensor
+levels carry other row sizes), so the version of a pass that a given output size runs has to be taken from a dump at that
+size. A first sweep of passes 5 and 10 rebuilt versions the 4K scene never runs and showed no effect at all.
+
+### The release build against `dll-2026-10-10`
+
+| | AMD's | `dll-2026-10-10` | `dll-2026-10-11` |
+|---|---|---|---|
+| Wire, camera still / slow pan: change per frame | 2.9 / 7.2 | 40.5 / 58.6 | 3.3 / 16.9 |
+| Large particles, error (skipped frames) | 0.66 | 2.79 | 1.38 |
+| Slow embers / fast sparks shown | 81.2% / 83.2% | 74.1% / 75.5% | 81.1% / 76.4% |
+| Still picture; thin vertical detail | 44.33; 27.09 dB | 44.06; 26.29 dB | 44.15; 26.64 dB |
+| Fine detail at rest; worst flat piece: change per frame | 0.110; 0.126 | 0.101; 0.109 | 0.092; 0.094 |
+| Grain 6 / 10 / 15, change per frame | 0.785 / 1.724 / 2.549 | 0.316 / 0.940 / 1.756 | 0.294 / 1.046 / 2.003 |
+| Just-uncovered areas, moving scene | 34.48 dB | 36.45 dB | 36.12 dB |
+| Just-uncovered at 30 / 60 / 90 / 120 FPS, against AMD's | | −1.3 / +1.7 / −0.8 / +2.9 dB | −1.8 / +1.2 / −0.9 / +1.7 dB |
+| Ghost measure on thin bars, fast pan | 0.33 | 0.38 | 0.47 |
+
+Level with `dll-2026-10-10`: the moving scene's background and railing at 4K, 1440p and 1080p, particles under a pan, the
+other ghost scenes, and the four [foliage scenes](../../docs/exact-vs-lossy.md#limits-of-the-lossy-builds). The lossy DLLs
+give the Linux files' output byte for byte in 19 of 19 rig runs (4K, 1440p, 1080p; moving, particles, wires, foliage, still,
+grain), and the whole upscaler takes 2.34 ms at 4K against 2.36 ms (Windows kit under Proton, RX 7800 XT).
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
@@ -877,4 +991,4 @@ And each output pixel depends on about 50 pixels around it.
 | `motionpost_dxil.py` | the same for the DLL's postpass (DXIL text) |
 | `skipblend.py` | the shimmer correction, the history clamp, the edge guard and the uncovered-pixel flag for the postpass (SPIR-V text); run it after `motionpost.py` and before the store rewrite |
 | `skipblend_dxil.py` | the same for the DLL's postpass (DXIL text) |
-| [`../lossy/wfold.py`](../lossy/wfold.py), `wfold_dxil.py` | since release `dll-2026-10-10` the lossy build runs these on pass 1 with 2 words (`wfold.py 2`), before the exact rewrites and `frameskip.py` |
+| [`../lossy/wfold.py`](../lossy/wfold.py), `wfold_dxil.py` | since release `dll-2026-10-10` the lossy build runs these on pass 1 with 2 words (`wfold.py 2`), and since `dll-2026-10-11` also on pass 10 with 18 and pass 12 with 4, before the exact rewrites and `frameskip.py` |

@@ -27,8 +27,8 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   The prepass and postpass checks were not affected. The exact model passes still match AMD's with the real buffer.
 - **What happens to the result:** you see a short summary and are asked whether to send it. Only that summary is sent.
 
-**Linux kit version 2026-10-10.1** (download again if you have an earlier one): the lossy shaders of release `dll-2026-10-10`
-(its skipped-frame postpass, and the first model pass as that build runs it, now in the summary), a real output check for
+**Linux kit version 2026-10-11.1** (download again if you have an earlier one): the lossy shaders of release `dll-2026-10-11`
+(its skipped-frame postpass, and the three model passes that build changes slightly, in the summary), a real output check for
 the model passes (see below), the 12
 model passes also timed in sequence, a whole-frame figure, an estimate for the lossy build's skipped frames, a warning when
 a run looks unlike what games do, and one optional question about what a game showed. [Earlier versions](#earlier-versions-of-the-linux-kit).
@@ -58,7 +58,7 @@ browsers, and double-click `fsr4time.exe`; it takes about seven minutes.
   Radeon chips, help or cost time, and whether the exact DLL's picture is AMD's on that driver too.
 - **Experimental:** it has been run under Proton on one RX 7800 XT only (4K: 4.7 to 4.9 ms with AMD's shaders, 3.17 ms exact,
   2.37 ms lossy; exact: same picture). The first reports from Windows PCs are in, from eight graphics cards. Since kit
-  2026-10-10.2 its lossy DLLs are those of release `dll-2026-10-10`. The program is not signed, so Windows warns about it;
+  2026-10-11.1 its lossy DLLs are those of release `dll-2026-10-11`. The program is not signed, so Windows warns about it;
   the source is [`windows/fsr4time.c`](windows/fsr4time.c), with the command that builds it at its top.
 - At the end it shows a summary, saves it next to the program and asks whether to send it. Not for RX 9000 cards.
 

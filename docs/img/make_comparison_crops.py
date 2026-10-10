@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_comparison_crops.py <dir>: the comparison images of docs/exact-vs-lossy.md (cmp-still.png,
-# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png), from test-rig output (research/pruning: fsr4img with
+# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png), from test-rig output (research/pruning: fsr4img with
 # gen_inputs.py / gen_motion.py, 4K Balanced, 40 frames, the last 8 kept). <dir> holds, for X = exact (the main
-# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-10):
+# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-11):
 #   still_X/                 output_3840x2160_f032..039.raw (RGBA16F), and still_truth.npy, the true 4K image
+#   wires_exact/, wires_rel/ (the lossy build of release dll-2026-10-10), wires_lossy/, wires_truth_037.npy   frame 37 of the thin-wire scene
 #   still_r9/, grain_X/, grain_r9/   the same frames with the lossy build of release dll-2026-10-09 (r9), and of the still scene
 #       with random grain added to every input frame (standard deviation 6 of 255, sRGB)
 #   motion_X/, part_X/, big_X/   frame 37 (a frame the lossy builds skip the model for) of the moving scene, of the scene
@@ -167,7 +168,23 @@ if not GHOST_ONLY:
                       (f'lossy, this release: {c(dl).mean() * 255:.1f}', rgb8(zoom(c(l), z)))]))
     sheet('Particles the game draws without motion vectors, on a skipped frame',
           f'Camera still. Bright dots in the color image only, as games draw sparks and embers.\n{KP} x {KP} pixel pieces of the 4K output where this release gained most over dll-2026-10-07, enlarged 5 times.',
-          rows, 'cmp-particles.png', note='Release dll-2026-10-07 kept them where they were, or dimmed them. Since dll-2026-10-09 they are taken from the\nnew frame; the seams and blockiness are where neighboring pixels were judged differently.')
+          rows, 'cmp-particles.png', note='Release dll-2026-10-07 kept them where they were, or dimmed them. Since dll-2026-10-09 they are taken from the\nnew frame, and since dll-2026-10-11 also wherever the network itself had asked for the new frame.')
+
+# ---- a wire far thinner than a render pixel, camera still, on a skipped frame (research/pruning: SCENE_WIRES="24 0.5 0.6")
+import os
+if not GHOST_ONLY and os.path.isdir(f'{D}/wires_lossy'):
+    wl = lambda d: srgb(np.fromfile(f'{D}/{d}/output_3840x2160_f037.raw', dtype=np.float16).reshape(H, W, 4)[:, :, :3])
+    wt = srgb(np.load(f'{D}/wires_truth_037.npy').astype(np.float32)); we, wr, wn = wl('wires_exact'), wl('wires_rel'), wl('wires_lossy')
+    ww, wh = 150, 60
+    sm = box(np.abs(wr - we).mean(2), wh)[200:-200, 200:-200 - (ww - wh)]; y, x = np.unravel_index(np.argmax(sm), sm.shape); y += 200; x += 200
+    wc = lambda a: a[y:y + wh, x:x + ww]
+    lum = lambda a: wc(a).mean(2).max(0) * 255          # the brightest pixel of every column: the wire's brightness along its length
+    print('wires: window', x, y, 'unevenness along the wire (std of its brightness, of 255): true %.1f exact %.1f previous %.1f now %.1f' % tuple(lum(a).std() for a in (wt, we, wr, wn)))
+    sheet('A wire far thinner than a rendered pixel, on a skipped frame',
+          f'Camera still. A {ww} x {wh} pixel piece of the 4K output where release dll-2026-10-10 differed most from the exact files, enlarged 4 times.\nBelow each: how uneven the wire is along its length (standard deviation of its brightness, of 255).',
+          [('', [(f'true image: {lum(wt).std():.0f}', rgb8(zoom(wc(wt), 4))), (f"exact files (= AMD's): {lum(we).std():.0f}", rgb8(zoom(wc(we), 4))),
+                 (f'lossy, dll-2026-10-10: {lum(wr).std():.0f}', rgb8(zoom(wc(wr), 4))), (f'lossy, this release: {lum(wn).std():.0f}', rgb8(zoom(wc(wn), 4)))])],
+          'cmp-wires.png', note="A game does not smooth such a wire: each rendered pixel hits it or misses it. AMD's shaders average that into a dim line.\nThe earlier lossy build erased the wire where no sample hit it and showed every hit at full strength.")
 
 # ---- the second outline beside a moving object (fixed in release dll-2026-10-07), on a skipped frame
 GN = 37

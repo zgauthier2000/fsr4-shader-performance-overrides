@@ -85,28 +85,26 @@ def particles(t):
 
 
 def folding(t):
-    o = frame(336, 'Weight folding in the lossy DLL over three releases. Still picture, distance from AMD\'s: 0.65 dB with heavy folding in several layers in release dll-2026-10-07, '
-              '0.21 dB with no folding in dll-2026-10-09, 0.27 dB with light folding in the first layer only in dll-2026-10-10. Flat areas at rest, change per frame in the worst piece: '
-              '0.111, 0.157 and 0.109, against 0.126 with AMD\'s shaders. Frame rate in Shadow of the Tomb Raider at 4K: 122, 120, and not measured for the last, whose upscaler time is unchanged.',
+    o = frame(396, 'Weight folding in the lossy DLL over four releases. Still picture, distance from AMD\'s: 0.65 dB with heavy folding in several layers in release dll-2026-10-07, '
+              '0.21 dB with no folding in dll-2026-10-09, 0.27 dB with light folding in the first layer in dll-2026-10-10, 0.18 dB with light folding in three layers in dll-2026-10-11. '
+              'Flat areas at rest, change per frame in the worst piece: 0.111, 0.157, 0.109 and 0.094, against 0.126 with AMD\'s shaders. '
+              'Frame rate in Shadow of the Tomb Raider at 4K: 122, 120, and not measured for the last two, whose upscaler time is unchanged.',
               'Weight folding: taken out for accuracy, a little put back for steadiness',
               'Folding merges the network\'s smallest weights into their neighbors. Heavy folding cost accuracy; none let flat areas shimmer.', t)
-    names = ('heavy, several layers (dll-2026-10-07)', 'none (dll-2026-10-09)', 'light, first layer only (this release)')
-    rows = (('Still picture: distance from AMD\'s', 'test scene, 4K; less is better', (0.65, 0.21, 0.27), 0.8, '{:.2f} dB', None),
-            ('Flat areas at rest: change per frame', "worst piece of the test scene; AMD's shaders: 0.126", (0.111, 0.157, 0.109), 0.2, '{:.3f}', None),
-            ('Frame rate', 'Shadow of the Tomb Raider, 4K; more is better', (122, 120, None), 130, '{} FPS', None))
-    for r, (name, sub, v, mx, fmt, ref) in enumerate(rows):
-        y = 84 + r * 78
+    names = ('heavy, several layers (dll-2026-10-07)', 'none (dll-2026-10-09)', 'light, first layer (dll-2026-10-10)', 'light, three layers (this release)')
+    rows = (('Still picture: distance from AMD\'s', 'test scene, 4K; less is better', (0.65, 0.21, 0.27, 0.18), 0.8, '{:.2f} dB'),
+            ('Flat areas at rest: change per frame', "worst piece of the test scene; AMD's shaders: 0.126", (0.111, 0.157, 0.109, 0.094), 0.2, '{:.3f}'),
+            ('Frame rate', 'Shadow of the Tomb Raider, 4K; more is better', (122, 120, None, None), 130, '{} FPS'))
+    for r, (name, sub, v, mx, fmt) in enumerate(rows):
+        y = 84 + r * 98
         o += [text(24, y + 16, name, t, 13, 'ink', weight=600), text(24, y + 34, sub, t, 11, 'ink2')]
         for k, (val, lab) in enumerate(zip(v, names)):
-            last = k == 2
+            last = k == 3
             if val is None:
-                o.append(text(300, y + k * 20 + 12, 'not measured (upscaler time unchanged)  ' + lab, t, 11, 'ink', weight=600))
+                o.append(text(300, y + k * 20 + 12, 'not measured (upscaler time unchanged)  ' + lab, t, 11, 'ink' if last else 'ink2', weight=600 if last else None))
                 continue
             o += [rect(300, y + k * 20, 200 * val / mx, 16, 'lossy' if last else 'amd', t), text(300 + 200 * val / mx + 8, y + k * 20 + 12, fmt.format(val) + '  ' + lab, t, 11, 'ink' if last else 'ink2', weight=600 if last else None)]
-        if ref:
-            x = 300 + 200 * ref / mx
-            o += [line(x, y - 4, x, y + 60, t, 'ink2', 1), text(x + 4, y - 6, f"AMD's shaders: {ref}", t, 10, 'muted')]
-    o.append(text(24, 322, 'The releases differ in other ways too (particle handling since dll-2026-10-09). Same build with and without heavy folding: 122 against 121 FPS.', t, 11, 'muted'))
+    o.append(text(24, 382, 'The releases differ in other ways too (particle handling, and the wire fix in this one). Same build with and without heavy folding: 122 against 121 FPS.', t, 11, 'muted'))
     return o
 
 
