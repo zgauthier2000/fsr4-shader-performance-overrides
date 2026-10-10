@@ -44,6 +44,14 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 `4.1.1-cyboman` (or `4.1.1-lossy-cyboman`; with the other zip `4.1.1-igpu-cyboman` or
 `4.1.1-igpu-lossy-cyboman`), and the upscaler time is lower than before.
 
+> [!NOTE]
+> **Two settings where you will see little or no gain:**
+> - **FSR's debug view (the overlay that draws FSR's watermark and debug panels).** The faster shaders do not cover the
+>   debug versions of FSR's last pass, so AMD's own slow one runs and most of the gain is gone. Switch the debug view off
+>   to measure or to play.
+> - **Ultra Performance mode.** The lossy DLL does not skip frames there, so it is no faster than the exact DLL. The
+>   exact DLL's own gain still applies.
+
 **To undo it,** delete the file and rename the `.orig` file back.
 
 ## What to expect
