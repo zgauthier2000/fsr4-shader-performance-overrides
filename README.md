@@ -75,28 +75,31 @@ Enlarged like this, this release's particles are a little blocky and have thin s
 size and in motion that was not visible in the games it was checked in. More comparisons, and
 what the lossy DLL still does worse than AMD's: [exact and lossy compared](docs/exact-vs-lossy.md).
 
-### The Windows DLLs: what may be faster, and what is not known
+### A possible speed-up on Windows, and how to help find out
 
 Two things changed inside both DLLs, with the same picture as before:
 
 - **The last pass writes all three of its images in ordered rows.** The previous DLL did that for
-  two of them and left the third to AMD's scattered writes.
-- **The code our rewrites replaced is gone from the file.** The previous DLL left it in and
-  relied on the graphics driver to discard it.
+  two of them and left the third to AMD's scattered writes, the slow part of AMD's own shader.
+- **The code our rewrites replaced is gone from the file.** The previous DLL left it in for the
+  graphics driver to discard.
 
-What that is worth depends on the graphics driver, and here is what has and has not been measured:
+Both can make the DLLs faster on Windows, where AMD's own driver compiles these shaders. How much
+depends on what that driver did with the leftover code and the scattered writes, and nobody has
+measured it yet. **That is what the [Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) is for:** it times the DLLs on
+your graphics card, and the previous release's too if you put its file into a folder of its own
+under `dlls`.
+
+What is known so far, from one RX 7800 XT on Linux with Proton:
 
 | | Result |
 |---|---|
-| The last pass timed alone (RX 7800 XT, Linux with Proton) | 0.42 → 0.30 ms at 1440p; at 4K steady at 0.66 ms where it varied between 0.69 and 0.90 |
-| The whole upscaler through the DLL, as a game runs it (same machine) | no difference: 3.16 ms at 4K with both DLLs, 1.46 against 1.43 ms at 1440p, 0.89 ms at 1080p with both |
-| On Windows, any graphics card | **not measured** |
+| The last pass, timed alone | faster: 0.42 → 0.30 ms at 1440p; at 4K steady at 0.66 ms where it varied between 0.69 and 0.90 |
+| The whole upscaler through the DLL, as a game runs it | the same as the previous DLL: 3.16 ms at 4K, 1.46 against 1.43 ms at 1440p |
+| On Windows, any graphics card | not measured yet |
 
-So on the one machine it could be measured on, the new exact DLL is as fast as the previous one in
-practice, not faster. On Windows the shaders are compiled by a different driver, which may or
-may not have handled the leftover code and the scattered writes as well. That is the question the
-[Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) is there to answer: it can time the previous DLL beside the new one if
-you put the old file into a folder of its own under `dlls`.
+Proton's driver was already discarding the leftover code, so that machine cannot show what
+Windows will do.
 
 **Two downloads instead of eight.** One zip for Radeon RX 7000 and RX 6000 graphics cards, one for
 graphics built into the processor; each holds the exact and the lossy DLL. The separate RX 6000
