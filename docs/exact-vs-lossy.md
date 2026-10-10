@@ -286,8 +286,8 @@ The table below was made with the lossy build of release `dll-2026-10-07`, which
 lookup. The image is redrawn with this release's lossy build: it shows no second outline and no
 extra bars. In the railing piece its error is 0.95 of 255 against 0.74 for the exact files, as high
 as the old release's, but it sits on the two real bars, not beside them; that figure was 0.82 in
-`dll-2026-10-07` and has been 0.92 to 0.95 since the folding was taken out in `dll-2026-10-09`. cases measured with this release, including two that are not at AMD's
-level, are in [the section above](#what-the-lossy-builds-cost-measured).
+`dll-2026-10-07` and has been 0.92 to 0.95 since the folding was taken out in `dll-2026-10-09`.
+Cases measured with this release, including two that are not at AMD's level, are in [the section above](#what-the-lossy-builds-cost-measured).
 
 The table gives the error against the true image, on skipped frames, exactly where an object's
 old image would land if the history were shown unchanged. "Outline" is the object's edge,

@@ -1,18 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="232" viewBox="0 0 760 232" role="img" aria-label="What weight folding traded in the lossy DLL. With folding: 122 frames per second and a still picture 0.71 dB from AMD's. The same build without folding: 121 frames per second and 0.36 dB from AMD's.">
-<rect x="0.0" y="0.0" width="760.0" height="232.0" rx="8" fill="#fcfcfb"/>
-<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">Why weight folding was taken out</text>
-<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Folding skipped part of the neural network's arithmetic. Once the network ran on every other frame only, it saved little.</text>
-<text x="24.0" y="100.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Frame rate</text>
-<text x="24.0" y="118.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">Shadow of the Tomb Raider, 4K; more is better</text>
-<rect x="300.0" y="84.0" width="225.2" height="18.0" rx="4" fill="#a09f98"/>
-<text x="533.2" y="97.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">122 FPS  with folding (previous release)</text>
-<rect x="300.0" y="106.0" width="223.4" height="18.0" rx="4" fill="#eb6834"/>
-<text x="531.4" y="119.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">121 FPS  the same without folding</text>
-<text x="24.0" y="166.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Still picture: distance from AMD's</text>
-<text x="24.0" y="184.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">test scene, 4K; less is better</text>
-<rect x="300.0" y="150.0" width="213.0" height="18.0" rx="4" fill="#a09f98"/>
-<text x="521.0" y="163.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">0.71 dB  with folding (previous release)</text>
-<rect x="300.0" y="172.0" width="108.0" height="18.0" rx="4" fill="#eb6834"/>
-<text x="416.0" y="185.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">0.36 dB  the same without folding</text>
-<text x="24.0" y="218.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">One frame per second for a picture about twice as close to AMD's. With its other changes, this release is at 0.25 dB.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="336" viewBox="0 0 760 336" role="img" aria-label="Weight folding in the lossy DLL over three releases. Still picture, distance from AMD's: 0.65 dB with heavy folding in several layers in release dll-2026-10-07, 0.21 dB with no folding in dll-2026-10-09, 0.27 dB with light folding in the first layer only in dll-2026-10-10. Flat areas at rest, change per frame in the worst piece: 0.111, 0.157 and 0.109, against 0.126 with AMD's shaders. Frame rate in Shadow of the Tomb Raider at 4K: 122, 120, and not measured for the last, whose upscaler time is unchanged.">
+<rect x="0.0" y="0.0" width="760.0" height="336.0" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">Weight folding: taken out for accuracy, a little put back for steadiness</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Folding merges the network's smallest weights into their neighbors. Heavy folding cost accuracy; none let flat areas shimmer.</text>
+<text x="24.0" y="100.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Still picture: distance from AMD's</text>
+<text x="24.0" y="118.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">test scene, 4K; less is better</text>
+<rect x="300.0" y="84.0" width="162.5" height="16.0" rx="4" fill="#a09f98"/>
+<text x="470.5" y="96.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">0.65 dB  heavy, several layers (dll-2026-10-07)</text>
+<rect x="300.0" y="104.0" width="52.5" height="16.0" rx="4" fill="#a09f98"/>
+<text x="360.5" y="116.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">0.21 dB  none (dll-2026-10-09)</text>
+<rect x="300.0" y="124.0" width="67.5" height="16.0" rx="4" fill="#eb6834"/>
+<text x="375.5" y="136.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">0.27 dB  light, first layer only (this release)</text>
+<text x="24.0" y="178.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Flat areas at rest: change per frame</text>
+<text x="24.0" y="196.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">worst piece of the test scene; AMD's shaders: 0.126</text>
+<rect x="300.0" y="162.0" width="111.0" height="16.0" rx="4" fill="#a09f98"/>
+<text x="419.0" y="174.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">0.111  heavy, several layers (dll-2026-10-07)</text>
+<rect x="300.0" y="182.0" width="157.0" height="16.0" rx="4" fill="#a09f98"/>
+<text x="465.0" y="194.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">0.157  none (dll-2026-10-09)</text>
+<rect x="300.0" y="202.0" width="109.0" height="16.0" rx="4" fill="#eb6834"/>
+<text x="417.0" y="214.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">0.109  light, first layer only (this release)</text>
+<text x="24.0" y="256.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Frame rate</text>
+<text x="24.0" y="274.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">Shadow of the Tomb Raider, 4K; more is better</text>
+<rect x="300.0" y="240.0" width="187.7" height="16.0" rx="4" fill="#a09f98"/>
+<text x="495.7" y="252.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">122 FPS  heavy, several layers (dll-2026-10-07)</text>
+<rect x="300.0" y="260.0" width="184.6" height="16.0" rx="4" fill="#a09f98"/>
+<text x="492.6" y="272.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">120 FPS  none (dll-2026-10-09)</text>
+<text x="300.0" y="292.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">not measured (upscaler time unchanged)  light, first layer only (this release)</text>
+<text x="24.0" y="322.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">The releases differ in other ways too (particle handling since dll-2026-10-09). Same build with and without heavy folding: 122 against 121 FPS.</text>
 </svg>
