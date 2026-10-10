@@ -429,7 +429,6 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
 ## Where to read more
 
 - [The lossy DLL beside FSR 3.1, HelixSR and XeSS](upscaler-comparison.md): the same scenes and timing for five upscalers
-
 - [How the exact rewrites work](how-it-works.md) and [all results](results.md)
 - [The lossy track](../research/lossy): folding, rounding, what was tried and rejected
 - [Frame skip](../research/frame-skip): the mechanism, each repair, results by frame rate, and what was tried and not shipped
