@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # FSR 4.1.1 shader timings on this machine's GPU. Run from a terminal:   bash run.sh
 # With no option it runs the full set (about 20 minutes on a desktop card): all 14 passes at 1080p,
-# 1440p and 4K, the postpass comparison with its candidates, the pass 11 and postpass versions, the
+# 1440p and 4K (each alone, and the model's 12 in sequence), the lossy build's skipped-frame postpass, the postpass comparison with its candidates, the pass 11 and postpass versions, the
 # store probes and compiler statistics.
 # Options:  bash run.sh postpass  only the postpass comparison (a minute or two)
 #           bash run.sh quick     all 14 passes and the postpass comparison, without the versions and probes (about 12 minutes)
@@ -30,7 +30,7 @@ free -h | head -2
 for f in /sys/class/power_supply/A*/online; do [ -e "$f" ] && echo "AC online ($f): $(cat "$f")"; done
 cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null | sed 's/^/cpu governor: /'
 cat /sys/firmware/acpi/platform_profile 2>/dev/null | sed 's/^/platform profile: /'
-for d in /sys/class/drm/card?/device; do [ -e "$d/mem_info_vram_total" ] && echo "$d: vram $(( $(cat $d/mem_info_vram_total) >> 20 )) MB, gtt $(( $(cat $d/mem_info_gtt_total) >> 20 )) MB"; done
+for d in /sys/class/drm/card?/device; do [ -e "$d/mem_info_vram_total" ] && echo "$d: vram $(( $(cat $d/mem_info_vram_total) >> 20 )) MB, in use $(( $(cat $d/mem_info_vram_used 2>/dev/null || echo 0) >> 20 )) MB, gtt $(( $(cat $d/mem_info_gtt_total) >> 20 )) MB, in use $(( $(cat $d/mem_info_gtt_used 2>/dev/null || echo 0) >> 20 )) MB"; done
 command -v vulkaninfo >/dev/null && vulkaninfo --summary 2>/dev/null | grep -E 'deviceName|driverInfo|deviceType|apiVersion'
 for d in /sys/class/drm/card?/device; do [ -e "$d/gpu_busy_percent" ] && echo "$d: PCI $(cat $d/vendor):$(cat $d/device), busy now $(cat $d/gpu_busy_percent)%, power state $(grep -h "\*" $d/pp_dpm_sclk 2>/dev/null | tr -d "\n")"; done
 for f in /sys/class/power_supply/BAT*/status; do [ -e "$f" ] && echo "battery: $(cat "$f")"; done
@@ -39,18 +39,22 @@ command -v dmidecode >/dev/null && sudo -n dmidecode -t memory 2>/dev/null | gre
 } 2>&1 | tee "$OUT/system.txt"
 
 # Is something else using the GPU? AMD's postpass in particular reads differently when it is.
-busy=0; n=0
-for i in 1 2 3 4 5 6; do
-    for f in /sys/class/drm/card?/device/gpu_busy_percent; do [ -e "$f" ] && { busy=$((busy + $(cat "$f" 2>/dev/null || echo 0))); n=$((n + 1)); }; done
-    sleep 0.4
-done
-if [ $n -gt 0 ]; then
-    echo "GPU load before the run: $((busy / n))%" | tee -a "$OUT/system.txt"
-    if [ $((busy / n)) -ge 15 ]; then
-        echo; echo "NOTE: something is using the GPU ($((busy / n))% busy). Close games, browsers and video for"
-        echo "      readings that can be trusted. Continuing in 5 seconds."; sleep 5
-    fi
+gpu_load() {      # average of six readings over about two seconds; nothing if the driver does not report it
+    local busy=0 n=0 i f
+    for i in 1 2 3 4 5 6; do
+        for f in /sys/class/drm/card?/device/gpu_busy_percent; do [ -e "$f" ] && { busy=$((busy + $(cat "$f" 2>/dev/null || echo 0))); n=$((n + 1)); }; done
+        sleep 0.4
+    done
+    [ $n -gt 0 ] && echo $((busy / n))
+}
+load=$(gpu_load)
+if [ -n "$load" ] && [ "$load" -ge 15 ]; then
+    echo; echo "NOTE: something is using the GPU ($load% busy). Close games, browsers and video for readings"
+    echo "      that can be trusted. Waiting up to 30 seconds for it to settle."
+    for i in 1 2 3 4 5 6 7 8 9 10 11 12; do load=$(gpu_load); [ "$load" -lt 15 ] && break; done
+    [ "$load" -ge 15 ] && echo "      Still $load% busy: continuing, and the summary will say so."
 fi
+[ -n "$load" ] && echo "GPU load before the run: $load%" | tee -a "$OUT/system.txt"
 
 if ! "$W/mbench" 1 "$S/1080p/amd/pass1.spv" > "$OUT/selftest.txt" 2>&1; then
     echo; echo "The benchmark could not start on this GPU. See $OUT/selftest.txt:"; tail -5 "$OUT/selftest.txt"; exit 1
@@ -69,6 +73,21 @@ timing() {  # timing <class dir> <WxH> <render W H>
     done
     say "class $c, output $o: postpass  (AMD, exact)"
     A="$S/$c/amd/postpass.spv" B="$S/$c/exact/postpass.spv" N_DISP=30 "$W/bench" ${o%x*} ${o#*x} $3 $4 2>&1 | grep -E 'round|differ|DIFFER|IDENTICAL|output' | sed "s#$S/##"
+    # the same two the other way round: whichever runs second reads a little differently
+    say "class $c, output $o: postpass, other order  (exact, AMD)"
+    A="$S/$c/exact/postpass.spv" B="$S/$c/amd/postpass.spv" N_DISP=30 "$W/bench" ${o%x*} ${o#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
+    # the 12 model passes one after another, as a game runs them (each pass alone can read differently)
+    say "class $c, output $o: the 12 model passes in sequence  (AMD, exact)"
+    for s_ in amd exact; do
+        mkdir -p "$W/seq-$c-$s_"
+        for k in 1 2 3 4 5 6 7 8 9 10 11 12; do f="$S/$c/$s_/pass$k.spv"; [ -f "$f" ] || f="$S/$c/amd/pass$k.spv"; cp "$f" "$W/seq-$c-$s_/pass$k.spv"; done
+        v=$(OUT=$o "$W/mbench" seq "$W/seq-$c-$s_" 2>/dev/null | grep -o 'median [0-9.]* ms' | head -1)
+        echo "sequence $c $o $s_ ${v:-failed}"
+    done
+    # the lossy build's postpass on a frame that skips the model: a probe that treats every frame as skipped, with the
+    # picture at rest and moving 12,6 pixels. The rest of such a frame is the prepass; the model does not run.
+    say "class $c, output $o: lossy postpass on a skipped frame, probe  (at rest, moving)"
+    A="$S/$c/lossy/postpass_skipped_rest.spv" B="$S/$c/lossy/postpass_skipped_moving.spv" N_DISP=30 "$W/bench" ${o%x*} ${o#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
 }
 
 # The postpass on its own: AMD's, the shipped rewrite, AMD's with its stores removed (the floor a
@@ -168,6 +187,14 @@ if [ "$MODE" = traffic ]; then
 fi
 rm -rf "$W"
 echo; echo "Done. Results are in: $OUT"
+
+# One thing the kit cannot measure: what a game shows. It ties these readings to real use.
+if [ -t 0 ] && [ "$MODE" != postpass-only ]; then
+    echo; echo "Optional: if you have looked at OptiScaler's overlay in a game, what upscaler time (ms) did it show"
+    echo "with AMD's file and with this project's? One line, for example:   3.8 2.9 Cyberpunk 2077, 4K Balanced, Windows"
+    printf "(Enter to skip) > "; read -r ingame
+    [ -n "$ingame" ] && printf '%s\n' "$ingame" | head -c 200 > "$OUT/ingame.txt"
+fi
 
 # Summary and a link that opens a pre-filled issue on the project's GitHub page. Nothing is sent
 # from here: the issue exists only once you press "Submit new issue" in the browser.

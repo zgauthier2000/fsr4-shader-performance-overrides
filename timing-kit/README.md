@@ -3,8 +3,8 @@
 [Back to the front page](../README.md)
 
 A folder you download and run on Linux. It times each of FSR 4.1.1's shader passes on your GPU
-with AMD's shaders, with this repository's rewrites and with the [lossy test versions](../research/lossy),
-and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
+with AMD's shaders and with this repository's rewrites, the model's 12 passes in sequence as a game runs them, and the
+[lossy version's](../research/frame-skip) postpass on a frame that skips the model, and writes the readings to a results folder. No game, no OptiScaler and no DLL are involved.
 
 **Version 2026-10-06.3** (download again if you have an earlier one).
 
@@ -145,7 +145,9 @@ earlier run's summary.
 ## What it measures
 
 - **Each pass** (prepass, model passes 1 to 12, postpass) at 1080p, 1440p and 4K output: AMD's
-  shader, the exact rewrite, and the lossy version where there is one.
+  shader and the exact rewrite. Since kit 2026-10-09.1 also the 12 model passes in sequence, a whole-frame figure put
+  together from prepass, sequence and postpass (the postpass read in both orders), and two probes of the lossy postpass on
+  a skipped frame (estimates: every frame is treated as skipped, on made-up buffers).
 - **Four versions of model pass 11 and eight of the postpass,** to see which suits a GPU. The
   integrated-GPU and RDNA2 builds differ from the main one in exactly these two places.
 - **The postpass on its own** at each size: AMD's, the shipped rewrite, the no-stores floor and
@@ -163,9 +165,13 @@ earlier run's summary.
 - **They are not game times.** Each pass runs alone on made-up inputs, which ranks versions
   reliably but reads higher than in a game (on an RX 7800 XT the twelve model passes add up to
   2.03 ms here and to 1.86 ms in Shadow of the Tomb Raider).
-- `IDENTICAL to reference` means a version wrote the same bytes as AMD's shader in that run. The
-  made-up inputs saturate the model, so the lossy versions also say IDENTICAL here. That line is
-  no evidence about their image; see the [lossy page](../research/lossy) for that.
+- `IDENTICAL to reference` means a version wrote the same bytes as AMD's shader in that run.
+- `SUSPECT RUN` in the summary means writes to memory were far slower than on other machines with the same kind of GPU
+  (AMD's postpass more than six times as long as the same code without its stores). Several RX 6600 runs were in that
+  state, and games on those cards do not show it; such readings are kept apart.
+- At the end the script asks, optionally, for OptiScaler's upscaler time in a game with AMD's file and with this
+  project's. The kit's back-to-back timing does not always match a game (it predicted 6% at 1080p on an RX 7800 XT where
+  the game showed about 1%), so that one line is what ties a report to real use.
 
 ## What is in the archive, and here
 

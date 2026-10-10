@@ -57,6 +57,12 @@ load = (re.search(r'GPU load before the run: (\d+%)', sysinfo) or [None, '?'])[1
 lines = [f'kit {open(os.path.join(kit, "VERSION")).read().strip() if os.path.exists(os.path.join(kit, "VERSION")) else "?"}',
          f'GPU: {gpu}', f'run: {mode}; GPU load before: {load}', f'driver: {get(r"driverInfo\s*=\s*(.+)")}', f'kernel: {get(r"^Linux (?:\S+ )?(\d\S+)")}',
          f'CPU: {get(r"model name\s*:\s*(.+)")}', f'RAM: {get(r"Mem:\s+(\S+)")}']
+vr = re.search(r'vram (\d+) MB, in use (\d+) MB, gtt (\d+) MB, in use (\d+) MB', sysinfo)
+if vr:
+    lines.append(f'video memory: {vr[2]} of {vr[1]} MB in use before the run (shared: {vr[4]} of {vr[3]} MB)')
+ing = read('ingame.txt').strip()
+if ing:
+    lines.append('in a game (tester, AMD ms / ours ms / where): ' + ing[:200])
 for label, pat in (('RAM modules', None), ('on AC', r'AC online[^:]*:\s*(\d)'), ('governor', r'cpu governor:\s*(\S+)'), ('profile', r'platform profile:\s*(\S+)')):
     if pat is None:
         mods = re.findall(r'^\s*(?:Size|Speed):\s*(.+)$', sysinfo, re.M)
@@ -81,7 +87,7 @@ def timings(text):
         if l.startswith('round 0'):
             continue
         m = re.search(r'(1080p|4k)/(amd|exact|lossy)/(\w+)\.spv .*median ([\d.]+) ms', l)
-        if m:
+        if m and (size or m[1], m[3], m[2]) not in t:      # the first reading; the postpass is read again in the other order
             t[(size or m[1], m[3], m[2])] = float(m[4])
     return t
 
@@ -89,7 +95,7 @@ def timings(text):
 t1, t2 = timings(read('timing-round1.txt')), timings(read('timing-round2.txt'))
 lines.append('')
 if t1:
-    lines.append('ms per pass: AMD / exact / lossy')
+    lines.append('ms per pass: AMD / exact')
 for cls in ('1080p', '1440p', '4k'):
     row, tot = [], {'amd': 0.0, 'exact': 0.0, 'lossy': 0.0}
     for p in ORDER:
@@ -99,11 +105,36 @@ for cls in ('1080p', '1440p', '4k'):
         e = t1.get((cls, p, 'exact'), a)
         lo = t1.get((cls, p, 'lossy'), e)
         tot['amd'] += a; tot['exact'] += e; tot['lossy'] += lo
-        v = [a] + ([t1[(cls, p, 'exact')]] if (cls, p, 'exact') in t1 else []) + ([t1[(cls, p, 'lossy')]] if (cls, p, 'lossy') in t1 else [])
+        v = [a] + ([t1[(cls, p, 'exact')]] if (cls, p, 'exact') in t1 else [])
         row.append(SHORT[p] + ' ' + '/'.join(f(x) for x in v))
     if row:
         lines.append(f'{cls}: ' + '  '.join(row))
-        lines.append(f'{cls} sum: {f(tot["amd"])} / {f(tot["exact"])} / {f(tot["lossy"])}')
+        lines.append(f'{cls} sum: {f(tot["amd"])} / {f(tot["exact"])}')
+# the 12 model passes in sequence, the whole frame put together from that, and the lossy build's two kinds of frame
+r1 = read('timing-round1.txt'); seq = {}; skp = {}; rev = {}; size = None
+for l in r1.split('\n'):
+    h = re.match(r'=== class \S+ output (\d+x\d+): (.*)$', l.replace(',', ''))
+    if h:
+        size = SIZES.get(h[1], h[1]); sect = h[2]
+    m = re.match(r'sequence \S+ (\d+x\d+) (amd|exact) median ([\d.]+) ms', l)
+    if m:
+        seq[(SIZES.get(m[1], m[1]), m[2])] = float(m[3])
+    m = re.search(r'lossy/postpass_skipped_(rest|moving)\.spv .*median ([\d.]+) ms', l)
+    if m and size:
+        skp[(size, m[1])] = float(m[2])
+    m = re.match(r'round 1\s+\S+/(amd|exact)/postpass\.spv .*median ([\d.]+) ms', l)
+    if m and size and 'other order' in sect:
+        rev[(size, m[1])] = float(m[2])
+for cls in ('1080p', '1440p', '4k'):
+    if (cls, 'amd') in seq and (cls, 'exact') in seq and (cls, 'prepass', 'amd') in t1 and (cls, 'postpass', 'amd') in t1:
+        post = {k: (t1[(cls, 'postpass', k)] + rev[(cls, k)]) / 2 if (cls, k) in rev else t1[(cls, 'postpass', k)] for k in ('amd', 'exact')}
+        fr = {k: t1[(cls, 'prepass', k)] + seq[(cls, k)] + post[k] for k in ('amd', 'exact')}
+        line = f"{cls} frame (prepass + model in sequence + postpass, both orders): AMD {f(fr['amd'])}  exact {f(fr['exact'])} ({100 * fr['exact'] / fr['amd'] - 100:+.0f}%)  [model in sequence {f(seq[(cls, 'amd')])}/{f(seq[(cls, 'exact')])}]"
+        if (cls, 'rest') in skp:
+            sk = {k: t1[(cls, 'prepass', 'exact')] + skp[(cls, k)] for k in ('rest', 'moving') if (cls, k) in skp}
+            avg = (fr['exact'] + sum(sk.values()) / len(sk)) / 2
+            line += f"  |  lossy, skipped frame (probe): at rest {f(sk['rest'])}" + (f", moving {f(sk['moving'])}" if 'moving' in sk else '') + f"; average of the two kinds of frame about {f(avg)} ({100 * avg / fr['amd'] - 100:+.0f}%)"
+        lines.append(line)
 # postpass readings whose individual runs spread widely (AMD's postpass does this on some machines)
 size, spread = None, []
 for l in read('timing-round1.txt').split('\n'):
@@ -122,6 +153,7 @@ if t2:
 
 # the postpass on its own (postpass.txt): several readings of AMD's, the rewrite, the no-stores floor, candidates
 pp, size = {}, None
+suspect = []
 for l in read('postpass.txt').split('\n'):
     h = re.match(r'=== postpass at (\d+x\d+):', l)
     if h:
@@ -146,6 +178,10 @@ for size in ('1080p', '1440p', '4k'):
         name = {'ours': 'shipped', 'nostores': 'no stores'}.get(k, k.replace('cand_', 'candidate '))
         parts.append(f'{name} {f(med(v))} ({100 * med(v) / a - 100:+.0f}%)')
     lines.append(f'postpass {size}: ' + '  '.join(parts))
+    if 'nostores' in d_ and a > 6 * med(d_['nostores']):
+        suspect.append(f'{size}: AMD\'s postpass takes {a / med(d_["nostores"]):.0f} times as long as the same code without its stores')
+if suspect:
+    lines.append('SUSPECT RUN: writes to memory are far slower than on other machines with this kind of GPU, and games on such\n  machines do not show it. Readings that involve stores (prepass, postpass, passes 1, 2, 9, 11, 12) may not reflect games. ' + '; '.join(suspect))
 df = {}
 for m in re.finditer(r'^dotform (\S+) (\S+) (\S+) (dot4c|dot4) (.*)$', read('postpass.txt'), re.M):
     vals = re.findall(r'median ([\d.]+) ms', m[5])
