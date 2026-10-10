@@ -96,12 +96,16 @@ More games and resolutions: [all results](docs/results.md).
 > `fsr4time.exe`, wait about seven minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **The first reports from Windows are in, from eight graphics cards; every further
-> card helps.** New in this version: the summary carries a fingerprint of each picture, and two
-> more reference DLLs for **RX 6000 cards**, where AMD's own shaders show ghosting under Windows:
-> if you have one, your run tells us whether the exact DLL gives the corrected picture there.
-> If you ran the earlier kit, please download again. It is not limited to Radeon: the DLLs should
-> run on any graphics chip whose driver supports DirectX 12 with Shader Model 6.6, which includes
-> GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
+> card helps.**
+> - **Both kits now carry this release's lossy files.** If you ran an earlier kit, please download again.
+> - **RX 6000 owners:** AMD's own shaders show ghosting on these cards under Windows. The kit has two
+>   extra reference DLLs and prints a fingerprint of each picture, so your run tells us whether the
+>   exact DLL gives the corrected picture there.
+> - **Not only Radeon:** the DLLs should run on any graphics chip whose driver supports DirectX 12 with
+>   Shader Model 6.6, which includes GeForce and Intel Arc.
+> - **Linux and the Steam Deck:** [the Linux kit](timing-kit), updated the same day. It now times the lossy
+>   build's first pass, and its check that the model passes give AMD's output was blind before and is fixed.
+>
 > [What the kits do](timing-kit#windows-experimental)
 
 **The technical pages behind this release:**
