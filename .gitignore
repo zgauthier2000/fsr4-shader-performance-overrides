@@ -31,3 +31,6 @@ dll/test/vb
 dll/test/lall/
 
 __pycache__/
+
+# the Windows timing program is built from timing-kit/windows/fsr4time.c, not kept here
+timing-kit/windows/*.exe
