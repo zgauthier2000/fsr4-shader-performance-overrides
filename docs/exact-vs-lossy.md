@@ -31,13 +31,14 @@ and only one of them keeps AMD's picture.
 > **The lossy builds change the image.** They are opt-in experiments, not the same as the main
 > files and not the same as AMD's DLL.
 
-This page describes the builds of release `dll-2026-10-09`. Up to release `dll-2026-10-07` the lossy
-builds also simplified the model's arithmetic (weight folding); they no longer do. The history of
+This page describes the builds of release `dll-2026-10-10`. Up to release `dll-2026-10-07` the lossy
+builds also simplified the model's arithmetic in several layers (weight folding). They no longer do,
+except for a light form of it in the first layer, which keeps flat areas steady. The history of
 the skipped-frame handling is on the [frame-skip page](../research/frame-skip).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
-  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 2.99 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: nine model passes change the output (weights folded in passes 1, 5, 10 and 12, simpler rounding in those and in 2, 4, 7, 8 and 9), about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the picture's motion and four repairs, and nothing taken from the new frame where the picture is at rest, 1.19 ms. The two kinds of frame alternate, 2.05 ms on average, 51% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 43.60 dB against 44.31, flicker on fine detail at rest 0.109 against 0.110, areas just uncovered by a moving object 36.56 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 2.99 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: the same shaders as the exact files except model pass 1, which merges a few of its smallest weights and so changes the output slightly, about 3.0 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.3 ms. The two kinds of frame alternate, 2.15 ms on average, 48% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 44.06 dB against 44.31, flicker on fine detail at rest 0.101 against 0.110, areas just uncovered by a moving object 36.45 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
 </picture>
 
 The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py).
@@ -81,13 +82,18 @@ unchanged there is little left to gain there.
 
 They contain everything the exact files do, plus one change that gives up exactness.
 
-### No longer: less arithmetic in the model (weight folding)
+### Mostly gone: less arithmetic in the model (weight folding)
 
 Up to release `dll-2026-10-07` the lossy builds also dropped the smallest weights in four model
 passes and rounded more simply in five. With the model running on every other frame only, that
 saved about 0.07 ms per frame on average (1% of the frame rate in the benchmark above) and cost
 about 0.35 dB in a still picture and nearly all of the loss on a moving background. It was taken
-out. The record of the experiment: [the lossy track](../research/lossy).
+out in release `dll-2026-10-09`. Release `dll-2026-10-10` put a small part back, for another reason: with 2 of the
+first pass's 36 weight groups merged into their neighbors, bright flat areas at rest are as steady as with
+AMD's shaders, where without it frame skip made them move more
+([how that was found](../research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes)). It costs about
+0.05 dB in a still picture, and why it works is not yet understood. The record of the folding experiment:
+[the lossy track](../research/lossy).
 
 ### The model runs on every other frame (frame skip)
 
@@ -146,7 +152,7 @@ Five repairs keep the rest honest (the fifth is the one just described):
 > **Updated for release `dll-2026-10-10`,** which changed the lossy build again: less shimmer on grain and on bright flat
 > areas. The "Lossy" column and the pictures are this release's. [What changed and why](../research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
 
-Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's model, motion following, the rest rule and the repairs.
+Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's model with its first pass lightly folded, motion following, the rest rule and the repairs.
 "Release `dll-2026-10-07`" is an earlier lossy build, which folded weights in six of the model's layers; the current one does so lightly in the first layer only.
 
 | | AMD's (= exact files) | Release `dll-2026-10-07` | Lossy | Lossy, against AMD's |

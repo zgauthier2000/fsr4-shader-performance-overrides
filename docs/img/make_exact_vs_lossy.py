@@ -17,7 +17,7 @@ MODEL = PASSES[1:13]
 # state of every pass in each kind of frame: a = AMD's code, e = rewritten with the same output,
 # l = changes the output, s = skipped
 EXACT = {p: 'e' for p in PASSES} | {'3': 'a', '6': 'a'}
-LOSSY_RUN = dict(EXACT)      # the model itself is the exact files' since release dll-2026-10-09: no folding, AMD's rounding
+LOSSY_RUN = dict(EXACT) | {'1': 'l'}      # the exact files' model, except pass 1: 2 of its 36 weight words folded since release dll-2026-10-10
 LOSSY_SKIP = {p: 's' for p in MODEL} | {'Prepass': 'l', 'Postpass': 'l'}
 ROWS = [
     ("AMD's shaders", 'every frame', {p: 'a' for p in PASSES}, 4.16, '4.16 ms', 'amd',
@@ -25,8 +25,8 @@ ROWS = [
     ('Exact files', 'every frame', EXACT, 2.99, '2.99 ms', 'exact',
      ["Twelve passes do the same arithmetic, laid out so the GPU gets through it faster. The image is AMD's, byte for byte."]),
     ('Lossy build', 'a frame that runs the model (every other frame)', LOSSY_RUN, 3.0, 'about 3.0 ms', 'lossy',
-     ["The same shaders as the exact files, with AMD's arithmetic in the model. The prepass also notes each area's motion",
-      'for the next frame. The output of this frame is what the exact files would give from the same history.']),
+     ["The exact files' shaders, except that the model's first pass merges a few of its smallest weights into their",
+      "neighbors, which keeps flat areas steady. The prepass also notes each area's motion for the next frame."]),
     ('Lossy build', 'a skipped frame (every other frame)', LOSSY_SKIP, 1.3, 'about 1.3 ms', 'lossy',
      ["The model does not run, and its last result follows the picture's motion. The picture is almost entirely the",
       "previous one moved along with the scene; the new frame counts for very little, except where the model had asked",
@@ -82,10 +82,10 @@ def figure(t):
          'aria-label="How the exact files and the lossy test builds differ from AMD\'s FSR 4.1.1 shaders, pass by pass. '
          "AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output "
          '(model passes 3 and 6 untouched), 2.99 ms, the image is AMD\'s byte for byte. Lossy build on a frame that runs the model: '
-         'the same shaders as the exact files, about 3.0 ms. '
+         'the same shaders as the exact files except model pass 1, which merges a few of its smallest weights and so changes the output slightly, about 3.0 ms. '
          'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.3 ms. '
          'The two kinds of frame alternate, 2.15 ms on average, 48% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
-         'still picture 44.06 dB against 44.31, flicker on fine detail at rest 0.109 against 0.110, areas just uncovered by a moving object 36.47 dB against 34.48. '
+         'still picture 44.06 dB against 44.31, flicker on fine detail at rest 0.101 against 0.110, areas just uncovered by a moving object 36.45 dB against 34.48. '
          'Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 34, 'Exact files and lossy builds, pass by pass', t, 16, 'ink', weight=600),
@@ -133,8 +133,8 @@ def figure(t):
     o.append(text(x2, y + 30, "Test scene, 4K Balanced. Exact files = AMD's.", t, 11, 'muted'))
     o.append(text(x2 + 196, y + 52, "AMD's", t, 11, 'muted', 'end'))
     o.append(text(x2 + 284, y + 52, 'Lossy', t, 11, 'muted', 'end'))
-    for i, (lab, a, b) in enumerate([('Still picture', '44.31 dB', '44.06 dB'), ('Flicker at rest, fine detail', '0.110', '0.109'),
-                                     ('Areas just uncovered', '34.48 dB', '36.47 dB')]):
+    for i, (lab, a, b) in enumerate([('Still picture', '44.31 dB', '44.06 dB'), ('Flicker at rest, fine detail', '0.110', '0.101'),
+                                     ('Areas just uncovered', '34.48 dB', '36.45 dB')]):
         yy = y + 72 + i * 22
         o.append(text(x2, yy, lab, t, 12, 'ink'))
         o.append(text(x2 + 196, yy, a, t, 12, 'ink2', 'end'))
