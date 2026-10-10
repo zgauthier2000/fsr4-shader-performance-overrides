@@ -56,6 +56,10 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 - **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
   DLL gains little, sometimes nothing you can measure; the lossy DLL still helps there, because it
   skips work instead of only doing the same work faster.
+- **It depends on your graphics chip, too.** The numbers here are from one card, a Radeon RX 7800 XT. Testers with
+  RX 7000 and RX 6000 cards report about 30% less FSR 4 time at 4K; at 1440p and below, RX 6000 cards gain only a
+  few percent. On graphics built into the processor the reports so far show a couple of percent. On GeForce and Intel
+  Arc nothing has been measured, and a gain is not certain there. [Results by graphics chip](docs/results.md#by-gpu-type).
 - **It only shows when the graphics card is the limit.** If the processor limits your frame rate,
   the frame rate does not change.
 - **The exact DLL cannot change the picture.** Its output was compared with AMD's byte for byte at
@@ -65,7 +69,8 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   differences and comparison crops: [exact and lossy compared](docs/exact-vs-lossy.md). What the
   alternating cost means for frame caps and V-Sync: [frame pacing](docs/frame-pacing.md).
 
-Measured on a Radeon RX 7800 XT, Shadow of the Tomb Raider's benchmark, 4K output, FSR 4.1.1 Balanced:
+One card, one game, as an example of the best case: a Radeon RX 7800 XT, Shadow of the Tomb Raider's benchmark, 4K
+output, FSR 4.1.1 Balanced. Your card and your game will give other numbers:
 
 | | FSR 4 time per frame | Frame rate | Picture |
 |---|---|---|---|
