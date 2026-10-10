@@ -44,10 +44,17 @@
 #     detail; this is what tells an arriving spark from still detail under another jitter. Such a pixel takes the new frame
 #     by how far outside the sample is: all of it SB_SAMPLEFULL x range beyond the threshold. SB_SAMPLEALL=0: at rest only
 #     (default: also in motion, where the history is already aligned to the frame).
-#   SB_RESTW="t0 t1" (off by default; candidate "0.95 0.995"): the model's own verdict. On the last frame it ran, the model gave every
+#   SB_RESTW="t0 t1" (default "0.95 0.995"; "off"): the model's own verdict. On the last frame it ran, the model gave every
 #     pixel a weight for the new frame. Where that weight was above t1, a skipped frame at rest still takes the new frame (as far as
 #     the shimmer correction allows); below t0 the rest rule holds as before; a ramp in between. Particles get such weights from the
 #     model, settled detail does not: large soft particles and slow embers come close to AMD's. Strong film grain gets them too.
+# Things far thinner than a render pixel (distant wires): all nine samples miss them on most frames, so the history clamp
+# erased them from the history, and the next sample that hit looked like a spark to the sample test: white beads along the wire.
+#   SB_CLAMPREST (default 0; 1 = as before): no history clamp where the picture is at rest.
+#   SB_CLAMPW="t0 t1" (default "0.0 0.3"; "off" = as before): in motion, the clamp in proportion to the model's verdict of a frame
+#     ago: in full where its weight for the new frame was above t1 (it had given up the history there: just-uncovered areas), not
+#     at all at t0 and below (settled content, which includes a wire the model has been building up).
+# SB_RESTW=off SB_CLAMPREST=1 SB_CLAMPW=off gives release dll-2026-10-10's behavior.
 # SB_SAMPLEABS=0.02 SB_BRIGHTABS=0.02 gives release dll-2026-10-09's behavior (it let film grain and noise through on
 # skipped frames: the grain trips the sample test as a spark does). SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behavior. SB_FULLW is a rejected experiment
 # (the new frame in proportion to the SB_BRIGHT difference: two to three times the shimmer at rest).
@@ -57,7 +64,7 @@
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
 import os, re, sys
 # the changed-content tests (below) are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '1'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '1'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', '0.0 0.3')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
@@ -76,7 +83,9 @@ br = next(n for n in range(ge[1], len(L)) if 'OpBranchConditional' in L[n])
 lab = L[br].split()[-1]; lab0 = lab
 at = next(n for n, l in enumerate(L) if re.match(rf'\s*{re.escape(lab)} = OpLabel', l))
 _rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_RESTW') else None
-c = ([f'%sr_t0 = OpConstant %float {_rw[0]}', f'%sr_d = OpConstant %float {max(_rw[1] - _rw[0], 1e-6)}'] if _rw else []) + ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
+_cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_CLAMPW') else None
+NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'      # no history clamp where the picture is at rest (needs the rest rule's flag)
+c = ([f'%sb_cw0 = OpConstant %float {_cw[0]}', f'%sb_cwd = OpConstant %float {max(_cw[1] - _cw[0], 1e-6)}'] if _cw else []) + ([f'%sr_t0 = OpConstant %float {_rw[0]}', f'%sr_d = OpConstant %float {max(_rw[1] - _rw[0], 1e-6)}'] if _rw else []) + ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
      f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0', f"%sb_thr = OpConstant %float {float(os.environ.get('SB_THR', '0'))}", f"%sb_rel = OpConstant %float {float(os.environ.get('SB_REL', '0.1'))}"] + ([f"%sb_slack = OpConstant %float {CLAMP}"] if CLAMP is not None else []) + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
 if CONST:
     c.append(f'%sb_const = OpConstant %float {float(CONST)}')
@@ -514,7 +523,12 @@ else:
                             code += [f'%sb_rg{c}{k} = OpFSub %float {mx} {mn}', f'%sb_sl{c}{k} = OpFMul %float %sb_rg{c}{k} ' + (f'%sb_sle{k}' if CLAMPM is not None else '%sb_slack'),
                                      f'%sb_lo{c}{k} = OpFSub %float {mn} %sb_sl{c}{k}', f'%sb_hi{c}{k} = OpFAdd %float {mx} %sb_sl{c}{k}',
                                      f'%sb_h1{c}{k} = OpExtInst %float {GLSL} NMin {h[c]} %sb_hi{c}{k}', f'%sb_hc{c}{k} = OpExtInst %float {GLSL} NMax %sb_h1{c}{k} %sb_lo{c}{k}',
-                                     f'%sb_hd{c}{k} = OpFSub %float %sb_hc{c}{k} {h[c]}', f'%sb_ha{c}{k} = OpFMul %float %sb_hd{c}{k} %sb_an{k}',
+                                     # no clamp at rest; in motion the clamp in proportion to the model's verdict (see the head of the file)
+                                     *([f'%sb_hcr{c}{k} = OpSelect %float %sm_rest {h[c]} %sb_hc{c}{k}'] if NOCLAMPREST and REST else []),
+                                     *([f'%sb_cwa{c}{k} = OpFSub %float {w} %sb_cw0', f'%sb_cwq{c}{k} = OpFDiv %float %sb_cwa{c}{k} %sb_cwd', f'%sb_cwr{c}{k} = OpExtInst %float {GLSL} NClamp %sb_cwq{c}{k} %sm_fz %sb_one',
+                                        f'%sb_cwx{c}{k} = OpFSub %float ' + (f'%sb_hcr{c}{k}' if NOCLAMPREST and REST else f'%sb_hc{c}{k}') + f' {h[c]}', f'%sb_cwy{c}{k} = OpFMul %float %sb_cwx{c}{k} %sb_cwr{c}{k}', f'%sb_cwh{c}{k} = OpFAdd %float {h[c]} %sb_cwy{c}{k}',
+                                        (f'%sb_hcw{c}{k} = OpSelect %float %sm_rest {h[c]} %sb_cwh{c}{k}' if NOCLAMPREST and REST else f'%sb_hcw{c}{k} = OpFMul %float %sb_cwh{c}{k} %sb_one')] if _cw else []),
+                                     f'%sb_hd{c}{k} = OpFSub %float ' + (f'%sb_hcw{c}{k}' if _cw else f'%sb_hcr{c}{k}' if NOCLAMPREST and REST else f'%sb_hc{c}{k}') + f' {h[c]}', f'%sb_ha{c}{k} = OpFMul %float %sb_hd{c}{k} %sb_an{k}',
                                      f'%sb_rc{c}{k} = OpFAdd %float {mix[c]} %sb_ha{c}{k}']
                             mix[c] = f'%sb_rc{c}{k}'
                     if GUARD:
