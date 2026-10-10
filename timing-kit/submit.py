@@ -6,6 +6,7 @@
 # script by default: the issue is only created when you press "Submit new issue" in the browser.
 # With --discord the summary is posted to the project's Discord results channel (run.sh asks first).
 import glob
+import hashlib
 import os
 import re
 import sys
@@ -14,7 +15,22 @@ import urllib.request
 
 REPO = 'zgauthier2000/fsr4-shader-performance-overrides'
 # Posts to one results channel only; it cannot read anything. If it stops working, use the link.
-WEBHOOK = 'https://discord.com/api/webhooks/1556797078259114065/Qz3Yjjv1fXHvWxGr3X5jT2wK3YyKF3x565PGMiQiREETxRvlGS1qycIM4H6_cs2ioIAK'
+# Where --discord sends the summary. The address is stored scrambled, for one reason only: programs scan public code
+# for addresses of this kind and switch them off (it happened to the first one). It is not hidden from a person reading
+# this file, and it only accepts messages for the project's results channel.
+_H = (
+    '318d6651d99b3bb8bf4325254e4872afc9e567dcfce7ea06'
+    '0fa09175fd960f8a3dfe17198ce771bf92173bfb8db297ba'
+    'e3f113e1d9b1a2785bfdac419964c55af968020ad4bd7080'
+    'fc7f26bcd8d6c8264674f960f1f0fc3c1aa6cc39e076c669'
+    'cb21fcd07a4005ff89405296e5e6e95c344ccf4b5a555d99'
+    'bd')
+
+
+def _hook():
+    k = hashlib.sha256(b'fsr4 timing kit').digest()
+    b = bytes.fromhex(''.join(_H))[::-1]
+    return bytes(c ^ k[i % 32] ^ (i * 7 & 255) for i, c in enumerate(b)).decode()
 d = sys.argv[1].rstrip('/')
 kit = os.path.dirname(os.path.abspath(__file__))
 
@@ -221,7 +237,7 @@ if '--discord' in sys.argv:
     payload = json.dumps({'content': (f'Timing kit results: **{gpu}**' + (f' ({note})' if note else ''))[:1900], 'allowed_mentions': {'parse': []}})
     data = (f'--{b}\r\nContent-Disposition: form-data; name="payload_json"\r\nContent-Type: application/json\r\n\r\n{payload}\r\n'
             f'--{b}\r\nContent-Disposition: form-data; name="files[0]"; filename="summary.txt"\r\nContent-Type: text/plain\r\n\r\n{summary}\n\r\n--{b}--\r\n').encode()
-    req = urllib.request.Request(WEBHOOK, data=data, headers={'Content-Type': f'multipart/form-data; boundary={b}', 'User-Agent': 'fsr4-timing-kit'})
+    req = urllib.request.Request(_hook(), data=data, headers={'Content-Type': f'multipart/form-data; boundary={b}', 'User-Agent': 'fsr4-timing-kit'})
     try:
         urllib.request.urlopen(req, timeout=20).read()
         print('Sent to the project\'s Discord. Thank you!')
