@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="318" viewBox="0 0 760 318" role="img" aria-label="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second, the reference. Exact DLL: 2.99 milliseconds of upscaling per frame, 109 frames per second, same picture, byte for byte. Lossy DLL: 2.15 milliseconds of upscaling per frame, 120 frames per second, very close picture, opt-in. Lower output resolutions gain less.">
+<rect width="760" height="318" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">What to expect at 4K</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Time FSR 4.1.1 takes per frame (shorter is better), and the frame rate that goes with it</text>
+<text x="736.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">frame rate</text>
+<line x1="232.0" y1="94" x2="232.0" y2="262" stroke="#e1e0d9" stroke-width="1"/>
+<text x="232.0" y="278.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0 ms</text>
+<line x1="313.8" y1="94" x2="313.8" y2="262" stroke="#e1e0d9" stroke-width="1"/>
+<text x="313.8" y="278.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">1 ms</text>
+<line x1="395.6" y1="94" x2="395.6" y2="262" stroke="#e1e0d9" stroke-width="1"/>
+<text x="395.6" y="278.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">2 ms</text>
+<line x1="477.3" y1="94" x2="477.3" y2="262" stroke="#e1e0d9" stroke-width="1"/>
+<text x="477.3" y="278.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">3 ms</text>
+<line x1="559.1" y1="94" x2="559.1" y2="262" stroke="#e1e0d9" stroke-width="1"/>
+<text x="559.1" y="278.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">4 ms</text>
+<text x="24.0" y="119.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#0b0b0b">AMD's shaders</text>
+<text x="24.0" y="137.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">the reference</text>
+<path d="M232,102 H568.2 Q572.2,102 572.2,106 V134 Q572.2,138 568.2,138 H232 Z" fill="#a09f98"/>
+<text x="580.2" y="125.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">4.16 ms</text>
+<text x="736.0" y="125.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="end" fill="#0b0b0b">97 FPS</text>
+<text x="24.0" y="173.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#0b0b0b">Exact DLL</text>
+<text x="24.0" y="191.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">same picture, byte for byte</text>
+<path d="M232,156 H472.5 Q476.5,156 476.5,160 V188 Q476.5,192 472.5,192 H232 Z" fill="#2a78d6"/>
+<text x="484.5" y="179.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">2.99 ms</text>
+<text x="736.0" y="179.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="end" fill="#0b0b0b">109 FPS</text>
+<text x="24.0" y="227.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#0b0b0b">Lossy DLL</text>
+<text x="24.0" y="245.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">very close picture, opt-in</text>
+<path d="M232,210 H403.8 Q407.8,210 407.8,214 V242 Q407.8,246 403.8,246 H232 Z" fill="#eb6834"/>
+<text x="415.8" y="233.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">2.15 ms</text>
+<text x="736.0" y="233.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="end" fill="#0b0b0b">120 FPS</text>
+<text x="24.0" y="304.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Shadow of the Tomb Raider benchmark, 4K output, Balanced, Radeon RX 7800 XT. Lower resolutions and slower cards gain less.</text>
+</svg>

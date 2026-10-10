@@ -1,0 +1,44 @@
+WARNING: THIS VERSION CHANGES THE PICTURE.
+
+It is NOT the same as the "exact" version of this project, and NOT the same as AMD's file.
+
+- The exact version produces exactly AMD's picture, byte for byte. This one does not.
+  If you want AMD's picture, use the exact version.
+
+What it does
+- It runs FSR 4's neural network only on every other frame. On the frames in between it
+  reuses the network's last result, moved along with the picture's motion, and relies almost
+  entirely on the previous picture. Where the picture is not moving, those frames take
+  nothing from the new frame, so fine detail at rest shimmers no more than with AMD's file.
+- Three kinds of pixel take the new frame on those frames all the same: ones a moving object
+  has just uncovered, ones that scrolled in from outside the screen, and ones whose content
+  changed without the game reporting motion (particles, sparks, embers).
+- The network's arithmetic itself is AMD's, unchanged. (Earlier lossy versions also
+  simplified it; this one does not.)
+
+What it costs
+- A still picture is about 0.2 dB less accurate than AMD's; thin lines lose a little more.
+- Strips that a moving object has just uncovered are less sharp for one frame, most of all
+  when the camera pans fast against the object's motion.
+- On skipped frames the result depends on the game's motion vectors. Where they are wrong,
+  it can be taken from the wrong place.
+- Small sparks are shown slightly dimmer on skipped frames than with AMD's file.
+- Frame times alternate: a skipped frame is about 1.7 ms shorter than a normal one on an
+  RX 7800 XT at 4K. With a frame cap or normal V-Sync the average is what counts; with
+  low-latency modes or unbuffered V-Sync the longer frames can miss.
+  https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/docs/frame-pacing.md
+
+Good to know
+- Frame skip turns itself off in Ultra Performance (render size under half the output size)
+  and on frames the game marks as a reset. It picks frames from the game's camera jitter; a
+  game with an unusual jitter pattern may skip unevenly.
+- It is opt-in and experimental.
+- These are the Linux files: use them with AMD's ORIGINAL DLL and the launch option
+  VKD3D_SHADER_OVERRIDE='Z:/path/to/fsr4-shader-performance-overrides/prebuilt-lossy' %command%
+  OptiScaler then shows plain 4.1.1 (AMD's DLL is in use).
+- Built from vkd3d-proton's translation on an RX 7800 XT (GE-Proton 11-7). Like the exact
+  prebuilt files they do not fit every setup; if the picture looks wrong, do not use them.
+
+Measurements, comparison pictures and the tools that built it:
+https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/docs/exact-vs-lossy.md
+https://github.com/zgauthier2000/fsr4-shader-performance-overrides/tree/main/research/frame-skip

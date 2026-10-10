@@ -5,6 +5,11 @@
 # reduced where the nearest sample is farther from the pixel than it was in the frame the model
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
 import os, re, sys
+# the changed-content tests of skipblend.py are on by default; "off" switches one off
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '1'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1')):
+    os.environ.setdefault(_k, _v)
+    if os.environ[_k] == 'off':
+        del os.environ[_k]
 K = float(os.environ.get('SB_K', '32'))
 CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0.5'))
 GUARD = os.environ.get('SB_GUARD', '1') == '1'; REL = float(os.environ.get('SB_REL', '0.1')); THR = float(os.environ.get('SB_THR', '0'))
@@ -118,6 +123,93 @@ if UNCOV:
            '  br label %sm.M', '', 'sm.M:', f'  %sm.flag = phi i1 [ %sm.fl2, %sm.M2 ], [ false, {FL_BLOCK} ]'] + ([f'  %sm.rest = phi i1 [ %sm.rin, %sm.M2 ], [ false, {FL_BLOCK} ]'] if REST else [])
 fl = lambda v: '0x%016X' % __import__('struct').unpack('<Q', __import__('struct').pack('<d', __import__('struct').unpack('<f', __import__('struct').pack('<f', v))[0]))[0]
 out = L[:e1] + head
+
+
+def samples_w(cur):
+    """as samples(), but (value, weight) pairs"""
+    m = re.match(r'fdiv fast float (%[\w.]+), %[\w.]+$', defs.get(cur, '')) or sys.exit('skipblend_dxil: the resampled colour is not a quotient')
+    out, todo = [], [m[1]]
+    while todo:
+        t = todo.pop(); f = re.match(r'fmul fast float (%[\w.]+), (%[\w.]+)$', defs.get(t, ''))
+        w = [x for x in (f[1], f[2]) if re.match(r'call float @dx\.op\.unary\.f32\(i32 21, ', defs.get(x, ''))] if f else []
+        if len(w) == 1:
+            out.append((f[2] if w[0] == f[1] else f[1], w[0])); continue
+        a = re.match(r'fadd fast float (%[\w.]+), (%[\w.]+)$', defs.get(t, '')) or sys.exit('skipblend_dxil: unexpected shape of the weighted sum')
+        todo += [a[1], a[2]]
+    if len(out) != 9:
+        sys.exit(f'skipblend_dxil: {len(out)} samples found for a pixel, expected 9')
+    return out
+
+
+PART = os.environ.get('SB_PART'); BRIGHT = os.environ.get('SB_BRIGHT'); SAMPLE = os.environ.get('SB_SAMPLE')
+FMIN = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 36, float {a}, float {b})'
+FMAX = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 35, float {a}, float {b})'
+
+
+def part(k, curs, h, at):
+    """Content that changed without motion vectors, as in skipblend.py: %sb.rq = the rest rule applies, %sb.pf = the share of
+    the new frame the pixel takes at least. at: the line of the pixel's mix (its history load is the last one before it)."""
+    c_, outs = [], []
+    if PART is not None or BRIGHT is not None:
+        for c in range(3):
+            tc = samples(curs[c]); mn, mx = tc[0], tc[0]
+            for i, v in enumerate(tc[1:]):
+                c_ += [FMIN(f'%sb.qn{c}{k}.{i}', mn, v), FMAX(f'%sb.qx{c}{k}.{i}', mx, v)]; mn, mx = f'%sb.qn{c}{k}.{i}', f'%sb.qx{c}{k}.{i}'
+            c_.append(f'  %sb.qr{c}{k} = fsub fast float {mx}, {mn}')
+            flags = []
+            if PART is not None:
+                c_ += [f'  %sb.qs{c}{k} = fmul fast float %sb.qr{c}{k}, {fl(float(PART))}', f"  %sb.qt{c}{k} = fadd fast float %sb.qs{c}{k}, {fl(float(os.environ.get('SB_PARTABS', '0')))}",
+                       f'  %sb.ql{c}{k} = fsub fast float {mn}, %sb.qt{c}{k}', f'  %sb.qh{c}{k} = fadd fast float {mx}, %sb.qt{c}{k}',
+                       f'  %sb.qa{c}{k} = fcmp olt float {h[c]}, %sb.ql{c}{k}', f'  %sb.qb{c}{k} = fcmp ogt float {h[c]}, %sb.qh{c}{k}', f'  %sb.qox{c}{k} = or i1 %sb.qa{c}{k}, %sb.qb{c}{k}']
+                flags.append(f'%sb.qox{c}{k}')
+            if BRIGHT is not None:
+                c_ += [f'  %sb.bs{c}{k} = fmul fast float %sb.qr{c}{k}, {fl(float(BRIGHT))}', f"  %sb.bt{c}{k} = fadd fast float %sb.bs{c}{k}, {fl(float(os.environ.get('SB_BRIGHTABS', '0.02')))}",
+                       f'  %sb.bd{c}{k} = fsub fast float {curs[c]}, {h[c]}', f'  %sb.bg{c}{k} = fcmp ogt float %sb.bd{c}{k}, %sb.bt{c}{k}']
+                if os.environ.get('SB_BRIGHTSYM') == '1':
+                    c_ += [f'  %sb.bn{c}{k} = fsub fast float 0.000000e+00, %sb.bd{c}{k}', f'  %sb.bl{c}{k} = fcmp ogt float %sb.bn{c}{k}, %sb.bt{c}{k}', f'  %sb.bgs{c}{k} = or i1 %sb.bg{c}{k}, %sb.bl{c}{k}']
+                    flags.append(f'%sb.bgs{c}{k}')
+                else:
+                    flags.append(f'%sb.bg{c}{k}')
+            cur_ = flags[0]
+            for i, f_ in enumerate(flags[1:]):
+                c_.append(f'  %sb.qo{c}{k}.{i} = or i1 {cur_}, {f_}'); cur_ = f'%sb.qo{c}{k}.{i}'
+            outs.append(cur_)
+        c_ += [f'  %sb.qo01{k} = or i1 {outs[0]}, {outs[1]}', f'  %sb.chg{k} = or i1 %sb.qo01{k}, {outs[2]}', f'  %sb.nchg{k} = xor i1 %sb.chg{k}, true', f'  %sb.rqO{k} = and i1 %sm.rest, %sb.nchg{k}']
+    else:
+        c_.append(f'  %sb.rqO{k} = and i1 %sm.rest, %sm.rest')
+    if SAMPLE is None:
+        return c_ + [f'  %sb.rq{k} = and i1 %sb.rqO{k}, %sb.rqO{k}', f'  %sb.pf{k} = fmul fast float 0.000000e+00, 0.000000e+00']
+    # the nearest new sample against the range of the 3x3 history pixels around this one
+    ld = next((m_ for n_ in range(at, 0, -1) for m_ in [re.match(r'\s*%[\w.]+ = call %dx\.types\.ResRet\.f16 @dx\.op\.textureLoad\.f16\(i32 66, %dx\.types\.Handle (%[\w.]+), i32 0, i32 (%[\w.]+), i32 (%[\w.]+),', L[n_])] if m_), None) \
+        or sys.exit('skipblend_dxil: the history load of a pixel was not found')
+    img, cx, cy = ld[1], ld[2], ld[3]
+    mn = [None] * 3; mx = [None] * 3
+    for j, (dx, dy) in enumerate([(a_, b_) for b_ in (-1, 0, 1) for a_ in (-1, 0, 1)]):
+        t = f'%ss.{k}.{j}'
+        c_ += [f'  {t}x0 = add i32 {cx}, {dx}', f'  {t}y0 = add i32 {cy}, {dy}', f'  {t}x = call i32 @dx.op.binary.i32(i32 37, i32 {t}x0, i32 0)', f'  {t}y = call i32 @dx.op.binary.i32(i32 37, i32 {t}y0, i32 0)',
+               f'  {t}f = call %dx.types.ResRet.f16 @dx.op.textureLoad.f16(i32 66, %dx.types.Handle {img}, i32 0, i32 {t}x, i32 {t}y, i32 undef, i32 undef, i32 undef, i32 undef)']
+        for c in range(3):
+            c_ += [f'  {t}h{c} = extractvalue %dx.types.ResRet.f16 {t}f, {c}', f'  {t}v{c} = fpext half {t}h{c} to float']
+            if mn[c] is None:
+                mn[c] = mx[c] = f'{t}v{c}'
+            else:
+                c_ += [FMIN(f'{t}n{c}', mn[c], f'{t}v{c}'), FMAX(f'{t}m{c}', mx[c], f'{t}v{c}')]; mn[c], mx[c] = f'{t}n{c}', f'{t}m{c}'
+    t = f'%ss.{k}.s'; fs = []
+    m_, ab, full = float(SAMPLE), float(os.environ.get('SB_SAMPLEABS', '0.02')), float(os.environ.get('SB_SAMPLEFULL', '1'))
+    for c in range(3):
+        tc = samples_w(curs[c]); bv, bw = tc[0]
+        for i, (v, w) in enumerate(tc[1:]):
+            c_ += [f'  {t}cg{c}.{i} = fcmp ogt float {w}, {bw}', f'  {t}cw{c}.{i} = select i1 {t}cg{c}.{i}, float {w}, float {bw}', f'  {t}cv{c}.{i} = select i1 {t}cg{c}.{i}, float {v}, float {bv}']
+            bv, bw = f'{t}cv{c}.{i}', f'{t}cw{c}.{i}'
+        c_ += [f'  {t}r{c} = fsub fast float {mx[c]}, {mn[c]}', f'  {t}a{c} = fmul fast float {t}r{c}, {fl(m_)}', f'  {t}b{c} = fadd fast float {t}a{c}, {fl(ab)}',
+               f'  {t}hi{c} = fsub fast float {bv}, {mx[c]}', f'  {t}lo{c} = fsub fast float {mn[c]}, {bv}', FMAX(f'{t}e0{c}', f'{t}hi{c}', f'{t}lo{c}'), f'  {t}e{c} = fsub fast float {t}e0{c}, {t}b{c}',
+               f'  {t}d0{c} = fmul fast float {t}r{c}, {fl(full)}', f'  {t}d{c} = fadd fast float {t}d0{c}, {fl(ab)}', f'  {t}q{c} = fdiv fast float {t}e{c}, {t}d{c}',
+               FMAX(f'{t}u{c}', f'{t}q{c}', '0.000000e+00'), FMIN(f'{t}g{c}', f'{t}u{c}', '1.000000e+00')]
+        fs.append(f'{t}g{c}')
+    c_ += [FMAX(f'{t}gm', fs[0], fs[1]), FMAX(f'{t}g', f'{t}gm', fs[2]),
+           (f'  %sb.pf{k} = fmul fast float {t}g, 1.000000e+00' if os.environ.get('SB_SAMPLEALL') == '1' else f'  %sb.pf{k} = select i1 %sm.rest, float {t}g, float 0.000000e+00'),
+           f'  {t}z = fcmp ole float %sb.pf{k}, 0.000000e+00', f'  %sb.rqS{k} = and i1 %sm.rest, {t}z', f'  %sb.rq{k} = and i1 %sb.rqO{k}, %sb.rqS{k}']
+    return c_
 
 
 def samples(cur):
@@ -276,7 +368,8 @@ else:
                            [f'  %sb.gm{k} = fmul fast float %sb.gc{k}, {fl(CONST)}'] if CONST is not None else []) + [
                            f'  %sb.om{k} = fsub fast float 1.000000e+00, ' + (f'%sb.gm{k}' if CONST is not None else f'%sb.gc{k}'), f'  %sb.ao{k} = fmul fast float {a}, %sb.om{k}',
                            f'  %sb.gw{k} = fsub fast float 1.000000e+00, %sb.ao{k}', f'  %sb.wm{k} = fmul fast float {w}, %sb.gw{k}'] + (
-                           [f'  %sb.wq{k} = select i1 %sm.rest, float 0.000000e+00, float %sb.wm{k}', f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wq{k}, float 1.000000e+00)']
+                           (part(k, curs, h, n) + [f'  %sb.wq{k} = select i1 %sb.rq{k}, float 0.000000e+00, float %sb.wm{k}', FMAX(f'%sb.wqq{k}', f'%sb.wq{k}', f'%sb.pf{k}'),
+                                                   f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wqq{k}, float 1.000000e+00)'])
                            if REST else [f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wm{k}, float 1.000000e+00)']) + [
                            f'  %sb.an{k} = fsub fast float 1.000000e+00, %sb.wn{k}']
                     sub = {w: f'%sb.wn{k}', a: f'%sb.an{k}'}

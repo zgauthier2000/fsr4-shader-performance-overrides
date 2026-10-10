@@ -7,7 +7,8 @@
 # (default: override/ next to this script), ready for VKD3D_SHADER_OVERRIDE.
 #
 #   postpass       image stores go through workgroup memory and are written in contiguous rows
-#                  (postpass_lds_vkd3d.py); before that, its small network gets the model passes'
+#                  (postpass_direct.py: the first image goes there as it is computed, which keeps
+#                  the register count low enough for 16 waves on RDNA2); before that, its small network gets the model passes'
 #                  integer rounding and clamping (model_tail.py, model_clamp.py) and reads its
 #                  nine neighbour cells without branches (postpass_taps.py). POSTPASS=0 skips it.
 #   prepass        each thread of a quad finishes one of the four words of the model's input:
@@ -89,7 +90,7 @@ while read -r kind hash; do
         continue
     fi
     if [[ $kind == postpass ]]; then
-        script=postpass_lds_vkd3d.py
+        script=postpass_direct.py; [[ ${POSTPASS_DIRECT:-1} == 0 ]] && script=postpass_lds_vkd3d.py      # 0: the store rewrite of the files up to release dll-2026-10-07
         # first the exact rewrites of the postpass's own small network (each leaves the text alone where it finds nothing)
         python3 "$here/model_tail.py" < "$work/$hash.spvasm" 2>/dev/null | python3 "$here/model_clamp.py" 2>/dev/null | python3 "$here/postpass_taps.py" > "$work/$hash.pre.spvasm" 2>/dev/null \
             && mv "$work/$hash.pre.spvasm" "$work/$hash.spvasm"

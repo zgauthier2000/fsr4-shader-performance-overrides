@@ -10,6 +10,26 @@
 | RDNA2 (RX 6000, Steam Deck) | any | AMD's DLL does not offer this FSR 4 there; the experimental `test-rdna2.zip` runs on Windows and fixes the shimmering in motion; testers report about 30% less upscaler time at 4K, 19% at 3440x1440 and 1 to 11% at 1440p and below ([below](#rdna2-needs-one-more-change-the-dot-products)) |
 | RDNA4 (RX 9000) | any | not covered: it runs a different FSR 4 model; see [RDNA4](rdna4.md) |
 
+## Which download (dll-2026-10-09 and later)
+
+Since release `dll-2026-10-09` there are two downloads instead of a file per GPU family:
+
+| Download | Version name shown | For | What differs |
+|---|---|---|---|
+| [`fsr4.1.1-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-cyboman.zip) | `4.1.1-cyboman`, `4.1.1-lossy-cyboman` | RX 7000 and RX 6000 cards, desktop and laptop | pass 11 unrolled (fastest on these cards) |
+| [`fsr4.1.1-igpu-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-igpu-cyboman.zip) | `4.1.1-igpu-cyboman`, `4.1.1-igpu-lossy-cyboman` | integrated Radeon graphics, handhelds, and small RX 6000 chips if the first is slow there | pass 11 with its loops kept (small code) |
+
+Both carry what used to be the separate RX 6000 change: the postpass's dot products in the split form
+([below](#rdna2-needs-one-more-change-the-dot-products)). On an RX 7800 XT under Proton the split form times the same as AMD's
+(0.65 to 0.66 ms at 4K either way, both slot orders), which is expected there: vkd3d-proton translates both forms into the same
+code. **On Windows with an RX 7000 card the split form has not been timed.** The former `test-rdna2` build is now the first zip,
+the former `test-rdna2-compact` and `test-igpu` builds are the second.
+
+The Windows postpass also changed in this release: all three of its images now go through shared memory, the recurrent one as it is
+computed. Compiled with Mesa's driver for other chips (not run), it keeps 16 waves on RDNA2, Navi 33 and the Steam Deck's chip, like
+AMD's own; RDNA3 runs it at 16 waves where the previous DLL had 20, and is faster all the same (0.66 against 0.69 to 0.90 ms at 4K
+on the RX 7800 XT). The sections below describe the builds up to release `dll-2026-10-07` and the reports gathered with them.
+
 ## Windows
 
 Several testers on Windows with Radeon RX 7000 graphics cards report large improvements with the

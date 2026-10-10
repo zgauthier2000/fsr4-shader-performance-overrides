@@ -32,11 +32,30 @@
 # SB_REST (default 1: where the cell's stored motion is zero and nothing looked at around it moves differently, a
 # skipped frame takes nothing from the new frame, so fine detail at rest shimmers no more than with AMD's shaders;
 # 0 for release dll-2026-10-06.6's behaviour),
+# Content that changes without motion vectors (particles, sparks, embers): the rest rule would freeze it on every skipped
+# frame, and the weight the model worked out a frame ago says "keep the old picture" where it has only just arrived.
+# Three tests find it; where one fires, the rest rule does not apply:
+#   SB_PART (default 0.25; "off"): the history lies outside the range of the nine new samples, widened by SB_PART x range;
+#   SB_BRIGHT (default 0.25; "off"; SB_BRIGHTABS 0.02; SB_BRIGHTSYM=0: brighter only): the resampled new frame differs from
+#     the history by more than SB_BRIGHT x range + SB_BRIGHTABS (slow things that still overlap their last image);
+#   SB_SAMPLE (default 1; "off"; SB_SAMPLEABS 0.02; SB_SAMPLEFULL 1): the nearest new sample (the one of the nine with the
+#     largest weight) lies outside the range of the 3x3 history pixels around the pixel by more than SB_SAMPLE x range +
+#     SB_SAMPLEABS. A sample is one point of the scene, so for unchanged content it lies inside that range however fine the
+#     detail; this is what tells an arriving spark from still detail under another jitter. Such a pixel takes the new frame
+#     by how far outside the sample is: all of it SB_SAMPLEFULL x range beyond the threshold. SB_SAMPLEALL=0: at rest only
+#     (default: also in motion, where the history is already aligned to the frame).
+# SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behaviour. SB_FULLW is a rejected experiment
+# (the new frame in proportion to the SB_BRIGHT difference: two to three times the shimmer at rest).
 # SB_CONST (a constant factor on the 2^ term on skipped frames, default 0: (1 - a) becomes (1 - a)^2,
 # the new frame counts for very little where the model keeps history; "off" for none, as in release
 # dll-2026-10-06.4), SB_CAP (upper limit of the 2^ term,
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
 import os, re, sys
+# the changed-content tests (below) are on by default; "off" switches one off
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '1'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1')):
+    os.environ.setdefault(_k, _v)
+    if os.environ[_k] == 'off':
+        del os.environ[_k]
 K = float(os.environ.get('SB_K', '32')); CONST = None if os.environ.get('SB_CONST') == 'off' else os.environ.get('SB_CONST', '0'); CAP = float(os.environ.get('SB_CAP', '1')); AW = int(os.environ.get('SB_AW', '1'))
 CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0.5'))
 GUARD = os.environ.get('SB_GUARD', '1') == '1'
@@ -51,7 +70,7 @@ ge = [n for n, l in enumerate(L) if n > main and 'OpUGreaterThanEqual %bool' in 
 br = next(n for n in range(ge[1], len(L)) if 'OpBranchConditional' in L[n])
 lab = L[br].split()[-1]; lab0 = lab
 at = next(n for n, l in enumerate(L) if re.match(rf'\s*{re.escape(lab)} = OpLabel', l))
-c = (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
+c = ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.02"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.02"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
      f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0', f"%sb_thr = OpConstant %float {float(os.environ.get('SB_THR', '0'))}", f"%sb_rel = OpConstant %float {float(os.environ.get('SB_REL', '0.1'))}"] + ([f"%sb_slack = OpConstant %float {CLAMP}"] if CLAMP is not None else []) + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
 if CONST:
     c.append(f'%sb_const = OpConstant %float {float(CONST)}')
@@ -66,6 +85,98 @@ head += ['%sb_e1 = OpIEqual %bool %sb_v0 %sb_m1', '%sb_e2 = OpIEqual %bool %sb_v
          '%sb_f1p = OpInBoundsAccessChain %_ptr_PhysicalStorageBuffer_v4float %sb_cb %uint_0 %uint_1', '%sb_f1 = OpLoad %v4float %sb_f1p Aligned 16',
          '%sb_jx = OpCompositeExtract %float %sb_f1 2', '%sb_jy = OpCompositeExtract %float %sb_f1 3',
          '%sb_djx = OpFSub %float %sb_pjx %sb_jx', '%sb_djy = OpFSub %float %sb_pjy %sb_jy']
+BRIGHT = os.environ.get('SB_BRIGHT'); FULLW = os.environ.get('SB_FULLW')
+SAMPLE = os.environ.get('SB_SAMPLE')      # test: at rest, compare the nearest new sample with the range of the history around the pixel
+def _heap(img):
+    ld = re.match(r'OpLoad %\w+ (%\w+)', defs.get(img, '')); ac = ld and re.match(r'OpAccessChain %\w+ (%\w+) (%\w+)', defs.get(ld[1], '')); ia = ac and re.match(r'OpIAdd %uint %\w+ (%\w+)', defs.get(ac[2], ''))
+    return ia[1] if ia else None
+HFETCH = []; CIMG = []
+def _scan():
+    for l in L:
+        m = re.match(r'\s*(%\w+) = OpImageFetch %v4float (%\w+) (%\w+) Lod', l)
+        if m and _heap(m[2]) == '%uint_9':
+            cc = re.match(r'OpCompositeConstruct %v2uint (%\w+) (%\w+)', defs.get(m[3], '')) or sys.exit('skipblend: unexpected history coordinate')
+            HFETCH.append((m[2], cc[1], cc[2]))
+        if m and _heap(m[2]) == '%uint_3':
+            CIMG.append(m[2])
+def part_sample(k, h, curs):
+    """f = how far the nearest new sample lies outside the range of the 3x3 history pixels around this one (0..1), at rest only"""
+    if not HFETCH:
+        _scan()
+    site = int(k) if str(k).isdigit() else None
+    idx = PART_SITE[0]; PART_SITE[0] += 1
+    img, cx, cy = HFETCH[idx % len(HFETCH)]; cimg = CIMG[(idx % len(HFETCH)) * (len(CIMG) // len(HFETCH))]
+    code = []; mn = [None] * 3; mx = [None] * 3
+    for j, (dx, dy) in enumerate([(a, b) for b in (-1, 0, 1) for a in (-1, 0, 1)]):
+        t = f'%ss_{k}_{j}'
+        code += [f'{t}x0 = OpIAdd %uint {cx} {SU(dx)}', f'{t}y0 = OpIAdd %uint {cy} {SU(dy)}', f'{t}x = OpExtInst %uint {GLSL} SMax {t}x0 %sb_c0', f'{t}y = OpExtInst %uint {GLSL} SMax {t}y0 %sb_c0',
+                 f'{t}c = OpCompositeConstruct %v2uint {t}x {t}y', f'{t}f = OpImageFetch %v4float {img} {t}c Lod %sb_c0']
+        for c in range(3):
+            code.append(f'{t}v{c} = OpCompositeExtract %float {t}f {c}')
+            if mn[c] is None:
+                mn[c] = mx[c] = f'{t}v{c}'
+            else:
+                code += [f'{t}n{c} = OpExtInst %float {GLSL} NMin {mn[c]} {t}v{c}', f'{t}m{c} = OpExtInst %float {GLSL} NMax {mx[c]} {t}v{c}']; mn[c], mx[c] = f'{t}n{c}', f'{t}m{c}'
+    t = f'%ss_{k}_s'
+    fs = []
+    for c in range(3):
+        # the nearest sample: the one of the nine with the largest weight, as the shader has prepared it for the mix
+        tc = samples_w(curs[c]); bv, bw = tc[0]
+        for i, (v, w) in enumerate(tc[1:]):
+            code += [f'{t}cg{c}_{i} = OpFOrdGreaterThan %bool {w} {bw}', f'{t}cw{c}_{i} = OpSelect %float {t}cg{c}_{i} {w} {bw}', f'{t}cv{c}_{i} = OpSelect %float {t}cg{c}_{i} {v} {bv}']
+            bv, bw = f'{t}cv{c}_{i}', f'{t}cw{c}_{i}'
+        code += [f'{t}v{c} = OpFMul %float {bv} %sb_one', f'{t}r{c} = OpFSub %float {mx[c]} {mn[c]}', f'{t}a{c} = OpFMul %float {t}r{c} %ss_m', f'{t}b{c} = OpFAdd %float {t}a{c} %ss_abs',
+                 f'{t}hi{c} = OpFSub %float {t}v{c} {mx[c]}', f'{t}lo{c} = OpFSub %float {mn[c]} {t}v{c}', f'{t}e0{c} = OpExtInst %float {GLSL} NMax {t}hi{c} {t}lo{c}', f'{t}e{c} = OpFSub %float {t}e0{c} {t}b{c}',
+                 f'{t}d0{c} = OpFMul %float {t}r{c} %ss_full', f'{t}d{c} = OpFAdd %float {t}d0{c} %ss_abs', f'{t}q{c} = OpFDiv %float {t}e{c} {t}d{c}', f'{t}g{c} = OpExtInst %float {GLSL} NClamp {t}q{c} %sm_fz %sb_one']
+        fs.append(f'{t}g{c}')
+    code += [f'{t}g01 = OpExtInst %float {GLSL} NMax {fs[0]} {fs[1]}', f'{t}g = OpExtInst %float {GLSL} NMax {t}g01 {fs[2]}', (f'%sb_pf{k} = OpFMul %float {t}g %sb_one' if os.environ.get('SB_SAMPLEALL') == '1' else f'%sb_pf{k} = OpSelect %float %sm_rest {t}g %sm_fz'),
+             f'{t}z = OpFOrdLessThanEqual %bool %sb_pf{k} %sm_fz', f'%sb_rq{k} = OpLogicalAnd %bool %sm_rest {t}z']
+    return code
+PART_SITE = [0]
+SUC = {}
+def SU(v):
+    SUC[v] = f'%ss_o{v & 0xffffffff}'; return SUC[v]
+PART = os.environ.get('SB_PART'); PARTABS = float(os.environ.get('SB_PARTABS', '0'))
+def part(k, curs, h):
+    if SAMPLE is not None:      # both tests: the rest rule holds only where neither sees a change; the share of the new frame is the larger of the two
+        a = [l.replace(f'%sb_rq{k} ', f'%sb_rqO{k} ').replace(f'%sb_pf{k} ', f'%sb_pfO{k} ') for l in part_old(k, curs, h)]
+        b = [l.replace(f'%sb_rq{k} ', f'%sb_rqS{k} ').replace(f'%sb_pf{k} ', f'%sb_pfS{k} ').replace(f'%sb_pf{k}\n', f'%sb_pfS{k}\n') for l in part_sample(k, h, curs)]
+        b = [re.sub(rf'%sb_pf{k}(?!\w)', f'%sb_pfS{k}', l) for l in b]
+        return a + b + [f'%sb_rq{k} = OpLogicalAnd %bool %sb_rqO{k} %sb_rqS{k}', f'%sb_pf{k} = OpExtInst %float {GLSL} NMax %sb_pfO{k} %sb_pfS{k}']
+    return part_old(k, curs, h)
+
+
+def part_old(k, curs, h):
+    if PART is None:
+        return [f'%sb_rq{k} = OpLogicalAnd %bool %sm_rest %sm_rest', f'%sb_pf{k} = OpFMul %float %sm_fz %sm_fz']
+    code, outs = [], []
+    for c in range(3):
+        tc = samples(curs[c]); mn, mx = tc[0], tc[0]
+        for i, v in enumerate(tc[1:]):
+            code += [f'%sb_qn{c}{k}_{i} = OpExtInst %float {GLSL} NMin {mn} {v}', f'%sb_qx{c}{k}_{i} = OpExtInst %float {GLSL} NMax {mx} {v}']
+            mn, mx = f'%sb_qn{c}{k}_{i}', f'%sb_qx{c}{k}_{i}'
+        code += [f'%sb_qr{c}{k} = OpFSub %float {mx} {mn}', f'%sb_qs{c}{k} = OpFMul %float %sb_qr{c}{k} %sb_partw', f'%sb_qt{c}{k} = OpFAdd %float %sb_qs{c}{k} %sb_parta',
+                 f'%sb_ql{c}{k} = OpFSub %float {mn} %sb_qt{c}{k}', f'%sb_qh{c}{k} = OpFAdd %float {mx} %sb_qt{c}{k}',
+                 f'%sb_qa{c}{k} = OpFOrdLessThan %bool {h[c]} %sb_ql{c}{k}', f'%sb_qb{c}{k} = OpFOrdGreaterThan %bool {h[c]} %sb_qh{c}{k}', f'%sb_qo{c}{k}' + ('x' if BRIGHT is not None else '') + f' = OpLogicalOr %bool %sb_qa{c}{k} %sb_qb{c}{k}']
+        if BRIGHT is not None:      # SB_BRIGHT (test): also where the resampled new frame is brighter than the history by SB_BRIGHT x range + SB_BRIGHTABS (SB_BRIGHTSYM=1: or darker)
+            code += [f'%sb_bs{c}{k} = OpFMul %float %sb_qr{c}{k} %sb_brw', f'%sb_bt{c}{k} = OpFAdd %float %sb_bs{c}{k} %sb_bra', f'%sb_bd{c}{k} = OpFSub %float {curs[c]} {h[c]}',
+                     f'%sb_bg{c}{k} = OpFOrdGreaterThan %bool %sb_bd{c}{k} %sb_bt{c}{k}']
+            if FULLW is not None:      # SB_FULLW (test): how much of the new frame such a pixel takes: from nothing at the threshold to all of it SB_FULLW x range above
+                code += [f'%sb_fa{c}{k} = OpExtInst %float {GLSL} FAbs %sb_bd{c}{k}', f'%sb_fb{c}{k} = OpFSub %float %sb_fa{c}{k} %sb_bt{c}{k}',
+                         f'%sb_fc{c}{k} = OpFMul %float %sb_qr{c}{k} %sb_fullw', f'%sb_fd{c}{k} = OpFAdd %float %sb_fc{c}{k} %sb_feps', f'%sb_fe{c}{k} = OpFDiv %float %sb_fb{c}{k} %sb_fd{c}{k}',
+                         f'%sb_ff{c}{k} = OpExtInst %float {GLSL} NClamp %sb_fe{c}{k} %sm_fz %sb_one']
+            if os.environ.get('SB_BRIGHTSYM') == '1':
+                code += [f'%sb_bn{c}{k} = OpFNegate %float %sb_bd{c}{k}', f'%sb_bl{c}{k} = OpFOrdGreaterThan %bool %sb_bn{c}{k} %sb_bt{c}{k}', f'%sb_bgs{c}{k} = OpLogicalOr %bool %sb_bg{c}{k} %sb_bl{c}{k}']
+                code.append(f'%sb_qo{c}{k} = OpLogicalOr %bool %sb_qo{c}{k}x %sb_bgs{c}{k}')
+            else:
+                code.append(f'%sb_qo{c}{k} = OpLogicalOr %bool %sb_qo{c}{k}x %sb_bg{c}{k}')
+        outs.append(f'%sb_qo{c}{k}')
+    if FULLW is not None and BRIGHT is not None:
+        code += [f'%sb_fm{k} = OpExtInst %float {GLSL} NMax %sb_ff0{k} %sb_ff1{k}', f'%sb_fn{k} = OpExtInst %float {GLSL} NMax %sb_fm{k} %sb_ff2{k}', f'%sb_pf{k} = OpSelect %float %sm_rest %sb_fn{k} %sm_fz']
+    else:
+        code += [f'%sb_pf{k} = OpFMul %float %sm_fz %sm_fz']
+    return code + [f'%sb_qo01{k} = OpLogicalOr %bool {outs[0]} {outs[1]}', f'%sb_chg{k} = OpLogicalOr %bool %sb_qo01{k} {outs[2]}', f'%sb_nchg{k} = OpLogicalNot %bool %sb_chg{k}',
+                   f'%sb_rq{k} = OpLogicalAnd %bool %sm_rest %sb_nchg{k}']
 CLAMPM = float(os.environ['SB_CLAMPM']) if os.environ.get('SB_CLAMPM') else None
 UNCOV = os.environ.get('SB_UNCOV', 'depth') in ('1', 'depth'); DEPTH = os.environ.get('SB_UNCOV', 'depth') == 'depth'
 REST = UNCOV and os.environ.get('SB_REST', '1') == '1'
@@ -194,6 +305,22 @@ if CLAMPM is not None or UNCOV:
     HEAD_LABEL = '%sm_M'
 out = L[:main] + c + L[main:at + 1] + head
 n_guard = 0
+
+
+def samples_w(cur):
+    """as samples(), but (value, weight) pairs"""
+    m = re.match(r'OpFDiv %float (%\w+) %\w+$', defs.get(cur, '')) or sys.exit('skipblend: the resampled colour is not a quotient')
+    out, todo = [], [m[1]]
+    while todo:
+        t = todo.pop(); f = re.match(r'OpFMul %float (%\w+) (%\w+)$', defs.get(t, ''))
+        w = [x for x in (f[1], f[2]) if re.match(r'OpExtInst %float %\w+ Exp2 ', defs.get(x, ''))] if f else []
+        if len(w) == 1:
+            out.append((f[2] if w[0] == f[1] else f[1], w[0])); continue
+        a = re.match(r'OpFAdd %float (%\w+) (%\w+)$', defs.get(t, '')) or sys.exit('skipblend: unexpected shape of the weighted sum')
+        todo += [a[1], a[2]]
+    if len(out) != 9:
+        sys.exit(f'skipblend: {len(out)} samples found for a pixel, expected 9')
+    return out
 
 
 def samples(cur):
@@ -353,7 +480,7 @@ else:
                              f'%sb_ao{k} = OpFMul %float %sb_ap{k} %sb_om{k}', f'%sb_gw{k} = OpFSub %float %sb_one %sb_ao{k}',
                              f'%sb_wm{k} = OpFMul %float {w} %sb_gw{k}'] + (
                              # where the picture does not move, a skipped frame takes nothing from the new frame
-                             [f'%sb_wq{k} = OpSelect %float %sm_rest %sm_fz %sb_wm{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wq{k} %sb_one']
+                             (part(k, curs, h) + [f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sm_fz %sb_wm{k}', f'%sb_wqq{k} = OpExtInst %float {GLSL} NMax %sb_wq{k} %sb_pf{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wqq{k} %sb_one'])
                              if REST else [f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wm{k} %sb_one']) + [
                              f'%sb_an{k} = OpFSub %float %sb_one %sb_wn{k}']
                     # the mix again with the corrected weights: the shader's own nine lines, renamed

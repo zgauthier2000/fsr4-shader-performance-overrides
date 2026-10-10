@@ -7,6 +7,11 @@ experiment that does not: doing less arithmetic in the model passes, and looking
 that cost the least. The figures are made by [`img/make_figures.py`](img/make_figures.py). **None of it is in the main files.** Since 2026-10-05 the result is
 available as a separate, opt-in test build; see [the last section](#the-opt-in-test-build-2026-10-05).
 
+> **Not in the released builds any more (since `dll-2026-10-09`).** The lossy DLL now runs AMD's model unchanged and only skips it on
+> every other frame ([frame skip](../frame-skip)): with the model running half as often, folding saved about 0.07 ms per frame
+> (1% of the frame rate in Shadow of the Tomb Raider at 4K) and cost about 0.35 dB in a still picture. The page stays as the record
+> of the experiment; the tools still work.
+
 > **WARNING: the test build changes the image.** It is not the same as the main DLL, the prebuilt
 > folder or AMD's DLL, all of which produce the same image byte for byte.
 

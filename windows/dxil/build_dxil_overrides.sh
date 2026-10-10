@@ -26,7 +26,7 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 g++ -std=c++17 -O1 -I"$dxc_dir/include" "$here/../tools/dxilasm.cpp" -ldl -o "$work/dxilasm"
 mkdir -p "$out"
-built=0
+built=0; failed=0
 for f in "$src"/*.dxil; do
     name=$(strings -n 8 "$f" | grep -m1 -oE 'fsr4_model_v07_fp8_no_scale_(postpass|prepass|pass[0-9]+)$' || true)
     case $name in
@@ -69,8 +69,14 @@ for f in "$src"/*.dxil; do
     if [[ ${DOT4:-} == split && $name == *_postpass ]]; then
         python3 "$here/dot4_split_dxil.py" < "$work/out.ll" > "$work/out2.ll" 2>/dev/null && mv "$work/out2.ll" "$work/out.ll"
     fi
+    # last: take out the code the rewrites replaced but left in place, so the driver need not (DCE=0 leaves it in)
+    if [[ ${DCE:-1} == 1 ]]; then
+        python3 "$here/dce_dxil.py" < "$work/out.ll" > "$work/out2.ll" 2>/dev/null || { echo "FAILED $(basename "$f"): unused code could not be removed"; failed=$((failed + 1)); continue; }
+        mv "$work/out2.ll" "$work/out.ll"
+    fi
     "$work/dxilasm" "$dxc_dir/lib/libdxcompiler.so" "$work/out.ll" "$out/$hash.dxil"
     echo "$out/$hash.dxil  (${name##*_}, from $(basename "$f"))"
     built=$((built + 1))
 done
 [[ $built -gt 0 ]] || { echo "no FSR 4.1.1 INT8 postpass or pass 11 in $src"; exit 1; }
+[[ $failed -eq 0 ]] || { echo "$failed shaders FAILED"; exit 1; }

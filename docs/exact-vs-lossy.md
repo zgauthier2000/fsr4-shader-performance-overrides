@@ -5,17 +5,18 @@
 This project ships two kinds of faster FSR 4.1.1 shaders. They get their speed in different ways,
 and only one of them keeps AMD's picture.
 
-- **The exact files** (the main DLL, the prebuilt Linux folder and the test builds for other
-  GPUs) do the same arithmetic as AMD's shaders, organised so the GPU gets through it faster.
-  The output is AMD's image, byte for byte.
-- **The lossy test builds** (`test-lossy…`) start from the exact files and then do less work:
-  they leave out part of the model's arithmetic and run the model on every other frame.
+- **The exact files** (the `exact` DLL in each download and the `prebuilt` Linux folder) do the
+  same arithmetic as AMD's shaders, organised so the GPU gets through it faster. The output is
+  AMD's image, byte for byte.
+- **The lossy files** (the `lossy` DLL in each download and the `prebuilt-lossy` Linux folder)
+  are the exact files plus one thing: they run FSR 4's model on every other frame only.
 
 > **The lossy builds change the image.** They are opt-in experiments, not the same as the main
 > files and not the same as AMD's DLL.
 
-This page describes the builds of release `dll-2026-10-07`. Earlier lossy releases behaved
-differently on skipped frames; their history is on the [frame-skip page](../research/frame-skip).
+This page describes the builds of release `dll-2026-10-09`. Up to release `dll-2026-10-07` the lossy
+builds also simplified the model's arithmetic (weight folding); they no longer do. The history of
+the skipped-frame handling is on the [frame-skip page](../research/frame-skip).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
@@ -30,12 +31,12 @@ The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py)
 |---|---|---|
 | Image | AMD's, byte for byte | close to AMD's, not the same |
 | How the time is saved | same work, done more efficiently | less work |
-| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 2.99 ms | 2.05 ms |
+| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 2.99 ms | 2.15 ms |
 | Upscaler time, Rise of the Tomb Raider, 4K Balanced (AMD's: 4.29 ms) | 2.97 ms (the previous exact files) | 2.05 ms (an earlier lossy release) |
 | Frame times | even | alternate between a shorter and a longer frame |
 | Checked how | output compared with AMD's, byte for byte | measured against the true image and against AMD's output |
-| Tested on | several GPUs and games ([results](results.md)) | one RDNA3 card by the author (two games, the current release in one, on Linux), testers with earlier releases |
-| Files | main DLL, `prebuilt/`, `test-rdna2…`, `test-igpu.zip` | `test-lossy…` only |
+| Tested on | several GPUs and games ([results](results.md)) | one RDNA3 card by the author, on Linux: the benchmark above, Elden Ring and the menu of Mafia: The Old Country; testers with earlier releases |
+| Files | `exact/` in each zip, `prebuilt/` | `lossy/` in each zip, `prebuilt-lossy/` |
 
 All timings on this page are from a Radeon RX 7800 XT on Linux.
 
@@ -61,26 +62,17 @@ unchanged there is little left to gain there.
 
 ## How the lossy builds get faster
 
-They contain everything the exact files do, plus two changes that give up exactness.
+They contain everything the exact files do, plus one change that gives up exactness.
 
-### 1. Less arithmetic in the model (weight folding)
+### No longer: less arithmetic in the model (weight folding)
 
-Six of the model passes carry their weights as constants. In each, an output value is a sum of 36
-small dot products. The lossy build drops the ones with the smallest weights and adds their
-weights to a neighbouring one that is kept, so the sum changes little. It also simplifies how
-intermediate values are rounded.
+Up to release `dll-2026-10-07` the lossy builds also dropped the smallest weights in four model
+passes and rounded more simply in five. With the model running on every other frame only, that
+saved about 0.07 ms per frame on average (1% of the frame rate in the benchmark above) and cost
+about 0.35 dB in a still picture and nearly all of the loss on a moving background. It was taken
+out. The record of the experiment: [the lossy track](../research/lossy).
 
-- **How much is dropped** was tuned pass by pass against a moving test scene: 4 of 36 in pass 1,
-  18 in passes 5 and 10, 20 in pass 12. One step further in any of them made something visibly
-  less steady, and pass 2 tolerates none.
-- **What it saves:** about 0.14 ms on a frame that runs the model (measured as 3.05 to 2.91 ms
-  before the prepass and postpass were rewritten again on 2026-10-07).
-- **What it costs:** the still picture is about 0.6 dB less accurate, and fine repeating patterns
-  can be less steady in motion, most at 1440p output.
-
-Details: [the lossy track](../research/lossy).
-
-### 2. The model runs on every other frame (frame skip)
+### The model runs on every other frame (frame skip)
 
 On alternate frames the twelve model passes return immediately, and the postpass reuses the
 model's result from the frame before, which is still in memory. The last layers of the network
@@ -88,13 +80,13 @@ sit in the postpass; their result is saved by the frame that runs the model and 
 skipped frame, so they are not rerun either.
 
 - **What it saves:** about 0.85 ms on average. A skipped frame takes about
-  1.2 ms, a normal one about 2.9 ms.
+  1.3 ms, a normal one about 3.0 ms.
 - **What it costs:** the reused result is one frame old, so a skipped frame cannot be trusted to
   mix the new frame in properly. What it does instead is described next.
 
 Details: [frame skip](../research/frame-skip).
 
-### What a skipped frame does instead, and four repairs
+### What a skipped frame does instead, and five repairs
 
 All of this acts on skipped frames only. Frames that run the model are not touched.
 
@@ -114,7 +106,16 @@ looked at around it (3 and 8 cells to each side) moves differently. The small sh
 frame that skipped frames used to mix in was what made fine detail shimmer more than with AMD's
 shaders while nothing moved.
 
-Four repairs keep the rest honest:
+**Content that changes without motion vectors is taken from the new frame** (new in release
+`dll-2026-10-09`). Games draw particles, sparks and embers without telling FSR that they move.
+The rest rule froze them on every skipped frame, and the reused result, worked out when that
+spot was empty, told the postpass to keep the old picture. Three tests now find such pixels, at
+rest and in motion; the one that matters most compares the nearest sample of the new frame with
+the previous picture's pixels right around it. A sample is one point of the scene, so for
+unchanged content it lies within their range however fine the detail, and a spark that was not
+there a frame ago does not.
+
+Five repairs keep the rest honest (the fifth is the one just described):
 
 | Problem with a reused result | Repair in the builds |
 |---|---|
@@ -125,43 +126,74 @@ Four repairs keep the rest honest:
 
 ## What the lossy builds cost, measured
 
-Test scene at 4K Balanced. "Lossy" is the release build: folding, frame skip, motion following, the rest rule and the four repairs.
+Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's model, motion following, the rest rule and the repairs.
+"Release `dll-2026-10-07`" is the previous lossy build, which also folded weights.
 
-| | AMD's (= exact files) | Folding only | Lossy | Lossy, against AMD's |
+| | AMD's (= exact files) | Release `dll-2026-10-07` | Lossy | Lossy, against AMD's |
 |---|---|---|---|---|
-| Still picture against the true image | 44.31 dB | 43.71 dB | 43.60 dB | within 1.6%; 9% more error |
-| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.123 | 0.109 | within 1% |
-| Moving scene: background | 49.27 dB | 48.67 dB | 48.60 dB | within 1.4%; 8% more error |
-| Moving scene: thin railing | 41.82 dB | not measured | 41.12 dB | within 1.7%; 8% more error |
-| Moving scene: areas a moving object has just uncovered | 34.48 dB | 34.89 dB | 36.56 dB | 6% above; 21% less error |
-| Still camera, objects moving: thin railing | 42.20 dB | not measured | 40.99 dB | within 2.9%; 15% more error |
-| Still camera, objects moving: just-uncovered areas | 32.62 dB | not measured | 30.93 dB | within 5.2%; 21% more error |
-| Revealed strip when a pan starts on a skipped frame | 100% of true brightness | no frame skip | 100% | the same |
+| Still picture against the true image | 44.31 dB | 43.60 dB | 44.06 dB | within 0.6%; 6% more error |
+| Thin vertical / horizontal detail in the still picture | 27.09 / 28.23 dB | 25.89 / 27.64 dB | 26.34 / 28.03 dB | 0.75 / 0.2 dB below |
+| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.109 | 0.109 | level |
+| Frame-to-frame change on thin vertical detail at rest | 0.364 | 0.380 | 0.377 | 4% more |
+| Moving scene: background | 49.27 dB | 48.61 dB | 48.85 dB | within 0.9%; 10% more error |
+| Moving scene: thin railing | 41.82 dB | 41.12 dB | 41.27 dB | within 1.3%; 13% more error |
+| Moving scene: areas a moving object has just uncovered | 34.48 dB | 36.56 dB | 36.47 dB | 6% above; 37% less error |
+| Still camera, objects moving: thin railing | 42.20 dB | 40.99 dB | 41.23 dB | within 2.3%; 25% more error |
+| Still camera, objects moving: just-uncovered areas | 32.62 dB | 30.93 dB | 31.83 dB | within 2.4%; 20% more error |
+| Revealed strip when a pan starts on a skipped frame | 100% of true brightness | 100% | 99 to 100% | the same |
+
+The pan-start row was measured on the build without the particle tests; they do not act on that strip's test.
 
 "Within x%" compares the quality scores (PSNR, in dB). dB is a logarithmic scale, so the last
 column also gives the same gap as error: how much further the picture is from the true image than
 AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 
-- **Fine detail at rest shimmers no more than with AMD's shaders** (0.109 against 0.110). It was
-  about 55% more with the first frame-skip build, about 30% up to release 4 and 8% in releases 5
-  and 6. The cause was the skipped frames, not the folding: frame skip on the unfolded model
-  shimmered just as much.
-- **The still picture is about 0.7 dB less accurate:** 0.6 dB from the folding and 0.14 dB from
-  the rest rule.
-- **Just-uncovered areas score above AMD's in the panning scene** (36.56 against 34.48 dB) and
-  about 1.7 dB below with the camera still and objects moving. In the panning scene they were
-  0.5 dB below in release 6, about 2.5 dB in release 5 and about 5 dB before the history clamp.
-- **No second outline beside moving objects.** Where an object's image of a frame ago would land
-  in the history, the error is at AMD's level (0.48 against 0.50 in 8-bit steps with a fast pan
-  and a slowly drifting object; release 6: 1.44). See the
-  [frame-skip page](../research/frame-skip#who-was-here-a-frame-ago-release-dll-2026-10-07).
-- **The moving background is about 0.7 dB less accurate,** nearly all of it from the folding; in
-  release 5 frame skip cost a further 1 dB there.
+- **Fine detail at rest shimmers no more than with AMD's shaders** on the broad measure (0.109
+  against 0.110); on thin vertical detail alone the frame-to-frame change is 4% above AMD's.
+- **The still picture is about 0.25 dB less accurate** (0.7 dB in the previous release): running
+  the model on half the frames builds the picture from half the jitter positions.
+- **Just-uncovered areas score above AMD's in the panning scene** (36.47 against 34.48 dB) and
+  about 0.8 dB below with the camera still and objects moving.
+- **Beside moving objects, most cases are at AMD's level; two are not.** On the measure of what
+  is left where an object's previous image would land (8-bit steps, skipped frames):
+
+  | Camera / objects (pixels per frame at 4K) | AMD's | Lossy | |
+  |---|---|---|---|
+  | 12,6 / −6,6 | 0.85 | 0.87 | level |
+  | 12,6 / 6,−6 | 1.07 | 1.08 | level |
+  | still camera / 8,0 | 1.07 | 1.05 | level |
+  | still camera / 6,−6 | 1.74 | 1.91 | 10% more |
+  | still camera / −6,6 | 4.01 | 4.63 | 15% more: a sliver one or two pixels wide beside the trailing edge |
+  | −16,4 / 8,0 (fast pan against the object's motion) | 3.11 | 5.14 | 65% more |
+
+  In the last case nothing is left behind: the strip is recognised and shown from the new frame,
+  which alone is less accurate there than AMD's model output (a build that shows only the new
+  frame on skipped frames scores 5.24). In the still-camera cases the motion is stored once per
+  4x4 pixels, and a pixel in a cell whose corner is on the object takes the object's motion.
+  See the [frame-skip page](../research/frame-skip#who-was-here-a-frame-ago-release-dll-2026-10-07).
+- **Particles without motion vectors** (bright dots drawn into the picture only; share of each
+  one shown where it truly is, on skipped frames; frames that run the model show 82 to 98%):
+
+  | | AMD's | Release `dll-2026-10-07` behaviour | Lossy |
+  |---|---|---|---|
+  | Tiny and fast, camera still | 83% | 16% | 77% |
+  | Tiny and fast, slow pan | 83% | 34% | 78% |
+  | Tiny and fast, fast pan | 83% | 9% | 80% |
+  | Tiny and slow, camera still | 81% | 67% | 77% |
+  | Large and fast, camera still | 98% | 70% | 98% |
+
+  The middle column is the same build with the three tests switched off. Small sparks stay a
+  few percent dimmer on skipped frames than with AMD's shaders.
+- **The moving background is about 0.4 dB less accurate.**
 - **Frame times alternate.** With a frame cap or normal V-Sync the average is what counts. With
   low-latency modes or unbuffered V-Sync the longer frames can miss.
   [What that means in practice](frame-pacing.md).
 
 ## What the difference looks like
+
+> The crops and the table in this section were made with the lossy build of release `dll-2026-10-07`.
+> The current build is closer to AMD's in the still picture and equal within noise in the moving ones;
+> they have not been redrawn.
 
 Pieces of the test rig's 4K output, exact files against the current lossy build. The exact files
 give the same bytes as AMD's shaders, so their panels are also AMD's picture. **These are the
@@ -227,22 +259,22 @@ old image would land if the history were shown unchanged. "Outline" is the objec
 
 | Benchmark, 4K Balanced, RX 7800 XT | AMD's shaders | Exact files | Lossy |
 |---|---|---|---|
-| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 2.99 ms (−28%) | 2.05 ms (−51%) |
-| Shadow of the Tomb Raider: average FPS | 97 | 109 | 122 |
+| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 2.99 ms (−28%) | 2.15 ms (−48%) |
+| Shadow of the Tomb Raider: average FPS | 97 | 109 | 120 |
 | Rise of the Tomb Raider: upscaler time | 4.29 ms | 2.97 ms (−31%) | 2.05 ms (−52%) * |
 | Rise of the Tomb Raider: overall score | 97.67 FPS | 109.61 FPS | 122.34 FPS * |
 
-\* The Rise of the Tomb Raider lossy run used the lossy build of release `dll-2026-10-06.3`; it
-has not been repeated with the current one. In Shadow of the Tomb Raider the current release and
-that one ran at nearly the same speed (2.05 and 2.09 ms). The Rise of the Tomb Raider exact figure is also
-from before this release's faster prepass and postpass.
+\* The Rise of the Tomb Raider lossy run used the lossy build of release `dll-2026-10-06.3`, which
+also folded weights; it has not been repeated. In Shadow of the Tomb Raider the previous lossy
+release measured 2.05 ms and 122 FPS: taking the folding out cost about 0.07 ms and the particle
+tests about 0.03 ms (single runs). The Rise of the Tomb Raider exact figure is from before the
+prepass and postpass rewrites of release `dll-2026-10-07`.
 
 The lossy figures are from the Linux files. The Windows DLLs carry
 the same shaders (their output is byte-identical to the Linux files' in the test rig, under
 Proton); their speed on Windows has not been measured.
 
-On RDNA2 at 1440p output, one tester measured only 1 to 2% from the folding alone; frame skip
-has not been timed there.
+Frame skip has not been timed on RDNA2 or on integrated graphics.
 
 ## Limits of the lossy builds
 
@@ -250,27 +282,27 @@ has not been timed there.
   strictly. A game with an unusual sequence may skip unevenly, and a game that passes no jitter
   never skips.
 - **Frame skip is off in Ultra Performance** and on frames the game marks as a reset. In Ultra
-  Performance the lossy build does very little: that model's own passes are left exact.
-- **Frame skip costs more at low real frame rates.** In the moving test scene at a fixed
-  on-screen speed, just-uncovered areas are level with AMD's or better at 60 and 120 FPS and about
-  2 dB below at 30 and 90, and thin structures 1.2 to 2.3 dB below
+  Performance the lossy build is the exact build.
+- **Frame skip costs more at some real frame rates than others.** In the moving test scene at a
+  fixed on-screen speed, just-uncovered areas are above AMD's at 60 and 120 FPS and about 1 dB
+  below at 30 and 90, and thin structures 0.9 to 1.3 dB below at every rate
   ([by frame rate](../research/frame-skip#by-frame-rate)). The shimmer also
   alternates at half the real frame rate, so it is slower and easier to see (that part is
   reasoning, not a measurement). With frame generation on top of a low base rate, the exact
   build is the safer choice.
-- **Thin free-standing things in motion are still the least accurate part** (1.2 to 2.3 dB below
+- **Thin free-standing things in motion are still the least accurate part** (0.9 to 1.3 dB below
   AMD's, see the image above), but no longer the least steady: bars moving against a different
   background change 1.0 to 1.2 times as much from frame to frame as with AMD's shaders, where
   release 5 was at 1.5 to 2.3 times.
 - **A skipped frame trusts the game's motion vectors more than AMD's shaders do.** Where they are
-  wrong or missing (some particles, transparent things), the reused result is taken from the
-  wrong place, and where they say "not moving" a skipped frame shows no change at all, so
-  something that changes without moving (a light, an animated surface) updates on every other
-  frame. Not measured; the test rig's motion vectors are exact.
-- **Little testing.** The current release was run by the author in one game on one RDNA3 card,
-  on Linux; its Windows DLLs were only compared with the Linux files in the test rig, under
-  Proton. Earlier lossy releases ran in two games and with a few testers. The edge-band fix has
-  not been confirmed in the game it was reported in.
+  wrong, the reused result is taken from the wrong place. Where they are missing, the particle
+  tests catch content that differs clearly from the previous picture; something that changes
+  slowly and faintly without moving (a dim light fading, a subtle animated surface) can still
+  update on every other frame.
+- **Little testing.** The current build was run by the author in three games on one RDNA3 card,
+  on Linux. Its Windows DLLs were only compared with the Linux files in the test rig, under
+  Proton (identical output at 4K, 1440p and 1080p, moving scenes and particles). Nobody has
+  run it on Windows, on RDNA2 or on integrated graphics yet.
 
 ## Which to use
 

@@ -18,8 +18,24 @@
 # The stores to the half texture (the recurrent state) stay as they are: sending it through shared
 # memory as well (as the floats it is converted from) measured no faster under vkd3d-proton.
 # Nothing else changes, so the output is bit-exact.
+#
+# POSTPASS_DIRECT (default 1; 0 for the files up to release dll-2026-10-07; as ../../postpass_direct.py does on Linux): the first
+# of the two float textures goes into shared memory as each of its pixels is computed, instead of
+# waiting in registers until the end of the pass, so a thread holds 12 values fewer. Shared memory
+# is free at that point: nothing else uses it before the first flush.
+import os
 import re
 import sys
+
+# POSTPASS_HALF (default 1; 0 for the files up to release dll-2026-10-07): the half texture goes through shared memory as well (16384 bytes for a block),
+# so that none of the pass's scattered stores are left. Its four channels are kept as the floats
+# AMD's code narrows to halves just before each store, and are narrowed just before the store
+# here too: narrowing earlier and widening again does not give the same texels under
+# vkd3d-proton, where the narrowing is left to the store itself. With POSTPASS_DIRECT=1 it is then the half texture that goes in as it
+# is computed, and it is written out first.
+DIRECT = os.environ.get('POSTPASS_DIRECT', '1') == '1'
+HALF = os.environ.get('POSTPASS_HALF', '1') == '1'
+SLOTS = 4 if HALF else 3                       # values per pixel in shared memory
 
 lines = sys.stdin.read().split('\n')
 
@@ -123,7 +139,19 @@ def new(prefix):
     return f'%bb.{prefix}{n[0]}'
 
 
-F = '[3072 x float], [3072 x float] addrspace(3)* @"\\01?bb_ldf@@3PAMA"'
+F = f'[{1024 * SLOTS} x float], [{1024 * SLOTS} x float] addrspace(3)* @"\\01?bb_ldf@@3PAMA"'
+scale = lambda r, v: f'  {r} = shl i32 {v}, 2' if HALF else f'  {r} = mul i32 {v}, 3'      # pixel -> its first value
+
+
+def widen(code, v, ty):
+    """the value as a float: a half widens exactly"""
+    if ty == 'float':
+        return v
+    r = new('w')
+    code.append(f'  {r} = fpext half {v} to float')
+    return r
+
+
 floats_used = 0
 halfs = 0
 for i in range(check_line, end):
@@ -133,10 +161,16 @@ for i in range(check_line, end):
             die('unexpected store: ' + lines[i].strip()[:100])
         continue
     kind, handle, x, y = m[1], m[2], m[3], m[4]
-    if kind == 'f16':
+    if kind == 'f16' and not HALF:
         halfs = halfs + 1
         continue
     values = [m[6], m[7], m[8], m[9]]
+    nc, ty = (4 if kind == 'f16' else 3), 'float'
+    if kind == 'f16':
+        src = [re.match(r'fptrunc float (%[\w.]+) to half$', re.sub(r'\s*;.*$', '', defs.get(v, (0, ''))[1])) for v in values]
+        if not all(src):
+            die('a half texel is not narrowed from floats right before its store: ' + lines[i].strip()[:100])
+        values = [m_[1] for m_ in src]
     a = re.match(r'call %dx\.types\.Handle @dx\.op\.annotateHandle\(i32 216, %dx\.types\.Handle (%[\w.]+), '
                  r'(%dx\.types\.ResourceProperties \{[^}]*\})\)', defs.get(handle, (0, ''))[1])
     if not a or 'createHandleFromBinding' not in defs.get(a[1], (0, ''))[1] or defs[a[1]][0] > check_line:
@@ -145,18 +179,30 @@ for i in range(check_line, end):
         die('a store is conditional: ' + lines[i].strip()[:100])
     key = (a[1], a[2])
     if key not in targets:
-        targets[key] = {'kind': kind, 'slot': floats_used, 'count': 0}
+        targets[key] = {'kind': kind, 'slot': floats_used, 'count': 0, 'nc': nc, 'ty': ty,
+                        'direct': DIRECT and (kind == 'f16' if HALF else floats_used == 0)}
         floats_used += 3
     t = targets[key]
     if t['kind'] != kind:
         die('stores to one texture differ in type')
     if kind == 'f32' and values[3] != values[0]:
         die('float texel is not (x, y, z, x): ' + lines[i].strip()[:100])
-    held.setdefault(key, []).append((x, y, values[:3]))
-    replace[i] = []
     t['count'] += 1
+    if t['direct']:
+        lx, ly, row, pix, base = new('dlx'), new('dly'), new('drow'), new('dpix'), new('dbase')
+        code = [f'  {lx} = sub i32 {x}, %bb.x0', f'  {ly} = sub i32 {y}, %bb.y0', f'  {row} = shl i32 {ly}, 5',
+                f'  {pix} = add i32 {row}, {lx}', scale(base, pix)]
+        for c in range(nc):
+            e, p = new('de'), new('dp')
+            v = widen(code, values[c], ty)
+            code += [f'  {e} = add i32 {base}, {c}', f'  {p} = getelementptr {F}, i32 0, i32 {e}',
+                     f'  store float {v}, float addrspace(3)* {p}, align 4']
+        replace[i] = code
+        continue
+    held.setdefault(key, []).append((x, y, values[:nc]))
+    replace[i] = []
 
-if len(targets) != 2 or any(t['count'] != 4 for t in targets.values()) or halfs != 4:
+if len(targets) != (3 if HALF else 2) or any(t['count'] != 4 for t in targets.values()) or halfs != (0 if HALF else 4):
     die(f'expected 4 stores to each of two float textures and one half texture, found '
         f'{[t["count"] for t in targets.values()]} and {halfs}')
 
@@ -175,7 +221,7 @@ def phi(v, ty):
     return phi_of[(v, ty)]
 
 
-held_phi = {key: [(phi(x, 'i32'), phi(y, 'i32'), [phi(v, 'float') for v in vs]) for x, y, vs in stores]
+held_phi = {key: [(phi(x, 'i32'), phi(y, 'i32'), [phi(v, targets[key]['ty']) for v in vs]) for x, y, vs in stores]
             for key, stores in held.items()}
 
 # The flush, in place of the exit block's "ret void".
@@ -186,21 +232,28 @@ for key in targets:
     h = new('h')
     flush.append(f'  {h} = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle {key[0]}, {key[1]})')
     handles[key] = h
-for t_i, key in enumerate(targets):
+# the texture already in shared memory is written first, before anything else is put there
+for t_i, key in enumerate(sorted(targets, key=lambda k: not targets[k]['direct'])):
+    nc, ty = targets[key]['nc'], targets[key]['ty']
     put, putd = f'bb.put{t_i}', f'bb.putdone{t_i}'
-    flush += ['  call void @dx.op.barrier(i32 80, i32 9)  ; GroupMemoryBarrierWithGroupSync',
-              f'  br i1 {ok}, label %{put}, label %{putd}', '', f'{put}:']
-    for x, y, vs in held_phi[key]:
-        lx, ly, row, pix, base = new('lx'), new('ly'), new('row'), new('pix'), new('base')
-        flush += [f'  {lx} = sub i32 {x}, %bb.x0', f'  {ly} = sub i32 {y}, %bb.y0', f'  {row} = shl i32 {ly}, 5',
-                  f'  {pix} = add i32 {row}, {lx}', f'  {base} = mul i32 {pix}, 3']
-        for c in range(3):
-            e, p = new('e'), new('p')
-            flush += [f'  {e} = add i32 {base}, {c}', f'  {p} = getelementptr {F}, i32 0, i32 {e}',
-                      f'  store float {vs[c]}, float addrspace(3)* {p}, align 4']
-    flush += [f'  br label %{putd}', '', f'{putd}:',
-              '  call void @dx.op.barrier(i32 80, i32 9)  ; GroupMemoryBarrierWithGroupSync',
-              f'  br label %bb.flush{t_i}_0']
+    if key not in held_phi:      # already in shared memory (POSTPASS_DIRECT): wait for every thread's pixels, then write
+        flush += ['  call void @dx.op.barrier(i32 80, i32 9)  ; GroupMemoryBarrierWithGroupSync',
+                  f'  br label %bb.flush{t_i}_0']
+    else:
+        flush += ['  call void @dx.op.barrier(i32 80, i32 9)  ; GroupMemoryBarrierWithGroupSync',
+                  f'  br i1 {ok}, label %{put}, label %{putd}', '', f'{put}:']
+        for x, y, vs in held_phi[key]:
+            lx, ly, row, pix, base = new('lx'), new('ly'), new('row'), new('pix'), new('base')
+            flush += [f'  {lx} = sub i32 {x}, %bb.x0', f'  {ly} = sub i32 {y}, %bb.y0', f'  {row} = shl i32 {ly}, 5',
+                      f'  {pix} = add i32 {row}, {lx}', scale(base, pix)]
+            for c in range(nc):
+                e, p = new('e'), new('p')
+                v = widen(flush, vs[c], ty)
+                flush += [f'  {e} = add i32 {base}, {c}', f'  {p} = getelementptr {F}, i32 0, i32 {e}',
+                          f'  store float {v}, float addrspace(3)* {p}, align 4']
+        flush += [f'  br label %{putd}', '', f'{putd}:',
+                  '  call void @dx.op.barrier(i32 80, i32 9)  ; GroupMemoryBarrierWithGroupSync',
+                  f'  br label %bb.flush{t_i}_0']
     for k in range(4):
         i, lx, ly, px, py, tx, ty, cx, cy, c = (new(p) for p in ('i', 'lx', 'ly', 'px', 'py', 'tx', 'ty', 'cx', 'cy', 'c'))
         wv, ln, a1, a2, a3, b1, b2, b3, pixr, pixi = (new(p) for p in ('wv', 'ln', 'a', 'a', 'a', 'b', 'b', 'b', 'pixr', 'pix'))
@@ -217,15 +270,22 @@ for t_i, key in enumerate(targets):
                   f'  {cx} = icmp ult i32 {tx}, {w2}', f'  {cy} = icmp ult i32 {ty}, {h2}', f'  {c} = and i1 {cx}, {cy}',
                   f'  br i1 {c}, label %bb.write{t_i}_{k}, label %{nxt}', '', f'bb.write{t_i}_{k}:']
         fbase = new('fbase')
-        flush.append(f'  {fbase} = mul i32 {pixi}, 3')
+        flush.append(scale(fbase, pixi))
         vals = []
-        for comp in range(3):
+        for comp in range(nc):
             e, p, v = new('e'), new('p'), new('v')
             flush += [f'  {e} = add i32 {fbase}, {comp}', f'  {p} = getelementptr {F}, i32 0, i32 {e}',
                       f'  {v} = load float, float addrspace(3)* {p}, align 4']
+            if targets[key]['kind'] == 'f16':
+                flush.append(f'  {v}n = fptrunc float {v} to half')
+                v += 'n'
             vals.append(v)
-        flush.append(f'  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle {handles[key]}, i32 {px}, i32 {py}, '
-                     f'i32 undef, float {vals[0]}, float {vals[1]}, float {vals[2]}, float {vals[0]}, i8 15)')
+        if targets[key]['kind'] == 'f16':
+            flush.append(f'  call void @dx.op.textureStore.f16(i32 67, %dx.types.Handle {handles[key]}, i32 {px}, i32 {py}, '
+                         f'i32 undef, half {vals[0]}, half {vals[1]}, half {vals[2]}, half {vals[3]}, i8 15)')
+        else:
+            flush.append(f'  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle {handles[key]}, i32 {px}, i32 {py}, '
+                         f'i32 undef, float {vals[0]}, float {vals[1]}, float {vals[2]}, float {vals[0]}, i8 15)')
         flush.append(f'  br label %{nxt}')
     flush += ['', f'bb.next{t_i}:']
 flush += ['  ret void']
@@ -236,7 +296,7 @@ attr = max(used) + 1 if used else 0
 out = []
 for i, l in enumerate(lines):
     if i == start:
-        out += ['@"\\01?bb_ldf@@3PAMA" = external addrspace(3) global [3072 x float], align 4', '', l,
+        out += [f'@"\\01?bb_ldf@@3PAMA" = external addrspace(3) global [{1024 * SLOTS} x float], align 4', '', l,
                 '  %bb.gx = call i32 @dx.op.groupId.i32(i32 94, i32 0)',
                 '  %bb.gy = call i32 @dx.op.groupId.i32(i32 94, i32 1)',
                 '  %bb.tid = call i32 @dx.op.threadIdInGroup.i32(i32 95, i32 0)',

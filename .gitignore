@@ -10,6 +10,8 @@ build/
 # The prebuilt overrides are meant to be shared (see prebuilt/NOTICE.md).
 !prebuilt/
 !prebuilt/*.spv
+!prebuilt-lossy/
+!prebuilt-lossy/*.spv
 
 # Windows: the prebuilt add-on and its DXIL replacements are shared too (see windows/prebuilt/NOTICE.md).
 !windows/prebuilt/fsr4-overrides/*.dxil
@@ -27,3 +29,5 @@ dll/test/all_*.dll
 dll/test/va
 dll/test/vb
 dll/test/lall/
+
+__pycache__/

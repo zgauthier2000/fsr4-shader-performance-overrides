@@ -7,7 +7,7 @@
 (Two smaller rewrites were added on 2026-10-05 for the other model passes; they are described at
 the end of this section.)
 
-- **Postpass** (`postpass_lds_vkd3d.py`). FSR 4's last pass computes a 2x2 block of pixels per
+- **Postpass** (`postpass_direct.py`, a development of `postpass_lds_vkd3d.py`). FSR 4's last pass computes a 2x2 block of pixels per
   thread and writes each pixel separately into three images, so every store instruction writes
   every other pixel. That scattered pattern is slow on RDNA3. The rewrite keeps the values in
   registers and writes the images one at a time: each image's 32x32 block goes through workgroup

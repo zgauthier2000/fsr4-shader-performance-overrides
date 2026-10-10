@@ -5,7 +5,8 @@
 #
 #   spirv-dis <hash>.spv | postpass_direct.py > out.spvasm ; spirv-as --target-env spv1.3
 #
-# EXPERIMENT (2026-10-05), a variant of ../../postpass_lds_vkd3d.py for GPUs with the smaller register file.
+# The store rewrite the main files use since 2026-10 (a development of postpass_lds_vkd3d.py, which the files up to
+# release dll-2026-10-07 used): needs fewer registers, so GPUs with the smaller register file keep 16 waves.
 #
 # Each invocation computes a 2x2 block of output pixels (the workgroup: 32x32) and writes it into
 # three images one pixel per store; on RDNA3 those scattered stores cost most of the pass. Here
@@ -16,9 +17,9 @@
 # waves run per SIMD. In the flush each wave writes an aligned 8x8 block of pixels per store, which
 # reads about a tenth less memory than writing two rows of 32 (same speed on an RX 7800 XT).
 # Nothing else in the shader changes, so the output is bit-exact.
-# v4 (experiment): as v3, plus four words per pixel for every image (one aligned 16-byte access) and no
+# Also (v4): as v3, plus four words per pixel for every image (one aligned 16-byte access) and no
 # row test when the whole block is flushed at once.
-# v3 (experiment): the first image stored (4 half-precision channels) goes into workgroup memory as soon as
+# and (v3): the first image stored (4 half-precision channels) goes into workgroup memory as soon as
 # each pixel is computed, instead of waiting in registers.
 #
 # Adapted from tools/fsr4cap/postpass_lds.py of bbport (https://github.com/deadinside28/bloodborne_pc,

@@ -569,6 +569,66 @@ Larger outputs were not affected, and still scenes hid it (all motion zero). The
 now at word 2048 in that class. The rig's moving scenes had only been run at 4K output; a 1080p
 run is part of the checks now.
 
+## Content without motion vectors: particles, sparks, embers (release `dll-2026-10-09`)
+
+Reported from two games: in Elden Ring particles updated at half the frame rate, and in the menu of
+Mafia: The Old Country embers over a still picture flickered. Games draw such things into the colour
+image without motion vectors or depth. Reproduced with `SCENE_PARTICLES` in the rig's scene (bright
+dots in the colour only) and the measure `particles.py`: the share of each dot's brightness that is
+shown where the dot truly is, and what is left where it was a frame ago.
+
+Two causes, one on top of the other:
+
+1. **The rest rule.** A dot's pixels have zero stored motion, so a skipped frame took nothing from
+   the new frame there: the dot stayed put and jumped on the next frame.
+2. **The stale weight.** With the rest rule out of the way, the pixel gets the weight the model
+   worked out a frame ago, when that spot was empty background, and that weight says "keep the old
+   picture". A slow dot is still roughly where the model last saw it; a fast one is not.
+
+Skipped frames, camera still, AMD's shaders in the last column:
+
+| Dots | Release `dll-2026-10-07` behaviour | Rest rule off | New frame only (ceiling) | Now | AMD's |
+|---|---|---|---|---|---|
+| Large (3 to 7 px radius), fast | 70% | 96% | | 98% | 98% |
+| Tiny (about 1 px), slow | 67% | 80% | | 77% | 81% |
+| Tiny, fast | 16% | 37% | 79% | 77% | 83% |
+| Tiny, fast, slow pan | 34% | | | 78% | 83% |
+| Tiny, fast, fast pan | 9% | | | 80% | 83% |
+
+Three tests in `skipblend.py` find such pixels; where one fires, the rest rule does not apply:
+
+- **`SB_PART`:** the history lies outside the range of the nine new samples around the pixel. Catches
+  large, clearly different things. Alone: large dots 94%, tiny slow ones no better.
+- **`SB_BRIGHT`:** the resampled new frame differs from the history by more than a quarter of that
+  range. Catches slow things that still overlap their last image. With the first: tiny slow dots 77
+  to 79%, tiny fast ones only 37%, because the pixel then gets the stale weight.
+- **`SB_SAMPLE`:** the nearest new sample (the one of the nine with the largest weight, in the form
+  the shader has prepared it for the mix) lies outside the range of the 3x3 history pixels around
+  the pixel. The pixel then takes the new frame by how far outside the sample is. This is the one
+  that works for fast small things, at rest and in motion.
+
+Why the third test and not a simpler one: taking the new frame in proportion to how much the
+resampled frame differs from the history fixed the dots (78%) but gave two to three times AMD's
+shimmer on still detail (flicker at rest 0.145 to 0.179 against 0.110), because the resampled frame
+is always blurrier than the accumulated picture around fine detail. A sample is one point of the
+scene; for unchanged content it lies within the range of the history right around it however fine
+the detail. Reading the sample straight from the input texture does not work: the shader converts
+the samples before mixing, and the raw value fired everywhere.
+
+What it costs, same build with and without the three tests (4K Balanced):
+
+| | Without | With | AMD's |
+|---|---|---|---|
+| Flicker at rest on fine detail | 0.108 | 0.109 | 0.110 |
+| Frame-to-frame change, thin vertical detail at rest | 0.366 | 0.377 | 0.364 |
+| Still picture | 43.95 dB | 44.06 dB | 44.31 dB |
+| Shadow of the Tomb Raider, 4K Balanced (single runs) | 18688 frames, 2.12 ms | 18565 frames, 2.15 ms | |
+
+The moving scene, the frame-rate sweep, the still camera with moving objects, the ghost measure and
+the 1080p scene are unchanged within noise. The test reads eight more history pixels per output
+pixel on skipped frames. Checked by eye in both games. The rig's dots are a guess at what games
+draw; fainter particles may be caught less reliably.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
