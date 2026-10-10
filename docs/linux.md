@@ -30,7 +30,7 @@
 
 The [`prebuilt/`](../prebuilt) folder holds overrides for every normal version of the two shaders
 in AMD's DLL version 4.1.1.2740: every output size, every preset, and every way a game can set up
-exposure and colour space, and for the other model passes that have something to rewrite (189
+exposure and color space, and for the other model passes that have something to rewrite (189
 files in all: 48 postpass, 90 prepass, 6 pass 11, 45 other model passes; see
 [shader variants](variants.md)).
 

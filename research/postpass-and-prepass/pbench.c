@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Times the FSR 4.1.1 prepass as dumped from vkd3d-proton and compares variants (4K output).
 //   ./pbench a.spv [b.spv ...]     (sampled images moved to set 1 binding 0, see prep.sh)
-// Inputs: constant colour/history, constant depth, small constant motion, pseudo-random weights.
+// Inputs: constant color/history, constant depth, small constant motion, pseudo-random weights.
 // Each variant runs from the same scratch buffer; the reprojected image and the scratch buffer
 // are read back and compared with the first variant's, then the pass is timed in a long burst.
 #define main postpass_bench_main

@@ -50,7 +50,7 @@ To undo it, delete the add-on file and the folder.
 `prebuilt/fsr4-overrides/` holds a replacement for every normal version of the two shaders in
 AMD's DLL 4.1.1.2740: all 48 versions of the postpass and all 6 of model pass 11, each named after
 the hash in the original shader's header. Which one a game uses depends on its output size, the
-preset and how it sets up exposure and colour space; see [shader variants](../docs/variants.md).
+preset and how it sets up exposure and color space; see [shader variants](../docs/variants.md).
 
 All 183 (54 until 2026-10-05, when the model passes' output-scaling rewrite and then the prepass rewrite were added) were built from the DLL's own copies of the shaders (`../dll/extract_shaders.py`, then
 `dxil/build_dxil_overrides.sh`), validated and signed by Microsoft's DXC, and checked under

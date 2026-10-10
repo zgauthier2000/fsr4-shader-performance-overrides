@@ -17,7 +17,7 @@ EXACT = [REST + 2.99] * 8
 LOSSY = [REST + (2.9 if i % 2 == 0 else 1.2) for i in range(8)]
 REFRESH = 1000 / 120
 YMAX = 10.0
-ONBAR = '#0b0b0b'      # text set on the lossy colour
+ONBAR = '#0b0b0b'      # text set on the lossy color
 
 
 def text(x, y, s, t, size=12, fill='ink2', anchor='start', weight=None):
@@ -25,7 +25,7 @@ def text(x, y, s, t, size=12, fill='ink2', anchor='start', weight=None):
     return f'<text x="{x:.1f}" y="{y:.1f}" {FONT} font-size="{size}"{w} text-anchor="{anchor}" fill="{t[fill]}">{s}</text>'
 
 
-def panel(x0, title, sub, vals, colour, t, labels=None):
+def panel(x0, title, sub, vals, color, t, labels=None):
     top, bot, pw = 118, 318, 316
     y = lambda v: bot - (bot - top) * v / YMAX
     o = [text(x0, 84, title, t, 14, 'ink', weight=600), text(x0, 102, sub, t, 12, 'ink2')]
@@ -35,7 +35,7 @@ def panel(x0, title, sub, vals, colour, t, labels=None):
     bw, gap = 26, 9
     for i, v in enumerate(vals):
         x = x0 + 36 + i * (bw + gap)
-        o.append(f'<path d="M{x},{bot} V{y(v) + 4:.1f} Q{x},{y(v):.1f} {x + 4},{y(v):.1f} H{x + bw - 4} Q{x + bw},{y(v):.1f} {x + bw},{y(v) + 4:.1f} V{bot} Z" fill="{t[colour]}"/>')
+        o.append(f'<path d="M{x},{bot} V{y(v) + 4:.1f} Q{x},{y(v):.1f} {x + 4},{y(v):.1f} H{x + bw - 4} Q{x + bw},{y(v):.1f} {x + bw},{y(v) + 4:.1f} V{bot} Z" fill="{t[color]}"/>')
         if labels and i < 2:      # what kind of frame, written up the bar
             o.append(f'<text transform="translate({x + bw / 2 + 4:.1f},{bot - 10}) rotate(-90)" {FONT} font-size="11" font-weight="600" fill="{ONBAR}">{labels[i]}</text>')
         if i < 2 or not labels:

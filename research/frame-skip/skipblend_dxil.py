@@ -127,7 +127,7 @@ out = L[:e1] + head
 
 def samples_w(cur):
     """as samples(), but (value, weight) pairs"""
-    m = re.match(r'fdiv fast float (%[\w.]+), %[\w.]+$', defs.get(cur, '')) or sys.exit('skipblend_dxil: the resampled colour is not a quotient')
+    m = re.match(r'fdiv fast float (%[\w.]+), %[\w.]+$', defs.get(cur, '')) or sys.exit('skipblend_dxil: the resampled color is not a quotient')
     out, todo = [], [m[1]]
     while todo:
         t = todo.pop(); f = re.match(r'fmul fast float (%[\w.]+), (%[\w.]+)$', defs.get(t, ''))
@@ -213,8 +213,8 @@ def part(k, curs, h, at):
 
 
 def samples(cur):
-    """The nine sample values (one channel) that the resampled colour `cur` = sum(value * weight) / sum(weight) is made of."""
-    m = re.match(r'fdiv fast float (%[\w.]+), %[\w.]+$', defs.get(cur, '')) or sys.exit('skipblend_dxil: the resampled colour is not a quotient')
+    """The nine sample values (one channel) that the resampled color `cur` = sum(value * weight) / sum(weight) is made of."""
+    m = re.match(r'fdiv fast float (%[\w.]+), %[\w.]+$', defs.get(cur, '')) or sys.exit('skipblend_dxil: the resampled color is not a quotient')
     vals, node = [], m[1]
     def term(t):
         f = re.match(r'fmul fast float (%[\w.]+), (%[\w.]+)$', defs.get(t, ''))

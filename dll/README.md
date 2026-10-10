@@ -36,7 +36,7 @@ Not for RDNA4. **All released DLLs are built with it** since release `dll-2026-1
 OptiScaler displays, so that a patched DLL can be told from AMD's and the builds from each other.
 The released DLLs use `4.1.1-cyboman` (RX 7000 and RX 6000 cards) and `4.1.1-igpu-cyboman` (integrated graphics and
 handhelds), and `4.1.1-lossy-cyboman` and `4.1.1-igpu-lossy-cyboman` for the opt-in versions that change the image
-([exact and lossy compared](../docs/exact-vs-lossy.md)). Up to release `dll-2026-10-07` there were four flavours with
+([exact and lossy compared](../docs/exact-vs-lossy.md)). Up to release `dll-2026-10-07` there were four flavors with
 the names `4.1.1-r3-`, `-r2-`, `-r2c-` and `-ig-cyboman` ([earlier releases](../docs/changelog.md)).
 
 Then, in the game folder (wherever
@@ -89,7 +89,7 @@ with the patched postpass running in each.
 | 640x360 | 1920x1080 | identical |
 
 [`test/run_all_variants.sh`](test/run_all_variants.sh) does the same for every combination of
-output size, model, exposure and colour-space setup that selects a different shader: 48
+output size, model, exposure and color-space setup that selects a different shader: 48
 combinations, all identical, with both replaced shaders confirmed running in each.
 
 ## Things to know

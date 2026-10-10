@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # gen_motion.py <truth.npy from gen_inputs.py> <out dir> <frames> <keep> [mv sign, default 1]
-# Inputs for the moving scene of motion_scene.py: per frame colour (RGBA16F), motion vectors
+# Inputs for the moving scene of motion_scene.py: per frame color (RGBA16F), motion vectors
 # (RG16F, render pixels, pointing from a pixel to where it was in the previous frame), depth (R32F)
 # and jitter; and the true 4K image of the last <keep> frames (truth_NNN.npy).
 import sys, os, numpy as np

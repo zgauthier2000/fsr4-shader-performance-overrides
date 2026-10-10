@@ -121,8 +121,8 @@ Five repairs keep the rest honest (the fifth is the one just described):
 |---|---|
 | **Shimmer on fine detail.** The reused result was worked out for the previous frame's camera jitter, so it gives too much weight to the new frame in pixels whose nearest sample has moved away. | The previous jitter is carried over to the skipped frame, and the new frame's weight is lowered where its nearest sample is now farther from the pixel. |
 | **A dark band at the screen edge** for one frame when the camera starts to turn. The strip that scrolls in has no history, and the reused result still says "mostly history". | Where the history is far darker than the new frame, the new frame is used alone. The band is gone in the test scene. |
-| **A smear behind moving objects.** Where something has just been uncovered, the reused result keeps a history that is out of date. | The history is limited to the colour range of the new frame's samples around the pixel. |
-| **What is left of that smear.** The colour limit cannot tell an outdated history from a valid one of a similar colour. | A pixel whose content was hidden a frame ago behind something nearer that moves differently takes the new frame alone. Since release `dll-2026-10-07` this is looked up exactly: the prepass records which surface was at each spot a frame ago. Release `dll-2026-10-06.6` guessed where the object was, and left a second outline beside characters when the camera turned fast around them. |
+| **A smear behind moving objects.** Where something has just been uncovered, the reused result keeps a history that is out of date. | The history is limited to the color range of the new frame's samples around the pixel. |
+| **What is left of that smear.** The color limit cannot tell an outdated history from a valid one of a similar color. | A pixel whose content was hidden a frame ago behind something nearer that moves differently takes the new frame alone. Since release `dll-2026-10-07` this is looked up exactly: the prepass records which surface was at each spot a frame ago. Release `dll-2026-10-06.6` guessed where the object was, and left a second outline beside characters when the camera turned fast around them. |
 
 ## What the lossy builds cost, measured
 
@@ -191,38 +191,61 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 
 ## What the difference looks like
 
-> The crops and the table in this section were made with the lossy build of release `dll-2026-10-07`.
-> The current build is closer to AMD's in the still picture and equal within noise in the moving ones;
-> they have not been redrawn.
-
-Pieces of the test rig's 4K output, exact files against the current lossy build. The exact files
+Pieces of the test rig's 4K output with three builds side by side: the exact files, the lossy
+build of the previous release (`dll-2026-10-07`) and this release's lossy build. The exact files
 give the same bytes as AMD's shaders, so their panels are also AMD's picture. **These are the
-places where the two differ most, enlarged;** over a whole frame the differences are far smaller,
-and each caption gives the whole-frame figure. The images are made by
-[`img/make_comparison_crops.py`](img/make_comparison_crops.py) from rig output.
+places where the builds differ most, enlarged;** over a whole frame the differences are far
+smaller, and each caption gives the whole-frame figure. The places are picked by the script from
+the data, not by hand: [`img/make_comparison_crops.py`](img/make_comparison_crops.py).
 
 **At rest.** The largest difference in a still frame is on thin structures. Over the whole frame
-the two differ by 0.14 of 255 on average.
+this release differs from the exact files by 0.12 of 255 on average, the previous one by 0.14;
+at the spot where the previous release was furthest off, 0.67 against 0.71.
 
-<img src="img/cmp-still.png" width="760" alt="Still scene, a 90 by 90 pixel piece of the 4K output enlarged four times, at the spot where the exact files and the lossy build differ most: the true image, the exact files, the lossy build, and their difference amplified 16 times. The pictures look alike; the difference image shows faint traces along thin rails and edges. Whole-frame mean difference 0.14 of 255.">
+<img src="img/cmp-still.png" width="760" alt="Still scene, a 90 by 90 pixel piece of the 4K output enlarged four times, at the spot where the previous lossy release differed most from the exact files: the true image, the exact files, the lossy build of release dll-2026-10-07 and this release's lossy build, and under the two lossy panels their difference from the exact files amplified sixteen times: 0.71 and 0.67 of 255. Thin railings look slightly softer in both lossy panels.">
 
 **Shimmer at rest.** How much each pixel changes between consecutive frames when nothing moves.
-In this piece, the worst for the lossy build, it changes 0.053 of 255 per frame against 0.040
-(release 6: 0.064). Over the whole frame the lossy build changes less than the exact files (0.033
-against 0.037), because flat areas are steadier; on fine detail alone the two are level.
+The piece shown is the worst one for a lossy build, and it is worse in this release than in the
+previous one: 0.157 of 255 per frame against 0.111, with the exact files at 0.126. That is the
+price of the particle handling: where a new sample falls outside what the previous picture shows
+around it, the pixel now takes it. Over the whole frame all three are close (exact 0.037,
+previous release 0.033, this release 0.036), and on fine detail overall this release is level
+with AMD's (0.109 against 0.110).
 
-<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still scene, and maps of how much each pixel changes from frame to frame with the exact files (mean 0.040 of 255) and with the lossy build (0.053). The lossy map shows somewhat more scattered bright specks. Whole frame: exact 0.037, lossy 0.033.">
+<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still scene, and maps of how much each pixel changes from frame to frame with the exact files (mean 0.126 of 255), the lossy build of release dll-2026-10-07 (0.111) and this release's lossy build (0.157). The maps look alike; the last one is slightly brighter on the finest detail.">
 
 **In motion, on a skipped frame.** Camera panning as if at 60 FPS. Thin bars in front of a moving
-background are where frame skip is weakest: in the lossy panel the bars are a little rougher. The edge a moving block has just uncovered is slightly rougher. Whole frame, the error
-against the true image is 1.19 of 255 against 1.14.
+background are where frame skip is weakest: in both lossy panels the bars are a little rougher
+(error 3.0 of 255 in this release, 3.1 in the previous one, 2.4 with the exact files). The edge a
+moving block has just uncovered is the same in both lossy builds (1.3 against 1.0). Whole frame,
+the error against the true image is 1.17 of 255 in this release, 1.19 in the previous one and
+1.14 with the exact files.
 
-<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy build skips the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, lossy build and their difference amplified 8 times. First: thin vertical bars in front of a moving background; in the lossy build the bars are rougher near the bottom (error against the true image 3.1 of 255, exact 2.4). Second: the edge a moving block has just uncovered; slightly rougher in the lossy build (1.3 against 1.0). Whole frame: lossy 1.19, exact 1.14 of 255.">
+<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy builds skip the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Thin dark bars in front of a moving background: error 2.4, 3.1 and 3.0 of 255. The edge a moving block has just uncovered: 1.0, 1.3 and 1.3.">
+
+**Particles without motion vectors, on a skipped frame.** This is where the two lossy builds
+differ most. Games draw sparks and embers into the picture without telling FSR that they move.
+The previous release kept them where they had been a frame ago, or showed them dimmed, on every
+other frame; this release takes them from the new frame.
+
+<img src="img/cmp-particles.png" width="760" alt="Particles drawn without motion vectors on a skipped frame, camera still, two 72 by 72 pixel pieces enlarged five times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Tiny fast sparks: the previous release shows one of three sparks displaced and one nearly gone (error 3.3 of 255); this release shows all three in place, slightly blocky (1.0; exact files 0.8). Larger particles: the previous release shows them displaced and broken up (15.1); this release shows them in place with thin seams across them (1.6; exact files 0.7).">
+
+- **In place, not yet clean.** In this release's panels the sparks are a little blocky and the
+  larger particles have thin seams across them. Neighboring pixels are judged one by one, and
+  some take the new frame while the one beside them keeps part of the old picture. At normal
+  size and in motion this was not visible in the two games it was checked in; enlarged five
+  times on a still frame it is.
+- The numbers behind this, for more kinds of particle and with the camera moving, are in
+  [the table above](#what-the-lossy-builds-cost-measured).
 
 **Ghosting beside moving objects.** A ghost is an object's image of a frame ago showing through
 where the object no longer is. With frame skip the risk is on skipped frames, in the area an
 object has just uncovered: the history there still shows the object, and it has to be thrown away.
 The lossy build does that by looking up which surface was at each spot a frame ago.
+
+The table and the image below were made with the lossy build of release `dll-2026-10-07`, which
+introduced this lookup; cases measured with this release, including two that are not at AMD's
+level, are in [the section above](#what-the-lossy-builds-cost-measured).
 
 The table gives the error against the true image, on skipped frames, exactly where an object's
 old image would land if the history were shown unchanged. "Outline" is the object's edge,
@@ -241,7 +264,7 @@ old image would land if the history were shown unchanged. "Outline" is the objec
 | still camera / 20,0 | thin bars | 0.65 | 0.73 | 12% more |
 | 12,6 / −6,6 (the standard moving scene) | thin bars | 0.77 | 0.86 | 12% more |
 
-- **No second image.** In all ten cases the lossy build is within 0.12 of an 8-bit step of
+- **No second image in these ten cases.** The lossy build is within 0.12 of an 8-bit step of
   AMD's shaders. These are errors of well under one step of 255: nothing to see.
 - **For comparison, release `dll-2026-10-06.6`** scored 1.1 to 3.8 on the outlines and 1.3 to
   4.3 on the thin bars in the same cases, two to seven times AMD's, and that was visible: a

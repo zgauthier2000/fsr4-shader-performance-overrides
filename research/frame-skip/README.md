@@ -122,7 +122,7 @@ AMD's 0.110 with the same list: nearly all of the extra flicker was gone.
 
 On a skipped frame `a` is the one worked out for the frame before, whose samples fell elsewhere.
 A pixel that had a sample on it then, and so a low `a`, takes as much of the new frame now, when
-its nearest sample is farther away and the resampled colour is less reliable.
+its nearest sample is farther away and the resampled color is less reliable.
 
 **The correction.** On a skipped frame, with Dn and Dp the squared distance (in render pixels)
 from the pixel to its nearest sample now and in the frame the model last ran for:
@@ -222,7 +222,7 @@ that frame, against the true image:
 The same in the opposite direction and at 4K Balanced, 4K Quality, 1440p Quality and 1080p Quality.
 
 **The guard.** On a skipped frame, where the history is at most a tenth of the resampled new
-frame in every colour channel, the postpass outputs the new frame alone.
+frame in every color channel, the postpass outputs the new frame alone.
 
 - Testing for exactly black history does nothing: the off-screen history is not exactly zero.
 - A limit of a tenth leaves everything else as it was: flicker at rest is unchanged at the three
@@ -242,9 +242,9 @@ model last ran: behind a moving object the reused result still says "keep the hi
 history there is out of date.
 
 **The clamp.** The postpass already has the nine samples of the new frame around each output
-pixel. On a skipped frame the history is limited, per colour channel, to the range of those nine
+pixel. On a skipped frame the history is limited, per color channel, to the range of those nine
 samples, widened by half the range on either side. A history value that no longer fits the new
-frame is pulled to a plausible colour before it is mixed in. This is neighbourhood clamping as
+frame is pulled to a plausible color before it is mixed in. This is neighbourhood clamping as
 ordinary temporal anti-aliasing does it, applied only on the frames the model did not run for.
 
 | Range widened by | Flicker at rest, fine detail | Still picture | Just-uncovered at 60 FPS, against AMD's |
@@ -269,7 +269,7 @@ against 0.678 ms for release 3; without the branch the clamp cost 0.05 ms on eve
 branched form gives byte-identical output to the unbranched one in the 12 combinations compared.
 
 **A build mistake worth recording.** The first clamp build covered only 36 of the 48 postpass
-versions: the 12 that handle colour without the tone curve did not match the pattern the tool
+versions: the 12 that handle color without the tone curve did not match the pattern the tool
 looked for, and the build script carried on, leaving them with no correction at all. The
 DLL-against-Linux comparison still passed, because both sides were missing the same thing. The
 tool now finds the samples from the weighted sum itself, and the build stops if any version
@@ -572,9 +572,9 @@ run is part of the checks now.
 ## Content without motion vectors: particles, sparks, embers (release `dll-2026-10-09`)
 
 Reported from two games: in Elden Ring particles updated at half the frame rate, and in the menu of
-Mafia: The Old Country embers over a still picture flickered. Games draw such things into the colour
+Mafia: The Old Country embers over a still picture flickered. Games draw such things into the color
 image without motion vectors or depth. Reproduced with `SCENE_PARTICLES` in the rig's scene (bright
-dots in the colour only) and the measure `particles.py`: the share of each dot's brightness that is
+dots in the color only) and the measure `particles.py`: the share of each dot's brightness that is
 shown where the dot truly is, and what is left where it was a frame ago.
 
 Two causes, one on top of the other:

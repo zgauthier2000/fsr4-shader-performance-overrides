@@ -31,10 +31,10 @@ Found by running AMD's DLL with each option:
 |---|---|---|---|
 | Output size | up to 1080p; above 1080p up to 4K; above 4K | 3 | 3 |
 | Model | Ultra Performance; every other preset | 2 | 2 |
-| Exposure and colour space, as the game sets FSR up | 8 combinations, below | 8 | 1 |
+| Exposure and color space, as the game sets FSR up | 8 combinations, below | 8 | 1 |
 | | | 48 | 6 |
 
-The 8 combinations: automatic exposure on or off, each with the input colour declared as linear,
+The 8 combinations: automatic exposure on or off, each with the input color declared as linear,
 as non-linear without saying which, as sRGB, or as PQ. High dynamic range, the motion-vector and
 depth options, dynamic resolution, sharpening and native-resolution anti-aliasing do not change
 which postpass or pass 11 runs.
@@ -46,7 +46,7 @@ which postpass or pass 11 runs.
   AMD's postpass.
 - **The prepass (since 2026-10-05):** 90 versions, 30 for each output-size class. Which one a game
   uses depends on five context options (display-resolution motion vectors, jitter cancellation,
-  inverted depth, auto exposure, non-linear colour space) and the colour-space dispatch flags. The
+  inverted depth, auto exposure, non-linear color space) and the color-space dispatch flags. The
   DLL replaces all 90 and `prebuilt/` has all 90 (collected by running FSR 4 in every combination
   of those options at the three size classes). `build_override.sh` rewrites the one in your dump.
 - **The other model passes (since 2026-10-05):** two more exact rewrites apply to model passes

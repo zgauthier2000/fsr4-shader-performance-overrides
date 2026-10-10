@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Runs AMD's FSR 4.1.1 DLL under Proton in every combination that selects a different postpass or
-# pass 11 (3 output-size classes x 2 models x 8 exposure and colour-space setups = 48), first
+# pass 11 (3 output-size classes x 2 models x 8 exposure and color-space setups = 48), first
 # unchanged and then patched by ../patch_upscaler_dll.py, and compares the output images byte for
 # byte. A shader dump of each run shows which versions ran and that both were replaced.
 #

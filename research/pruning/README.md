@@ -75,7 +75,7 @@ Added 2026-10-05, to measure what the still scene cannot: stability in motion.
   (one half texture, one half 2-pixel diagonal stripes) and a railing of 3-pixel bars 24 pixels
   apart with see-through gaps. Every speed is a whole number of output pixels, so a point of the
   scene falls on a pixel centre in every frame and frames can be compared exactly.
-- **Inputs** (`gen_motion.py`): per frame, jittered colour at 2260x1272, motion vectors (from each
+- **Inputs** (`gen_motion.py`): per frame, jittered color at 2260x1272, motion vectors (from each
   pixel to where it was in the previous frame, in render pixels), depth (background 0.9, objects
   0.3) and jitter; and the true 4K image of the last frames.
 - **Run** (`fsr4img.c` with `FSR_IMG_DIR` and `FSR_KEEP=8`): 40 frames through AMD's DLL, the last
@@ -120,5 +120,5 @@ output size has finer detail per pixel, as in a game. Without `SCENE` everything
 | `gen_inputs.py` | jittered render-resolution frames and `jitter.txt` from a 4K image; jitter signs `-1 -1` match FSR's convention (44.1 dB against the image; the other three sign pairs give 37.8 to 40.3 dB) |
 | `fsr4img.c` | the test program: feeds those frames to AMD's DLL and writes the output image (the last N frames with `FSR_KEEP=N`) |
 | `metric.py` | PSNR and pixel-error statistics between two outputs, or an output and the ground truth |
-| `motion_scene.py`, `gen_motion.py` | the moving scene and its inputs (colour, motion vectors, depth, jitter, true frames) |
+| `motion_scene.py`, `gen_motion.py` | the moving scene and its inputs (color, motion vectors, depth, jitter, true frames) |
 | `metric_motion.py` | per-region error and frame-to-frame change for the moving scene |

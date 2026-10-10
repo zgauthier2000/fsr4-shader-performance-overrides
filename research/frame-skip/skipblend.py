@@ -17,7 +17,7 @@
 # stale a would leave a dark band there for one frame.
 # History clamp: on a skipped frame the history is limited to the range of the nine samples of
 # the new frame around the pixel (per channel, widened by SB_CLAMP times that range). Where the
-# picture has changed since the model last ran, the stale a then mixes in a plausible colour
+# picture has changed since the model last ran, the stale a then mixes in a plausible color
 # instead of an outdated one.
 # All of this sits in one branch per output pixel that is taken on skipped frames only.
 # Frames that ran the model keep the model's values bit for bit.
@@ -309,7 +309,7 @@ n_guard = 0
 
 def samples_w(cur):
     """as samples(), but (value, weight) pairs"""
-    m = re.match(r'OpFDiv %float (%\w+) %\w+$', defs.get(cur, '')) or sys.exit('skipblend: the resampled colour is not a quotient')
+    m = re.match(r'OpFDiv %float (%\w+) %\w+$', defs.get(cur, '')) or sys.exit('skipblend: the resampled color is not a quotient')
     out, todo = [], [m[1]]
     while todo:
         t = todo.pop(); f = re.match(r'OpFMul %float (%\w+) (%\w+)$', defs.get(t, ''))
@@ -324,8 +324,8 @@ def samples_w(cur):
 
 
 def samples(cur):
-    """The nine sample values (one channel) that the resampled colour `cur` = sum(value * weight) / sum(weight) is made of."""
-    m = re.match(r'OpFDiv %float (%\w+) %\w+$', defs.get(cur, '')) or sys.exit('skipblend: the resampled colour is not a quotient')
+    """The nine sample values (one channel) that the resampled color `cur` = sum(value * weight) / sum(weight) is made of."""
+    m = re.match(r'OpFDiv %float (%\w+) %\w+$', defs.get(cur, '')) or sys.exit('skipblend: the resampled color is not a quotient')
     vals, node = [], m[1]
     def term(t):
         f = re.match(r'OpFMul %float (%\w+) (%\w+)$', defs.get(t, ''))
@@ -383,7 +383,7 @@ if not BRANCH:
                     if CLAMP is not None:
                         # on a skipped frame the history is clamped to the range of the nine samples of the new frame
                         # (widened by SB_CLAMP times that range): where the picture changed, the stale weight then
-                        # mixes in a plausible colour instead of an outdated one
+                        # mixes in a plausible color instead of an outdated one
                         a2 = ren[pend['a']]
                         for c in range(3):
                             tc = samples(curs[c]); mn, mx = tc[0], tc[0]
@@ -496,7 +496,7 @@ else:
                     mix = [sub[r] for r in sums]
                     if CLAMP is not None:
                         # the history clamped to the range of the nine samples of the new frame, widened by SB_CLAMP
-                        # times that range: where the picture changed, the stale weight then mixes in a plausible colour
+                        # times that range: where the picture changed, the stale weight then mixes in a plausible color
                         if CLAMPM is not None:
                             code += [f'%sb_slm{k} = OpFMul %float %sm_mag %sm_inv', f'%sb_sln{k} = OpFSub %float %sm_fone %sb_slm{k}',
                                      f'%sb_slp{k} = OpExtInst %float {GLSL} NMax %sb_sln{k} %sm_fz', f'%sb_sle{k} = OpFMul %float %sb_slack %sb_slp{k}']

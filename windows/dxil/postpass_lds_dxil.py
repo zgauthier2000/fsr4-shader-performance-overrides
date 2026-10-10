@@ -9,7 +9,7 @@
 #
 # Each thread computes a 2x2 block of output pixels (the thread group: 32x32) and writes it into
 # three textures one pixel per store. Here the stores to the two float textures (history and
-# output colour) keep their values in registers instead, and after the pass's bounds check the
+# output color) keep their values in registers instead, and after the pass's bounds check the
 # group writes the two textures one after the other: the threads put one texture's 32x32 block
 # into shared memory (x y z per pixel, alpha repeats x: 12288 bytes), and the group writes it out
 # in solid blocks (each wave an aligned 8x8 block of pixels). One texture at a time keeps shared

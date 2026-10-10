@@ -10,7 +10,7 @@ THEMES = {
 }
 FONT = "font-family=\"-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif\""
 W, H = 760, 318
-ROWS = [  # label, what happens to the picture, ms per frame, FPS, colour
+ROWS = [  # label, what happens to the picture, ms per frame, FPS, color
     ("AMD's shaders", 'the reference', 4.16, 97, 'amd'),
     ('Exact DLL', 'same picture, byte for byte', 2.99, 109, 'exact'),
     ('Lossy DLL', 'very close picture, opt-in', 2.15, 120, 'lossy'),

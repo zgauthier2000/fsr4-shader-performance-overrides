@@ -103,7 +103,7 @@ Prepass (`5d9ed7b71cbbcfd0`, the version used with inverted depth), 4K, added 20
 
 | | AMD | Community set | Output |
 |---|---|---|---|
-| Standalone benchmark (constant colour, depth and motion) | 0.495 ms | 0.434 ms (12% less) | identical |
+| Standalone benchmark (constant color, depth and motion) | 0.495 ms | 0.434 ms (12% less) | identical |
 | AMD's whole pipeline, random inputs, 4K and 1440p output | | | differs |
 | AMD's whole pipeline, the moving test scene | | | differs: 93% of pixels, 55.8 dB against AMD's frames, single pixels by up to 72 of 255 |
 
@@ -306,7 +306,7 @@ image.
    it while the frame-to-frame change stays within a chosen margin of AMD's. On the figures above,
    the postpass pruning is the first thing to drop.
 4. **More scenes, and real ones.** One synthetic scene is thin evidence. The best input would be
-   frames captured from a game (colour, motion vectors, depth, jitter), which the test program
+   frames captured from a game (color, motion vectors, depth, jitter), which the test program
    could replay.
 5. **Numbers from RDNA2.** Everything here was timed on an RX 7800 XT, where the store rewrites
    already take most of the available gain. The set was made for RDNA2: per-pass timings there,

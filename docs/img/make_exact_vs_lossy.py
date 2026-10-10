@@ -30,7 +30,7 @@ ROWS = [
     ('Lossy build', 'a skipped frame (every other frame)', LOSSY_SKIP, 1.3, 'about 1.3 ms', 'lossy',
      ["The model does not run, and its last result follows the picture's motion. The picture is almost entirely the",
       "previous one moved along with the scene; the new frame counts for very little, except where the model had asked",
-      "for it. Repairs: the history limited to the new frame's colours around the pixel, less weight where the nearest",
+      "for it. Repairs: the history limited to the new frame's colors around the pixel, less weight where the nearest",
       "sample moved away, and the new frame where the history is nearly black, was hidden behind a moving object, or",
       "where the content changed without motion (particles, sparks).",
       "Where the picture is at rest, nothing is taken from the new frame."]),
@@ -62,7 +62,7 @@ def box(x, y, w, h, label, state, t):
     ink = '#ffffff' if state == 'e' else t['onlossy']
     o = [f'<rect x="{x:.1f}" y="{y}" width="{w:.1f}" height="{h}" rx="4" fill="{fill}"/>',
          f'<text x="{cx:.1f}" y="{cy}" {FONT} font-size="12" font-weight="600" text-anchor="middle" fill="{ink}">{label}</text>']
-    if state == 'l':        # second cue besides the colour: a mark in the corner
+    if state == 'l':        # second cue besides the color: a mark in the corner
         o.append(f'<path d="M{x + w - 10:.1f},{y} H{x + w - 4:.1f} Q{x + w:.1f},{y} {x + w:.1f},{y + 4} V{y + 10} Z" fill="{t["onlossy"]}"/>')
     return o
 

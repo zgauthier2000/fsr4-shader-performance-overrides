@@ -154,7 +154,7 @@ the current downloads are on the front page.
 
 - **The lossy test builds smear much less behind moving objects.** With frame skip, a skipped
   frame reuses a model result that still says "keep the history" where something has just been
-  uncovered. On those frames the history is now limited to the colour range of the new frame's
+  uncovered. On those frames the history is now limited to the color range of the new frame's
   samples around each pixel.
 
   | Moving test scene, 4K Balanced: just-uncovered areas against AMD's shaders | Release 3 | Release 4 |
@@ -293,7 +293,7 @@ the current downloads are on the front page.
   quarter of the result on its own. The prepass takes 10% less time: 0.50 ms down to 0.45 ms at 4K
   on an RX 7800 XT, about 1.7% of FSR 4's time.
 - **In the DLLs now:** all 90 versions of the prepass (it varies with a game's depth, motion-vector
-  and colour options). The DLLs replace 183 shaders. The main DLL was checked in 24 combinations
+  and color options). The DLLs replace 183 shaders. The main DLL was checked in 24 combinations
   covering all output-size classes and six option sets; every one is identical to AMD's.
 - **On Linux:** the prebuilt folder has all 90 prepass versions as well since 19:05 EDT (189 files
   in all), checked in 48 combinations of output size and options, every one identical to AMD's.
@@ -376,7 +376,7 @@ Three changes today. The image is still byte-for-byte the same.
 
 - **Every version of the two shaders is now covered, on Linux and Windows** (the DLL and add-on
   at 14:44 EDT, commit `c5bb214`; the Linux files at 14:55 EDT, commit `9298321`). AMD's DLL contains 48 versions of the postpass and 6 of pass 11, and which one
-  a game uses depends on its output size, preset, exposure and colour-space setup. Until now only
+  a game uses depends on its output size, preset, exposure and color-space setup. Until now only
   the 10 most common were replaced, so some games got no speedup. All 54 are replaced now, checked
   in all 48 combinations that select a different one. See [shader variants](variants.md).
 - **Model pass 11 writes its output in whole rows** (11:41 EDT, commit `ef57cf2`). It used to

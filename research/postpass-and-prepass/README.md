@@ -36,7 +36,7 @@ writes is out of reach, and why the phased postpass is close to what this pass a
 ### Is it the driver's image layout? Partly, but the rewrite still wins
 
 The driver decides how an image's pixels are arranged in memory (its tiling). To see whether the
-sparse-write penalty comes from that choice, Mesa was patched to force a tiling mode for colour
+sparse-write penalty comes from that choice, Mesa was patched to force a tiling mode for color
 images (`mesa-tiling-override.patch`, Mesa 26.2.3, for this experiment only), and the postpass
 benchmark was run against the patched driver. Output was byte-identical in every case.
 
@@ -65,7 +65,7 @@ Linear tiling applied to some of the images only (the others on the default):
 | history only | 1.70 ms | 0.61 ms |
 | output only | 1.69 ms | 0.61 ms |
 | recurrent state only | 1.87 ms | 0.62 ms |
-| the two read (input colour, reprojected history) | 1.51 ms | 0.81 ms |
+| the two read (input color, reprojected history) | 1.51 ms | 0.81 ms |
 | all five | 0.97 ms | 0.84 ms |
 
 - **The written images carry most of the penalty.** Making only them linear halves AMD's postpass
@@ -79,7 +79,7 @@ Why linear inputs speed AMD's postpass up was narrowed down but not settled:
 
 | Check | Result |
 |---|---|
-| Which input | only the input colour image (read 9 times per pixel): 2.08 to 1.52 ms. The reprojected history (read once per pixel) makes no difference. |
+| Which input | only the input color image (read 9 times per pixel): 2.08 to 1.52 ms. The reprojected history (read once per pixel) makes no difference. |
 | Are the reads themselves faster? | No. AMD's postpass with its stores removed takes 0.47 ms on either layout. The gain only exists while the sparse stores are there. |
 | With the written images linear too | the gain shrinks to about 0.15 ms (1.06 to 0.91 ms) |
 | Where the images sit in memory | no effect: each image shifted by 64 KB, 1 MB and 33 MB, and the linear input by 256 bytes to 32 KB |
@@ -371,7 +371,7 @@ the compiler group the reads, gains 3%. Not shipped.
 ## The prepass
 
 **A caution about the prepass benchmark (2026-10-05).** `pbench.c` feeds the prepass constant
-colour, depth and motion. A rewrite that regroups floating-point sums or shares reciprocals gives
+color, depth and motion. A rewrite that regroups floating-point sums or shares reciprocals gives
 identical output on such inputs and different output on real ones: a community prepass that this
 benchmark calls identical differs in 93% of pixels when run in AMD's pipeline on a moving scene
 (see [community shader set](../community-lossy-set)). "Bit-exact" for the prepass rewrites below

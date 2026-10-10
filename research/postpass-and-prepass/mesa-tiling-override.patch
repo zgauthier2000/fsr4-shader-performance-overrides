@@ -61,11 +61,11 @@ index 9eed327..75f9ea4 100644
                                               &AddrSurfInfoIn.swizzleMode);
           if (r)
              return r;
-+         /* EXPERIMENT: tiling override for colour images. */
++         /* EXPERIMENT: tiling override for color images. */
 +         if (!(surf->flags & RADEON_SURF_Z_OR_SBUFFER) && config->info.samples <= 1) {
 +            static unsigned ac_exp_index;
 +            unsigned idx = ac_exp_index++;
-+            /* AC_FORCE_SWIZZLE_MASK: bit n = apply to the n-th colour image created. */
++            /* AC_FORCE_SWIZZLE_MASK: bit n = apply to the n-th color image created. */
 +            unsigned long mask = getenv("AC_FORCE_SWIZZLE_MASK") ? strtoul(getenv("AC_FORCE_SWIZZLE_MASK"), NULL, 0) : ~0ul;
 +            if (getenv("AC_PRINT_SWIZZLE"))
 +               fprintf(stderr, "ac_surface: #%u %ux%u bpe %u default swizzle %u\n", idx, config->info.width,

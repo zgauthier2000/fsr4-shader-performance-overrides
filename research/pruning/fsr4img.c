@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // fsr4cap.c of bbport (https://github.com/deadinside28/bloodborne_pc, tools/fsr4cap, GPL-2.0-or-later)
-// with an "image" mode added: per-frame colour from img/color_NNN.raw (RGBA16F) and jitter from
+// with an "image" mode added: per-frame color from img/color_NNN.raw (RGBA16F) and jitter from
 // img/jitter.txt, sharpening off; capture hooks stubbed out. If img/motion_NNN.raw (RG16F, render
 // pixels) and img/depth_NNN.raw (R32F) exist they are used for that frame (gen_motion.py writes
 // them); otherwise motion is zero and depth constant.
