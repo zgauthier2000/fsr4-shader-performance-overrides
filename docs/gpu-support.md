@@ -27,8 +27,9 @@ the former `test-rdna2-compact` and `test-igpu` builds are the second.
 
 The Windows postpass also changed in this release: all three of its images now go through shared memory, the recurrent one as it is
 computed. Compiled with Mesa's driver for other chips (not run), it keeps 16 waves on RDNA2, Navi 33 and the Steam Deck's chip, like
-AMD's own; RDNA3 runs it at 16 waves where the previous DLL had 20, and is faster all the same (0.66 against 0.69 to 0.90 ms at 4K
-on the RX 7800 XT). The sections below describe the builds up to release `dll-2026-10-07` and the reports gathered with them.
+AMD's own; RDNA3 runs it at 16 waves where the previous DLL had 20. Timed alone on the RX 7800 XT under Proton the pass is faster all the
+same (0.66 against 0.69 to 0.90 ms at 4K, 0.30 against 0.42 ms at 1440p); timed as a whole upscaler through the DLL, the new and the previous
+exact DLL are equally fast there (3.16 ms at 4K both, 1.46 against 1.43 ms at 1440p). On Windows neither has been timed. The sections below describe the builds up to release `dll-2026-10-07` and the reports gathered with them.
 
 ## Windows
 

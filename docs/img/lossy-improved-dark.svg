@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="372" viewBox="0 0 760 372" role="img" aria-label="What changed in the lossy DLL, measured in the test rig at 4K. Share of a particle drawn without motion vectors that is shown where it truly is, on the frames that skip the model: tiny, fast sparks, 16 percent in the previous release, 77 percent now, 83 percent with AMD's shaders; tiny, slow embers, 67 percent in the previous release, 77 percent now, 81 percent with AMD's shaders; larger particles, 70 percent in the previous release, 98 percent now, 98 percent with AMD's shaders; and how far a still picture is from AMD's: 0.71 dB in the previous release, 0.25 dB now.">
+<rect width="760" height="372" rx="8" fill="#1a1a19"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">The lossy DLL: what changed in this release</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Particles and sparks that games draw without motion information: how much of each is shown</text>
+<text x="24.0" y="70.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">where it really is, on the frames that skip the model (more is better). Gray: the previous release. Dashed line: AMD's shaders.</text>
+<line x1="200.0" y1="92" x2="200.0" y2="258" stroke="#2c2c2a" stroke-width="1"/>
+<text x="200.0" y="274.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0%</text>
+<line x1="285.0" y1="92" x2="285.0" y2="258" stroke="#2c2c2a" stroke-width="1"/>
+<text x="285.0" y="274.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">25%</text>
+<line x1="370.0" y1="92" x2="370.0" y2="258" stroke="#2c2c2a" stroke-width="1"/>
+<text x="370.0" y="274.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">50%</text>
+<line x1="455.0" y1="92" x2="455.0" y2="258" stroke="#2c2c2a" stroke-width="1"/>
+<text x="455.0" y="274.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">75%</text>
+<line x1="540.0" y1="92" x2="540.0" y2="258" stroke="#2c2c2a" stroke-width="1"/>
+<text x="540.0" y="274.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">100%</text>
+<text x="24.0" y="126.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Tiny, fast sparks</text>
+<path d="M200,100 H250.4 Q254.4,100 254.4,104 V114 Q254.4,118 250.4,118 H200 Z" fill="#55544f"/>
+<text x="560.0" y="113.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">16%  before</text>
+<path d="M200,122 H457.8 Q461.8,122 461.8,126 V136 Q461.8,140 457.8,140 H200 Z" fill="#d95926"/>
+<text x="560.0" y="135.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">77%  now</text>
+<text x="736.0" y="124.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#c3c2b7">AMD's: 83%</text>
+<line x1="482.2" y1="97" x2="482.2" y2="143" stroke="#ffffff" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="24.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Tiny, slow embers</text>
+<path d="M200,154 H423.8 Q427.8,154 427.8,158 V168 Q427.8,172 423.8,172 H200 Z" fill="#55544f"/>
+<text x="560.0" y="167.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">67%  before</text>
+<path d="M200,176 H457.8 Q461.8,176 461.8,180 V190 Q461.8,194 457.8,194 H200 Z" fill="#d95926"/>
+<text x="560.0" y="189.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">77%  now</text>
+<text x="736.0" y="178.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#c3c2b7">AMD's: 81%</text>
+<line x1="475.4" y1="151" x2="475.4" y2="197" stroke="#ffffff" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="24.0" y="234.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Larger particles</text>
+<path d="M200,208 H434.0 Q438.0,208 438.0,212 V222 Q438.0,226 434.0,226 H200 Z" fill="#55544f"/>
+<text x="560.0" y="221.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">70%  before</text>
+<path d="M200,230 H529.2 Q533.2,230 533.2,234 V244 Q533.2,248 529.2,248 H200 Z" fill="#d95926"/>
+<text x="560.0" y="243.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">98%  now</text>
+<text x="736.0" y="232.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="end" fill="#c3c2b7">AMD's: 98%</text>
+<line x1="533.2" y1="205" x2="533.2" y2="251" stroke="#ffffff" stroke-width="2" stroke-dasharray="4 3"/>
+<line x1="24" y1="290" x2="736" y2="290" stroke="#2c2c2a" stroke-width="1"/>
+<text x="24.0" y="316.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Still picture: how far from AMD's (less is better)</text>
+<path d="M380,300 H518.0 Q522.0,300 522.0,304 V312 Q522.0,316 518.0,316 H380 Z" fill="#55544f"/>
+<text x="560.0" y="312.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">0.71 dB  before</text>
+<path d="M380,320 H426.0 Q430.0,320 430.0,324 V332 Q430.0,336 426.0,336 H380 Z" fill="#d95926"/>
+<text x="560.0" y="332.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">0.25 dB  now</text>
+<text x="24.0" y="360.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Test rig, 4K output, Balanced, camera still. The exact DLL is not shown: its picture is AMD's, byte for byte.</text>
+</svg>

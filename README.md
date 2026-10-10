@@ -41,12 +41,76 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 **To undo it,** delete the file and rename the `.orig` file back.
 
+## New in this release
+
+> ### Help test it: the timing kit
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 110 MB): unpack, double-click
+> `fsr4time.exe`, wait about five minutes. It times FSR 4 with AMD's shaders and with these DLLs on
+> your graphics card, checks that the exact DLL gives AMD's picture on your machine, and offers to
+> send the result. **Nobody has measured these DLLs on Windows yet; your run would be among the
+> first.** On Linux and the Steam Deck: [the Linux kit](timing-kit).
+> [What the kits do](timing-kit#windows-experimental)
+
+### The lossy DLL shows particles properly, and is closer to AMD's picture
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/lossy-improved-dark.svg">
+  <img src="docs/img/lossy-improved-light.svg" width="760" alt="What changed in the lossy DLL, measured in the test rig at 4K. Share of a particle drawn without motion vectors that is shown where it truly is, on the frames that skip the model: tiny fast sparks, 16 percent in the previous release, 77 percent now, 83 percent with AMD's shaders; tiny slow embers, 67, 77 and 81 percent; larger particles, 70, 98 and 98 percent. How far a still picture is from AMD's: 0.71 dB in the previous release, 0.25 dB now.">
+</picture>
+
+- **Particles, sparks and embers no longer flicker or move at half the frame rate.** Games draw
+  them without telling FSR that they move, and the previous lossy DLL kept them where they had
+  been, or dimmed them, on every other frame. Seen and fixed in Elden Ring and in the menu of
+  Mafia: The Old Country.
+- **The still picture is closer to AMD's.** The lossy DLL no longer simplifies the neural
+  network's arithmetic; it only skips it on every other frame.
+- **It costs about 2% of the previous lossy DLL's speed** (Shadow of the Tomb Raider, 4K: 120 FPS
+  against 122; the exact DLL gives 109, AMD's shaders 97).
+
+The same skipped frame with the previous release and with this one, enlarged five times:
+
+<img src="docs/img/cmp-particles.png" width="760" alt="Particles drawn without motion vectors on a frame that skips the model, camera still, pieces of the 4K output enlarged five times, each shown as the true image, the exact files, the lossy build of the previous release and this release's lossy build. Tiny fast sparks: the previous release shows one displaced and one nearly gone; this release shows all three in place, slightly blocky. Larger particles: the previous release shows them displaced and broken up; this release shows them in place with thin seams across them.">
+
+Enlarged like this, this release's particles are a little blocky and have thin seams; at normal
+size and in motion that was not visible in the games it was checked in. More comparisons, and
+what the lossy DLL still does worse than AMD's: [exact and lossy compared](docs/exact-vs-lossy.md).
+
+### The Windows DLLs: what may be faster, and what is not known
+
+Two things changed inside both DLLs, with the same picture as before:
+
+- **The last pass writes all three of its images in ordered rows.** The previous DLL did that for
+  two of them and left the third to AMD's scattered writes.
+- **The code our rewrites replaced is gone from the file.** The previous DLL left it in and
+  relied on the graphics driver to discard it.
+
+What that is worth depends on the graphics driver, and here is what has and has not been measured:
+
+| | Result |
+|---|---|
+| The last pass timed alone (RX 7800 XT, Linux with Proton) | 0.42 → 0.30 ms at 1440p; at 4K steady at 0.66 ms where it varied between 0.69 and 0.90 |
+| The whole upscaler through the DLL, as a game runs it (same machine) | no difference: 3.16 ms at 4K with both DLLs, 1.46 against 1.43 ms at 1440p, 0.89 ms at 1080p with both |
+| On Windows, any graphics card | **not measured** |
+
+So on the one machine it could be measured on, the new exact DLL is as fast as the previous one in
+practice, not faster. On Windows the shaders are compiled by a different driver, which may or
+may not have handled the leftover code and the scattered writes as well. That is the question the
+[Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) is there to answer: it can time the previous DLL beside the new one if
+you put the old file into a folder of its own under `dlls`.
+
+**Two downloads instead of eight.** One zip for Radeon RX 7000 and RX 6000 graphics cards, one for
+graphics built into the processor; each holds the exact and the lossy DLL. The separate RX 6000
+builds are gone: their fix is in both DLLs now. It cost nothing measurable here; on Windows with
+an RX 7000 card that has not been measured either.
+
+Earlier releases: [changelog](docs/changelog.md).
+
+## What to expect
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
   <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.15 milliseconds, 120 frames per second, very close picture, opt-in. Lower output resolutions and slower cards gain less.">
 </picture>
-
-## What to expect
 
 - **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
   DLL gains little, sometimes nothing you can measure; the lossy DLL still helps there, because it
@@ -88,35 +152,6 @@ RX 7000 cards), so they start on any card. That is why they must not go on an RX
 If the first zip is slower than AMD's file on a small RX 6000 card, try the second one: it differs
 only in one shader that is built smaller. Details: [GPU support](docs/gpu-support.md).
 
-## What's new
-
-**Two downloads instead of eight.** One zip for Radeon RX 7000 and RX 6000 graphics cards, one for
-graphics built into the processor (most laptops, handhelds); each holds the exact and the lossy DLL. The separate RX 6000 builds are
-gone: their fix is now in the main DLL. It cost nothing measurable here (an RX 7800 XT under
-Proton); on Windows with an RX 7000 card that has not been measured yet.
-
-**Exact DLL**
-
-- The Windows DLL's last pass now writes all three of its images in ordered rows, as the Linux
-  files already did. Under Proton on an RX 7800 XT that pass went from 0.42 to 0.30 ms at 1440p
-  and stopped jumping between 0.7 and 0.9 ms at 4K (now 0.66 ms).
-- The DLL no longer carries the code the rewrites replaced. It used to rely on the driver to
-  discard it; whether Windows drivers did was never measured.
-- On Linux, the last pass needs fewer registers, which matters on RX 6000 cards.
-- Output is still AMD's, byte for byte.
-
-**Lossy DLL**
-
-- **Particles, sparks and embers no longer flicker or update at half the frame rate.** Things
-  the game draws without motion information were frozen or dimmed on every other frame. They are
-  now recognized and taken from the new frame. Checked in Elden Ring and in the menu of Mafia:
-  The Old Country.
-- **Closer to AMD's picture.** The lossy DLL no longer simplifies the neural network's
-  arithmetic; it only skips it on every other frame. That costs about 1% of the frame rate and
-  halves the difference in a still picture.
-
-Earlier releases: [changelog](docs/changelog.md).
-
 ## Linux: a launch option instead of the DLL
 
 On Linux you can leave AMD's DLL in place and give the game the replacement shaders directly.
@@ -153,12 +188,6 @@ that does the same without touching the DLL: [`windows/`](windows).
 **In some games OptiScaler's upscaler time is only reliable with the frame rate uncapped.** If
 nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL version
 4.1.1.2740; other versions have different shaders. See [shader variants](docs/variants.md).
-
-A timing kit for testers measures every FSR 4 pass on your graphics card without a game, on Linux
-and the Steam Deck: [instructions](timing-kit). **Experimental: a timing kit for Windows**
-([download](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip), 110 MB) times the whole upscaler with AMD's shaders and with these DLLs and
-checks that the exact DLL gives AMD's picture on your machine. It has only been run under Proton so
-far; reports from Windows are what it is for. [About it](timing-kit#windows-experimental).
 
 ## Good to know
 
