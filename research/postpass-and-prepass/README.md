@@ -150,6 +150,9 @@ cannot know which images a shader will write sparsely.
 
 ## A candidate for the smaller register file: one image straight to workgroup memory
 
+> Since release `dll-2026-10-09` this is the store rewrite the main files use, on Linux (`postpass_direct.py`) and, in its
+> DXIL form, in the DLLs ([below](#the-windows-dlls-last-pass-and-code-left-in-the-files-release-dll-2026-10-09)).
+
 Added 2026-10-05, after the first [timing-kit results](../../timing-kit/RESULTS.md) from an
 RX 6700M and a Steam Machine. On those chips the shipped postpass is about a third faster than
 AMD's at 4K but stays 0.2 ms above what the shader costs with no stores at all (1.32 against
@@ -480,6 +483,45 @@ had first been run with an override folder had the overridden shader cached unde
 key, so the later "AMD" run was not AMD's. The rig's scripts now run with
 `VKD3D_SHADER_CACHE_PATH=0`. A cached exact shader could in principle make an exactness check
 pass trivially, so the 28 comparisons above were all run with the cache off.
+
+## The Windows DLL's last pass, and code left in the files (release `dll-2026-10-09`)
+
+Two changes to the DXIL shaders in the DLLs. Both leave the output as it was (24 of 24 comparisons with AMD's DLL, byte for byte,
+720p to 5K output, still and moving, under Proton).
+
+**All three images through shared memory.** Up to release `dll-2026-10-07` the DLL's last pass sent its two float images
+through thread-group shared memory and wrote the third, the recurrent state (half precision), with AMD's scattered stores.
+`postpass_lds_dxil.py` now routes that one too (`POSTPASS_HALF`), and puts it into shared memory as each pixel is computed
+(`POSTPASS_DIRECT`), as [`postpass_direct.py`](../../postpass_direct.py) does on Linux, so that a thread holds no more values
+than before.
+
+- **A trap on the way:** the half values must stay the floats AMD's code narrows just before each store, and be narrowed
+  just before the store here too. Narrowing early and widening again for shared memory gave a recurrent image that differed in
+  the last bit of nearly every pixel under vkd3d-proton (0 of 48 comparisons identical), where the narrowing is left to the
+  store itself.
+- **Waves per SIMD, compiled with Mesa for each chip** (not run):
+
+  | | AMD's | DLL up to `dll-2026-10-07` | All three images, not direct | This release |
+  |---|---|---|---|---|
+  | RDNA2 (Navi 21), Navi 33, Steam Deck | 16 | 16 | 12 | 16 |
+  | RDNA3 (Navi 31) | 24 | 20 | 16 | 16 |
+
+- **Timed alone** (the DLL's last pass as vkd3d-proton translates it, RX 7800 XT): 0.42 to 0.43 ms before and 0.29 to 0.30 ms
+  now at 1440p output; 0.69 to 0.90 ms before (it varied from run to run) and 0.65 to 0.66 ms now at 4K; 0.17 ms both at 1080p.
+  The same as the Linux file now.
+- **Timed as a whole upscaler through the DLL**, as a game runs it (the [Windows timing kit](../../timing-kit#windows-experimental)
+  under Proton, same card): no difference. 3.16 ms at 4K with both DLLs, 1.46 against 1.43 ms at 1440p, 0.89 ms at 1080p with both.
+  A pass timed alone does not predict the whole upscaler; the slow state of the previous last pass did not occur in that flow.
+- **On Windows it is not measured.** Another driver compiles the shaders there.
+
+**No code left for the driver to discard.** The DXIL rewrites add their code under names of their own and leave the code they
+replace in place, because unnamed values in DXIL text are numbered in order and removing one shifts every number after it.
+The files therefore carried that code and relied on the driver's compiler to drop it: 369 unused instructions in a prepass
+(45 exchanges between threads in the file, 13 of them used), 64 to 256 in each rewritten model pass, 112 in the last pass.
+[`dce_dxil.py`](../../windows/dxil/dce_dxil.py), now the last step of the DXIL build, removes every instruction whose result
+nothing uses, numbers the rest again, and drops the declarations of functions no longer called (the DXIL validator rejects
+those). On AMD's own shaders it removes nothing. Mesa's compiler was already discarding the code, so nothing changes under
+Proton; whether Windows drivers did is not known.
 
 ## The thirteen border shaders
 

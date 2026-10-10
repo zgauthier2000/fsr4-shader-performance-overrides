@@ -53,6 +53,16 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 > [the Linux kit](timing-kit).
 > [What the kits do](timing-kit#windows-experimental)
 
+**The technical pages behind this release:**
+
+- [Particles, sparks and embers on skipped frames](research/frame-skip#content-without-motion-vectors-particles-sparks-embers-release-dll-2026-10-09): what went wrong, the three tests that fix it, what was tried and rejected, what it costs
+- [Exact and lossy compared](docs/exact-vs-lossy.md): every measurement of the lossy DLL against AMD's, with comparison pictures of the previous release and this one
+- [Why weight folding was taken out](research/lossy): the record of the experiment the lossy DLL no longer uses
+- [The Windows DLL's last pass, and code left in the files](research/postpass-and-prepass#the-windows-dlls-last-pass-and-code-left-in-the-files-release-dll-2026-10-09): what changed inside the DLLs, how it compiles for each chip, timed alone and as a whole upscaler
+- [Which download for which graphics chip](docs/gpu-support.md#which-download-dll-2026-10-09-and-later): how four builds became two, and the RX 6000 fix that is now in both
+- [Frame pacing with the lossy DLL](docs/frame-pacing.md): what the alternating frame cost means for frame caps, V-Sync and latency
+- [The timing kits](timing-kit): what the Linux and Windows kits measure, and how to read their summaries
+
 ### The lossy DLL shows particles properly, and is closer to AMD's picture
 
 <picture>
