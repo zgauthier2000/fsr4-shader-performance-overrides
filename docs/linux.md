@@ -2,16 +2,29 @@
 
 [Back to the front page](../README.md)
 
+## In short
+
+- **On Linux you have two ways** to use the faster shaders, and they give the same result:
+  1. **A launch option** that hands the game replacement shaders. AMD's DLL stays as it is. This page is about that way.
+  2. **The DLLs** from the [front page](../README.md#quick-start), swapped in as on Windows. They work under Proton too.
+- **Two folders of ready-made shaders** come with the repository: [`prebuilt/`](../prebuilt) (exact: AMD's picture, byte
+  for byte) and [`prebuilt-lossy/`](../prebuilt-lossy) (faster, not the same picture; read its `WARNING.txt`).
+- **They were made on one graphics card** (an RX 7800 XT). On most setups they fit as they are. Where the picture looks
+  wrong, this page shows how to build your own exact files from your own game in a few minutes.
+- **Speed:** the launch option and the DLL are equally fast now. (Up to release `dll-2026-10-07` the launch option was
+  slightly ahead.)
+
 ## What you need
 
 - Linux, and a D3D12 game running through Proton (vkd3d-proton). DX11 and Vulkan games are not
-  covered. For Windows see the [Windows](gpu-support.md#windows) section.
+  covered. For Windows see the [front page](../README.md#quick-start).
 - FSR 4.1.1 with the INT8 model actually running, for example through
   [OptiScaler](https://github.com/optiscaler/OptiScaler) with `amd_fidelityfx_upscaler_dx12.dll`
   version 4.1.1.2740. Other FSR versions have different shaders; the scripts will tell you if they
   find nothing they recognize.
-- An RDNA3 card on the RADV driver. The slow pattern these rewrites remove was measured there.
-  Other cards are untested, and RDNA4 runs a different FSR 4 model that this does not touch.
+- A Radeon card on the RADV driver. The rewrites were made and measured on an RX 7800 XT; RX 6000 cards and integrated
+  graphics are covered by testers' reports ([GPU support](gpu-support.md)). Other makes of card are untested, and RX 9000
+  cards run a different FSR 4 that this does not touch.
 - **The prebuilt files do not fit every setup.** One tester (RX 6900 XT, Final Fantasy VII
   Rebirth) gets a darker image with the prebuilt files and a correct one with files built from a
   dump of their own game ([Making a shader dump](shader-dump.md), steps 2 and 4), on the same
@@ -28,11 +41,11 @@
 
 ## Quick start: the prebuilt files
 
-The [`prebuilt/`](../prebuilt) folder holds overrides for every normal version of the two shaders
-in AMD's DLL version 4.1.1.2740: every output size, every preset, and every way a game can set up
-exposure and color space, and for the other model passes that have something to rewrite (189
-files in all: 48 postpass, 90 prepass, 6 pass 11, 45 other model passes; see
-[shader variants](variants.md)).
+The [`prebuilt/`](../prebuilt) folder holds the exact files: overrides for every normal version of the shaders in AMD's
+DLL version 4.1.1.2740 that have something to rewrite, for every output size, every preset, and every way a game can set
+up exposure and color space (189 files: 48 last pass, 90 first pass, 6 pass 11, 45 other model passes; see
+[shader variants](variants.md)). [`prebuilt-lossy/`](../prebuilt-lossy) holds the lossy files (198, because every model
+pass is involved there).
 
 1. Clone or download this repository.
 2. Add this to the game's launch options in Steam (keep anything already there in front of
@@ -43,12 +56,22 @@ files in all: 48 postpass, 90 prepass, 6 pass 11, 45 other model passes; see
    ```
 
    `Z:` is how Proton sees your Linux root, so `Z:/home/you/...` is `/home/you/...`.
+
+   **For the lossy version** use the folder `prebuilt-lossy` in place of `prebuilt`, after reading the `WARNING.txt` in
+   it: it is faster and its picture is not AMD's ([exact and lossy compared](exact-vs-lossy.md)).
 3. Compare OptiScaler's upscaler time with and without the variable, standing at the same spot. ***In
    some games, that number is only reliable with the frame rate uncapped.***
+
+The game must be running AMD's original DLL for this: OptiScaler shows the FSR version as plain `4.1.1`, and the name does
+not change with the launch option. With the lossy folder, go by the frame rate, not by the upscaler time on a still
+screen: the time alternates between two values.
 
 If the time does not drop, see [when the prebuilt files are not enough](#when-the-prebuilt-files-are-not-enough).
 
 ## Building your own
+
+This builds the exact files. The lossy files are provided ready-made only; the tools that make them are in
+[`research/frame-skip`](../research/frame-skip), without a one-step script.
 
 1. **Dump the game's shaders once.** Create an empty folder, then add this to the game's launch
    options in Steam (keep anything already there in front of `%command%`):
@@ -91,8 +114,8 @@ when it uses a shader there is no file for. Since 2026-10-04 `prebuilt/` has a f
 normal version in AMD's DLL 4.1.1.2740, so that should only happen with:
 
 - a different FSR DLL version;
-- a modified DLL: the patched DLL from this repository (it shows as `4.1.1-...-cyboman` in
-  OptiScaler), fsr4xyz's `4.1.1b` or any other. Their shaders are not AMD's, so no file matches
+- a modified DLL: a DLL from this repository (it shows as `4.1.1-cyboman`, `4.1.1-lossy-cyboman` or the `igpu` forms in
+  OptiScaler; earlier releases used names with `r3`, `r2`, `r2c` and `ig`), fsr4xyz's `4.1.1b` or any other. Their shaders are not AMD's, so no file matches
   and the launch option does nothing; the DLL's own shaders run. Put AMD's original DLL back to
   use the launch option. Checked with release `dll-2026-10-04.5`: none of its shaders match;
 - FSR's debug view (its versions of the postpass are not covered);
