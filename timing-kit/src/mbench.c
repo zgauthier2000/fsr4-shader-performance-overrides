@@ -64,7 +64,17 @@ int main(int argc, char** argv) {
     CHECK(vkMapMemory(dev, m_staging, 0, VK_WHOLE_SIZE, 0, (void**)&map));
     CHECK(vkMapMemory(dev, m_read, 0, VK_WHOLE_SIZE, 0, (void**)&read_map));
     uint32_t seed = 4242;
-    for (VkDeviceSize i = 0; i < scratch_size + init_size; i++) { seed = seed * 1664525u + 1013904223u; map[i] = (uint8_t)(seed >> 24); }
+    // The scratch buffer (the tensors) is pseudo-random. The second buffer holds the model's own data, among it the scale
+    // and offset each pass applies to its output: WEIGHTS names a file with the real contents (the kit's
+    // shaders/model_data.bin). Without it that buffer is random too, nearly every output is driven to its limits
+    // (-128 or 127), and a pass with different arithmetic still writes the same bytes: the comparison below is then blind.
+    // MB_AMP / MB_WAMP (off by default) limit the tensors / that buffer to small values, for experiments.
+    int amp = getenv("MB_AMP") ? atoi(getenv("MB_AMP")) : 0, wamp = getenv("MB_WAMP") ? atoi(getenv("MB_WAMP")) : 0;
+    for (VkDeviceSize i = 0; i < scratch_size + init_size; i++) {
+        seed = seed * 1664525u + 1013904223u;
+        int a = i < scratch_size ? amp : wamp;
+        map[i] = a > 0 && a < 128 ? (uint8_t)(int8_t)((int)((seed >> 24) % (2u * a)) - a) : (uint8_t)(seed >> 24);
+    }
     FILE* wf = getenv("WEIGHTS") ? fopen(getenv("WEIGHTS"), "rb") : 0;
     if (wf) { if (fread(map + scratch_size, 1, init_size, wf) != init_size) { fprintf(stderr, "short weights\n"); return 1; } fclose(wf); }
     uint32_t* sizes = (uint32_t*)(map + scratch_size + init_size);

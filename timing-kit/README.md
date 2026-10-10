@@ -20,10 +20,16 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 - **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait five minutes.
   On Linux or a Steam Deck in desktop mode, the Linux kit described below: one command, about 20 minutes, or two minutes
   for the short run.
+- **The output check of the model passes now means something (kit 2026-10-10.1).** Earlier kits filled the small buffer that
+  holds each pass's output scales and offsets with random bytes. That drove nearly every output to its limits, so a pass with
+  different arithmetic still wrote the same bytes and was reported as identical. The kit now carries that buffer as FSR 4 fills
+  it (`shaders/model_data.bin`, 128 KB), and the summary says whether the lossy first pass, which must differ, was told apart.
+  The prepass and postpass checks were not affected. The exact model passes still match AMD's with the real buffer.
 - **What happens to the result:** you see a short summary and are asked whether to send it. Only that summary is sent.
 
 **Linux kit version 2026-10-10.1** (download again if you have an earlier one): the lossy shaders of release `dll-2026-10-10`
-(its skipped-frame postpass, and the first model pass as that build runs it), the 12
+(its skipped-frame postpass, and the first model pass as that build runs it, now in the summary), a real output check for
+the model passes (see below), the 12
 model passes also timed in sequence, a whole-frame figure, an estimate for the lossy build's skipped frames, a warning when
 a run looks unlike what games do, and one optional question about what a game showed. [Earlier versions](#earlier-versions-of-the-linux-kit).
 

@@ -95,7 +95,7 @@ def timings(text):
 t1, t2 = timings(read('timing-round1.txt')), timings(read('timing-round2.txt'))
 lines.append('')
 if t1:
-    lines.append('ms per pass: AMD / exact')
+    lines.append('ms per pass: AMD / exact' + (' / lossy (pass 1: the lossy build folds a few of its weights)' if any(k[2] == 'lossy' for k in t1) else ''))
 for cls in ('1080p', '1440p', '4k'):
     row, tot = [], {'amd': 0.0, 'exact': 0.0, 'lossy': 0.0}
     for p in ORDER:
@@ -105,7 +105,7 @@ for cls in ('1080p', '1440p', '4k'):
         e = t1.get((cls, p, 'exact'), a)
         lo = t1.get((cls, p, 'lossy'), e)
         tot['amd'] += a; tot['exact'] += e; tot['lossy'] += lo
-        v = [a] + ([t1[(cls, p, 'exact')]] if (cls, p, 'exact') in t1 else [])
+        v = [a] + ([t1[(cls, p, 'exact')]] if (cls, p, 'exact') in t1 else []) + ([t1[(cls, p, 'lossy')]] if (cls, p, 'lossy') in t1 else [])
         row.append(SHORT[p] + ' ' + '/'.join(f(x) for x in v))
     if row:
         lines.append(f'{cls}: ' + '  '.join(row))
@@ -239,9 +239,13 @@ for l in read('postpass.txt').split('\n'):
         cand_bad.setdefault(sec[1], set()).add(sec[0])
 if cand_bad:
     lines.append('candidates whose output differs from AMD\'s: ' + '  '.join(f'{k} ({", ".join(sorted(v))})' for k, v in cand_bad.items()))
+lossy_seen = set()
 for name in ('timing-round1.txt', 'timing-round2.txt'):
     txt = read(name)
     for l in txt.split('\n'):
+        if re.search(r'/lossy/pass\d+\.spv', l):      # a lossy model pass must differ from AMD's; one that does not means the check is blind
+            lossy_seen.add('differs' if 'DIFFERS' in l else 'same' if 'IDENTICAL' in l else '?')
+            continue
         if 'DIFFERS' in l or re.search(r'^\s*[1-9]\d* (pixels differ|of \d+ bytes differ)', l) or re.search(r': [1-9]\d* of \d+ bytes differ', l):
             bad.append(l.strip()[:90])
 for l in main_part.split('\n'):
@@ -252,6 +256,8 @@ if blank:
     bad.append(f'{blank} postpass runs wrote an empty image (inputs not bound?)')
 lines.append('')
 lines.append('output check: all versions matched AMD\'s' if not bad else f'OUTPUT MISMATCHES ({len(bad)}): ' + ' ; '.join(bad[:6]))
+if lossy_seen:
+    lines.append('lossy pass 1: ' + ('differs from AMD\'s, as it should' if lossy_seen == {'differs'} else 'NOT TOLD APART from AMD\'s (the output check may be blind on this machine)'))
 if not t1 and not pp:
     lines.append('INCOMPLETE RUN: no timings found. selftest: ' + read('selftest.txt').strip()[-300:])
 

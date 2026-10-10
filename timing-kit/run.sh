@@ -19,6 +19,8 @@ mkdir -p "$OUT" 2>/dev/null || { OUT=$HOME/fsr4-results-$STAMP; mkdir -p "$OUT";
 # The stick may be mounted without permission to execute files: run the programs from a copy.
 W=$(mktemp -d); cp "$KIT"/bin/* "$W"/; chmod +x "$W"/*
 S=$KIT/shaders
+# the model's own data (scales and offsets of each pass): with it the output comparisons of the model passes mean something
+[ -f "$S/model_data.bin" ] && export WEIGHTS="$S/model_data.bin"
 say() { echo; echo "=== $*"; }
 levels=(0 1 1 2 2 2 3 3 3 3 2 2 1)
 
