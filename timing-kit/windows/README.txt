@@ -39,7 +39,8 @@ What it does
                        small ones to how pixel positions are limited and halved. Rebuilt by this
                        project from AMD's shaders; it is not that project's file.
   dlls\2-exact         this project's exact DLL for RX 7000 and RX 6000 cards
-  dlls\3-lossy         its lossy DLL (faster; the picture is NOT the same as AMD's)
+  dlls\3-lossy         its lossy DLL of release dll-2026-10-10 (faster; the picture is NOT the
+                       same as AMD's)
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
   dlls\5-igpu-lossy    and its lossy one
 
