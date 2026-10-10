@@ -15,12 +15,16 @@
 | Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.1-cyboman.zip` | runs, with the fix for the shimmering these cards show with AMD's file; about 30% at 4K, a few percent below (tester reports) |
 | Graphics built into the processor: Radeon 780M, 890M and the like, Steam Deck | `fsr4.1.1-igpu-cyboman.zip` | experimental: few reports, small gains |
 | Radeon RX 9000 | none | not covered: it runs a different FSR 4; see [RDNA4](rdna4.md) |
-| Nvidia GeForce, Intel Arc | `fsr4.1.1-cyboman.zip` | reported to run; nothing measured, and "same picture" is verified on Radeon only |
+| Any other chip with DirectX 12 and Shader Model 6.6: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-cyboman.zip`; `fsr4.1.1-igpu-cyboman.zip` for a chip built into the processor | should run (reported on a GeForce laptop and an Arc A770); nothing measured, and "same picture" is verified on Radeon only |
 
 - **Why two downloads:** the two differ in one shader, which is built large and fast for RX cards and small for the
   chips built into processors, where the large one is slower.
 - **Why AMD's own file refuses most of these chips:** AMD offers this FSR 4 on desktop RX 7000 cards only. The DLLs here
   have that check lifted, which is also why they must not go on an RX 9000 card.
+- **What a chip needs to run it at all:** the shaders are compute shaders for DirectX 12's Shader Model 6.6. They use 8-bit
+  integer dot products (`dot4AddI8Packed`), packing and unpacking of four 8-bit values, 16-bit types and wave operations.
+  Any driver that offers Shader Model 6.6 runs them, whether the chip has a special instruction for the dot products or
+  not; how fast is another matter, and outside Radeon nothing is measured.
 - **The rest of this page** is the history: how each kind of chip was first supported, what testers measured, and the
   builds that existed before the two downloads.
 

@@ -43,8 +43,8 @@ browsers, and double-click `fsr4time.exe`; it takes about five minutes.
   frame are given apart. Put another FSR 4.1.1 DLL into a new folder under `dlls` to time it as well.
 - **What it checks:** that each DLL's picture from the still scene is the same as the first DLL's, byte for byte. The exact
   DLLs must say "same picture"; the lossy ones say "picture differs".
-- **Other makes of graphics card:** nothing in the kit is specific to Radeon. People run these DLLs on GeForce and Intel Arc
-  graphics as well, and no timing from such a card exists yet. A run there shows whether the rewrites, which were made for
+- **Other makes of graphics card:** nothing in the kit is specific to Radeon, and the DLLs should run on any graphics chip whose driver supports DirectX 12 with Shader Model 6.6.
+  People run them on GeForce and Intel Arc graphics as well, and no timing from such a card exists yet. A run there shows whether the rewrites, which were made for
   Radeon chips, help or cost time, and whether the exact DLL's picture is AMD's on that driver too.
 - **Experimental:** it has been run under Proton on one RX 7800 XT only (4K: 4.7 to 4.9 ms with AMD's shaders, 3.17 ms exact,
   2.37 ms lossy; exact: same picture). It has not run on Windows yet. The program is not signed, so Windows warns about it;

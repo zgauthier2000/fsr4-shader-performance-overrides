@@ -48,8 +48,9 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 > `fsr4time.exe`, wait about five minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, checks that the exact DLL gives AMD's picture on your machine, and offers to
 > send the result. **Nobody has measured these DLLs on Windows yet; your run would be among the
-> first.** It also runs on GeForce and Intel Arc graphics: people use these DLLs there, nothing has
-> been measured, and a result from such a card would be the first. On Linux and the Steam Deck:
+> first.** It is not limited to Radeon: the DLLs should run on any graphics chip whose driver supports DirectX 12 with Shader Model 6.6,
+> which includes GeForce and Intel Arc. People use them there, nothing has been measured, and a
+> result from such a card would be the first. On Linux and the Steam Deck:
 > [the Linux kit](timing-kit).
 > [What the kits do](timing-kit#windows-experimental)
 
@@ -157,13 +158,15 @@ More games and resolutions: [all results](docs/results.md).
 | RX 6000 (RDNA2) | `fsr4.1.1-cyboman.zip` | runs, and includes the fix for the shimmering these cards show with AMD's file; about 30% at 4K, a few percent at 1440p and below (tester reports) |
 | Radeon 780M, 890M and other integrated graphics, Steam Deck | `fsr4.1.1-igpu-cyboman.zip` | experimental: few reports, small gains |
 | RX 9000 (RDNA4) | none | no: a different FSR 4 runs there ([open for someone to pick up](docs/rdna4.md)) |
-| Nvidia GeForce, Intel Arc | `fsr4.1.1-cyboman.zip` | **untested.** Users report that the DLLs run on a GeForce laptop and on an Arc A770. The rewrites were made for Radeon chips, so they may or may not be faster than AMD's shaders there, and "same picture" has only been verified on Radeon. A [timing-kit](timing-kit#windows-experimental) result tells both |
+| Any other graphics chip: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-cyboman.zip`; for a chip built into the processor try `fsr4.1.1-igpu-cyboman.zip` first | **should run, untested.** FSR 4.1.1's shaders are ordinary DirectX 12 compute shaders: they need Shader Model 6.6 with 8-bit integer dot products, 16-bit types and wave operations, which current drivers from all three makers provide. Users report the DLLs running on a GeForce laptop and on an Arc A770. Nothing has been measured there: the rewrites were made for Radeon chips, so they may or may not be faster than AMD's shaders, and "same picture" has only been verified on Radeon. A [timing-kit](timing-kit#windows-experimental) result tells both |
 
 You also need a DirectX 12 game in which FSR 4.1.1 already runs, with
 `amd_fidelityfx_upscaler_dx12.dll` version 4.1.1.2740.
 
 Both DLLs have AMD's graphics-card check lifted (AMD's own file offers this FSR 4 only on desktop
-RX 7000 cards), so they start on any card. That is why they must not go on an RX 9000 card.
+RX 7000 cards), so they start on any card whose driver can run the shaders: DirectX 12 with Shader
+Model 6.6. That is also why they must not go on an RX 9000 card, where a different FSR 4 would
+then start as well.
 
 If the first zip is slower than AMD's file on a small RX 6000 card, try the second one: it differs
 only in one shader that is built smaller. Details: [GPU support](docs/gpu-support.md).

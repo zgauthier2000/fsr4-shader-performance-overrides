@@ -50,7 +50,9 @@ Options (from a command prompt in this folder)
   fsr4time.exe --no-questions    no questions at the end, nothing is sent
 
 Other graphics cards
-  The kit is not limited to Radeon. If you have a GeForce or an Intel Arc card, please run it too:
+  The kit is not limited to Radeon. FSR 4.1.1 should run on any graphics chip whose driver supports
+  DirectX 12 with Shader Model 6.6. If you have a GeForce, an Intel Arc or Intel integrated
+  graphics, or an older Radeon, please run it too:
   these DLLs were made for Radeon chips, nobody has measured them elsewhere yet, and your result
   shows whether they help there and whether the exact DLL still gives AMD's picture.
 
