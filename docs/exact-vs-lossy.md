@@ -282,8 +282,11 @@ where the object no longer is. With frame skip the risk is on skipped frames, in
 object has just uncovered: the history there still shows the object, and it has to be thrown away.
 The lossy build does that by looking up which surface was at each spot a frame ago.
 
-The table and the image below were made with the lossy build of release `dll-2026-10-07`, which
-introduced this lookup; cases measured with this release, including two that are not at AMD's
+The table below was made with the lossy build of release `dll-2026-10-07`, which introduced this
+lookup. The image is redrawn with this release's lossy build: it shows no second outline and no
+extra bars. In the railing piece its error is 0.95 of 255 against 0.74 for the exact files, as high
+as the old release's, but it sits on the two real bars, not beside them; that figure was 0.82 in
+`dll-2026-10-07` and has been 0.92 to 0.95 since the folding was taken out in `dll-2026-10-09`. cases measured with this release, including two that are not at AMD's
 level, are in [the section above](#what-the-lossy-builds-cost-measured).
 
 The table gives the error against the true image, on skipped frames, exactly where an object's
@@ -315,7 +318,7 @@ old image would land if the history were shown unchanged. "Outline" is the objec
   depth search; there the lookup is off. One synthetic scene at six motion settings; the author
   also no longer sees the ghost in the game it was reported and recorded in.
 
-<img src="img/cmp-ghost.png" width="760" alt="A second outline beside a moving object on a skipped frame, camera panning 40 pixels per frame and objects drifting 6. Two 128 by 64 pixel pieces of the 4K output, each as true image, exact files, the lossy build of release dll-2026-10-06.6 and the lossy build of this release, with the error against the true image below each. Beside the block's left edge the earlier release shows a broken dark vertical line, the block's edge of a frame ago, which the exact files and this release do not show (error in the piece: 0.52, 0.66 and 0.57 of 255). Beside the railing the earlier release shows two faint extra bars, which the others do not (0.74, 0.95 and 0.82 of 255).">
+<img src="img/cmp-ghost.png" width="760" alt="A second outline beside a moving object on a skipped frame, camera panning 40 pixels per frame and objects drifting 6. Two 128 by 64 pixel pieces of the 4K output, each as true image, exact files, the lossy build of release dll-2026-10-06.6 and the lossy build of this release, with the error against the true image below each. Beside the block's left edge the earlier release shows a broken dark vertical line, the block's edge of a frame ago, which the exact files and this release do not show (error in the piece: 0.52, 0.66 and 0.58 of 255). Beside the railing the earlier release shows two faint extra bars, which the others do not; this release's error there sits on the two real bars instead (0.74, 0.95 and 0.95 of 255).">
 
 ## Speed side by side
 
