@@ -142,6 +142,7 @@ def samples_w(cur):
 
 
 PART = os.environ.get('SB_PART'); BRIGHT = os.environ.get('SB_BRIGHT'); SAMPLE = os.environ.get('SB_SAMPLE')
+_rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_RESTW') else None      # as in skipblend.py
 FMIN = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 36, float {a}, float {b})'
 FMAX = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 35, float {a}, float {b})'
 
@@ -368,7 +369,7 @@ else:
                            [f'  %sb.gm{k} = fmul fast float %sb.gc{k}, {fl(CONST)}'] if CONST is not None else []) + [
                            f'  %sb.om{k} = fsub fast float 1.000000e+00, ' + (f'%sb.gm{k}' if CONST is not None else f'%sb.gc{k}'), f'  %sb.ao{k} = fmul fast float {a}, %sb.om{k}',
                            f'  %sb.gw{k} = fsub fast float 1.000000e+00, %sb.ao{k}', f'  %sb.wm{k} = fmul fast float {w}, %sb.gw{k}'] + (
-                           (part(k, curs, h, n) + [f'  %sb.wq{k} = select i1 %sb.rq{k}, float 0.000000e+00, float %sb.wm{k}', FMAX(f'%sb.wqq{k}', f'%sb.wq{k}', f'%sb.pf{k}'),
+                           (part(k, curs, h, n) + ([f'  %sr.a{k} = fsub fast float {w}, {fl(_rw[0])}', f'  %sr.q{k} = fdiv fast float %sr.a{k}, {fl(max(_rw[1] - _rw[0], 1e-6))}', FMAX(f'%sr.u{k}', f'%sr.q{k}', '0.000000e+00'), FMIN(f'%sr.r{k}', f'%sr.u{k}', '1.000000e+00'), f'  %sr.w{k} = fmul fast float %sb.wm{k}, %sr.r{k}', f'  %sb.wq{k} = select i1 %sb.rq{k}, float %sr.w{k}, float %sb.wm{k}'] if _rw else [f'  %sb.wq{k} = select i1 %sb.rq{k}, float 0.000000e+00, float %sb.wm{k}']) + [FMAX(f'%sb.wqq{k}', f'%sb.wq{k}', f'%sb.pf{k}'),
                                                    f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wqq{k}, float 1.000000e+00)'])
                            if REST else [f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wm{k}, float 1.000000e+00)']) + [
                            f'  %sb.an{k} = fsub fast float 1.000000e+00, %sb.wn{k}']

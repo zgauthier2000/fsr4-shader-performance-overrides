@@ -44,6 +44,10 @@
 #     detail; this is what tells an arriving spark from still detail under another jitter. Such a pixel takes the new frame
 #     by how far outside the sample is: all of it SB_SAMPLEFULL x range beyond the threshold. SB_SAMPLEALL=0: at rest only
 #     (default: also in motion, where the history is already aligned to the frame).
+#   SB_RESTW="t0 t1" (off by default; candidate "0.95 0.995"): the model's own verdict. On the last frame it ran, the model gave every
+#     pixel a weight for the new frame. Where that weight was above t1, a skipped frame at rest still takes the new frame (as far as
+#     the shimmer correction allows); below t0 the rest rule holds as before; a ramp in between. Particles get such weights from the
+#     model, settled detail does not: large soft particles and slow embers come close to AMD's. Strong film grain gets them too.
 # SB_SAMPLEABS=0.02 SB_BRIGHTABS=0.02 gives release dll-2026-10-09's behavior (it let film grain and noise through on
 # skipped frames: the grain trips the sample test as a spark does). SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behavior. SB_FULLW is a rejected experiment
 # (the new frame in proportion to the SB_BRIGHT difference: two to three times the shimmer at rest).
@@ -71,7 +75,8 @@ ge = [n for n, l in enumerate(L) if n > main and 'OpUGreaterThanEqual %bool' in 
 br = next(n for n in range(ge[1], len(L)) if 'OpBranchConditional' in L[n])
 lab = L[br].split()[-1]; lab0 = lab
 at = next(n for n, l in enumerate(L) if re.match(rf'\s*{re.escape(lab)} = OpLabel', l))
-c = ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
+_rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_RESTW') else None
+c = ([f'%sr_t0 = OpConstant %float {_rw[0]}', f'%sr_d = OpConstant %float {max(_rw[1] - _rw[0], 1e-6)}'] if _rw else []) + ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
      f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0', f"%sb_thr = OpConstant %float {float(os.environ.get('SB_THR', '0'))}", f"%sb_rel = OpConstant %float {float(os.environ.get('SB_REL', '0.1'))}"] + ([f"%sb_slack = OpConstant %float {CLAMP}"] if CLAMP is not None else []) + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
 if CONST:
     c.append(f'%sb_const = OpConstant %float {float(CONST)}')
@@ -481,7 +486,7 @@ else:
                              f'%sb_ao{k} = OpFMul %float %sb_ap{k} %sb_om{k}', f'%sb_gw{k} = OpFSub %float %sb_one %sb_ao{k}',
                              f'%sb_wm{k} = OpFMul %float {w} %sb_gw{k}'] + (
                              # where the picture does not move, a skipped frame takes nothing from the new frame
-                             (part(k, curs, h) + [f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sm_fz %sb_wm{k}', f'%sb_wqq{k} = OpExtInst %float {GLSL} NMax %sb_wq{k} %sb_pf{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wqq{k} %sb_one'])
+                             (part(k, curs, h) + ([f'%sr_a{k} = OpFSub %float {w} %sr_t0', f'%sr_q{k} = OpFDiv %float %sr_a{k} %sr_d', f'%sr_r{k} = OpExtInst %float {GLSL} NClamp %sr_q{k} %sm_fz %sb_one', f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}', f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sr_w{k} %sb_wm{k}'] if _rw else [f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sm_fz %sb_wm{k}']) + [f'%sb_wqq{k} = OpExtInst %float {GLSL} NMax %sb_wq{k} %sb_pf{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wqq{k} %sb_one'])
                              if REST else [f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wm{k} %sb_one']) + [
                              f'%sb_an{k} = OpFSub %float %sb_one %sb_wn{k}']
                     # the mix again with the corrected weights: the shader's own nine lines, renamed
