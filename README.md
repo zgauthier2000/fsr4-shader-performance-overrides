@@ -135,6 +135,15 @@ test rig, and both are fixed in the lossy DLL. **The exact DLL is unchanged.**
 | Tiny fast sparks shown on skipped frames | 83% | 16% | 77% | 76% |
 | Still picture against the true image | 44.33 dB | 43.68 dB | 44.12 dB | 44.06 dB |
 
+How much each pixel changes from frame to frame when nothing moves, in the piece of the test
+picture where the previous release was worst (black is steady):
+
+<img src="docs/img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still test scene showing a bright wall, sky and a water tank, and four maps of how much each pixel changes from frame to frame: the exact files (mean 0.126 of 255), the lossy build of release dll-2026-10-07 (0.111), of release dll-2026-10-09 (0.157) and of this release (0.109). The flat wall and sky carry a faint texture that is strongest in the dll-2026-10-09 map and weakest in this release's.">
+
+The same with grain in every frame, in the piece where this release gained most:
+
+<img src="docs/img/cmp-grain.png" width="760" alt="Grain in the picture: a 240 by 160 pixel piece of a dark flat area of the still test scene with random grain in every input frame, and four maps of how much each pixel changes from frame to frame: the exact files (mean 2.216 of 255, a dense bright speckle), the lossy build of release dll-2026-10-07 (0.218, nearly black), of release dll-2026-10-09 (1.361, a dense speckle again) and of this release (0.397, dark with scattered points).">
+
 - **Speed is unchanged:** 2.37 ms against 2.38 ms for the whole upscaler at 4K (timing kit, RX 7800 XT under Proton).
 - **What got worse:** large, soft glowing particles show more of a seam on skipped frames
   (error around them 2.8 against 1.7 in the rig; AMD's shaders 0.7), and the still picture is
