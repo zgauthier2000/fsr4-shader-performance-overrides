@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="312" viewBox="0 0 760 312" role="img" aria-label="Graphics-card time per upscale call in milliseconds, lower is faster. 1920x1080: FSR 4.1.1 1.05, This project's exact DLL 0.89, Lossy 0.67, FSR 3.1 0.41, HelixSR 0.75, XeSS 1.42. 2560x1440: FSR 4.1.1 2.18, This project's exact DLL 1.44, Lossy 1.10, FSR 3.1 0.58, HelixSR 1.01, XeSS 2.28. 3840x2160: FSR 4.1.1 4.76, This project's exact DLL 3.17, Lossy 2.34, FSR 3.1 1.16, HelixSR 1.99, XeSS 4.98.">
+<rect x="0.0" y="0.0" width="760.0" height="312.0" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">Speed: graphics-card time for one upscale call</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Milliseconds, lower is faster. Render size is the output size divided by 1.7. Radeon RX 7800 XT under Proton.</text>
+<text x="24.0" y="124.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">FSR 4.1.1</text>
+<text x="24.0" y="152.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">This project's exact DLL</text>
+<text x="24.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">Lossy</text>
+<text x="24.0" y="208.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">FSR 3.1</text>
+<text x="24.0" y="236.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">HelixSR</text>
+<text x="24.0" y="264.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">XeSS</text>
+<text x="190.0" y="96.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">1920x1080</text>
+<line x1="190.0" y1="104.0" x2="190.0" y2="272.0" stroke="#e1e0d9" stroke-width="1"/>
+<rect x="190.0" y="112.0" width="88.7" height="16.0" rx="3" fill="#a09f98"/>
+<text x="284.7" y="124.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">1.05</text>
+<rect x="190.0" y="140.0" width="75.2" height="16.0" rx="3" fill="#2a78d6"/>
+<text x="271.2" y="152.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">0.89</text>
+<rect x="190.0" y="168.0" width="56.6" height="16.0" rx="3" fill="#eb6834"/>
+<text x="252.6" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">0.67</text>
+<rect x="190.0" y="196.0" width="34.6" height="16.0" rx="3" fill="#a09f98"/>
+<text x="230.6" y="208.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">0.41</text>
+<rect x="190.0" y="224.0" width="63.4" height="16.0" rx="3" fill="#a09f98"/>
+<text x="259.4" y="236.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">0.75</text>
+<rect x="190.0" y="252.0" width="120.0" height="16.0" rx="3" fill="#a09f98"/>
+<text x="316.0" y="264.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">1.42</text>
+<text x="386.0" y="96.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">2560x1440</text>
+<line x1="386.0" y1="104.0" x2="386.0" y2="272.0" stroke="#e1e0d9" stroke-width="1"/>
+<rect x="386.0" y="112.0" width="114.7" height="16.0" rx="3" fill="#a09f98"/>
+<text x="506.7" y="124.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">2.18</text>
+<rect x="386.0" y="140.0" width="75.8" height="16.0" rx="3" fill="#2a78d6"/>
+<text x="467.8" y="152.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">1.44</text>
+<rect x="386.0" y="168.0" width="57.9" height="16.0" rx="3" fill="#eb6834"/>
+<text x="449.9" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">1.10</text>
+<rect x="386.0" y="196.0" width="30.5" height="16.0" rx="3" fill="#a09f98"/>
+<text x="422.5" y="208.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">0.58</text>
+<rect x="386.0" y="224.0" width="53.2" height="16.0" rx="3" fill="#a09f98"/>
+<text x="445.2" y="236.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">1.01</text>
+<rect x="386.0" y="252.0" width="120.0" height="16.0" rx="3" fill="#a09f98"/>
+<text x="512.0" y="264.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">2.28</text>
+<text x="582.0" y="96.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">3840x2160</text>
+<line x1="582.0" y1="104.0" x2="582.0" y2="272.0" stroke="#e1e0d9" stroke-width="1"/>
+<rect x="582.0" y="112.0" width="114.7" height="16.0" rx="3" fill="#a09f98"/>
+<text x="702.7" y="124.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">4.76</text>
+<rect x="582.0" y="140.0" width="76.4" height="16.0" rx="3" fill="#2a78d6"/>
+<text x="664.4" y="152.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">3.17</text>
+<rect x="582.0" y="168.0" width="56.4" height="16.0" rx="3" fill="#eb6834"/>
+<text x="644.4" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#0b0b0b">2.34</text>
+<rect x="582.0" y="196.0" width="28.0" height="16.0" rx="3" fill="#a09f98"/>
+<text x="616.0" y="208.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">1.16</text>
+<rect x="582.0" y="224.0" width="48.0" height="16.0" rx="3" fill="#a09f98"/>
+<text x="636.0" y="236.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">1.99</text>
+<rect x="582.0" y="252.0" width="120.0" height="16.0" rx="3" fill="#a09f98"/>
+<text x="708.0" y="264.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">4.98</text>
+<text x="24.0" y="296.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">XeSS was timed by a second program over fewer calls; it runs a slower network on cards that are not Intel's. Bars are scaled within each size.</text>
+</svg>

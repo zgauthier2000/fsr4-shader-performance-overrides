@@ -16,6 +16,14 @@ other projects.
   exact DLL, with AMD's FSR 4.1.1 and XeSS the slowest.
 - **Everything here is one graphics card, made-up scenes and single runs.** A game can come out differently.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/cmp5-tradeoff-dark.svg">
+  <img src="img/cmp5-tradeoff-light.svg" width="760" alt="Still-picture accuracy against time per upscale call at 4K. FSR 4.1.1: 4.76 ms, 44.33 dB, This project's exact DLL: 3.17 ms, 44.33 dB, Lossy: 2.34 ms, 44.15 dB, FSR 3.1: 1.16 ms, 39.94 dB, HelixSR: 1.99 ms, 41.99 dB, XeSS: 4.98 ms, 42.14 dB.">
+</picture>
+
+The figures on this page are made by [`img/make_upscaler_comparison.py`](img/make_upscaler_comparison.py); the crops show the piece
+of the picture where the five differ most from each other, picked by that script from the data.
+
 ## What was compared
 
 | Name here | What it is | Version | Settings |
@@ -37,6 +45,11 @@ other projects.
 
 ## Accuracy
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/cmp5-quality-dark.svg">
+  <img src="img/cmp5-quality-light.svg" width="760" alt="Six quality measures for five upscalers, each as dots on its own scale. Still picture (accuracy, dB; higher is better): FSR 4.1.1 44.3, Lossy 44.1, FSR 3.1 39.9, HelixSR 42.0, XeSS 42.1. Just-uncovered areas (accuracy in motion, dB; higher is better): FSR 4.1.1 34.5, Lossy 36.1, FSR 3.1 29.2, HelixSR 27.1, XeSS 30.2. Tiny fast sparks (share of brightness shown, %; higher is better): FSR 4.1.1 83, Lossy 76, FSR 3.1 40, HelixSR 79, XeSS 50. Swaying foliage (error, of 255; lower is better): FSR 4.1.1 12.1, Lossy 18.6, FSR 3.1 16.8, HelixSR 15.5, XeSS 15.5. Thin wire, slow pan (change per frame, of 255; lower is better): FSR 4.1.1 7.2, Lossy 16.9, FSR 3.1 8.2, HelixSR 5.6, XeSS 10.1. Film grain (10 of 255) (change per frame, of 255; lower is better): FSR 4.1.1 1.72, Lossy 1.05, FSR 3.1 0.31, HelixSR 0.30, XeSS 0.23.">
+</picture>
+
 Against the true image; higher dB is better, lower error is better.
 
 | Scene | FSR 4.1.1 | Lossy | FSR 3.1 | HelixSR | XeSS |
@@ -53,6 +66,12 @@ Against the true image; higher dB is better, lower error is better.
 - **In swaying foliage it is the least accurate of the five.** Its picture there is averaged over about one more frame
   than FSR 4's ([why](exact-vs-lossy.md#limits-of-the-lossy-builds)).
 
+<img src="img/cmp5-still.png" width="760" alt="Still picture, a 150 by 90 pixel piece of the 4K output enlarged four times, where the five upscalers differ most: a water tank with a thin ladder and railing. True image, then FSR 4.1.1 (error 2.3 of 255), the lossy DLL (2.5), FSR 3.1 (2.8), HelixSR (1.8) and XeSS (2.2). The ladder's thin rungs are clearest in HelixSR and FSR 4.1.1 and softest in FSR 3.1.">
+
+<img src="img/cmp5-motion.png" width="760" alt="Moving scene, camera panning, a piece of the fine diagonal stripes on a moving object enlarged four times. True image: thin sharp white stripes. FSR 4.1.1 (error 23.7 of 255) and the lossy DLL (23.8) show them thin and even; FSR 3.1 (34.4) thicker and softer; HelixSR and XeSS (29.9 each) in between.">
+
+<img src="img/cmp5-foliage.png" width="760" alt="Leaves swaying without motion vectors, camera still, a piece enlarged four times. True image: sharp small dark and light green leaves against a pale sky. FSR 4.1.1 (error 13.9 of 255) is the closest; the lossy DLL (22.4) shows the leaves softer and fatter; FSR 3.1 (19.7), HelixSR (18.4) and XeSS (19.7) are between the two.">
+
 ## Things a game draws without motion vectors
 
 Bright dots drawn into the picture only, as games draw sparks and embers. For the lossy DLL the figures are for the frames
@@ -66,6 +85,8 @@ that skip the network; the same alternate frames are measured for the others.
 
 FSR 4 and HelixSR handle these best. The lossy DLL is close on embers and behind on large particles and fast sparks. FSR 3.1
 loses more than half of the small ones.
+
+<img src="img/cmp5-sparks.png" width="760" alt="Tiny fast sparks drawn without motion vectors, camera still, a piece enlarged five times with five sparks in it. True image, then FSR 4.1.1 (error 0.6 of 255) and HelixSR (0.7) show all five round and bright; the lossy DLL (0.7) shows all five, slightly blocky; FSR 3.1 (1.4) shows them small, dim and one smeared into a streak; XeSS (1.6) shows them faint.">
 
 ## Steadiness
 
@@ -88,7 +109,14 @@ How much the picture changes from one frame to the next where it should not, in 
   shows this: HelixSR draws it brighter than the true image (143 of 255 against a true 111), FSR 4 and the lossy DLL
   dimmer (67 and 69), XeSS and FSR 3.1 in between (96 and 91).
 
+<img src="img/cmp5-wires.png" width="760" alt="A wire far thinner than a rendered pixel, camera still, a piece with three wires enlarged four times. True image: thin continuous gray lines. FSR 4.1.1 (error 2.5 of 255) and the lossy DLL (2.3) show continuous dim lines; FSR 3.1 (1.6) and XeSS (1.7) brighter, slightly dotted lines; HelixSR (3.9) thicker lines brighter than the true image.">
+
 ## Speed
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/cmp5-speed-dark.svg">
+  <img src="img/cmp5-speed-light.svg" width="760" alt="Graphics-card time per upscale call in milliseconds, lower is faster. 1920x1080: FSR 4.1.1 1.05, This project's exact DLL 0.89, Lossy 0.67, FSR 3.1 0.41, HelixSR 0.75, XeSS 1.42. 2560x1440: FSR 4.1.1 2.18, This project's exact DLL 1.44, Lossy 1.10, FSR 3.1 0.58, HelixSR 1.01, XeSS 2.28. 3840x2160: FSR 4.1.1 4.76, This project's exact DLL 3.17, Lossy 2.34, FSR 3.1 1.16, HelixSR 1.99, XeSS 4.98.">
+</picture>
 
 Graphics-card time for one upscale call, in milliseconds, at the same render ratio. Lower is faster.
 
