@@ -148,7 +148,7 @@ The same with grain in every frame, in the piece where this release gained most:
 - **What got worse:** large, soft glowing particles show more of a seam on skipped frames
   (error around them 2.8 against 1.7 in the rig; AMD's shaders 0.7), and the still picture is
   0.06 dB further from AMD's.
-- Why folding the first layer steadies flat areas is measured, not understood.
+- **An unexpected find:** merging a few of the smallest weights in the network's first layer makes flat areas as steady as with AMD's shaders, at a cost of about 0.05 dB in a still picture and no measurable change in speed. Why it works is not yet understood.
   [How the two causes were found](research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
 
 ### Earlier: release `dll-2026-10-09`

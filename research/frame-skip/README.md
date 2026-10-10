@@ -709,7 +709,7 @@ rounding change. Separately, and with less folding:
 
 - Release `dll-2026-10-10` folds 2 words in pass 1 (all six versions of it, `wfold.py 2`), without the rounding change.
   Two is the point where the flat areas are back at AMD's level and the moving stripes have not changed.
-- **Not understood:** why folding that layer steadies flat areas under frame skip. It is a tuned setting. On the frames that
+- **An unexpected find:** merging a few of the smallest weights in the network's first layer makes flat areas as steady as with AMD's shaders, at a cost of about 0.05 dB in a still picture and no measurable change in speed. Why it works is not yet understood. It is a tuned setting. On the frames that
   run the model the picture now differs slightly from AMD's again (still picture 44.06 dB against 44.12).
 
 The release build after both changes: that piece 0.109, fine detail at rest 0.101 (AMD's 0.110), grain 0.316, thin
