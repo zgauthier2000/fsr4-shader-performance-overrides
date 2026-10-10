@@ -44,14 +44,6 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 `4.1.1-cyboman` (or `4.1.1-lossy-cyboman`; with the other zip `4.1.1-igpu-cyboman` or
 `4.1.1-igpu-lossy-cyboman`), and the upscaler time is lower than before.
 
-> [!NOTE]
-> **Two settings where you will see little or no gain:**
-> - **FSR's debug view (the overlay that draws FSR's watermark and debug panels).** The faster shaders do not cover the
->   debug versions of FSR's last pass, so AMD's own slow one runs and most of the gain is gone. Switch the debug view off
->   to measure or to play.
-> - **Ultra Performance mode.** The lossy DLL does not skip frames there, so it is no faster than the exact DLL. The
->   exact DLL's own gain still applies.
-
 **To undo it,** delete the file and rename the `.orig` file back.
 
 ## What to expect
@@ -89,17 +81,27 @@ output, FSR 4.1.1 Balanced. Your card and your game will give other numbers:
 
 More games and resolutions: [all results](docs/results.md).
 
+> [!NOTE]
+> **Two settings where you will see little or no gain:**
+> - **FSR's debug view (the overlay that draws FSR's watermark and debug panels).** The faster shaders do not cover the
+>   debug versions of FSR's last pass, so AMD's own slow one runs and most of the gain is gone. Switch the debug view off
+>   to measure or to play.
+> - **Ultra Performance mode.** The lossy DLL does not skip frames there, so it is no faster than the exact DLL. The
+>   exact DLL's own gain still applies.
+
 ## New in this release
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 110 MB): unpack, double-click
-> `fsr4time.exe`, wait about five minutes. It times FSR 4 with AMD's shaders and with these DLLs on
-> your graphics card, checks that the exact DLL gives AMD's picture on your machine, and offers to
-> send the result. **Nobody has measured these DLLs on Windows yet; your run would be among the
-> first.** It is not limited to Radeon: the DLLs should run on any graphics chip whose driver supports DirectX 12 with Shader Model 6.6,
-> which includes GeForce and Intel Arc. People use them there, nothing has been measured, and a
-> result from such a card would be the first. On Linux and the Steam Deck:
-> [the Linux kit](timing-kit).
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 150 MB, updated 2026-10-10): unpack, double-click
+> `fsr4time.exe`, wait about seven minutes. It times FSR 4 with AMD's shaders and with these DLLs on
+> your graphics card, shows which DLLs give the same picture on your machine, and offers to send
+> the result. **The first reports from Windows are in, from eight graphics cards; every further
+> card helps.** New in this version: the summary carries a fingerprint of each picture, and two
+> more reference DLLs for **RX 6000 cards**, where AMD's own shaders show ghosting under Windows:
+> if you have one, your run tells us whether the exact DLL gives the corrected picture there.
+> If you ran the earlier kit, please download again. It is not limited to Radeon: the DLLs should
+> run on any graphics chip whose driver supports DirectX 12 with Shader Model 6.6, which includes
+> GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
 > [What the kits do](timing-kit#windows-experimental)
 
 **The technical pages behind this release:**
@@ -146,8 +148,8 @@ Two things changed inside both DLLs, with the same picture as before:
   graphics driver to discard.
 
 Both can make the DLLs faster on Windows, where AMD's own driver compiles these shaders. How much
-depends on what that driver did with the leftover code and the scattered writes, and nobody has
-measured it yet. **That is what the [Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) is for:** it times the DLLs on
+depends on what that driver did with the leftover code and the scattered writes. The first
+reports from Windows are in and differ a lot from card to card; more are needed. **That is what the [Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) is for:** it times the DLLs on
 your graphics card, and the previous release's too if you put its file into a folder of its own
 under `dlls`.
 

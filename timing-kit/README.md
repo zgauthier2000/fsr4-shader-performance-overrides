@@ -34,8 +34,8 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) (110 MB) is a different program for the same purpose. Unpack it, close games and
-browsers, and double-click `fsr4time.exe`; it takes about five minutes.
+[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) (150 MB, updated 2026-10-10) is a different program for the same purpose. Unpack it, close games and
+browsers, and double-click `fsr4time.exe`; it takes about seven minutes.
 
 - **What it times:** whole upscale calls, as a game makes them, through AMD's FidelityFX API on Direct3D 12, with each DLL in
   its `dlls` folder: AMD's shaders (the reference), this project's exact and lossy DLLs, and the two for integrated graphics.

@@ -11,7 +11,7 @@ https://github.com/zgauthier2000/fsr4-shader-performance-overrides
 How to run it
   1. Unpack the whole folder somewhere (not inside the zip viewer).
   2. Close games, browsers and video players.
-  3. Double-click fsr4time.exe. It takes about five minutes. Leave the PC alone while it runs.
+  3. Double-click fsr4time.exe. It takes about seven minutes. Leave the PC alone while it runs.
   4. At the end it shows a summary, saves it as results-<time>.txt in this folder, and asks
      whether to send it to the project. Only the summary you see is sent.
 
