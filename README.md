@@ -9,9 +9,12 @@ FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the 
 
 | Your graphics card | Download |
 |---|---|
-| Radeon RX 7000 or RX 6000 (desktop and laptop cards) | **[fsr4.1.1-cyboman.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-cyboman.zip)** |
-| Integrated Radeon graphics and handhelds (Radeon 780M, 890M, Steam Deck and the like) | **[fsr4.1.1-igpu-cyboman.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-igpu-cyboman.zip)** |
+| A Radeon **RX 7000 or RX 6000** graphics card: the name has "RX" and a four-digit number, such as RX 7800 XT or RX 6700 XT. This includes gaming laptops with their own RX chip (RX 7700S, RX 6700M and the like) | **[fsr4.1.1-cyboman.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-cyboman.zip)** |
+| **Graphics built into the processor:** most laptops, mini PCs and handhelds. The name is "Radeon Graphics" or "Radeon" with a three-digit number, such as Radeon 780M or 890M; also the Steam Deck | **[fsr4.1.1-igpu-cyboman.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-igpu-cyboman.zip)** |
 | Radeon RX 9000 | not for these cards: they run a different FSR 4. Do not install it there. |
+
+Not sure which you have? In Windows, open Task Manager, go to Performance and look at the GPU's name; on a
+laptop with two, the RX one is the one games use.
 
 **2. Choose a version.** Each zip holds two folders with one file each:
 
@@ -87,8 +90,8 @@ only in one shader that is built smaller. Details: [GPU support](docs/gpu-suppor
 
 ## What's new
 
-**Two downloads instead of eight.** One zip for desktop and laptop cards, one for integrated
-graphics and handhelds; each holds the exact and the lossy DLL. The separate RX 6000 builds are
+**Two downloads instead of eight.** One zip for Radeon RX 7000 and RX 6000 graphics cards, one for
+graphics built into the processor (most laptops, handhelds); each holds the exact and the lossy DLL. The separate RX 6000 builds are
 gone: their fix is now in the main DLL. It cost nothing measurable here (an RX 7800 XT under
 Proton); on Windows with an RX 7000 card that has not been measured yet.
 

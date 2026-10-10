@@ -16,8 +16,8 @@ Since release `dll-2026-10-09` there are two downloads instead of a file per GPU
 
 | Download | Version name shown | For | What differs |
 |---|---|---|---|
-| [`fsr4.1.1-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-cyboman.zip) | `4.1.1-cyboman`, `4.1.1-lossy-cyboman` | RX 7000 and RX 6000 cards, desktop and laptop | pass 11 unrolled (fastest on these cards) |
-| [`fsr4.1.1-igpu-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-igpu-cyboman.zip) | `4.1.1-igpu-cyboman`, `4.1.1-igpu-lossy-cyboman` | integrated Radeon graphics, handhelds, and small RX 6000 chips if the first is slow there | pass 11 with its loops kept (small code) |
+| [`fsr4.1.1-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-cyboman.zip) | `4.1.1-cyboman`, `4.1.1-lossy-cyboman` | RX 7000 and RX 6000 graphics cards, including gaming laptops with their own RX chip (RX 7700S, RX 6700M and the like) | pass 11 unrolled (fastest on these cards) |
+| [`fsr4.1.1-igpu-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-igpu-cyboman.zip) | `4.1.1-igpu-cyboman`, `4.1.1-igpu-lossy-cyboman` | graphics built into the processor (most laptops, mini PCs, handhelds: Radeon 780M, 890M, Steam Deck), and small RX 6000 chips if the first is slow there | pass 11 with its loops kept (small code) |
 
 Both carry what used to be the separate RX 6000 change: the postpass's dot products in the split form
 ([below](#rdna2-needs-one-more-change-the-dot-products)). On an RX 7800 XT under Proton the split form times the same as AMD's
