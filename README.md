@@ -41,6 +41,35 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 **To undo it,** delete the file and rename the `.orig` file back.
 
+## What to expect
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
+  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.15 milliseconds, 120 frames per second, very close picture, opt-in. Lower output resolutions and slower cards gain less.">
+</picture>
+
+- **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
+  DLL gains little, sometimes nothing you can measure; the lossy DLL still helps there, because it
+  skips work instead of only doing the same work faster.
+- **It only shows when the graphics card is the limit.** If the processor limits your frame rate,
+  the frame rate does not change.
+- **The exact DLL cannot change the picture.** Its output was compared with AMD's byte for byte at
+  720p, 1080p, 1440p, 4K and 5K, in still and moving scenes.
+- **The lossy DLL trades a little accuracy for speed.** It runs FSR 4's neural network on every
+  other frame and carries its result along with the picture's motion in between. Measured
+  differences and comparison crops: [exact and lossy compared](docs/exact-vs-lossy.md). What the
+  alternating cost means for frame caps and V-Sync: [frame pacing](docs/frame-pacing.md).
+
+Measured on a Radeon RX 7800 XT, Shadow of the Tomb Raider's benchmark, 4K output, FSR 4.1.1 Balanced:
+
+| | FSR 4 time per frame | Frame rate | Picture |
+|---|---|---|---|
+| AMD's shaders | 4.16 ms | 97 FPS | the reference |
+| Exact | 2.99 ms (−28%) | 109 FPS (+12%) | identical |
+| Lossy | 2.15 ms (−48%) | 120 FPS (+24%) | still picture within 0.2 dB of AMD's |
+
+More games and resolutions: [all results](docs/results.md).
+
 ## New in this release
 
 > ### Help test it: the timing kit
@@ -120,35 +149,6 @@ builds are gone: their fix is in both DLLs now. It cost nothing measurable here;
 an RX 7000 card that has not been measured either.
 
 Earlier releases: [changelog](docs/changelog.md).
-
-## What to expect
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
-  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.15 milliseconds, 120 frames per second, very close picture, opt-in. Lower output resolutions and slower cards gain less.">
-</picture>
-
-- **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
-  DLL gains little, sometimes nothing you can measure; the lossy DLL still helps there, because it
-  skips work instead of only doing the same work faster.
-- **It only shows when the graphics card is the limit.** If the processor limits your frame rate,
-  the frame rate does not change.
-- **The exact DLL cannot change the picture.** Its output was compared with AMD's byte for byte at
-  720p, 1080p, 1440p, 4K and 5K, in still and moving scenes.
-- **The lossy DLL trades a little accuracy for speed.** It runs FSR 4's neural network on every
-  other frame and carries its result along with the picture's motion in between. Measured
-  differences and comparison crops: [exact and lossy compared](docs/exact-vs-lossy.md). What the
-  alternating cost means for frame caps and V-Sync: [frame pacing](docs/frame-pacing.md).
-
-Measured on a Radeon RX 7800 XT, Shadow of the Tomb Raider's benchmark, 4K output, FSR 4.1.1 Balanced:
-
-| | FSR 4 time per frame | Frame rate | Picture |
-|---|---|---|---|
-| AMD's shaders | 4.16 ms | 97 FPS | the reference |
-| Exact | 2.99 ms (−28%) | 109 FPS (+12%) | identical |
-| Lossy | 2.15 ms (−48%) | 120 FPS (+24%) | still picture within 0.2 dB of AMD's |
-
-More games and resolutions: [all results](docs/results.md).
 
 ## Will it work for me?
 
