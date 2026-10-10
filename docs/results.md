@@ -24,7 +24,7 @@ Shadow of the Tomb Raider's built-in benchmark, 4K output, FSR 4.1.1 Balanced, R
 | Lossy files | 2.15 ms (−48%) | 18565 | 120 (+24%) |
 
 The AMD figure and the exact figure are from earlier runs of the same benchmark; the exact files of this release differ from
-those only in the last pass's store path, which timed the same in a game.
+those only in the last pass's store path (1 to 2% of that pass in a bench), and that 4K run was not repeated with them.
 
 The same three, timed without a game by the [Windows timing kit](../timing-kit#windows-experimental) through the DLLs
 (under Proton on the same card; whole upscaler, made-up frames, mean of 200 calls):
