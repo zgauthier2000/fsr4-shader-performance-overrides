@@ -163,7 +163,7 @@ def part(k, curs, h, at):
                        f'  %sb.qa{c}{k} = fcmp olt float {h[c]}, %sb.ql{c}{k}', f'  %sb.qb{c}{k} = fcmp ogt float {h[c]}, %sb.qh{c}{k}', f'  %sb.qox{c}{k} = or i1 %sb.qa{c}{k}, %sb.qb{c}{k}']
                 flags.append(f'%sb.qox{c}{k}')
             if BRIGHT is not None:
-                c_ += [f'  %sb.bs{c}{k} = fmul fast float %sb.qr{c}{k}, {fl(float(BRIGHT))}', f"  %sb.bt{c}{k} = fadd fast float %sb.bs{c}{k}, {fl(float(os.environ.get('SB_BRIGHTABS', '0.02')))}",
+                c_ += [f'  %sb.bs{c}{k} = fmul fast float %sb.qr{c}{k}, {fl(float(BRIGHT))}', f"  %sb.bt{c}{k} = fadd fast float %sb.bs{c}{k}, {fl(float(os.environ.get('SB_BRIGHTABS', '0.05')))}",
                        f'  %sb.bd{c}{k} = fsub fast float {curs[c]}, {h[c]}', f'  %sb.bg{c}{k} = fcmp ogt float %sb.bd{c}{k}, %sb.bt{c}{k}']
                 if os.environ.get('SB_BRIGHTSYM') == '1':
                     c_ += [f'  %sb.bn{c}{k} = fsub fast float 0.000000e+00, %sb.bd{c}{k}', f'  %sb.bl{c}{k} = fcmp ogt float %sb.bn{c}{k}, %sb.bt{c}{k}', f'  %sb.bgs{c}{k} = or i1 %sb.bg{c}{k}, %sb.bl{c}{k}']
@@ -195,7 +195,7 @@ def part(k, curs, h, at):
             else:
                 c_ += [FMIN(f'{t}n{c}', mn[c], f'{t}v{c}'), FMAX(f'{t}m{c}', mx[c], f'{t}v{c}')]; mn[c], mx[c] = f'{t}n{c}', f'{t}m{c}'
     t = f'%ss.{k}.s'; fs = []
-    m_, ab, full = float(SAMPLE), float(os.environ.get('SB_SAMPLEABS', '0.02')), float(os.environ.get('SB_SAMPLEFULL', '1'))
+    m_, ab, full = float(SAMPLE), float(os.environ.get('SB_SAMPLEABS', '0.05')), float(os.environ.get('SB_SAMPLEFULL', '1'))
     for c in range(3):
         tc = samples_w(curs[c]); bv, bw = tc[0]
         for i, (v, w) in enumerate(tc[1:]):

@@ -36,15 +36,16 @@
 # frame, and the weight the model worked out a frame ago says "keep the old picture" where it has only just arrived.
 # Three tests find it; where one fires, the rest rule does not apply:
 #   SB_PART (default 0.25; "off"): the history lies outside the range of the nine new samples, widened by SB_PART x range;
-#   SB_BRIGHT (default 0.25; "off"; SB_BRIGHTABS 0.02; SB_BRIGHTSYM=0: brighter only): the resampled new frame differs from
+#   SB_BRIGHT (default 0.25; "off"; SB_BRIGHTABS 0.05; SB_BRIGHTSYM=0: brighter only): the resampled new frame differs from
 #     the history by more than SB_BRIGHT x range + SB_BRIGHTABS (slow things that still overlap their last image);
-#   SB_SAMPLE (default 1; "off"; SB_SAMPLEABS 0.02; SB_SAMPLEFULL 1): the nearest new sample (the one of the nine with the
+#   SB_SAMPLE (default 1; "off"; SB_SAMPLEABS 0.05; SB_SAMPLEFULL 1): the nearest new sample (the one of the nine with the
 #     largest weight) lies outside the range of the 3x3 history pixels around the pixel by more than SB_SAMPLE x range +
 #     SB_SAMPLEABS. A sample is one point of the scene, so for unchanged content it lies inside that range however fine the
 #     detail; this is what tells an arriving spark from still detail under another jitter. Such a pixel takes the new frame
 #     by how far outside the sample is: all of it SB_SAMPLEFULL x range beyond the threshold. SB_SAMPLEALL=0: at rest only
 #     (default: also in motion, where the history is already aligned to the frame).
-# SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behavior. SB_FULLW is a rejected experiment
+# SB_SAMPLEABS=0.02 SB_BRIGHTABS=0.02 gives release dll-2026-10-09's behavior (it let film grain and noise through on
+# skipped frames: the grain trips the sample test as a spark does). SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behavior. SB_FULLW is a rejected experiment
 # (the new frame in proportion to the SB_BRIGHT difference: two to three times the shimmer at rest).
 # SB_CONST (a constant factor on the 2^ term on skipped frames, default 0: (1 - a) becomes (1 - a)^2,
 # the new frame counts for very little where the model keeps history; "off" for none, as in release
@@ -70,7 +71,7 @@ ge = [n for n, l in enumerate(L) if n > main and 'OpUGreaterThanEqual %bool' in 
 br = next(n for n in range(ge[1], len(L)) if 'OpBranchConditional' in L[n])
 lab = L[br].split()[-1]; lab0 = lab
 at = next(n for n, l in enumerate(L) if re.match(rf'\s*{re.escape(lab)} = OpLabel', l))
-c = ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.02"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.02"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
+c = ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
      f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0', f"%sb_thr = OpConstant %float {float(os.environ.get('SB_THR', '0'))}", f"%sb_rel = OpConstant %float {float(os.environ.get('SB_REL', '0.1'))}"] + ([f"%sb_slack = OpConstant %float {CLAMP}"] if CLAMP is not None else []) + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
 if CONST:
     c.append(f'%sb_const = OpConstant %float {float(CONST)}')

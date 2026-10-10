@@ -143,6 +143,13 @@ Five repairs keep the rest honest (the fifth is the one just described):
 
 ## What the lossy builds cost, measured
 
+> **Release `dll-2026-10-10` changed the lossy build again** (less shimmer on grain and on bright flat areas). The table and
+> pictures below are still those of `dll-2026-10-09`. The new build's figures: still picture 44.06 dB; thin vertical /
+> horizontal detail 26.29 / 27.99 dB; flicker at rest on fine detail 0.101; change on thin vertical detail at rest 0.352;
+> moving scene background 48.72 dB, railing 41.30 dB, just-uncovered areas 36.45 dB; still camera railing 41.11 dB,
+> just-uncovered 31.98 dB; the worst piece in "Shimmer at rest" 0.109 (was 0.157). Large soft particles show more of a seam
+> than in the particle pictures below. [What changed and why](../research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
+
 Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's model, motion following, the rest rule and the repairs.
 "Release `dll-2026-10-07`" is the previous lossy build, which also folded weights.
 

@@ -13,16 +13,18 @@ What it does
 - Three kinds of pixel take the new frame on those frames all the same: ones a moving object
   has just uncovered, ones that scrolled in from outside the screen, and ones whose content
   changed without the game reporting motion (particles, sparks, embers).
-- The network's arithmetic itself is AMD's, unchanged. (Earlier lossy versions also
-  simplified it; this one does not.)
+- The network's arithmetic is AMD's except in its first layer, where a few of the smallest
+  weights are merged into their neighbors. That keeps flat, bright areas as steady as with
+  AMD's file. (Releases before dll-2026-10-09 simplified six layers, and more strongly.)
 
 What it costs
-- A still picture is about 0.2 dB less accurate than AMD's; thin lines lose a little more.
+- A still picture is about 0.3 dB less accurate than AMD's; thin lines lose a little more.
 - Strips that a moving object has just uncovered are less sharp for one frame, most of all
   when the camera pans fast against the object's motion.
 - On skipped frames the result depends on the game's motion vectors. Where they are wrong,
   it can be taken from the wrong place.
 - Small sparks are shown slightly dimmer on skipped frames than with AMD's file.
+- Large, soft glowing particles can show a faint seam or step on skipped frames.
 - Frame times alternate: a skipped frame is about 1.7 ms shorter than a normal one on an
   RX 7800 XT at 4K. With a frame cap or normal V-Sync the average is what counts; with
   low-latency modes or unbuffered V-Sync the longer frames can miss.

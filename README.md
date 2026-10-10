@@ -77,7 +77,7 @@ output, FSR 4.1.1 Balanced. Your card and your game will give other numbers:
 |---|---|---|---|
 | AMD's shaders | 4.16 ms | 97 FPS | the reference |
 | Exact | 2.99 ms (−28%) | 109 FPS (+12%) | identical |
-| Lossy | 2.15 ms (−48%) | 120 FPS (+24%) | still picture within 0.2 dB of AMD's |
+| Lossy | 2.15 ms (−48%) | 120 FPS (+24%) | still picture within 0.3 dB of AMD's |
 
 More games and resolutions: [all results](docs/results.md).
 
@@ -106,6 +106,7 @@ More games and resolutions: [all results](docs/results.md).
 
 **The technical pages behind this release:**
 
+- [Shimmer after the previous release: two causes](research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes): grain let through by the particle test, and bright flat areas on the unfolded network; how each was found and what the fix costs
 - [Particles, sparks and embers on skipped frames](research/frame-skip#content-without-motion-vectors-particles-sparks-embers-release-dll-2026-10-09): what went wrong, the three tests that fix it, what was tried and rejected, what it costs
 - [Exact and lossy compared](docs/exact-vs-lossy.md): every measurement of the lossy DLL against AMD's, with comparison pictures of the previous release and this one
 - [Why weight folding was taken out](research/lossy): the record of the experiment the lossy DLL no longer uses
@@ -114,7 +115,36 @@ More games and resolutions: [all results](docs/results.md).
 - [Frame pacing with the lossy DLL](docs/frame-pacing.md): what the alternating frame cost means for frame caps, V-Sync and latency
 - [The timing kits](timing-kit): what the Linux and Windows kits measure, and how to read their summaries
 
-### The lossy DLL shows particles properly, and is closer to AMD's picture
+### Less shimmer in the lossy DLL (release `dll-2026-10-10`)
+
+Testers of the previous release reported more shimmer than before. Two causes were found in the
+test rig, and both are fixed in the lossy DLL. **The exact DLL is unchanged.**
+
+- **Film grain and noisy surfaces.** The test that lets sparks through on skipped frames also let
+  grain through. It is now less sensitive.
+- **Bright, flat areas at rest** (sky, walls). With the neural network back to AMD's arithmetic,
+  frame skip made such areas move more than with AMD's shaders. Merging a few of the smallest
+  weights in the network's first layer brings that back to AMD's level.
+
+| Measured in the test rig at 4K, lower is steadier | AMD's shaders | `dll-2026-10-07` | `dll-2026-10-09` | This release |
+|---|---|---|---|---|
+| Change per frame at rest, worst piece of the picture | 0.126 | 0.111 | 0.157 | 0.109 |
+| Change per frame at rest, fine detail | 0.110 | 0.109 | 0.109 | 0.101 |
+| Change per frame with grain in the picture | 0.785 | 0.249 | 0.550 | 0.316 |
+| Fine stripes on a moving object, change per frame | 2.039 | 0.953 | 0.784 | 0.778 |
+| Tiny fast sparks shown on skipped frames | 83% | 16% | 77% | 76% |
+| Still picture against the true image | 44.33 dB | 43.68 dB | 44.12 dB | 44.06 dB |
+
+- **Speed is unchanged:** 2.37 ms against 2.38 ms for the whole upscaler at 4K (timing kit, RX 7800 XT under Proton).
+- **What got worse:** large, soft glowing particles show more of a seam on skipped frames
+  (error around them 2.8 against 1.7 in the rig; AMD's shaders 0.7), and the still picture is
+  0.06 dB further from AMD's.
+- Why folding the first layer steadies flat areas is measured, not understood.
+  [How the two causes were found](research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
+
+### Earlier: release `dll-2026-10-09`
+
+#### The lossy DLL shows particles properly, and is closer to AMD's picture
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/lossy-improved-dark.svg">
@@ -138,7 +168,7 @@ Enlarged like this, this release's particles are a little blocky and have thin s
 size and in motion that was not visible in the games it was checked in. More comparisons, and
 what the lossy DLL still does worse than AMD's: [exact and lossy compared](docs/exact-vs-lossy.md).
 
-### A possible speed-up on Windows, and how to help find out
+#### A possible speed-up on Windows, and how to help find out
 
 Two things changed inside both DLLs, with the same picture as before:
 

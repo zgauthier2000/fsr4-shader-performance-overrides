@@ -661,6 +661,63 @@ the 1080p scene are unchanged within noise. The test reads eight more history pi
 pixel on skipped frames. Checked by eye in both games. The rig's dots are a guess at what games
 draw; fainter particles may be caught less reliably.
 
+## Shimmer reported after release `dll-2026-10-09`: two causes
+
+Testers of `dll-2026-10-09` reported more shimmer than with the release before it. The test rig showed two
+separate causes. Both fixes are in release `dll-2026-10-10`; the figures are single runs at 4K Balanced, and
+"change per frame" is how much a pixel changes from one frame to the next, in steps of 255.
+
+**1. Grain and noise pass the particle test.** The rig's still scene has no grain, so this was not seen before the
+release. With random grain added to every input frame:
+
+| Grain in the input | AMD's | `dll-2026-10-07` | `dll-2026-10-09` | Sample test off | Threshold 0.05 | Threshold 0.10 |
+|---|---|---|---|---|---|---|
+| none | 0.037 | 0.033 | 0.036 | | | |
+| 2 of 255 | 0.141 | 0.086 | 0.102 | | | |
+| 6 of 255 | 0.785 | 0.249 | 0.550 | 0.371 | 0.358 | 0.354 |
+
+- The cause is the sample test (`SB_SAMPLE`): a grain speck lies outside what the history shows around the pixel, just as a
+  spark does. The other two particle tests change nothing here.
+- Its fixed part (`SB_SAMPLEABS`, and `SB_BRIGHTABS` with it) went from 0.02 to 0.05. That removes the effect at this grain
+  level. Stronger grain than that would still pass.
+- **Cost:** tiny fast sparks shown on skipped frames 77% -> 76%; error around large soft particles 1.69 -> 2.79 (AMD's 0.66).
+
+**2. Bright flat areas at rest, on the unfolded model.** In the piece of the still scene where the lossy build moves most
+(bright wall and sky), `dll-2026-10-09` read 0.157 against 0.126 for AMD's and 0.111 for `dll-2026-10-07`. A build
+without any particle handling reads 0.157 too, so this is not the particle tests. Swapping model passes back in from
+`dll-2026-10-07`, one group at a time:
+
+| Model passes taken from `dll-2026-10-07` | That piece | Bright flat areas | Still picture |
+|---|---|---|---|
+| none (as `dll-2026-10-09`) | 0.157 | 0.138 | 44.03 dB |
+| pass 1 | 0.090 | 0.051 | 43.87 dB |
+| pass 2, 4, 5, 10 or 12, one at a time | 0.157 to 0.167 | 0.136 to 0.157 | 43.70 to 44.04 dB |
+| passes 7, 8, 9 | 0.159 | 0.138 | 44.03 dB |
+| AMD's shaders, for reference | 0.126 | 0.078 | 44.33 dB |
+
+Only the first pass matters. Its earlier lossy form had two changes, [folding](../lossy) of 4 of its 36 weight words and a
+rounding change. Separately, and with less folding:
+
+| Pass 1 | That piece | Bright flat areas | Fine stripes on a moving object |
+|---|---|---|---|
+| AMD's | 0.154 | 0.134 | 0.785 |
+| rounding change only | 0.154 | 0.134 | 0.785 |
+| 1 word folded | 0.155 | 0.135 | 0.765 |
+| **2 words folded** | **0.109** | **0.081** | **0.778** |
+| 3 words folded | 0.109 | 0.071 | 0.934 |
+| 4 words folded | 0.093 | 0.050 | 0.945 |
+
+- Release `dll-2026-10-10` folds 2 words in pass 1 (all six versions of it, `wfold.py 2`), without the rounding change.
+  Two is the point where the flat areas are back at AMD's level and the moving stripes have not changed.
+- **Not understood:** why folding that layer steadies flat areas under frame skip. It is a tuned setting. On the frames that
+  run the model the picture now differs slightly from AMD's again (still picture 44.06 dB against 44.12).
+
+The release build after both changes: that piece 0.109, fine detail at rest 0.101 (AMD's 0.110), grain 0.316, thin
+vertical detail 26.29 dB with a change per frame of 0.352 (was 26.34 dB and 0.377). At 1080p output in motion, in the
+frame-rate sweep, with a still camera, in the ghost scenes and at a pan start it is level with `dll-2026-10-09`.
+The lossy DLLs give the Linux files' output byte for byte in 14 of 14 rig runs (4K, 1440p, 1080p; moving, particles,
+still, grain). Speed is unchanged. Not checked: output sizes above 4K, and anything on Windows.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
@@ -820,3 +877,4 @@ And each output pixel depends on about 50 pixels around it.
 | `motionpost_dxil.py` | the same for the DLL's postpass (DXIL text) |
 | `skipblend.py` | the shimmer correction, the history clamp, the edge guard and the uncovered-pixel flag for the postpass (SPIR-V text); run it after `motionpost.py` and before the store rewrite |
 | `skipblend_dxil.py` | the same for the DLL's postpass (DXIL text) |
+| [`../lossy/wfold.py`](../lossy/wfold.py), `wfold_dxil.py` | since release `dll-2026-10-10` the lossy build runs these on pass 1 with 2 words (`wfold.py 2`), before the exact rewrites and `frameskip.py` |

@@ -30,6 +30,9 @@ available as a separate, opt-in test build; see [the last section](#the-opt-in-t
 > every other frame ([frame skip](../frame-skip)): with the model running half as often, folding saved about 0.07 ms per frame
 > (1% of the frame rate in Shadow of the Tomb Raider at 4K) and cost about 0.35 dB in a still picture. The page stays as the record
 > of the experiment; the tools still work.
+>
+> **One small part is back since `dll-2026-10-10`:** 2 of pass 1's 36 weight words are folded again, not for speed but because it
+> keeps bright flat areas steady under frame skip ([how that was found](../frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes)).
 
 > **WARNING: the test build changes the image.** It is not the same as the main DLL, the prebuilt
 > folder or AMD's DLL, all of which produce the same image byte for byte.
