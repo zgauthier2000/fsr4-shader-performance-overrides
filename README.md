@@ -115,7 +115,7 @@ One test scene on one graphics card; [the comparison page](docs/upscaler-compari
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **The first reports from Windows are in, from eight graphics cards; every further
 > card helps.**
-> - **Both kits carry the lossy files of release `dll-2026-10-11`** (updated 2026-10-11); this release's change does not alter their timings. If you ran an earlier kit, please download again.
+> - **Both kits carry this release's lossy files** (kit versions 2026-10-11.2). If you ran an earlier kit, please download again.
 > - **RX 6000 owners:** AMD's own shaders show ghosting on these cards under Windows. The kit has two
 >   extra reference DLLs and prints a fingerprint of each picture, so your run tells us whether the
 >   exact DLL gives the corrected picture there.
