@@ -5,6 +5,11 @@ FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the 
 
 ## Quick start
 
+> [!WARNING]
+> **Never use this in online games or in any game with anti-cheat.** These are modified game files. Anti-cheat
+> software can treat a changed DLL or changed shaders as tampering, and that can get an account banned. Use it in
+> single-player games only.
+
 **1. Download the zip for your graphics card.**
 
 | Your graphics card | Download |
@@ -213,8 +218,8 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 - **Nothing else changes.** No game files are edited, and the output was compared byte for byte
   with AMD's at 4K, 1440p and 1080p.
 - **Game and OptiScaler updates** can put the original DLL back; the launch option keeps working.
-- **Online games:** this changes the shaders the game renders with. Use your own judgment in
-  games with anti-cheat.
+- **Never in online games or games with anti-cheat.** This changes the shaders the game renders with, and anti-cheat
+  software can treat that as tampering. Single-player games only.
 - **Linux:** do not set `RADV_PERFTEST=cswave32` for a game that runs FSR 4; it adds about 1.1 ms.
 
 ## More

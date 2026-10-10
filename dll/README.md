@@ -105,7 +105,8 @@ combinations, all identical, with both replaced shaders confirmed running in eac
   [launch option](../docs/linux.md#quick-start-the-prebuilt-files) is the faster choice. Using both
   does no harm: the override files only match AMD's original shaders, so they are ignored.
 - **Game and OptiScaler updates** may put the original DLL back.
-- **Online games.** The DLL is modified code; use your own judgment in games with anti-cheat.
+- **Never in online games or games with anti-cheat.** The DLL is modified code, and anti-cheat software can treat it as
+  tampering. Single-player games only.
 
 ## License
 

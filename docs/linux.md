@@ -137,8 +137,9 @@ With a different FSR DLL version or another Proton, dump that game and build you
   `.gitignore` excludes dumps and your own `override/` folder.
 - **Set the variable per game.** With `VKD3D_SHADER_OVERRIDE` set, vkd3d-proton stops using the
   SPIR-V stored in its pipeline caches for that game, which can lengthen the first loads.
-- **Online games.** This only sets an environment variable for vkd3d-proton, but it does change
-  what the game renders with. Use your own judgment in games with anti-cheat.
+- **Never in online games or games with anti-cheat.** The launch option only sets an environment variable for
+  vkd3d-proton, but it does change what the game renders with, and anti-cheat software can treat that as tampering.
+  Single-player games only.
 - **Do not set `RADV_PERFTEST=cswave32`** for a game that runs FSR 4. In a standalone benchmark it
   made every model pass 40 to 65% slower (pass 1: 0.29 to 0.45 ms; all 12: 2.03 to 3.13 ms), about
   1.1 ms of FSR 4 per frame.
