@@ -832,6 +832,68 @@ other ghost scenes, and the four [foliage scenes](../../docs/exact-vs-lossy.md#l
 give the Linux files' output byte for byte in 19 of 19 rig runs (4K, 1440p, 1080p; moving, particles, wires, foliage, still,
 grain), and the whole upscaler takes 2.34 ms at 4K against 2.36 ms (Windows kit under Proton, RX 7800 XT).
 
+## A still object over fast ground (release `dll-2026-10-11.2`)
+
+A tester's video of a racing game with frame generation showed, with the lossy DLL of `dll-2026-10-11`, the car's white
+license plate leaving a plate-wide patch of bright streaks on the road just behind the car, on some frames and not on
+others. The exact DLL did not show it. This release is a test of the fix: it is measured in the rig and not yet confirmed
+in the game.
+
+### The cause
+
+- Road that has just come out from behind the car has, in the history, the car's image. Two things keep that image off a
+  skipped frame: the uncovered test (the record of who was where a frame ago) and the history clamp.
+- The uncovered test needs depth to say which surface was in front. Prepass versions without a depth search store none
+  (`frameskip.py`), so nothing is ever flagged there; and with equal depths the test has nothing to go by either.
+- `dll-2026-10-11` relaxed the clamp in motion in proportion to the model's verdict of a frame ago (`SB_CLAMPW`), for the
+  thin wires. That verdict is a frame old: where the plate was a frame ago it says "settled", so the clamp was off exactly
+  where the plate's image was about to be carried onto the road.
+
+The rig shows it with a still bright block over a background that moves 100 pixels per frame, both at the same depth
+(`SCENE_VB="0 -100" SCENE_VO="0 0" SCENE_BLOCKCOL=0.85 SCENE_DEPTH="0.3 0.3"`, measured with `ghost.py`: error on skipped
+frames where the block's old image lands, 8-bit steps). Which of the two reasons applies in the tester's game is not known.
+
+| | AMD's | `dll-2026-10-07` | `dll-2026-10-09` | `dll-2026-10-10` | `dll-2026-10-11` |
+|---|---|---|---|---|---|
+| Same depth | 1.62 | 7.51 | 2.10 | 2.51 | 6.06 |
+| Distinct depths (0.9 and 0.3) | 1.58 | 1.53 | 1.42 | 1.44 | 1.46 |
+
+### Two fixes tried
+
+- **The clamp in full beside anything that moves differently** (`SB_CLAMPEDGE`, the release): where one of the cells the
+  uncovered test already looks at (what now sits where the pixel's content was, and cells 3 and 8 away on each side) moves
+  differently from the pixel, the clamp ignores the verdict. It costs one select per channel.
+- **The uncovered test without depth** (`SB_UNCOV=1`): better on this scene and worse nearly everywhere else. Without depth
+  it cannot tell which of two surfaces was in front, so it also throws away the history of moving objects themselves.
+
+| 4K, skipped frames | AMD's | `dll-2026-10-11` | `SB_CLAMPEDGE` | `SB_UNCOV=1` |
+|---|---|---|---|---|
+| Still object over fast ground, same depth | 1.62 | 6.06 | 2.57 | 1.40 |
+| The same, ground at 20 pixels per frame | 5.79 | 5.76 | 4.95 | 3.76 |
+| Just-uncovered areas, moving scene | 34.48 dB | 36.12 dB | 36.34 dB | 32.55 dB |
+| Just-uncovered at 30 / 60 / 90 / 120 FPS, against AMD's | | −1.8 / +1.2 / −0.9 / +1.7 dB | −1.8 / +1.2 / −0.8 / +2.8 dB | −9.5 / +0.8 / −1.1 / +1.1 dB |
+| Railing, change per frame at 30 FPS, against AMD's | | x0.99 | x0.99 | x1.81 |
+| Fine stripes on a moving object, change per frame | 2.039 | 0.780 | 0.780 | 0.861 |
+| Ghost on thin bars: still camera / fast pan | 0.95 / 0.33 | 0.85 / 0.47 | 0.85 / 0.43 | 5.19 / 2.91 |
+| Wire, camera still / slow pan: change per frame | 2.9 / 7.2 | 3.3 / 16.9 | 3.3 / 17.9 | 3.3 / 17.1 |
+| Wire, fast pan: unevenness along it | +9 | +11 | +13 | +12 |
+
+### The release build against `dll-2026-10-11`
+
+- Different: the rows above. The wire rows are the one thing that got worse: the test scene's wires pass close to still
+  objects while the camera pans, and there the clamp is back.
+- The same to the last digit shown, or within 0.1 dB or 1%: still picture and thin detail, flat areas and fine detail at
+  rest, the moving scene at 4K, 1440p and 1080p apart from just-uncovered areas (+0.05 dB at 1440p, +0.10 dB at 1080p),
+  still camera with moving objects, the other ghost measures, large and tiny particles, grain, the four foliage scenes, the
+  strip revealed when a pan starts.
+- Still scenes give the same frames bit for bit at 4K, 1440p and 1080p (8 of 8 each).
+- The lossy DLLs give the Linux files' output byte for byte in 21 of 21 rig runs (4K, 1440p, 1080p; moving, particles,
+  wires, foliage, still, grain, and the new scene; both flavors).
+- Speed: 2.36 ms against 2.35 ms for the whole upscaler at 4K (Windows kit under Proton, RX 7800 XT, the release DLL timed
+  twice in the same run: 2.34 to 2.36).
+- Not checked: frame generation (the rig cannot run it), the game itself, and Windows.
+- `SB_CLAMPEDGE=0` rebuilds `dll-2026-10-11`'s files.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in

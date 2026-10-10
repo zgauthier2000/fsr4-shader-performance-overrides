@@ -43,6 +43,7 @@ head = [f'  %sb.h = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.typ
         '  %sb.djx = fsub fast float %sb.pjx, %sb.jx', '  %sb.djy = fsub fast float %sb.pjy, %sb.jy']
 UNCOV = os.environ.get('SB_UNCOV', 'depth') == 'depth'
 REST = UNCOV and os.environ.get('SB_REST', '1') == '1'
+EDGE = os.environ.get('SB_CLAMPEDGE', '1') == '1' and UNCOV and bool(os.environ.get('SB_CLAMPW'))      # as in skipblend.py
 ENTRY_LABEL = '%0'
 if UNCOV:
     # as in skipblend.py: a cell is flagged when a nearer surface that moves differently was in front of its content a frame ago
@@ -97,6 +98,7 @@ if UNCOV:
                   dread(f'{p}t') + [f'  {p}front = fcmp olt float {p}tz, %sm.pz', f'  {p}okd = icmp ne i32 {p}tdu, 0', f'  {p}fr = and i1 {p}front, {p}okd', f'  {p}th2 = and i1 {p}there, {p}fr',
                                     f'  {p}hit = and i1 {p}diff, {p}th2', f'  {p}acc = or i1 {flag}, {p}hit']
         flag = f'{p}acc'
+    edge_any = any_
     # at rest: this cell does not move, and neither does anything looked at around it
     if REST:
         mh += ['  %sm.por = or i32 %sm.pdx, %sm.pdy', '  %sm.c0u = icmp eq i32 %sm.por, 0', f'  %sm.nany = xor i1 {any_}, true', '  %sm.rin = and i1 %sm.c0u, %sm.nany']
@@ -118,9 +120,10 @@ if UNCOV:
                '  %sm.Wxs = shl i32 %sm.Wm, 16', '  %sm.Wd0 = ashr i32 %sm.Wxs, 16', '  %sm.We0 = ashr i32 %sm.Wm, 16'] + sclamp('%sm.Wdx', '%sm.Wd0', -254, 254) + sclamp('%sm.Wdy', '%sm.We0', -254, 254) + \
               near('%sm.Wsame', '%sm.Wdx', '%sm.Wdy', '%sm.pdx', '%sm.pdy', 1) + dread('%sm.W') + [
                '  %sm.Wdiff = xor i1 %sm.Wsame, true', '  %sm.Wfront = fcmp olt float %sm.Wz, %sm.pz', '  %sm.Wokd = icmp ne i32 %sm.Wdu, 0', '  %sm.Wh1 = and i1 %sm.Wdiff, %sm.Wfront', '  %sm.Whit = and i1 %sm.Wh1, %sm.Wokd']
+        edge_any = any_
         any_, stage2, flag = '%sm.Pany', win, '%sm.Whit'
     mh += [f'  br i1 {any_}, label %sm.T2, label %sm.M2', '', 'sm.T2:'] + dread('%sm.p') + stage2 + ['  br label %sm.M2', '', 'sm.M2:', f'  %sm.fl2 = phi i1 [ {flag}, %sm.T2 ], [ false, %sm.T ]',
-           '  br label %sm.M', '', 'sm.M:', f'  %sm.flag = phi i1 [ %sm.fl2, %sm.M2 ], [ false, {FL_BLOCK} ]'] + ([f'  %sm.rest = phi i1 [ %sm.rin, %sm.M2 ], [ false, {FL_BLOCK} ]'] if REST else [])
+           '  br label %sm.M', '', 'sm.M:', f'  %sm.flag = phi i1 [ %sm.fl2, %sm.M2 ], [ false, {FL_BLOCK} ]'] + ([f'  %sm.rest = phi i1 [ %sm.rin, %sm.M2 ], [ false, {FL_BLOCK} ]'] if REST else []) + ([f'  %sm.edge = phi i1 [ {edge_any}, %sm.M2 ], [ false, {FL_BLOCK} ]'] if EDGE else [])
 fl = lambda v: '0x%016X' % __import__('struct').unpack('<Q', __import__('struct').pack('<d', __import__('struct').unpack('<f', __import__('struct').pack('<f', v))[0]))[0]
 out = L[:e1] + head
 
@@ -400,7 +403,7 @@ else:
                                    *([f'  %sb.hcr{c}{k} = select i1 %sm.rest, float {h[c]}, float %sb.hc{c}{k}'] if NOCLAMPREST and REST else []),
                                    *([f'  %sb.cwa{c}{k} = fsub fast float {w}, {fl(_cw[0])}', f'  %sb.cwq{c}{k} = fdiv fast float %sb.cwa{c}{k}, {fl(max(_cw[1] - _cw[0], 1e-6))}',
                                       FMAX(f'%sb.cwu{c}{k}', f'%sb.cwq{c}{k}', '0.000000e+00'), FMIN(f'%sb.cwr{c}{k}', f'%sb.cwu{c}{k}', '1.000000e+00'),
-                                      f'  %sb.cwx{c}{k} = fsub fast float ' + (f'%sb.hcr{c}{k}' if NOCLAMPREST and REST else f'%sb.hc{c}{k}') + f', {h[c]}', f'  %sb.cwy{c}{k} = fmul fast float %sb.cwx{c}{k}, %sb.cwr{c}{k}',
+                                      f'  %sb.cwx{c}{k} = fsub fast float ' + (f'%sb.hcr{c}{k}' if NOCLAMPREST and REST else f'%sb.hc{c}{k}') + f', {h[c]}', *([f'  %sb.cwe{c}{k} = select i1 %sm.edge, float 1.000000e+00, float %sb.cwr{c}{k}'] if EDGE else []), f'  %sb.cwy{c}{k} = fmul fast float %sb.cwx{c}{k}, ' + (f'%sb.cwe{c}{k}' if EDGE else f'%sb.cwr{c}{k}'),
                                       f'  %sb.cwh{c}{k} = fadd fast float {h[c]}, %sb.cwy{c}{k}',
                                       (f'  %sb.hcw{c}{k} = select i1 %sm.rest, float {h[c]}, float %sb.cwh{c}{k}' if NOCLAMPREST and REST else f'  %sb.hcw{c}{k} = fmul fast float %sb.cwh{c}{k}, 1.000000e+00')] if _cw else []),
                                    f'  %sb.hd{c}{k} = fsub fast float ' + (f'%sb.hcw{c}{k}' if _cw else f'%sb.hcr{c}{k}' if NOCLAMPREST and REST else f'%sb.hc{c}{k}') + f', {h[c]}', f'  %sb.ha{c}{k} = fmul fast float %sb.hd{c}{k}, %sb.an{k}',

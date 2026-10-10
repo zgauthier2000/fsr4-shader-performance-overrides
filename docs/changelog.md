@@ -2,8 +2,52 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-10` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-11` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-11 ([release `dll-2026-10-11`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11))
+
+### Wires, particles and steadier detail in the lossy DLL
+
+*Written for `dll-2026-10-11`: "this release" below means that one. The picture is redrawn with each release and now shows the current lossy build as "this release".*
+
+Three changes to the lossy DLL, all from tester reports. **The exact DLL is unchanged.**
+
+- **White beads on distant power lines are fixed.** Thin things far away, such as power lines, showed bright
+  dots that crawled along them. On the frames that skip the neural network, a rule that keeps the previous
+  picture in line with the new frame was erasing anything thinner than a rendered pixel, and each time a new
+  sample hit the wire again it was shown as a spark. That rule no longer applies where the picture is at rest,
+  and while the camera moves it applies only where the network had already given up on the previous picture.
+- **Large glows and slow embers are close to AMD's now.** Where the network itself asked for the new frame
+  on the frame before, a skipped frame now takes it.
+- **Fine detail and flat areas at rest are a little steadier.** A few of the smallest weights are merged in
+  two more of the network's layers, the same light touch as in the first layer since the last release.
+
+| Measured in the test rig at 4K | AMD's shaders | `dll-2026-10-10` | This release |
+|---|---|---|---|
+| Thin wire, camera still: change per frame along it | 2.9 | 40.5 | 3.3 |
+| Thin wire, slow pan: change per frame along it | 7.2 | 58.6 | 16.9 |
+| Thin wire, fast pan: unevenness along it | +9 | +50 | +11 |
+| Large glowing particles on skipped frames: error | 0.66 | 2.79 | 1.38 |
+| Slow embers shown on skipped frames | 81% | 74% | 81% |
+| Thin vertical detail in a still picture | 27.09 dB | 26.29 dB | 26.64 dB |
+| Change per frame at rest, fine detail | 0.110 | 0.101 | 0.092 |
+| Change per frame at rest, worst flat piece | 0.126 | 0.109 | 0.094 |
+
+One wire on a frame that skips the network, camera still, enlarged:
+
+<img src="img/cmp-wires.png" width="760" alt="A thin wire on a dark background on a frame that skips the neural network, camera still, enlarged: the true image shows a thin continuous line; the exact files show a continuous, dimmer line; the lossy build of release dll-2026-10-10 shows separate bright dashes where samples hit the wire; this release's lossy build shows a continuous dim line like the exact files.">
+
+- **Speed is unchanged:** 2.34 ms against 2.36 ms for the whole upscaler at 4K (timing kit, RX 7800 XT under Proton).
+- **What got worse:**
+  - Areas a moving object has just uncovered keep less of their lead over AMD's: 36.1 dB against 36.5 in the
+    moving test scene (AMD's 34.5), and 0.5 dB worse than before at 30 FPS.
+  - Strong film grain is passed on 11 to 14% more than in the last release (still well below AMD's).
+- **Still open:** a thin wire under a slow pan flickers about twice as much as with AMD's shaders, fast sparks are
+  shown at 76% against AMD's 83%, and [moving foliage](exact-vs-lossy.md#limits-of-the-lossy-builds) is
+  softer than with AMD's.
+- These are single runs on made-up scenes; in games it was looked at on one machine.
+  [How each cause was found](../research/frame-skip#thin-wires-particles-and-light-folds-release-dll-2026-10-11).
 
 ## 2026-10-10 ([release `dll-2026-10-10`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-10))
 

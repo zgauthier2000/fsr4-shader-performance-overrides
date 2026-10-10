@@ -14,10 +14,10 @@ KEYS = ['fsr4', 'lossy', 'fsr3', 'helix', 'xess']
 # (title, unit note, values in NAMES order, format, True if higher is better)
 QUALITY = [
     ('Still picture', 'accuracy, dB', [44.33, 44.15, 39.94, 41.99, 42.14], '{:.1f}', True),
-    ('Just-uncovered areas', 'accuracy in motion, dB', [34.48, 36.12, 29.22, 27.11, 30.20], '{:.1f}', True),
+    ('Just-uncovered areas', 'accuracy in motion, dB', [34.48, 36.34, 29.22, 27.11, 30.20], '{:.1f}', True),
     ('Tiny fast sparks', 'share of brightness shown, %', [83, 76, 40, 79, 50], '{:.0f}', True),
     ('Swaying foliage', 'error, of 255', [12.1, 18.6, 16.8, 15.5, 15.5], '{:.1f}', False),
-    ('Thin wire, slow pan', 'change per frame, of 255', [7.2, 16.9, 8.2, 5.6, 10.1], '{:.1f}', False),
+    ('Thin wire, slow pan', 'change per frame, of 255', [7.2, 17.9, 8.2, 5.6, 10.1], '{:.1f}', False),
     ('Film grain (10 of 255)', 'change per frame, of 255', [1.72, 1.05, 0.31, 0.30, 0.23], '{:.2f}', False),
 ]
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']

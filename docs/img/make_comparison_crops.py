@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_comparison_crops.py <dir>: the comparison images of docs/exact-vs-lossy.md (cmp-still.png,
-# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png), from test-rig output (research/pruning: fsr4img with
+# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png, cmp-plate.png), from test-rig output (research/pruning: fsr4img with
 # gen_inputs.py / gen_motion.py, 4K Balanced, 40 frames, the last 8 kept). <dir> holds, for X = exact (the main
-# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-11):
+# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-11.2):
 #   still_X/                 output_3840x2160_f032..039.raw (RGBA16F), and still_truth.npy, the true 4K image
 #   wires_exact/, wires_rel/ (the lossy build of release dll-2026-10-10), wires_lossy/, wires_truth_037.npy   frame 37 of the thin-wire scene
 #   still_r9/, grain_X/, grain_r9/   the same frames with the lossy build of release dll-2026-10-09 (r9), and of the still scene
@@ -83,6 +83,22 @@ def sheet(title, sub, rows, name, note=None):
     im.save(name, optimize=True)
     print(name, im.size)
 
+
+if sys.argv[2:3] == ['plate']:      # make_comparison_crops.py <dir> plate : only cmp-plate.png (needs only the plate_* data)
+    # ---- a still bright object over ground that moves fast, at the same depth, on a skipped frame (research/pruning: SCENE_VB="0 -100"
+    # SCENE_VO="0 0" SCENE_BLOCKCOL=0.85 SCENE_DEPTH="0.3 0.3" SCENE_PAD=4100); plate_exact/, plate_r11/ (the lossy build of release
+    # dll-2026-10-11), plate_lossy/ and plate_truth_039.npy: frame 39
+    y0, x0, kh, kw = 800, 2420, 160, 240
+    cp = lambda a: a[y0:y0 + kh, x0:x0 + kw]
+    tru = srgb(np.load(f'{D}/plate_truth_039.npy')); T = {k: load(f'plate_{k}', 39) for k in ('exact', 'r11', 'lossy')}
+    err = {k: np.abs(cp(v) - cp(tru)).mean() * 255 for k, v in T.items()}
+    print('plate: error in the crop', {k: round(float(v), 2) for k, v in err.items()})
+    sheet('A still bright object over ground that moves fast, on a frame that skips the network',
+          f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is. A {kw} x {kh} pixel piece, enlarged 2 times.',
+          [('', [('true image', rgb8(zoom(cp(tru), 2))), ("exact files (= AMD's)", rgb8(zoom(cp(T['exact']), 2))),
+                 ('lossy, release dll-2026-10-11', rgb8(zoom(cp(T['r11']), 2))), ('lossy, this release', rgb8(zoom(cp(T['lossy']), 2)))])],
+          'cmp-plate.png', note='Mean error against the true image in this piece, of 255: exact %.2f, dll-2026-10-11 %.2f, this release %.2f.' % (err['exact'], err['r11'], err['lossy']))
+    sys.exit(0)
 
 GHOST_ONLY = sys.argv[2:3] == ['ghost']      # make_comparison_crops.py <dir> ghost : only cmp-ghost.png (needs only the ghost_* data)
 if not GHOST_ONLY:

@@ -163,6 +163,8 @@ def truth(world, t):
     tex = world[PAD + int(1200 * S) + ty, PAD + int(400 * S) + tx]
     stripe = (tx >= BLOCK[2] // 2) & ((tx + ty) % 12 < 2)
     tex = np.where(stripe[:, None], np.float32(0.9), tex)
+    if os.environ.get('SCENE_BLOCKCOL'):      # SCENE_BLOCKCOL = brightness: a plain bright block with a few dark marks (a white license plate)
+        tex = np.where((((tx // 40) % 3 == 1) & (ty % 200 > 60) & (ty % 200 < 140))[:, None], np.float32(0.03), np.float32(float(os.environ['SCENE_BLOCKCOL'])) * np.ones_like(tex))
     img[by, bx] = tex
     img[bars] = np.float32([0.02, 0.02, 0.025])
     return draw_particles(draw_wires(draw_foliage(img, t), t), t)

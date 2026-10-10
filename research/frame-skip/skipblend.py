@@ -54,7 +54,11 @@
 #   SB_CLAMPW="t0 t1" (default "0.0 0.3"; "off" = as before): in motion, the clamp in proportion to the model's verdict of a frame
 #     ago: in full where its weight for the new frame was above t1 (it had given up the history there: just-uncovered areas), not
 #     at all at t0 and below (settled content, which includes a wire the model has been building up).
-# SB_RESTW=off SB_CLAMPREST=1 SB_CLAMPW=off gives release dll-2026-10-10's behavior.
+#   SB_CLAMPEDGE (default 1; 0 = as release dll-2026-10-11): the clamp in full, whatever the model's verdict, where something near the
+#     pixel, or what now sits where its content was, moves differently from it. The verdict is a frame old and knows nothing of what
+#     has just come out from behind a still object: without this a bright object over fast-moving ground (a white license plate over
+#     the road) left its image on the ground wherever the uncovered test cannot fire (no depth search in the prepass, or equal depths).
+# SB_CLAMPEDGE=0 gives release dll-2026-10-11's behavior; SB_RESTW=off SB_CLAMPREST=1 SB_CLAMPW=off gives release dll-2026-10-10's behavior.
 # SB_SAMPLEABS=0.02 SB_BRIGHTABS=0.02 gives release dll-2026-10-09's behavior (it let film grain and noise through on
 # skipped frames: the grain trips the sample test as a spark does). SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behavior. SB_FULLW is a rejected experiment
 # (the new frame in proportion to the SB_BRIGHT difference: two to three times the shimmer at rest).
@@ -84,6 +88,7 @@ lab = L[br].split()[-1]; lab0 = lab
 at = next(n for n, l in enumerate(L) if re.match(rf'\s*{re.escape(lab)} = OpLabel', l))
 _rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_RESTW') else None
 _cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_CLAMPW') else None
+EDGE = os.environ.get('SB_CLAMPEDGE', '1') == '1' and os.environ.get('SB_UNCOV', 'depth') != 'off' and bool(os.environ.get('SB_CLAMPW'))      # the clamp in full beside surfaces that move differently
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'      # no history clamp where the picture is at rest (needs the rest rule's flag)
 c = ([f'%sb_cw0 = OpConstant %float {_cw[0]}', f'%sb_cwd = OpConstant %float {max(_cw[1] - _cw[0], 1e-6)}'] if _cw else []) + ([f'%sr_t0 = OpConstant %float {_rw[0]}', f'%sr_d = OpConstant %float {max(_rw[1] - _rw[0], 1e-6)}'] if _rw else []) + ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
      f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0', f"%sb_thr = OpConstant %float {float(os.environ.get('SB_THR', '0'))}", f"%sb_rel = OpConstant %float {float(os.environ.get('SB_REL', '0.1'))}"] + ([f"%sb_slack = OpConstant %float {CLAMP}"] if CLAMP is not None else []) + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
@@ -315,7 +320,7 @@ if CLAMPM is not None or UNCOV:
             mh += ['OpSelectionMerge %sm_M2 None', f'OpBranchConditional {any_} %sm_T2 %sm_M2', '%sm_T2 = OpLabel'] + own_depth + stage2 + [
                    'OpBranch %sm_M2', '%sm_M2 = OpLabel', f'%sm_fl2 = OpPhi %bool {flag} %sm_T2 %sm_false %sm_T']
         flag = '%sm_fl2'; pred = '%sm_M2'
-    mh += ['OpBranch %sm_M', '%sm_M = OpLabel', f'%sm_flag = OpPhi %bool {flag} {pred} %sm_false {lab0}', f'%sm_mag = OpPhi %float %sm_af {pred} %sm_fz {lab0}'] + ([f'%sm_rest = OpPhi %bool %sm_rin {pred} %sm_false {lab0}'] if REST else [])
+    mh += ['OpBranch %sm_M', '%sm_M = OpLabel', f'%sm_flag = OpPhi %bool {flag} {pred} %sm_false {lab0}', f'%sm_mag = OpPhi %float %sm_af {pred} %sm_fz {lab0}'] + ([f'%sm_edge = OpPhi %bool {any_} {pred} %sm_false {lab0}'] if EDGE else []) + ([f'%sm_rest = OpPhi %bool %sm_rin {pred} %sm_false {lab0}'] if REST else [])
     head = head + mh
     HEAD_LABEL = '%sm_M'
 out = L[:main] + c + L[main:at + 1] + head
@@ -526,7 +531,7 @@ else:
                                      # no clamp at rest; in motion the clamp in proportion to the model's verdict (see the head of the file)
                                      *([f'%sb_hcr{c}{k} = OpSelect %float %sm_rest {h[c]} %sb_hc{c}{k}'] if NOCLAMPREST and REST else []),
                                      *([f'%sb_cwa{c}{k} = OpFSub %float {w} %sb_cw0', f'%sb_cwq{c}{k} = OpFDiv %float %sb_cwa{c}{k} %sb_cwd', f'%sb_cwr{c}{k} = OpExtInst %float {GLSL} NClamp %sb_cwq{c}{k} %sm_fz %sb_one',
-                                        f'%sb_cwx{c}{k} = OpFSub %float ' + (f'%sb_hcr{c}{k}' if NOCLAMPREST and REST else f'%sb_hc{c}{k}') + f' {h[c]}', f'%sb_cwy{c}{k} = OpFMul %float %sb_cwx{c}{k} %sb_cwr{c}{k}', f'%sb_cwh{c}{k} = OpFAdd %float {h[c]} %sb_cwy{c}{k}',
+                                        f'%sb_cwx{c}{k} = OpFSub %float ' + (f'%sb_hcr{c}{k}' if NOCLAMPREST and REST else f'%sb_hc{c}{k}') + f' {h[c]}', *([f'%sb_cwe{c}{k} = OpSelect %float %sm_edge %sb_one %sb_cwr{c}{k}'] if EDGE else []), f'%sb_cwy{c}{k} = OpFMul %float %sb_cwx{c}{k} ' + (f'%sb_cwe{c}{k}' if EDGE else f'%sb_cwr{c}{k}'), f'%sb_cwh{c}{k} = OpFAdd %float {h[c]} %sb_cwy{c}{k}',
                                         (f'%sb_hcw{c}{k} = OpSelect %float %sm_rest {h[c]} %sb_cwh{c}{k}' if NOCLAMPREST and REST else f'%sb_hcw{c}{k} = OpFMul %float %sb_cwh{c}{k} %sb_one')] if _cw else []),
                                      f'%sb_hd{c}{k} = OpFSub %float ' + (f'%sb_hcw{c}{k}' if _cw else f'%sb_hcr{c}{k}' if NOCLAMPREST and REST else f'%sb_hc{c}{k}') + f' {h[c]}', f'%sb_ha{c}{k} = OpFMul %float %sb_hd{c}{k} %sb_an{k}',
                                      f'%sb_rc{c}{k} = OpFAdd %float {mix[c]} %sb_ha{c}{k}']
