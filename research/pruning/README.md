@@ -120,5 +120,6 @@ output size has finer detail per pixel, as in a game. Without `SCENE` everything
 | `gen_inputs.py` | jittered render-resolution frames and `jitter.txt` from a 4K image; jitter signs `-1 -1` match FSR's convention (44.1 dB against the image; the other three sign pairs give 37.8 to 40.3 dB) |
 | `fsr4img.c` | the test program: feeds those frames to AMD's DLL and writes the output image (the last N frames with `FSR_KEEP=N`) |
 | `metric.py` | PSNR and pixel-error statistics between two outputs, or an output and the ground truth |
-| `motion_scene.py`, `gen_motion.py` | the moving scene and its inputs (color, motion vectors, depth, jitter, true frames) |
+| `motion_scene.py`, `gen_motion.py` | the moving scene and its inputs (color, motion vectors, depth, jitter, true frames); `SCENE_PARTICLES` adds bright dots and `SCENE_FOLIAGE` dense swaying leaves, both drawn without motion vectors |
+| `particles.py`, `foliage.py` | how much of each particle is shown where it is; the error on the leaves and how much it changes from frame to frame |
 | `metric_motion.py` | per-region error and frame-to-frame change for the moving scene |

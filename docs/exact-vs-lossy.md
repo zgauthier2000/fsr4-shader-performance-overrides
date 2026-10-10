@@ -364,6 +364,25 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
   tests catch content that differs clearly from the previous picture; something that changes
   slowly and faintly without moving (a dim light fading, a subtle animated surface) can still
   update on every other frame.
+- **Moving foliage is the lossy build's weakest case.** Leaves that sway without motion vectors, as wind-animated foliage
+  often does in games, come out softer than with AMD's shaders. It is a time lag, not an artifact: in swaying foliage FSR 4's
+  network deliberately keeps much of the previous picture, and with the network running on every other frame the picture
+  ends up averaged over about three frames where AMD's is averaged over two. In a rig scene of dense leaves against sky
+  (a worst case: every leaf moves, none has a motion vector), error against the true image in steps of 255:
+
+  | | AMD's shaders | Lossy | Release `dll-2026-10-07` |
+  |---|---|---|---|
+  | Leaves swaying, camera still | 12.1 | 18.2 to 18.5 | 16.8 to 17.8 |
+  | Leaves swaying, camera panning | 10.7 | 17.7 to 17.9 | 16.3 to 17.3 |
+  | The same, change of the error per frame | 17.3 | 28.2 | 26.6 |
+  | Still leaves, camera panning | 6.2 | 7.9 | 7.8 |
+  | Still leaves, camera still | 7.9 | 7.8 | 7.7 |
+
+  Enlarged side by side the lossy leaves are a little softer and fatter; there is no tearing or second outline. Three
+  attempts to find such pixels and give them the new frame did nothing for it (nothing about a single pixel tells a
+  slightly older leaf from still detail under camera jitter), and the particle handling plays no part in it. In a game
+  with a lot of moving vegetation, the exact build is the better choice. The scene and its measure are
+  [`motion_scene.py`](../research/pruning/motion_scene.py) (`SCENE_FOLIAGE`) and [`foliage.py`](../research/pruning/foliage.py).
 - **Little testing.** The current build was run by the author in three games on one RDNA3 card,
   on Linux. Its Windows DLLs were only compared with the Linux files in the test rig, under
   Proton (identical output at 4K, 1440p and 1080p, moving scenes and particles). Nobody has
