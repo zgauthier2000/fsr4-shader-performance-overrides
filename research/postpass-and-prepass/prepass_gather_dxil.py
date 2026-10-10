@@ -12,7 +12,7 @@
 # then, for the four channels of "its" word only, computes the four d's itself, with the same
 # instructions in the same order, and adds them in the same grouping; it then finishes and stores
 # that one word. Same arithmetic on the same numbers: bit-exact. A pixel's weights sit at
-# 512*y + 16*x + 32*channel, so a neighbour's weights are at the lane's own offset with bit 4 (x)
+# 512*y + 16*x + 32*channel, so a neighbor's weights are at the lane's own offset with bit 4 (x)
 # or bit 9 (y) flipped. AMD's lane-0 code stays, without its store, and is dropped by the driver.
 import re
 import sys

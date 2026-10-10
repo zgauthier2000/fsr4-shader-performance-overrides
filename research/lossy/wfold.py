@@ -10,7 +10,7 @@
 # 32-bit "weight word") onto a running sum. So an output channel of a 3x3 layer has 9 x G weight
 # words. This drops the K words with the smallest weights (L2 norm) of every output channel and
 # adds each dropped word's weights to the nearest tap that is kept for the same four input
-# channels ("folding": neighbouring pixels are similar, so the sum changes little, and the
+# channels ("folding": neighboring pixels are similar, so the sum changes little, and the
 # layer's response to a flat area is unchanged). The compiler then removes the dot products whose
 # weights are zero. The folding idea is from VALKKKS's notes of 2026-10-05.
 import re

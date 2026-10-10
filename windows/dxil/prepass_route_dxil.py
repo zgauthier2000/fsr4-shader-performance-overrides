@@ -6,7 +6,7 @@
 # share of 16 output channels, two quad reads and two adds per channel sum them (32 quad reads),
 # and lane 0 alone adds the biases, scales, rounds, packs and stores all four words.
 # Here a lane at position p works out the same 16 shares grouped by whose word they belong to
-# (its own B, its horizontal neighbour's A, its vertical neighbour's D, the diagonal one's C), and
+# (its own B, its horizontal neighbor's A, its vertical neighbor's D, the diagonal one's C), and
 #     word(p) = (readAcrossX(A) + B) + readAcrossY(readAcrossX(C) + D)
 # 12 quad reads, and each lane finishes and stores one word. The additions are AMD's, in the same
 # grouping: bit-exact. AMD's own code for the sums and for lane 0 stays, without its store, and is

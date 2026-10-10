@@ -86,7 +86,7 @@ comments at its top. The build is reproducible: it produces the `prebuilt` file 
 - Pass 11 has the same two changes as on Linux: the always-zero z coordinate becomes a constant,
   and each row of its output is stored together (`dxil/pass11_stores_dxil.py`).
 
-## Licence
+## License
 
 The add-on and scripts are GPL v2 or later (see `../LICENSE`). The add-on follows ReShade's
 "shader_replace" example by Patrick Mours (BSD-3-Clause OR MIT). The prebuilt `.dxil` files are

@@ -13,7 +13,7 @@
 # then, for the four channels of "its" word only, computes the four d's itself, with the same
 # instructions in the same order, and adds them in the same grouping. That is the same arithmetic
 # on the same numbers, so the result is intended to be bit-exact; the lane then finishes and
-# stores its word. A pixel's weights sit at 512*y + 16*x + 32*channel, so a neighbour's weights
+# stores its word. A pixel's weights sit at 512*y + 16*x + 32*channel, so a neighbor's weights
 # are at the lane's own address with bit 4 (x) or bit 9 (y) flipped.
 # (prepass_quad.py, the first version, only shared the last step.)
 #
@@ -22,7 +22,7 @@
 # round, clamp, pack) and stores the words, while the other three lanes of the quad idle. The
 # reduction leaves the same sums in all four lanes (each lane adds the same two values, and float
 # addition is commutative), so here every lane computes one of the four words, with the same
-# operations, and stores it. The quantisation runs once per lane instead of four times in a
+# operations, and stores it. The quantization runs once per lane instead of four times in a
 # quarter of the lanes, and the quad writes its 16 bytes with one store. The output is bit-exact.
 import re
 import sys

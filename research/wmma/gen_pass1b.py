@@ -214,10 +214,10 @@ void main() {{
         ACC acc3 = coopMatMulAdd(a[11], columns(gather(q)), ACC(0));
         acc3 = coopMatMulAdd(a[12], columns(gather(q2)), acc3);
         // residual: input (scale 1/64) + result (scale 1/4096), back to scale 1/64
-        const uint centre = ((y + 1u) * 1922u + x + 1u) * 4u;
+        const uint center = ((y + 1u) * 1922u + x + 1u) * 4u;
         uint inw[4];
         for (uint j = 0u; j < 4u; j++)
-            inw[j] = heap[tensor].d[centre + j];
+            inw[j] = heap[tensor].d[center + j];
         for (uint i = 0u; i < N; i++) {{
             const uint c = g + i * G;
             const int t = acc3[i] + b3[i];
@@ -228,6 +228,6 @@ void main() {{
         Pixel o = gather(q);
         if (x < size.x && y < size.y && x <= 1919u && y <= 1079u)
             for (uint j = 0u; j < 4u / G; j++)
-                heap[tensor].d[(33273664u >> 2) + centre + g * (4u / G) + j] = o.w[g * (4u / G) + j];
+                heap[tensor].d[(33273664u >> 2) + center + g * (4u / G) + j] = o.w[g * (4u / G) + j];
     }}
 }}""")

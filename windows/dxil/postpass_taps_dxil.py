@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # postpass_taps_dxil.py < postpass.ll > out.ll
 #
-# The FSR 4.1.1 INT8 postpass reads a 3x3 neighbourhood of the model's output; each of the nine
+# The FSR 4.1.1 INT8 postpass reads a 3x3 neighborhood of the model's output; each of the nine
 # reads (4 words, then 64 dot products onto 16 running sums) sits in its own branch that skips it
-# when the neighbour is outside the tensor. This removes the branches: the read always happens (at
-# offset 0 of the buffer when the neighbour is outside, so the address stays valid) and the four
+# when the neighbor is outside the tensor. This removes the branches: the read always happens (at
+# offset 0 of the buffer when the neighbor is outside, so the address stays valid) and the four
 # words are replaced by 0 when it is outside. A dot product with 0 adds nothing, so the sums are
 # the same as when the branch was skipped. Run it on AMD's disassembled postpass, before
 # postpass_lds_dxil.py.
@@ -39,12 +39,12 @@ for i, l in enumerate(L):
     M = re.match(r'\s*br label (%\w+)', L[j])[1]
     done += 1
     out[i] = f'{m[1]}br label {T}'
-    # the read: a valid offset when the neighbour is outside
+    # the read: a valid offset when the neighbor is outside
     k = loads[0]
     lm = re.search(r'(rawBufferLoad\.i32\(i32 139, %dx\.types\.Handle %\w+, i32 )(%\w+)', L[k])
     res = re.match(r'\s*(%\w+) = ', L[k])[1]
     out[k] = f'{m[1]}%tapix.{done} = select i1 {cond}, i32 {lm[2]}, i32 0\n' + L[k].replace(lm[0], f'{lm[1]}%tapix.{done}', 1)
-    # its four words: 0 when the neighbour is outside
+    # its four words: 0 when the neighbor is outside
     words = [kk for kk in body if re.search(rf'= extractvalue %dx\.types\.ResRet\.i32 {re.escape(res)}, [0-3]\s*$', L[kk])]
     if len(words) != 4:
         sys.exit('postpass_taps_dxil: expected four words per read')
@@ -70,5 +70,5 @@ for i, l in enumerate(L):
         kk += 1
     out[label_at[M]] = re.sub(r'preds = .*', f'preds = {T}', out[label_at[M]])
 if done != 9:
-    sys.exit(f'postpass_taps_dxil: expected 9 guarded neighbourhood reads, found {done}')
+    sys.exit(f'postpass_taps_dxil: expected 9 guarded neighborhood reads, found {done}')
 sys.stdout.write('\n'.join(out))

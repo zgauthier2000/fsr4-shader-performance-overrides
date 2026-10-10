@@ -12,7 +12,7 @@ the current downloads are on the front page.
   - **Prepass:** each of a quad's four threads now finishes one of the four words of the model's
     input, which takes 12 exchanges between threads instead of AMD's 32.
   - **Postpass:** its small network gets the integer rounding and clamping the model passes
-    already had, and reads its nine neighbour cells without branches.
+    already had, and reads its nine neighbor cells without branches.
 
   | 4K, RX 7800 XT | AMD's shaders | Before | Now |
   |---|---|---|---|

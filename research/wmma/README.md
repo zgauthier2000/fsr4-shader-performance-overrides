@@ -265,7 +265,7 @@ WMMA, so it is worth asking why it works there and not here. Its documentation a
 | Channels | 32 per attention head, several heads | 16 |
 | Matrix work per value written out | Several products in a row, intermediates kept in shared memory | One 16-deep product per layer |
 | Work between products | Float conversion and multiply-add | Integer round and clamp for 64 values per pixel |
-| Exactness | Relaxed (f32 accumulation, some 8-bit re-quantisation skipped) | Must match AMD's output |
+| Exactness | Relaxed (f32 accumulation, some 8-bit re-quantization skipped) | Must match AMD's output |
 
 WMMA pays off when there is a lot of matrix work for each value that has to be handled one by one
 afterwards. DLSS has that; FSR 4.1.1's 16-channel convolutions are close to the opposite case.

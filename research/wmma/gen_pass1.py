@@ -213,10 +213,10 @@ void main() {{
         continue;
 #endif
         // residual: input (scale 1/64) + result (scale 1/4096), back to scale 1/64
-        const uint centre = ((y + 1u) * 1922u + x + 1u) * 4u + c0 / 4u;
+        const uint center = ((y + 1u) * 1922u + x + 1u) * 4u + c0 / 4u;
         const bool inside = x < size.x && y < size.y && x <= 1919u && y <= 1079u;
         for (uint w = 0u; w < WORDS; w++) {{
-            const uint in_word = heap[tensor].d[centre + w];
+            const uint in_word = heap[tensor].d[center + w];
             ivec4 v;
             for (uint j = 0u; j < 4u; j++) {{
                 const int t = s_acc[px * 16u + c0 + w * 4u + j] + b3[w * 4u + j];
@@ -225,7 +225,7 @@ void main() {{
                 v[j] = (int(roundEven(f)) << 16) >> 16;
             }}
             if (inside)
-                heap[tensor].d[(33273664u >> 2) + centre + w] = uint(pack4(v));
+                heap[tensor].d[(33273664u >> 2) + center + w] = uint(pack4(v));
         }}
         barrier();
     }}

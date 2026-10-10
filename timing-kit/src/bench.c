@@ -195,11 +195,11 @@ int main(int argc, char** argv) {
     vkCmdCopyBuffer(cb, staging, tensor, 1, &copy_tensor);
     vkCmdCopyBuffer(cb, staging, cbv, 1, &copy_cbv);
     VkImageSubresourceRange range = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
-    VkClearColorValue grey = {{0.4f, 0.3f, 0.2f, 1.0f}}, grey2 = {{0.35f, 0.33f, 0.25f, 1.0f}};
+    VkClearColorValue gray = {{0.4f, 0.3f, 0.2f, 1.0f}}, gray2 = {{0.35f, 0.33f, 0.25f, 1.0f}};
     layout(cb, input.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     layout(cb, reprojected.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    vkCmdClearColorImage(cb, input.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &grey, 1, &range);
-    vkCmdClearColorImage(cb, reprojected.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &grey2, 1, &range);
+    vkCmdClearColorImage(cb, input.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &gray, 1, &range);
+    vkCmdClearColorImage(cb, reprojected.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &gray2, 1, &range);
     layout(cb, input.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     VkClearColorValue one = {{1.0f, 1.0f, 1.0f, 1.0f}};
     layout(cb, exposure_in.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);

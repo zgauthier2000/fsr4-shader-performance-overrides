@@ -9,7 +9,7 @@
 #
 # Here each thread finishes one of the four words instead. A thread at position p of the quad
 # works out the same 16 shares, but grouped by whose word they belong to: its own (B), its
-# horizontal neighbour's (A), its vertical neighbour's (D) and the diagonal one's (C). Then
+# horizontal neighbor's (A), its vertical neighbor's (D) and the diagonal one's (C). Then
 #     word(p) = (swapH(A) + B) + swapV(swapH(C) + D)
 # which is 12 exchanges instead of 32, and the rounding, packing and storing are spread over the
 # four threads (4 channels each) instead of sitting on one. The sums are the same additions in the

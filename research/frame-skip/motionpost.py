@@ -11,7 +11,7 @@
 # last layer (different constants per position in the cell). A pixel at position s whose content
 # was at an odd distance needs the vector of another cell and the layer of the other position. So:
 #   - the part of the shader that turns the model's tensor into the cell's vector (the "head") runs
-#     for the cell at X + floor(D/2), and again for its right, lower and diagonal neighbour where D
+#     for the cell at X + floor(D/2), and again for its right, lower and diagonal neighbor where D
 #     is odd in x, in y, or in both (in branches: nothing extra where D is even or the frame ran);
 #   - the pixel code for position s keeps its constants and gets the vector of the cell that holds
 #     position s of the displaced picture, and writes the pixel that this content lands on:

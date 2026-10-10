@@ -31,7 +31,7 @@
 # surface is looked for on each side, default "3,8"; "8" in release dll-2026-10-06.6),
 # SB_REST (default 1: where the cell's stored motion is zero and nothing looked at around it moves differently, a
 # skipped frame takes nothing from the new frame, so fine detail at rest shimmers no more than with AMD's shaders;
-# 0 for release dll-2026-10-06.6's behaviour),
+# 0 for release dll-2026-10-06.6's behavior),
 # Content that changes without motion vectors (particles, sparks, embers): the rest rule would freeze it on every skipped
 # frame, and the weight the model worked out a frame ago says "keep the old picture" where it has only just arrived.
 # Three tests find it; where one fires, the rest rule does not apply:
@@ -44,7 +44,7 @@
 #     detail; this is what tells an arriving spark from still detail under another jitter. Such a pixel takes the new frame
 #     by how far outside the sample is: all of it SB_SAMPLEFULL x range beyond the threshold. SB_SAMPLEALL=0: at rest only
 #     (default: also in motion, where the history is already aligned to the frame).
-# SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behaviour. SB_FULLW is a rejected experiment
+# SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behavior. SB_FULLW is a rejected experiment
 # (the new frame in proportion to the SB_BRIGHT difference: two to three times the shimmer at rest).
 # SB_CONST (a constant factor on the 2^ term on skipped frames, default 0: (1 - a) becomes (1 - a)^2,
 # the new frame counts for very little where the model keeps history; "off" for none, as in release

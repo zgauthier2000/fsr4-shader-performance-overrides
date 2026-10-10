@@ -54,7 +54,7 @@ def folding(t):
     H, C, G = 330, 54, 6
     o = head(H, 'Schematic of folding. A 3 by 3 set of weights has four large and five small entries. The five small '
              'ones are removed and each is added to the nearest entry that is kept, leaving four dot products instead of nine.',
-             'What folding does', 'One output value sums 3x3 neighbouring pixels, each multiplied by its weights. A schematic for one group of inputs.', t)
+             'What folding does', 'One output value sums 3x3 neighboring pixels, each multiplied by its weights. A schematic for one group of inputs.', t)
 
     def grid(x0, y0, after):
         for r in range(3):
@@ -78,7 +78,7 @@ def folding(t):
     o.append(text(XB + (3 * C + 2 * G) / 2, 84, 'After folding: 4 dot products', t, 13, 'ink', 'middle'))
     grid(XA, Y0, False)
     grid(XB, Y0, True)
-    # arrows inside the left grid: each small tap goes to its kept neighbour
+    # arrows inside the left grid: each small tap goes to its kept neighbor
     o.append(f'<defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="{t["ink2"]}"/></marker></defs>')
     for (r, c), (a, b) in DROP.items():
         x1, y1 = XA + c * (C + G) + C / 2, Y0 + r * (C + G) + C / 2
@@ -88,7 +88,7 @@ def folding(t):
     xm = (XA + 3 * C + 2 * G + XB) / 2
     o.append(f'<line x1="{xm - 60}" y1="{Y0 + 87}" x2="{xm + 56}" y2="{Y0 + 87}" stroke="{t["ink2"]}" stroke-width="1.5" marker-end="url(#ah)"/>')
     o.append(text(xm, Y0 + 74, 'small weights are', t, 12, 'ink2', 'middle'))
-    o.append(text(xm, Y0 + 108, 'added to a neighbour', t, 12, 'ink2', 'middle'))
+    o.append(text(xm, Y0 + 108, 'added to a neighbor', t, 12, 'ink2', 'middle'))
     x = swatch(o, 24, 300, 'exact', 'weights that are kept', t)
     x = swatch(o, x, 300, 'small', 'small weights, removed', t)
     o.append(text(x, 300, 'Square size: how large the weights are.', t, 12, 'muted'))

@@ -19,9 +19,9 @@ are not AMD's originals and are not provided or endorsed by AMD.
   `dxil/postpass_lds_dxil.py`, `dxil/zconst_dxil.py` and `dxil/pass11_stores_dxil.py`, and assembled and signed with DXC again
   (`dxil/build_dxil_overrides.sh`).
 
-AMD's SDK licence (`docs/license.md` in the repository above) lists
+AMD's SDK license (`docs/license.md` in the repository above) lists
 `Kits\FidelityFX\signedbin\amd_fidelityfx_upscaler_dx12.dll` among the files that are subject to
-the following licence, reproduced here as it requires:
+the following license, reproduced here as it requires:
 
 > Copyright (C) Advanced Micro Devices, Inc.
 > 

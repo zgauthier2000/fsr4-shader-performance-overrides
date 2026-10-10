@@ -7,7 +7,7 @@
 #     out = int16(Round_ne((float(a) * ca + float(b) * cb) * cs))        ca, cb, cs powers of two
 # Every floating-point step there is exact, so the same value is computed in integers: with
 # A = ca*cs*2^k and B = cb*cs*2^k whole numbers, n = A*a + B*b and
-#     r = (n + (h - 1) + ((n >> k) & 1)) >> k,   h = 2^(k-1)        (halves go to the even neighbour)
+#     r = (n + (h - 1) + ((n >> k) & 1)) >> k,   h = 2^(k-1)        (halves go to the even neighbor)
 # The float instructions are left in place, unused; the driver removes them.
 import math
 import re

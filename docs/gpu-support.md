@@ -376,7 +376,7 @@ the postpass it is a small gain on RDNA3 with the Linux driver. On RDNA2 under W
 testers' finding stands: no difference was seen.
 
 `test-rdna2-taps.zip` (showed as `4.1.1-cyboman-r2t`) was `test-rdna2.zip` with one more change to
-the postpass. For each pixel the postpass reads a 3x3 neighbourhood of the model's output; each of
+the postpass. For each pixel the postpass reads a 3x3 neighborhood of the model's output; each of
 the nine reads sits behind a branch that skips it at the picture's edge. Here the reads always
 happen, at a valid address, and their values are replaced by zero at the edge, which gives the
 same sums. Without the branches the reads can overlap instead of being waited on one after

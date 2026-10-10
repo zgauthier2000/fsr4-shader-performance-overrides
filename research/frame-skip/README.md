@@ -244,7 +244,7 @@ history there is out of date.
 **The clamp.** The postpass already has the nine samples of the new frame around each output
 pixel. On a skipped frame the history is limited, per color channel, to the range of those nine
 samples, widened by half the range on either side. A history value that no longer fits the new
-frame is pulled to a plausible color before it is mixed in. This is neighbourhood clamping as
+frame is pulled to a plausible color before it is mixed in. This is neighborhood clamping as
 ordinary temporal anti-aliasing does it, applied only on the frames the model did not run for.
 
 | Range widened by | Flicker at rest, fine detail | Still picture | Just-uncovered at 60 FPS, against AMD's |
@@ -520,7 +520,7 @@ new frame alone.
   final comparison come from the motion entries.
 - Prepass versions without a depth search record nothing, and nothing is flagged there, as before.
 - `frameskip_layout.py` holds the layout; `SB_PLANE=0`, `FS_PLANE=0` and `MP_PLANE=0` rebuild the
-  earlier behaviour.
+  earlier behavior.
 
 **Measured.** [`ghost.py`](../pruning) in the test rig: the error against the true image, on
 skipped frames, where the object's image of a frame ago would land if the history were shown
@@ -587,7 +587,7 @@ Two causes, one on top of the other:
 
 Skipped frames, camera still, AMD's shaders in the last column:
 
-| Dots | Release `dll-2026-10-07` behaviour | Rest rule off | New frame only (ceiling) | Now | AMD's |
+| Dots | Release `dll-2026-10-07` behavior | Rest rule off | New frame only (ceiling) | Now | AMD's |
 |---|---|---|---|---|---|
 | Large (3 to 7 px radius), fast | 70% | 96% | | 98% | 98% |
 | Tiny (about 1 px), slow | 67% | 80% | | 77% | 81% |

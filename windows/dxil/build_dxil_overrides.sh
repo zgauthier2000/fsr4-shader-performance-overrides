@@ -10,7 +10,7 @@
 # The input can be a vkd3d-proton shader dump (VKD3D_SHADER_DUMP_PATH writes the DXIL too).
 # Options (environment): PASS11=rows (compact pass 11, for integrated GPUs), DOT4=split (dot
 # products as product + add, for RDNA2), TAPS=0 (keep the branches around the postpass's
-# neighbourhood reads), PREPASS=0 / MODEL=0 (leave the prepass / the integer output scaling alone),
+# neighborhood reads), PREPASS=0 / MODEL=0 (leave the prepass / the integer output scaling alone),
 # POSTPASS_SMALL=amd (keep AMD's postpass code in the versions used at 1080p output and below,
 # where the rewrite is slower on RDNA2; DOT4 and TAPS still apply to them).
 # Needs DXC (dxc and libdxcompiler.so; set DXC_DIR to the unpacked Linux release) and g++.
@@ -46,7 +46,7 @@ for f in "$src"/*.dxil; do
     if [[ $name == *_postpass && ${MODEL:-1} == 1 ]]; then
         python3 "$here/model_tail_dxil.py" < "$work/in.ll" > "$work/in2.ll" 2>/dev/null && mv "$work/in2.ll" "$work/in.ll"
     fi
-    # the postpass's nine neighbourhood reads without their branches (TAPS=0 keeps the branches)
+    # the postpass's nine neighborhood reads without their branches (TAPS=0 keeps the branches)
     if [[ ${TAPS:-1} == 1 && $name == *_postpass ]]; then
         python3 "$here/postpass_taps_dxil.py" < "$work/in.ll" > "$work/in2.ll" && mv "$work/in2.ll" "$work/in.ll"
     fi

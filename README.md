@@ -109,7 +109,7 @@ Proton); on Windows with an RX 7000 card that has not been measured yet.
 
 - **Particles, sparks and embers no longer flicker or update at half the frame rate.** Things
   the game draws without motion information were frozen or dimmed on every other frame. They are
-  now recognised and taken from the new frame. Checked in Elden Ring and in the menu of Mafia:
+  now recognized and taken from the new frame. Checked in Elden Ring and in the menu of Mafia:
   The Old Country.
 - **Closer to AMD's picture.** The lossy DLL no longer simplifies the neural network's
   arithmetic; it only skips it on every other frame. That costs about 1% of the frame rate and
@@ -155,14 +155,17 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 4.1.1.2740; other versions have different shaders. See [shader variants](docs/variants.md).
 
 A timing kit for testers measures every FSR 4 pass on your graphics card without a game, on Linux
-and the Steam Deck: [instructions](timing-kit).
+and the Steam Deck: [instructions](timing-kit). **Experimental: a timing kit for Windows**
+([download](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip), 110 MB) times the whole upscaler with AMD's shaders and with these DLLs and
+checks that the exact DLL gives AMD's picture on your machine. It has only been run under Proton so
+far; reports from Windows are what it is for. [About it](timing-kit#windows-experimental).
 
 ## Good to know
 
 - **Nothing else changes.** No game files are edited, and the output was compared byte for byte
   with AMD's at 4K, 1440p and 1080p.
 - **Game and OptiScaler updates** can put the original DLL back; the launch option keeps working.
-- **Online games:** this changes the shaders the game renders with. Use your own judgement in
+- **Online games:** this changes the shaders the game renders with. Use your own judgment in
   games with anti-cheat.
 - **Linux:** do not set `RADV_PERFTEST=cswave32` for a game that runs FSR 4; it adds about 1.1 ms.
 
@@ -194,7 +197,7 @@ and the Steam Deck: [instructions](timing-kit).
  </picture>
 </a>
 
-## Credits and licence
+## Credits and license
 
 The postpass rewrite is adapted from `tools/fsr4cap/postpass_lds.py` in
 [bbport](https://github.com/deadinside28/bloodborne_pc), a native Linux port of Bloodborne whose
@@ -204,7 +207,7 @@ games.
 
 The scripts are licensed under the GNU GPL v2 or later, like the project they derive from. See
 [LICENSE](LICENSE). The prebuilt shaders are modified versions of AMD's, distributed under the same
-licence together with AMD's notice; see [`prebuilt/NOTICE.md`](prebuilt/NOTICE.md). Not affiliated
+license together with AMD's notice; see [`prebuilt/NOTICE.md`](prebuilt/NOTICE.md). Not affiliated
 with or endorsed by AMD.
 
 This repository is maintained independently. If this project has provided value to you, and you want to help support the author, consider formalizing your support with a voluntary micro-donation:

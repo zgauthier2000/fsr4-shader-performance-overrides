@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     Img history = image(VK_FORMAT_R16G16B16A16_SFLOAT, ow, oh, VK_IMAGE_USAGE_SAMPLED_BIT);
     Img reprojected = image(VK_FORMAT_R16G16B16A16_SFLOAT, ow, oh, VK_IMAGE_USAGE_STORAGE_BIT);
     // Heap slots by guesswork from the fetch patterns: 0 sampled once, 1 one texel, 2 a 3x3
-    // neighbourhood, 3 a 2x2 neighbourhood, 4 sampled nine times. Override with SLOTS=c,e,d,v,h.
+    // neighborhood, 3 a 2x2 neighborhood, 4 sampled nine times. Override with SLOTS=c,e,d,v,h.
     Img* srv[5] = {&color, &exposure, &depth, &velocity, &history};
     if (getenv("SLOTS")) {
         Img* by[256] = {0};

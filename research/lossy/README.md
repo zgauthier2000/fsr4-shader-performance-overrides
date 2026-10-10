@@ -28,7 +28,7 @@ showed that some model passes can lose weights without a measurable cost, and th
   4 "weight words" (the int8 weights for four input channels).
 - The tool drops the K words with the smallest weights from every output channel and adds each
   dropped word's weights to the nearest tap that is kept for the same four input channels
-  (*folding*). Neighbouring pixels are similar, so the sum changes little, and the layer's
+  (*folding*). Neighboring pixels are similar, so the sum changes little, and the layer's
   response to a flat area is unchanged. One tap is always kept for each group of input channels.
 - The compiler then removes the dot products whose weights are zero.
 
@@ -38,7 +38,7 @@ showed that some model passes can lose weights without a measurable cost, and th
 </picture>
 
 `wfold.py info < passN.spvasm` prints the layers it finds. The folding idea is from VALKKKS's notes;
-this is an independent implementation. Folding 23 of 36 words in pass 12 reproduces the behaviour
+this is an independent implementation. Folding 23 of 36 words in pass 12 reproduces the behavior
 of that set's pass 12 in the motion test (background change 0.103 against 0.105, 48.7 dB against
 48.6 dB from AMD's frames), so the two do the same thing.
 
@@ -92,7 +92,7 @@ The background gets less stable in steps: slightly up to 20 words, sharply at 23
 Added 2026-10-05. Two more tools, for the code between and after the layers.
 
 **`wround.py` (not bit-exact).** Between layers a pass divides each sum by a power of two and
-rounds halves to the even neighbour, `(x + (h - 1) + ((x >> n) & 1)) >> n`. The tool makes it
+rounds halves to the even neighbor, `(x + (h - 1) + ((x >> n) & 1)) >> n`. The tool makes it
 `(x + h) >> n`, halves up: two instructions fewer per value. The result differs by one step, and
 only for sums that are exactly halfway. It applies to ten of the twelve passes (48 to 80 values
 each in the six passes with constant weights).

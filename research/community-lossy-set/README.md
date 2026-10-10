@@ -45,10 +45,10 @@ The set replaces the prepass, all twelve model passes and the postpass (this rep
 the postpass and model pass 11). It mixes two kinds of change:
 
 - **Bit-exact rewrites:** the always-zero z coordinate folded on every pass, loops unrolled where
-  the result stays small, the postpass's nine neighbourhood reads done without branches, and
+  the result stays small, the postpass's nine neighborhood reads done without branches, and
   integer forms of the rounding code.
 - **Changes to the result:** weights removed from six model passes and from the postpass (each
-  removed weight is added to a neighbouring one, so sums are preserved), and rounding half up
+  removed weight is added to a neighboring one, so sums are preserved), and rounding half up
   instead of half to even.
 
 ## Speed and exactness, pass by pass
@@ -134,7 +134,7 @@ sRGB.
 
 At rest the set loses about 0.7 dB against the true image, nearly all of it from the pruned model
 passes. Compared with the plain pruning tried in [`../pruning`](../pruning) (10% of weights: 0.07 ms
-for 0.47 dB), folding the removed weights into their neighbours buys about five times the time for
+for 0.47 dB), folding the removed weights into their neighbors buys about five times the time for
 similar damage.
 
 ## Image quality: motion
@@ -246,7 +246,7 @@ override, last 8 of 40 frames compared with AMD's shaders byte for byte:
   weights (those are not in this folder).
 
 **Is it faster?** A little, in two passes. Radeon RX 7800 XT, this repository's timing kit, each
-pair timed in both slot orders (the tool favours its first slot by about 0.02 ms):
+pair timed in both slot orders (the tool favors its first slot by about 0.02 ms):
 
 | Pass | AMD's | This repository's | The later set |
 |---|---|---|---|
@@ -269,7 +269,7 @@ pair timed in both slot orders (the tool favours its first slot by about 0.02 ms
 
 | | AMD's | This repository's | The later set |
 |---|---|---|---|
-| Prepass: exchanges between neighbouring threads | 32 | 44 | 12 |
+| Prepass: exchanges between neighboring threads | 32 | 44 | 12 |
 | Prepass: memory reads | 130 | 194 | 86 |
 | Postpass: memory reads | 121 | 234 | 132 |
 | Postpass: branches | 15 | 42 | 33 |

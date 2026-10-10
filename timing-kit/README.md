@@ -17,7 +17,7 @@ Since 2026-10-06.2:
 
 - **Three new postpass candidates replace the two earlier ones,** which the first RDNA2 results
   showed do not help. All three give AMD's output byte for byte:
-  - `taps`: AMD's own postpass with its nine neighbourhood reads made branch-free and nothing
+  - `taps`: AMD's own postpass with its nine neighborhood reads made branch-free and nothing
     else, for the sizes where the rewrite loses to AMD's (1080p and 1440p on an RX 6800 XT);
   - `shipped_taps`: the shipped rewrite with the same branch-free reads, the recipe a tester
     described for their own fastest exact postpass on an RX 6700M;
@@ -90,6 +90,22 @@ Results received so far: [RESULTS.md](RESULTS.md).
 Tester reports so far are one number per build: the upscaler time a game's overlay shows. That
 says whether a build is faster, not which pass made it so. This measures every pass separately,
 on the same inputs on every machine, so results from different GPUs can be compared.
+
+## Windows (experimental)
+
+[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) (110 MB) is a different program for the same purpose. Unpack it, close games and
+browsers, and double-click `fsr4time.exe`; it takes about five minutes.
+
+- **What it times:** whole upscale calls, as a game makes them, through AMD's FidelityFX API on Direct3D 12, with each DLL in
+  its `dlls` folder: AMD's shaders (the reference), this project's exact and lossy DLLs, and the two for integrated graphics.
+  1080p, 1440p and 4K output, picture still and camera moving. For a lossy DLL the frame that runs the model and the skipped
+  frame are given apart. Put another FSR 4.1.1 DLL into a new folder under `dlls` to time it as well.
+- **What it checks:** that each DLL's picture from the still scene is the same as the first DLL's, byte for byte. The exact
+  DLLs must say "same picture"; the lossy ones say "picture differs".
+- **Experimental:** it has been run under Proton on one RX 7800 XT only (4K: 4.7 to 4.9 ms with AMD's shaders, 3.17 ms exact,
+  2.37 ms lossy; exact: same picture). It has not run on Windows yet. The program is not signed, so Windows warns about it;
+  the source is [`windows/fsr4time.c`](windows/fsr4time.c), with the command that builds it at its top.
+- At the end it shows a summary, saves it next to the program and asks whether to send it. Not for RX 9000 cards.
 
 ## What you need
 
@@ -180,7 +196,7 @@ earlier run's summary.
 | `bin/` | the three benchmark programs, built from `src/` |
 | `shaders/` | the shader sets and versions listed above, as SPIR-V |
 | `mesa/` | a Mesa RADV build that prints the GPU's memory counters (the change is in [`mesa-tiling-override.patch`](../research/postpass-and-prepass/mesa-tiling-override.patch)) |
-| `run.sh`, `submit.py`, `README.txt`, `NOTICE.txt` | the script, the summary and sending step, short instructions, licence notice |
+| `run.sh`, `submit.py`, `README.txt`, `NOTICE.txt` | the script, the summary and sending step, short instructions, license notice |
 
 This folder of the repository has `run.sh`, `NOTICE.txt` and `src/` (`bench.c` for the postpass,
 `mbench.c` for the model passes, `pbench2.c` for the prepass). To build the programs:

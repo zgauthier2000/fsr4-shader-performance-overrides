@@ -11,7 +11,7 @@
 // saved there under the same name, as input for dxil/build_dxil_overrides.sh when a game uses a
 // variant that has no replacement yet.
 //
-// Modelled on ReShade's example add-on "06-shader_replace" (Patrick Mours, BSD-3-Clause OR MIT).
+// Modeled on ReShade's example add-on "06-shader_replace" (Patrick Mours, BSD-3-Clause OR MIT).
 #include <reshade.hpp>
 
 #include <cstdint>
@@ -47,7 +47,7 @@ std::string ContainerHash(const void* code, size_t size) {
     return text;
 }
 
-/// Saves an original FSR 4 shader (recognised by the entry point names AMD's DLL uses).
+/// Saves an original FSR 4 shader (recognized by the entry point names AMD's DLL uses).
 void Dump(const std::string& hash, const void* code, size_t size) {
     static const char marker[] = "fsr4_model_";
     const auto* bytes = static_cast<const char*>(code);

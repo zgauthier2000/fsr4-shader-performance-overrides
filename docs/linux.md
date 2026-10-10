@@ -9,7 +9,7 @@
 - FSR 4.1.1 with the INT8 model actually running, for example through
   [OptiScaler](https://github.com/optiscaler/OptiScaler) with `amd_fidelityfx_upscaler_dx12.dll`
   version 4.1.1.2740. Other FSR versions have different shaders; the scripts will tell you if they
-  find nothing they recognise.
+  find nothing they recognize.
 - An RDNA3 card on the RADV driver. The slow pattern these rewrites remove was measured there.
   Other cards are untested, and RDNA4 runs a different FSR 4 model that this does not touch.
 - **The prebuilt files do not fit every setup.** One tester (RX 6900 XT, Final Fantasy VII
@@ -107,7 +107,7 @@ With a different FSR DLL version or another Proton, dump that game and build you
 ## Things to know
 
 - **The prebuilt files are modified AMD shaders.** They come from AMD's
-  `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740, which AMD's FidelityFX SDK licence lists under MIT
+  `amd_fidelityfx_upscaler_dx12.dll` 4.1.1.2740, which AMD's FidelityFX SDK license lists under MIT
   terms. [`prebuilt/NOTICE.md`](../prebuilt/NOTICE.md) says exactly where they come from and carries
   AMD's notice. Running `build_override.sh` on a matching dump reproduces them byte for byte.
 - **Dumps stay out of the repository.** A raw dump contains every shader of the game you ran, so
@@ -115,7 +115,7 @@ With a different FSR DLL version or another Proton, dump that game and build you
 - **Set the variable per game.** With `VKD3D_SHADER_OVERRIDE` set, vkd3d-proton stops using the
   SPIR-V stored in its pipeline caches for that game, which can lengthen the first loads.
 - **Online games.** This only sets an environment variable for vkd3d-proton, but it does change
-  what the game renders with. Use your own judgement in games with anti-cheat.
+  what the game renders with. Use your own judgment in games with anti-cheat.
 - **Do not set `RADV_PERFTEST=cswave32`** for a game that runs FSR 4. In a standalone benchmark it
   made every model pass 40 to 65% slower (pass 1: 0.29 to 0.45 ms; all 12: 2.03 to 3.13 ms), about
   1.1 ms of FSR 4 per frame.

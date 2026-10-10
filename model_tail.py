@@ -7,7 +7,7 @@
 # With A = ca*cs*2^k and B = cb*cs*2^k whole numbers this is RoundEven(n / 2^k) for the integer
 # n = A*a + B*b, and every floating-point step is exact as long as |n| < 2^24 (a is an int8, b a sum
 # of at most a few dozen int8 dot products, so it is). This computes the same value in integers:
-#     r = (n + (h - 1) + ((n >> k) & 1)) >> k,   h = 2^(k-1)        (halves go to the even neighbour)
+#     r = (n + (h - 1) + ((n >> k) & 1)) >> k,   h = 2^(k-1)        (halves go to the even neighbor)
 # With "up" it rounds halves up instead, r = (n + h) >> k, which is shorter and NOT bit-exact.
 import math
 import re

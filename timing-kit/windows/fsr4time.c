@@ -37,7 +37,7 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-09.1"
+#define KIT_VERSION "windows 2026-10-09.1, experimental"
 #define WARM 40
 #define TIMED 200
 #define PHASES 16

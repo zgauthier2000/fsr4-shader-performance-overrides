@@ -105,11 +105,11 @@ combinations, all identical, with both replaced shaders confirmed running in eac
   [launch option](../docs/linux.md#quick-start-the-prebuilt-files) is the faster choice. Using both
   does no harm: the override files only match AMD's original shaders, so they are ignored.
 - **Game and OptiScaler updates** may put the original DLL back.
-- **Online games.** The DLL is modified code; use your own judgement in games with anti-cheat.
+- **Online games.** The DLL is modified code; use your own judgment in games with anti-cheat.
 
-## Licence
+## License
 
 The script is GPL v2 or later (see [`../LICENSE`](../LICENSE)). A DLL it writes is AMD's DLL,
-which AMD's FidelityFX SDK licence lists under MIT terms, with modified shaders from this
+which AMD's FidelityFX SDK license lists under MIT terms, with modified shaders from this
 repository; [`../windows/prebuilt/NOTICE.md`](../windows/prebuilt/NOTICE.md) has AMD's notice and
 the details. If you share a patched DLL, include that notice.

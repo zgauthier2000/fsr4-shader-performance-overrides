@@ -49,11 +49,11 @@ four pixels (quads). In AMD's shader every lane forms 16 channel sums from its o
 features; two quad swaps and two additions per channel combine the four pixels' sums; then one
 lane rounds and stores all 16 channels while three wait. In the rewrite (`prepass_route.py`,
 `prepass_route_dxil.py`, since the 2026-10-07 release) each lane works out the same 16 sums,
-grouped by whose output word they belong to (its own, and each of its three neighbours'), and
+grouped by whose output word they belong to (its own, and each of its three neighbors'), and
 `word = (swapX(A) + B) + swapY(swapX(C) + D)`: 12 swaps, the additions grouped the same way,
 and every lane rounds and stores one word. The same arithmetic on the same numbers gives the
 same bits. The prepass takes 12% less time. (The first prepass rewrite, 2026-10-05, had each
-lane fetch its neighbours' features and compute everything for one word itself; it took 10%
+lane fetch its neighbors' features and compute everything for one word itself; it took 10%
 less. It is kept in `research/postpass-and-prepass` as `prepass_gather.py`.)
 One detail matters for the DLL's format: the features are exchanged as half-precision values,
 because converting them to float for the exchange makes vkd3d-proton translate the whole shader

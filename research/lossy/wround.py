@@ -3,7 +3,7 @@
 # wround.py < passN.spvasm > out.spvasm
 #
 # NOT bit-exact. Between its layers a model pass divides each sum by a power of two, rounding
-# halves to the even neighbour:   y = (x + (h - 1) + ((x >> n) & 1)) >> n,   h = 2^(n-1).
+# halves to the even neighbor:   y = (x + (h - 1) + ((x >> n) & 1)) >> n,   h = 2^(n-1).
 # This replaces it with rounding halves up:   y = (x + h) >> n,   which is two instructions
 # shorter. The result differs by one step, and only when x is exactly halfway (one value in 2^n).
 # The idea is from VALKKKS's notes of 2026-10-05.

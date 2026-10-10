@@ -6,7 +6,7 @@ This project ships two kinds of faster FSR 4.1.1 shaders. They get their speed i
 and only one of them keeps AMD's picture.
 
 - **The exact files** (the `exact` DLL in each download and the `prebuilt` Linux folder) do the
-  same arithmetic as AMD's shaders, organised so the GPU gets through it faster. The output is
+  same arithmetic as AMD's shaders, organized so the GPU gets through it faster. The output is
   AMD's image, byte for byte.
 - **The lossy files** (the `lossy` DLL in each download and the `prebuilt-lossy` Linux folder)
   are the exact files plus one thing: they run FSR 4's model on every other frame only.
@@ -47,7 +47,7 @@ only how the work is laid out for the GPU.
 
 | Part of FSR 4 | What changes | Why it is faster |
 |---|---|---|
-| Postpass | each thread's pixels are collected and written out in contiguous blocks, one image at a time; its small network rounds and clamps in integers and reads its neighbour cells without branches | AMD's version writes single pixels scattered over three images, which is slow on these GPUs; the rest is fewer instructions per thread |
+| Postpass | each thread's pixels are collected and written out in contiguous blocks, one image at a time; its small network rounds and clamps in integers and reads its neighbor cells without branches | AMD's version writes single pixels scattered over three images, which is slow on these GPUs; the rest is fewer instructions per thread |
 | Model pass 11 | constants made visible to the compiler; each row's results stored together | fewer registers per thread, so more threads run at once; far fewer separate writes |
 | Other model passes | the final scaling and clamping done in integers where that gives the same result | fewer instructions per thread |
 | Prepass | each of a quad's four threads finishes one of the four output words | 12 exchanges between threads instead of 32, and the rounding and storing spread over four threads |
@@ -166,7 +166,7 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
   | still camera / −6,6 | 4.01 | 4.63 | 15% more: a sliver one or two pixels wide beside the trailing edge |
   | −16,4 / 8,0 (fast pan against the object's motion) | 3.11 | 5.14 | 65% more |
 
-  In the last case nothing is left behind: the strip is recognised and shown from the new frame,
+  In the last case nothing is left behind: the strip is recognized and shown from the new frame,
   which alone is less accurate there than AMD's model output (a build that shows only the new
   frame on skipped frames scores 5.24). In the still-camera cases the motion is stored once per
   4x4 pixels, and a pixel in a cell whose corner is on the object takes the object's motion.
@@ -174,7 +174,7 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 - **Particles without motion vectors** (bright dots drawn into the picture only; share of each
   one shown where it truly is, on skipped frames; frames that run the model show 82 to 98%):
 
-  | | AMD's | Release `dll-2026-10-07` behaviour | Lossy |
+  | | AMD's | Release `dll-2026-10-07` behavior | Lossy |
   |---|---|---|---|
   | Tiny and fast, camera still | 83% | 16% | 77% |
   | Tiny and fast, slow pan | 83% | 34% | 78% |

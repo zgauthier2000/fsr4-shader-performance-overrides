@@ -60,7 +60,7 @@ M1, M2 = 0x5A17C0DE, 0x0A110E57
 # The model passes do not see the frame's constants, so the prepass leaves the jitter in a cell
 # that nothing writes before pass 11 (the left edge cell of a row near the end of pass 11's
 # output, which pass 11 itself does not write), and pass 11, the last pass to write in the second
-# region's neighbourhood, copies it next to the mark, where it stays through the skipped frame.
+# region's neighborhood, copies it next to the mark, where it stays through the skipped frame.
 W_RELAY = (REGION * 3 // 2 + (width * 9 // 16 * 15 // 16) * S) // 4
 W_SAVE = W_MARK + 2
 # Pass 11 reads the cell next to the mark (it is part of pass 10's output), so it cannot put the

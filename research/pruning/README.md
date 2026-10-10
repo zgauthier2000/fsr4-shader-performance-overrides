@@ -74,7 +74,7 @@ Added 2026-10-05, to measure what the still scene cannot: stability in motion.
   frame. In front of it two objects move the other way, by -5 x 3 pixels per frame: a solid block
   (one half texture, one half 2-pixel diagonal stripes) and a railing of 3-pixel bars 24 pixels
   apart with see-through gaps. Every speed is a whole number of output pixels, so a point of the
-  scene falls on a pixel centre in every frame and frames can be compared exactly.
+  scene falls on a pixel center in every frame and frames can be compared exactly.
 - **Inputs** (`gen_motion.py`): per frame, jittered color at 2260x1272, motion vectors (from each
   pixel to where it was in the previous frame, in render pixels), depth (background 0.9, objects
   0.3) and jitter; and the true 4K image of the last frames.

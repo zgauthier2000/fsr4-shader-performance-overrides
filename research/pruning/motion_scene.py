@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # The moving test scene shared by gen_motion.py and metric_motion.py. All positions are in output
 # (3840x2160) pixels and all speeds in output pixels per frame, whole numbers, so that a point of
-# the scene lands on a pixel centre in every frame and frames can be compared exactly.
+# the scene lands on a pixel center in every frame and frames can be compared exactly.
 import numpy as np
 
 import os

@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # postpass_taps.py < postpass.spvasm > out.spvasm
 #
-# The FSR 4.1.1 INT8 postpass reads a 3x3 neighbourhood of the model's output; each of the nine
+# The FSR 4.1.1 INT8 postpass reads a 3x3 neighborhood of the model's output; each of the nine
 # reads (4 words, then 64 dot products onto 16 running sums) sits in its own branch that skips it
-# when the neighbour is outside the tensor. This removes the branches: the read always happens
-# (at word 0 of the tensor when the neighbour is outside, so the address stays valid) and the four
+# when the neighbor is outside the tensor. This removes the branches: the read always happens
+# (at word 0 of the tensor when the neighbor is outside, so the address stays valid) and the four
 # words are replaced by 0 when it is outside. A dot product with 0 adds nothing, so the sums are
 # the same as when the branch was skipped. Idea from VALKKKS's v45 notes (2026-10-05), who measured
 # the driver waiting for each read separately because of the branches.
@@ -87,7 +87,7 @@ while i < len(L):
     out.append(l)
     i += 1
 if done != 9:
-    sys.exit(f'postpass_taps: expected 9 guarded neighbourhood reads, found {done}')
+    sys.exit(f'postpass_taps: expected 9 guarded neighborhood reads, found {done}')
 
 
 def resolve(d, x):

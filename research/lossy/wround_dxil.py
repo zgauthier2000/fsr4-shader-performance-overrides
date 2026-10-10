@@ -3,7 +3,7 @@
 # wround_dxil.py < passN.ll > out.ll
 #
 # NOT bit-exact. The DXIL form of wround.py: the rounding between a model pass's layers,
-#     y = (x + (h - 1) + ((x >> n) & 1)) >> n,   h = 2^(n-1)      (halves to the even neighbour)
+#     y = (x + (h - 1) + ((x >> n) & 1)) >> n,   h = 2^(n-1)      (halves to the even neighbor)
 # becomes   y = (x + h) >> n   (halves up). The instructions no longer used are left in place;
 # the driver removes them.
 import re

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Rewrites the FSR 4.1.1 (INT8) prepass as dumped by vkd3d-proton so that the four lanes of each
-# quad share the quantisation of the model's input tensor.
+# quad share the quantization of the model's input tensor.
 #
 #   spirv-dis <hash>.spv | prepass_quad.py > out.spvasm ; spirv-as --target-env spv1.3
 #
@@ -10,7 +10,7 @@
 # round, clamp, pack) and stores the words, while the other three lanes of the quad idle. The
 # reduction leaves the same sums in all four lanes (each lane adds the same two values, and float
 # addition is commutative), so here every lane computes one of the four words, with the same
-# operations, and stores it. The quantisation runs once per lane instead of four times in a
+# operations, and stores it. The quantization runs once per lane instead of four times in a
 # quarter of the lanes, and the quad writes its 16 bytes with one store. The output is bit-exact.
 import re
 import sys

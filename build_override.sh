@@ -10,7 +10,7 @@
 #                  (postpass_direct.py: the first image goes there as it is computed, which keeps
 #                  the register count low enough for 16 waves on RDNA2); before that, its small network gets the model passes'
 #                  integer rounding and clamping (model_tail.py, model_clamp.py) and reads its
-#                  nine neighbour cells without branches (postpass_taps.py). POSTPASS=0 skips it.
+#                  nine neighbor cells without branches (postpass_taps.py). POSTPASS=0 skips it.
 #   prepass        each thread of a quad finishes one of the four words of the model's input:
 #                  12 exchanges between threads instead of 32 (prepass_route.py). PREPASS=0 skips it.
 #   model passes   every model pass: the int8 rounding-and-clamping between layers is done with the
