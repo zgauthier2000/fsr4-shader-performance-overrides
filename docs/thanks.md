@@ -12,7 +12,7 @@ Every report is a valued part of this project, including the many sent without a
 The timing kits (version 2026-10-11.3 and later) ask, after you choose to send your result, whether
 you would like to be named here. It is optional. Names are added by hand in the order they arrive.
 
-*No names yet: the option is new. Yours could be the first.*
+- **Levi** (Radeon RX 6700, Windows)
 
 ## How to be listed, or taken off
 
