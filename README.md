@@ -102,13 +102,15 @@ More games and resolutions: [all results](docs/results.md).
 ## New in this release
 
 > [!TIP]
-> **The lossy DLL: no more sparkling on glossy, ray-traced surfaces, and a speed loss stopped.**
-> - **New in this release:** single over-bright pixels, as traced reflections produce them, were shown as sparks by the
->   lossy DLL and then stayed in the picture. In the test rig a hundredth of them is left, close to AMD's shaders. A
->   slow-down that would have come with the fix, and part of one that had built up over the last releases, is avoided.
+> **The lossy DLL: no more sparkling on glossy surfaces, and a speed loss stopped.**
+> - **New in this release:** single over-bright pixels in the game's frame were shown as sparks by the lossy DLL and then
+>   stayed in the picture. In the test rig a hundredth of them is left, close to AMD's shaders. A slow-down that would
+>   have come with the fix, and part of one that had built up over the last releases, is avoided.
 >   [Details below](#sparkling-on-glossy-surfaces-release-dll-2026-10-116).
-> - **Not new, still true:** the lossy DLL takes about half of AMD's FSR 4 time: 2.37 ms against 4.96 ms per frame at 4K on a
->   Radeon RX 7800 XT, both timed in the same run with this release's file (timing kit under Proton, no game).
+> - **Not only ray tracing:** the report came from traced reflections, but the fix does not look at where such a pixel
+>   comes from. Anything that hands the upscaler lone bright pixels should gain the same way: small highlights on wet,
+>   metal or finely bumped surfaces, noisy screen-space reflections, glints on water. Of these, only fixed glints were
+>   measured, in the test rig; none was checked in a game.
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, with charts and side-by-side crops. It shows where the lossy DLL leads (accuracy close to FSR 4, areas
 >   a moving object has just uncovered) and where it is last of the five (moving foliage, a thin wire in a slow pan).
@@ -177,6 +179,10 @@ One change to the lossy DLL's picture and one to its speed. **The exact DLL is u
   And since `dll-2026-10-11`, which stopped erasing thin wires from the stored picture at rest, nothing removed it again.
 - **The fix:** a bright sample now counts as a spark only as far as a second sample beside it bears it out. A particle
   covers more than one pixel of the game's frame; this kind of noise does not.
+- **Where else it should help:** the rule does not know about ray tracing, only about lone bright pixels. Small highlights
+  on wet, metal or finely bumped surfaces, noisy screen-space reflections and glints on water reach the upscaler the
+  same way. The table's second row is that case (glints that stay in place and are hit only on some frames) and is back
+  at AMD's figure. No game was checked for it.
 
 | Measured in the test rig at 4K: a dark surface with single over-bright pixels in the game's frame | AMD's shaders | `dll-2026-10-11.5` | This release |
 |---|---|---|---|
