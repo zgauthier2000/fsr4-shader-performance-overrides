@@ -19,7 +19,7 @@
 # memory as well (as the floats it is converted from) measured no faster under vkd3d-proton.
 # Nothing else changes, so the output is bit-exact.
 #
-# POSTPASS_DIRECT (default 1; 0 for the files up to release dll-2026-10-07; as ../../postpass_direct.py does on Linux): the first
+# POSTPASS_DIRECT (default 1; 0 for the files up to release dll-2026-10-07; as ../../tools/postpass_direct.py does on Linux): the first
 # of the two float textures goes into shared memory as each of its pixels is computed, instead of
 # waiting in registers until the end of the pass, so a thread holds 12 values fewer. Shared memory
 # is free at that point: nothing else uses it before the first flush.

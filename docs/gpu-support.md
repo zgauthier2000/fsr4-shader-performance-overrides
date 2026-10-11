@@ -101,7 +101,7 @@ the integrated-GPU build 5.04 ms and 48.5 FPS (-2%). So this build is no longer 
 integrated GPU, unlike the normal one, but the gain is small. It was compared with `4.1.1b`, which is
 treated as equal in speed to AMD's shaders (see [RDNA2](#rdna2-needs-one-more-change-the-dot-products)). More reports are welcome: please compare the upscaler time with the DLL you
 used before and report both. On Linux, the same pass 11 can be built with
-`PASS11=rows ./build_override.sh <dump>`.
+`PASS11=rows ./tools/build_override.sh <dump>`.
 
 On Windows with Radeon RX 7000 graphics cards (not integrated GPUs), testers report large
 improvements with the first version, and one tester with an RX 7800 XT saw no difference between

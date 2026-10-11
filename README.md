@@ -222,7 +222,7 @@ On Linux you can leave AMD's DLL in place and give the game the replacement shad
 - **The prebuilt files do not fit every setup.** They were made on an RX 7000 desktop card. On
   one tester's RX 6900 XT, Proton laid the same shaders out differently and the picture came out
   darker. If the picture looks wrong, build your own files:
-  [Linux guide](docs/linux.md#building-your-own). `./check_prebuilt.sh <dump folder>` tells you
+  [Linux guide](docs/linux.md#building-your-own). `./tools/check_prebuilt.sh <dump folder>` tells you
   whether the prebuilt files fit.
 
 If it does not get faster: [Linux guide](docs/linux.md).
@@ -232,6 +232,9 @@ If it does not get faster: [Linux guide](docs/linux.md).
 Each DLL is AMD's own file with the rewritten shaders swapped in and the version name changed.
 How that is done, and how to build it yourself: [`dll/`](dll). There is also a ReShade add-on
 that does the same without touching the DLL: [`windows/`](windows).
+
+The scripts that rewrite the Linux shaders and build the files in `prebuilt/` are in [`tools/`](tools)
+(they were in the top folder until release `dll-2026-10-11.3`; commands in older posts need `tools/` in front).
 
 **In some games OptiScaler's upscaler time is only reliable with the frame rate uncapped.** If
 nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL version

@@ -40,7 +40,7 @@ Pick any **other** game where you use FSR 4 through OptiScaler.
 
    ```
    git pull
-   ./check_prebuilt.sh ~/fsr4-dump-other
+   ./tools/check_prebuilt.sh ~/fsr4-dump-other
    ```
 
 6. Send back what it prints, and which game it was.

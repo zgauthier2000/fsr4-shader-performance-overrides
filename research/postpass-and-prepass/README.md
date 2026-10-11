@@ -209,7 +209,7 @@ chips are, the same overhead accounts for the 0.2 ms gap measured there.
 **Next candidates (2026-10-06): branch-free reads.** A tester's own exact postpass, described in
 their notes as this repository's phased version with the nine neighborhood reads made
 branch-free, beat the shipped rewrite on their RX 6700M by 12 to 18% at 1440p. Rebuilt here from
-that description with [`postpass_taps.py`](../../postpass_taps.py), in three forms: on AMD's postpass
+that description with [`postpass_taps.py`](../../tools/postpass_taps.py), in three forms: on AMD's postpass
 alone (`taps`), on the shipped rewrite (`shipped_taps`) and on "direct trim" (`direct_taps`).
 All three are byte-identical to AMD's in the standalone benchmark and in AMD's whole pipeline at
 five sizes each. Compiled for RDNA2 (Navi 21) the shipped rewrite is 3,278 instructions and 42
@@ -317,7 +317,7 @@ words each, and stores every word as soon as it is computed, with the next word'
 between, so one store instruction writes 4 bytes in every 32. That is the postpass's sparse-write
 pattern again, in a buffer.
 
-`pass11_stores.py` at the top of the repository (applied after `zconst.py`) keeps each row's eight
+`pass11_stores.py` in `tools/` (applied after `zconst.py`) keeps each row's eight
 words in registers and stores them together. The output is byte-identical.
 
 | Pass 11 | Benchmark | Read from memory | Write requests | Registers / waves per SIMD |
@@ -446,7 +446,7 @@ member's exact shader set ([measured here](../community-lossy-set#a-later-set-th
 was slightly faster than this repository's in the prepass and the postpass. Both ideas were
 rebuilt from AMD's shaders with this repository's own tools.
 
-**Prepass: each thread finishes one word** ([`prepass_route.py`](../../prepass_route.py)). The prepass
+**Prepass: each thread finishes one word** ([`prepass_route.py`](../../tools/prepass_route.py)). The prepass
 ends in a 2x2-stride convolution. In AMD's shader each of a quad's four threads works out its
 share of 16 output channels, the shares are summed with two exchanges per channel (32 in all), and
 the quad's first thread rounds, packs and stores all four words. Here a thread at position p
@@ -459,7 +459,7 @@ That is 12 exchanges, and the rounding and the stores are spread over the four t
 additions are AMD's, in the same grouping, so the result is the same bits.
 
 **Postpass: three rewrites this repository already had, used together.** The neighbor reads
-without branches ([`postpass_taps.py`](../../postpass_taps.py), slower on its own when first tried),
+without branches ([`postpass_taps.py`](../../tools/postpass_taps.py), slower on its own when first tried),
 the integer clamp of the model passes (`model_clamp.py`), and their integer rounding extended to
 the form the postpass's last layer uses (`model_tail.py`), all before the store rewrite.
 
@@ -517,7 +517,7 @@ Two changes to the DXIL shaders in the DLLs. Both leave the output as it was (24
 **All three images through shared memory.** Up to release `dll-2026-10-07` the DLL's last pass sent its two float images
 through thread-group shared memory and wrote the third, the recurrent state (half precision), with AMD's scattered stores.
 `postpass_lds_dxil.py` now routes that one too (`POSTPASS_HALF`), and puts it into shared memory as each pixel is computed
-(`POSTPASS_DIRECT`), as [`postpass_direct.py`](../../postpass_direct.py) does on Linux, so that a thread holds no more values
+(`POSTPASS_DIRECT`), as [`postpass_direct.py`](../../tools/postpass_direct.py) does on Linux, so that a thread holds no more values
 than before.
 
 - **A trap on the way:** the half values must stay the floats AMD's code narrows just before each store, and be narrowed
@@ -608,7 +608,7 @@ GPUs have not been measured here.
 | `nullify.py` | replaces a shader's body with an empty one (used for the in-game breakdown of FSR 4's time) |
 | `postpass_shuffle.py` | the lane-swap postpass |
 | `prepass_gather.py`, `prepass_gather_dxil.py` | the first prepass rewrite (each lane fetches its neighbors' features), in the files from 2026-10-05 to 2026-10-06; replaced by `prepass_route.py` in the repository's root |
-| `postpass_taps.py` (now in the repository's root) | the postpass's nine neighborhood reads without their branches (idea from a [community set](../community-lossy-set)): bit-exact, 3% slower on an RX 7800 XT, reported faster on RDNA2 |
+| `postpass_taps.py` (now in `tools/`) | the postpass's nine neighborhood reads without their branches (idea from a [community set](../community-lossy-set)): bit-exact, 3% slower on an RX 7800 XT, reported faster on RDNA2 |
 | `prepass_quad.py` | the prepass rewrite |
 | `prepass_sync.py` | the prepass with its stores moved to the end (`late`) and synchronized (`sync`) |
 | `mesa-tiling-override.patch` | the experimental Mesa changes behind the tiling and counter tables (`AC_FORCE_SWIZZLE=<mode>`, `AC_FORCE_SWIZZLE_MASK=<bit per image>`, `AC_PRINT_SWIZZLE=1`, `AC_SPM_PRINT=1`) |

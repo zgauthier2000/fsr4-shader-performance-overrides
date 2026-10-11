@@ -17,7 +17,7 @@ same=0; differ=0
 while read -r sum name; do
     [[ -e $1/$name ]] || continue
     if [[ $(sha256sum "$1/$name" | cut -d' ' -f1) == "$sum" ]]; then same=$((same + 1)); else differ=$((differ + 1)); echo "differs: $name"; fi
-done < "$here/prebuilt/ORIGINALS.sha256"
+done < "$here/../prebuilt/ORIGINALS.sha256"
 if (( same + differ == 0 )); then
     echo "None of the shaders prebuilt/ covers is in this dump: FSR 4.1.1 with AMD's original DLL"
     echo "(4.1.1.2740) was not running, or this is another FSR version."
@@ -25,7 +25,7 @@ if (( same + differ == 0 )); then
 elif (( differ )); then
     echo "$differ of $((same + differ)) shaders are translated differently on your setup."
     echo "Do NOT use prebuilt/ here. Build your own files instead:"
-    echo "    ./build_override.sh $1"
+    echo "    ./tools/build_override.sh $1"
     exit 1
 fi
 echo "All $same shaders match: prebuilt/ fits your setup."

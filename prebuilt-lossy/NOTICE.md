@@ -18,7 +18,7 @@ upscaler. They are not AMD's originals and are not provided or endorsed by AMD.
 - **They fit only where Proton produces the same translation.** They were made on a Radeon
   RX 7800 XT with GE-Proton 11-7; on an RX 6900 XT the translation differs and these files give a
   wrong image. `ORIGINALS.sha256` lists the checksums of the translated shaders they were made
-  from, and `../check_prebuilt.sh <dump>` compares a dump against it.
+  from, and `../tools/check_prebuilt.sh <dump>` compares a dump against it.
 
 189 files. 90 are the prepass in every version (each lane of a quad finishes one word of the
 model's input, with 12 exchanges between lanes instead of 32, `prepass_route.py`; since 2026-10-07, replacing the first prepass rewrite of 2026-10-05). 45 are model passes other than pass 11, in every version (rounding and clamping

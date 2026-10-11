@@ -39,7 +39,7 @@ the dump contains that DLL's shaders, which is not what is being checked.
 In a terminal, in this repository's folder:
 
 ```
-./check_prebuilt.sh ~/fsr4-dump
+./tools/check_prebuilt.sh ~/fsr4-dump
 ```
 
 It compares the dumped shaders with the ones the prebuilt files were made from and prints one of:
@@ -56,7 +56,7 @@ Keep the output for your report.
 ## 4. Build files from your own dump and test them
 
 ```
-./build_override.sh ~/fsr4-dump ~/fsr4-own
+./tools/build_override.sh ~/fsr4-dump ~/fsr4-own
 ```
 
 It prints the files it wrote and a launch option. Put that launch option in Steam in place of the
@@ -70,8 +70,8 @@ If it says it found no FSR 4.1.1 shaders, stop here and report that.
 Build each of the two rewrites alone, into its own folder, and test each the same way:
 
 ```
-PASS11=0 ./build_override.sh ~/fsr4-dump ~/fsr4-postpass-only
-POSTPASS=0 ./build_override.sh ~/fsr4-dump ~/fsr4-pass11-only
+PASS11=0 ./tools/build_override.sh ~/fsr4-dump ~/fsr4-postpass-only
+POSTPASS=0 ./tools/build_override.sh ~/fsr4-dump ~/fsr4-pass11-only
 ```
 
 ## 6. What to report

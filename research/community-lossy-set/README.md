@@ -94,7 +94,7 @@ Postpass, 4K:
 | Exposure-writing version (`4d657fb0eed077d6`), weights removed | 0.603 ms | 0.691 ms | differs (about half the pixels) |
 
 Both are built on this repository's phased postpass. The branch removal was also rebuilt here from
-the write-up ([`postpass_taps.py`](../../postpass_taps.py)): bit-exact over a
+the write-up ([`postpass_taps.py`](../../tools/postpass_taps.py)): bit-exact over a
 full 4K frame, and 3% slower on the RX 7800 XT (0.617 to 0.622 ms against 0.600 ms). The write-up
 reports it 10% faster on the RX 6700M (581 to 525 microseconds at 1440p), so it may be worth having
 on RDNA2; that has not been measured here.

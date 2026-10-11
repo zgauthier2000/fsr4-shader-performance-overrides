@@ -22,7 +22,7 @@ for base in "${BASES[@]}"; do set -- $base; r=$1; o=$2
     done
 done
 echo "dumped $(ls lall/dump/*.spv | wc -l) shaders"
-../../build_override.sh "$PWD/lall/dump" "$PWD/lall/override" | grep -c '\.spv ('
+../../tools/build_override.sh "$PWD/lall/dump" "$PWD/lall/override" | grep -c '\.spv ('
 for base in "${BASES[@]}"; do set -- $base; r=$1; o=$2
     for combo in "${COMBOS[@]}"; do ctx=${combo%%:*}; disp=${combo##*:}; tag=${r}_${o}_${ctx}_${disp}
         [[ -f lall/ref/$tag.raw ]] || continue

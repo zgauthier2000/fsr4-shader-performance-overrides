@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # model_tail_dxil.py < passN.ll > out.ll
 #
-# The DXIL form of ../../model_tail.py (bit-exact). A model pass ends by combining two integers in
+# The DXIL form of ../../tools/model_tail.py (bit-exact). A model pass ends by combining two integers in
 # floating point for each output value:
 #     out = int16(Round_ne((float(a) * ca + float(b) * cb) * cs))        ca, cb, cs powers of two
 # Every floating-point step there is exact, so the same value is computed in integers: with

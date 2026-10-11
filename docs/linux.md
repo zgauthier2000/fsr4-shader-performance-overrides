@@ -34,7 +34,7 @@
   ([details](gpu-support.md#rdna2-needs-one-more-change-the-dot-products)); the cause is not known yet, and it does not
   seem to be the card generation: another user's files made on an RX 6700M have the usual layout. If the image looks wrong with `prebuilt/` on any card, build your own.
 - **To find out whether `prebuilt/` fits your setup,** make a dump and run
-  `./check_prebuilt.sh <dump folder>` ([Making a shader dump](shader-dump.md), steps 2 and 3). It
+  `./tools/check_prebuilt.sh <dump folder>` ([Making a shader dump](shader-dump.md), steps 2 and 3). It
   compares your dump with the shaders the prebuilt files were made from.
 - Only if you build your own files: `python3` and SPIRV-Tools (`spirv-dis`, `spirv-as`,
   `spirv-val`).
@@ -86,7 +86,7 @@ This builds the exact files. The lossy files are provided ready-made only; the t
 2. **Build the overrides.**
 
    ```
-   ./build_override.sh /home/you/fsr4-dump
+   ./tools/build_override.sh /home/you/fsr4-dump
    ```
 
    It prints the files it wrote into `override/` and the launch option to use. If it finds no FSR
