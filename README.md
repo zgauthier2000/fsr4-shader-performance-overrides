@@ -57,8 +57,8 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   DLL's gain depends on the card: some keep most of it (an RX 7900 XT 30% at 1440p, an RX 6600 XT 24% at 1080p),
   others show little or nothing (the RX 7800 XT and an RX 7900 XTX at 1080p). The lossy DLL helps at every size,
   because it skips work instead of only doing the same work faster.
-- **It depends on your graphics chip, too.** The table below is from one card, a Radeon RX 7800 XT. What testers'
-  timing-kit runs and game reports show so far, as FSR 4 time saved at 4K:
+- **It depends on your graphics chip, too.** FSR 4 time saved at 4K, from testers' timing-kit runs and game reports
+  so far:
 
   | Graphics chip | Exact DLL | Lossy DLL |
   |---|---|---|
