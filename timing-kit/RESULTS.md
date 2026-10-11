@@ -266,3 +266,33 @@ the measurement's floor on this machine):
 Compiled code at 1080p (registers / waves per SIMD / instructions): AMD's prepass 56/18/855,
 pass 1 56/18/1446, pass 11 56/18/1065, pass 12 56/18/1446, postpass 64/16/3180; exact prepass
 48/20/829, pass 1 56/18/1359, pass 11 56/18/4389, pass 12 56/18/1359, postpass 80/12/3506.
+
+## Radeon RX 7900 GRE (RADV NAVI31), 2026-10-11, postpass run
+
+Kit 2026-10-06.2, its short postpass test only, on Linux (Mesa 26.2.4, GPU 1% busy before the
+run). The "rewrite" here is the postpass shipped at the time of that kit, not the current one, and
+the run has no whole-frame or lossy figures. One run.
+
+**The postpass by output size** (ms):
+
+| | 1080p | 1440p | 4K |
+|---|---|---|---|
+| AMD's | .204 | 1.33 | 2.75 |
+| Rewrite | .147 (-28%) | .302 (-77%) | .645 (-77%) |
+| AMD's with its stores removed | .122 | .214 | .479 |
+| RX 7800 XT for reference (AMD's, rewrite) | .204, .172 | .818, .307 | 2.14, .679 |
+
+- **AMD's postpass gets 6.5 times slower from 1080p to 1440p output, for 1.78 times the
+  pixels.** The rewrite grows with the pixel count. So on this card the gain is large from 1440p
+  up, not only at 4K, and AMD's postpass costs more here than on the RX 7800 XT at both sizes.
+- **The same tester's game reading** (Ready Or Not, 1080p rendered to 4K, the exact DLL's
+  shaders through OptiScaler; one screenshot each, the same scene not shown): 5.56 ms for the
+  whole upscaler with AMD's shaders, 2.54 ms with the exact files. The postpass accounts for 2.1
+  of those 3.0 ms.
+- **Compiled postpass** (registers / waves per SIMD / workgroup memory): AMD's 60 / 24 / none,
+  the rewrite 96 / 16 / 16 KB, at both 1080p and 4K.
+- **AMD's postpass with only its neighborhood reads made branch-free** is 13% slower at 4K
+  (3.11 ms) and no faster below; the same change on top of the rewrite makes no difference.
+- **The two forms of the dot product** (`v_dot4c_i32_i8` against `v_dot4_i32_i8`): no difference
+  on this card (within 5% either way in model passes 1 and 12 and the postpass, at 1080p and 4K).
+- **Output check:** every version gave AMD's output.
