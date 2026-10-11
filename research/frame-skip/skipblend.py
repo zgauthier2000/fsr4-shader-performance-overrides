@@ -67,6 +67,10 @@
 # put single bright pixels into foliage on skipped frames (seen in a game against a bright sky). At 2 most of them are gone and sparks
 # lose about one point in a hundred of their brightness. SB_SAMPLE=1 gives release dll-2026-10-11.2's behavior.
 # SB_CLAMPEDGE=0 gives release dll-2026-10-11's behavior; SB_RESTW=off SB_CLAMPREST=1 SB_CLAMPW=off gives release dll-2026-10-10's behavior.
+# Single over-bright pixels in the game's frame (noise from traced reflections, glints) are sparks to the sample test too, and with no clamp at
+# rest they then stay in the history: sparkling on glossy surfaces. SB_LONE=1 (test, off by default): the nearest sample counts only as far as a
+# second one of the nine bears it out (upward: the smaller of itself and the second largest; downward likewise). A particle covers more than one
+# render pixel; such noise does not.
 # SB_SAMPLEABS=0.02 SB_BRIGHTABS=0.02 gives release dll-2026-10-09's behavior (it let film grain and noise through on
 # skipped frames: the grain trips the sample test as a spark does). SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behavior. SB_FULLW is a rejected experiment
 # (the new frame in proportion to the SB_BRIGHT difference: two to three times the shimmer at rest).
@@ -116,6 +120,7 @@ head += ['%sb_e1 = OpIEqual %bool %sb_v0 %sb_m1', '%sb_e2 = OpIEqual %bool %sb_v
          '%sb_djx = OpFSub %float %sb_pjx %sb_jx', '%sb_djy = OpFSub %float %sb_pjy %sb_jy']
 BRIGHT = os.environ.get('SB_BRIGHT'); FULLW = os.environ.get('SB_FULLW')
 SAMPLE = os.environ.get('SB_SAMPLE')      # test: at rest, compare the nearest new sample with the range of the history around the pixel
+LONE = os.environ.get('SB_LONE', '0') == '1'      # the sample test ignores a sample that stands alone among the nine (see the head of the file)
 def _heap(img):
     ld = re.match(r'OpLoad %\w+ (%\w+)', defs.get(img, '')); ac = ld and re.match(r'OpAccessChain %\w+ (%\w+) (%\w+)', defs.get(ld[1], '')); ia = ac and re.match(r'OpIAdd %uint %\w+ (%\w+)', defs.get(ac[2], ''))
     return ia[1] if ia else None
@@ -154,8 +159,23 @@ def part_sample(k, h, curs):
         for i, (v, w) in enumerate(tc[1:]):
             code += [f'{t}cg{c}_{i} = OpFOrdGreaterThan %bool {w} {bw}', f'{t}cw{c}_{i} = OpSelect %float {t}cg{c}_{i} {w} {bw}', f'{t}cv{c}_{i} = OpSelect %float {t}cg{c}_{i} {v} {bv}']
             bv, bw = f'{t}cv{c}_{i}', f'{t}cw{c}_{i}'
-        code += [f'{t}v{c} = OpFMul %float {bv} %sb_one', f'{t}r{c} = OpFSub %float {mx[c]} {mn[c]}', f'{t}a{c} = OpFMul %float {t}r{c} %ss_m', f'{t}b{c} = OpFAdd %float {t}a{c} %ss_abs',
-                 f'{t}hi{c} = OpFSub %float {t}v{c} {mx[c]}', f'{t}lo{c} = OpFSub %float {mn[c]} {t}v{c}', f'{t}e0{c} = OpExtInst %float {GLSL} NMax {t}hi{c} {t}lo{c}', f'{t}e{c} = OpFSub %float {t}e0{c} {t}b{c}',
+        code += [f'{t}v{c} = OpFMul %float {bv} %sb_one', f'{t}r{c} = OpFSub %float {mx[c]} {mn[c]}', f'{t}a{c} = OpFMul %float {t}r{c} %ss_m', f'{t}b{c} = OpFAdd %float {t}a{c} %ss_abs']
+        vh = vl = f'{t}v{c}'
+        if LONE:
+            # a sample that stands alone among the nine counts only as far as the next one bears it out: upward as the smaller of itself and
+            # the second largest of the nine, downward as the larger of itself and the second smallest
+            vs = [v for v, w in tc]
+            code += [f'{t}u1{c}_0 = OpExtInst %float {GLSL} NMax {vs[0]} {vs[1]}', f'{t}u2{c}_0 = OpExtInst %float {GLSL} NMin {vs[0]} {vs[1]}']
+            for i, v in enumerate(vs[2:]):
+                code += [f'{t}ua{c}_{i} = OpExtInst %float {GLSL} NMin {t}u1{c}_{i} {v}', f'{t}u2{c}_{i + 1} = OpExtInst %float {GLSL} NMax {t}u2{c}_{i} {t}ua{c}_{i}', f'{t}u1{c}_{i + 1} = OpExtInst %float {GLSL} NMax {t}u1{c}_{i} {v}']
+            # (u1 = largest, u2 = second largest; now the same downward: d1 = smallest, d2 = second smallest)
+            code += [f'{t}d1{c}_0 = OpExtInst %float {GLSL} NMin {vs[0]} {vs[1]}', f'{t}d2{c}_0 = OpExtInst %float {GLSL} NMax {vs[0]} {vs[1]}']
+            for i, v in enumerate(vs[2:]):
+                code += [f'{t}da{c}_{i} = OpExtInst %float {GLSL} NMax {t}d1{c}_{i} {v}', f'{t}d2{c}_{i + 1} = OpExtInst %float {GLSL} NMin {t}d2{c}_{i} {t}da{c}_{i}', f'{t}d1{c}_{i + 1} = OpExtInst %float {GLSL} NMin {t}d1{c}_{i} {v}']
+            n = len(vs) - 2
+            code += [f'{t}vh{c} = OpExtInst %float {GLSL} NMin {t}v{c} {t}u2{c}_{n}', f'{t}vl{c} = OpExtInst %float {GLSL} NMax {t}v{c} {t}d2{c}_{n}']
+            vh, vl = f'{t}vh{c}', f'{t}vl{c}'
+        code += [f'{t}hi{c} = OpFSub %float {vh} {mx[c]}', f'{t}lo{c} = OpFSub %float {mn[c]} {vl}', f'{t}e0{c} = OpExtInst %float {GLSL} NMax {t}hi{c} {t}lo{c}', f'{t}e{c} = OpFSub %float {t}e0{c} {t}b{c}',
                  f'{t}d0{c} = OpFMul %float {t}r{c} %ss_full', f'{t}d{c} = OpFAdd %float {t}d0{c} %ss_abs', f'{t}q{c} = OpFDiv %float {t}e{c} {t}d{c}', f'{t}g{c} = OpExtInst %float {GLSL} NClamp {t}q{c} %sm_fz %sb_one']
         fs.append(f'{t}g{c}')
     code += [f'{t}g01 = OpExtInst %float {GLSL} NMax {fs[0]} {fs[1]}', f'{t}g = OpExtInst %float {GLSL} NMax {t}g01 {fs[2]}', (f'%sb_pf{k} = OpFMul %float {t}g %sb_one' if os.environ.get('SB_SAMPLEALL') == '1' else f'%sb_pf{k} = OpSelect %float %sm_rest {t}g %sm_fz'),

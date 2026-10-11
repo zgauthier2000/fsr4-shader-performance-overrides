@@ -149,6 +149,7 @@ _rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_R
 _cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_CLAMPW') else None
 DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # as in skipblend.py
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'
+LONE = os.environ.get('SB_LONE', '0') == '1'      # as in skipblend.py
 FMIN = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 36, float {a}, float {b})'
 FMAX = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 35, float {a}, float {b})'
 
@@ -208,8 +209,20 @@ def part(k, curs, h, at):
         for i, (v, w) in enumerate(tc[1:]):
             c_ += [f'  {t}cg{c}.{i} = fcmp ogt float {w}, {bw}', f'  {t}cw{c}.{i} = select i1 {t}cg{c}.{i}, float {w}, float {bw}', f'  {t}cv{c}.{i} = select i1 {t}cg{c}.{i}, float {v}, float {bv}']
             bv, bw = f'{t}cv{c}.{i}', f'{t}cw{c}.{i}'
+        vh = vl = bv
+        if LONE:      # a sample that stands alone among the nine counts only as far as the next one bears it out (as in skipblend.py)
+            vs = [v for v, w in tc]
+            c_ += [FMAX(f'{t}l1{c}.0', vs[0], vs[1]), FMIN(f'{t}l2{c}.0', vs[0], vs[1])]
+            for i, v in enumerate(vs[2:]):
+                c_ += [FMIN(f'{t}la{c}.{i}', f'{t}l1{c}.{i}', v), FMAX(f'{t}l2{c}.{i + 1}', f'{t}l2{c}.{i}', f'{t}la{c}.{i}'), FMAX(f'{t}l1{c}.{i + 1}', f'{t}l1{c}.{i}', v)]
+            c_ += [FMIN(f'{t}k1{c}.0', vs[0], vs[1]), FMAX(f'{t}k2{c}.0', vs[0], vs[1])]
+            for i, v in enumerate(vs[2:]):
+                c_ += [FMAX(f'{t}ka{c}.{i}', f'{t}k1{c}.{i}', v), FMIN(f'{t}k2{c}.{i + 1}', f'{t}k2{c}.{i}', f'{t}ka{c}.{i}'), FMIN(f'{t}k1{c}.{i + 1}', f'{t}k1{c}.{i}', v)]
+            n_ = len(vs) - 2
+            c_ += [FMIN(f'{t}vh{c}', bv, f'{t}l2{c}.{n_}'), FMAX(f'{t}vl{c}', bv, f'{t}k2{c}.{n_}')]
+            vh, vl = f'{t}vh{c}', f'{t}vl{c}'
         c_ += [f'  {t}r{c} = fsub fast float {mx[c]}, {mn[c]}', f'  {t}a{c} = fmul fast float {t}r{c}, {fl(m_)}', f'  {t}b{c} = fadd fast float {t}a{c}, {fl(ab)}',
-               f'  {t}hi{c} = fsub fast float {bv}, {mx[c]}', f'  {t}lo{c} = fsub fast float {mn[c]}, {bv}', FMAX(f'{t}e0{c}', f'{t}hi{c}', f'{t}lo{c}'), f'  {t}e{c} = fsub fast float {t}e0{c}, {t}b{c}',
+               f'  {t}hi{c} = fsub fast float {vh}, {mx[c]}', f'  {t}lo{c} = fsub fast float {mn[c]}, {vl}', FMAX(f'{t}e0{c}', f'{t}hi{c}', f'{t}lo{c}'), f'  {t}e{c} = fsub fast float {t}e0{c}, {t}b{c}',
                f'  {t}d0{c} = fmul fast float {t}r{c}, {fl(full)}', f'  {t}d{c} = fadd fast float {t}d0{c}, {fl(ab)}', f'  {t}q{c} = fdiv fast float {t}e{c}, {t}d{c}',
                FMAX(f'{t}u{c}', f'{t}q{c}', '0.000000e+00'), FMIN(f'{t}g{c}', f'{t}u{c}', '1.000000e+00')]
         fs.append(f'{t}g{c}')
