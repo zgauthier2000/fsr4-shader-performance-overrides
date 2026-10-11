@@ -150,8 +150,36 @@ _cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_
 DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # as in skipblend.py
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'
 LONE = os.environ.get('SB_LONE', '0') == '1'      # as in skipblend.py
+LEAN = os.environ.get('SB_LEAN', '0') == '1'      # as in skipblend.py: here only the choice of the nearest sample (the layout is the driver's business)
 FMIN = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 36, float {a}, float {b})'
 FMAX = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 35, float {a}, float {b})'
+
+
+def _is_middle(v):
+    """is this sample value read at the unshifted coordinates (the middle one of the nine)? As in skipblend.py."""
+    found = {}; todo = [(v, 0)]; seen = set()
+    while todo:
+        x, depth = todo.pop(); d = defs.get(x, '')
+        if x in seen: continue
+        seen.add(x)
+        m = re.match(r'extractvalue %dx\.types\.ResRet\.f(?:16|32) (%[\w.]+), \d+', d)
+        f = m and re.match(r'call %dx\.types\.ResRet\.f(?:16|32) @dx\.op\.textureLoad\.f(?:16|32)\(i32 66, %dx\.types\.Handle %[\w.]+, i32 [^,]+, i32 (%[\w.]+), i32 (%[\w.]+),', defs.get(m[1], ''))
+        if f:
+            found[m[1]] = (f[1], f[2]); continue
+        if depth < 40:
+            todo += [(y, depth + 1) for y in re.findall(r'%[\w.]+', d) if y in defs and not y.startswith('%dx.')]
+    if len(found) != 1:
+        sys.exit(f'skipblend_dxil: a sample value could not be traced to its fetch ({len(found)} fetches behind {v})')
+    def shifted(x):
+        for _ in range(6):
+            e = defs.get(x, ''); w = re.match(r'call i32 @dx\.op\.binary\.i32\(i32 (?:37|38|39|40), i32 (%[\w.]+), ', e)
+            if w: x = w[1]; continue
+            if re.match(r'add (?:nsw |nuw )*i32 ', e): return True
+            if re.match(r'fpto[su]i ', e): return False
+            break
+        sys.exit(f'skipblend_dxil: unexpected shape of a sample coordinate ({x} = {defs.get(x, "")[:60]})')
+    cx, cy = next(iter(found.values()))
+    return not shifted(cx) and not shifted(cy)
 
 
 def part(k, curs, h, at):
@@ -206,7 +234,13 @@ def part(k, curs, h, at):
     m_, ab, full = float(SAMPLE), float(os.environ.get('SB_SAMPLEABS', '0.05')), float(os.environ.get('SB_SAMPLEFULL', '1'))
     for c in range(3):
         tc = samples_w(curs[c]); bv, bw = tc[0]
-        for i, (v, w) in enumerate(tc[1:]):
+        if LEAN:      # the nearest sample is the middle one of the nine (as in skipblend.py): no weights needed here
+            mid = [v for v, w in tc if _is_middle(v)]
+            if len(mid) != 1:
+                sys.exit(f'skipblend_dxil: {len(mid)} middle samples found, expected 1')
+            bv = mid[0]
+        else:
+          for i, (v, w) in enumerate(tc[1:]):
             c_ += [f'  {t}cg{c}.{i} = fcmp ogt float {w}, {bw}', f'  {t}cw{c}.{i} = select i1 {t}cg{c}.{i}, float {w}, float {bw}', f'  {t}cv{c}.{i} = select i1 {t}cg{c}.{i}, float {v}, float {bv}']
             bv, bw = f'{t}cv{c}.{i}', f'{t}cw{c}.{i}'
         vh = vl = bv
