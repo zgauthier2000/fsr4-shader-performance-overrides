@@ -19,4 +19,4 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - Run a [timing kit](../timing-kit) and type a name or nickname when it asks.
 - Only names typed into that question are listed. Nothing is taken from Discord, GitHub or anywhere else.
 - Vulgar or offensive names are left out.
-- To have a name changed or removed, open an issue on the project's GitHub page or say so on its Discord.
+- To have a name changed or removed, open an issue on the project's GitHub page.
