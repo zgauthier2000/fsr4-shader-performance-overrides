@@ -93,11 +93,11 @@ More games and resolutions: [all results](docs/results.md).
 
 > [!TIP]
 > **The lossy DLL: no more shimmer in bright flat areas with auto exposure on, and a page that puts it beside other upscalers.**
-> - **New in this release:** with FSR's auto-exposure option on, as many games run it, bright flat areas at rest shimmered more
+> - **New in this release:** with FSR's auto-exposure option on, bright flat areas at rest shimmered more
 >   with the lossy DLL than with AMD's shaders. The cause is found and removed for the lossy DLL: in the test rig they now change
 >   about a quarter as much per frame as with AMD's. Slow fades show slightly later in those areas.
 >   [Details below](#bright-flat-areas-at-rest-with-auto-exposure-on-release-dll-2026-10-115).
-> - **Not new, still true:** the lossy DLL takes about half of AMD's FSR 4 time: 2.36 ms against 4.75 ms per frame at 4K on a
+> - **Not new, still true:** the lossy DLL takes about half of AMD's FSR 4 time: 2.36 ms against 4.88 ms per frame at 4K on a
 >   Radeon RX 7800 XT, both timed in the same run with this release's file (timing kit under Proton, no game).
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, with charts and side-by-side crops. It shows where the lossy DLL leads (accuracy close to FSR 4, areas
@@ -162,7 +162,7 @@ One change to the lossy DLL, for games that run FSR with its auto-exposure optio
 | Change per frame at rest, bright flat areas | 0.186 | 0.310 | 0.051 |
 | Change per frame at rest, fine detail | 0.125 | 0.102 | 0.097 |
 | Still picture | 44.44 dB | 44.40 dB | 44.42 dB |
-| Moving scene: background | not measured | 48.83 dB | 49.01 dB |
+| Moving scene: background | 49.26 dB | 48.83 dB | 49.01 dB |
 | Swaying foliage, camera panning: error | 6.57 | 8.16 | 7.35 |
 | A slow darkening fade with nothing moving: frames behind, bright flat areas | 0.72 | 0.69 | 1.05 |
 | A slow brightening fade: frames behind, bright flat areas | 0.46 | 0.64 | 0.87 |
