@@ -97,7 +97,7 @@ More games and resolutions: [all results](docs/results.md).
 >   with the lossy DLL than with AMD's shaders. The cause is found and removed for the lossy DLL: in the test rig they now change
 >   about a quarter as much per frame as with AMD's. Slow fades show slightly later in those areas.
 >   [Details below](#bright-flat-areas-at-rest-with-auto-exposure-on-release-dll-2026-10-115).
-> - **Not new, still true:** the lossy DLL takes about half of AMD's FSR 4 time: 2.36 ms against 4.88 ms per frame at 4K on a
+> - **Not new, still true:** the lossy DLL takes about half of AMD's FSR 4 time: 2.36 ms against 4.75 ms per frame at 4K on a
 >   Radeon RX 7800 XT, both timed in the same run with this release's file (timing kit under Proton, no game).
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, with charts and side-by-side crops. It shows where the lossy DLL leads (accuracy close to FSR 4, areas
