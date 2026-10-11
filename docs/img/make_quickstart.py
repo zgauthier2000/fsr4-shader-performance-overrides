@@ -27,7 +27,7 @@ def figure(t):
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" '
          'aria-label="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. '
          + ' '.join(f'{n}: {ms:.2f} milliseconds of upscaling per frame, {fps} frames per second, {what}.' for n, what, ms, fps, _ in ROWS)
-         + ' Lower output resolutions gain less.">',
+         + ' Other resolutions and other cards give other numbers.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 34, 'What to expect at 4K', t, 16, 'ink', weight=600),
          text(24, 54, 'Time FSR 4.1.1 takes per frame (shorter is better), and the frame rate that goes with it', t),
@@ -42,7 +42,7 @@ def figure(t):
               f'<path d="M{X0},{y} H{X0 + w - 4:.1f} Q{X0 + w:.1f},{y} {X0 + w:.1f},{y + 4} V{y + 32} Q{X0 + w:.1f},{y + 36} {X0 + w - 4:.1f},{y + 36} H{X0} Z" fill="{t[col]}"/>',
               text(X0 + w + 8, y + 23, f'{ms:.2f} ms', t, 13, 'ink', weight=600),
               text(XMAX + 136, y + 23, f'{fps} FPS', t, 14, 'ink', 'end', 600)]
-    o.append(text(24, H - 14, 'Shadow of the Tomb Raider benchmark, 4K output, Balanced, Radeon RX 7800 XT. Lower resolutions and slower cards gain less.', t, 11, 'muted'))
+    o.append(text(24, H - 14, 'Shadow of the Tomb Raider benchmark, 4K output, Balanced, Radeon RX 7800 XT. Other resolutions and cards give other numbers.', t, 11, 'muted'))
     return o
 
 

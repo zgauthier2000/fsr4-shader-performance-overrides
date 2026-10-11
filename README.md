@@ -50,16 +50,26 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
-  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.15 milliseconds, 120 frames per second, very close picture, opt-in. Lower output resolutions and slower cards gain less.">
+  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.15 milliseconds, 120 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers.">
 </picture>
 
 - **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
-  DLL gains little, sometimes nothing you can measure; the lossy DLL still helps there, because it
-  skips work instead of only doing the same work faster.
-- **It depends on your graphics chip, too.** The numbers here are from one card, a Radeon RX 7800 XT. Testers with
-  RX 7000 cards report up to about 30% less FSR 4 time at 4K. On RX 6000 cards, reports at 4K range from a few percent to
-  about 30%, and we do not yet know what decides it; at 1440p and below they gain only a few percent. On graphics built into the processor the reports so far show a couple of percent. On GeForce and Intel
-  Arc nothing has been measured, and a gain is not certain there. [Results by graphics chip](docs/results.md#by-gpu-type).
+  DLL's gain depends on the card: some keep most of it (an RX 7900 XT 30% at 1440p, an RX 6600 XT 24% at 1080p),
+  others show little or nothing (the RX 7800 XT and an RX 7900 XTX at 1080p). The lossy DLL helps at every size,
+  because it skips work instead of only doing the same work faster.
+- **It depends on your graphics chip, too.** The table below is from one card, a Radeon RX 7800 XT. What testers'
+  timing-kit runs and game reports show so far, as FSR 4 time saved at 4K:
+
+  | Graphics chip | Exact DLL | Lossy DLL |
+  |---|---|---|
+  | Radeon RX 7000 | 15 to 35% in most reports; about 2% in two RX 7800 XT reports | 29 to 49% |
+  | Radeon RX 6000 | from nothing to about 30% | 23 to 48% |
+  | Integrated graphics and handhelds | from a few percent slower to 6% faster | 23 to 35% |
+  | Intel Arc B580 (one report) | 6 to 8% | 31% |
+  | GeForce RTX 3060 Ti (one report) | none | 34% |
+
+  We do not yet know what decides where a card falls in its range. Most rows rest on a handful of single runs.
+  [Results by graphics chip](docs/results.md#by-gpu-type), [timing kit results](timing-kit/RESULTS.md).
 - **It only shows when the graphics card is the limit.** If the processor limits your frame rate,
   the frame rate does not change.
 - **The exact DLL cannot change the picture.** Its output was compared with AMD's byte for byte at
