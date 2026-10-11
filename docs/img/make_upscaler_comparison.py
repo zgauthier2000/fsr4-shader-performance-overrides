@@ -3,7 +3,7 @@
 # make_upscaler_comparison.py [<dir>]: the figures of docs/upscaler-comparison.md.
 #   cmp5-quality-{light,dark}.svg, cmp5-speed-{light,dark}.svg, cmp5-tradeoff-{light,dark}.svg: charts; the numbers in them are the
 #       tables of that page (test rig, 4K output from 2260x1272, Radeon RX 7800 XT under Proton, single runs).
-#   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-plate.png, cmp5-dots.png (frame 39 of the plate scene and of the hard-sampled foliage scene): the same piece of one frame from the
+#   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-big.png (large particles), cmp5-plate.png, cmp5-dots.png (frame 39 of the plate scene and of the hard-sampled foliage scene): the same piece of one frame from the
 #       five upscalers beside the true image. <dir> holds <scene>_<name>/output_3840x2160_f037.raw (RGBA16F) for scene in still,
 #       wires, sparks, foliage, motion and name in fsr4, lossy, fsr3, helix, xess, and <scene>_truth.npy (the true 4K image).
 import sys
@@ -153,6 +153,8 @@ crops('sparks', 'Tiny fast sparks drawn without motion vectors', f'Camera still.
 crops('foliage', 'Leaves swaying without motion vectors, camera still', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (300, 300, 1900, 1850))
 crops('motion', 'Moving scene: fine stripes on a moving object', f'Camera panning. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (1900, 250, 3300, 1500))
 crops('plate', 'A still bright object over ground that moves fast', f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is, at the same depth.\nThe piece just below it where the five differ most, enlarged 2 times. {E}', 240, 160, 2, (2300, 800, 3100, 1000), frame=39)
+crops('big', 'Large glowing particles drawn without motion vectors', f'Camera still. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (250, 250, 1950, 1900), only_changed=True)
+
 # ---- bright dots in foliage: the piece of the hard-sampled foliage scene where the lossy DLL shows the most single bright pixels inside the leaves,
 # each panel with its count of them (as research/pruning/foliage_dots.py counts: more than 0.15 brighter than the median of the 3x3 surroundings, where
 # the true image is dark there)

@@ -108,6 +108,10 @@ that skip the network; the same alternate frames are measured for the others.
 FSR 4 and HelixSR handle these best. The lossy DLL is close on embers and behind on large particles and fast sparks. FSR 3.1
 loses more than half of the small ones.
 
+<img src="img/cmp5-big.png" width="760" alt="Large glowing particles drawn without motion vectors, camera still, a piece with two of them enlarged four times, as true image and from the five upscalers. FSR 4.1.1 (error 0.4 of 255) and HelixSR (0.7) show both round and smooth; the lossy DLL (0.8) shows them in place with a slightly rough edge on the smaller one; FSR 3.1 (1.5) shows faint arcs across them; XeSS (4.9) shows both dimmed with a fine checkered pattern.">
+
+The piece is the one where the five differ most, so it flatters nobody: over the whole scene XeSS scores 1.01 and the lossy DLL 1.47 (the table above).
+
 <img src="img/cmp5-sparks.png" width="760" alt="Tiny fast sparks drawn without motion vectors, camera still, a piece enlarged five times with five sparks in it. True image, then FSR 4.1.1 (error 0.6 of 255) and HelixSR (0.7) show all five round and bright; the lossy DLL (0.7) shows all five, slightly blocky; FSR 3.1 (1.4) shows them small, dim and one smeared into a streak; XeSS (1.6) shows them faint.">
 
 ## Steadiness
