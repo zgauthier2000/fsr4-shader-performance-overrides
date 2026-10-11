@@ -14,6 +14,8 @@ What it does
   uncovered, ones that scrolled in from outside the screen, ones whose content changed without
   the game reporting motion (particles, sparks, embers), and ones where the network itself had
   asked for the new frame on the frame before.
+  A single over-bright pixel with no bright pixel beside it in the game's frame (the noise of
+  traced reflections on glossy surfaces) is not taken for a spark.
 - The network's arithmetic is AMD's except in one of its layers, where a few of the
   smallest weights are merged into their neighbors. In the last step a correction smaller
   than about two steps of the picture's number format is skipped, and tiny wobbles of the

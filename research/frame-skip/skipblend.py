@@ -68,10 +68,10 @@
 # lose about one point in a hundred of their brightness. SB_SAMPLE=1 gives release dll-2026-10-11.2's behavior.
 # SB_CLAMPEDGE=0 gives release dll-2026-10-11's behavior; SB_RESTW=off SB_CLAMPREST=1 SB_CLAMPW=off gives release dll-2026-10-10's behavior.
 # Single over-bright pixels in the game's frame (noise from traced reflections, glints) are sparks to the sample test too, and with no clamp at
-# rest they then stay in the history: sparkling on glossy surfaces. SB_LONE=1 (test, off by default): the nearest sample counts only as far as a
+# rest they then stay in the history: sparkling on glossy surfaces. SB_LONE (default 1; 0 = as release dll-2026-10-11.5): the nearest sample counts only as far as a
 # second one of the nine bears it out (the smaller of itself and the second largest; upward only). A particle covers more than one
 # render pixel; such noise does not.
-# SB_LEAN=1 (test, off by default): the changed-content tests laid out to hold fewer values at once. With them the postpass
+# SB_LEAN (default 1; 0 = the layout of release dll-2026-10-11.5; SB_LONE=0 SB_LEAN=0 rebuilds that release's files): the changed-content tests laid out to hold fewer values at once. With them the postpass
 # needed 120 registers where release dll-2026-10-07's needed 96 (12 waves per SIMD instead of 16 on an RX 7800 XT), and SB_LONE on top 192 (8 waves):
 # measurable in a game, not in the timing kit. Three things did it: the nine sample weights were kept up to the branch to pick the nearest sample by
 # its weight (now: the middle one of the nine, which is the same sample but for the weights' fine print); the driver's compiler moved the nine history
@@ -89,7 +89,7 @@ for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1')
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
-LEAN = os.environ.get('SB_LEAN', '0') == '1'      # same values, laid out to hold fewer of them at once (fewer registers)
+LEAN = os.environ.get('SB_LEAN', '1') == '1'      # same values, laid out to hold fewer of them at once (fewer registers)
 K = float(os.environ.get('SB_K', '32')); CONST = None if os.environ.get('SB_CONST') == 'off' else os.environ.get('SB_CONST', '0'); CAP = float(os.environ.get('SB_CAP', '1')); AW = int(os.environ.get('SB_AW', '1'))
 CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0.5'))
 GUARD = os.environ.get('SB_GUARD', '1') == '1'
@@ -126,7 +126,7 @@ head += ['%sb_e1 = OpIEqual %bool %sb_v0 %sb_m1', '%sb_e2 = OpIEqual %bool %sb_v
          '%sb_djx = OpFSub %float %sb_pjx %sb_jx', '%sb_djy = OpFSub %float %sb_pjy %sb_jy']
 BRIGHT = os.environ.get('SB_BRIGHT'); FULLW = os.environ.get('SB_FULLW')
 SAMPLE = os.environ.get('SB_SAMPLE')      # test: at rest, compare the nearest new sample with the range of the history around the pixel
-LONE = os.environ.get('SB_LONE', '0') == '1'      # the sample test ignores a sample that stands alone among the nine (see the head of the file)
+LONE = os.environ.get('SB_LONE', '1') == '1'      # the sample test ignores a sample that stands alone among the nine (see the head of the file)
 def _heap(img):
     ld = re.match(r'OpLoad %\w+ (%\w+)', defs.get(img, '')); ac = ld and re.match(r'OpAccessChain %\w+ (%\w+) (%\w+)', defs.get(ld[1], '')); ia = ac and re.match(r'OpIAdd %uint %\w+ (%\w+)', defs.get(ac[2], ''))
     return ia[1] if ia else None

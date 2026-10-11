@@ -149,8 +149,8 @@ _rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_R
 _cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_CLAMPW') else None
 DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # as in skipblend.py
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'
-LONE = os.environ.get('SB_LONE', '0') == '1'      # as in skipblend.py
-LEAN = os.environ.get('SB_LEAN', '0') == '1'      # as in skipblend.py
+LONE = os.environ.get('SB_LONE', '1') == '1'      # as in skipblend.py
+LEAN = os.environ.get('SB_LEAN', '1') == '1'      # as in skipblend.py
 FMIN = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 36, float {a}, float {b})'
 FMAX = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 35, float {a}, float {b})'
 

@@ -2,8 +2,64 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-11.4` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-11.5` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-11 ([release `dll-2026-10-11.5`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.5))
+
+### Bright flat areas at rest with auto exposure on
+
+*Written for `dll-2026-10-11.5`: "this release" below means that one.*
+
+One change to the lossy DLL, for games that run FSR with its auto-exposure option on. **The exact DLL is unchanged.**
+
+- **What was wrong:** after the last release we found that its steadiness at rest held only with auto exposure off. With it
+  on, bright flat areas (sky, walls) shimmered more with the lossy DLL than with AMD's shaders.
+- **The cause:** with auto exposure on, FSR re-scales its stored picture every frame to the current exposure value. That
+  value wobbles by less than a tenth of a percent from frame to frame even when nothing moves. The stored picture is kept
+  in 16-bit numbers, and on the driver tested the store drops what does not fit. So the smallest downward wobble lowered
+  every stored value by a whole step at once, and the picture then climbed back pixel by pixel. AMD's own shaders do the
+  same; the lossy DLL's rules for steadying the picture held those corrections back, which made it worse.
+- **The fix:** in the lossy DLL the re-scaling now changes the stored picture only by whole steps. A wobble below half a
+  step changes nothing; a real change of exposure passes.
+
+| Measured in the test rig at 4K, auto exposure on | AMD's shaders | `dll-2026-10-11.4` | This release |
+|---|---|---|---|
+| Change per frame at rest, worst flat piece | 0.213 | 0.276 | 0.093 |
+| Change per frame at rest, bright flat areas | 0.186 | 0.310 | 0.051 |
+| Change per frame at rest, fine detail | 0.125 | 0.102 | 0.097 |
+| Still picture | 44.44 dB | 44.40 dB | 44.42 dB |
+| Moving scene: background | 49.26 dB | 48.83 dB | 49.01 dB |
+| Swaying foliage, camera panning: error | 6.57 | 8.16 | 7.35 |
+| A slow darkening fade with nothing moving: frames behind, bright flat areas | 0.72 | 0.69 | 1.05 |
+| A slow brightening fade: frames behind, bright flat areas | 0.46 | 0.64 | 0.87 |
+| A sudden brightening by 20%: share still missing after 8 frames, mid-tone flat areas | 7% | 6% | 7% |
+
+With auto exposure off, every figure of the last release holds to within a few thousandths (worst flat piece 0.053 against
+0.056 then, and 0.126 for AMD's shaders).
+
+- **Speed:** unchanged at 4K (2.36 ms against 2.36 ms for the whole upscaler, timing kit, RX 7800 XT under Proton); at 1080p
+  output 0.70 against 0.69 ms.
+- **What got worse:** with auto exposure on, slow fades show in bright flat areas about a third of a frame later than with
+  AMD's shaders or the last release (the table's two fade rows). A sudden change of brightness is followed as before.
+- **Unchanged:** everything that moves (moving scenes at 1080p, 1440p, 4K and 5K output, particles, wires, the ghost and
+  uncovered-area measures, film grain). With auto exposure on, strong film grain is still passed on more than by AMD's
+  shaders (0.40 against 0.36 and 0.57 against 0.48 change per frame for grain of 10 and 15 of 255).
+- **Not checked:**
+  - Windows drivers. Which way a store rounds is the driver's choice, and this was found and measured on Linux (RADV). Under
+    Windows the fault may not exist; the change is built so that it does no harm there, but that is not measured.
+  - Games. This was measured in the test rig only, on one graphics card.
+  - Which games run FSR with auto exposure on.
+- These are single runs on made-up scenes.
+  [How the cause was found, and the wider fix that was tried and dropped](../research/frame-skip#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115).
+
+> [!NOTE]
+> **An experiment that came out of this: the same rule on the exact files.** The new rule does not need frame skip. Added to the
+> exact files it gives, in the test rig with auto exposure off, AMD's picture at the exact DLL's speed with less than half the shimmer at rest, a still
+> picture 0.09 dB closer to the true image, and everything that moves the same as AMD's to within small fractions of a decibel.
+> It would no longer be AMD's picture byte for byte, so it is not in the exact DLL and **not in any download yet**; it is an
+> unreleased test. [The exact files beside the "steady" test build](steady-test.md), with pictures and a chart that places it
+> among FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR and XeSS.
 
 ## 2026-10-11 ([release `dll-2026-10-11.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.4))
 

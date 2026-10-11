@@ -1175,6 +1175,95 @@ to the driver as before.
   "steady" test 0.051. Measured only; the exact files stay AMD's byte for byte.
 - Not checked: Windows drivers, where the store may round differently and the fault may not exist; games.
 
+## Sparkling on glossy surfaces, and a shader that held too much (release `dll-2026-10-11.6`)
+
+A tester's video of Gears of War: E-Day (Radeon RX 6900 XT, Linux, 4K output, auto exposure off) showed small bright points
+on a glossy panel with traced reflections: 30 to 100 of them at a time in the part of the picture looked at, most lasting
+more than five frames, and none on plain metal of the same brightness beside it.
+
+### The test scene
+
+A scene built for this ([`../pruning/fireflies.py`](../pruning/fireflies.py)): a still camera and a dark mottled panel. In its left half the game's frame
+carries single over-bright pixels; its right half is the same surface without them and read zero in every run. The measure
+is the number of output pixels more than 20 display levels above the true picture, per million. 4K output from 2260x1272,
+single runs, RX 7800 XT with RADV.
+
+| Build | New places every frame | Still there a frame later |
+|---|---|---|
+| AMD's shaders | 25 | 88% |
+| `dll-2026-10-11.5` | 7,786 | 95% |
+| `dll-2026-10-11.4` | 7,823 | 95% |
+| `dll-2026-10-10` | 990 | 43% |
+| `dll-2026-10-11.5` without the sample test (`SB_SAMPLE=off`) | 5 | 0% |
+| Frame skip on AMD's model, no changed-content tests | 3 | 0% |
+| `dll-2026-10-11.5` without the fold and the dead band | 7,009 | 94% |
+| This release | 73 | 90% |
+
+So it is neither frame skip as such, nor the fold, nor the dead band, nor auto exposure:
+
+- **What lets them in** is the sample test of `dll-2026-10-09`. On a skipped frame it takes the new frame where the nearest
+  new sample lies outside the range of the history around the pixel, which is how a spark without motion vectors is told
+  from still detail. A single over-bright pixel passes that test exactly as a spark does.
+- **What makes them stay** is that since `dll-2026-10-11` the history is no longer clamped where the picture is at rest
+  (that clamp erased thin wires). With the clamp, `dll-2026-10-10` removed most of them a frame later.
+
+### The rule (`SB_LONE`)
+
+A sample that stands out above the other eight of the nine counts only as far as the next one bears it out: the test sees
+the smaller of the nearest sample and the second largest of the nine. Upward only, since the noise in question is
+over-bright. A particle covers more than one pixel of the game's frame, or its glow does.
+
+| Scene | AMD's shaders | `dll-2026-10-11.5` | This release |
+|---|---|---|---|
+| Fixed glints, hit by the jitter on some frames | 1,460 | 4,721 | 1,446 |
+| HDR option, brighter pixels | 220 | 8,767 | 323 |
+| Dimmer, three times as many | 0 | 16,070 | 459 |
+| Large particles, share shown on skipped frames | 98% | 98.1% | 98.1% |
+| Tiny slow embers | 81% | 81.3% | 81.4% |
+| Tiny fast embers | 83% | 75.3% | 75.0% |
+
+The last firefly row is the rule's limit: with that many, two noise pixels lie side by side often enough to bear each other out.
+
+### Why the first form cost frames in a game and nothing in the timing kit
+
+The first form of the rule read 0.03 ms more per skipped frame in the timing kit and nothing in the average. In Shadow of the
+Tomb Raider's benchmark (4K, Balanced, RX 7800 XT, one run each, same day) it cost 1.5% of the frames:
+
+| Build | Frames rendered | Registers of the postpass | Waves per SIMD |
+|---|---|---|---|
+| `dll-2026-10-07` | 18,891 | 96 | 16 |
+| `dll-2026-10-10` to `dll-2026-10-11.5` (frames: the latter) | 18,616 | 120 | 12 |
+| The rule in its first form | 18,342 | 192 | 8 |
+| This release | 18,632 | 96 | 16 |
+
+The registers are what the driver's compiler reports for the shader (`RADV_DEBUG=shaderstats`), and the more a shader needs, the
+fewer copies of it the chip runs side by side. The timing kit runs one upscale after another with nothing in between and
+hardly feels that; a game, with its own rendering between upscales, does. Of the 275 frames between the first two rows about
+200 are the folds dropped for `dll-2026-10-11.4`, by an earlier pair of runs.
+
+Three things held the registers, found by reading the compiler's listing for the values alive at its fullest point:
+
+1. **The nearest sample was picked by the largest of the nine weights,** which kept all nine weights alive from the shader's
+   own mix to the branch for skipped frames. The nine samples are those around the rounded position, so the nearest is the
+   middle one, and no weight is needed.
+2. **The compiler moves the nine history fetches of the sample test to the head of their block,** where the 27 values of
+   the nine samples are still alive. In a block of their own, entered on the skipped-frame condition once more, they come
+   after the samples have been let go.
+3. **The range of the nine samples was worked out twice,** and for the new rule a third time. The clamp now reuses the
+   range of the changed-content test, and the second largest is found alongside it, one sample at a time.
+
+That is `SB_LEAN`. It changes which values are held when, and the picture only where two of the nine weights tie. All 48
+versions of the postpass compile to 96 registers again, as files for Linux and, through vkd3d-proton, as the DLL's shaders.
+What a Windows driver's compiler makes of either layout was not measured.
+
+### The release build against `dll-2026-10-11.5`
+
+One run each in the test rig, 4K unless said: still picture 44.25 against 44.24 dB; moving background 49.07 both;
+just-uncovered 36.47 against 36.44 dB; wires at rest and under a pan unchanged (slow pan, change per frame on skipped
+frames 14.7 against 14.4); ghost outlines, the 30 to 120 FPS set, thin detail, flat areas at rest, foliage, 1080p and 1440p
+output and pan start the same to the second or third digit; film grain of 10 and 15 in 255 slightly more accurate (37.27
+against 37.37 dB, 33.44 against 33.66 dB). `SB_LONE=0 SB_LEAN=0` rebuilds `dll-2026-10-11.5`'s files byte for byte.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
