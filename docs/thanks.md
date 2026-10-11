@@ -13,6 +13,9 @@ The timing kits (version 2026-10-11.3 and later) ask, after you choose to send y
 you would like to be named here. It is optional. Names are added by hand in the order they arrive.
 
 - **Levi** (Radeon RX 6700, Windows)
+- **Althorion** (Radeon RX 7900 XTX, Windows)
+- **HollowVoid** (Intel Arc B580, Windows)
+- **FireGate13** (Steam Deck's graphics chip, Windows)
 
 ## How to be listed, or taken off
 
