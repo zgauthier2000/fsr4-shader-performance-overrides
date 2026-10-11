@@ -1,0 +1,37 @@
+# Records the download counts of the release files once a day on the branch `download-stats` (see tools/download_stats.py).
+name: Download statistics
+on:
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: download-stats
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get the data branch, or start it
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          url="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$url" download-stats >/dev/null; then
+            git clone --quiet --depth 1 --branch download-stats "$url" "$RUNNER_TEMP/stats"
+          else
+            git init --quiet -b download-stats "$RUNNER_TEMP/stats"
+            git -C "$RUNNER_TEMP/stats" remote add origin "$url"
+          fi
+      - name: Record the counts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 tools/download_stats.py "$RUNNER_TEMP/stats"
+      - name: Commit
+        run: |
+          cd "$RUNNER_TEMP/stats"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add downloads.csv runs.csv summary.md
+          git commit --quiet -m "Download counts $(date -u +%F)"
+          git push --quiet origin download-stats
