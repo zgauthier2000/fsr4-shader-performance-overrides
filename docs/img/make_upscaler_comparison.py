@@ -13,16 +13,16 @@ NAMES = ['FSR 4.1.1', 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
 KEYS = ['fsr4', 'lossy', 'fsr3', 'helix', 'xess']
 # (title, unit note, values in NAMES order, format, True if higher is better)
 QUALITY = [
-    ('Still picture', 'accuracy, dB', [44.33, 44.15, 39.94, 41.99, 42.14], '{:.1f}', True),
-    ('Just-uncovered areas', 'accuracy in motion, dB', [34.48, 36.38, 29.22, 27.11, 30.20], '{:.1f}', True),
+    ('Still picture', 'accuracy, dB', [44.33, 44.31, 39.94, 41.99, 42.14], '{:.1f}', True),
+    ('Just-uncovered areas', 'accuracy in motion, dB', [34.48, 36.48, 29.22, 27.11, 30.20], '{:.1f}', True),
     ('Tiny fast sparks', 'share of brightness shown, %', [83, 75, 40, 79, 50], '{:.0f}', True),
     ('Swaying foliage', 'error, of 255', [12.1, 18.6, 16.8, 15.5, 15.5], '{:.1f}', False),
-    ('Thin wire, slow pan', 'change per frame, of 255', [7.2, 16.0, 8.2, 5.6, 10.1], '{:.1f}', False),
-    ('Film grain (10 of 255)', 'change per frame, of 255', [1.72, 0.98, 0.31, 0.30, 0.23], '{:.2f}', False),
+    ('Thin wire, slow pan', 'change per frame, of 255', [7.2, 14.6, 8.2, 5.6, 10.1], '{:.1f}', False),
+    ('Film grain (10 of 255)', 'change per frame, of 255', [1.72, 1.08, 0.31, 0.30, 0.23], '{:.2f}', False),
 ]
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
-SPEED = [('1920x1080', [1.05, 0.89, 0.67, 0.41, 0.75, 1.42]), ('2560x1440', [2.18, 1.44, 1.10, 0.58, 1.01, 2.28]), ('3840x2160', [4.76, 3.17, 2.34, 1.16, 1.99, 4.98])]
-STILL_DB = [44.33, 44.33, 44.15, 39.94, 41.99, 42.14]          # in SPEED_NAMES order: the exact DLL gives FSR 4.1.1's picture
+SPEED = [('1920x1080', [1.05, 0.89, 0.68, 0.41, 0.75, 1.42]), ('2560x1440', [2.18, 1.44, 1.11, 0.58, 1.01, 2.28]), ('3840x2160', [4.76, 3.17, 2.36, 1.16, 1.99, 4.98])]
+STILL_DB = [44.33, 44.33, 44.31, 39.94, 41.99, 42.14]          # in SPEED_NAMES order: the exact DLL gives FSR 4.1.1's picture
 
 
 def color(name):

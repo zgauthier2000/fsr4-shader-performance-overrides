@@ -2,8 +2,51 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-11.2` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-11.3` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-11 ([release `dll-2026-10-11.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.3))
+
+### Bright dots in foliage in the lossy DLL
+
+*Written for `dll-2026-10-11.3`: "this release" below means that one. The picture is redrawn with each release and now shows the current lossy build as "this release". A tester later reported that this change did not alter what they saw in their game; the rig's defect was real, but it was not shown to be theirs.*
+
+One change to the lossy DLL, from a tester's video: trees against a bright sky, camera still, with single bright
+pixels flickering inside the dark foliage. **The exact DLL is unchanged.**
+
+- **The cause:** on the frames that skip the neural network, one rule lets sparks through: a new sample far brighter
+  than everything the previous picture has around it is shown at once. Sky seen through a gap between leaves looks
+  exactly like that to the rule, so it was shown as a dot.
+- **The fix:** the rule now asks for twice the distance before it calls a sample a spark. Most of the dots are gone,
+  and real sparks lose about one point in a hundred of their brightness.
+- **How it was found:** the test rig could not show it until its scenes were sampled the way a game renders them,
+  one unsmoothed sample per pixel. That option is now in the rig's tools.
+
+| Measured in the test rig at 4K | AMD's shaders | `dll-2026-10-11.2` | This release |
+|---|---|---|---|
+| Bright dots in swaying foliage, camera still (per thousand dark pixels) | 0.57 | 2.40 | 0.97 |
+| The same while the camera pans | 0.33 | 0.70 | 0.37 |
+| Change per frame with grain of 10 / 15 of 255 | 1.72 / 2.55 | 1.05 / 2.00 | 0.98 / 1.86 |
+| Thin wire, camera still: change per frame along it | 2.9 | 3.3 | 2.9 |
+| Thin wire, slow pan: change per frame along it | 7.2 | 17.9 | 16.0 |
+| Tiny fast sparks shown on skipped frames, camera still / pan | 83% / 83% | 76% / 79% | 75% / 78% |
+| Large glowing particles on skipped frames: error, camera still / pan | 0.66 / 0.73 | 1.38 / 1.54 | 1.47 / 1.74 |
+| Still bright object over fast ground: error where its old image lands | 1.62 | 2.57 | 2.67 |
+
+A piece of the foliage scene on a frame that skips the network, enlarged:
+
+<img src="img/cmp-foliage-dots.png" width="760" alt="Dark green leaves in front of a pale sky on a frame that skips the neural network, a 200 by 130 pixel piece enlarged three times. The true image shows sharp leaves. The exact files show them soft and clean (1 single bright pixel inside the leaves in this piece). The lossy build of release dll-2026-10-11.2 shows the same leaves sprinkled with single-pixel specks (26). This release's lossy build shows far fewer (8).">
+
+- **Unchanged:** the still picture and thin detail, shimmer at rest, the moving scene, slow embers, ghost scenes, and
+  speed (2.35 ms for the whole upscaler at 4K, the same as the `dll-2026-10-11.2` lossy DLL in the same run; timing kit, RX 7800 XT under Proton).
+- **What got worse:** particles, a little. Fast sparks are shown one point dimmer, and large glowing particles while
+  the camera pans are 13% further from the true image (1.74 against 1.54; AMD's 0.73). The ghost behind a bright object
+  over fast ground, fixed in the last release, gives back a small part (2.67 against 2.57; it was 6.06 before that fix).
+- **Still open:** moving foliage is still softer than with AMD's shaders. This release removes most of the dots, not
+  the softness. With a lot of moving vegetation the exact DLL remains the better choice.
+- **Not checked:** the game the video came from was not run here, and the tester has not yet tried this build.
+- These are single runs on made-up scenes.
+  [How the cause was found, and the settings that were compared](../research/frame-skip#bright-dots-in-foliage-release-dll-2026-10-113).
 
 ## 2026-10-11 ([release `dll-2026-10-11.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.2))
 

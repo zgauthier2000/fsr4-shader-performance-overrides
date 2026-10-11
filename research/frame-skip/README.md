@@ -970,6 +970,142 @@ sparks to 65%.
 - Not checked: the game the video came from, and Windows.
 - `SB_SAMPLE=1` rebuilds `dll-2026-10-11.2`'s files.
 
+## Why folding steadied the picture, and what replaced it (release `dll-2026-10-11.4`)
+
+Since `dll-2026-10-10` the lossy build folded a few of the smallest weights in pass 1, and since `dll-2026-10-11` in passes 10
+and 12, because that kept flat areas and fine detail steady at rest. Why it did was not known. This section is the answer, and
+the change it led to. All figures: the still scene at 4K Balanced in the test rig, single runs, change per frame in steps of 255.
+
+### What it is not
+
+- **Not frame skip.** Folding steadies the exact pipeline as well. Worst flat piece: AMD's 0.126, pass 1 folded by 2 words 0.096,
+  all three folds 0.050.
+- **Not smoothing.** In pass 1 the two folded words of each output are about 6 in size where the largest is about 113: 0.2% of the
+  3x3 layer's squared weight, 29 of the 32 moved from a corner tap to an edge tap. The layer's response to a flat input is
+  unchanged and to everything else it changes by 0.2% (0.7% at the finest pattern).
+- **Not any small change.** The same two words dropped without adding them anywhere: worse (0.142). Added to the farthest tap, or
+  two other small words folded: nothing. Added to the nearest tap or to the center: steadier.
+- **Not in proportion.** Pass 1 folded by 1, 2, 3, 4, 5, 6 and 8 words: 0.133, 0.096, 0.076, 0.044, 0.122, 0.114, 0.216.
+
+### What shimmer at rest is
+
+The picture's history is kept in 16-bit floats. In bright flat areas (value about 0.78, where one step of that format is 0.125
+of 255) AMD's own shimmer is that step:
+
+| Values that move per frame by | 0 steps | 1 step | 2 steps | more |
+|---|---|---|---|---|
+| AMD's shaders | 34% | 38% | 15% | 13% |
+| Pass 1 folded by 2 | 56% | 27% | 9% | 9% |
+| Pass 1 folded by 4 | 84% | 14% | 1% | 1% |
+| Pass 1 folded by 5 | 38% | 33% | 13% | 16% |
+
+### The network's weight
+
+The postpass mixes  new history = a x history + w x (this frame, resampled),  w = 1 - a,  with a from the network.
+[`postpass_show.py`](postpass_show.py) replaces the displayed picture with w, the difference |this frame - history| and their
+product, and leaves the history it writes alone, so the upscaler runs as before. In bright flat areas at rest:
+
+| | w | \|this frame - history\| | Step asked of the history |
+|---|---|---|---|
+| AMD's shaders | 0.157 | 0.22 | 0.034 |
+| Pass 1 folded by 2 | 0.064 | 0.23 | 0.016 |
+| Pass 1 folded by 4 | 0.013 | 0.24 | 0.003 |
+| Pass 1 folded by 5 | 0.102 | 0.23 | 0.024 |
+| All three folds (the releases up to `dll-2026-10-11.3`) | 0.044 | 0.24 | 0.011 |
+| Two words dropped, not folded | 0.222 | 0.21 | 0.045 |
+
+AMD's network goes on taking about 16% of every new frame in bright flat areas with nothing moving. Folding lowers that weight;
+the difference it multiplies is the same in every build. A smaller step falls below half a float step more often, and the pixel
+stays as it was.
+
+The weights start out the same and drift apart: frames 1, 3, 7, 15, 39 give AMD's 0.56, 0.21, 0.18, 0.17, 0.15 and pass 1 folded
+by 4 words 0.55, 0.17, 0.09, 0.06, 0.01. So folding does not change what the network answers at once; it changes where it
+settles when its own earlier output is fed back to it frame after frame. Why one fold lowers that point and another of the same
+size does not was not found; the point is evidently sensitive to very small changes, which fits the disorder above.
+
+### The price
+
+A weight that low also follows real changes late. A still scene in which a region dims by 1% per frame with nothing moving
+(`gen_inputs.py` with `SCENE_FADE`, measured with `fade.py`), frames behind the true brightness:
+
+| | Bright flat | Mid flat | Dark flat | Fine detail |
+|---|---|---|---|---|
+| AMD's shaders | 0.6 | 0.9 | 3.0 | 2.2 |
+| Frame skip, no folds | 0.7 | 1.0 | 2.2 | 1.6 |
+| Frame skip, three folds (`dll-2026-10-11.3`) | 1.3 | 1.8 | 4.1 | 2.8 |
+| Three folds, no frame skip | 2.0 | 4.3 | 5.7 | 4.5 |
+
+Frame skip itself costs nothing here; the folds do. The tests that take the new frame where it clearly differs from the history
+explain little of the difference between the last two rows (without them the release reads 1.5 in bright flat areas and the same
+elsewhere). The still picture pays as well: from a cold start the builds are equal for three frames, then the folded ones fall
+behind (frame 15: AMD's 44.00 dB, pass 1 folded by 2 words 43.88).
+
+### A dead band instead
+
+What the folds did by accident can be done on purpose: `SB_DEAD` (default 2). On every frame a pixel whose three channels would
+each move by less than `SB_DEAD` x history x 2^-10 keeps its history exactly; that is two to four steps of a 16-bit float at that
+value. The network is not touched. Without any fold:
+
+| `SB_DEAD` | Worst flat piece | Bright flat | Fine detail | Still | Fade lag, bright flat |
+|---|---|---|---|---|---|
+| off, three folds (`dll-2026-10-11.3`) | 0.094 | 0.075 | 0.092 | 44.15 dB | 1.3 |
+| off, no folds | 0.155 | 0.132 | 0.108 | 44.22 dB | 0.7 |
+| 1 | 0.075 | 0.021 | 0.097 | 44.30 dB | 0.8 |
+| 2 | 0.054 | 0.007 | 0.092 | 44.29 dB | 0.9 |
+| 4 | 0.043 | 0.003 | 0.087 | 44.25 dB | 1.5 |
+| 8 | 0.036 | 0.002 | 0.081 | 44.16 dB | 2.6 |
+
+Unlike folding it is orderly, and at 2 it is steadier than the folds, more accurate and quicker to follow a fade.
+
+### Which folds to keep
+
+With the band at 2, each fold added back on its own (4K):
+
+| | Band alone | + pass 1 | + pass 10 | + pass 12 | + all three |
+|---|---|---|---|---|---|
+| Worst flat piece | 0.054 | 0.039 | 0.056 | 0.052 | 0.036 |
+| Fine detail at rest | 0.092 | 0.085 | 0.086 | 0.091 | 0.081 |
+| Still picture | 44.29 dB | 44.24 dB | 44.31 dB | 44.27 dB | 44.24 dB |
+| Thin horizontal detail | 28.05 dB | 28.02 dB | 28.19 dB | 28.11 dB | 28.24 dB |
+| Grain of 6 / 10 of 255 | 0.347 / 0.981 | 0.308 / 0.954 | 0.342 / 1.083 | 0.339 / 0.968 | 0.285 / 0.976 |
+| Fade lag, bright / dark flat | 0.9 / 2.2 | 1.7 / 3.0 | 0.8 / 2.7 | 1.0 / 2.4 | 1.7 / 4.2 |
+
+- The fold of pass 1 is the only one that holds moderate grain back, and the one that brings the lag.
+- The fold of pass 10 steadies fine detail and restores thin horizontal detail without lag; strong grain is 10% worse with it.
+- The fold of pass 12 does nothing clear.
+
+The release takes the band with the fold of pass 10 (`wfold.py 18`) and drops the other two. The band with all three folds is the
+steadiest of all and the best on grain, and keeps the release's lag; the band alone leaves AMD's network untouched.
+
+### The release build against `dll-2026-10-11.3`
+
+| | AMD's | `dll-2026-10-11.3` | `dll-2026-10-11.4` |
+|---|---|---|---|
+| Worst flat piece / bright flat / fine detail at rest | 0.126 / 0.078 / 0.110 | 0.094 / 0.075 / 0.092 | 0.056 / 0.011 / 0.086 |
+| Still picture; thin vertical / horizontal detail | 44.33; 27.09 / 28.23 dB | 44.15; 26.64 / 28.19 dB | 44.31; 26.79 / 28.19 dB |
+| Moving background at 4K / 1440p / 1080p | 49.27 / 47.90 / 47.69 dB | 48.72 / 47.50 / 46.92 dB | 49.07 / 47.78 / 47.06 dB |
+| Just-uncovered areas at 4K / 1440p / 1080p | 34.48 / 34.62 / 32.61 dB | 36.38 / 35.37 / 33.79 dB | 36.48 / 35.24 / 33.45 dB |
+| Just-uncovered at 30 / 60 / 90 / 120 FPS, against AMD's | | −1.8 / +1.2 / −0.8 / +2.7 dB | −1.0 / +1.8 / −0.7 / +2.7 dB |
+| Still camera, moving objects: just-uncovered | 32.62 dB | 32.03 dB | 31.64 dB |
+| Ghost outline: still camera / pan against the object | 4.01 / 3.11 | 4.42 / 5.07 | 4.66 / 5.13 |
+| Large particles, error, camera still / pan | 0.66 / 0.73 | 1.47 / 1.74 | 1.36 / 1.70 |
+| Wire, camera still / slow pan: change per frame | 2.9 / 7.2 | 2.9 / 16.0 | 2.9 / 14.6 |
+| Grain 6 / 10 / 15 of 255: change per frame | 0.785 / 1.724 / 2.549 | 0.292 / 0.982 / 1.861 | 0.342 / 1.083 / 1.988 |
+| Fade lag, bright / mid / dark flat / fine detail | 0.6 / 0.9 / 3.0 / 2.2 | 1.3 / 1.8 / 4.1 / 2.8 | 0.8 / 0.9 / 2.7 / 1.6 |
+
+- Level: fast sparks and embers, the bright dots in foliage, swaying foliage, the plate scenes, the strip revealed when a pan starts.
+- The lossy DLLs give the Linux files' output byte for byte in 24 of 24 rig runs (4K, 1440p, 1080p; both flavors).
+- Speed: 2.36 to 2.37 ms against 2.35 ms for the whole upscaler at 4K (Windows kit under Proton, RX 7800 XT).
+- Frames that run the model no longer keep the model's values bit for bit: the band acts on them too.
+- Not checked: games, and Windows.
+- `SB_DEAD=off` with `wfold.py 2` on pass 1 and `wfold.py 4` on pass 12 rebuilds `dll-2026-10-11.3`'s files.
+
+### On the exact pipeline (measured only)
+
+The band is not tied to frame skip. On AMD's own shaders with no frame skip, the band alone gives 0.051 in the worst flat piece
+(AMD's 0.126), a still picture of 44.42 dB (AMD's 44.33) and a fade lag of 0.9 / 1.0 / 3.8 frames (AMD's 0.6 / 0.9 / 3.0). The
+picture is then no longer AMD's byte for byte, so this is not in the exact files.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in

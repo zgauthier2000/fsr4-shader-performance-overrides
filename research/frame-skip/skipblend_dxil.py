@@ -147,6 +147,7 @@ def samples_w(cur):
 PART = os.environ.get('SB_PART'); BRIGHT = os.environ.get('SB_BRIGHT'); SAMPLE = os.environ.get('SB_SAMPLE')
 _rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_RESTW') else None      # as in skipblend.py
 _cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_CLAMPW') else None
+DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # as in skipblend.py
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'
 FMIN = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 36, float {a}, float {b})'
 FMAX = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 35, float {a}, float {b})'
@@ -417,7 +418,14 @@ else:
                         c_ += [f'  %sb.zz{k} = and i1 %sb.z0{k}, %sb.z1{k}'] + ([f'  %sb.gda{k} = and i1 %sb.zz{k}, %sb.z2{k}', f'  %sb.gd{k} = or i1 %sb.gda{k}, %sm.flag'] if UNCOV else [f'  %sb.gd{k} = and i1 %sb.zz{k}, %sb.z2{k}']) + [
                                f'  %sb.rg.{c}{k} = select i1 %sb.gd{k}, float {curs[c]}, float {mix[c]}' for c in range(3)]
                         mix = [f'%sb.rg.{c}{k}' for c in range(3)]
-                    c_ += [f'  br label %sb.M{k}', '', f'sb.M{k}:'] + [f'  %sb.r{c}{k} = phi float [ {mix[c]}, %sb.T{k} ], [ {sums[c]}, {cur_label} ]' for c in range(3)]
+                    if DEAD is None:
+                        c_ += [f'  br label %sb.M{k}', '', f'sb.M{k}:'] + [f'  %sb.r{c}{k} = phi float [ {mix[c]}, %sb.T{k} ], [ {sums[c]}, {cur_label} ]' for c in range(3)]
+                    else:      # dead band, as in skipblend.py (|d| < t written as two comparisons)
+                        c_ += [f'  br label %sb.M{k}', '', f'sb.M{k}:'] + [f'  %sb.rp{c}{k} = phi float [ {mix[c]}, %sb.T{k} ], [ {sums[c]}, {cur_label} ]' for c in range(3)]
+                        for c in range(3):
+                            c_ += [f'  %db.d{c}{k} = fsub fast float %sb.rp{c}{k}, {h[c]}', f'  %db.t{c}{k} = fmul fast float {h[c]}, {fl(DEAD / 1024)}', f'  %db.n{c}{k} = fsub fast float -0.000000e+00, %db.t{c}{k}',
+                                   f'  %db.u{c}{k} = fcmp fast olt float %db.d{c}{k}, %db.t{c}{k}', f'  %db.v{c}{k} = fcmp fast ogt float %db.d{c}{k}, %db.n{c}{k}', f'  %db.l{c}{k} = and i1 %db.u{c}{k}, %db.v{c}{k}']
+                        c_ += [f'  %db.p{k} = and i1 %db.l0{k}, %db.l1{k}', f'  %db.q{k} = and i1 %db.p{k}, %db.l2{k}'] + [f'  %sb.r{c}{k} = select i1 %db.q{k}, float {h[c]}, float %sb.rp{c}{k}' for c in range(3)]
                     out += c_
                     for c in range(3):
                         ren[sums[c]] = f'%sb.r{c}{k}'

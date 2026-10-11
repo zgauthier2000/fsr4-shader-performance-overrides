@@ -16,10 +16,15 @@
 - **Why the heavy form was taken out (release `dll-2026-10-09`):** the lossy DLL runs the network on every other frame. Half
   as many runs means half the saving: about one frame per second in the benchmark. For that it cost about half of the lossy
   DLL's whole difference from AMD's picture.
-- **Why a light form is back (releases `dll-2026-10-10` and `dll-2026-10-11`):** an unexpected find. Without any folding, bright flat areas at rest
-  shimmered more than with AMD's shaders. Merging just 2 of the first layer's 36 weight groups makes them as steady as with
-  AMD's shaders, at a cost of about 0.05 dB in a still picture and no measurable change in speed. Why it works is not yet
-  understood. [How it was found](../frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
+- **Why a light form came back (releases `dll-2026-10-10` and `dll-2026-10-11`):** an unexpected find. Without any folding, bright flat areas at rest
+  shimmered more than with AMD's shaders. Merging just 2 of the first layer's 36 weight groups made them as steady as with
+  AMD's shaders, at a cost of about 0.05 dB in a still picture and no measurable change in speed.
+  [How it was found](../frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
+- **Why it worked, and what is left of it (release `dll-2026-10-11.4`):** folding lowers the weight the network gives each new frame
+  in flat areas, so the single-step flicker there freezes; the same lower weight makes those areas follow slow changes late. How
+  much it lowers the weight swings with the number of weights folded, in no order. Flat areas are now kept steady by a rule in
+  the last step instead, and only the tenth layer is still folded, for fine detail.
+  [The investigation](../frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
 - **What this page is:** the record of the original experiment: how the settings were tuned, what else was tried on the
   network's arithmetic, and one by-product that turned out to be exact and went into the main files.
 
@@ -36,7 +41,8 @@ available as a separate, opt-in test build; see [the last section](#the-opt-in-t
 > about 0.35 dB in a still picture. Since release `dll-2026-10-10` the lossy build folds 2 of pass 1's 36 weight words again
 > (`wfold.py 2`), and since `dll-2026-10-11` 18 of pass 10's and 4 of pass 12's ([details](../frame-skip#two-more-light-folds)), not for speed but because it keeps bright flat areas and fine detail steady under frame skip
 > ([how that was found](../frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes)). Release `dll-2026-10-11` adds 18 words in pass 10 and 4 in pass 12, for steadier
-> fine detail and moderate grain ([details](../frame-skip#two-more-light-folds)). Everything below is the record of
+> fine detail and moderate grain ([details](../frame-skip#two-more-light-folds)). Release `dll-2026-10-11.4` keeps only the fold of pass 10
+> and replaces the other two with a dead band in the postpass ([why](../frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114)). Everything below is the record of
 > the original experiment; the tools still work.
 
 > **WARNING: the test build changes the image.** It is not the same as the main DLL, the prebuilt

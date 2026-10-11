@@ -58,6 +58,11 @@
 #     pixel, or what now sits where its content was, moves differently from it. The verdict is a frame old and knows nothing of what
 #     has just come out from behind a still object: without this a bright object over fast-moving ground (a white license plate over
 #     the road) left its image on the ground wherever the uncovered test cannot fire (no depth search in the prepass, or equal depths).
+# Dead band (SB_DEAD, default 2; "off" = as release dll-2026-10-11.3): on every frame, a pixel whose three channels would each move by less than
+# SB_DEAD x history x 2^-10 keeps its history exactly. That is one to two steps of the 16-bit float the history is stored in at that value (SB_DEAD = 2: two
+# to four). At rest the network keeps asking for corrections of about that size in flat areas, and whether they survive the rounding is what shimmer at rest
+# in flat areas is. This replaces the folds of passes 1 and 12, which lowered the network's weight for the new frame instead and made it follow slow
+# changes of brightness late.
 # Sky seen through leaves is, to the sample test, a spark: one sample far outside the history around it. With the factor at 1 that
 # put single bright pixels into foliage on skipped frames (seen in a game against a bright sky). At 2 most of them are gone and sparks
 # lose about one point in a hundred of their brightness. SB_SAMPLE=1 gives release dll-2026-10-11.2's behavior.
@@ -92,8 +97,9 @@ at = next(n for n, l in enumerate(L) if re.match(rf'\s*{re.escape(lab)} = OpLabe
 _rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_RESTW') else None
 _cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_CLAMPW') else None
 EDGE = os.environ.get('SB_CLAMPEDGE', '1') == '1' and os.environ.get('SB_UNCOV', 'depth') != 'off' and bool(os.environ.get('SB_CLAMPW'))      # the clamp in full beside surfaces that move differently
+DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # dead band, in 16-bit float steps (see the head of the file)
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'      # no history clamp where the picture is at rest (needs the rest rule's flag)
-c = ([f'%sb_cw0 = OpConstant %float {_cw[0]}', f'%sb_cwd = OpConstant %float {max(_cw[1] - _cw[0], 1e-6)}'] if _cw else []) + ([f'%sr_t0 = OpConstant %float {_rw[0]}', f'%sr_d = OpConstant %float {max(_rw[1] - _rw[0], 1e-6)}'] if _rw else []) + ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
+c = ([f'%db_rel = OpConstant %float {DEAD / 1024}'] if DEAD is not None else []) + ([f'%sb_cw0 = OpConstant %float {_cw[0]}', f'%sb_cwd = OpConstant %float {max(_cw[1] - _cw[0], 1e-6)}'] if _cw else []) + ([f'%sr_t0 = OpConstant %float {_rw[0]}', f'%sr_d = OpConstant %float {max(_rw[1] - _rw[0], 1e-6)}'] if _rw else []) + ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
      f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0', f"%sb_thr = OpConstant %float {float(os.environ.get('SB_THR', '0'))}", f"%sb_rel = OpConstant %float {float(os.environ.get('SB_REL', '0.1'))}"] + ([f"%sb_slack = OpConstant %float {CLAMP}"] if CLAMP is not None else []) + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
 if CONST:
     c.append(f'%sb_const = OpConstant %float {float(CONST)}')
@@ -548,7 +554,17 @@ else:
                             [f'%sb_gd{k} = OpLogicalOr %bool %sb_gd{k}a %sm_flag'] if UNCOV else []) + [
                             f'%sb_rg_{c}{k} = OpSelect %float %sb_gd{k} {curs[c]} {mix[c]}' for c in range(3)]
                         mix = [f'%sb_rg_{c}{k}' for c in range(3)]
-                    code += [f'OpBranch %sb_M{k}', f'%sb_M{k} = OpLabel'] + [f'%sb_r{c}{k} = OpPhi %float {mix[c]} %sb_T{k} {sums[c]} {cur_label}' for c in range(3)]
+                    if DEAD is None:
+                        code += [f'OpBranch %sb_M{k}', f'%sb_M{k} = OpLabel'] + [f'%sb_r{c}{k} = OpPhi %float {mix[c]} %sb_T{k} {sums[c]} {cur_label}' for c in range(3)]
+                    else:
+                        # dead band (SB_DEAD): on every frame, a pixel whose three channels would each move by less than SB_DEAD x history x 2^-10
+                        # (about SB_DEAD to 2 x SB_DEAD steps of a 16-bit float at that value) keeps its history exactly
+                        code += [f'OpBranch %sb_M{k}', f'%sb_M{k} = OpLabel'] + [f'%sb_rp{c}{k} = OpPhi %float {mix[c]} %sb_T{k} {sums[c]} {cur_label}' for c in range(3)]
+                        for c in range(3):
+                            code += [f'%db_d{c}{k} = OpFSub %float %sb_rp{c}{k} {h[c]}', f'%db_a{c}{k} = OpExtInst %float {GLSL} FAbs %db_d{c}{k}', f'%db_t{c}{k} = OpFMul %float {h[c]} %db_rel',
+                                     f'%db_l{c}{k} = OpFOrdLessThan %bool %db_a{c}{k} %db_t{c}{k}']
+                        code += [f'%db_p{k} = OpLogicalAnd %bool %db_l0{k} %db_l1{k}', f'%db_q{k} = OpLogicalAnd %bool %db_p{k} %db_l2{k}'] + [
+                                 f'%sb_r{c}{k} = OpSelect %float %db_q{k} {h[c]} %sb_rp{c}{k}' for c in range(3)]
                     out += code
                     for c in range(3):
                         ren[sums[c]] = f'%sb_r{c}{k}'
