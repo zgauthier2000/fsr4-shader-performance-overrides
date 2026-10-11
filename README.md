@@ -93,11 +93,11 @@ More games and resolutions: [all results](docs/results.md).
 
 > [!TIP]
 > **The lossy DLL: a steadier and more accurate picture at rest in this release, and a page that puts it beside other upscalers.**
-> - **About half of AMD's FSR 4 time,** with a still picture within 0.02 dB of AMD's: 2.36 ms against 4.76 ms per frame at 4K
->   on a Radeon RX 7800 XT.
 > - **New in this release:** flat areas at rest are steadier than ever (less than half of AMD's own shimmer in the test rig), the
 >   still picture is back within 0.02 dB of AMD's, and slow changes of brightness are followed sooner, after finding out why
 >   the earlier "folding" worked. [Details below](#a-steadier-more-accurate-picture-at-rest-in-the-lossy-dll-release-dll-2026-10-114).
+> - **Not new, still true:** the lossy DLL takes about half of AMD's FSR 4 time: 2.36 ms against 4.75 ms per frame at 4K on a
+>   Radeon RX 7800 XT, both timed in the same run with this release's file (timing kit under Proton, no game).
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, with charts and side-by-side crops. It shows where the lossy DLL leads (accuracy close to FSR 4, areas
 >   a moving object has just uncovered) and where it is last of the five (moving foliage, a thin wire in a slow pan).
