@@ -221,11 +221,13 @@ Since 2026-10-05.6, which applied what the first three machines' results showed:
   the first archive they ran on blank ones, so their times were wrong), and the results can be
   sent at the end.
 
-**Status:** reports have come in from twelve kinds of GPU: Radeon RX 7800 XT, RX 7900 GRE and
-RX 7900 XTX, a Steam Machine (Navi 33, SteamOS), RX 6600, RX 6600 XT, RX 6700 XT, RX 6800,
-RX 6800 XT and RX 6900 XT, a laptop RX 6700M and a Steam Deck. Most of them are one run each, and
-several were made with earlier versions of the kit. No report has come from a Radeon 780M, 890M or
-another integrated GPU of that kind yet. If something looks wrong on your machine, please report it.
+**Status:** reports have come in from sixteen kinds of GPU: Radeon RX 7800 XT, RX 7900 GRE,
+RX 7900 XT and RX 7900 XTX, a Steam Machine (Navi 33, SteamOS), RX 6600, RX 6600 XT, RX 6700 XT,
+RX 6800, RX 6800 XT and RX 6900 XT, the laptop chips RX 7700S, RX 6700M and RX 6600M, a Steam Deck
+and the integrated graphics of a Ryzen 5 5600G. Most of them are one run each, and many were made
+with earlier versions of the kit. On the RX 6600 and the RX 6600M the readings are not usable yet
+(image stores take far too long there under the kit). No report has come from a Radeon 780M, 890M
+or another current integrated GPU yet. If something looks wrong on your machine, please report it.
 
 Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-05) (9 MB).
 

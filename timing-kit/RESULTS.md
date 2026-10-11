@@ -337,6 +337,133 @@ Passes 3 and 6 are AMD's in both (.051 and .053).
 - **Output check:** every exact version gave AMD's output; the lossy passes differ, as they
   should.
 
+## Radeon RX 7900 XT (RADV NAVI31), 2026-10-08, full run
+
+Linux kit 2026-10-06.3, full run (Mesa 26.2.4, GPU 2% busy before the run; the tester notes that
+a screen-capture layer was enabled system-wide). One run. "Exact" and "lossy" are the versions of
+that kit: the postpass shipped at the time, not the current one, and the earlier lossy build
+without frame skip.
+
+**Sum of the 14 passes** (ms):
+
+| Output | AMD's shaders | Exact | Lossy |
+|---|---|---|---|
+| 1080p | 0.690 | 0.641 (-7%) | 0.612 (-11%) |
+| 1440p | 1.62 | 1.14 (-30%) | 1.10 (-32%) |
+| 4K | 3.73 | 2.48 (-34%) | 2.36 (-37%) |
+
+**Per pass at 4K** (AMD's / exact, ms): prepass .410 / .383, pass 1 .215 / .208, pass 2 .217 /
+.210, pass 4 .111 / .109, pass 5 .109 / .110, pass 7 .096 / .095, pass 8 .097 / .096, pass 9
+.140 / .134, pass 10 .109 / .106, pass 11 .200 / .145, pass 12 .218 / .210, postpass 1.71 / .573.
+Passes 3 and 6 are AMD's in both (.053 and .045).
+
+**The postpass by output size** (AMD's, the rewrite, AMD's with its stores removed; ms):
+
+| 1080p | 1440p | 4K |
+|---|---|---|
+| .134, .126 (-6%), .113 | .665, .264 (-60%), .195 | 1.76, .573 (-67%), .487 |
+
+- **AMD's postpass is already slow at 1440p on this card:** five times its 1080p time for 1.78
+  times the pixels, as on the RX 7900 GRE and unlike the RX 7900 XTX above, where it stays near
+  its no-stores floor up to 1440p. So the exact files gain 30% here at 1440p, not only at 4K.
+- **The postpass is nearly all of the gain:** 1.14 of the 1.25 ms at 4K, then pass 11 (0.06)
+  and the prepass (0.03).
+- **AMD's postpass readings at 1080p were unsteady** (.105 to .188 ms over 15 runs, median .129).
+- **Pass 11** (ms at 1080p / 4K): AMD's .051 / .193, the shipped version .060 / .147, unrolled
+  .068 / .173, compact rows .052 / .175. At 1080p AMD's own was the fastest in this run.
+- **AMD's postpass with only its neighborhood reads made branch-free:** 22% faster at 1440p
+  (.521 ms), 13% slower at 4K (2.00 ms).
+- **Compiled postpass** (registers / waves per SIMD / workgroup memory): AMD's 60 / 24 / none,
+  the rewrite 96 / 16 / 16 KB.
+- **The two forms of the dot product:** no difference in model passes 1 and 12 (within 2%).
+- **Output check:** every version gave AMD's output.
+
+## Radeon RX 7700S, laptop (RADV NAVI33), 2026-10-09, full run
+
+Linux kit 2026-10-06.3, full run (Mesa 26.2.4, on mains power, power profile "balanced"). **The
+GPU was 56% busy before the run,** so the times may be higher than on an idle machine, and how much
+that changes the comparison between versions is not known. One run. "Exact" and "lossy" as in the section above.
+
+**Sum of the 14 passes** (ms):
+
+| Output | AMD's shaders | Exact | Lossy |
+|---|---|---|---|
+| 1080p | 3.15 | 2.10 (-33%) | 1.99 (-37%) |
+| 1440p | 5.51 | 3.62 (-34%) | 3.44 (-38%) |
+| 4K | 12.4 | 8.26 (-33%) | 7.85 (-37%) |
+
+**Per pass at 4K** (AMD's / exact, ms): prepass 1.29 / 1.21, pass 1 .778 / .747, pass 2 .778 /
+.753, pass 4 .380 / .373, pass 5 .378 / .373, pass 7 .316 / .309, pass 8 .314 / .309, pass 9
+.474 / .464, pass 10 .379 / .367, pass 11 .618 / .519, pass 12 .779 / .742, postpass 5.60 / 1.77.
+Passes 3 and 6 are AMD's in both (.208 and .113).
+
+**The postpass by output size** (AMD's, the rewrite, AMD's with its stores removed; ms):
+
+| 1080p | 1440p | 4K |
+|---|---|---|
+| 1.36, .417 (-69%), .361 | 2.48, .762 (-69%), .614 | 5.60, 1.80 (-68%), 1.48 |
+
+- **The same third off at every output size, 1080p included.** AMD's postpass costs about 3.8
+  times its no-stores floor at all three sizes in this run, so there is no size below which the
+  rewrite stops paying.
+- **This is not what the Steam Machine above showed,** which has the same chip family: there
+  AMD's postpass read .500 ms at 1080p and 2.17 ms at 4K, against 1.36 and 5.60 ms here, while
+  the rewrite reads about the same on both (1.70 and 1.80 ms at 4K). Why AMD's postpass is so
+  much slower on this laptop is not known; the busy GPU is one possible reason, and a second run
+  on an idle machine would tell.
+- **The postpass is nearly all of it:** 3.8 of the 4.1 ms saved at 4K.
+- **The rewrite's postpass readings were unsteady** at every size (4K: 1.50 to 1.90 ms over 15
+  runs, median 1.77), which fits a GPU that was busy with something else.
+- **Pass 11** (ms at 1080p / 4K): AMD's .167 / .623, the shipped version .140 / .523, unrolled
+  .153 / .579, compact rows .169 / .625.
+- **AMD's postpass with only its neighborhood reads made branch-free** is 8 to 10% slower at
+  every size.
+- **Compiled postpass** (registers / waves per SIMD / workgroup memory): AMD's 64 / 16 / none,
+  the rewrite of that kit 80 / 12 / 16 KB; the candidate that became the current postpass
+  compiles to 64 / 16 / 16 KB and read .689 ms at 1440p against the rewrite's .762.
+- **The two forms of the dot product:** no difference (within 2%).
+- **Output check:** every version gave AMD's output.
+
+## Ryzen 5 5600G integrated graphics (RADV RENOIR), 2026-10-09, full run
+
+Linux kit 2026-10-06.3, full run on the integrated GPU (Mesa 26.3.0-devel, dual-channel DDR4,
+GPU idle before the run). One run. This chip is older than the RDNA generations the project
+targets (the tester gives it as GCN 5.1 with 7 compute units), and the times are far from
+anything playable; the report shows that the shaders run there and what the rewrites do.
+"Exact" and "lossy" as in the two sections above.
+
+**Sum of the passes** (ms):
+
+| Output | AMD's shaders | Exact | Lossy |
+|---|---|---|---|
+| 1080p | 44.8 | 43.0 (-4%) | 38.2 (-15%) |
+| 1440p | 76.9 | 73.7 (-4%) | 65.5 (-15%) |
+| 4K, without pass 2 | 153.5 | 146.2 (-5%) | 128.7 (-16%) |
+
+The 4K run has no reading for pass 2, so its sum is of 13 passes; at the smaller sizes pass 2
+costs about as much as pass 1.
+
+**Per pass at 1080p** (AMD's / exact, ms): prepass 2.89 / 2.76, pass 1 4.95 / 4.86, pass 2 5.13 /
+5.13, pass 4 3.70 / 3.71, pass 5 3.70 / 3.69, pass 7 1.42 / 1.41, pass 8 1.42 / 1.41, pass 9
+2.03 / 2.01, pass 10 3.56 / 3.56, pass 11 2.36 / 2.33, pass 12 4.36 / 4.33, postpass 7.63 / 6.10.
+Passes 3 and 6 are AMD's in both (.548 and 1.12).
+
+**The postpass by output size** (AMD's, the rewrite, AMD's with its stores removed; ms):
+
+| 1080p | 1440p | 4K |
+|---|---|---|
+| 7.60, 6.10 (-20%), 5.18 | 13.6, 10.9 (-19%), 9.06 | 30.4, 24.7 (-19%), 20.4 |
+
+- **The model passes are where the time goes here, and the exact files do not change them:**
+  the 12 passes are 34 of the 45 ms at 1080p. The whole gain is the postpass (1.5 ms) and a
+  little from the prepass.
+- **Why the model is so slow on this chip:** passes 1 and 12 compile to 256 registers with one
+  wave per SIMD (5,100 to 5,400 instructions, against about 1,400 on RDNA chips), the postpass
+  to 128 registers with two.
+- **The readings were very steady:** a second round at 1080p differed by less than 1%.
+- **Pass 11** at 1080p / 4K: all four versions within 2% (2.33 to 2.38 ms / 8.62 to 8.81 ms).
+- **Output check:** every version gave AMD's output.
+
 ## Windows kit: Radeon RX 7900 XTX and Intel Arc B580, 2026-10-12
 
 These two come from the [Windows kit](README.md), which measures something else than the sections
