@@ -297,6 +297,46 @@ the run has no whole-frame or lossy figures. One run.
   on this card (within 5% either way in model passes 1 and 12 and the postpass, at 1080p and 4K).
 - **Output check:** every version gave AMD's output.
 
+## Radeon RX 7900 XTX (RADV NAVI31), 2026-10-11, full run
+
+Linux kit 2026-10-11.1, full run (Mesa 26.2.4, GPU 2% busy before the run). One run. The lossy
+figures are for the lossy build of that kit (release `dll-2026-10-11`), which skips the model on
+every second frame; they are an estimate from the kit's skipped-frame probes, not a game
+measurement.
+
+**A whole frame** (prepass, the 12 model passes in sequence, postpass; ms):
+
+| Output | AMD's shaders | Exact | Lossy, average of the two kinds of frame |
+|---|---|---|---|
+| 1080p | 0.589 | 0.553 (-6%) | about 0.354 (-40%) |
+| 1440p | 0.953 | 0.900 (-6%) | about 0.628 (-34%) |
+| 4K | 2.46 | 2.01 (-18%) | about 1.43 (-42%) |
+
+**Per pass at 4K** (AMD's / exact, ms): prepass .338 / .291, pass 1 .186 / .178, pass 2 .185 /
+.181, pass 4 .094 / .092, pass 5 .092 / .091, pass 7 .081 / .080, pass 8 .082 / .080, pass 9
+.121 / .119, pass 10 .092 / .089, pass 11 .150 / .124, pass 12 .187 / .179, postpass .779 / .462.
+Passes 3 and 6 are AMD's in both (.051 and .053).
+
+**The postpass by output size** (AMD's, the shipped rewrite, AMD's with its stores removed; ms):
+
+| 1080p | 1440p | 4K |
+|---|---|---|
+| .105, .105 (0%), .096 | .194, .184 (-5%), .161 | .807, .462 (-43%), .398 |
+
+- **Nearly all of the gain at 4K is the postpass** (0.32 of the 0.45 ms), then the prepass (0.05)
+  and pass 11 (0.03). At 1080p and 1440p AMD's postpass already runs close to its no-stores
+  floor on this card, so there is little to take.
+- **The postpass readings at 1080p and 1440p were unsteady** for both versions (AMD's .098 to
+  .173 ms and the rewrite's .098 to .176 ms over 15 runs at 1080p); the medians are given above.
+- **Pass 11** (ms at 1080p / 4K): AMD's .073 / .148, the shipped version .061 / .123, unrolled
+  .067 / .137, compact rows .075 / .148.
+- **Compiled postpass** (registers / waves per SIMD / workgroup memory): AMD's 60 / 24 / none,
+  the rewrite 96 / 16 / 16 KB.
+- **The two forms of the dot product:** no difference (within 5% in model passes 1 and 12 and
+  the postpass, at 1080p and 4K).
+- **Output check:** every exact version gave AMD's output; the lossy passes differ, as they
+  should.
+
 ## Windows kit: Radeon RX 7900 XTX and Intel Arc B580, 2026-10-12
 
 These two come from the [Windows kit](README.md), which measures something else than the sections
