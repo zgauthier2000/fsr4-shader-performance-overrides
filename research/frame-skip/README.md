@@ -894,6 +894,82 @@ frames where the block's old image lands, 8-bit steps). Which of the two reasons
 - Not checked: frame generation (the rig cannot run it), the game itself, and Windows.
 - `SB_CLAMPEDGE=0` rebuilds `dll-2026-10-11`'s files.
 
+## Bright dots in foliage (release `dll-2026-10-11.3`)
+
+A tester's video: trees against a bright sky, the camera still, the game at about 25 frames per second, and single
+bright pixels flickering inside the dark foliage.
+
+### A gap in the test rig
+
+The rig did not show it. Its moving scenes were sampled with smoothing (each rendered pixel a blend of the four scene
+pixels around its sample point), which a game does not do: a rendered pixel is one sample of the scene, and next to a
+gap between leaves that sample is leaf on one frame and sky on another. `gen_motion.py` now has `SCENE_POINT=1` for
+inputs sampled that way, and `foliage_dots.py` counts what the video shows: pixels more than 0.15 (sRGB) brighter than
+the median of their 3x3 surroundings where the true image is dark, per thousand dark pixels. In dense dark leaves
+swaying in front of a bright sky (`SCENE_FOLIAGE="50000 2 12"`, camera still), on skipped frames:
+
+| AMD's | `dll-2026-10-10` | `dll-2026-10-11.2` |
+|---|---|---|
+| 0.57 | 3.83 | 2.40 |
+
+With leaves that do not move, every build is at AMD's level (1.6 to 1.7; the true, unsmoothed image has 8.3).
+
+### Which rule
+
+Each of the lossy postpass's rules switched off in turn (the release's 4K postpass rebuilt with one option changed):
+
+| | Dots, skipped frames |
+|---|---|
+| Release | 2.40 |
+| Without the sample test (`SB_SAMPLE=off`) | 0.44 |
+| Without the brightness test (`SB_BRIGHT=off`) | 2.86 |
+| Without the range test (`SB_PART=off`) | 2.89 |
+| Without all three | 0.65 |
+| Without the model's verdict at rest (`SB_RESTW=off`) | 2.29 |
+| With the history clamp at rest (`SB_CLAMPREST=1`) | 2.62 |
+
+The sample test is the one. It takes the new frame where the nearest new sample lies outside the range of the 3x3 history
+pixels around the pixel by more than `SB_SAMPLE` x that range + 0.05: the signature of a spark arriving. Sky seen through
+a gap in dark leaves has the same signature. Leaves that sway without motion vectors count as "at rest" for the rest rule,
+so the test decides alone there. Nothing in one pixel on one frame tells the two apart; the test can only be made stricter.
+
+### How strict
+
+Without the test, fast sparks drop from 76% to 34% of their brightness, so it stays. Its range factor, swept:
+
+| `SB_SAMPLE` | AMD's | 1 (before) | 1.5 | 2 (release) | 3 | 4 |
+|---|---|---|---|---|---|---|
+| Foliage dots, camera still | 0.57 | 2.40 | 1.45 | 0.97 | 0.62 | 0.51 |
+| Foliage dots, pan 12,6 | 0.33 | 0.70 | 0.50 | 0.37 | 0.26 | 0.23 |
+| Fast sparks shown, camera still | 83.2% | 76.4% | 75.9% | 75.4% | 73.9% | 72.2% |
+| Fast sparks shown, pan | 83.0% | 78.9% | 78.2% | 77.5% | 75.1% | 71.3% |
+| Large particles, error, camera still | 0.66 | 1.38 | 1.43 | 1.47 | 1.56 | 1.65 |
+| Large particles, error, pan | 0.73 | 1.54 | 1.63 | 1.74 | 2.00 | 2.32 |
+| Still object over fast ground | 1.62 | 2.57 | 2.62 | 2.67 | 2.76 | 2.84 |
+| Grain 10 of 255, change per frame | 1.72 | 1.05 | 1.00 | 0.98 | 0.97 | 0.96 |
+| Wire, slow pan, change per frame | 7.2 | 17.9 | 16.5 | 16.0 | 15.4 | 15.0 |
+
+There is no setting that is free: each step removes dots and costs particles. The release takes 2, which closes about
+78% of the gap to AMD's with the camera still and nearly all of it under a pan, for about a third of what 4 costs in
+particles. The absolute part of the threshold (`SB_SAMPLEABS`) was tried as well: at 0.15 the dots fall to 0.55 but fast
+sparks to 65%.
+
+### The release build against `dll-2026-10-11.2`
+
+- Different: the rows above, grain of 15 of 255 (1.86 against 2.00; AMD's 2.55), a wire with the camera still (2.88 against
+  3.32; AMD's 2.91) and in a fast pan (unevenness +12 against +13), and just-uncovered areas at 1440p and 1080p (0.07 and
+  0.10 dB lower; still 0.8 and 1.2 dB above AMD's).
+- The same to the last digit shown, or within 0.05 dB or 1%: still picture and thin detail, flat areas and fine detail at
+  rest, the moving scene at 4K, the frame-rate sweep, still camera with moving objects, the ghost scenes, slow embers, the
+  foliage scenes with smoothed inputs (the softness of moving foliage is unchanged), the strip revealed when a pan starts.
+- Still scenes no longer give the release's frames bit for bit (the test also acts at rest); they score the same (44.15 dB).
+- The lossy DLLs give the Linux files' output byte for byte in 24 of 24 rig runs (4K, 1440p, 1080p; moving, particles,
+  wires, foliage smoothed and hard-sampled, still, grain, the plate scene; both flavors).
+- Speed: 2.35 ms for the whole upscaler at 4K, the same as the `dll-2026-10-11.2` lossy DLL in the same run (Windows kit under
+  Proton, RX 7800 XT).
+- Not checked: the game the video came from, and Windows.
+- `SB_SAMPLE=1` rebuilds `dll-2026-10-11.2`'s files.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in

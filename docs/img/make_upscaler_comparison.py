@@ -3,7 +3,7 @@
 # make_upscaler_comparison.py [<dir>]: the figures of docs/upscaler-comparison.md.
 #   cmp5-quality-{light,dark}.svg, cmp5-speed-{light,dark}.svg, cmp5-tradeoff-{light,dark}.svg: charts; the numbers in them are the
 #       tables of that page (test rig, 4K output from 2260x1272, Radeon RX 7800 XT under Proton, single runs).
-#   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-plate.png (frame 39 of the plate scene): the same piece of one frame from the
+#   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-plate.png, cmp5-dots.png (frame 39 of the plate scene and of the hard-sampled foliage scene): the same piece of one frame from the
 #       five upscalers beside the true image. <dir> holds <scene>_<name>/output_3840x2160_f037.raw (RGBA16F) for scene in still,
 #       wires, sparks, foliage, motion and name in fsr4, lossy, fsr3, helix, xess, and <scene>_truth.npy (the true 4K image).
 import sys
@@ -14,11 +14,11 @@ KEYS = ['fsr4', 'lossy', 'fsr3', 'helix', 'xess']
 # (title, unit note, values in NAMES order, format, True if higher is better)
 QUALITY = [
     ('Still picture', 'accuracy, dB', [44.33, 44.15, 39.94, 41.99, 42.14], '{:.1f}', True),
-    ('Just-uncovered areas', 'accuracy in motion, dB', [34.48, 36.34, 29.22, 27.11, 30.20], '{:.1f}', True),
-    ('Tiny fast sparks', 'share of brightness shown, %', [83, 76, 40, 79, 50], '{:.0f}', True),
+    ('Just-uncovered areas', 'accuracy in motion, dB', [34.48, 36.38, 29.22, 27.11, 30.20], '{:.1f}', True),
+    ('Tiny fast sparks', 'share of brightness shown, %', [83, 75, 40, 79, 50], '{:.0f}', True),
     ('Swaying foliage', 'error, of 255', [12.1, 18.6, 16.8, 15.5, 15.5], '{:.1f}', False),
-    ('Thin wire, slow pan', 'change per frame, of 255', [7.2, 17.9, 8.2, 5.6, 10.1], '{:.1f}', False),
-    ('Film grain (10 of 255)', 'change per frame, of 255', [1.72, 1.05, 0.31, 0.30, 0.23], '{:.2f}', False),
+    ('Thin wire, slow pan', 'change per frame, of 255', [7.2, 16.0, 8.2, 5.6, 10.1], '{:.1f}', False),
+    ('Film grain (10 of 255)', 'change per frame, of 255', [1.72, 0.98, 0.31, 0.30, 0.23], '{:.2f}', False),
 ]
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
 SPEED = [('1920x1080', [1.05, 0.89, 0.67, 0.41, 0.75, 1.42]), ('2560x1440', [2.18, 1.44, 1.10, 0.58, 1.01, 2.28]), ('3840x2160', [4.76, 3.17, 2.34, 1.16, 1.99, 4.98])]
@@ -153,3 +153,4 @@ crops('sparks', 'Tiny fast sparks drawn without motion vectors', f'Camera still.
 crops('foliage', 'Leaves swaying without motion vectors, camera still', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (300, 300, 1900, 1850))
 crops('motion', 'Moving scene: fine stripes on a moving object', f'Camera panning. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (1900, 250, 3300, 1500))
 crops('plate', 'A still bright object over ground that moves fast', f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is, at the same depth.\nThe piece just below it where the five differ most, enlarged 2 times. {E}', 240, 160, 2, (2300, 800, 3100, 1000), frame=39)
+crops('dots', 'Sky seen through leaves', f'Dark leaves swaying in front of a bright sky, camera still, inputs sampled as a game samples them.\nThe piece where the five differ most, enlarged 3 times. {E}', 200, 130, 3, (250, 250, 1950, 1900), frame=39)

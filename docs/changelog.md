@@ -2,8 +2,51 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-11` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-11.2` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-11 ([release `dll-2026-10-11.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.2))
+
+### A ghost behind still objects over fast-moving ground in the lossy DLL
+
+*Written for `dll-2026-10-11.2`: "this release" below means that one. The picture is redrawn with each release and now shows the current lossy build as "this release".*
+
+One change to the lossy DLL, from a tester's video of a racing game played with frame generation. **The exact DLL
+is unchanged.** This is a test release: the fix is measured in the test rig and not yet confirmed in the game.
+
+- **What was seen:** the car's white license plate left a patch of bright streaks on the road behind it, on and
+  off from frame to frame. The exact DLL did not show it.
+- **The cause:** the last release relaxed, while the camera moves, the rule that keeps the previous picture in line
+  with the new frame, so that thin wires would survive. Where a still object sits over ground that moves fast and
+  the depths give no sign of which is in front, that rule was the only thing keeping the object's old image off the
+  ground that had just come out from behind it.
+- **The fix:** the rule applies in full again wherever something beside the pixel, or what now sits where its content
+  was, moves differently from it. Elsewhere the last release's behavior stays, and with it the wire fix.
+
+| Measured in the test rig at 4K | AMD's shaders | `dll-2026-10-10` | `dll-2026-10-11` | This release |
+|---|---|---|---|---|
+| Still bright object over fast ground: error where its old image lands | 1.62 | 2.51 | 6.06 | 2.57 |
+| The same over slow ground | 5.79 | not measured | 5.76 | 4.95 |
+| Areas a moving object has just uncovered | 34.48 dB | 36.45 dB | 36.12 dB | 36.34 dB |
+| The same at 120 FPS, against AMD's | | +2.9 dB | +1.7 dB | +2.8 dB |
+| Ghost measure on thin bars, fast pan | 0.33 | 0.38 | 0.47 | 0.43 |
+| Thin wire, camera still: change per frame along it | 2.9 | 40.5 | 3.3 | 3.3 |
+| Thin wire, slow pan: change per frame along it | 7.2 | 58.6 | 16.9 | 17.9 |
+| Thin wire, fast pan: unevenness along it | +9 | +50 | +11 | +13 |
+
+The test scene on a frame that skips the network, enlarged:
+
+<img src="img/cmp-plate.png" width="760" alt="A white object with dark marks at the top, ground moving fast below it, on a frame that skips the neural network, enlarged. The true image and the exact files show only the ground below the object. The lossy build of release dll-2026-10-11 shows bright outlines of the object's marks on the ground below it. This release's lossy build shows only a faint trace.">
+
+- **Unchanged:** the still picture (the same frames, bit for bit, at 1080p, 1440p and 4K), shimmer at rest, particles,
+  grain, foliage, and speed (2.36 ms against 2.35 ms for the whole upscaler at 4K; timing kit, RX 7800 XT under Proton).
+- **What got worse:** a thin wire under a pan gives back a little of the last release's gain where it passes
+  something that moves differently (6% more flicker in a slow pan, unevenness +13 against +11 in a fast one).
+- **Not checked:** frame generation cannot be run in the test rig, and the game was not run here. The rig shows the
+  ghost when the object and the ground have the same depth; whether that is what happens in the game is not known.
+  A faint trace remains above AMD's level (2.57 against 1.62), as in `dll-2026-10-10`.
+- These are single runs on made-up scenes.
+  [How the cause was found](../research/frame-skip#a-still-object-over-fast-ground-release-dll-2026-10-112).
 
 ## 2026-10-11 ([release `dll-2026-10-11`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11))
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_comparison_crops.py <dir>: the comparison images of docs/exact-vs-lossy.md (cmp-still.png,
-# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png, cmp-plate.png), from test-rig output (research/pruning: fsr4img with
+# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png, cmp-plate.png, cmp-foliage-dots.png), from test-rig output (research/pruning: fsr4img with
 # gen_inputs.py / gen_motion.py, 4K Balanced, 40 frames, the last 8 kept). <dir> holds, for X = exact (the main
-# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-11.2):
+# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-11.3):
 #   still_X/                 output_3840x2160_f032..039.raw (RGBA16F), and still_truth.npy, the true 4K image
 #   wires_exact/, wires_rel/ (the lossy build of release dll-2026-10-10), wires_lossy/, wires_truth_037.npy   frame 37 of the thin-wire scene
 #   still_r9/, grain_X/, grain_r9/   the same frames with the lossy build of release dll-2026-10-09 (r9), and of the still scene
@@ -98,6 +98,31 @@ if sys.argv[2:3] == ['plate']:      # make_comparison_crops.py <dir> plate : onl
           [('', [('true image', rgb8(zoom(cp(tru), 2))), ("exact files (= AMD's)", rgb8(zoom(cp(T['exact']), 2))),
                  ('lossy, release dll-2026-10-11', rgb8(zoom(cp(T['r11']), 2))), ('lossy, this release', rgb8(zoom(cp(T['lossy']), 2)))])],
           'cmp-plate.png', note='Mean error against the true image in this piece, of 255: exact %.2f, dll-2026-10-11 %.2f, this release %.2f.' % (err['exact'], err['r11'], err['lossy']))
+    sys.exit(0)
+
+if sys.argv[2:3] == ['dots']:      # make_comparison_crops.py <dir> dots : only cmp-foliage-dots.png (needs only the dots_* data)
+    # ---- dense dark leaves swaying in front of a bright sky, camera still, inputs sampled as a game samples them (research/pruning:
+    # SCENE_FOLIAGE="50000 2 12" SCENE_POINT=1), on a skipped frame; dots_exact/, dots_r112/ (the lossy build of release dll-2026-10-11.2),
+    # dots_lossy/ and dots_truth_039.npy: frame 39
+    fx, fy, fw, fh = 250, 250, 1700, 1650            # the foliage area (motion_scene.FBOX at 4K)
+    lum = lambda a: a[fy:fy + fh, fx:fx + fw].mean(2)
+    def med3(a):
+        q = np.pad(a, 1, mode='edge'); return np.median(np.stack([q[i:i + a.shape[0], j:j + a.shape[1]] for i in range(3) for j in range(3)]), 0)
+    tru = srgb(np.load(f'{D}/dots_truth_039.npy')); T = {k: load(f'dots_{k}', 39) for k in ('exact', 'r112', 'lossy')}
+    dark = med3(lum(tru)) < 0.3
+    dots = {k: ((lum(v) - med3(lum(v)) > 0.15) & dark) for k, v in T.items()}
+    per = {k: v.sum() / dark.sum() * 1000 for k, v in dots.items()}
+    kw, kh = 200, 130
+    c = np.cumsum(np.cumsum(np.pad(dots['r112'].astype(np.float32) - dots['exact'], ((1, 0), (1, 0))), 0), 1)
+    sm = c[kh:, kw:] - c[:-kh, kw:] - c[kh:, :-kw] + c[:-kh, :-kw]; y, x = np.unravel_index(np.argmax(sm), sm.shape); y += fy; x += fx
+    cp = lambda a: a[y:y + kh, x:x + kw]
+    cnt = {k: int(v[y - fy:y - fy + kh, x - fx:x - fx + kw].sum()) for k, v in dots.items()}
+    print('dots: window', x, y, 'per thousand dark pixels in the whole area', {k: round(float(v), 2) for k, v in per.items()}, 'dots in the piece', cnt)
+    sheet('Sky seen through leaves, shown as bright dots on a frame that skips the network',
+          f'Dark leaves swaying in front of a bright sky, camera still. A {kw} x {kh} pixel piece, enlarged 3 times.\nUnder each: single bright pixels inside the leaves in this piece.',
+          [('', [('true image', rgb8(zoom(cp(tru), 3))), (f"exact files (= AMD's): {cnt['exact']}", rgb8(zoom(cp(T['exact']), 3))),
+                 (f"lossy, release dll-2026-10-11.2: {cnt['r112']}", rgb8(zoom(cp(T['r112']), 3))), (f"lossy, this release: {cnt['lossy']}", rgb8(zoom(cp(T['lossy']), 3)))])],
+          'cmp-foliage-dots.png', note='Whole foliage area, per thousand dark pixels on this frame: exact %.2f, dll-2026-10-11.2 %.2f, this release %.2f.' % (per['exact'], per['r112'], per['lossy']))
     sys.exit(0)
 
 GHOST_ONLY = sys.argv[2:3] == ['ghost']      # make_comparison_crops.py <dir> ghost : only cmp-ghost.png (needs only the ghost_* data)

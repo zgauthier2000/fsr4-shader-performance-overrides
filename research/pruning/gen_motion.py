@@ -34,6 +34,8 @@ for f in range(frames):
     v0 = np.clip(np.floor(v).astype(int), 0, sc.OH - 2); fv = np.clip(v - v0, 0, 1).astype(np.float32)[:, None, None]
     a = img[v0][:, u0]; b = img[v0][:, u0 + 1]; c = img[v0 + 1][:, u0]; d = img[v0 + 1][:, u0 + 1]
     col = (a * (1 - fu) + b * fu) * (1 - fv) + (c * (1 - fu) + d * fu) * fv
+    if os.environ.get('SCENE_POINT') == '1':      # as a game renders: every render pixel takes the scene at its (jittered) center, nothing is smoothed, so thin things are hit or miss
+        col = img[np.clip(np.rint(v).astype(int), 0, sc.OH - 1)][:, np.clip(np.rint(u).astype(int), 0, sc.OW - 1)]
     if wires:      # ...and draw each wire into the render pixels whose centers it covers
         wcol = np.float32([wires[2], wires[2], wires[2] * 1.05])
         for x0, ys in sc.wire_rows(f):

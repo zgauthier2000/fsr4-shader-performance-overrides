@@ -85,7 +85,7 @@ def figure(t):
          'the same shaders as the exact files except model passes 1, 10 and 12, which merge a few of their smallest weights and so change the output slightly, about 3.0 ms. '
          'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.3 ms. '
          'The two kinds of frame alternate, 2.15 ms on average, 48% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
-         'still picture 44.15 dB against 44.31, flicker on fine detail at rest 0.092 against 0.110, areas just uncovered by a moving object 36.34 dB against 34.48. '
+         'still picture 44.15 dB against 44.31, flicker on fine detail at rest 0.092 against 0.110, areas just uncovered by a moving object 36.38 dB against 34.48. '
          'Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 34, 'Exact files and lossy builds, pass by pass', t, 16, 'ink', weight=600),
@@ -134,7 +134,7 @@ def figure(t):
     o.append(text(x2 + 196, y + 52, "AMD's", t, 11, 'muted', 'end'))
     o.append(text(x2 + 284, y + 52, 'Lossy', t, 11, 'muted', 'end'))
     for i, (lab, a, b) in enumerate([('Still picture', '44.31 dB', '44.15 dB'), ('Flicker at rest, fine detail', '0.110', '0.092'),
-                                     ('Areas just uncovered', '34.48 dB', '36.34 dB')]):
+                                     ('Areas just uncovered', '34.48 dB', '36.38 dB')]):
         yy = y + 72 + i * 22
         o.append(text(x2, yy, lab, t, 12, 'ink'))
         o.append(text(x2 + 196, yy, a, t, 12, 'ink2', 'end'))

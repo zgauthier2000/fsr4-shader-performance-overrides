@@ -38,7 +38,7 @@
 #   SB_PART (default 0.25; "off"): the history lies outside the range of the nine new samples, widened by SB_PART x range;
 #   SB_BRIGHT (default 0.25; "off"; SB_BRIGHTABS 0.05; SB_BRIGHTSYM=0: brighter only): the resampled new frame differs from
 #     the history by more than SB_BRIGHT x range + SB_BRIGHTABS (slow things that still overlap their last image);
-#   SB_SAMPLE (default 1; "off"; SB_SAMPLEABS 0.05; SB_SAMPLEFULL 1): the nearest new sample (the one of the nine with the
+#   SB_SAMPLE (default 2, 1 up to release dll-2026-10-11.2; "off"; SB_SAMPLEABS 0.05; SB_SAMPLEFULL 1): the nearest new sample (the one of the nine with the
 #     largest weight) lies outside the range of the 3x3 history pixels around the pixel by more than SB_SAMPLE x range +
 #     SB_SAMPLEABS. A sample is one point of the scene, so for unchanged content it lies inside that range however fine the
 #     detail; this is what tells an arriving spark from still detail under another jitter. Such a pixel takes the new frame
@@ -58,6 +58,9 @@
 #     pixel, or what now sits where its content was, moves differently from it. The verdict is a frame old and knows nothing of what
 #     has just come out from behind a still object: without this a bright object over fast-moving ground (a white license plate over
 #     the road) left its image on the ground wherever the uncovered test cannot fire (no depth search in the prepass, or equal depths).
+# Sky seen through leaves is, to the sample test, a spark: one sample far outside the history around it. With the factor at 1 that
+# put single bright pixels into foliage on skipped frames (seen in a game against a bright sky). At 2 most of them are gone and sparks
+# lose about one point in a hundred of their brightness. SB_SAMPLE=1 gives release dll-2026-10-11.2's behavior.
 # SB_CLAMPEDGE=0 gives release dll-2026-10-11's behavior; SB_RESTW=off SB_CLAMPREST=1 SB_CLAMPW=off gives release dll-2026-10-10's behavior.
 # SB_SAMPLEABS=0.02 SB_BRIGHTABS=0.02 gives release dll-2026-10-09's behavior (it let film grain and noise through on
 # skipped frames: the grain trips the sample test as a spark does). SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behavior. SB_FULLW is a rejected experiment
@@ -68,7 +71,7 @@
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
 import os, re, sys
 # the changed-content tests (below) are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '1'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', '0.0 0.3')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', '0.0 0.3')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]

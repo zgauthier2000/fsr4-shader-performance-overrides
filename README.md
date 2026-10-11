@@ -92,12 +92,12 @@ More games and resolutions: [all results](docs/results.md).
 ## New in this release
 
 > [!TIP]
-> **The lossy DLL: a ghost fix in this release, and a page that puts it beside other upscalers.**
+> **The lossy DLL: fewer bright dots in foliage in this release, and a page that puts it beside other upscalers.**
 > - **About half of AMD's FSR 4 time,** with a still picture within 0.2 dB of AMD's: 2.34 ms against 4.76 ms per frame at 4K
 >   on a Radeon RX 7800 XT.
-> - **New in this release (a test):** a bright object over fast-moving ground, such as a white license plate over the road in a
->   racing game, no longer leaves its image behind it. It was reported with frame generation and is fixed in the test rig;
->   it is not yet confirmed in the game. [Details below](#a-ghost-behind-still-objects-over-fast-moving-ground-in-the-lossy-dll-release-dll-2026-10-112).
+> - **New in this release:** single bright pixels that flickered inside dark foliage against a bright sky are mostly gone
+>   (about 60% fewer in the test rig with the camera still, and close to AMD's level while it pans), and film grain is passed on a little less.
+>   [Details below](#bright-dots-in-foliage-in-the-lossy-dll-release-dll-2026-10-113).
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, with charts and side-by-side crops. It shows where the lossy DLL leads (accuracy close to FSR 4, areas
 >   a moving object has just uncovered) and where it is last of the five (moving foliage, a thin wire in a slow pan).
@@ -115,7 +115,7 @@ One test scene on one graphics card; [the comparison page](docs/upscaler-compari
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **The first reports from Windows are in, from eight graphics cards; every further
 > card helps.**
-> - **Both kits carry this release's lossy files** (kit versions 2026-10-11.3). If you ran an earlier kit, please download again.
+> - **Both kits carry the lossy files of release `dll-2026-10-11.2`** (kit versions 2026-10-11.3); this release's change does not alter their timings. If you ran an earlier kit, please download again.
 > - **New: be named on the [thank-you page](docs/thanks.md).** When you send your result, the kit asks for a name or nickname to list. It is optional.
 > - **RX 6000 owners:** AMD's own shaders show ghosting on these cards under Windows. The kit has two
 >   extra reference DLLs and prints a fingerprint of each picture, so your run tells us whether the
@@ -130,53 +130,54 @@ One test scene on one graphics card; [the comparison page](docs/upscaler-compari
 
 **The technical pages behind this release:**
 
-- [A still object over fast ground](research/frame-skip#a-still-object-over-fast-ground-release-dll-2026-10-112): why the last release left a ghost there, and the two fixes that were tried
+- [Bright dots in foliage](research/frame-skip#bright-dots-in-foliage-release-dll-2026-10-113): why sky seen through leaves was shown as sparks, and the settings that were compared
+- [A still object over fast ground](research/frame-skip#a-still-object-over-fast-ground-release-dll-2026-10-112): why release `dll-2026-10-11` left a ghost there, and the two fixes that were tried
 - [Thin wires, particles and light folds](research/frame-skip#thin-wires-particles-and-light-folds-release-dll-2026-10-11): what erased the wires, the network's own verdict as a signal, and which further layers were folded
 - [The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md): five upscalers on the same scenes and the same timing, with charts and crops
 - [Exact and lossy compared](docs/exact-vs-lossy.md): every measurement of the lossy DLL against AMD's, with comparison pictures, and its limits (moving foliage, wires under a slow pan)
 - [Weight folding](research/lossy): the earlier experiment the light folds come from
 - [The timing kits](timing-kit): what the Linux and Windows kits measure, and how to read their summaries
 
-### A ghost behind still objects over fast-moving ground in the lossy DLL (release `dll-2026-10-11.2`)
+### Bright dots in foliage in the lossy DLL (release `dll-2026-10-11.3`)
 
-One change to the lossy DLL, from a tester's video of a racing game played with frame generation. **The exact DLL
-is unchanged.** This is a test release: the fix is measured in the test rig and not yet confirmed in the game.
+One change to the lossy DLL, from a tester's video: trees against a bright sky, camera still, with single bright
+pixels flickering inside the dark foliage. **The exact DLL is unchanged.**
 
-- **What was seen:** the car's white license plate left a patch of bright streaks on the road behind it, on and
-  off from frame to frame. The exact DLL did not show it.
-- **The cause:** the last release relaxed, while the camera moves, the rule that keeps the previous picture in line
-  with the new frame, so that thin wires would survive. Where a still object sits over ground that moves fast and
-  the depths give no sign of which is in front, that rule was the only thing keeping the object's old image off the
-  ground that had just come out from behind it.
-- **The fix:** the rule applies in full again wherever something beside the pixel, or what now sits where its content
-  was, moves differently from it. Elsewhere the last release's behavior stays, and with it the wire fix.
+- **The cause:** on the frames that skip the neural network, one rule lets sparks through: a new sample far brighter
+  than everything the previous picture has around it is shown at once. Sky seen through a gap between leaves looks
+  exactly like that to the rule, so it was shown as a dot.
+- **The fix:** the rule now asks for twice the distance before it calls a sample a spark. Most of the dots are gone,
+  and real sparks lose about one point in a hundred of their brightness.
+- **How it was found:** the test rig could not show it until its scenes were sampled the way a game renders them,
+  one unsmoothed sample per pixel. That option is now in the rig's tools.
 
-| Measured in the test rig at 4K | AMD's shaders | `dll-2026-10-10` | `dll-2026-10-11` | This release |
-|---|---|---|---|---|
-| Still bright object over fast ground: error where its old image lands | 1.62 | 2.51 | 6.06 | 2.57 |
-| The same over slow ground | 5.79 | not measured | 5.76 | 4.95 |
-| Areas a moving object has just uncovered | 34.48 dB | 36.45 dB | 36.12 dB | 36.34 dB |
-| The same at 120 FPS, against AMD's | | +2.9 dB | +1.7 dB | +2.8 dB |
-| Ghost measure on thin bars, fast pan | 0.33 | 0.38 | 0.47 | 0.43 |
-| Thin wire, camera still: change per frame along it | 2.9 | 40.5 | 3.3 | 3.3 |
-| Thin wire, slow pan: change per frame along it | 7.2 | 58.6 | 16.9 | 17.9 |
-| Thin wire, fast pan: unevenness along it | +9 | +50 | +11 | +13 |
+| Measured in the test rig at 4K | AMD's shaders | `dll-2026-10-11.2` | This release |
+|---|---|---|---|
+| Bright dots in swaying foliage, camera still (per thousand dark pixels) | 0.57 | 2.40 | 0.97 |
+| The same while the camera pans | 0.33 | 0.70 | 0.37 |
+| Change per frame with grain of 10 / 15 of 255 | 1.72 / 2.55 | 1.05 / 2.00 | 0.98 / 1.86 |
+| Thin wire, camera still: change per frame along it | 2.9 | 3.3 | 2.9 |
+| Thin wire, slow pan: change per frame along it | 7.2 | 17.9 | 16.0 |
+| Tiny fast sparks shown on skipped frames, camera still / pan | 83% / 83% | 76% / 79% | 75% / 78% |
+| Large glowing particles on skipped frames: error, camera still / pan | 0.66 / 0.73 | 1.38 / 1.54 | 1.47 / 1.74 |
+| Still bright object over fast ground: error where its old image lands | 1.62 | 2.57 | 2.67 |
 
-The test scene on a frame that skips the network, enlarged:
+A piece of the foliage scene on a frame that skips the network, enlarged:
 
-<img src="docs/img/cmp-plate.png" width="760" alt="A white object with dark marks at the top, ground moving fast below it, on a frame that skips the neural network, enlarged. The true image and the exact files show only the ground below the object. The lossy build of release dll-2026-10-11 shows bright outlines of the object's marks on the ground below it. This release's lossy build shows only a faint trace.">
+<img src="docs/img/cmp-foliage-dots.png" width="760" alt="Dark green leaves in front of a pale sky on a frame that skips the neural network, a 200 by 130 pixel piece enlarged three times. The true image shows sharp leaves. The exact files show them soft and clean (1 single bright pixel inside the leaves in this piece). The lossy build of release dll-2026-10-11.2 shows the same leaves sprinkled with single-pixel specks (26). This release's lossy build shows far fewer (8).">
 
-- **Unchanged:** the still picture (the same frames, bit for bit, at 1080p, 1440p and 4K), shimmer at rest, particles,
-  grain, foliage, and speed (2.36 ms against 2.35 ms for the whole upscaler at 4K; timing kit, RX 7800 XT under Proton).
-- **What got worse:** a thin wire under a pan gives back a little of the last release's gain where it passes
-  something that moves differently (6% more flicker in a slow pan, unevenness +13 against +11 in a fast one).
-- **Not checked:** frame generation cannot be run in the test rig, and the game was not run here. The rig shows the
-  ghost when the object and the ground have the same depth; whether that is what happens in the game is not known.
-  A faint trace remains above AMD's level (2.57 against 1.62), as in `dll-2026-10-10`.
+- **Unchanged:** the still picture and thin detail, shimmer at rest, the moving scene, slow embers, ghost scenes, and
+  speed (2.35 ms for the whole upscaler at 4K, the same as the `dll-2026-10-11.2` lossy DLL in the same run; timing kit, RX 7800 XT under Proton).
+- **What got worse:** particles, a little. Fast sparks are shown one point dimmer, and large glowing particles while
+  the camera pans are 13% further from the true image (1.74 against 1.54; AMD's 0.73). The ghost behind a bright object
+  over fast ground, fixed in the last release, gives back a small part (2.67 against 2.57; it was 6.06 before that fix).
+- **Still open:** moving foliage is still softer than with AMD's shaders. This release removes most of the dots, not
+  the softness. With a lot of moving vegetation the exact DLL remains the better choice.
+- **Not checked:** the game the video came from was not run here, and the tester has not yet tried this build.
 - These are single runs on made-up scenes.
-  [How the cause was found](research/frame-skip#a-still-object-over-fast-ground-release-dll-2026-10-112).
+  [How the cause was found, and the settings that were compared](research/frame-skip#bright-dots-in-foliage-release-dll-2026-10-113).
 
-Earlier releases, including `dll-2026-10-11` (white beads on thin wires, particles closer to AMD's), `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
+Earlier releases, including `dll-2026-10-11.2` (a ghost behind bright objects over fast ground), `dll-2026-10-11` (white beads on thin wires, particles closer to AMD's), `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
 
 ## Will it work for me?
 

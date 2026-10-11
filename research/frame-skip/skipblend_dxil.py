@@ -6,7 +6,7 @@
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
 import os, re, sys
 # the changed-content tests of skipblend.py are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '1'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', '0.0 0.3')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', '0.0 0.3')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
