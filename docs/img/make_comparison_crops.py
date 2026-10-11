@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_comparison_crops.py <dir>: the comparison images of docs/exact-vs-lossy.md (cmp-still.png,
-# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png, cmp-plate.png, cmp-foliage-dots.png), from test-rig output (research/pruning: fsr4img with
+# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png, cmp-plate.png, cmp-foliage-dots.png, cmp-rain.png), from test-rig output (research/pruning: fsr4img with
 # gen_inputs.py / gen_motion.py, 4K Balanced, 40 frames, the last 8 kept). <dir> holds, for X = exact (the main
-# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-11.3):
+# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-11.7):
 #   still_X/                 output_3840x2160_f032..039.raw (RGBA16F), and still_truth.npy, the true 4K image
 #   wires_exact/, wires_rel/ (the lossy build of release dll-2026-10-10), wires_lossy/, wires_truth_037.npy   frame 37 of the thin-wire scene
 #   still_r9/, grain_X/, grain_r9/   the same frames with the lossy build of release dll-2026-10-09 (r9), and of the still scene
@@ -98,6 +98,31 @@ if sys.argv[2:3] == ['plate']:      # make_comparison_crops.py <dir> plate : onl
           [('', [('true image', rgb8(zoom(cp(tru), 2))), ("exact files (= AMD's)", rgb8(zoom(cp(T['exact']), 2))),
                  ('lossy, release dll-2026-10-11', rgb8(zoom(cp(T['r11']), 2))), ('lossy, this release', rgb8(zoom(cp(T['lossy']), 2)))])],
           'cmp-plate.png', note='Mean error against the true image in this piece, of 255: exact %.2f, dll-2026-10-11 %.2f, this release %.2f.' % (err['exact'], err['r11'], err['lossy']))
+    sys.exit(0)
+
+if sys.argv[2:3] == ['rain']:      # make_comparison_crops.py <dir> rain : only cmp-rain.png (needs only the rain_* data)
+    # ---- rain without motion vectors over a dark surface, camera still (research/pruning/rain.py: FF_MODE=rain FF_P=0.0005 FF_B=0.15 FF_R=12
+    # RAIN_S=30), frame 39; rain_exact/, rain_r6/ (the lossy build of release dll-2026-10-11.6), rain_lossy/, rain_input_039.raw (the render-size
+    # frame the game hands over, 2260x1272 RGBA16F) and rain_panel.npy (the surface without rain)
+    RW, RH = 2260, 1272
+    px0, px1, py0, py1 = 1120 + 24, (1120 + 2720) // 2 - 24, 480 + 24, 1680 - 24      # the half of the panel with rain (rain.py), clear of its edges
+    pan = srgb(np.load(f'{D}/rain_panel.npy')); T = {k: load(f'rain_{k}', 39) for k in ('exact', 'r6', 'lossy')}
+    lv = lambda a: a.mean(2) * 255
+    over = {k: (lv(v) - lv(pan) > 20) for k, v in T.items()}
+    per = {k: v[py0:py1, px0:px1].mean() * 1e6 for k, v in over.items()}
+    kw, kh = 200, 130
+    a = over['r6'][py0:py1, px0:px1].astype(np.float32); c = np.cumsum(np.cumsum(np.pad(a, ((1, 0), (1, 0))), 0), 1)
+    sm = c[kh:, kw:] - c[:-kh, kw:] - c[kh:, :-kw] + c[:-kh, :-kw]; y, x = np.unravel_index(np.argmax(sm), sm.shape); y += py0; x += px0
+    cp = lambda a: a[y:y + kh, x:x + kw]
+    cnt = {k: int(cp(v).sum()) for k, v in over.items()}
+    inp = srgb(np.fromfile(f'{D}/rain_input_039.raw', dtype=np.float16).reshape(RH, RW, 4)[:, :, :3])
+    iy = (np.arange(y, y + kh) * RH // H); ix = (np.arange(x, x + kw) * RW // W); game = inp[iy][:, ix]      # the same piece of the game's frame, nearest pixel
+    print('rain: window', x, y, 'pixels more than 20 levels above the surface, per million, in the rain half', {k: round(float(v)) for k, v in per.items()}, 'in the piece', cnt)
+    sheet('Rain drawn without motion vectors, on a frame that skips the network',
+          f'Faint streaks one rendered pixel wide falling fast over a dark surface, camera still. A {kw} x {kh} pixel piece, enlarged 3 times.\nUnder each: pixels in this piece more than 20 of 255 brighter than the surface.',
+          [('', [("the game's frame (what FSR is given)", rgb8(zoom(game, 3))), (f"exact files (= AMD's): {cnt['exact']}", rgb8(zoom(cp(T['exact']), 3))),
+                 (f"lossy, release dll-2026-10-11.6: {cnt['r6']}", rgb8(zoom(cp(T['r6']), 3))), (f"lossy, this release: {cnt['lossy']}", rgb8(zoom(cp(T['lossy']), 3)))])],
+          'cmp-rain.png', note='AMD\'s shaders blend streaks this faint and fast into the surface. Whole rain area, such pixels per million: exact %d, dll-2026-10-11.6 %d, this release %d.' % (round(per['exact']), round(per['r6']), round(per['lossy'])))
     sys.exit(0)
 
 if sys.argv[2:3] == ['dots']:      # make_comparison_crops.py <dir> dots : only cmp-foliage-dots.png (needs only the dots_* data)
