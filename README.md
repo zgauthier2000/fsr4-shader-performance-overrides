@@ -130,6 +130,7 @@ One test scene on one graphics card; [the comparison page](docs/upscaler-compari
 
 **The technical pages behind this release:**
 
+- [The exact files beside a "steady" test build](docs/steady-test.md): an unreleased experiment with this release's rule on the exact files, without frame skip
 - [Why folding steadied the picture, and what replaced it](research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114): the network's weight for the new frame, the one-step flicker, the price in lag, and the dead band
 - [Bright dots in foliage](research/frame-skip#bright-dots-in-foliage-release-dll-2026-10-113): why sky seen through leaves was shown as sparks, and the settings that were compared
 - [A still object over fast ground](research/frame-skip#a-still-object-over-fast-ground-release-dll-2026-10-112): why release `dll-2026-10-11` left a ghost there, and the two fixes that were tried
@@ -182,6 +183,14 @@ How much each pixel changes from frame to frame with nothing moving:
 - **Not checked:** games. This was measured in the test rig only, on one graphics card.
 - These are single runs on made-up scenes.
   [How the cause was found, and the three ways of using it that were compared](research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
+
+> [!NOTE]
+> **An experiment that came out of this: the same rule on the exact files.** The new rule does not need frame skip. Added to the
+> exact files it gives, in the test rig, AMD's picture at the exact DLL's speed with less than half the shimmer at rest, a still
+> picture 0.09 dB closer to the true image, and everything that moves the same as AMD's to within small fractions of a decibel.
+> It would no longer be AMD's picture byte for byte, so it is not in the exact DLL and **not in any download yet**; it is an
+> unreleased test. [The exact files beside the "steady" test build](docs/steady-test.md), with pictures and a chart that places it
+> among FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR and XeSS.
 
 Earlier releases, including `dll-2026-10-11.3` (fewer bright dots in foliage), `dll-2026-10-11.2` (a ghost behind bright objects over fast ground), `dll-2026-10-11` (white beads on thin wires, particles closer to AMD's), `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
 
