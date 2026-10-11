@@ -75,6 +75,26 @@ than a tenth of the smallest step a monitor shows.
 | After a sudden change of 20%: share still missing one frame later, bright flat areas | 4% | 4% | level |
 | Time per frame at 4K / 1440p / 1080p | 3.18 / 1.46 / 0.91 ms | 3.18 / 1.45 / 0.92 ms | level |
 
+## Among the other upscalers
+
+The same nine measures for the steady test build, AMD's FSR 4.1.1 (whose picture the exact files give), this project's
+lossy DLL, FSR 3.1, HelixSR and XeSS. The other five columns are those of [the upscaler comparison](upscaler-comparison.md):
+the same scenes, the same settings, one run each.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/steady-quality-dark.svg">
+  <img src="img/steady-quality-light.svg" width="760" alt="Nine quality measures for six upscalers, each as dots on its own scale; the steady test build is the one this page is about. Still picture (accuracy, dB; higher is better): FSR 4.1.1 (= exact) 44.3, Steady test 44.4, Lossy 44.3, FSR 3.1 39.9, HelixSR 42.0, XeSS 42.1. Shimmer at rest (change per frame, of 255; lower is better): FSR 4.1.1 (= exact) 0.037, Steady test 0.026, Lossy 0.024, FSR 3.1 0.014, HelixSR 0.020, XeSS 0.084. Moving background (accuracy, dB; higher is better): FSR 4.1.1 (= exact) 49.3, Steady test 49.4, Lossy 49.1, FSR 3.1 48.0, HelixSR 46.9, XeSS 47.7. Moving background (change per frame, of 255; lower is better): FSR 4.1.1 (= exact) 0.079, Steady test 0.067, Lossy 0.024, FSR 3.1 0.077, HelixSR 0.193, XeSS 0.085. Just-uncovered areas (accuracy in motion, dB; higher is better): FSR 4.1.1 (= exact) 34.5, Steady test 34.4, Lossy 36.5, FSR 3.1 29.2, HelixSR 27.1, XeSS 30.2. Tiny fast sparks (share of brightness shown, %; higher is better): FSR 4.1.1 (= exact) 83, Steady test 83, Lossy 75, FSR 3.1 40, HelixSR 79, XeSS 50. Swaying foliage (error, of 255; lower is better): FSR 4.1.1 (= exact) 12.1, Steady test 12.2, Lossy 18.6, FSR 3.1 16.8, HelixSR 15.5, XeSS 15.5. Thin wire, slow pan (change per frame, of 255; lower is better): FSR 4.1.1 (= exact) 7.2, Steady test 7.2, Lossy 14.6, FSR 3.1 8.2, HelixSR 5.6, XeSS 10.1. Film grain (10 of 255) (change per frame, of 255; lower is better): FSR 4.1.1 (= exact) 1.72, Steady test 1.72, Lossy 1.08, FSR 3.1 0.31, HelixSR 0.30, XeSS 0.23.">
+</picture>
+
+- **It sits on FSR 4.1.1 in seven of the nine panels,** as it should: it is FSR 4.1.1's network on every frame. Still picture,
+  moving background, just-uncovered areas, sparks, foliage, the thin wire and film grain are FSR 4's figures to within a hair.
+- **It moves in the two steadiness panels.** At rest it shimmers about as little as the lossy DLL and less than FSR 4 and XeSS;
+  FSR 3.1 and HelixSR are steadier still, with a less accurate picture. A moving background is 15% steadier than FSR 4's.
+- **What it does not get from the lossy DLL:** that build's lead in just-uncovered areas, its steadier moving background and its
+  lower film grain all come with frame skip, and so does its speed. And it does not have the lossy DLL's weak spots either:
+  swaying foliage and a thin wire in a slow pan are at FSR 4's level.
+- The lossy column is the build of release `dll-2026-10-11.4`.
+
 ## What it costs
 
 - **A slow change with nothing moving is followed a little later:** a third of a frame in bright areas, up to

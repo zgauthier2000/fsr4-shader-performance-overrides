@@ -1,0 +1,248 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="742" viewBox="0 0 760 742" role="img" aria-label="Nine quality measures for six upscalers, each as dots on its own scale; the steady test build is the one this page is about. Still picture (accuracy, dB; higher is better): FSR 4.1.1 (= exact) 44.3, Steady test 44.4, Lossy 44.3, FSR 3.1 39.9, HelixSR 42.0, XeSS 42.1. Shimmer at rest (change per frame, of 255; lower is better): FSR 4.1.1 (= exact) 0.037, Steady test 0.026, Lossy 0.024, FSR 3.1 0.014, HelixSR 0.020, XeSS 0.084. Moving background (accuracy, dB; higher is better): FSR 4.1.1 (= exact) 49.3, Steady test 49.4, Lossy 49.1, FSR 3.1 48.0, HelixSR 46.9, XeSS 47.7. Moving background (change per frame, of 255; lower is better): FSR 4.1.1 (= exact) 0.079, Steady test 0.067, Lossy 0.024, FSR 3.1 0.077, HelixSR 0.193, XeSS 0.085. Just-uncovered areas (accuracy in motion, dB; higher is better): FSR 4.1.1 (= exact) 34.5, Steady test 34.4, Lossy 36.5, FSR 3.1 29.2, HelixSR 27.1, XeSS 30.2. Tiny fast sparks (share of brightness shown, %; higher is better): FSR 4.1.1 (= exact) 83, Steady test 83, Lossy 75, FSR 3.1 40, HelixSR 79, XeSS 50. Swaying foliage (error, of 255; lower is better): FSR 4.1.1 (= exact) 12.1, Steady test 12.2, Lossy 18.6, FSR 3.1 16.8, HelixSR 15.5, XeSS 15.5. Thin wire, slow pan (change per frame, of 255; lower is better): FSR 4.1.1 (= exact) 7.2, Steady test 7.2, Lossy 14.6, FSR 3.1 8.2, HelixSR 5.6, XeSS 10.1. Film grain (10 of 255) (change per frame, of 255; lower is better): FSR 4.1.1 (= exact) 1.72, Steady test 1.72, Lossy 1.08, FSR 3.1 0.31, HelixSR 0.30, XeSS 0.23.">
+<rect x="0.0" y="0.0" width="760.0" height="742.0" rx="8" fill="#1a1a19"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">Picture quality: the steady test build among the others</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Each panel has its own scale. The better end of every scale is on the right. Test rig, 4K output, one card.</text>
+<text x="20.0" y="90.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Still picture</text>
+<text x="20.0" y="106.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">accuracy, dB; higher is better</text>
+<text x="20.0" y="132.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 4.1.1 (= exact)</text>
+<line x1="136.0" y1="128.0" x2="210.0" y2="128.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="201.6" cy="128" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="132.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">44.3</text>
+<text x="20.0" y="156.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">Steady test</text>
+<line x1="136.0" y1="152.0" x2="210.0" y2="152.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="202.8" cy="152" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="156.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">44.4</text>
+<text x="20.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Lossy</text>
+<line x1="136.0" y1="176.0" x2="210.0" y2="176.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="201.4" cy="176" r="5" fill="#d95926" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">44.3</text>
+<text x="20.0" y="204.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 3.1</text>
+<line x1="136.0" y1="200.0" x2="210.0" y2="200.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="143.2" cy="200" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="204.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">39.9</text>
+<text x="20.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">HelixSR</text>
+<line x1="136.0" y1="224.0" x2="210.0" y2="224.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="170.5" cy="224" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">42.0</text>
+<text x="20.0" y="252.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">XeSS</text>
+<line x1="136.0" y1="248.0" x2="210.0" y2="248.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="172.5" cy="248" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="252.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">42.1</text>
+<text x="210.0" y="268.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">better →</text>
+<text x="264.0" y="90.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Shimmer at rest</text>
+<text x="264.0" y="106.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">change per frame, of 255; lower is better</text>
+<text x="264.0" y="132.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 4.1.1 (= exact)</text>
+<line x1="380.0" y1="128.0" x2="454.0" y2="128.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="427.2" cy="128" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="132.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.037</text>
+<text x="264.0" y="156.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">Steady test</text>
+<line x1="380.0" y1="152.0" x2="454.0" y2="152.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="436.6" cy="152" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="156.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">0.026</text>
+<text x="264.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Lossy</text>
+<line x1="380.0" y1="176.0" x2="454.0" y2="176.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="438.3" cy="176" r="5" fill="#d95926" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.024</text>
+<text x="264.0" y="204.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 3.1</text>
+<line x1="380.0" y1="200.0" x2="454.0" y2="200.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="446.8" cy="200" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="204.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.014</text>
+<text x="264.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">HelixSR</text>
+<line x1="380.0" y1="224.0" x2="454.0" y2="224.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="441.7" cy="224" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.020</text>
+<text x="264.0" y="252.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">XeSS</text>
+<line x1="380.0" y1="248.0" x2="454.0" y2="248.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="387.2" cy="248" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="252.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.084</text>
+<text x="454.0" y="268.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">better →</text>
+<text x="508.0" y="90.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Moving background</text>
+<text x="508.0" y="106.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">accuracy, dB; higher is better</text>
+<text x="508.0" y="132.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 4.1.1 (= exact)</text>
+<line x1="624.0" y1="128.0" x2="698.0" y2="128.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="688.4" cy="128" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="132.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">49.3</text>
+<text x="508.0" y="156.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">Steady test</text>
+<line x1="624.0" y1="152.0" x2="698.0" y2="152.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="690.8" cy="152" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="156.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">49.4</text>
+<text x="508.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Lossy</text>
+<line x1="624.0" y1="176.0" x2="698.0" y2="176.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="683.5" cy="176" r="5" fill="#d95926" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">49.1</text>
+<text x="508.0" y="204.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 3.1</text>
+<line x1="624.0" y1="200.0" x2="698.0" y2="200.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="656.3" cy="200" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="204.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">48.0</text>
+<text x="508.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">HelixSR</text>
+<line x1="624.0" y1="224.0" x2="698.0" y2="224.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="631.2" cy="224" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">46.9</text>
+<text x="508.0" y="252.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">XeSS</text>
+<line x1="624.0" y1="248.0" x2="698.0" y2="248.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="650.2" cy="248" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="252.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">47.7</text>
+<text x="698.0" y="268.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">better →</text>
+<text x="20.0" y="310.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Moving background</text>
+<text x="20.0" y="326.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">change per frame, of 255; lower is better</text>
+<text x="20.0" y="352.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 4.1.1 (= exact)</text>
+<line x1="136.0" y1="348.0" x2="210.0" y2="348.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="183.4" cy="348" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="352.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.079</text>
+<text x="20.0" y="376.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">Steady test</text>
+<line x1="136.0" y1="372.0" x2="210.0" y2="372.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="187.7" cy="372" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="376.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">0.067</text>
+<text x="20.0" y="400.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Lossy</text>
+<line x1="136.0" y1="396.0" x2="210.0" y2="396.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="202.8" cy="396" r="5" fill="#d95926" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="400.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.024</text>
+<text x="20.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 3.1</text>
+<line x1="136.0" y1="420.0" x2="210.0" y2="420.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="184.1" cy="420" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.077</text>
+<text x="20.0" y="448.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">HelixSR</text>
+<line x1="136.0" y1="444.0" x2="210.0" y2="444.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="143.2" cy="444" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="448.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.193</text>
+<text x="20.0" y="472.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">XeSS</text>
+<line x1="136.0" y1="468.0" x2="210.0" y2="468.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="181.3" cy="468" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="472.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.085</text>
+<text x="210.0" y="488.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">better →</text>
+<text x="264.0" y="310.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Just-uncovered areas</text>
+<text x="264.0" y="326.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">accuracy in motion, dB; higher is better</text>
+<text x="264.0" y="352.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 4.1.1 (= exact)</text>
+<line x1="380.0" y1="348.0" x2="454.0" y2="348.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="434.1" cy="348" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="352.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">34.5</text>
+<text x="264.0" y="376.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">Steady test</text>
+<line x1="380.0" y1="372.0" x2="454.0" y2="372.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="433.5" cy="372" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="376.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">34.4</text>
+<text x="264.0" y="400.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Lossy</text>
+<line x1="380.0" y1="396.0" x2="454.0" y2="396.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="446.8" cy="396" r="5" fill="#d95926" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="400.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">36.5</text>
+<text x="264.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 3.1</text>
+<line x1="380.0" y1="420.0" x2="454.0" y2="420.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="400.6" cy="420" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">29.2</text>
+<text x="264.0" y="448.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">HelixSR</text>
+<line x1="380.0" y1="444.0" x2="454.0" y2="444.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="387.2" cy="444" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="448.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">27.1</text>
+<text x="264.0" y="472.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">XeSS</text>
+<line x1="380.0" y1="468.0" x2="454.0" y2="468.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="406.8" cy="468" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="472.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">30.2</text>
+<text x="454.0" y="488.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">better →</text>
+<text x="508.0" y="310.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Tiny fast sparks</text>
+<text x="508.0" y="326.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">share of brightness shown, %; higher is better</text>
+<text x="508.0" y="352.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 4.1.1 (= exact)</text>
+<line x1="624.0" y1="348.0" x2="698.0" y2="348.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="690.8" cy="348" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="352.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">83</text>
+<text x="508.0" y="376.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">Steady test</text>
+<line x1="624.0" y1="372.0" x2="698.0" y2="372.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="690.8" cy="372" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="376.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">83</text>
+<text x="508.0" y="400.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Lossy</text>
+<line x1="624.0" y1="396.0" x2="698.0" y2="396.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="679.7" cy="396" r="5" fill="#d95926" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="400.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">75</text>
+<text x="508.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 3.1</text>
+<line x1="624.0" y1="420.0" x2="698.0" y2="420.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="631.2" cy="420" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">40</text>
+<text x="508.0" y="448.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">HelixSR</text>
+<line x1="624.0" y1="444.0" x2="698.0" y2="444.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="685.3" cy="444" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="448.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">79</text>
+<text x="508.0" y="472.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">XeSS</text>
+<line x1="624.0" y1="468.0" x2="698.0" y2="468.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="645.0" cy="468" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="472.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">50</text>
+<text x="698.0" y="488.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">better →</text>
+<text x="20.0" y="530.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Swaying foliage</text>
+<text x="20.0" y="546.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">error, of 255; lower is better</text>
+<text x="20.0" y="572.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 4.1.1 (= exact)</text>
+<line x1="136.0" y1="568.0" x2="210.0" y2="568.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="202.8" cy="568" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="572.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">12.1</text>
+<text x="20.0" y="596.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">Steady test</text>
+<line x1="136.0" y1="592.0" x2="210.0" y2="592.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="201.9" cy="592" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="596.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">12.2</text>
+<text x="20.0" y="620.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Lossy</text>
+<line x1="136.0" y1="616.0" x2="210.0" y2="616.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="143.2" cy="616" r="5" fill="#d95926" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="620.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">18.6</text>
+<text x="20.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 3.1</text>
+<line x1="136.0" y1="640.0" x2="210.0" y2="640.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="159.7" cy="640" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">16.8</text>
+<text x="20.0" y="668.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">HelixSR</text>
+<line x1="136.0" y1="664.0" x2="210.0" y2="664.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="171.6" cy="664" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="668.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">15.5</text>
+<text x="20.0" y="692.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">XeSS</text>
+<line x1="136.0" y1="688.0" x2="210.0" y2="688.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="171.6" cy="688" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="218.0" y="692.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">15.5</text>
+<text x="210.0" y="708.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">better →</text>
+<text x="264.0" y="530.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Thin wire, slow pan</text>
+<text x="264.0" y="546.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">change per frame, of 255; lower is better</text>
+<text x="264.0" y="572.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 4.1.1 (= exact)</text>
+<line x1="380.0" y1="568.0" x2="454.0" y2="568.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="436.2" cy="568" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="572.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">7.2</text>
+<text x="264.0" y="596.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">Steady test</text>
+<line x1="380.0" y1="592.0" x2="454.0" y2="592.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="436.2" cy="592" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="596.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">7.2</text>
+<text x="264.0" y="620.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Lossy</text>
+<line x1="380.0" y1="616.0" x2="454.0" y2="616.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="387.2" cy="616" r="5" fill="#d95926" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="620.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">14.6</text>
+<text x="264.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 3.1</text>
+<line x1="380.0" y1="640.0" x2="454.0" y2="640.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="429.6" cy="640" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">8.2</text>
+<text x="264.0" y="668.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">HelixSR</text>
+<line x1="380.0" y1="664.0" x2="454.0" y2="664.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="446.8" cy="664" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="668.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">5.6</text>
+<text x="264.0" y="692.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">XeSS</text>
+<line x1="380.0" y1="688.0" x2="454.0" y2="688.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="417.0" cy="688" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="462.0" y="692.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">10.1</text>
+<text x="454.0" y="708.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">better →</text>
+<text x="508.0" y="530.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Film grain (10 of 255)</text>
+<text x="508.0" y="546.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">change per frame, of 255; lower is better</text>
+<text x="508.0" y="572.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 4.1.1 (= exact)</text>
+<line x1="624.0" y1="568.0" x2="698.0" y2="568.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="631.2" cy="568" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="572.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">1.72</text>
+<text x="508.0" y="596.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">Steady test</text>
+<line x1="624.0" y1="592.0" x2="698.0" y2="592.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="631.2" cy="592" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="596.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#ffffff">1.72</text>
+<text x="508.0" y="620.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">Lossy</text>
+<line x1="624.0" y1="616.0" x2="698.0" y2="616.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="656.8" cy="616" r="5" fill="#d95926" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="620.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">1.08</text>
+<text x="508.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">FSR 3.1</text>
+<line x1="624.0" y1="640.0" x2="698.0" y2="640.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="687.6" cy="640" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.31</text>
+<text x="508.0" y="668.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">HelixSR</text>
+<line x1="624.0" y1="664.0" x2="698.0" y2="664.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="688.0" cy="664" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="668.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.30</text>
+<text x="508.0" y="692.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">XeSS</text>
+<line x1="624.0" y1="688.0" x2="698.0" y2="688.0" stroke="#2c2c2a" stroke-width="1"/>
+<circle cx="690.8" cy="688" r="5" fill="#6d6c66" stroke="#1a1a19" stroke-width="2"/>
+<text x="706.0" y="692.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#c3c2b7">0.23</text>
+<text x="698.0" y="708.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">better →</text>
+</svg>

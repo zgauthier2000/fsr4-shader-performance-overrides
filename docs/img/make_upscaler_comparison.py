@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_upscaler_comparison.py [<dir>]: the figures of docs/upscaler-comparison.md.
-#   cmp5-quality-{light,dark}.svg, cmp5-speed-{light,dark}.svg, cmp5-tradeoff-{light,dark}.svg: charts; the numbers in them are the
+#   cmp5-quality-{light,dark}.svg, cmp5-speed-{light,dark}.svg, cmp5-tradeoff-{light,dark}.svg, steady-quality-{light,dark}.svg (for docs/steady-test.md): charts; the numbers in them are the
 #       tables of that page (test rig, 4K output from 2260x1272, Radeon RX 7800 XT under Proton, single runs).
 #   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-big.png (large particles), cmp5-plate.png, cmp5-dots.png (frame 39 of the plate scene and of the hard-sampled foliage scene): the same piece of one frame from the
 #       five upscalers beside the true image. <dir> holds <scene>_<name>/output_3840x2160_f037.raw (RGBA16F) for scene in still,
@@ -87,6 +87,48 @@ def tradeoff(t):
         o += [f'<circle cx="{X(ms):.1f}" cy="{Y(db):.1f}" r="6" fill="{t[color(n)]}" stroke="{t["surface"]}" stroke-width="2"/>',
               text(X(ms) + dx, Y(db) + dy, n, t, 11.5, 'ink' if ours else 'ink2', an, 600 if ours else None)]
     return o
+
+
+# ---- docs/steady-test.md: the unreleased "steady" test build (the exact files with the postpass's dead band, no frame skip) among the others.
+# FSR 4.1.1's column is also the exact files'. Same scenes and runs as above; the steady build's own figures are on that page.
+S_NAMES = ['FSR 4.1.1 (= exact)', 'Steady test', 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
+S_QUALITY = [
+    ('Still picture', 'accuracy, dB', [44.33, 44.42, 44.31, 39.94, 41.99, 42.14], '{:.1f}', True),
+    ('Shimmer at rest', 'change per frame, of 255', [0.037, 0.026, 0.024, 0.014, 0.020, 0.084], '{:.3f}', False),
+    ('Moving background', 'accuracy, dB', [49.27, 49.37, 49.07, 47.95, 46.92, 47.70], '{:.1f}', True),
+    ('Moving background', 'change per frame, of 255', [0.079, 0.067, 0.024, 0.077, 0.193, 0.085], '{:.3f}', False),
+    ('Just-uncovered areas', 'accuracy in motion, dB', [34.48, 34.38, 36.48, 29.22, 27.11, 30.20], '{:.1f}', True),
+    ('Tiny fast sparks', 'share of brightness shown, %', [83, 83, 75, 40, 79, 50], '{:.0f}', True),
+    ('Swaying foliage', 'error, of 255', [12.1, 12.2, 18.6, 16.8, 15.5, 15.5], '{:.1f}', False),
+    ('Thin wire, slow pan', 'change per frame, of 255', [7.2, 7.2, 14.6, 8.2, 5.6, 10.1], '{:.1f}', False),
+    ('Film grain (10 of 255)', 'change per frame, of 255', [1.72, 1.72, 1.08, 0.31, 0.30, 0.23], '{:.2f}', False),
+]
+
+
+def steady_quality(t):
+    lab = 'Nine quality measures for six upscalers, each as dots on its own scale; the steady test build is the one this page is about. ' + ' '.join(
+        f"{ti} ({un}; {'higher' if up else 'lower'} is better): " + ', '.join(f'{n} {f.format(v)}' for n, v in zip(S_NAMES, vs)) + '.' for ti, un, vs, f, up in S_QUALITY)
+    o = frame(742, lab, 'Picture quality: the steady test build among the others', 'Each panel has its own scale. The better end of every scale is on the right. Test rig, 4K output, one card.', t)
+    pw, x0s = 232, (20, 264, 508)
+    for i, (ti, un, vs, f, up) in enumerate(S_QUALITY):
+        x0, y0 = x0s[i % 3], 78 + (i // 3) * 220
+        o += [text(x0, y0 + 12, ti, t, 13, 'ink', weight=600), text(x0, y0 + 28, f"{un}; {'higher' if up else 'lower'} is better", t, 10.5, 'muted')]
+        lo, hi = min(vs), max(vs); pad = (hi - lo) * 0.12 or 1
+        lo, hi = lo - pad, hi + pad
+        tx0, tx1 = x0 + 116, x0 + pw - 42
+        pos = lambda v: tx0 + (tx1 - tx0) * ((v - lo) / (hi - lo) if up else (hi - v) / (hi - lo))
+        for k, (n, v) in enumerate(zip(S_NAMES, vs)):
+            y = y0 + 50 + k * 24
+            ours = n == 'Steady test'; col = 'exact' if ours else 'lossy' if n == 'Lossy' else 'amd'
+            o += [text(x0, y + 4, n, t, 11, 'ink' if ours else 'ink2', weight=600 if ours else None), line(tx0, y, tx1, y, t, 'grid', 1),
+                  f'<circle cx="{pos(v):.1f}" cy="{y}" r="{6 if ours else 5}" fill="{t[col]}" stroke="{t["surface"]}" stroke-width="2"/>',
+                  text(tx1 + 8, y + 4, f.format(v), t, 11, 'ink' if ours else 'ink2', weight=600 if ours else None)]
+        o.append(text(tx1, y0 + 50 + 6 * 24 - 4, 'better →', t, 9.5, 'muted', 'end'))
+    return o
+
+
+for th, t in THEMES.items():
+    open(f'steady-quality-{th}.svg', 'w').write('\n'.join(steady_quality(t) + ['</svg>']) + '\n')
 
 
 for name, fn in (('quality', quality), ('speed', speed), ('tradeoff', tradeoff)):
