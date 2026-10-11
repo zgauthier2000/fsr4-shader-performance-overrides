@@ -73,6 +73,7 @@ Against the true image; higher dB is better, lower error is better.
 
 The lossy DLL is the only one of the five that leaves a visible trace of the object on the ground here, faint as it is. The object
 and the ground are at the same depth in this scene; with distinct depths the lossy DLL is at FSR 4's level (1.46 against 1.58).
+
 - **In swaying foliage it is the least accurate of the five.** Its picture there is averaged over about one more frame
   than FSR 4's ([why](exact-vs-lossy.md#limits-of-the-lossy-builds)).
 - **Bright dots in foliage:** sky seen through leaves and shown as single bright pixels. These two rows use inputs sampled as a
@@ -80,7 +81,12 @@ and the ground are at the same depth in this scene; with distinct depths the los
   with the camera still, behind FSR 4 and XeSS, and well behind HelixSR; under a pan it is level with FSR 4. Before release
   `dll-2026-10-11.3` it scored 1.93 and 0.60.
 
-<img src="img/cmp5-dots.png" width="760" alt="Dark green leaves swaying in front of a pale sky, camera still, hard-sampled inputs, a piece enlarged three times, as true image and from the five upscalers. All five show the leaves softer than the true image: FSR 4.1.1 is the closest (error 14.5 of 255), then FSR 3.1 (17.6), XeSS (18.3), HelixSR (19.1) and the lossy DLL (20.7), whose picture also has a few single-pixel specks.">
+The same thing as a picture: the piece of that scene where the lossy DLL shows the most such pixels, with the count under each panel.
+
+<img src="img/cmp5-dots.png" width="760" alt="Bright dots in foliage: dark green leaves swaying in front of a pale sky, camera still, hard-sampled inputs, on a frame the lossy DLL skips the network on; the piece where the lossy DLL shows the most single bright pixels inside the leaves, enlarged three times, as true image and from the five upscalers, with the number of such pixels under each: FSR 4.1.1 7, the lossy DLL 11, FSR 3.1 7, HelixSR 0, XeSS 11. All five show the leaves softer than the true image; the specks are small and few in each.">
+
+In this one piece and frame the lossy DLL and XeSS show 11, FSR 4 and FSR 3.1 show 7 and HelixSR none; the table's figures are over the whole
+foliage area and eight frames. The other three pictures below are of the scenes in the first rows of the table.
 
 <img src="img/cmp5-still.png" width="760" alt="Still picture, a 150 by 90 pixel piece of the 4K output enlarged four times, where the five upscalers differ most: a water tank with a thin ladder and railing. True image, then FSR 4.1.1 (error 2.3 of 255), the lossy DLL (2.5), FSR 3.1 (2.8), HelixSR (1.8) and XeSS (2.2). The ladder's thin rungs are clearest in HelixSR and FSR 4.1.1 and softest in FSR 3.1.">
 

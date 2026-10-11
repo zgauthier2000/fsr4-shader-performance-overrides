@@ -153,4 +153,33 @@ crops('sparks', 'Tiny fast sparks drawn without motion vectors', f'Camera still.
 crops('foliage', 'Leaves swaying without motion vectors, camera still', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (300, 300, 1900, 1850))
 crops('motion', 'Moving scene: fine stripes on a moving object', f'Camera panning. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (1900, 250, 3300, 1500))
 crops('plate', 'A still bright object over ground that moves fast', f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is, at the same depth.\nThe piece just below it where the five differ most, enlarged 2 times. {E}', 240, 160, 2, (2300, 800, 3100, 1000), frame=39)
-crops('dots', 'Sky seen through leaves', f'Dark leaves swaying in front of a bright sky, camera still, inputs sampled as a game samples them.\nThe piece where the five differ most, enlarged 3 times. {E}', 200, 130, 3, (250, 250, 1950, 1900), frame=39)
+# ---- bright dots in foliage: the piece of the hard-sampled foliage scene where the lossy DLL shows the most single bright pixels inside the leaves,
+# each panel with its count of them (as research/pruning/foliage_dots.py counts: more than 0.15 brighter than the median of the 3x3 surroundings, where
+# the true image is dark there)
+def dots_sheet(kw=200, kh=130, z=3, area=(250, 250, 1950, 1900)):
+    def med3(a_):
+        q = np.pad(a_, 1, mode='edge'); return np.median(np.stack([q[i:i + a_.shape[0], j:j + a_.shape[1]] for i in range(3) for j in range(3)]), 0)
+    x0, y0, x1, y1 = area
+    tru = srgb(np.load(f'{D}/dots_truth.npy').astype(np.float32))[y0:y1, x0:x1]
+    out = {k: srgb(np.fromfile(f'{D}/dots_{k}/output_3840x2160_f039.raw', dtype=np.float16).reshape(HH, WW, 4)[y0:y1, x0:x1, :3]) for k in KEYS}
+    dark = med3(tru.mean(2)) < 0.3
+    dots = {k: ((v.mean(2) - med3(v.mean(2)) > 0.15) & dark).astype(np.float32) for k, v in out.items()}
+    s_ = box(dots['lossy'], kh, kw); y, x = np.unravel_index(np.argmax(s_), s_.shape)
+    c = lambda a_: a_[y:y + kh, x:x + kw]
+    pic = lambda a_: (np.clip(np.repeat(np.repeat(c(a_), z, 0), z, 1), 0, 1) * 255 + 0.5).astype(np.uint8)
+    panels = [('true image', pic(tru))] + [(f'{n}: {int(c(dots[k]).sum())}', pic(out[k])) for n, k in zip(NAMES, KEYS)]
+    print('dots window', x + x0, y + y0, ' '.join(p_[0] for p_ in panels[1:]), '| whole area per thousand dark pixels:', ' '.join(f'{k} {dots[k].sum() / dark.sum() * 1000:.2f}' for k in KEYS))
+    title = 'Bright dots in foliage: sky seen through leaves'
+    sub = ('Dark leaves swaying in front of a bright sky, camera still, inputs sampled as a game samples them. A frame the lossy DLL skips the network on.\n'
+           'The piece where the lossy DLL shows the most single bright pixels inside the leaves, enlarged 3 times. Under each: how many it shows in this piece.')
+    pw, ph, gap, m = kw * z, kh * z, 14, 28
+    top = 112 + 28 * sub.count('\n')
+    im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
+    d.text((m, 22), title, font=font(30), fill=INK); d.multiline_text((m, 66), sub, font=font(20), fill=MUTED, spacing=8)
+    for i, (pl, a_) in enumerate(panels):
+        px, py = m + (i % 3) * (pw + gap), top + (i // 3) * (ph + 44)
+        im.paste(Image.fromarray(a_), (px, py)); d.text((px, py + ph + 6), pl, font=font(20), fill=INK if pl.startswith('Lossy') else MUTED)
+    im.save('cmp5-dots.png', optimize=True)
+
+
+dots_sheet()
