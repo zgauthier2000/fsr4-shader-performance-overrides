@@ -11,7 +11,7 @@ https://github.com/zgauthier2000/fsr4-shader-performance-overrides
 How to run it
   1. Unpack the whole folder somewhere (not inside the zip viewer).
   2. Close games, browsers and video players.
-  3. Double-click fsr4time.exe. It takes about seven minutes. Leave the PC alone while it runs.
+  3. Double-click fsr4time.exe. It takes about 15 to 20 minutes. Leave the PC alone while it runs.
   4. At the end it shows a summary, saves it as results-<time>.txt in this folder, and asks
      whether to send it to the project. Only the summary you see is sent. If you send it,
      you can also type a name or nickname for the project's thank-you page; that is
@@ -25,7 +25,9 @@ What it does
   For every folder in dlls\ it loads that upscaler DLL through AMD's FidelityFX loader, feeds it
   made-up frames at 1080p, 1440p and 4K output (render size as in the Balanced preset), with the
   picture still and with the camera moving, and measures the graphics card's time for each upscale
-  call: 200 calls after 40 to warm up. It also takes a fingerprint of the picture each DLL produces
+  call: 200 calls after 40 to warm up. Every DLL is timed twice, all of them in order and then
+  all of them in reverse order, so that a reading disturbed by something else on the PC shows up
+  as a difference between a DLL's two runs. It also takes a fingerprint of the picture each DLL produces
   from the still scene and from the moving one (its last frame), to show which DLLs give the
   same picture. (Kits before 2026-10-12.1 did this for the still scene only.)
 
@@ -42,6 +44,15 @@ What it does
                        small ones to how pixel positions are limited and halved. Rebuilt by this
                        project from AMD's shaders; it is not that project's file.
   dlls\2-exact         this project's exact DLL for RX 7000 and RX 6000 cards
+  dlls\2a-exact-postpass-only
+                       AMD's shaders with only one of the exact DLL's rewrites, that of the last
+                       shader (the postpass)
+  dlls\2b-exact-without-postpass
+                       AMD's shaders with all the other rewrites of the exact DLL (the first
+                       shader and some of the model's) and AMD's own last shader. These two show
+                       which part of the exact DLL saves time on your card and which does not;
+                       both must give the exact DLL's picture, except on RX 6000 cards, where
+                       2b keeps AMD's last shader and so is expected to give AMD's picture.
   dlls\3-lossy         its lossy DLL of release dll-2026-10-11.5 (faster; the picture is NOT the
                        same as AMD's)
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
@@ -53,9 +64,14 @@ What it does
   in dlls\6-411b. The summary then has a line for it at every size, with its time and with
   which of the DLLs above, if any, gives the same picture.
 
+  The DLL does not have to be FSR 4.1.1: any upscaler DLL that offers an FSR 4 version on your
+  card is timed, and one that offers several (variants of the model for different kinds of
+  graphics chip, for instance) gets a block of lines for each of them.
+
 Reading the summary
-  The numbers are milliseconds of graphics-card time per upscaled frame; lower is better. The
-  percentage compares with the first DLL. For a lossy DLL the two numbers in brackets are a frame
+  The numbers are milliseconds of graphics-card time per upscaled frame; lower is better. Each
+  is the mean of that DLL's two runs, and where the two differ by more than 3% both are given in
+  square brackets: treat such a line with caution. The percentage compares with the first DLL. For a lossy DLL the two numbers in brackets are a frame
   that runs FSR 4's model and a frame that skips it.
 
   After each run comes the picture's fingerprint. "= 1-amd-shaders" after it means the
@@ -69,6 +85,7 @@ Reading the summary
 
 Options (from a command prompt in this folder)
   fsr4time.exe --quick           1080p and 4K only
+  fsr4time.exe --once            every DLL timed once instead of twice (about half the time)
   fsr4time.exe --no-questions    no questions at the end, nothing is sent
 
 Other graphics cards

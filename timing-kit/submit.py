@@ -60,6 +60,12 @@ lines = [f'kit {open(os.path.join(kit, "VERSION")).read().strip() if os.path.exi
 vr = re.search(r'vram (\d+) MB, in use (\d+) MB, gtt (\d+) MB, in use (\d+) MB', sysinfo)
 if vr:
     lines.append(f'video memory: {vr[2]} of {vr[1]} MB in use before the run (shared: {vr[4]} of {vr[3]} MB)')
+card = (re.search(r'^GPU load is read from: (\S+)', sysinfo, re.M) or [None, ''])[1]
+pl = re.search(r'^' + re.escape(card) + r': PCIe link, card first then the ports above it: (.+?); first memory window (\S+) MB', sysinfo, re.M) if card else None
+if pl:
+    lines.append(f'PCIe link (card, then the ports above it): {pl[1]}; first memory window {pl[2]} MB')
+if load != '?' and int(load[:-1]) >= 15:
+    lines.append(f'NOTE: THE GPU WAS {load} BUSY BEFORE THE RUN. Readings from such a run have not been usable; please close what uses the GPU and run again.')
 ing = read('ingame.txt').strip()
 if ing:
     lines.append('in a game (tester, AMD ms / ours ms / where): ' + ing[:200])

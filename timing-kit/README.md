@@ -17,8 +17,8 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   and with this project's, without a game. It installs nothing and changes nothing.
 - **Why it exists:** the project is developed on one graphics card. What it does on every other chip is only known from
   what people measure and send in.
-- **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait about seven minutes.
-  On Linux or a Steam Deck in desktop mode, the Linux kit described below: one command, about 20 minutes, or two minutes
+- **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait about 15 to 20 minutes.
+  On Linux or a Steam Deck in desktop mode, the Linux kit described below: one command, about 16 minutes, or half a minute
   for the short run.
 - **The output check of the model passes now means something (kit 2026-10-10.1).** Earlier kits filled the small buffer that
   holds each pass's output scales and offsets with random bytes. That drove nearly every output to its limits, so a pass with
@@ -29,7 +29,12 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Linux kit version 2026-10-11.5** (download again if you have an earlier one): an optional name for the thank-you notes, the lossy shaders of release `dll-2026-10-11.4`, which are the same in `dll-2026-10-11.5` (that release changed only the lossy prepass, which this kit does not time)
+**Linux kit version 2026-10-12.1** (download again if you have an earlier one): a shorter full run, because three tests whose question is settled are
+gone (the two forms of the dot product, the earlier postpass candidates and the old postpass versions); the summary gives
+the PCIe link of the card and of the ports above it; the GPU load is read from the card that is tested, and when that card
+stays busy the script asks you to close what is using it before it goes on.
+
+From the versions before it: an optional name for the thank-you notes, the lossy shaders of release `dll-2026-10-11.4`, which are the same in `dll-2026-10-11.5` (that release changed only the lossy prepass, which this kit does not time)
 (its skipped-frame postpass, and the one model pass that build still changes slightly, pass 10, in the summary), a real output check for
 the model passes (see below), the 12
 model passes also timed in sequence, a whole-frame figure, an estimate for the lossy build's skipped frames, a warning when
@@ -43,8 +48,21 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) (150 MB, updated 2026-10-12) is a different program for the same purpose. Unpack it, close games and
-browsers, and double-click `fsr4time.exe`; it takes about seven minutes.
+[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip) (190 MB, updated 2026-10-12) is a different program for the same purpose. Unpack it, close games and
+browsers, and double-click `fsr4time.exe`; it takes about 15 to 20 minutes.
+
+**New in version 2026-10-12.2:**
+
+- **Two more DLLs, to show which part of the exact DLL saves time on a card:** AMD's shaders with only the rewritten last
+  shader (the postpass), and AMD's shaders with every other rewrite of the exact DLL. Under Proton on an RX 7800 XT at 4K
+  the first takes 32% off AMD's time, the second 5%, and the exact DLL with both 34% (one run of the kit).
+- **Every DLL is timed twice,** all of them in order and then all in reverse order. The summary gives the mean of the two
+  and both figures where they differ by more than 3%, so a disturbed reading can be told from a real difference.
+  `fsr4time.exe --once` times each once, as before.
+- **A DLL that offers more than one FSR 4 version is timed with each of them,** and the DLL no longer has to be 4.1.1.
+  AMD's 4.1.1 DLL offers one, so nothing changes for the DLLs in the kit; this is for other and later DLLs put into a new
+  folder under `dlls`. Tested here only by listing the one version twice.
+- The run is longer for it: the 15 to 20 minutes are an estimate from the number of runs (the kit before took about seven minutes with seven DLLs timed once); it has not been timed under Windows yet.
 
 - **What it times:** whole upscale calls, as a game makes them, through AMD's FidelityFX API on Direct3D 12, with each DLL in
   its `dlls` folder: AMD's shaders (the reference), this project's exact and lossy DLLs, and the two for integrated graphics.
@@ -82,21 +100,22 @@ Unpack the archive, open a terminal in the folder and type:
 
     bash run.sh
 
-That runs the full set, about 20 minutes on an RX 7800 XT:
+That runs the full set (kit 2026-10-12.1: about 16 minutes on an RX 7800 XT; earlier kits about 20 minutes):
 
 - every pass (prepass, model passes 1 to 12, postpass) at 1080p, 1440p and 4K output, AMD's
   against the rewrites;
-- the postpass comparison: AMD's postpass, the shipped rewrite, the candidate rewrites and AMD's
-  with its stores removed, and the RDNA2 dot-product test described above;
-- the pass 11 and postpass versions, the store probes and compiler statistics.
+- the postpass comparison: AMD's postpass, the shipped rewrite and AMD's with its stores removed
+  (kits up to 2026-10-11.5 also: earlier candidate rewrites and the RDNA2 dot-product test);
+- the pass 11 versions, the store probes and compiler statistics (kits up to 2026-10-11.5 also:
+  eight older postpass versions).
 
 Other ways to run it:
 
 | Command | What it runs | Time on an RX 7800 XT |
 |---|---|---|
-| `bash run.sh postpass` | only the postpass comparison and the dot-product test | about 2 minutes |
-| `bash run.sh quick` | every pass at the three sizes and the postpass comparison, without the versions and probes | about 12 minutes |
-| `bash run.sh traffic` | the full set, plus a capture of memory traffic with a bundled driver build | about 25 minutes |
+| `bash run.sh postpass` | only the postpass comparison | about half a minute |
+| `bash run.sh quick` | every pass at the three sizes and the postpass comparison, without the versions and probes | about 10 minutes |
+| `bash run.sh traffic` | the full set, plus a capture of memory traffic with a bundled driver build | a few minutes more than the full set |
 
 Slower GPUs take longer; an integrated GPU may take several times as long. Plug a laptop into the
 wall and close games and browsers first.
@@ -124,10 +143,14 @@ earlier run's summary.
   shader and the exact rewrite. Since kit 2026-10-09.1 also the 12 model passes in sequence, a whole-frame figure put
   together from prepass, sequence and postpass (the postpass read in both orders), and two probes of the lossy postpass on
   a skipped frame (estimates: every frame is treated as skipped, on made-up buffers).
-- **Four versions of model pass 11 and eight of the postpass,** to see which suits a GPU. The
-  integrated-GPU and RDNA2 builds differ from the main one in exactly these two places.
-- **The postpass on its own** at each size: AMD's, the shipped rewrite, the no-stores floor and
-  any candidate versions, with how each compiles.
+- **Four versions of model pass 11,** to see which suits a GPU: the two DLL flavors differ in this
+  pass. (Kits up to 2026-10-11.5 also timed eight older versions of the postpass.)
+- **The postpass on its own** at each size: AMD's, the shipped rewrite and the no-stores floor,
+  with how each compiles.
+- **How the card is connected** (kit 2026-10-12.1): the PCIe link speed and width of the card and
+  of the ports above it, and the size of its first memory window. On two cards so far the kit's
+  readings were unusable because writes to memory took far too long, and this is there to find
+  out why.
 - **Probes with the stores removed,** which show how much of a pass's time goes to writing.
 - **Compiler statistics** for a few shaders as your GPU's driver compiles them: registers, waves
   per SIMD, instruction counts.

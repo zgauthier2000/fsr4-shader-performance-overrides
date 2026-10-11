@@ -3,10 +3,13 @@
 // Direct3D 12, with each upscaler DLL found in the folders next to it (dlls\<name>\amd_fidelityfx_upscaler_dx12.dll),
 // on made-up frames. No game, no OptiScaler. Derived from research/pruning/fsr4img.c.
 //
-//   fsr4time.exe            runs every DLL in dlls\ at 1080p, 1440p and 4K output, still and moving picture,
-//                           prints a summary, saves it as results-<time>.txt and offers to send it
+//   fsr4time.exe            runs every DLL in dlls\ at 1080p, 1440p and 4K output, still and moving picture, twice
+//                           (the DLLs in name order, then in reverse order), prints a summary, saves it as
+//                           results-<time>.txt and offers to send it
 //   fsr4time.exe --run <name> <results file>     (used by the first form: one DLL, in a process of its own)
 //   fsr4time.exe --quick    1080p and 4K only
+//   fsr4time.exe --once     every DLL timed once instead of twice
+//   fsr4time.exe --no-questions   asks nothing at the end and sends nothing
 //   fsr4time.exe --send-test   sends one message that says it is a test (to check that sending works)
 //
 // What is timed: the GPU time of one upscale call (prepass, 12 model passes, postpass and the small shaders around
@@ -37,7 +40,7 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-12.1, experimental"
+#define KIT_VERSION "windows 2026-10-12.2, experimental"
 #define WARM 40
 #define TIMED 200
 #define PHASES 16
@@ -226,11 +229,15 @@ static int RunOne(const char* name, bool quick) {
     if (count > 32) count = 32;
     versions.versionIds = ids; versions.versionNames = names;
     ffx.Query(NULL, &versions.header);
-    uint64_t chosen = 0;
-    const char* chosen_name = "";
+    // every FSR 4 version the DLL offers on this GPU is timed. AMD's 4.1.1 DLL offers one here; a DLL that carries several
+    // variants of the model (say one per GPU generation) gets a block of lines for each, in the order the DLL lists them
+    uint64_t vid[8];
+    const char* vname[8];
+    int nv = 0;
     for (uint64_t i = 0; i < count; ++i)
-        if (!chosen && strstr(names[i], "4.1.1")) { chosen = ids[i]; chosen_name = names[i]; }
-    if (!chosen) { Say("R|%s|FAILED|this DLL offers no FSR 4.1.1 on this GPU (%llu versions listed)\n", name, (unsigned long long)count); return 1; }
+        if (nv < 8 && !strncmp(names[i], "4.", 2)) { vid[nv] = ids[i]; vname[nv++] = names[i]; }
+    if (getenv("FSR4TIME_TWICE") && nv == 1) { vid[1] = vid[0]; vname[1] = vname[0]; nv = 2; }      // for testing the lines of a DLL with two variants: the one version, listed twice
+    if (!nv) { Say("R|%s|FAILED|this DLL offers no FSR 4 on this GPU (%llu versions listed)\n", name, (unsigned long long)count); return 1; }
     Say("G|%s\n", gpu);
 
     static const struct { UINT ow, oh, rw, rh; } sizes[] = {{1920, 1080, 1130, 636}, {2560, 1440, 1506, 848}, {3840, 2160, 2260, 1272}};
@@ -241,94 +248,102 @@ static int RunOne(const char* name, bool quick) {
     UINT64 freq = 0;
     CHECK(ID3D12CommandQueue_GetTimestampFrequency(queue, &freq));
 
-    for (int si = 0; si < 3; ++si) {
-        if (quick && si == 1) continue;
-        const UINT ow = sizes[si].ow, oh = sizes[si].oh, rw = sizes[si].rw, rh = sizes[si].rh;
-        struct ffxCreateBackendDX12Desc backend = {0};
-        backend.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12; backend.device = device;
-        struct ffxOverrideVersion ov = {0};
-        ov.header.type = FFX_API_DESC_TYPE_OVERRIDE_VERSION; ov.versionId = chosen; ov.header.pNext = &backend.header;
-        ID3D12Resource* color[PHASES];
-        for (int p = 0; p < PHASES; ++p) color[p] = Texture(DXGI_FORMAT_R16G16B16A16_FLOAT, rw, rh, false);
-        ID3D12Resource* depth = Texture(DXGI_FORMAT_R32_FLOAT, rw, rh, false);
-        ID3D12Resource* motion = Texture(DXGI_FORMAT_R16G16_FLOAT, rw, rh, false);
-        ID3D12Resource* output = Texture(DXGI_FORMAT_R16G16B16A16_FLOAT, ow, oh, true);
-        uint16_t* cbuf = malloc((size_t)rw * rh * 8);
-        float* dbuf = malloc((size_t)rw * rh * 4);
-        uint16_t* mbuf = malloc((size_t)rw * rh * 4);
-        for (size_t i = 0; i < (size_t)rw * rh; ++i) dbuf[i] = 0.5f;
-        UploadRows(depth, rw, rh, 4, (const uint8_t*)dbuf);
-        const float sx = (float)rw / (float)ow, sy = (float)rh / (float)oh;
-        for (int scene = 0; scene < 2; ++scene) {            // 0: nothing moves; 1: the camera pans 12, 6 output pixels per frame
-            const int vx = scene ? 12 : 0, vy = scene ? 6 : 0;
-            for (size_t i = 0; i < (size_t)rw * rh; ++i) { mbuf[2 * i] = Half((float)vx * sx); mbuf[2 * i + 1] = Half((float)vy * sy); }
-            UploadRows(motion, rw, rh, 4, (const uint8_t*)mbuf);
-            float jx[PHASES], jy[PHASES];
-            for (int p = 0; p < PHASES; ++p) {
-                jx[p] = Halton(p + 1, 2) - 0.5f; jy[p] = Halton(p + 1, 3) - 0.5f;
-                for (UINT y = 0; y < rh; ++y)
-                    for (UINT x = 0; x < rw; ++x) {
-                        float rgb[3];
-                        World(((float)x + 0.5f - jx[p]) / sx - 0.5f + (float)(vx * p), ((float)y + 0.5f - jy[p]) / sy - 0.5f + (float)(vy * p), rgb);
-                        uint16_t* q = cbuf + ((size_t)y * rw + x) * 4;
-                        q[0] = Half(rgb[0]); q[1] = Half(rgb[1]); q[2] = Half(rgb[2]); q[3] = Half(1.0f);
-                    }
-                UploadRows(color[p], rw, rh, 8, (const uint8_t*)cbuf);
-            }
-            struct ffxCreateContextDescUpscale create = {0};
-            create.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_UPSCALE; create.header.pNext = &ov.header;
-            create.flags = FFX_UPSCALE_ENABLE_HIGH_DYNAMIC_RANGE | FFX_UPSCALE_ENABLE_AUTO_EXPOSURE;
-            create.maxRenderSize.width = ow; create.maxRenderSize.height = oh; create.maxUpscaleSize.width = ow; create.maxUpscaleSize.height = oh;
-            create.fpMessage = Message;
-            ffxContext context = NULL;
-            ffxReturnCode_t rc = ffx.CreateContext(&context, &create.header, NULL);
-            if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|create context %d at %ux%u\n", name, (int)rc, ow, oh); return 1; }
-            struct ffxQueryGetProviderVersion provider = {0};
-            provider.header.type = FFX_API_QUERY_DESC_TYPE_GET_PROVIDER_VERSION;
-            ffx.Query(&context, &provider.header);
-            static double ms[TIMED], even[TIMED], odd[TIMED];
-            int ne = 0, no = 0;
-            for (int frame = 0; frame < WARM + TIMED; ++frame) {
-                const int p = frame % PHASES;
-                struct ffxDispatchDescUpscale d = {0};
-                d.header.type = FFX_API_DISPATCH_DESC_TYPE_UPSCALE; d.commandList = list;
-                d.color = Resource(color[p], FFX_API_SURFACE_FORMAT_R16G16B16A16_FLOAT, FFX_API_RESOURCE_STATE_COMMON);
-                d.depth = Resource(depth, FFX_API_SURFACE_FORMAT_R32_FLOAT, FFX_API_RESOURCE_STATE_COMMON);
-                d.motionVectors = Resource(motion, FFX_API_SURFACE_FORMAT_R16G16_FLOAT, FFX_API_RESOURCE_STATE_COMMON);
-                d.output = Resource(output, FFX_API_SURFACE_FORMAT_R16G16B16A16_FLOAT, FFX_API_RESOURCE_STATE_UNORDERED_ACCESS);
-                d.jitterOffset.x = jx[p]; d.jitterOffset.y = jy[p];
-                d.motionVectorScale.x = d.motionVectorScale.y = 1.0f;
-                d.renderSize.width = rw; d.renderSize.height = rh; d.upscaleSize.width = ow; d.upscaleSize.height = oh;
-                d.enableSharpening = false; d.sharpness = 0.5f; d.frameTimeDelta = 10.0f; d.preExposure = 1.0f; d.reset = frame == 0;
-                d.cameraNear = 0.05f; d.cameraFar = 3000.0f; d.cameraFovAngleVertical = 0.75f; d.viewSpaceToMetersFactor = 1.0f;
-                ID3D12GraphicsCommandList_EndQuery(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 0);
-                rc = ffx.Dispatch(&context, &d.header);
-                if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|dispatch %d at %ux%u\n", name, (int)rc, ow, oh); return 1; }
-                ID3D12GraphicsCommandList_EndQuery(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 1);
-                ID3D12GraphicsCommandList_ResolveQueryData(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 0, 2, qbuf, 0);
-                Submit();
-                if (frame >= WARM) {
-                    UINT64* t;
-                    D3D12_RANGE rr = {0, 16};
-                    CHECK(ID3D12Resource_Map(qbuf, 0, &rr, (void**)&t));
-                    const double v = (double)(t[1] - t[0]) * 1000.0 / (double)freq;
-                    ID3D12Resource_Unmap(qbuf, 0, NULL);
-                    ms[frame - WARM] = v;
-                    if (jx[p] < 0) odd[no++] = v; else even[ne++] = v;      // a lossy DLL skips the model where the jitter's x is negative
+    for (int vi = 0; vi < nv; ++vi) {
+        const uint64_t chosen = vid[vi];
+        const char* chosen_name = vname[vi];
+        char label[64], idtext[40] = "";      // with one variant the lines carry the folder's name alone, as before
+        if (nv == 1) snprintf(label, sizeof(label), "%s", name);
+        else { snprintf(label, sizeof(label), "%.40s, variant %d of %d", name, vi + 1, nv); snprintf(idtext, sizeof(idtext), ", id %llx", (unsigned long long)chosen); }
+        for (int si = 0; si < 3; ++si) {
+            if (quick && si == 1) continue;
+            const UINT ow = sizes[si].ow, oh = sizes[si].oh, rw = sizes[si].rw, rh = sizes[si].rh;
+            struct ffxCreateBackendDX12Desc backend = {0};
+            backend.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12; backend.device = device;
+            struct ffxOverrideVersion ov = {0};
+            ov.header.type = FFX_API_DESC_TYPE_OVERRIDE_VERSION; ov.versionId = chosen; ov.header.pNext = &backend.header;
+            ID3D12Resource* color[PHASES];
+            for (int p = 0; p < PHASES; ++p) color[p] = Texture(DXGI_FORMAT_R16G16B16A16_FLOAT, rw, rh, false);
+            ID3D12Resource* depth = Texture(DXGI_FORMAT_R32_FLOAT, rw, rh, false);
+            ID3D12Resource* motion = Texture(DXGI_FORMAT_R16G16_FLOAT, rw, rh, false);
+            ID3D12Resource* output = Texture(DXGI_FORMAT_R16G16B16A16_FLOAT, ow, oh, true);
+            uint16_t* cbuf = malloc((size_t)rw * rh * 8);
+            float* dbuf = malloc((size_t)rw * rh * 4);
+            uint16_t* mbuf = malloc((size_t)rw * rh * 4);
+            for (size_t i = 0; i < (size_t)rw * rh; ++i) dbuf[i] = 0.5f;
+            UploadRows(depth, rw, rh, 4, (const uint8_t*)dbuf);
+            const float sx = (float)rw / (float)ow, sy = (float)rh / (float)oh;
+            for (int scene = 0; scene < 2; ++scene) {            // 0: nothing moves; 1: the camera pans 12, 6 output pixels per frame
+                const int vx = scene ? 12 : 0, vy = scene ? 6 : 0;
+                for (size_t i = 0; i < (size_t)rw * rh; ++i) { mbuf[2 * i] = Half((float)vx * sx); mbuf[2 * i + 1] = Half((float)vy * sy); }
+                UploadRows(motion, rw, rh, 4, (const uint8_t*)mbuf);
+                float jx[PHASES], jy[PHASES];
+                for (int p = 0; p < PHASES; ++p) {
+                    jx[p] = Halton(p + 1, 2) - 0.5f; jy[p] = Halton(p + 1, 3) - 0.5f;
+                    for (UINT y = 0; y < rh; ++y)
+                        for (UINT x = 0; x < rw; ++x) {
+                            float rgb[3];
+                            World(((float)x + 0.5f - jx[p]) / sx - 0.5f + (float)(vx * p), ((float)y + 0.5f - jy[p]) / sy - 0.5f + (float)(vy * p), rgb);
+                            uint16_t* q = cbuf + ((size_t)y * rw + x) * 4;
+                            q[0] = Half(rgb[0]); q[1] = Half(rgb[1]); q[2] = Half(rgb[2]); q[3] = Half(1.0f);
+                        }
+                    UploadRows(color[p], rw, rh, 8, (const uint8_t*)cbuf);
                 }
+                struct ffxCreateContextDescUpscale create = {0};
+                create.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_UPSCALE; create.header.pNext = &ov.header;
+                create.flags = FFX_UPSCALE_ENABLE_HIGH_DYNAMIC_RANGE | FFX_UPSCALE_ENABLE_AUTO_EXPOSURE;
+                create.maxRenderSize.width = ow; create.maxRenderSize.height = oh; create.maxUpscaleSize.width = ow; create.maxUpscaleSize.height = oh;
+                create.fpMessage = Message;
+                ffxContext context = NULL;
+                ffxReturnCode_t rc = ffx.CreateContext(&context, &create.header, NULL);
+                if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|create context %d at %ux%u\n", label, (int)rc, ow, oh); goto next_variant; }
+                struct ffxQueryGetProviderVersion provider = {0};
+                provider.header.type = FFX_API_QUERY_DESC_TYPE_GET_PROVIDER_VERSION;
+                ffx.Query(&context, &provider.header);
+                static double ms[TIMED], even[TIMED], odd[TIMED];
+                int ne = 0, no = 0;
+                for (int frame = 0; frame < WARM + TIMED; ++frame) {
+                    const int p = frame % PHASES;
+                    struct ffxDispatchDescUpscale d = {0};
+                    d.header.type = FFX_API_DISPATCH_DESC_TYPE_UPSCALE; d.commandList = list;
+                    d.color = Resource(color[p], FFX_API_SURFACE_FORMAT_R16G16B16A16_FLOAT, FFX_API_RESOURCE_STATE_COMMON);
+                    d.depth = Resource(depth, FFX_API_SURFACE_FORMAT_R32_FLOAT, FFX_API_RESOURCE_STATE_COMMON);
+                    d.motionVectors = Resource(motion, FFX_API_SURFACE_FORMAT_R16G16_FLOAT, FFX_API_RESOURCE_STATE_COMMON);
+                    d.output = Resource(output, FFX_API_SURFACE_FORMAT_R16G16B16A16_FLOAT, FFX_API_RESOURCE_STATE_UNORDERED_ACCESS);
+                    d.jitterOffset.x = jx[p]; d.jitterOffset.y = jy[p];
+                    d.motionVectorScale.x = d.motionVectorScale.y = 1.0f;
+                    d.renderSize.width = rw; d.renderSize.height = rh; d.upscaleSize.width = ow; d.upscaleSize.height = oh;
+                    d.enableSharpening = false; d.sharpness = 0.5f; d.frameTimeDelta = 10.0f; d.preExposure = 1.0f; d.reset = frame == 0;
+                    d.cameraNear = 0.05f; d.cameraFar = 3000.0f; d.cameraFovAngleVertical = 0.75f; d.viewSpaceToMetersFactor = 1.0f;
+                    ID3D12GraphicsCommandList_EndQuery(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 0);
+                    rc = ffx.Dispatch(&context, &d.header);
+                    if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|dispatch %d at %ux%u\n", label, (int)rc, ow, oh); goto next_variant; }
+                    ID3D12GraphicsCommandList_EndQuery(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 1);
+                    ID3D12GraphicsCommandList_ResolveQueryData(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 0, 2, qbuf, 0);
+                    Submit();
+                    if (frame >= WARM) {
+                        UINT64* t;
+                        D3D12_RANGE rr = {0, 16};
+                        CHECK(ID3D12Resource_Map(qbuf, 0, &rr, (void**)&t));
+                        const double v = (double)(t[1] - t[0]) * 1000.0 / (double)freq;
+                        ID3D12Resource_Unmap(qbuf, 0, NULL);
+                        ms[frame - WARM] = v;
+                        if (jx[p] < 0) odd[no++] = v; else even[ne++] = v;      // a lossy DLL skips the model where the jitter's x is negative
+                    }
+                }
+                double sum = 0, fastest = ms[0];
+                for (int i = 0; i < TIMED; ++i) { sum += ms[i]; if (ms[i] < fastest) fastest = ms[i]; }
+                const double med = Median(ms, TIMED), me = Median(even, ne), mo = Median(odd, no);
+                const uint64_t h = HashOutput(output, ow, oh);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
+                // name | version name the DLL reports | output | render | scene | mean | median | median where jitter x >= 0 | where < 0 | fastest | picture hash
+                Say("R|%s|%s%s|%ux%u|%ux%u|%s|%.4f|%.4f|%.4f|%.4f|%.4f|%016llx\n", label, provider.versionName ? provider.versionName : chosen_name, idtext, ow, oh, rw, rh,
+                    scene ? "moving" : "still", sum / TIMED, med, me, mo, fastest, (unsigned long long)h);
+                ffx.DestroyContext(&context, NULL);
             }
-            double sum = 0, fastest = ms[0];
-            for (int i = 0; i < TIMED; ++i) { sum += ms[i]; if (ms[i] < fastest) fastest = ms[i]; }
-            const double med = Median(ms, TIMED), me = Median(even, ne), mo = Median(odd, no);
-            const uint64_t h = HashOutput(output, ow, oh);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
-            // name | version name the DLL reports | output | render | scene | mean | median | median where jitter x >= 0 | where < 0 | fastest | picture hash
-            Say("R|%s|%s|%ux%u|%ux%u|%s|%.4f|%.4f|%.4f|%.4f|%.4f|%016llx\n", name, provider.versionName ? provider.versionName : chosen_name, ow, oh, rw, rh,
-                scene ? "moving" : "still", sum / TIMED, med, me, mo, fastest, (unsigned long long)h);
-            ffx.DestroyContext(&context, NULL);
+            for (int p = 0; p < PHASES; ++p) ID3D12Resource_Release(color[p]);
+            ID3D12Resource_Release(depth); ID3D12Resource_Release(motion); ID3D12Resource_Release(output);
+            free(cbuf); free(dbuf); free(mbuf);
         }
-        for (int p = 0; p < PHASES; ++p) ID3D12Resource_Release(color[p]);
-        ID3D12Resource_Release(depth); ID3D12Resource_Release(motion); ID3D12Resource_Release(output);
-        free(cbuf); free(dbuf); free(mbuf);
+    next_variant:;
     }
     return 0;
 }
@@ -392,7 +407,9 @@ static bool Send(const char* text) {
     return ok;
 }
 
-struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; };
+struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double mean2; bool hashdiff; };
+// the figure the summary gives: the mean of a DLL's two runs (or its one run, if the other failed)
+static double Val(const struct Row* w) { return w->n == 2 ? 0.5 * (w->mean + w->mean2) : w->mean; }
 
 int main(int argc, char** argv) {
     char base[MAX_PATH];
@@ -410,8 +427,12 @@ int main(int argc, char** argv) {
         printf("%s\n", ok ? "sent" : "failed");
         return ok ? 0 : 1;
     }
-    const bool quick = argc > 1 && !strcmp(argv[1], "--quick");
-    const bool unattended = argc > 1 && !strcmp(argv[argc - 1], "--no-questions");
+    bool quick = false, unattended = false, once = false;
+    for (int a = 1; a < argc; ++a) {
+        if (!strcmp(argv[a], "--quick")) quick = true;
+        if (!strcmp(argv[a], "--no-questions")) unattended = true;
+        if (!strcmp(argv[a], "--once")) once = true;
+    }
     SYSTEMTIME st;
     GetLocalTime(&st);
     char results[MAX_PATH], raw[MAX_PATH];
@@ -435,11 +456,14 @@ int main(int argc, char** argv) {
         for (int j = i + 1; j < nd; ++j)
             if (strcmp(names[j], names[i]) < 0) { char t[64]; strcpy(t, names[i]); strcpy(names[i], names[j]); strcpy(names[j], t); }
     if (!nd) { printf("No folders in dlls\\ next to the program.\n"); return 1; }
-    for (int i = 0; i < nd; ++i) {
+    // two rounds, the second in reverse order: a DLL's two runs then sit at mirrored places in the sequence, so a drift
+    // over the run (the card warming up, something starting in the background) shows as a difference between them
+    for (int k = 0; k < (once ? nd : 2 * nd); ++k) {
+        const int i = k < nd ? k : 2 * nd - 1 - k;
         char src[MAX_PATH], cmd[1024];
         snprintf(src, sizeof(src), "dlls\\%s\\amd_fidelityfx_upscaler_dx12.dll", names[i]);
         if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", names[i]); continue; }
-        printf("%s ...\n", names[i]); fflush(stdout);
+        printf("%s (run %d of %d) ...\n", names[i], k < nd ? 1 : 2, once ? 1 : 2); fflush(stdout);
         snprintf(cmd, sizeof(cmd), "\"%sfsr4time.exe\" --run \"%s\" \"%s\"%s", base, names[i], raw, quick ? " quick" : "");
         STARTUPINFOA si = {.cb = sizeof(si)};
         PROCESS_INFORMATION pi;
@@ -467,7 +491,15 @@ int main(int argc, char** argv) {
         char render[16];
         double fastest;
         if (nr < 256 && sscanf(line, "R|%63[^|]|%63[^|]|%15[^|]|%15[^|]|%7[^|]|%lf|%lf|%lf|%lf|%lf|%19s", w->name, w->ver, w->size, render, w->scene, &w->mean, &w->med, &w->even,
-                               &w->odd, &fastest, w->hash) == 11) ++nr;
+                               &w->odd, &fastest, w->hash) == 11) {
+            struct Row* first = NULL;      // this DLL's first run at this size and scene, if this line is its second
+            for (int j = 0; j < nr && !first; ++j)
+                if (!strcmp(rows[j].name, w->name) && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene) && rows[j].n == 1) first = &rows[j];
+            if (first) {
+                first->n = 2; first->mean2 = w->mean; first->even = 0.5 * (first->even + w->even); first->odd = 0.5 * (first->odd + w->odd);
+                first->hashdiff = strcmp(first->hash, w->hash) != 0;
+            } else { w->n = 1; w->hashdiff = false; ++nr; }
+        }
     }
     if (r) fclose(r);
     OSVERSIONINFOEXW vi = {.dwOSVersionInfoSize = sizeof(vi)};
@@ -481,23 +513,28 @@ int main(int argc, char** argv) {
 #define ADD(...) sn += snprintf(summary + sn, sizeof(summary) - sn, __VA_ARGS__)
     ADD("kit %s\nGPU: %s\nsystem: Windows %lu.%lu build %lu%s; CPU: %s\n", KIT_VERSION, gpu, vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, wine ? " (Wine/Proton)" : "", cpu);
     ADD("upscaler time per frame, ms: mean (for a lossy DLL also: frame that runs the model / skipped frame); vs the first\n");
+    if (once) ADD("each DLL was timed once (--once)\n");
+    else ADD("each DLL is timed twice (all in order, then all in reverse order); the figure is the mean of the two, and both are\ngiven where they differ by more than 3%%\n");
     for (int i = 0; i < nr; ++i) {
         const struct Row* w = &rows[i];
         const struct Row* ref = NULL;
         for (int j = 0; j < nr; ++j)
             if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) { ref = &rows[j]; break; }
         if (i == 0 || strcmp(rows[i - 1].name, w->name)) ADD("%s [%s]\n", w->name, w->ver);
-        ADD("  %s %-6s %.3f", w->size, w->scene, w->mean);
+        ADD("  %s %-6s %.3f", w->size, w->scene, Val(w));
         if (w->even > 1.25 * w->odd || w->odd > 1.25 * w->even) ADD(" (%.3f / %.3f)", w->even > w->odd ? w->even : w->odd, w->even > w->odd ? w->odd : w->even);
         if (ref && ref != w) {
-            ADD("  %+.0f%%", 100.0 * w->mean / ref->mean - 100.0);
+            ADD("  %+.0f%%", 100.0 * Val(w) / Val(ref) - 100.0);
         }
+        if (w->n == 2 && (w->mean > 1.03 * w->mean2 || w->mean2 > 1.03 * w->mean)) ADD("  [two runs: %.3f, %.3f]", w->mean, w->mean2);
+        if (w->n == 1 && !once) ADD("  [one run only]");
         {
             // the picture's fingerprint (the run's last frame), and the first DLL above that produced the same one
             const struct Row* same = NULL;
             for (int j = 0; j < i && !same; ++j)
                 if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene) && !strcmp(rows[j].hash, w->hash)) same = &rows[j];
             ADD("  picture %s", w->hash);
+            if (w->hashdiff) ADD(" (NOT the same picture in its two runs)");
             if (same) ADD(" = %s", same->name);
             else if (ref && ref != w) ADD(" (differs from those above)");
         }

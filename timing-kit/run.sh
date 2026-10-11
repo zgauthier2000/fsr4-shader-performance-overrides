@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-or-later
 # FSR 4.1.1 shader timings on this machine's GPU. Run from a terminal:   bash run.sh
-# With no option it runs the full set (about 20 minutes on a desktop card): all 14 passes at 1080p,
-# 1440p and 4K (each alone, and the model's 12 in sequence), the lossy build's skipped-frame postpass, the postpass comparison with its candidates, the pass 11 and postpass versions, the
-# store probes and compiler statistics.
+# With no option it runs the full set (about 16 minutes on a desktop card): all 14 passes at 1080p,
+# 1440p and 4K (each alone, and the model's 12 in sequence), the lossy build's skipped-frame postpass, the postpass
+# comparison, the pass 11 versions, the store probes and compiler statistics.
 # Options:  bash run.sh postpass  only the postpass comparison (a minute or two)
-#           bash run.sh quick     all 14 passes and the postpass comparison, without the versions and probes (about 12 minutes)
+#           bash run.sh quick     all 14 passes and the postpass comparison, without the versions and probes (about 10 minutes)
 #           bash run.sh traffic   the full set, plus the memory-traffic capture with the bundled driver build
 # On a machine with two GPUs the discrete one is used;  KIT_GPU=integrated bash run.sh  uses the integrated one.
 # Nothing is installed or changed on the machine; results go into results/<name>-<time>/ next to this file.
@@ -35,25 +35,51 @@ cat /sys/firmware/acpi/platform_profile 2>/dev/null | sed 's/^/platform profile:
 for d in /sys/class/drm/card?/device; do [ -e "$d/mem_info_vram_total" ] && echo "$d: vram $(( $(cat $d/mem_info_vram_total) >> 20 )) MB, in use $(( $(cat $d/mem_info_vram_used 2>/dev/null || echo 0) >> 20 )) MB, gtt $(( $(cat $d/mem_info_gtt_total) >> 20 )) MB, in use $(( $(cat $d/mem_info_gtt_used 2>/dev/null || echo 0) >> 20 )) MB"; done
 command -v vulkaninfo >/dev/null && vulkaninfo --summary 2>/dev/null | grep -E 'deviceName|driverInfo|deviceType|apiVersion'
 for d in /sys/class/drm/card?/device; do [ -e "$d/gpu_busy_percent" ] && echo "$d: PCI $(cat $d/vendor):$(cat $d/device), busy now $(cat $d/gpu_busy_percent)%, power state $(grep -h "\*" $d/pp_dpm_sclk 2>/dev/null | tr -d "\n")"; done
+# How each GPU is connected: the link of the card and of every port above it (a Radeon card has two ports of its own
+# between its GPU and the slot, so the slot's link is the third one), and the size of the card's first memory window.
+for d in /sys/class/drm/card?/device; do
+    [ -e "$d/vendor" ] || continue
+    p=$(readlink -f "$d"); links=""
+    while [ -e "$p/current_link_width" ]; do
+        links="$links${links:+ | }$(cat "$p/current_link_speed" 2>/dev/null | sed 's/ PCIe//') x$(cat "$p/current_link_width" 2>/dev/null) (max $(cat "$p/max_link_speed" 2>/dev/null | sed 's/ PCIe//') x$(cat "$p/max_link_width" 2>/dev/null))"
+        p=$(dirname "$p")
+    done
+    bar=$(head -1 "$d/resource" 2>/dev/null | { read -r s e _; [ -n "${e:-}" ] && echo $(( (e - s + 1) >> 20 )); })
+    echo "$d: PCIe link, card first then the ports above it: ${links:-none reported}; first memory window ${bar:-?} MB"
+done
 for f in /sys/class/power_supply/BAT*/status; do [ -e "$f" ] && echo "battery: $(cat "$f")"; done
 echo "mode: $MODE, GPU choice: ${KIT_GPU:-default}"
 command -v dmidecode >/dev/null && sudo -n dmidecode -t memory 2>/dev/null | grep -E 'Size:|Speed:|Locator:|Type:' | grep -v 'No Module'
 } 2>&1 | tee "$OUT/system.txt"
 
 # Is something else using the GPU? AMD's postpass in particular reads differently when it is.
+# The load is read from the card the benchmark uses. With two GPUs that report it, that is the one with more video
+# memory of its own (the discrete one), or the one with less under KIT_GPU=integrated.
+CARD=""; cv=-1
+for d in /sys/class/drm/card?/device; do
+    [ -e "$d/gpu_busy_percent" ] || continue
+    v=$(cat "$d/mem_info_vram_total" 2>/dev/null || echo 0)
+    if [ -z "$CARD" ] || { [ "${KIT_GPU:-}" = integrated ] && [ "$v" -lt "$cv" ]; } || { [ "${KIT_GPU:-}" != integrated ] && [ "$v" -gt "$cv" ]; }; then CARD=$d; cv=$v; fi
+done
+[ -n "$CARD" ] && echo "GPU load is read from: $CARD" | tee -a "$OUT/system.txt"
 gpu_load() {      # average of six readings over about two seconds; nothing if the driver does not report it
-    local busy=0 n=0 i f
-    for i in 1 2 3 4 5 6; do
-        for f in /sys/class/drm/card?/device/gpu_busy_percent; do [ -e "$f" ] && { busy=$((busy + $(cat "$f" 2>/dev/null || echo 0))); n=$((n + 1)); }; done
-        sleep 0.4
-    done
-    [ $n -gt 0 ] && echo $((busy / n))
+    local busy=0 n=0 i
+    [ -n "$CARD" ] || return
+    for i in 1 2 3 4 5 6; do busy=$((busy + $(cat "$CARD/gpu_busy_percent" 2>/dev/null || echo 0))); n=$((n + 1)); sleep 0.4; done
+    echo $((busy / n))
 }
 load=$(gpu_load)
 if [ -n "$load" ] && [ "$load" -ge 15 ]; then
     echo; echo "NOTE: something is using the GPU ($load% busy). Close games, browsers and video for readings"
     echo "      that can be trusted. Waiting up to 30 seconds for it to settle."
     for i in 1 2 3 4 5 6 7 8 9 10 11 12; do load=$(gpu_load); [ "$load" -lt 15 ] && break; done
+    # still busy: readings from such a run have been unusable, so ask instead of going on (when there is somebody to ask)
+    while [ "$load" -ge 15 ] && [ -t 0 ]; do
+        echo; echo "The GPU is still $load% busy. Readings taken like this have turned out not to be usable."
+        printf "Close whatever is using it and press Enter to check again, or type  go  and Enter to run anyway > "; read -r answer
+        [ "$answer" = go ] && break
+        load=$(gpu_load)
+    done
     [ "$load" -ge 15 ] && echo "      Still $load% busy: continuing, and the summary will say so."
 fi
 [ -n "$load" ] && echo "GPU load before the run: $load%" | tee -a "$OUT/system.txt"
@@ -106,22 +132,8 @@ postpass_section() {
             A="$S/$1/amd/postpass.spv" B="$f" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1|bytes differ|DIFFER' | sed "s#$S/##"
         done
     done
-    # RDNA2 only: Mesa compiles most int8 dot products there as v_dot4c_i32_i8 (two operands, adds
-    # onto its result). The bundled driver build can keep the three-operand v_dot4_i32_i8 instead
-    # (AC_NO_DOT4C=1). Same shaders, same driver, both ways; on other GPUs the two are the same code.
-    say "dot product form (bundled driver): as compiled, then with AC_NO_DOT4C=1"
-    cp -r "$KIT/mesa" "$W/mesa" 2>/dev/null
-    for c in "1080p 1920x1080 1280 720 300" "4k 3840x2160 2560 1440 100"; do set -- $c
-        for e in dot4c dot4; do
-            x=""; [ $e = dot4 ] && x="AC_NO_DOT4C=1"
-            for p in 1 12; do
-                v=$(env $x VK_DRIVER_FILES="$W/mesa/icd.json" RADV_DEBUG=nocache OUT=$2 N_DISP=$5 "$W/mbench" 1 "$S/$1/exact/pass$p.spv" 2>/dev/null | grep -o 'median [0-9.]* ms' | head -1)
-                echo "dotform $1 $2 pass$p $e ${v:-failed}"
-            done
-            v=$(env $x VK_DRIVER_FILES="$W/mesa/icd.json" RADV_DEBUG=nocache A="$S/$1/amd/postpass.spv" B="$S/$1/exact/postpass.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>/dev/null | grep 'round 1' | grep -o 'median [0-9.]* ms' | tr '\n' ' ')
-            echo "dotform $1 $2 postpass(AMD,shipped) $e ${v:-failed}"
-        done
-    done
+    # (Kits up to 2026-10-11.5 also timed the two forms Mesa can give an int8 dot product on RDNA2 here. No card showed a
+    # difference, so that test is gone; so are the earlier postpass candidates and the old postpass versions.)
     say "compiled code of the postpass versions"
     for c in 1080p 4k; do
         for f in "$S/$c/amd/postpass.spv" "$S/$c/exact/postpass.spv" "$S/$c"/candidates/postpass_*.spv; do
@@ -150,10 +162,6 @@ if [ "$MODE" != quick ] && [ "$MODE" != postpass-only ]; then
     for c in "1080p 1920x1080" "4k 3840x2160"; do set -- $c
         say "pass 11 versions, class $1"
         OUT=$2 N_DISP=100 "$W/mbench" 2 "$S/$1"/pass11/*.spv 2>&1 | sed "s#$S/##"
-    done
-    say "postpass versions (Elden Ring's 4K version), each against AMD's"
-    for f in "$S"/postpass-4k/[b-h]_*.spv; do
-        A="$S/postpass-4k/a_amd.spv" B="$f" N_DISP=30 "$W/bench" 2>&1 | grep -E 'round 1|DIFFER|IDENTICAL' | sed "s#$S/##"
     done
     say "probes at 4K: the same shader with its stores removed (how much of the time is writing)"
     P=$S/probes-4k
