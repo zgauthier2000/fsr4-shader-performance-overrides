@@ -69,8 +69,13 @@
 # SB_CLAMPEDGE=0 gives release dll-2026-10-11's behavior; SB_RESTW=off SB_CLAMPREST=1 SB_CLAMPW=off gives release dll-2026-10-10's behavior.
 # Single over-bright pixels in the game's frame (noise from traced reflections, glints) are sparks to the sample test too, and with no clamp at
 # rest they then stay in the history: sparkling on glossy surfaces. SB_LONE=1 (test, off by default): the nearest sample counts only as far as a
-# second one of the nine bears it out (upward: the smaller of itself and the second largest; downward likewise). A particle covers more than one
+# second one of the nine bears it out (the smaller of itself and the second largest; upward only). A particle covers more than one
 # render pixel; such noise does not.
+# SB_LEAN=1 (test, off by default; SPIR-V tool only so far): the changed-content tests laid out to hold fewer values at once. With them the postpass
+# needed 120 registers where release dll-2026-10-07's needed 96 (12 waves per SIMD instead of 16 on an RX 7800 XT), and SB_LONE on top 192 (8 waves):
+# measurable in a game, not in the timing kit. Three things did it: the nine sample weights were kept up to the branch to pick the nearest sample by
+# its weight (now: the middle one of the nine, which is the same sample but for the weights' fine print); the driver's compiler moved the nine history
+# fetches to the head of the branch, beside the 27 sample values (now in a block of their own); and the range of the nine samples was worked out twice.
 # SB_SAMPLEABS=0.02 SB_BRIGHTABS=0.02 gives release dll-2026-10-09's behavior (it let film grain and noise through on
 # skipped frames: the grain trips the sample test as a spark does). SB_PART=off SB_BRIGHT=off SB_SAMPLE=off gives release dll-2026-10-07's behavior. SB_FULLW is a rejected experiment
 # (the new frame in proportion to the SB_BRIGHT difference: two to three times the shimmer at rest).
@@ -84,6 +89,7 @@ for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1')
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
+LEAN = os.environ.get('SB_LEAN', '0') == '1'      # same values, laid out to hold fewer of them at once (fewer registers)
 K = float(os.environ.get('SB_K', '32')); CONST = None if os.environ.get('SB_CONST') == 'off' else os.environ.get('SB_CONST', '0'); CAP = float(os.environ.get('SB_CAP', '1')); AW = int(os.environ.get('SB_AW', '1'))
 CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0.5'))
 GUARD = os.environ.get('SB_GUARD', '1') == '1'
@@ -133,6 +139,30 @@ def _scan():
             HFETCH.append((m[2], cc[1], cc[2]))
         if m and _heap(m[2]) == '%uint_3':
             CIMG.append(m[2])
+def _is_middle(v):
+    """is this sample value read at the unshifted coordinates (the middle one of the nine)?"""
+    found = set(); todo = [(v, 0)]; v0 = v
+    while todo:
+        x, depth = todo.pop(); d = defs.get(x, '')
+        m = re.match(r'OpCompositeExtract %float (%\w+) \d+$', d); f = m and re.match(r'OpImageFetch %v4float (%\w+) (%\w+) ', defs.get(m[1], ''))
+        if f and _heap(f[1]) == '%uint_3':
+            found.add(f[2]); continue
+        if depth < 30:
+            todo += [(y, depth + 1) for y in re.findall(r'%\w+', d)[1:] if y in defs]
+    if len(found) != 1:
+        sys.exit(f'skipblend: a sample value could not be traced to its fetch ({len(found)} fetches behind {v0}: {defs.get(v0, "")[:80]})')
+    cc = re.match(r'OpCompositeConstruct %v2uint (%\w+) (%\w+)', defs.get(found.pop(), '')) or sys.exit('skipblend: unexpected sample coordinate')
+    def shifted(x):
+        for _ in range(4):
+            e = defs.get(x, ''); w = re.match(r'OpExtInst %uint %\w+ S(?:Min|Max) (%\w+) ', e)
+            if w: x = w[1]; continue
+            if e.startswith('OpIAdd '): return True
+            if e.startswith('OpConvertFToS '): return False
+            break
+        sys.exit('skipblend: unexpected shape of a sample coordinate')
+    return not shifted(cc[1]) and not shifted(cc[2])
+
+
 def part_sample(k, h, curs):
     """f = how far the nearest new sample lies outside the range of the 3x3 history pixels around this one (0..1), at rest only"""
     if not HFETCH:
@@ -140,48 +170,75 @@ def part_sample(k, h, curs):
     site = int(k) if str(k).isdigit() else None
     idx = PART_SITE[0]; PART_SITE[0] += 1
     img, cx, cy = HFETCH[idx % len(HFETCH)]; cimg = CIMG[(idx % len(HFETCH)) * (len(CIMG) // len(HFETCH))]
-    code = []; mn = [None] * 3; mx = [None] * 3
+    code = []; mn = [None] * 3; mx = [None] * 3; fetch = []
     for j, (dx, dy) in enumerate([(a, b) for b in (-1, 0, 1) for a in (-1, 0, 1)]):
         t = f'%ss_{k}_{j}'
-        code += [f'{t}x0 = OpIAdd %uint {cx} {SU(dx)}', f'{t}y0 = OpIAdd %uint {cy} {SU(dy)}', f'{t}x = OpExtInst %uint {GLSL} SMax {t}x0 %sb_c0', f'{t}y = OpExtInst %uint {GLSL} SMax {t}y0 %sb_c0',
+        fetch += [f'{t}x0 = OpIAdd %uint {cx} {SU(dx)}', f'{t}y0 = OpIAdd %uint {cy} {SU(dy)}', f'{t}x = OpExtInst %uint {GLSL} SMax {t}x0 %sb_c0', f'{t}y = OpExtInst %uint {GLSL} SMax {t}y0 %sb_c0',
                  f'{t}c = OpCompositeConstruct %v2uint {t}x {t}y', f'{t}f = OpImageFetch %v4float {img} {t}c Lod %sb_c0']
         for c in range(3):
-            code.append(f'{t}v{c} = OpCompositeExtract %float {t}f {c}')
+            fetch.append(f'{t}v{c} = OpCompositeExtract %float {t}f {c}')
             if mn[c] is None:
                 mn[c] = mx[c] = f'{t}v{c}'
             else:
-                code += [f'{t}n{c} = OpExtInst %float {GLSL} NMin {mn[c]} {t}v{c}', f'{t}m{c} = OpExtInst %float {GLSL} NMax {mx[c]} {t}v{c}']; mn[c], mx[c] = f'{t}n{c}', f'{t}m{c}'
+                fetch += [f'{t}n{c} = OpExtInst %float {GLSL} NMin {mn[c]} {t}v{c}', f'{t}m{c} = OpExtInst %float {GLSL} NMax {mx[c]} {t}v{c}']; mn[c], mx[c] = f'{t}n{c}', f'{t}m{c}'
     t = f'%ss_{k}_s'
-    fs = []
+    fs = []; sel = []; selc = []; restc = []; nearc = []
     for c in range(3):
+        code = []
         # the nearest sample: the one of the nine with the largest weight, as the shader has prepared it for the mix
         tc = samples_w(curs[c]); bv, bw = tc[0]
-        for i, (v, w) in enumerate(tc[1:]):
-            code += [f'{t}cg{c}_{i} = OpFOrdGreaterThan %bool {w} {bw}', f'{t}cw{c}_{i} = OpSelect %float {t}cg{c}_{i} {w} {bw}', f'{t}cv{c}_{i} = OpSelect %float {t}cg{c}_{i} {v} {bv}']
-            bv, bw = f'{t}cv{c}_{i}', f'{t}cw{c}_{i}'
-        code += [f'{t}v{c} = OpFMul %float {bv} %sb_one', f'{t}r{c} = OpFSub %float {mx[c]} {mn[c]}', f'{t}a{c} = OpFMul %float {t}r{c} %ss_m', f'{t}b{c} = OpFAdd %float {t}a{c} %ss_abs']
+        if LEAN and os.environ.get('SB_MID', '1') == '1':
+            # The nine samples are those around RoundEven(position), so the nearest one is the middle one: the fetch whose coordinates carry no offset.
+            # Picking it by the largest weight (below) gives the same sample but keeps the nine weights in registers up to here, across the shader's own mix.
+            mid = [v for v, w in tc if _is_middle(v)]
+            if len(mid) != 1:
+                sys.exit(f'skipblend: {len(mid)} middle samples found, expected 1')
+            bv = mid[0]
+        else:
+            for i, (v, w) in enumerate(tc[1:]):
+                code += [f'{t}cg{c}_{i} = OpFOrdGreaterThan %bool {w} {bw}', f'{t}cw{c}_{i} = OpSelect %float {t}cg{c}_{i} {w} {bw}', f'{t}cv{c}_{i} = OpSelect %float {t}cg{c}_{i} {v} {bv}']
+                bv, bw = f'{t}cv{c}_{i}', f'{t}cw{c}_{i}'
+        code += [f'{t}v{c} = OpFMul %float {bv} %sb_one']
         vh = vl = f'{t}v{c}'
+        nearc.append(code); code = []
         if LONE:
-            # a sample that stands alone among the nine counts only as far as the next one bears it out: upward as the smaller of itself and
-            # the second largest of the nine, downward as the larger of itself and the second smallest
-            vs = [v for v, w in tc]
-            code += [f'{t}u1{c}_0 = OpExtInst %float {GLSL} NMax {vs[0]} {vs[1]}', f'{t}u2{c}_0 = OpExtInst %float {GLSL} NMin {vs[0]} {vs[1]}']
-            for i, v in enumerate(vs[2:]):
-                code += [f'{t}ua{c}_{i} = OpExtInst %float {GLSL} NMin {t}u1{c}_{i} {v}', f'{t}u2{c}_{i + 1} = OpExtInst %float {GLSL} NMax {t}u2{c}_{i} {t}ua{c}_{i}', f'{t}u1{c}_{i + 1} = OpExtInst %float {GLSL} NMax {t}u1{c}_{i} {v}']
-            # (u1 = largest, u2 = second largest; now the same downward: d1 = smallest, d2 = second smallest)
-            code += [f'{t}d1{c}_0 = OpExtInst %float {GLSL} NMin {vs[0]} {vs[1]}', f'{t}d2{c}_0 = OpExtInst %float {GLSL} NMax {vs[0]} {vs[1]}']
-            for i, v in enumerate(vs[2:]):
-                code += [f'{t}da{c}_{i} = OpExtInst %float {GLSL} NMax {t}d1{c}_{i} {v}', f'{t}d2{c}_{i + 1} = OpExtInst %float {GLSL} NMin {t}d2{c}_{i} {t}da{c}_{i}', f'{t}d1{c}_{i + 1} = OpExtInst %float {GLSL} NMin {t}d1{c}_{i} {v}']
-            n = len(vs) - 2
-            code += [f'{t}vh{c} = OpExtInst %float {GLSL} NMin {t}v{c} {t}u2{c}_{n}', f'{t}vl{c} = OpExtInst %float {GLSL} NMax {t}v{c} {t}d2{c}_{n}']
-            vh, vl = f'{t}vh{c}', f'{t}vl{c}'
+            # a sample that stands out above the other eight counts only as far as the next one bears it out: the smaller of itself and the
+            # second largest of the nine (upward only: the noise this is for is over-bright pixels). The running maximum of the nine is the
+            # one the SB_PART test has already worked out.
+            vs = samples(curs[c])
+            if not (LEAN and PART is not None):
+                run = [vs[0]] + [f'%sb_qx{c}{k}_{i}' for i in range(len(vs) - 2)]
+                if PART is None:
+                    for i, v in enumerate(vs[1:-1]):
+                        code.append(f'{t}ux{c}_{i} = OpExtInst %float {GLSL} NMax {run[i] if i == 0 else f"{t}ux{c}_{i - 1}"} {v}')
+                    run = [vs[0]] + [f'{t}ux{c}_{i}' for i in range(len(vs) - 2)]
+                code.append(f'{t}u2{c}_0 = OpExtInst %float {GLSL} NMin {vs[0]} {vs[1]}')
+                for i, v in enumerate(vs[2:]):
+                    code += [f'{t}ua{c}_{i} = OpExtInst %float {GLSL} NMin {run[i + 1]} {v}', f'{t}u2{c}_{i + 1} = OpExtInst %float {GLSL} NMax {t}u2{c}_{i} {t}ua{c}_{i}']
+            code.append(f'{t}vh{c} = OpExtInst %float {GLSL} NMin {t}v{c} {t}u2{c}_{len(vs) - 2}')
+            vh = f'{t}vh{c}'
+        selc.append(code); code = []
+        code += [f'{t}r{c} = OpFSub %float {mx[c]} {mn[c]}', f'{t}a{c} = OpFMul %float {t}r{c} %ss_m', f'{t}b{c} = OpFAdd %float {t}a{c} %ss_abs']
         code += [f'{t}hi{c} = OpFSub %float {vh} {mx[c]}', f'{t}lo{c} = OpFSub %float {mn[c]} {vl}', f'{t}e0{c} = OpExtInst %float {GLSL} NMax {t}hi{c} {t}lo{c}', f'{t}e{c} = OpFSub %float {t}e0{c} {t}b{c}',
                  f'{t}d0{c} = OpFMul %float {t}r{c} %ss_full', f'{t}d{c} = OpFAdd %float {t}d0{c} %ss_abs', f'{t}q{c} = OpFDiv %float {t}e{c} {t}d{c}', f'{t}g{c} = OpExtInst %float {GLSL} NClamp {t}q{c} %sm_fz %sb_one']
-        fs.append(f'{t}g{c}')
+        fs.append(f'{t}g{c}'); restc.append(code)
+    # lean layout (SB_LEAN): everything that needs the nine samples is done before the 3x3 history pixels are fetched, so fewer values are held at once
+    # ... and the nearest sample is picked before anything else in the branch (NEAR_FIRST: part() puts it in front), so the nine weights are let go early
+    NEAR_FIRST[k] = sum(nearc, []) if LEAN else []
+    if LEAN:
+        # The driver's compiler moves the nine history fetches to the head of whatever block they are in, where the nine samples are still held: 27 values
+        # more at the worst moment, which cost a quarter of the waves. In a block of their own (entered on the skipped-frame condition once more, which holds
+        # here), they come after the samples have been let go.
+        inner = fetch + sum(restc, []) + [f'{t}gg01 = OpExtInst %float {GLSL} NMax {fs[0]} {fs[1]}', f'{t}gg = OpExtInst %float {GLSL} NMax {t}gg01 {fs[2]}']
+        code = sum(selc, []) + [f'OpSelectionMerge %ss_M{k} None', f'OpBranchConditional %sb_skip %ss_T{k} %ss_M{k}', f'%ss_T{k} = OpLabel'] + inner + [
+            f'OpBranch %ss_M{k}', f'%ss_M{k} = OpLabel', f'{t}g = OpPhi %float {t}gg %ss_T{k} %sm_fz %sb_T{k}']
+        return code + [(f'%sb_pf{k} = OpFMul %float {t}g %sb_one' if os.environ.get('SB_SAMPLEALL') == '1' else f'%sb_pf{k} = OpSelect %float %sm_rest {t}g %sm_fz'),
+                       f'{t}z = OpFOrdLessThanEqual %bool %sb_pf{k} %sm_fz', f'%sb_rq{k} = OpLogicalAnd %bool %sm_rest {t}z']
+    code = fetch + sum([n + x + y for n, x, y in zip(nearc, selc, restc)], [])
     code += [f'{t}g01 = OpExtInst %float {GLSL} NMax {fs[0]} {fs[1]}', f'{t}g = OpExtInst %float {GLSL} NMax {t}g01 {fs[2]}', (f'%sb_pf{k} = OpFMul %float {t}g %sb_one' if os.environ.get('SB_SAMPLEALL') == '1' else f'%sb_pf{k} = OpSelect %float %sm_rest {t}g %sm_fz'),
              f'{t}z = OpFOrdLessThanEqual %bool %sb_pf{k} %sm_fz', f'%sb_rq{k} = OpLogicalAnd %bool %sm_rest {t}z']
     return code
-PART_SITE = [0]
+PART_SITE = [0]; NEAR_FIRST = {}
 SUC = {}
 def SU(v):
     SUC[v] = f'%ss_o{v & 0xffffffff}'; return SUC[v]
@@ -203,6 +260,9 @@ def part_old(k, curs, h):
         tc = samples(curs[c]); mn, mx = tc[0], tc[0]
         for i, v in enumerate(tc[1:]):
             code += [f'%sb_qn{c}{k}_{i} = OpExtInst %float {GLSL} NMin {mn} {v}', f'%sb_qx{c}{k}_{i} = OpExtInst %float {GLSL} NMax {mx} {v}']
+            if LEAN and LONE and SAMPLE is not None:      # the second largest of the nine, for the sample test (see part_sample), while each sample is at hand
+                u = f'%ss_{k}_su2{c}'
+                code += [f'{u}_0 = OpExtInst %float {GLSL} NMin {mn} {v}'] if i == 0 else [f'{u}a_{i - 1} = OpExtInst %float {GLSL} NMin {mx} {v}', f'{u}_{i} = OpExtInst %float {GLSL} NMax {u}_{i - 1} {u}a_{i - 1}']
             mn, mx = f'%sb_qn{c}{k}_{i}', f'%sb_qx{c}{k}_{i}'
         code += [f'%sb_qr{c}{k} = OpFSub %float {mx} {mn}', f'%sb_qs{c}{k} = OpFMul %float %sb_qr{c}{k} %sb_partw', f'%sb_qt{c}{k} = OpFAdd %float %sb_qs{c}{k} %sb_parta',
                  f'%sb_ql{c}{k} = OpFSub %float {mn} %sb_qt{c}{k}', f'%sb_qh{c}{k} = OpFAdd %float {mx} %sb_qt{c}{k}',
@@ -515,6 +575,8 @@ else:
                     k = pend['k']; h = pend['hist']; w, a = pend['w'], pend['a']
                     curs = [cur for r, cur in pend['sum']]; sums = [r for r, cur in pend['sum']]
                     code = ['OpSelectionMerge %sb_M' + str(k) + ' None', f'OpBranchConditional %sb_skip %sb_T{k} %sb_M{k}', f'%sb_T{k} = OpLabel']
+                    pcode = part(k, curs, h) if REST else []      # (worked out here so that the lean layout can put its first part at the head of the branch)
+                    code += NEAR_FIRST.get(k, [])
                     # the weight of the new frame, corrected for where its samples fall now
                     for ax, pos, dj in (('x', pend['posx'], '%sb_djx'), ('y', pend['posy'], '%sb_djy')):
                         code += [f'%sb_rn{ax}{k} = OpExtInst %float {GLSL} RoundEven {pos}', f'%sb_dn{ax}{k} = OpFSub %float {pos} %sb_rn{ax}{k}',
@@ -529,7 +591,7 @@ else:
                              f'%sb_ao{k} = OpFMul %float %sb_ap{k} %sb_om{k}', f'%sb_gw{k} = OpFSub %float %sb_one %sb_ao{k}',
                              f'%sb_wm{k} = OpFMul %float {w} %sb_gw{k}'] + (
                              # where the picture does not move, a skipped frame takes nothing from the new frame
-                             (part(k, curs, h) + ([f'%sr_a{k} = OpFSub %float {w} %sr_t0', f'%sr_q{k} = OpFDiv %float %sr_a{k} %sr_d', f'%sr_r{k} = OpExtInst %float {GLSL} NClamp %sr_q{k} %sm_fz %sb_one', f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}', f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sr_w{k} %sb_wm{k}'] if _rw else [f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sm_fz %sb_wm{k}']) + [f'%sb_wqq{k} = OpExtInst %float {GLSL} NMax %sb_wq{k} %sb_pf{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wqq{k} %sb_one'])
+                             (pcode + ([f'%sr_a{k} = OpFSub %float {w} %sr_t0', f'%sr_q{k} = OpFDiv %float %sr_a{k} %sr_d', f'%sr_r{k} = OpExtInst %float {GLSL} NClamp %sr_q{k} %sm_fz %sb_one', f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}', f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sr_w{k} %sb_wm{k}'] if _rw else [f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sm_fz %sb_wm{k}']) + [f'%sb_wqq{k} = OpExtInst %float {GLSL} NMax %sb_wq{k} %sb_pf{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wqq{k} %sb_one'])
                              if REST else [f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wm{k} %sb_one']) + [
                              f'%sb_an{k} = OpFSub %float %sb_one %sb_wn{k}']
                     # the mix again with the corrected weights: the shader's own nine lines, renamed
@@ -551,7 +613,10 @@ else:
                                      f'%sb_slp{k} = OpExtInst %float {GLSL} NMax %sb_sln{k} %sm_fz', f'%sb_sle{k} = OpFMul %float %sb_slack %sb_slp{k}']
                         for c in range(3):
                             tc = samples(curs[c]); mn, mx = tc[0], tc[0]
-                            for i, v in enumerate(tc[1:]):
+                            if LEAN and REST and PART is not None:      # the same range, already worked out by the SB_PART test
+                                mn, mx = f'%sb_qn{c}{k}_{len(tc) - 2}', f'%sb_qx{c}{k}_{len(tc) - 2}'
+                            else:
+                              for i, v in enumerate(tc[1:]):
                                 code += [f'%sb_mn{c}{k}_{i} = OpExtInst %float {GLSL} NMin {mn} {v}', f'%sb_mx{c}{k}_{i} = OpExtInst %float {GLSL} NMax {mx} {v}']
                                 mn, mx = f'%sb_mn{c}{k}_{i}', f'%sb_mx{c}{k}_{i}'
                             code += [f'%sb_rg{c}{k} = OpFSub %float {mx} {mn}', f'%sb_sl{c}{k} = OpFMul %float %sb_rg{c}{k} ' + (f'%sb_sle{k}' if CLAMPM is not None else '%sb_slack'),
@@ -574,12 +639,13 @@ else:
                             [f'%sb_gd{k} = OpLogicalOr %bool %sb_gd{k}a %sm_flag'] if UNCOV else []) + [
                             f'%sb_rg_{c}{k} = OpSelect %float %sb_gd{k} {curs[c]} {mix[c]}' for c in range(3)]
                         mix = [f'%sb_rg_{c}{k}' for c in range(3)]
+                    tlab = f'%ss_M{k}' if (LEAN and REST and SAMPLE is not None) else f'%sb_T{k}'      # the block the branch ends in
                     if DEAD is None:
-                        code += [f'OpBranch %sb_M{k}', f'%sb_M{k} = OpLabel'] + [f'%sb_r{c}{k} = OpPhi %float {mix[c]} %sb_T{k} {sums[c]} {cur_label}' for c in range(3)]
+                        code += [f'OpBranch %sb_M{k}', f'%sb_M{k} = OpLabel'] + [f'%sb_r{c}{k} = OpPhi %float {mix[c]} {tlab} {sums[c]} {cur_label}' for c in range(3)]
                     else:
                         # dead band (SB_DEAD): on every frame, a pixel whose three channels would each move by less than SB_DEAD x history x 2^-10
                         # (about SB_DEAD to 2 x SB_DEAD steps of a 16-bit float at that value) keeps its history exactly
-                        code += [f'OpBranch %sb_M{k}', f'%sb_M{k} = OpLabel'] + [f'%sb_rp{c}{k} = OpPhi %float {mix[c]} %sb_T{k} {sums[c]} {cur_label}' for c in range(3)]
+                        code += [f'OpBranch %sb_M{k}', f'%sb_M{k} = OpLabel'] + [f'%sb_rp{c}{k} = OpPhi %float {mix[c]} {tlab} {sums[c]} {cur_label}' for c in range(3)]
                         for c in range(3):
                             code += [f'%db_d{c}{k} = OpFSub %float %sb_rp{c}{k} {h[c]}', f'%db_a{c}{k} = OpExtInst %float {GLSL} FAbs %db_d{c}{k}', f'%db_t{c}{k} = OpFMul %float {h[c]} %db_rel',
                                      f'%db_l{c}{k} = OpFOrdLessThan %bool %db_a{c}{k} %db_t{c}{k}']

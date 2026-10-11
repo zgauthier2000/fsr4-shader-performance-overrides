@@ -210,17 +210,17 @@ def part(k, curs, h, at):
             c_ += [f'  {t}cg{c}.{i} = fcmp ogt float {w}, {bw}', f'  {t}cw{c}.{i} = select i1 {t}cg{c}.{i}, float {w}, float {bw}', f'  {t}cv{c}.{i} = select i1 {t}cg{c}.{i}, float {v}, float {bv}']
             bv, bw = f'{t}cv{c}.{i}', f'{t}cw{c}.{i}'
         vh = vl = bv
-        if LONE:      # a sample that stands alone among the nine counts only as far as the next one bears it out (as in skipblend.py)
-            vs = [v for v, w in tc]
-            c_ += [FMAX(f'{t}l1{c}.0', vs[0], vs[1]), FMIN(f'{t}l2{c}.0', vs[0], vs[1])]
+        if LONE:      # a sample that stands out above the other eight counts only as far as the next one bears it out (as in skipblend.py)
+            vs = samples(curs[c]); run = [vs[0]] + [f'%sb.qx{c}{k}.{i}' for i in range(len(vs) - 2)]
+            if PART is None and BRIGHT is None:
+                for i, v in enumerate(vs[1:-1]):
+                    c_.append(FMAX(f'{t}ux{c}.{i}', run[i] if i == 0 else f'{t}ux{c}.{i - 1}', v))
+                run = [vs[0]] + [f'{t}ux{c}.{i}' for i in range(len(vs) - 2)]
+            c_.append(FMIN(f'{t}l2{c}.0', vs[0], vs[1]))
             for i, v in enumerate(vs[2:]):
-                c_ += [FMIN(f'{t}la{c}.{i}', f'{t}l1{c}.{i}', v), FMAX(f'{t}l2{c}.{i + 1}', f'{t}l2{c}.{i}', f'{t}la{c}.{i}'), FMAX(f'{t}l1{c}.{i + 1}', f'{t}l1{c}.{i}', v)]
-            c_ += [FMIN(f'{t}k1{c}.0', vs[0], vs[1]), FMAX(f'{t}k2{c}.0', vs[0], vs[1])]
-            for i, v in enumerate(vs[2:]):
-                c_ += [FMAX(f'{t}ka{c}.{i}', f'{t}k1{c}.{i}', v), FMIN(f'{t}k2{c}.{i + 1}', f'{t}k2{c}.{i}', f'{t}ka{c}.{i}'), FMIN(f'{t}k1{c}.{i + 1}', f'{t}k1{c}.{i}', v)]
-            n_ = len(vs) - 2
-            c_ += [FMIN(f'{t}vh{c}', bv, f'{t}l2{c}.{n_}'), FMAX(f'{t}vl{c}', bv, f'{t}k2{c}.{n_}')]
-            vh, vl = f'{t}vh{c}', f'{t}vl{c}'
+                c_ += [FMIN(f'{t}la{c}.{i}', run[i + 1], v), FMAX(f'{t}l2{c}.{i + 1}', f'{t}l2{c}.{i}', f'{t}la{c}.{i}')]
+            c_.append(FMIN(f'{t}vh{c}', bv, f'{t}l2{c}.{len(vs) - 2}'))
+            vh = f'{t}vh{c}'
         c_ += [f'  {t}r{c} = fsub fast float {mx[c]}, {mn[c]}', f'  {t}a{c} = fmul fast float {t}r{c}, {fl(m_)}', f'  {t}b{c} = fadd fast float {t}a{c}, {fl(ab)}',
                f'  {t}hi{c} = fsub fast float {vh}, {mx[c]}', f'  {t}lo{c} = fsub fast float {mn[c]}, {vl}', FMAX(f'{t}e0{c}', f'{t}hi{c}', f'{t}lo{c}'), f'  {t}e{c} = fsub fast float {t}e0{c}, {t}b{c}',
                f'  {t}d0{c} = fmul fast float {t}r{c}, {fl(full)}', f'  {t}d{c} = fadd fast float {t}d0{c}, {fl(ab)}', f'  {t}q{c} = fdiv fast float {t}e{c}, {t}d{c}',
