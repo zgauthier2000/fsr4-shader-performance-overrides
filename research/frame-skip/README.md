@@ -1104,7 +1104,8 @@ steadiest of all and the best on grain, and keeps the release's lag; the band al
 
 The band is not tied to frame skip. On AMD's own shaders with no frame skip, the band alone gives 0.051 in the worst flat piece
 (AMD's 0.126), a still picture of 44.42 dB (AMD's 44.33) and a fade lag of 0.9 / 1.0 / 3.8 frames (AMD's 0.6 / 0.9 / 3.0). The
-picture is then no longer AMD's byte for byte, so this is not in the exact files.
+picture is then no longer AMD's byte for byte, so this is not in the exact files. It exists as an unreleased test build:
+[the exact files beside a "steady" test build](../../docs/steady-test.md), with pictures.
 
 ## By frame rate
 
