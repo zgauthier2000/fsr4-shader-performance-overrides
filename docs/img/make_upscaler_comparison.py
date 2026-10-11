@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_upscaler_comparison.py [<dir>]: the figures of docs/upscaler-comparison.md.
-#   cmp5-quality-{light,dark}.svg, cmp5-speed-{light,dark}.svg, cmp5-tradeoff-{light,dark}.svg, steady-quality-{light,dark}.svg (for docs/steady-test.md): charts; the numbers in them are the
+#   cmp5-radar-{light,dark}.svg (one shape per upscaler), cmp5-radar2-{light,dark}.svg (the lossy DLL and FSR 4.1.1 only, for the front page), steady-quality-{light,dark}.svg (for docs/steady-test.md): charts; the numbers in them are the
 #       tables of that page (test rig, 4K output from 2260x1272, Radeon RX 7800 XT under Proton, single runs).
-#   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-big.png (large particles), cmp5-plate.png, cmp5-dots.png (frame 39 of the plate scene and of the hard-sampled foliage scene): the same piece of one frame from the
+#   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-big.png (large particles), cmp5-plate.png, cmp5-rain.png (frame 39 of the plate scene and of the rain scene): the same piece of one frame from the
 #       five upscalers beside the true image. <dir> holds <scene>_<name>/output_3840x2160_f037.raw (RGBA16F) for scene in still,
 #       wires, sparks, foliage, motion and name in fsr4, lossy, fsr3, helix, xess, and <scene>_truth.npy (the true 4K image).
 import sys
@@ -11,81 +11,106 @@ from make_explainers import THEMES, W, frame, line, rect, text
 
 NAMES = ['FSR 4.1.1', 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
 KEYS = ['fsr4', 'lossy', 'fsr3', 'helix', 'xess']
-# (title, unit note, values in NAMES order, format, True if higher is better)
-QUALITY = [
-    ('Still picture', 'accuracy, dB', [44.33, 44.31, 39.94, 41.99, 42.14], '{:.1f}', True),
-    ('Just-uncovered areas', 'accuracy in motion, dB', [34.48, 36.48, 29.22, 27.11, 30.20], '{:.1f}', True),
-    ('Tiny fast sparks', 'share of brightness shown, %', [83, 75, 40, 79, 50], '{:.0f}', True),
-    ('Swaying foliage', 'error, of 255', [12.1, 18.6, 16.8, 15.5, 15.5], '{:.1f}', False),
-    ('Thin wire, slow pan', 'change per frame, of 255', [7.2, 14.6, 8.2, 5.6, 10.1], '{:.1f}', False),
-    ('Film grain (10 of 255)', 'change per frame, of 255', [1.72, 1.08, 0.31, 0.30, 0.23], '{:.2f}', False),
+# The measures of the radar charts, in NAMES order. kind: 'db' = accuracy in dB (higher is better), 'up' = higher is better, 'down' = lower is better.
+# (short label, full name, unit, kind, values, format)
+MEASURES = [
+    ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.31, 39.94, 41.99, 42.14], '{:.2f} dB'),
+    ('Background', 'Moving background: accuracy', 'dB', 'db', [49.27, 49.07, 47.95, 46.92, 47.70], '{:.2f} dB'),
+    ('Railing', 'Thin railing in motion: accuracy', 'dB', 'db', [41.82, 41.34, 38.36, 40.12, 40.86], '{:.2f} dB'),
+    ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 36.48, 29.22, 27.11, 30.20], '{:.2f} dB'),
+    ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 40, 79, 50], '{:.0f}%'),
+    ('Foliage', 'Leaves swaying without motion vectors: error', 'of 255', 'down', [12.1, 18.6, 16.8, 15.5, 15.5], '{:.1f}'),
+    ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.014, 0.020, 0.084], '{:.3f}'),
+    ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 9.6, 8.2, 5.6, 10.1], '{:.1f}'),
+    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.76, 2.36, 1.16, 1.99, 4.98], '{:.2f} ms'),
 ]
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
-SPEED = [('1920x1080', [1.05, 0.89, 0.68, 0.41, 0.75, 1.42]), ('2560x1440', [2.18, 1.44, 1.11, 0.58, 1.01, 2.28]), ('3840x2160', [4.76, 3.17, 2.36, 1.16, 1.99, 4.98])]
-STILL_DB = [44.33, 44.33, 44.31, 39.94, 41.99, 42.14]          # in SPEED_NAMES order: the exact DLL gives FSR 4.1.1's picture
 
 
-def color(name):
-    return 'lossy' if name == 'Lossy' else 'exact' if 'exact' in name else 'amd'
+def score(kind, vs):
+    """each upscaler's value as a share of the best of the five: 1 = the best; for dB, the ratio of the errors"""
+    if kind == 'db':
+        b = max(vs); return [10 ** ((v - b) / 20) for v in vs]
+    if kind == 'up':
+        b = max(vs); return [v / b for v in vs]
+    b = min(vs); return [b / v for v in vs]
 
 
-def quality(t):
-    lab = 'Six quality measures for five upscalers, each as dots on its own scale. ' + ' '.join(
-        f"{ti} ({un}; {'higher' if up else 'lower'} is better): " + ', '.join(f'{n} {f.format(v)}' for n, v in zip(NAMES, vs)) + '.' for ti, un, vs, f, up in QUALITY)
-    o = frame(470, lab, 'Quality: six measures, five upscalers', 'Each panel has its own scale. The better end of every scale is on the right. Test rig, 4K output, one card.', t)
-    pw, ph, x0s = 216, 178, (24, 272, 520)
-    for i, (ti, un, vs, f, up) in enumerate(QUALITY):
-        x0, y0 = x0s[i % 3], 78 + (i // 3) * 192
-        o += [text(x0, y0 + 12, ti, t, 13, 'ink', weight=600), text(x0, y0 + 28, f"{un}; {'higher' if up else 'lower'} is better", t, 10.5, 'muted')]
-        lo, hi = min(vs), max(vs); pad = (hi - lo) * 0.12 or 1
-        lo, hi = lo - pad, hi + pad
-        tx0, tx1 = x0 + 62, x0 + pw - 40
-        pos = lambda v: tx0 + (tx1 - tx0) * ((v - lo) / (hi - lo) if up else (hi - v) / (hi - lo))
-        for k, (n, v) in enumerate(zip(NAMES, vs)):
-            y = y0 + 50 + k * 24
-            ours = n == 'Lossy'
-            o += [text(x0, y + 4, n, t, 11, 'ink' if ours else 'ink2', weight=600 if ours else None), line(tx0, y, tx1, y, t, 'grid', 1),
-                  f'<circle cx="{pos(v):.1f}" cy="{y}" r="5" fill="{t[color(n)]}" stroke="{t["surface"]}" stroke-width="2"/>',
-                  text(tx1 + 8, y + 4, f.format(v), t, 11, 'ink' if ours else 'ink2', weight=600 if ours else None)]
-        o.append(text(tx1, y0 + 50 + 5 * 24 - 4, 'better →', t, 9.5, 'muted', 'end'))
+SCORES = [score(m[3], m[4]) for m in MEASURES]      # [measure][upscaler]
+
+
+def radar_panel(o, t, cx, cy, r, k, labels, lsize=9.5, ref=0, values=False):
+    """one upscaler's shape: the measures as spokes, the best of the five at the outer ring; the dashed outline is NAMES[ref]"""
+    import math
+    n = len(MEASURES)
+    ang = [math.radians(-90 + i * 360 / n) for i in range(n)]
+    pt = lambda i, v: (cx + r * v * math.cos(ang[i]), cy + r * v * math.sin(ang[i]))
+    ring = lambda v: ' '.join(f'{x:.1f},{y:.1f}' for x, y in (pt(i, v) for i in range(n)))
+    for v in (0.25, 0.5, 0.75, 1.0):
+        o.append(f'<polygon points="{ring(v)}" fill="none" stroke="{t["grid"]}" stroke-width="1"/>')
+    for i in range(n):
+        x, y = pt(i, 1); o.append(line(cx, cy, x, y, t, 'grid', 1))
+    ours = NAMES[k] == 'Lossy'; col = t['lossy'] if ours else t['amd']
+    shape = ' '.join(f'{x:.1f},{y:.1f}' for x, y in (pt(i, SCORES[i][k]) for i in range(n)))
+    o.append(f'<polygon points="{shape}" fill="{col}" fill-opacity="0.35" stroke="{col}" stroke-width="2" stroke-linejoin="round"/>')
+    if ref is not None and ref != k:
+        rs = ' '.join(f'{x:.1f},{y:.1f}' for x, y in (pt(i, SCORES[i][ref]) for i in range(n)))
+        o.append(f'<polygon points="{rs}" fill="none" stroke="{t["ink2"]}" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>')
+    for i in range(n):
+        x, y = pt(i, SCORES[i][k]); o.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.5" fill="{col}" stroke="{t["surface"]}" stroke-width="1"/>')
+    for i in range(n):
+        c, sn = math.cos(ang[i]), math.sin(ang[i])
+        x, y = cx + (r + 9) * c, cy + (r + 9) * sn
+        an = 'middle' if abs(c) < 0.2 else 'start' if c > 0 else 'end'
+        dy = (-2 if sn < -0.5 else 9 if sn > 0.5 else 3.5)
+        if values:
+            if sn < -0.5: dy -= 12
+            o += [text(x, y + dy, labels[i], t, lsize, 'ink2', an, 600), text(x, y + dy + 12.5, MEASURES[i][5].format(MEASURES[i][4][k]), t, lsize, 'muted', an)]
+        else:
+            o.append(text(x, y + dy, labels[i], t, lsize, 'muted', an))
+
+
+def describe(names):
+    return ' '.join(f'{m[1]} ({m[2]}): ' + ', '.join(f'{NAMES[k]} {m[5].format(m[4][k])}' for k in names) + '.' for m in MEASURES)
+
+
+def radar(t):
+    lab = ('Five radar charts, one per upscaler, each with nine spokes; on every spoke the best of the five reaches the outer ring and the others reach in '
+           'proportion to it, so a larger shape is better and a dent is a weakness. ' + describe(range(5)))
+    H = 612
+    o = frame(H, lab, 'The shape of each upscaler: nine measures', 'On every spoke the best of the five reaches the outer ring. Bigger is better; a dent is a weakness. Dashed: FSR 4.1.1.', t)
+    cxs, cys, r = (128, 380, 632), (196, 446), 72
+    short = [m[0] for m in MEASURES]
+    for k, n in enumerate(NAMES):
+        cx, cy = cxs[k % 3], cys[k // 3]
+        o.append(text(cx, cy - r - 30, n, t, 13, 'ink', 'middle', 600))
+        radar_panel(o, t, cx, cy, r, k, short)
+    # the sixth place: what the spokes are
+    x0, y0 = 520, 344
+    o.append(text(x0, y0, 'The spokes', t, 12, 'ink', weight=600))
+    key = [('Still, Background, Railing, Uncovered', 'accuracy against the true image'), ('Sparks', 'tiny fast sparks: share shown'), ('Foliage', 'swaying leaves: accuracy'),
+           ('At rest', 'steadiness of a still picture'), ('Wire, pan', 'steadiness of a thin wire in a slow pan'), ('Speed', 'time per call at 4K')]
+    y = y0 + 20
+    for a, b in key:
+        o += [text(x0, y, a, t, 10.5, 'ink2', weight=600), text(x0, y + 13, b, t, 10.5, 'muted')]; y += 31
+    o += [text(24, H - 28, 'A spoke at half length: twice the error (or the change per frame, or the time) of the best of the five; for sparks, half as much shown.', t, 10, 'muted'),
+          text(24, H - 14, "Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (3.17 ms against 4.76).", t, 10, 'muted')]
     return o
 
 
-def speed(t):
-    lab = 'Graphics-card time per upscale call in milliseconds, lower is faster. ' + ' '.join(
-        f'{s}: ' + ', '.join(f'{n} {v:.2f}' for n, v in zip(SPEED_NAMES, vs)) + '.' for s, vs in SPEED)
-    o = frame(312, lab, 'Speed: graphics-card time for one upscale call', 'Milliseconds, lower is faster. Render size is the output size divided by 1.7. Radeon RX 7800 XT under Proton.', t)
-    x0s, bw = (190, 386, 582), 120
-    for k, n in enumerate(SPEED_NAMES):
-        ours = n == 'Lossy' or 'exact' in n
-        o.append(text(24, 112 + k * 28 + 12, n, t, 12, 'ink' if ours else 'ink2', weight=600 if ours else None))
-    for j, (s, vs) in enumerate(SPEED):
-        x0 = x0s[j]; mx = max(vs)
-        o += [text(x0, 96, s, t, 12, 'ink', weight=600), line(x0, 104, x0, 104 + 6 * 28, t, 'grid', 1)]
-        for k, (n, v) in enumerate(zip(SPEED_NAMES, vs)):
-            y = 112 + k * 28; ours = n == 'Lossy' or 'exact' in n
-            o += [rect(x0, y, bw * v / mx, 16, color(n), t, 3), text(x0 + bw * v / mx + 6, y + 12, f'{v:.2f}', t, 11, 'ink' if ours else 'ink2', weight=600 if ours else None)]
-    o.append(text(24, 296, 'XeSS was timed by a second program over fewer calls; it runs a slower network on cards that are not Intel\'s. Bars are scaled within each size.', t, 10.5, 'muted'))
-    return o
-
-
-def tradeoff(t):
-    lab = 'Still-picture accuracy against time per upscale call at 4K. ' + ', '.join(f'{n}: {ms:.2f} ms, {db:.2f} dB' for n, ms, db in zip(SPEED_NAMES, SPEED[2][1], STILL_DB)) + '.'
-    H = 380
-    o = frame(H, lab, 'Accuracy against cost at 4K', 'Up is a more accurate still picture; left is less graphics-card time. One scene and one card: a sketch, not a verdict.', t)
-    px0, px1, py0, py1 = 70, 720, 84, 320
-    xlo, xhi, ylo, yhi = 0.0, 5.5, 39.0, 45.0
-    X = lambda v: px0 + (px1 - px0) * (v - xlo) / (xhi - xlo); Y = lambda v: py1 - (py1 - py0) * (v - ylo) / (yhi - ylo)
-    for g in range(40, 46):
-        o += [line(px0, Y(g), px1, Y(g), t, 'grid', 1), text(px0 - 8, Y(g) + 4, f'{g} dB', t, 10.5, 'muted', 'end')]
-    for g in range(0, 6):
-        o += [line(X(g), py1, X(g), py1 + 4, t, 'muted', 1), text(X(g), py1 + 18, f'{g} ms', t, 10.5, 'muted', 'middle')]
-    o += [line(px0, py1, px1, py1, t, 'muted', 1), text((px0 + px1) / 2, H - 14, 'graphics-card time per upscale call, 3840x2160 output', t, 11, 'ink2', 'middle')]
-    place = {'FSR 4.1.1': (10, 4, 'start'), "This project's exact DLL": (0, -12, 'middle'), 'Lossy': (0, -12, 'middle'), 'FSR 3.1': (10, 4, 'start'), 'HelixSR': (10, 4, 'start'), 'XeSS': (0, 20, 'middle')}
-    for n, ms, db in zip(SPEED_NAMES, SPEED[2][1], STILL_DB):
-        ours = n == 'Lossy' or 'exact' in n; dx, dy, an = place[n]
-        o += [f'<circle cx="{X(ms):.1f}" cy="{Y(db):.1f}" r="6" fill="{t[color(n)]}" stroke="{t["surface"]}" stroke-width="2"/>',
-              text(X(ms) + dx, Y(db) + dy, n, t, 11.5, 'ink' if ours else 'ink2', an, 600 if ours else None)]
+def radar2(t):
+    """the front page: the lossy DLL and FSR 4.1.1 only, with their figures at the spokes"""
+    ks = (1, 0)
+    lab = ('Two radar charts with nine spokes each, the lossy DLL and AMD\'s FSR 4.1.1; on every spoke the best of five upscalers (these two, FSR 3.1, HelixSR and XeSS) '
+           'would reach the outer ring, so a larger shape is better. ' + describe(ks))
+    H = 432
+    o = frame(H, lab, "The lossy DLL beside AMD's FSR 4.1.1: nine measures", 'Outer ring: the best of five upscalers on that measure (the other three are on the comparison page). Bigger is better.', t)
+    short = [m[0] for m in MEASURES]
+    for cx, k, title in ((196, 1, 'Lossy DLL'), (566, 0, "AMD's FSR 4.1.1")):
+        o.append(text(cx, 92, title, t, 13, 'ink', 'middle', 600))
+        radar_panel(o, t, cx, 240, 100, k, short, 10, ref=0 if k == 1 else 1, values=True)
+    o += [text(24, H - 28, "Dashed: the other one's shape. A spoke at half length: twice the error, change per frame or time of the best of the five.", t, 10, 'muted'),
+          text(24, H - 14, "This project's exact DLL gives FSR 4.1.1's picture in 3.17 ms. Test rig, 4K output, one card, single runs.", t, 10, 'muted')]
     return o
 
 
@@ -131,7 +156,7 @@ for th, t in THEMES.items():
     open(f'steady-quality-{th}.svg', 'w').write('\n'.join(steady_quality(t) + ['</svg>']) + '\n')
 
 
-for name, fn in (('quality', quality), ('speed', speed), ('tradeoff', tradeoff)):
+for name, fn in (('radar', radar), ('radar2', radar2)):
     for th, t in THEMES.items():
         open(f'cmp5-{name}-{th}.svg', 'w').write('\n'.join(fn(t) + ['</svg>']) + '\n')
 if len(sys.argv) < 2:
@@ -197,25 +222,28 @@ crops('motion', 'Moving scene: fine stripes on a moving object', f'Camera pannin
 crops('plate', 'A still bright object over ground that moves fast', f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is, at the same depth.\nThe piece just below it where the five differ most, enlarged 2 times. {E}', 240, 160, 2, (2300, 800, 3100, 1000), frame=39)
 crops('big', 'Large glowing particles drawn without motion vectors', f'Camera still. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (250, 250, 1950, 1900), only_changed=True)
 
-# ---- bright dots in foliage: the piece of the hard-sampled foliage scene where the lossy DLL shows the most single bright pixels inside the leaves,
-# each panel with its count of them (as research/pruning/foliage_dots.py counts: more than 0.15 brighter than the median of the 3x3 surroundings, where
-# the true image is dark there)
-def dots_sheet(kw=200, kh=130, z=3, area=(250, 250, 1950, 1900)):
-    def med3(a_):
-        q = np.pad(a_, 1, mode='edge'); return np.median(np.stack([q[i:i + a_.shape[0], j:j + a_.shape[1]] for i in range(3) for j in range(3)]), 0)
-    x0, y0, x1, y1 = area
-    tru = srgb(np.load(f'{D}/dots_truth.npy').astype(np.float32))[y0:y1, x0:x1]
-    out = {k: srgb(np.fromfile(f'{D}/dots_{k}/output_3840x2160_f039.raw', dtype=np.float16).reshape(HH, WW, 4)[y0:y1, x0:x1, :3]) for k in KEYS}
-    dark = med3(tru.mean(2)) < 0.3
-    dots = {k: ((v.mean(2) - med3(v.mean(2)) > 0.15) & dark).astype(np.float32) for k, v in out.items()}
-    s_ = box(dots['lossy'], kh, kw); y, x = np.unravel_index(np.argmax(s_), s_.shape)
+# ---- rain: thin fast streaks without motion vectors over a dark surface (research/pruning/rain.py), frame 39. There is no "true image" to score against
+# that would be fair to all (the streaks are in a different place every frame), so the first panel is the game's own frame and the figure under each
+# panel is how many pixels of the piece stand more than 20 of 255 above the surface.
+def rain_sheet(kw=200, kh=130, z=3):
+    RW, RH = 2260, 1272
+    px0, px1, py0, py1 = 1120 + 24, (1120 + 2720) // 2 - 24, 480 + 24, 1680 - 24      # the half of the panel with rain, clear of its edges
+    pan = srgb(np.load(f'{D}/rain_panel.npy').astype(np.float32))
+    out = {k: srgb(np.fromfile(f'{D}/rain_{k}/output_3840x2160_f039.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3]) for k in KEYS}
+    over = {k: ((v.mean(2) - pan.mean(2)) * 255 > 20) for k, v in out.items()}
+    spread = np.std(np.stack([out[k].mean(2) for k in KEYS]), 0)
+    s_ = box(spread, kh, kw)[py0:py1 - kh, px0:px1 - kw]; y, x = np.unravel_index(np.argmax(s_), s_.shape); y += py0; x += px0
     c = lambda a_: a_[y:y + kh, x:x + kw]
-    pic = lambda a_: (np.clip(np.repeat(np.repeat(c(a_), z, 0), z, 1), 0, 1) * 255 + 0.5).astype(np.uint8)
-    panels = [('true image', pic(tru))] + [(f'{n}: {int(c(dots[k]).sum())}', pic(out[k])) for n, k in zip(NAMES, KEYS)]
-    print('dots window', x + x0, y + y0, ' '.join(p_[0] for p_ in panels[1:]), '| whole area per thousand dark pixels:', ' '.join(f'{k} {dots[k].sum() / dark.sum() * 1000:.2f}' for k in KEYS))
-    title = 'Bright dots in foliage: sky seen through leaves'
-    sub = ('Dark leaves swaying in front of a bright sky, camera still, inputs sampled as a game samples them. A frame the lossy DLL skips the network on.\n'
-           'The piece where the lossy DLL shows the most single bright pixels inside the leaves, enlarged 3 times. Under each: how many it shows in this piece.')
+    pic = lambda a_: (np.clip(np.repeat(np.repeat(a_, z, 0), z, 1), 0, 1) * 255 + 0.5).astype(np.uint8)
+    inp = srgb(np.fromfile(f'{D}/rain_input_039.raw', dtype=np.float16).reshape(RH, RW, 4)[:, :, :3])
+    game = inp[(np.arange(y, y + kh) * RH // HH)][:, (np.arange(x, x + kw) * RW // WW)]
+    gcount = int(((game.mean(2) - c(pan).mean(2)) * 255 > 20).sum())
+    panels = [(f"the game's frame: {gcount}", pic(game))] + [(f'{n}: {int(c(over[k]).sum())}', pic(c(out[k]))) for n, k in zip(NAMES, KEYS)]
+    per = {k: over[k][py0:py1, px0:px1].mean() * 1e6 for k in KEYS}
+    print('rain window', x, y, ' | '.join(p_[0] for p_ in panels), '| rain area, per million:', ' '.join(f'{k} {per[k]:.0f}' for k in KEYS))
+    title = 'Rain drawn without motion vectors'
+    sub = ('Faint streaks one rendered pixel wide falling fast over a dark surface, camera still. The piece where the five differ most, enlarged 3 times.\n'
+           'Under each: pixels in this piece more than 20 of 255 brighter than the surface.')
     pw, ph, gap, m = kw * z, kh * z, 14, 28
     top = 112 + 28 * sub.count('\n')
     im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
@@ -223,7 +251,7 @@ def dots_sheet(kw=200, kh=130, z=3, area=(250, 250, 1950, 1900)):
     for i, (pl, a_) in enumerate(panels):
         px, py = m + (i % 3) * (pw + gap), top + (i // 3) * (ph + 44)
         im.paste(Image.fromarray(a_), (px, py)); d.text((px, py + ph + 6), pl, font=font(20), fill=INK if pl.startswith('Lossy') else MUTED)
-    im.save('cmp5-dots.png', optimize=True)
+    im.save('cmp5-rain.png', optimize=True)
 
 
-dots_sheet()
+rain_sheet()
