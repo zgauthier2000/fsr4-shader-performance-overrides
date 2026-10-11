@@ -71,7 +71,7 @@
 # rest they then stay in the history: sparkling on glossy surfaces. SB_LONE=1 (test, off by default): the nearest sample counts only as far as a
 # second one of the nine bears it out (the smaller of itself and the second largest; upward only). A particle covers more than one
 # render pixel; such noise does not.
-# SB_LEAN=1 (test, off by default; SPIR-V tool only so far): the changed-content tests laid out to hold fewer values at once. With them the postpass
+# SB_LEAN=1 (test, off by default): the changed-content tests laid out to hold fewer values at once. With them the postpass
 # needed 120 registers where release dll-2026-10-07's needed 96 (12 waves per SIMD instead of 16 on an RX 7800 XT), and SB_LONE on top 192 (8 waves):
 # measurable in a game, not in the timing kit. Three things did it: the nine sample weights were kept up to the branch to pick the nearest sample by
 # its weight (now: the middle one of the nine, which is the same sample but for the weights' fine print); the driver's compiler moved the nine history

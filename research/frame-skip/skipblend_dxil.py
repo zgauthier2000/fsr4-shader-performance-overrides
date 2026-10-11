@@ -150,7 +150,7 @@ _cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_
 DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # as in skipblend.py
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'
 LONE = os.environ.get('SB_LONE', '0') == '1'      # as in skipblend.py
-LEAN = os.environ.get('SB_LEAN', '0') == '1'      # as in skipblend.py: here only the choice of the nearest sample (the layout is the driver's business)
+LEAN = os.environ.get('SB_LEAN', '0') == '1'      # as in skipblend.py
 FMIN = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 36, float {a}, float {b})'
 FMAX = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 35, float {a}, float {b})'
 
@@ -190,7 +190,11 @@ def part(k, curs, h, at):
         for c in range(3):
             tc = samples(curs[c]); mn, mx = tc[0], tc[0]
             for i, v in enumerate(tc[1:]):
-                c_ += [FMIN(f'%sb.qn{c}{k}.{i}', mn, v), FMAX(f'%sb.qx{c}{k}.{i}', mx, v)]; mn, mx = f'%sb.qn{c}{k}.{i}', f'%sb.qx{c}{k}.{i}'
+                c_ += [FMIN(f'%sb.qn{c}{k}.{i}', mn, v), FMAX(f'%sb.qx{c}{k}.{i}', mx, v)]
+                if LEAN and LONE and SAMPLE is not None:      # the second largest of the nine, for the sample test, while each sample is at hand (as in skipblend.py)
+                    u = f'%ss.{k}.sl2{c}'
+                    c_ += [FMIN(f'{u}.0', mn, v)] if i == 0 else [FMIN(f'%ss.{k}.sla{c}.{i - 1}', mx, v), FMAX(f'{u}.{i}', f'{u}.{i - 1}', f'%ss.{k}.sla{c}.{i - 1}')]
+                mn, mx = f'%sb.qn{c}{k}.{i}', f'%sb.qx{c}{k}.{i}'
             c_.append(f'  %sb.qr{c}{k} = fsub fast float {mx}, {mn}')
             flags = []
             if PART is not None:
@@ -219,20 +223,21 @@ def part(k, curs, h, at):
     ld = next((m_ for n_ in range(at, 0, -1) for m_ in [re.match(r'\s*%[\w.]+ = call %dx\.types\.ResRet\.f16 @dx\.op\.textureLoad\.f16\(i32 66, %dx\.types\.Handle (%[\w.]+), i32 0, i32 (%[\w.]+), i32 (%[\w.]+),', L[n_])] if m_), None) \
         or sys.exit('skipblend_dxil: the history load of a pixel was not found')
     img, cx, cy = ld[1], ld[2], ld[3]
-    mn = [None] * 3; mx = [None] * 3
+    mn = [None] * 3; mx = [None] * 3; ft = []
     for j, (dx, dy) in enumerate([(a_, b_) for b_ in (-1, 0, 1) for a_ in (-1, 0, 1)]):
         t = f'%ss.{k}.{j}'
-        c_ += [f'  {t}x0 = add i32 {cx}, {dx}', f'  {t}y0 = add i32 {cy}, {dy}', f'  {t}x = call i32 @dx.op.binary.i32(i32 37, i32 {t}x0, i32 0)', f'  {t}y = call i32 @dx.op.binary.i32(i32 37, i32 {t}y0, i32 0)',
+        ft += [f'  {t}x0 = add i32 {cx}, {dx}', f'  {t}y0 = add i32 {cy}, {dy}', f'  {t}x = call i32 @dx.op.binary.i32(i32 37, i32 {t}x0, i32 0)', f'  {t}y = call i32 @dx.op.binary.i32(i32 37, i32 {t}y0, i32 0)',
                f'  {t}f = call %dx.types.ResRet.f16 @dx.op.textureLoad.f16(i32 66, %dx.types.Handle {img}, i32 0, i32 {t}x, i32 {t}y, i32 undef, i32 undef, i32 undef, i32 undef)']
         for c in range(3):
-            c_ += [f'  {t}h{c} = extractvalue %dx.types.ResRet.f16 {t}f, {c}', f'  {t}v{c} = fpext half {t}h{c} to float']
+            ft += [f'  {t}h{c} = extractvalue %dx.types.ResRet.f16 {t}f, {c}', f'  {t}v{c} = fpext half {t}h{c} to float']
             if mn[c] is None:
                 mn[c] = mx[c] = f'{t}v{c}'
             else:
-                c_ += [FMIN(f'{t}n{c}', mn[c], f'{t}v{c}'), FMAX(f'{t}m{c}', mx[c], f'{t}v{c}')]; mn[c], mx[c] = f'{t}n{c}', f'{t}m{c}'
-    t = f'%ss.{k}.s'; fs = []
+                ft += [FMIN(f'{t}n{c}', mn[c], f'{t}v{c}'), FMAX(f'{t}m{c}', mx[c], f'{t}v{c}')]; mn[c], mx[c] = f'{t}n{c}', f'{t}m{c}'
+    t = f'%ss.{k}.s'; fs = []; pre = []; rest = []; keep = c_
     m_, ab, full = float(SAMPLE), float(os.environ.get('SB_SAMPLEABS', '0.05')), float(os.environ.get('SB_SAMPLEFULL', '1'))
     for c in range(3):
+        c_ = []
         tc = samples_w(curs[c]); bv, bw = tc[0]
         if LEAN:      # the nearest sample is the middle one of the nine (as in skipblend.py): no weights needed here
             mid = [v for v, w in tc if _is_middle(v)]
@@ -245,23 +250,33 @@ def part(k, curs, h, at):
             bv, bw = f'{t}cv{c}.{i}', f'{t}cw{c}.{i}'
         vh = vl = bv
         if LONE:      # a sample that stands out above the other eight counts only as far as the next one bears it out (as in skipblend.py)
-            vs = samples(curs[c]); run = [vs[0]] + [f'%sb.qx{c}{k}.{i}' for i in range(len(vs) - 2)]
-            if PART is None and BRIGHT is None:
-                for i, v in enumerate(vs[1:-1]):
-                    c_.append(FMAX(f'{t}ux{c}.{i}', run[i] if i == 0 else f'{t}ux{c}.{i - 1}', v))
-                run = [vs[0]] + [f'{t}ux{c}.{i}' for i in range(len(vs) - 2)]
-            c_.append(FMIN(f'{t}l2{c}.0', vs[0], vs[1]))
-            for i, v in enumerate(vs[2:]):
-                c_ += [FMIN(f'{t}la{c}.{i}', run[i + 1], v), FMAX(f'{t}l2{c}.{i + 1}', f'{t}l2{c}.{i}', f'{t}la{c}.{i}')]
+            vs = samples(curs[c])
+            if not (LEAN and (PART is not None or BRIGHT is not None)):
+                run = [vs[0]] + [f'%sb.qx{c}{k}.{i}' for i in range(len(vs) - 2)]
+                if PART is None and BRIGHT is None:
+                    for i, v in enumerate(vs[1:-1]):
+                        c_.append(FMAX(f'{t}ux{c}.{i}', run[i] if i == 0 else f'{t}ux{c}.{i - 1}', v))
+                    run = [vs[0]] + [f'{t}ux{c}.{i}' for i in range(len(vs) - 2)]
+                c_.append(FMIN(f'{t}l2{c}.0', vs[0], vs[1]))
+                for i, v in enumerate(vs[2:]):
+                    c_ += [FMIN(f'{t}la{c}.{i}', run[i + 1], v), FMAX(f'{t}l2{c}.{i + 1}', f'{t}l2{c}.{i}', f'{t}la{c}.{i}')]
             c_.append(FMIN(f'{t}vh{c}', bv, f'{t}l2{c}.{len(vs) - 2}'))
             vh = f'{t}vh{c}'
+        pre.append(c_); c_ = []
         c_ += [f'  {t}r{c} = fsub fast float {mx[c]}, {mn[c]}', f'  {t}a{c} = fmul fast float {t}r{c}, {fl(m_)}', f'  {t}b{c} = fadd fast float {t}a{c}, {fl(ab)}',
                f'  {t}hi{c} = fsub fast float {vh}, {mx[c]}', f'  {t}lo{c} = fsub fast float {mn[c]}, {vl}', FMAX(f'{t}e0{c}', f'{t}hi{c}', f'{t}lo{c}'), f'  {t}e{c} = fsub fast float {t}e0{c}, {t}b{c}',
                f'  {t}d0{c} = fmul fast float {t}r{c}, {fl(full)}', f'  {t}d{c} = fadd fast float {t}d0{c}, {fl(ab)}', f'  {t}q{c} = fdiv fast float {t}e{c}, {t}d{c}',
                FMAX(f'{t}u{c}', f'{t}q{c}', '0.000000e+00'), FMIN(f'{t}g{c}', f'{t}u{c}', '1.000000e+00')]
-        fs.append(f'{t}g{c}')
-    c_ += [FMAX(f'{t}gm', fs[0], fs[1]), FMAX(f'{t}g', f'{t}gm', fs[2]),
-           (f'  %sb.pf{k} = fmul fast float {t}g, 1.000000e+00' if os.environ.get('SB_SAMPLEALL') == '1' else f'  %sb.pf{k} = select i1 %sm.rest, float {t}g, float 0.000000e+00'),
+        fs.append(f'{t}g{c}'); rest.append(c_)
+    c_ = keep
+    if LEAN:
+        # as in skipblend.py: the history fetches and what follows them in a block of their own, entered on the skipped-frame condition once more, so that a
+        # compiler that moves the fetches to the head of their block does not put them beside the nine samples
+        c_ += sum(pre, []) + [f'  br i1 %sb.skip, label %ss.T{k}, label %ss.M{k}', '', f'ss.T{k}:'] + ft + sum(rest, []) + [
+            FMAX(f'{t}gm', fs[0], fs[1]), FMAX(f'{t}gg', f'{t}gm', fs[2]), f'  br label %ss.M{k}', '', f'ss.M{k}:', f'  {t}g = phi float [ {t}gg, %ss.T{k} ], [ 0.000000e+00, %sb.T{k} ]']
+    else:
+        c_ += ft + sum([x + y for x, y in zip(pre, rest)], []) + [FMAX(f'{t}gm', fs[0], fs[1]), FMAX(f'{t}g', f'{t}gm', fs[2])]
+    c_ += [(f'  %sb.pf{k} = fmul fast float {t}g, 1.000000e+00' if os.environ.get('SB_SAMPLEALL') == '1' else f'  %sb.pf{k} = select i1 %sm.rest, float {t}g, float 0.000000e+00'),
            f'  {t}z = fcmp ole float %sb.pf{k}, 0.000000e+00', f'  %sb.rqS{k} = and i1 %sm.rest, {t}z', f'  %sb.rq{k} = and i1 %sb.rqO{k}, %sb.rqS{k}']
     return c_
 
@@ -439,7 +454,9 @@ else:
                     if CLAMP is not None:
                         for c in range(3):
                             tc = samples(curs[c]); mn, mx = tc[0], tc[0]
-                            for i, v in enumerate(tc[1:]):
+                            if LEAN and REST and (PART is not None or BRIGHT is not None):      # the same range, already worked out by the SB_PART test
+                                mn, mx = f'%sb.qn{c}{k}.{len(tc) - 2}', f'%sb.qx{c}{k}.{len(tc) - 2}'
+                            for i, v in ([] if (LEAN and REST and (PART is not None or BRIGHT is not None)) else list(enumerate(tc[1:]))):
                                 c_ += [f'  %sb.mn{c}{k}.{i} = call float @dx.op.binary.f32(i32 36, float {mn}, float {v})',
                                        f'  %sb.mx{c}{k}.{i} = call float @dx.op.binary.f32(i32 35, float {mx}, float {v})']
                                 mn, mx = f'%sb.mn{c}{k}.{i}', f'%sb.mx{c}{k}.{i}'
@@ -465,10 +482,11 @@ else:
                         c_ += [f'  %sb.zz{k} = and i1 %sb.z0{k}, %sb.z1{k}'] + ([f'  %sb.gda{k} = and i1 %sb.zz{k}, %sb.z2{k}', f'  %sb.gd{k} = or i1 %sb.gda{k}, %sm.flag'] if UNCOV else [f'  %sb.gd{k} = and i1 %sb.zz{k}, %sb.z2{k}']) + [
                                f'  %sb.rg.{c}{k} = select i1 %sb.gd{k}, float {curs[c]}, float {mix[c]}' for c in range(3)]
                         mix = [f'%sb.rg.{c}{k}' for c in range(3)]
+                    tlab = f'%ss.M{k}' if (LEAN and REST and SAMPLE is not None) else f'%sb.T{k}'      # the block the branch ends in
                     if DEAD is None:
-                        c_ += [f'  br label %sb.M{k}', '', f'sb.M{k}:'] + [f'  %sb.r{c}{k} = phi float [ {mix[c]}, %sb.T{k} ], [ {sums[c]}, {cur_label} ]' for c in range(3)]
+                        c_ += [f'  br label %sb.M{k}', '', f'sb.M{k}:'] + [f'  %sb.r{c}{k} = phi float [ {mix[c]}, {tlab} ], [ {sums[c]}, {cur_label} ]' for c in range(3)]
                     else:      # dead band, as in skipblend.py (|d| < t written as two comparisons)
-                        c_ += [f'  br label %sb.M{k}', '', f'sb.M{k}:'] + [f'  %sb.rp{c}{k} = phi float [ {mix[c]}, %sb.T{k} ], [ {sums[c]}, {cur_label} ]' for c in range(3)]
+                        c_ += [f'  br label %sb.M{k}', '', f'sb.M{k}:'] + [f'  %sb.rp{c}{k} = phi float [ {mix[c]}, {tlab} ], [ {sums[c]}, {cur_label} ]' for c in range(3)]
                         for c in range(3):
                             c_ += [f'  %db.d{c}{k} = fsub fast float %sb.rp{c}{k}, {h[c]}', f'  %db.t{c}{k} = fmul fast float {h[c]}, {fl(DEAD / 1024)}', f'  %db.n{c}{k} = fsub fast float -0.000000e+00, %db.t{c}{k}',
                                    f'  %db.u{c}{k} = fcmp fast olt float %db.d{c}{k}, %db.t{c}{k}', f'  %db.v{c}{k} = fcmp fast ogt float %db.d{c}{k}, %db.n{c}{k}', f'  %db.l{c}{k} = and i1 %db.u{c}{k}, %db.v{c}{k}']
