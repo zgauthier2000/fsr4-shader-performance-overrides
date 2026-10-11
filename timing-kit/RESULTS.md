@@ -296,3 +296,27 @@ the run has no whole-frame or lossy figures. One run.
 - **The two forms of the dot product** (`v_dot4c_i32_i8` against `v_dot4_i32_i8`): no difference
   on this card (within 5% either way in model passes 1 and 12 and the postpass, at 1080p and 4K).
 - **Output check:** every version gave AMD's output.
+
+## Windows kit: Radeon RX 7900 XTX and Intel Arc B580, 2026-10-12
+
+These two come from the [Windows kit](README.md), which measures something else than the sections
+above: the whole FSR 4.1.1 upscaler as a game runs it, through AMD's DLL, with AMD's shaders and
+with this project's DLLs. Kit version 2026-10-11.4, so the lossy DLL is that of release
+`dll-2026-10-11.3`. Milliseconds per upscaled frame with the camera moving; one run per card.
+
+| Card (driver) | Output | AMD's shaders | Exact | Lossy |
+|---|---|---|---|---|
+| Radeon RX 7900 XTX (32.0.32015) | 1080p | 0.670 | 0.674 (+1%) | 0.469 (-30%) |
+| | 1440p | 1.383 | 1.088 (-21%) | 0.778 (-44%) |
+| | 4K | 3.305 | 2.341 (-29%) | 1.675 (-49%) |
+| Intel Arc B580 (32.0.101.9033) | 1080p | 1.775 | 1.637 (-8%) | 1.220 (-31%) |
+| | 1440p | 3.092 | 2.907 (-6%) | 2.155 (-30%) |
+| | 4K | 7.002 | 6.528 (-7%) | 4.865 (-31%) |
+
+- **The exact DLL gives AMD's picture on both cards**, byte for byte, at all three sizes (the
+  kit's fingerprint of the still scene). The lossy DLL differs, as it should.
+- **RX 7900 XTX:** nothing to gain at 1080p, a fifth at 1440p, nearly a third at 4K.
+- **Intel Arc B580: the first Intel result.** FSR 4.1.1 runs there with AMD's graphics-card check
+  lifted, and the exact DLL is 6 to 8% faster at every size. Some of this card's still-scene
+  readings were unsteady (one read 4% slower where the moving one read 6% faster), which is why
+  the table uses the moving scene.
