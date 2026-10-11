@@ -26,7 +26,8 @@ What it does
   made-up frames at 1080p, 1440p and 4K output (render size as in the Balanced preset), with the
   picture still and with the camera moving, and measures the graphics card's time for each upscale
   call: 200 calls after 40 to warm up. It also takes a fingerprint of the picture each DLL produces
-  from the still scene, to show which DLLs give the same picture.
+  from the still scene and from the moving one (its last frame), to show which DLLs give the
+  same picture. (Kits before 2026-10-12.1 did this for the still scene only.)
 
   dlls\1-amd-shaders   AMD's DLL with AMD's shaders (only its graphics-card check is lifted, so
                        that it runs on RX 6000 cards and integrated graphics too): the reference
@@ -46,15 +47,16 @@ What it does
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
   dlls\5-igpu-lossy    and its lossy one
 
-  To time another FSR 4.1.1 DLL as well, make a folder for it in dlls\ (for example
-  dlls\6-other) and put its amd_fidelityfx_upscaler_dx12.dll there.
+  To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
+  these, make a folder for it in dlls\ (for example dlls\6-other) and put its
+  amd_fidelityfx_upscaler_dx12.dll there.
 
 Reading the summary
   The numbers are milliseconds of graphics-card time per upscaled frame; lower is better. The
   percentage compares with the first DLL. For a lossy DLL the two numbers in brackets are a frame
   that runs FSR 4's model and a frame that skips it.
 
-  After each still run comes the picture's fingerprint. "= 1-amd-shaders" after it means the
+  After each run comes the picture's fingerprint. "= 1-amd-shaders" after it means the
   output was the same as that DLL's, byte for byte; "(differs from those above)" means no DLL
   before it gave that picture. A lossy DLL always differs, as it should. On an RX 6000 card the
   exact DLLs are expected to differ from 1-amd-shaders and to match 1b-amd-shaders-dots-split;

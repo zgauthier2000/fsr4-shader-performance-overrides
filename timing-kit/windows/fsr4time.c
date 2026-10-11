@@ -12,7 +12,7 @@
 // What is timed: the GPU time of one upscale call (prepass, 12 model passes, postpass and the small shaders around
 // them), from a timestamp before to one after, 200 calls back to back after 40 to warm up. For a lossy DLL the
 // two kinds of frame are also given apart. The summary gives a fingerprint of the picture each DLL produces from
-// the still scene and names the first DLL above it that produced the same picture, byte for byte.
+// the still scene and from the moving one (the run's last frame) and names the first DLL above it that produced the same picture, byte for byte.
 //
 // Build (llvm-mingw): x86_64-w64-mingw32-clang -std=c11 -O1 -I<FidelityFX>/api/include -I<FidelityFX>/upscalers/include
 //                     fsr4time.c -o fsr4time.exe -ld3d12 -ldxgi -ldxguid -lwinhttp -ladvapi32 -static
@@ -37,7 +37,7 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-11.6, experimental"
+#define KIT_VERSION "windows 2026-10-12.1, experimental"
 #define WARM 40
 #define TIMED 200
 #define PHASES 16
@@ -320,7 +320,7 @@ static int RunOne(const char* name, bool quick) {
             double sum = 0, fastest = ms[0];
             for (int i = 0; i < TIMED; ++i) { sum += ms[i]; if (ms[i] < fastest) fastest = ms[i]; }
             const double med = Median(ms, TIMED), me = Median(even, ne), mo = Median(odd, no);
-            const uint64_t h = scene == 0 ? HashOutput(output, ow, oh) : 0;
+            const uint64_t h = HashOutput(output, ow, oh);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
             // name | version name the DLL reports | output | render | scene | mean | median | median where jitter x >= 0 | where < 0 | fastest | picture hash
             Say("R|%s|%s|%ux%u|%ux%u|%s|%.4f|%.4f|%.4f|%.4f|%.4f|%016llx\n", name, provider.versionName ? provider.versionName : chosen_name, ow, oh, rw, rh,
                 scene ? "moving" : "still", sum / TIMED, med, me, mo, fastest, (unsigned long long)h);
@@ -492,8 +492,8 @@ int main(int argc, char** argv) {
         if (ref && ref != w) {
             ADD("  %+.0f%%", 100.0 * w->mean / ref->mean - 100.0);
         }
-        if (!strcmp(w->scene, "still")) {
-            // the picture's fingerprint, and the first DLL above that produced the same one
+        {
+            // the picture's fingerprint (the run's last frame), and the first DLL above that produced the same one
             const struct Row* same = NULL;
             for (int j = 0; j < i && !same; ++j)
                 if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene) && !strcmp(rows[j].hash, w->hash)) same = &rows[j];

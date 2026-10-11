@@ -50,7 +50,7 @@ browsers, and double-click `fsr4time.exe`; it takes about seven minutes.
   its `dlls` folder: AMD's shaders (the reference), this project's exact and lossy DLLs, and the two for integrated graphics.
   1080p, 1440p and 4K output, picture still and camera moving. For a lossy DLL the frame that runs the model and the skipped
   frame are given apart. Put another FSR 4.1.1 DLL into a new folder under `dlls` to time it as well.
-- **What it checks:** it takes a fingerprint of each DLL's picture from the still scene and names the first DLL that gave the
+- **What it checks:** it takes a fingerprint of each DLL's picture from the still scene and, since kit 2026-10-12.1, from the moving one, and names the first DLL that gave the
   same picture, byte for byte. The exact DLLs must match AMD's shaders; the lossy ones differ. **RX 6000 cards under Windows
   are the exception:** AMD's own shaders show ghosting there, so the exact DLLs are expected to differ from them and to match
   the second reference instead, AMD's shaders with only the last shader's dot products split into two steps. A third
@@ -60,6 +60,7 @@ browsers, and double-click `fsr4time.exe`; it takes about seven minutes.
   Radeon chips, help or cost time, and whether the exact DLL's picture is AMD's on that driver too.
 - **Experimental:** it has been run under Proton on one RX 7800 XT only (4K: 4.7 to 4.9 ms with AMD's shaders, 3.17 ms exact,
   2.37 ms lossy; exact: same picture). The first reports from Windows PCs are in, from eight graphics cards. Since kit
+  2026-10-12.1 the moving scene has a fingerprint too; since
   2026-10-11.6 its lossy DLLs are those of release `dll-2026-10-11.5`; since 2026-10-11.3 it asks for an optional name for the thank-you notes. The program is not signed, so Windows warns about it;
   the source is [`windows/fsr4time.c`](windows/fsr4time.c), with the command that builds it at its top.
 - At the end it shows a summary, saves it next to the program and asks whether to send it. Not for RX 9000 cards.
