@@ -48,8 +48,10 @@ What it does
   dlls\5-igpu-lossy    and its lossy one
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
-  these, make a folder for it in dlls\ (for example dlls\6-other) and put its
-  amd_fidelityfx_upscaler_dx12.dll there.
+  these, make a folder for it in dlls\ and put its amd_fidelityfx_upscaler_dx12.dll there. For
+  example, if you have the community's 4.1.1b file itself (the kit does not include it), put it
+  in dlls\6-411b. The summary then has a line for it at every size, with its time and with
+  which of the DLLs above, if any, gives the same picture.
 
 Reading the summary
   The numbers are milliseconds of graphics-card time per upscaled frame; lower is better. The
