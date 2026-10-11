@@ -110,12 +110,12 @@ More games and resolutions: [all results](docs/results.md).
 One test scene on one graphics card; [the comparison page](docs/upscaler-comparison.md) has the other scenes, including the ones the lossy DLL does worst in.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 150 MB, version 2026-10-11.4 with this release's DLLs): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 150 MB, version 2026-10-11.5 with this release's DLLs): unpack, double-click
 > `fsr4time.exe`, wait about seven minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **The first reports from Windows are in, from eight graphics cards; every further
 > card helps.**
-> - **Both kits carry the lossy files of release `dll-2026-10-11.3`** (kit versions 2026-10-11.4); this release is 0.5% slower in the rig and otherwise times the same. If you ran an earlier kit, please download again.
+> - **Both kits carry this release's lossy files** (kit versions 2026-10-11.5). If you ran an earlier kit, please download again.
 > - **New: be named on the [thank-you page](docs/thanks.md).** When you send your result, the kit asks for a name or nickname to list. It is optional.
 > - **RX 6000 owners:** AMD's own shaders show ghosting on these cards under Windows. The kit has two
 >   extra reference DLLs and prints a fingerprint of each picture, so your run tells us whether the
@@ -123,7 +123,7 @@ One test scene on one graphics card; [the comparison page](docs/upscaler-compari
 > - **Not only Radeon:** the DLLs should run on any graphics chip whose driver supports DirectX 12 with
 >   Shader Model 6.6, which includes GeForce and Intel Arc.
 > - **Linux and the Steam Deck:** [the Linux kit](timing-kit), updated the same day. It now times the lossy
->   build's three changed model passes, and its check that the model passes give AMD's output, blind in kits before
+>   build's one changed model pass, and its check that the model passes give AMD's output, blind in kits before
 >   2026-10-10, is fixed.
 >
 > [What the kits do](timing-kit#windows-experimental)

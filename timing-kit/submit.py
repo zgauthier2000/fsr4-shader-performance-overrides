@@ -95,7 +95,7 @@ def timings(text):
 t1, t2 = timings(read('timing-round1.txt')), timings(read('timing-round2.txt'))
 lines.append('')
 if t1:
-    lines.append('ms per pass: AMD / exact' + (' / lossy (passes 1, 10 and 12: the lossy build folds a few of their weights)' if any(k[2] == 'lossy' for k in t1) else ''))
+    lines.append('ms per pass: AMD / exact' + (' / lossy (pass 10: the lossy build folds a few of its weights)' if any(k[2] == 'lossy' for k in t1) else ''))
 for cls in ('1080p', '1440p', '4k'):
     row, tot = [], {'amd': 0.0, 'exact': 0.0, 'lossy': 0.0}
     for p in ORDER:
