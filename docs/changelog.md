@@ -2,8 +2,63 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-11.5` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-11.6` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-11 ([release `dll-2026-10-11.6`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.6))
+
+### Sparkling on glossy surfaces
+
+*Written for `dll-2026-10-11.6`: "this release" below means that one.*
+
+One change to the lossy DLL's picture and one to its speed. **The exact DLL is unchanged.**
+
+- **What was wrong:** a tester sent a video of Gears of War: E-Day with the lossy DLL: small bright points sparkling on a
+  glossy panel that shows traced reflections. Such surfaces hand the upscaler single over-bright pixels that change
+  from frame to frame, and FSR is meant to average them away.
+- **The cause:** two of the lossy DLL's own rules for skipped frames. The rule that keeps particles visible (a spark has no
+  motion vectors, so it has to be recognized by its brightness) took each over-bright pixel for a spark and showed it.
+  And since `dll-2026-10-11`, which stopped erasing thin wires from the stored picture at rest, nothing removed it again.
+- **The fix:** a bright sample now counts as a spark only as far as a second sample beside it bears it out. A particle
+  covers more than one pixel of the game's frame; this kind of noise does not.
+- **Where else it should help:** the rule does not know about ray tracing, only about lone bright pixels. Small highlights
+  on wet, metal or finely bumped surfaces, noisy screen-space reflections and glints on water reach the upscaler the
+  same way. The table's second row is that case (glints that stay in place and are hit only on some frames) and is back
+  at AMD's figure. No game was checked for it.
+
+| Measured in the test rig at 4K: a dark surface with single over-bright pixels in the game's frame | AMD's shaders | `dll-2026-10-11.5` | This release |
+|---|---|---|---|
+| New places every frame: output pixels more than 20 levels too bright, per million | 25 | 7,786 | 73 |
+| Fixed glints that the camera jitter hits now and then | 1,460 | 4,721 | 1,446 |
+| With the HDR option and brighter pixels | 220 | 8,767 | 323 |
+| Dimmer and three times as many | 0 | 16,070 | 459 |
+| Large particles: share shown on skipped frames | 98% | 98.1% | 98.1% |
+| Tiny fast embers: share shown on skipped frames | 83% | 75.3% | 75.0% |
+| Still picture | 44.33 dB | 44.25 dB | 44.24 dB |
+| Film grain of 15 in 255: accuracy | 34.84 dB | 33.44 dB | 33.66 dB |
+
+- **Speed: a loss that had crept in is stopped.** Each rule added since `dll-2026-10-07` made the last shader hold more
+  values at once, and a graphics chip runs fewer copies of a shader side by side the more it holds: 16 at a time then, 12
+  since `dll-2026-10-10`, and the first form of this fix would have made it 8. The timing kit hardly shows this; a game
+  does. The shader is now laid out to hold as few as in `dll-2026-10-07` (16 at a time again on a Radeon RX 7800 XT under
+  Linux, as files and as DLL).
+
+| Shadow of the Tomb Raider benchmark, 4K, Balanced, RX 7800 XT, Linux, one run each | Frames rendered | Frame rate |
+|---|---|---|
+| `dll-2026-10-11.5` | 18,616 | 120 FPS |
+| The fix in its first form (not released) | 18,342 | 118 FPS |
+| This release | 18,632 | 120 FPS |
+
+- **What got worse:** where two over-bright pixels happen to lie side by side they still pass (the table's last firefly row).
+- **Unchanged:** everything else that was measured: the moving scene at 1080p, 1440p and 4K, rest, thin wires, ghost and
+  uncovered-area measures, foliage, 30 to 120 FPS. The whole upscaler in the timing kit: 2.37 ms against 2.37 ms at 4K.
+- **Not checked:**
+  - The game the report came from. The fault was rebuilt as a made-up scene; whether the sparkle there is gone is for
+    the tester to say.
+  - Windows drivers. How many copies of the shader run side by side is the driver's compiler's doing, and it was
+    measured under Linux only.
+- These are single runs on made-up scenes.
+  [How the cause was found, and what held the shader back](../research/frame-skip#sparkling-on-glossy-surfaces-and-a-shader-that-held-too-much-release-dll-2026-10-116).
 
 ## 2026-10-11 ([release `dll-2026-10-11.5`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.5))
 

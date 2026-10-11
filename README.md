@@ -102,15 +102,13 @@ More games and resolutions: [all results](docs/results.md).
 ## New in this release
 
 > [!TIP]
-> **The lossy DLL: no more sparkling on glossy surfaces, and a speed loss stopped.**
-> - **New in this release:** single over-bright pixels in the game's frame were shown as sparks by the lossy DLL and then
->   stayed in the picture. In the test rig a hundredth of them is left, close to AMD's shaders. A slow-down that would
->   have come with the fix, and part of one that had built up over the last releases, is avoided.
->   [Details below](#sparkling-on-glossy-surfaces-release-dll-2026-10-116).
-> - **Not only ray tracing:** the report came from traced reflections, but the fix does not look at where such a pixel
->   comes from. Anything that hands the upscaler lone bright pixels should gain the same way: small highlights on wet,
->   metal or finely bumped surfaces, noisy screen-space reflections, glints on water. Of these, only fixed glints were
->   measured, in the test rig; none was checked in a game.
+> **The lossy DLL: rain is no longer shown as white dashes.**
+> - **New in this release:** rain and other thin streaks that the game draws without motion vectors came out of the
+>   lossy DLL as hard white dashes and specks, where AMD's shaders blend them into the picture. In the test rig they
+>   are now as faint as with AMD's shaders. Speed is unchanged.
+>   [Details below](#rain-shown-as-white-dashes-release-dll-2026-10-117).
+> - **The price:** thin wires are dimmer while the camera pans, and steadier. If you saw no white specks in rain or
+>   through windows, there is no need to update.
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, with charts and side-by-side crops. It shows where the lossy DLL leads (accuracy close to FSR 4, areas
 >   a moving object has just uncovered) and where it is last of the five (moving foliage, a thin wire in a slow pan).
@@ -155,6 +153,7 @@ One test scene on one graphics card; [the comparison page](docs/upscaler-compari
 
 **The technical pages behind this release:**
 
+- [Rain and other thin streaks](research/frame-skip#rain-and-other-thin-streaks-release-dll-2026-10-117): why a line passed the rule against single bright pixels, the rule that replaced it, and what it costs thin wires
 - [Sparkling on glossy surfaces, and a shader that held too much](research/frame-skip#sparkling-on-glossy-surfaces-and-a-shader-that-held-too-much-release-dll-2026-10-116): single over-bright pixels taken for sparks, the test scene, and why a rule that cost nothing in the timing kit cost frames in a game
 - [Shimmer with auto exposure on](research/frame-skip#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115): the exposure value's wobble, the store that drops bits, why rounding everything was the wrong fix, and the narrow one that shipped
 - [The exact files beside a "steady" test build](docs/steady-test.md): an unreleased experiment with the dead band of release `dll-2026-10-11.4` on the exact files, without frame skip
@@ -167,58 +166,57 @@ One test scene on one graphics card; [the comparison page](docs/upscaler-compari
 - [Weight folding](research/lossy): the earlier experiment the light folds come from
 - [The timing kits](timing-kit): what the Linux and Windows kits measure, and how to read their summaries
 
-### Sparkling on glossy surfaces (release `dll-2026-10-11.6`)
+### Rain shown as white dashes (release `dll-2026-10-11.7`)
 
-One change to the lossy DLL's picture and one to its speed. **The exact DLL is unchanged.**
+One change to the lossy DLL's picture. **The exact DLL is unchanged.**
 
-- **What was wrong:** a tester sent a video of Gears of War: E-Day with the lossy DLL: small bright points sparkling on a
-  glossy panel that shows traced reflections. Such surfaces hand the upscaler single over-bright pixels that change
-  from frame to frame, and FSR is meant to average them away.
-- **The cause:** two of the lossy DLL's own rules for skipped frames. The rule that keeps particles visible (a spark has no
-  motion vectors, so it has to be recognized by its brightness) took each over-bright pixel for a spark and showed it.
-  And since `dll-2026-10-11`, which stopped erasing thin wires from the stored picture at rest, nothing removed it again.
-- **The fix:** a bright sample now counts as a spark only as far as a second sample beside it bears it out. A particle
-  covers more than one pixel of the game's frame; this kind of noise does not.
-- **Where else it should help:** the rule does not know about ray tracing, only about lone bright pixels. Small highlights
-  on wet, metal or finely bumped surfaces, noisy screen-space reflections and glints on water reach the upscaler the
-  same way. The table's second row is that case (glints that stay in place and are hit only on some frames) and is back
-  at AMD's figure. No game was checked for it.
+- **What was wrong:** a tester sent a video of Alan Wake 2 with the lossy DLL: white dashes and specks in a window with
+  rain falling outside. In a still stretch of the video they come and go with every other frame of the game, which is
+  the rhythm of the lossy DLL's skipped frames.
+- **The cause:** the rule that keeps particles visible on skipped frames (a spark has no motion vectors, so it has to be
+  recognized by its brightness). A rain streak is a thin bright line without motion vectors, and the rule showed each
+  one at full strength. The rule of `dll-2026-10-11.6` did not stop it: that one asks for a second bright sample beside
+  the first, and a line always has one, along itself.
+- **The fix:** a bright sample now counts as a spark only as far as it has a bright neighbor in both directions,
+  sideways and above or below. A particle is a spot; a line one pixel wide in the game's frame is not.
 
-| Measured in the test rig at 4K: a dark surface with single over-bright pixels in the game's frame | AMD's shaders | `dll-2026-10-11.5` | This release |
+| Measured in the test rig at 4K: output pixels more than 20 levels too bright, per million | AMD's shaders | `dll-2026-10-11.6` | This release |
 |---|---|---|---|
-| New places every frame: output pixels more than 20 levels too bright, per million | 25 | 7,786 | 73 |
-| Fixed glints that the camera jitter hits now and then | 1,460 | 4,721 | 1,446 |
-| With the HDR option and brighter pixels | 220 | 8,767 | 323 |
-| Dimmer and three times as many | 0 | 16,070 | 459 |
-| Large particles: share shown on skipped frames | 98% | 98.1% | 98.1% |
-| Tiny fast embers: share shown on skipped frames | 83% | 75.3% | 75.0% |
-| Still picture | 44.33 dB | 44.25 dB | 44.24 dB |
-| Film grain of 15 in 255: accuracy | 34.84 dB | 33.44 dB | 33.66 dB |
+| Rain: faint streaks one pixel wide, falling fast | 0 to 1 | 19,242 to 21,130 | 0 |
+| Rain, four times as bright and slower | 1,258 to 1,314 | 68,189 to 73,960 | 450 to 489 |
+| Rain with the HDR option and auto exposure | 2 | 17,512 to 19,350 | 0 |
+| Single over-bright pixels, new places every frame | 25 | 73 | 14 |
+| Single over-bright pixels, dimmer and three times as many | 0 | 459 | 0 |
+| Fixed glints that the camera jitter hits now and then | 1,460 | 1,446 | 1,411 |
 
-- **Speed: a loss that had crept in is stopped.** Each rule added since `dll-2026-10-07` made the last shader hold more
-  values at once, and a graphics chip runs fewer copies of a shader side by side the more it holds: 16 at a time then, 12
-  since `dll-2026-10-10`, and the first form of this fix would have made it 8. The timing kit hardly shows this; a game
-  does. The shader is now laid out to hold as few as in `dll-2026-10-07` (16 at a time again on a Radeon RX 7800 XT under
-  Linux, as files and as DLL).
+| Measured in the test rig at 4K, on skipped frames | AMD's shaders | `dll-2026-10-11.6` | This release |
+|---|---|---|---|
+| Large particles: share shown | 98% | 98.1% | 98.2% |
+| Tiny fast embers: share shown | 83% | 75.0% | 73.7% |
+| Thin wires, slow pan: brightness (true value 111) | 100 | 58.7 | 52.6 |
+| Thin wires, slow pan: change per frame | 7.16 | 14.38 | 9.60 |
+| Thin wires, fast pan: brightness (true value 111) | 97 | 62.5 | 58.1 |
+| Thin wires, camera still: brightness (true value 111) | 67.4 | 67.1 | 65.8 |
+| Still picture | 44.33 dB | 44.24 dB | 44.24 dB |
 
-| Shadow of the Tomb Raider benchmark, 4K, Balanced, RX 7800 XT, Linux, one run each | Frames rendered | Frame rate |
-|---|---|---|
-| `dll-2026-10-11.5` | 18,616 | 120 FPS |
-| The fix in its first form (not released) | 18,342 | 118 FPS |
-| This release | 18,632 | 120 FPS |
-
-- **What got worse:** where two over-bright pixels happen to lie side by side they still pass (the table's last firefly row).
-- **Unchanged:** everything else that was measured: the moving scene at 1080p, 1440p and 4K, rest, thin wires, ghost and
-  uncovered-area measures, foliage, 30 to 120 FPS. The whole upscaler in the timing kit: 2.37 ms against 2.37 ms at 4K.
+- **What got worse:**
+  - Thin wires are dimmer while the camera pans (the table's wire rows). A wire is a line one pixel wide too, and the
+    rule that removes the rain takes some of the wire with it. They also flicker less than before.
+  - Tiny fast embers are shown a little less on skipped frames.
+  - Rain two pixels wide in the game's frame would still pass; that was not measured.
+- **Unchanged:** everything else that was measured: the moving scene at 1080p, 1440p and 4K, rest, ghost and
+  uncovered-area measures, foliage, film grain, 30 to 120 FPS, pan start. The last shader holds as few values as before
+  (16 copies side by side on a Radeon RX 7800 XT under Linux, as files and as DLL) and takes the same time: 0.67 ms
+  against 0.67 ms at 4K, timed alone.
 - **Not checked:**
-  - The game the report came from. The fault was rebuilt as a made-up scene; whether the sparkle there is gone is for
-    the tester to say.
-  - Windows drivers. How many copies of the shader run side by side is the driver's compiler's doing, and it was
-    measured under Linux only.
+  - The game the report came from. The fault was rebuilt as a made-up scene; whether the dashes there are gone is for
+    the tester to say. AMD's shaders make the rig's rain almost invisible, which real rain in a game is not.
+  - The whole upscaler in the timing kit, and a game benchmark.
+  - Windows drivers.
 - These are single runs on made-up scenes.
-  [How the cause was found, and what held the shader back](research/frame-skip#sparkling-on-glossy-surfaces-and-a-shader-that-held-too-much-release-dll-2026-10-116).
+  [How the cause was found](research/frame-skip#rain-and-other-thin-streaks-release-dll-2026-10-117).
 
-Earlier releases, including `dll-2026-10-11.5` (shimmer in bright flat areas with auto exposure on), `dll-2026-10-11.3` (fewer bright dots in foliage), `dll-2026-10-11.2` (a ghost behind bright objects over fast ground), `dll-2026-10-11` (white beads on thin wires, particles closer to AMD's), `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
+Earlier releases, including `dll-2026-10-11.6` (no sparkling on glossy surfaces, a speed loss stopped), `dll-2026-10-11.5` (shimmer in bright flat areas with auto exposure on), `dll-2026-10-11.3` (fewer bright dots in foliage), `dll-2026-10-11.2` (a ghost behind bright objects over fast ground), `dll-2026-10-11` (white beads on thin wires, particles closer to AMD's), `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
 
 ## Will it work for me?
 

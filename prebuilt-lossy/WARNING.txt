@@ -15,7 +15,8 @@ What it does
   the game reporting motion (particles, sparks, embers), and ones where the network itself had
   asked for the new frame on the frame before.
   A single over-bright pixel with no bright pixel beside it in the game's frame (the noise of
-  traced reflections on glossy surfaces) is not taken for a spark.
+  traced reflections on glossy surfaces) is not taken for a spark, and neither is a line one
+  pixel wide (rain): a spark has to have a bright neighbor both sideways and above or below.
 - The network's arithmetic is AMD's except in one of its layers, where a few of the
   smallest weights are merged into their neighbors. In the last step a correction smaller
   than about two steps of the picture's number format is skipped, and tiny wobbles of the
@@ -31,8 +32,9 @@ What it costs
 - Small fast sparks are shown slightly dimmer on skipped frames than with AMD's file.
 - Moving foliage (leaves swaying without the game reporting their motion) comes out softer
   than with AMD's file: the picture there is averaged over about one more frame.
-- Very thin things in the distance (power lines, fences) flicker about twice as much as with
-  AMD's file while the camera pans slowly. With the camera still they are as steady as AMD's.
+- Very thin things in the distance (power lines, fences) are shown about half as bright as
+  with AMD's file while the camera pans, and flicker up to a third more in a slow pan. With
+  the camera still they are as bright and as steady as AMD's.
 - Strong film grain is passed on more than with the releases before dll-2026-10-11.4.
 - A slow change of brightness (a fade) shows in bright flat areas about a third of a frame
   later than with AMD's file when the game uses FSR's auto exposure.

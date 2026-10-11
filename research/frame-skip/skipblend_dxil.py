@@ -151,12 +151,16 @@ DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.envi
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'
 LONE = os.environ.get('SB_LONE', '1') == '1'      # as in skipblend.py
 LEAN = os.environ.get('SB_LEAN', '1') == '1'      # as in skipblend.py
+BLOB = LONE and os.environ.get('SB_BLOB', '1') == '1'      # as in skipblend.py
 FMIN = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 36, float {a}, float {b})'
 FMAX = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 35, float {a}, float {b})'
 
 
 def _is_middle(v):
     """is this sample value read at the unshifted coordinates (the middle one of the nine)? As in skipblend.py."""
+    return _offset(v) == (0, 0)
+def _offset(v):
+    """where among the nine this sample value is read: (dx, dy), each -1, 0 or 1. As in skipblend.py."""
     found = {}; todo = [(v, 0)]; seen = set()
     while todo:
         x, depth = todo.pop(); d = defs.get(x, '')
@@ -174,12 +178,13 @@ def _is_middle(v):
         for _ in range(6):
             e = defs.get(x, ''); w = re.match(r'call i32 @dx\.op\.binary\.i32\(i32 (?:37|38|39|40), i32 (%[\w.]+), ', e)
             if w: x = w[1]; continue
-            if re.match(r'add (?:nsw |nuw )*i32 ', e): return True
-            if re.match(r'fpto[su]i ', e): return False
+            a = re.match(r'add (?:nsw |nuw )*i32 %[\w.]+, (-?1)$', e)
+            if a: return int(a[1])
+            if re.match(r'fpto[su]i ', e): return 0
             break
         sys.exit(f'skipblend_dxil: unexpected shape of a sample coordinate ({x} = {defs.get(x, "")[:60]})')
     cx, cy = next(iter(found.values()))
-    return not shifted(cx) and not shifted(cy)
+    return shifted(cx), shifted(cy)
 
 
 def part(k, curs, h, at):
@@ -191,7 +196,7 @@ def part(k, curs, h, at):
             tc = samples(curs[c]); mn, mx = tc[0], tc[0]
             for i, v in enumerate(tc[1:]):
                 c_ += [FMIN(f'%sb.qn{c}{k}.{i}', mn, v), FMAX(f'%sb.qx{c}{k}.{i}', mx, v)]
-                if LEAN and LONE and SAMPLE is not None:      # the second largest of the nine, for the sample test, while each sample is at hand (as in skipblend.py)
+                if LEAN and LONE and not BLOB and SAMPLE is not None:      # the second largest of the nine, for the sample test, while each sample is at hand (as in skipblend.py)
                     u = f'%ss.{k}.sl2{c}'
                     c_ += [FMIN(f'{u}.0', mn, v)] if i == 0 else [FMIN(f'%ss.{k}.sla{c}.{i - 1}', mx, v), FMAX(f'{u}.{i}', f'{u}.{i - 1}', f'%ss.{k}.sla{c}.{i - 1}')]
                 mn, mx = f'%sb.qn{c}{k}.{i}', f'%sb.qx{c}{k}.{i}'
@@ -251,7 +256,12 @@ def part(k, curs, h, at):
         vh = vl = bv
         if LONE:      # a sample that stands out above the other eight counts only as far as the next one bears it out (as in skipblend.py)
             vs = samples(curs[c])
-            if not (LEAN and (PART is not None or BRIGHT is not None)):
+            if BLOB:      # ... and only as far as it has a neighbor in both directions (as in skipblend.py)
+                pos = {_offset(v): v for v in vs}
+                if len(pos) != 9:
+                    sys.exit(f'skipblend_dxil: {len(pos)} sample positions found, expected 9')
+                c_ += [FMAX(f'{t}bh{c}', pos[(-1, 0)], pos[(1, 0)]), FMAX(f'{t}bv{c}', pos[(0, -1)], pos[(0, 1)]), FMIN(f'{t}l2{c}.{len(vs) - 2}', f'{t}bh{c}', f'{t}bv{c}')]
+            elif not (LEAN and (PART is not None or BRIGHT is not None)):
                 run = [vs[0]] + [f'%sb.qx{c}{k}.{i}' for i in range(len(vs) - 2)]
                 if PART is None and BRIGHT is None:
                     for i, v in enumerate(vs[1:-1]):

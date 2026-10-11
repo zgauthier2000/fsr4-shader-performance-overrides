@@ -1264,6 +1264,61 @@ frames 14.7 against 14.4); ghost outlines, the 30 to 120 FPS set, thin detail, f
 output and pan start the same to the second or third digit; film grain of 10 and 15 in 255 slightly more accurate (37.27
 against 37.37 dB, 33.44 against 33.66 dB). `SB_LONE=0 SB_LEAN=0` rebuilds `dll-2026-10-11.5`'s files byte for byte.
 
+## Rain and other thin streaks (release `dll-2026-10-11.7`)
+
+A tester's video of Alan Wake 2 with `dll-2026-10-11.6` showed white dashes and specks in a window with rain outside. In a
+still stretch of the video, the number of pixels that flash in the window goes up and down with every other frame of the game
+(33, 13, 36, 15, ... pixels of the recording), which is the rhythm of skipped frames.
+
+### The test scene
+
+The firefly scene's panel with rain in its left half ([`../pruning/rain.py`](../pruning/rain.py)): streaks one render pixel wide and
+twelve long, falling 30 render pixels a frame, added to the game's frame as light of 0.15 (the panel is 0.004 to 0.04), with no
+motion vectors. Counted: output pixels more than 20 display levels above the panel, per million, on the two kinds of frame.
+
+| 4K, Balanced, one run | AMD's shaders | `dll-2026-10-07` | `dll-2026-10-11.5` | `dll-2026-10-11.6` | This release |
+|---|---|---|---|---|---|
+| Pixels more than 20 levels too bright, per million | 0 to 1 | 5 to 114 | 19,211 to 21,109 | 19,242 to 21,130 | 0 |
+| The brightest 0.05% of pixels, levels above the panel | 7 | 6 to 15 | 61 to 67 | 61 to 67 | 8 |
+| Streaks of 0.6, twenty long, falling 12 a frame: pixels per million | 1,258 to 1,314 | | | 68,189 to 73,960 | 450 to 489 |
+| With the HDR option and auto exposure: pixels per million | 2 | | | 17,512 to 19,350 | 0 |
+
+AMD's shaders blend streaks this faint and fast almost completely away. The lossy build did so too until `dll-2026-10-09`, whose
+sample test (the rule that keeps particles visible on skipped frames) takes each streak for a spark. `SB_LONE` changes
+nothing here: it lets the nearest sample count only as far as the second largest of the nine bears it out, and on a line the
+second largest is the line's next pixel.
+
+### The rule (`SB_BLOB`)
+
+The nearest sample now counts only as far as it has a neighbor in both directions: the smaller of (the larger of the samples
+left and right of it) and (the larger of those above and below). This takes the place of the second largest of the nine. A spot
+two render pixels across passes as before; a line one pixel wide, upright, level or diagonal, does not. It is also fewer
+operations than the chain it replaces: the postpass still compiles to 96 registers (16 waves per SIMD on an RX 7800 XT) and to
+fewer instructions (8,991 against 9,112), and takes the same time alone (0.67 against 0.67 ms at 4K, both slot orders).
+
+### The release build against `dll-2026-10-11.6`
+
+| 4K, one run, skipped frames | AMD's shaders | `dll-2026-10-11.6` | This release |
+|---|---|---|---|
+| Fireflies, new places every frame: pixels more than 20 levels too bright, per million | 25 | 73 | 14 |
+| Fireflies, dimmer and three times as many | 0 | 459 | 0 |
+| Fixed glints | 1,460 | 1,446 | 1,411 |
+| Large particles shown | 98% | 98.1% | 98.2% |
+| Tiny slow particles shown | | 81.4% | 81.3% |
+| Tiny fast embers shown | 83% | 75.0% | 73.7% |
+| Wires, camera still: brightness (true 110.7) / change per frame | 67.4 / 2.91 | 67.1 / 2.91 | 65.8 / 2.84 |
+| Wires, slow pan: brightness / bright beads / change per frame | 100.2 / +18.9 / 7.16 | 58.7 / +41.9 / 14.38 | 52.6 / +8.0 / 9.60 |
+| Wires, fast pan: brightness / bright beads | 97.4 / +20.7 | 62.5 / +23.3 | 58.1 / -1.8 |
+
+The wires pay for it: a wire is a line one render pixel wide, and what the sample test added to it on skipped frames while the
+camera pans was partly the wire itself and partly the beads along it. Both go. The rest of the check set is equal to the second or
+third digit: rest and the still picture (44.24 dB), thin detail, the moving scene at 4K, 1440p and 1080p, 30 to 120 FPS, the three
+ghost scenes, grain of 6, 10 and 15, foliage, pan start. A still scene is not bit-identical to `dll-2026-10-11.6`'s at 1440p and 4K
+(8% of the pixels differ, 370 per million by more than one display level, the largest by 19); `dll-2026-10-11.5` and `.6` differ
+from each other by as much. `SB_BLOB=0` rebuilds `dll-2026-10-11.6`'s files byte for byte.
+
+Not measured: rain two render pixels wide, slanted rain, and any game.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in

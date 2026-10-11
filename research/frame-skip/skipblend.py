@@ -71,6 +71,10 @@
 # rest they then stay in the history: sparkling on glossy surfaces. SB_LONE (default 1; 0 = as release dll-2026-10-11.5): the nearest sample counts only as far as a
 # second one of the nine bears it out (the smaller of itself and the second largest; upward only). A particle covers more than one
 # render pixel; such noise does not.
+# Rain is a line one render pixel wide, without motion vectors: every sample of it has a bright neighbor along the line, so SB_LONE lets it pass, and it
+# was shown as hard white dashes where AMD's shaders average it away. SB_BLOB (default 1; 0 = as release dll-2026-10-11.6): the nearest sample counts only
+# as far as it has a neighbor in both directions (the smaller of the larger of left and right and the larger of above and below), in place of the
+# second largest of the nine.
 # SB_LEAN (default 1; 0 = the layout of release dll-2026-10-11.5; SB_LONE=0 SB_LEAN=0 rebuilds that release's files): the changed-content tests laid out to hold fewer values at once. With them the postpass
 # needed 120 registers where release dll-2026-10-07's needed 96 (12 waves per SIMD instead of 16 on an RX 7800 XT), and SB_LONE on top 192 (8 waves):
 # measurable in a game, not in the timing kit. Three things did it: the nine sample weights were kept up to the branch to pick the nearest sample by
@@ -127,6 +131,7 @@ head += ['%sb_e1 = OpIEqual %bool %sb_v0 %sb_m1', '%sb_e2 = OpIEqual %bool %sb_v
 BRIGHT = os.environ.get('SB_BRIGHT'); FULLW = os.environ.get('SB_FULLW')
 SAMPLE = os.environ.get('SB_SAMPLE')      # test: at rest, compare the nearest new sample with the range of the history around the pixel
 LONE = os.environ.get('SB_LONE', '1') == '1'      # the sample test ignores a sample that stands alone among the nine (see the head of the file)
+BLOB = LONE and os.environ.get('SB_BLOB', '1') == '1'      # ... and one that has neighbors along one direction only
 def _heap(img):
     ld = re.match(r'OpLoad %\w+ (%\w+)', defs.get(img, '')); ac = ld and re.match(r'OpAccessChain %\w+ (%\w+) (%\w+)', defs.get(ld[1], '')); ia = ac and re.match(r'OpIAdd %uint %\w+ (%\w+)', defs.get(ac[2], ''))
     return ia[1] if ia else None
@@ -141,6 +146,9 @@ def _scan():
             CIMG.append(m[2])
 def _is_middle(v):
     """is this sample value read at the unshifted coordinates (the middle one of the nine)?"""
+    return _offset(v) == (0, 0)
+def _offset(v):
+    """where among the nine this sample value is read: (dx, dy), each -1, 0 or 1"""
     found = set(); todo = [(v, 0)]; v0 = v
     while todo:
         x, depth = todo.pop(); d = defs.get(x, '')
@@ -156,11 +164,12 @@ def _is_middle(v):
         for _ in range(4):
             e = defs.get(x, ''); w = re.match(r'OpExtInst %uint %\w+ S(?:Min|Max) (%\w+) ', e)
             if w: x = w[1]; continue
-            if e.startswith('OpIAdd '): return True
-            if e.startswith('OpConvertFToS '): return False
+            a = re.match(r'OpIAdd %uint %\w+ (%\w+)$', e); k = a and re.match(r'OpConstant %uint (\d+)$', defs.get(a[1], ''))
+            if k and k[1] in ('1', '4294967295'): return 1 if k[1] == '1' else -1
+            if e.startswith('OpConvertFToS '): return 0
             break
         sys.exit('skipblend: unexpected shape of a sample coordinate')
-    return not shifted(cc[1]) and not shifted(cc[2])
+    return shifted(cc[1]), shifted(cc[2])
 
 
 def part_sample(k, h, curs):
@@ -206,7 +215,15 @@ def part_sample(k, h, curs):
             # second largest of the nine (upward only: the noise this is for is over-bright pixels). The running maximum of the nine is the
             # one the SB_PART test has already worked out.
             vs = samples(curs[c])
-            if not (LEAN and PART is not None):
+            if BLOB:
+                # ... and only as far as it has a neighbor in both directions: the smaller of (the larger of left and right) and (the larger of above
+                # and below). A particle is a spot; a line one render pixel wide (rain) has neighbors along itself only.
+                at = {_offset(v): v for v in vs}
+                if len(at) != 9:
+                    sys.exit(f'skipblend: {len(at)} sample positions found, expected 9')
+                code += [f'{t}bh{c} = OpExtInst %float {GLSL} NMax {at[(-1, 0)]} {at[(1, 0)]}', f'{t}bv{c} = OpExtInst %float {GLSL} NMax {at[(0, -1)]} {at[(0, 1)]}',
+                         f'{t}u2{c}_{len(vs) - 2} = OpExtInst %float {GLSL} NMin {t}bh{c} {t}bv{c}']
+            elif not (LEAN and PART is not None):
                 run = [vs[0]] + [f'%sb_qx{c}{k}_{i}' for i in range(len(vs) - 2)]
                 if PART is None:
                     for i, v in enumerate(vs[1:-1]):
@@ -260,7 +277,7 @@ def part_old(k, curs, h):
         tc = samples(curs[c]); mn, mx = tc[0], tc[0]
         for i, v in enumerate(tc[1:]):
             code += [f'%sb_qn{c}{k}_{i} = OpExtInst %float {GLSL} NMin {mn} {v}', f'%sb_qx{c}{k}_{i} = OpExtInst %float {GLSL} NMax {mx} {v}']
-            if LEAN and LONE and SAMPLE is not None:      # the second largest of the nine, for the sample test (see part_sample), while each sample is at hand
+            if LEAN and LONE and not BLOB and SAMPLE is not None:      # the second largest of the nine, for the sample test (see part_sample), while each sample is at hand
                 u = f'%ss_{k}_su2{c}'
                 code += [f'{u}_0 = OpExtInst %float {GLSL} NMin {mn} {v}'] if i == 0 else [f'{u}a_{i - 1} = OpExtInst %float {GLSL} NMin {mx} {v}', f'{u}_{i} = OpExtInst %float {GLSL} NMax {u}_{i - 1} {u}a_{i - 1}']
             mn, mx = f'%sb_qn{c}{k}_{i}', f'%sb_qx{c}{k}_{i}'
