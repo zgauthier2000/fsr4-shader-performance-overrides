@@ -2,8 +2,62 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-11.3` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-11.4` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-11 ([release `dll-2026-10-11.4`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.4))
+
+### A steadier, more accurate picture at rest in the lossy DLL
+
+*Written for `dll-2026-10-11.4`: "this release" below means that one. The cause named as unknown in the note on auto exposure was found for `dll-2026-10-11.5`; see the front page.*
+
+One change to how the lossy DLL keeps the picture steady at rest, after finding out why the earlier way worked.
+**The exact DLL is unchanged.**
+
+- **What we found:** shimmer in flat areas at rest is the picture moving by a single step of its own number format
+  from frame to frame. AMD's network keeps asking for corrections of about that size even when nothing moves, and
+  whether each one survives the rounding decides whether the pixel flickers.
+- **What the earlier releases did:** they merged a few tiny weights in three of the network's layers ("folding").
+  That turned out to steady the picture by making the network trust the previous picture more in flat areas. It worked,
+  but for the same reason those areas followed slow changes of brightness late, and the still picture lost a little accuracy.
+- **What this release does:** it leaves the network almost as AMD made it and adds one rule to the last step: a
+  correction smaller than about two of those steps is skipped. Real changes are far larger and pass straight through.
+  The folds in the first and last layers are gone; the one in the tenth stays, because it steadies fine detail at no
+  cost in lag.
+
+| Measured in the test rig at 4K | AMD's shaders | `dll-2026-10-11.3` | This release |
+|---|---|---|---|
+| Change per frame at rest, worst flat piece | 0.126 | 0.094 | 0.056 |
+| Change per frame at rest, bright flat areas | 0.078 | 0.075 | 0.011 |
+| Change per frame at rest, fine detail | 0.110 | 0.092 | 0.086 |
+| Still picture | 44.33 dB | 44.15 dB | 44.31 dB |
+| Moving scene: background | 49.27 dB | 48.72 dB | 49.07 dB |
+| A slow fade with nothing moving: frames behind, bright / dark flat areas | 0.6 / 3.0 | 1.3 / 4.1 | 0.8 / 2.7 |
+| Large glowing particles on skipped frames: error | 0.66 | 1.47 | 1.36 |
+| Thin wire, slow pan: change per frame along it | 7.2 | 16.0 | 14.6 |
+| Change per frame with grain of 6 / 10 / 15 of 255 | 0.79 / 1.72 / 2.55 | 0.29 / 0.98 / 1.86 | 0.34 / 1.08 / 1.99 |
+| Just uncovered by a moving object, camera still | 32.62 dB | 32.03 dB | 31.64 dB |
+
+How much each pixel changes from frame to frame with nothing moving:
+
+<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still scene showing a bright wall, sky and a water tank, and four maps of how much each pixel changes from frame to frame: the exact files (mean 0.126 of 255), the lossy build of release dll-2026-10-07 (0.111), of release dll-2026-10-09 (0.157) and of this release (0.056). Edges look alike in all four; the flat wall and sky carry a faint texture in the first three maps and are nearly black in this release's.">
+
+- **Speed:** 2.36 ms against 2.35 ms for the whole upscaler at 4K (timing kit, RX 7800 XT under Proton): the new rule costs about half a percent.
+- **What got worse:**
+  - Film grain is passed on 7 to 17% more than in the last release (still well below AMD's): the fold that is gone was what held moderate grain back.
+  - Areas a moving object has just uncovered are a little less accurate where the lossy DLL was already behind AMD's: 31.64 against 32.03 dB with a
+    still camera (AMD's 32.62), and 0.1 to 0.3 dB lower at 1440p and 1080p output, where it stays above AMD's.
+  - A second outline measure with a still camera rose from 4.42 to 4.66 (AMD's 4.01).
+- **Unchanged:** fast sparks and embers, the bright dots in foliage, the softness of moving foliage, the ghost behind bright objects over fast ground.
+- **Found after release (2026-10-11): this holds without auto exposure only.** Everything above was measured with FSR's
+  auto-exposure option off. With it on, as many games run it, the same still scene reads differently: in the worst flat piece
+  the lossy DLL changes 0.276 per frame against 0.213 for AMD's shaders, about 30% more, while the whole frame (0.034 against
+  0.041) and fine detail (0.102 against 0.125) are still steadier than AMD's. The previous release reads 0.290 there, so this
+  release is not a step back, but "less than half of AMD's shimmer" is true only with auto exposure off. The cause is not yet known. Film grain also reads differently with it on: AMD's shaders hold strong grain back far better there, and the lossy DLL is then less steady than AMD's on grain of 10 and 15 of 255 (0.40 against 0.36, and 0.57 against 0.48) and 1.5 to 2.9 dB less accurate.
+  Ghosting, particles, wires, foliage and fades read much as with it off.
+- **Not checked:** games. This was measured in the test rig only, on one graphics card.
+- These are single runs on made-up scenes.
+  [How the cause was found, and the three ways of using it that were compared](../research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
 
 ## 2026-10-11 ([release `dll-2026-10-11.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.3))
 

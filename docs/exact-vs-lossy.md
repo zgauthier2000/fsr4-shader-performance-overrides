@@ -31,7 +31,8 @@ and only one of them keeps AMD's picture.
 > **The lossy builds change the image.** They are opt-in experiments, not the same as the main
 > files and not the same as AMD's DLL.
 
-This page describes the builds of release `dll-2026-10-11.4`. Up to release `dll-2026-10-07` the lossy
+This page describes the builds of release `dll-2026-10-11.4`; the lossy build of `dll-2026-10-11.5` differs from it only in how the prepass
+handles the exposure value and reads the same with auto exposure off to within a few thousandths, so the tables and pictures were not redone. Up to release `dll-2026-10-07` the lossy
 builds also simplified the model's arithmetic in several layers (weight folding). They no longer do,
 except for a light form of it in one layer, which keeps fine detail steady; flat areas are kept steady by a rule in the last step instead. The history of
 the skipped-frame handling is on the [frame-skip page](../research/frame-skip).
@@ -193,10 +194,14 @@ The pan-start row was measured on the build without the particle tests; they do 
 column also gives the same gap as error: how much further the picture is from the true image than
 AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 
-- **The figures at rest are for auto exposure off.** With FSR's auto-exposure option on (found 2026-10-11, after release
-  `dll-2026-10-11.4`), the worst flat piece of the still scene changes 0.276 per frame with the lossy build against 0.213 with
-  AMD's shaders, about 30% more; the whole frame (0.034 against 0.041) and fine detail (0.102 against 0.125) remain steadier.
-  All tuning of the lossy build at rest was done with it off. The cause is not yet known. Film grain also reads differently with it on: AMD's shaders hold strong grain back far better there, and the lossy DLL is then less steady than AMD's on grain of 10 and 15 of 255 (0.40 against 0.36, and 0.57 against 0.48) and 1.5 to 2.9 dB less accurate. Ghosting, particles, wires, foliage and fades read much as with it off.
+- **The figures at rest are for auto exposure off.** With FSR's auto-exposure option on, the build of release
+  `dll-2026-10-11.4` shimmered more than AMD's shaders in bright flat areas. Release `dll-2026-10-11.5` removes the cause
+  ([how](../research/frame-skip#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115)): with it on, the worst flat
+  piece of the still scene now changes 0.093 per frame against 0.213 with AMD's shaders, bright flat areas 0.051 against 0.186,
+  the whole frame 0.029 against 0.041 and fine detail 0.097 against 0.125. Two things remain behind AMD's with it on: slow
+  fades show in bright flat areas about a third of a frame later (1.05 against 0.72 frames behind when darkening, 0.87 against
+  0.46 when brightening), and strong film grain is passed on more (0.40 against 0.36 and 0.57 against 0.48 change per frame
+  for grain of 10 and 15 of 255, and 1.5 to 2.9 dB less accurate). Found and measured on Linux; not measured under Windows.
 - **Fine detail at rest shimmers less than with AMD's shaders** (0.086 against 0.110), and so
   does thin vertical detail alone (16% less; it was 4% more in release `dll-2026-10-09`).
 - **The still picture is within 0.02 dB of AMD's** (0.7 dB below in release `dll-2026-10-07`, 0.15 to 0.2 dB below up to

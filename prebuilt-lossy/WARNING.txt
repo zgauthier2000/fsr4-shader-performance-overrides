@@ -14,10 +14,11 @@ What it does
   uncovered, ones that scrolled in from outside the screen, ones whose content changed without
   the game reporting motion (particles, sparks, embers), and ones where the network itself had
   asked for the new frame on the frame before.
-- The network's arithmetic is AMD's except in three of its layers, where a few of the
-  smallest weights are merged into their neighbors. That keeps flat areas and fine detail at
-  rest as steady as with AMD's file. (Releases before dll-2026-10-09 did this in six layers,
-  and far more strongly.)
+- The network's arithmetic is AMD's except in one of its layers, where a few of the
+  smallest weights are merged into their neighbors. In the last step a correction smaller
+  than about two steps of the picture's number format is skipped, and tiny wobbles of the
+  auto-exposure value no longer nudge the stored picture. Together these keep flat areas
+  and fine detail at rest at least as steady as with AMD's file.
 
 What it costs
 - A still picture is about 0.2 dB less accurate than AMD's; thin lines lose a little more.
@@ -30,7 +31,9 @@ What it costs
   than with AMD's file: the picture there is averaged over about one more frame.
 - Very thin things in the distance (power lines, fences) flicker about twice as much as with
   AMD's file while the camera pans slowly. With the camera still they are as steady as AMD's.
-- Strong film grain is passed on a little more than in the previous release.
+- Strong film grain is passed on more than with the releases before dll-2026-10-11.4.
+- A slow change of brightness (a fade) shows in bright flat areas about a third of a frame
+  later than with AMD's file when the game uses FSR's auto exposure.
 - Frame times alternate: a skipped frame is about 1.7 ms shorter than a normal one on an
   RX 7800 XT at 4K. With a frame cap or normal V-Sync the average is what counts; with
   low-latency modes or unbuffered V-Sync the longer frames can miss.

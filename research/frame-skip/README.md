@@ -1107,6 +1107,74 @@ The band is not tied to frame skip. On AMD's own shaders with no frame skip, the
 picture is then no longer AMD's byte for byte, so this is not in the exact files. It exists as an unreleased test build:
 [the exact files beside a "steady" test build](../../docs/steady-test.md), with pictures.
 
+## Shimmer with auto exposure on: the history store (release `dll-2026-10-11.5`)
+
+After `dll-2026-10-11.4` the still scene was run with FSR's auto-exposure option on for the first time, and the dead band did
+not hold there: bright flat areas changed 0.310 per frame with the lossy build against 0.186 with AMD's shaders. All figures
+in this section: the still scene at 4K Balanced in the test rig, auto exposure on unless said, single runs, RX 7800 XT with RADV.
+
+### What happens
+
+1. With auto exposure on, the exposure value comes from a small texture the upscaler computes from the frame. On a still
+   scene it still moves between neighboring 16-bit values from frame to frame, about 0.08%, because the camera jitter changes
+   the frame's average.
+2. The prepass writes the picture the last pass mixes with. It decodes the stored history, divides by the previous frame's
+   exposure value, multiplies by the current one, encodes it again, blends about 4% of the new frame in, and stores the
+   result in a 16-bit float image.
+3. That store drops the bits that do not fit (it rounds toward zero). A control that rounds down in arithmetic before the
+   store gives AMD's output byte for byte.
+4. So when the exposure value goes down by one step, every stored value lands just below its 16-bit number and is stored
+   one whole step lower, 0.4% of its brightness. When it goes up, nothing changes.
+5. The last pass then mixes its way back: the new frame is now about 2.6 steps above the history, and about a third of the
+   pixels step up each frame. All pixels dropping together and returning one by one is the shimmer.
+
+Measured in the last pass, bright flat areas: on frames where the exposure value fell, 84% of the pixels came back one step
+below what had been written; on the others, almost none.
+
+AMD's shaders do this too. The lossy build's dead band and its rule for pixels at rest hold small corrections back as
+noise, and here the corrections are the way back, so it read worse than AMD's.
+
+### Rounding everything to nearest: steadier, and the wrong fix
+
+Rounding the stored value to the nearest 16-bit number in arithmetic stops the ratchet completely, with or without auto
+exposure: bright flat areas 0.047 with the lossy build (AMD's 0.186), and 0.001 with auto exposure off.
+
+It was dropped because of what it does to changes of brightness. With a steadier history the network itself gives the new
+frame less weight: 0.056 instead of 0.103 at rest, and 0.51 instead of 0.75 on the frame of a sudden brightening by 20%
+(auto exposure off, AMD's shaders with only the rounding changed). After that step, mid-tone flat areas still missed 32% of
+it eight frames later, against 19% with AMD's shaders, and 40% with the lossy build. This is the same link as with folding
+([above](#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114)): the dropped bits are part of the
+conditions the network settles in.
+
+### The fix that shipped
+
+`exposure_steps.py` leaves everything as AMD computes it except the re-scaling's own contribution: the stored value is the
+one the prepass would compute without the re-scaling, plus the re-scaling's change rounded to whole 16-bit steps. A wobble
+below half a step changes nothing, a real change of exposure passes, and what the store does with the remaining bits is left
+to the driver as before.
+
+| Auto exposure on | AMD's shaders | `dll-2026-10-11.4` | everything rounded | this release |
+|---|---|---|---|---|
+| Change per frame at rest, worst flat piece | 0.213 | 0.276 | 0.058 | 0.093 |
+| Change per frame at rest, bright flat areas | 0.186 | 0.310 | 0.047 | 0.051 |
+| Still picture | 44.44 dB | 44.40 dB | 44.76 dB | 44.42 dB |
+| Sudden brightening by 20%: share missing after 8 frames, mid-tone flat | 7% | 6% | 29% | 7% |
+| Slow brightening fade: frames behind, bright flat | 0.46 | 0.64 | 1.12 | 0.87 |
+| Slow darkening fade: frames behind, bright flat | 0.72 | 0.69 | 1.05 | 1.05 |
+
+- **What got worse:** slow fades in bright flat areas (the last two rows). A change of exposure below half a step per frame
+  is no longer written into the history by the prepass and has to arrive through the mix, as any slow change of the picture does.
+- With auto exposure off the build reads as `dll-2026-10-11.4` to within a few thousandths in every check (worst flat piece
+  0.053 against 0.056). It is not byte-identical there: most prepass versions carry the re-encoding with a ratio of one, and
+  its rounding error is now left out.
+- 72 of the 90 prepass versions carry the re-encoding and are changed; the other 18 store their history without this
+  encoding and are left as they are. No test in the rig runs those 18.
+- The Windows DLLs and the Linux files give the same output byte for byte with auto exposure on and off (4K, 1440p, 1080p
+  and 5K moving scenes, the still scene, fades, grain).
+- On the exact pipeline, the same change alone gives 0.086 in bright flat areas (AMD's 0.186) and with the dead band of the
+  "steady" test 0.051. Measured only; the exact files stay AMD's byte for byte.
+- Not checked: Windows drivers, where the store may round differently and the fault may not exist; games.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
@@ -1266,4 +1334,6 @@ And each output pixel depends on about 50 pixels around it.
 | `motionpost_dxil.py` | the same for the DLL's postpass (DXIL text) |
 | `skipblend.py` | the shimmer correction, the history clamp, the edge guard and the uncovered-pixel flag for the postpass (SPIR-V text); run it after `motionpost.py` and before the store rewrite |
 | `skipblend_dxil.py` | the same for the DLL's postpass (DXIL text) |
+| `exposure_steps.py` | since release `dll-2026-10-11.5`: the prepass's exposure re-encoding changes the stored history only by whole 16-bit steps (SPIR-V text); run it on the finished prepass |
+| `exposure_steps_dxil.py` | the same for the DLL's prepass (DXIL text) |
 | [`../lossy/wfold.py`](../lossy/wfold.py), `wfold_dxil.py` | since release `dll-2026-10-10` the lossy build runs these on pass 1 with 2 words (`wfold.py 2`), and since `dll-2026-10-11` also on pass 10 with 18 and pass 12 with 4, before the exact rewrites and `frameskip.py` |
