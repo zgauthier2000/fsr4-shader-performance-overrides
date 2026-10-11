@@ -29,7 +29,7 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Linux kit version 2026-10-11.5** (download again if you have an earlier one): an optional name for the thank-you notes, the lossy shaders of release `dll-2026-10-11.4`
+**Linux kit version 2026-10-11.5** (download again if you have an earlier one): an optional name for the thank-you notes, the lossy shaders of release `dll-2026-10-11.4`, which are the same in `dll-2026-10-11.5` (that release changed only the lossy prepass, which this kit does not time)
 (its skipped-frame postpass, and the one model pass that build still changes slightly, pass 10, in the summary), a real output check for
 the model passes (see below), the 12
 model passes also timed in sequence, a whole-frame figure, an estimate for the lossy build's skipped frames, a warning when
@@ -60,7 +60,7 @@ browsers, and double-click `fsr4time.exe`; it takes about seven minutes.
   Radeon chips, help or cost time, and whether the exact DLL's picture is AMD's on that driver too.
 - **Experimental:** it has been run under Proton on one RX 7800 XT only (4K: 4.7 to 4.9 ms with AMD's shaders, 3.17 ms exact,
   2.37 ms lossy; exact: same picture). The first reports from Windows PCs are in, from eight graphics cards. Since kit
-  2026-10-11.5 its lossy DLLs are those of release `dll-2026-10-11.4`; since 2026-10-11.3 it asks for an optional name for the thank-you notes. The program is not signed, so Windows warns about it;
+  2026-10-11.6 its lossy DLLs are those of release `dll-2026-10-11.5`; since 2026-10-11.3 it asks for an optional name for the thank-you notes. The program is not signed, so Windows warns about it;
   the source is [`windows/fsr4time.c`](windows/fsr4time.c), with the command that builds it at its top.
 - At the end it shows a summary, saves it next to the program and asks whether to send it. Not for RX 9000 cards.
 
