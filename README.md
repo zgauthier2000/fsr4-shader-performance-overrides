@@ -110,12 +110,13 @@ More games and resolutions: [all results](docs/results.md).
 One test scene on one graphics card; [the comparison page](docs/upscaler-comparison.md) has the other scenes, including the ones the lossy DLL does worst in.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 150 MB, version 2026-10-11.2 with this release's DLLs): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 150 MB, version 2026-10-11.3 with this release's DLLs): unpack, double-click
 > `fsr4time.exe`, wait about seven minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **The first reports from Windows are in, from eight graphics cards; every further
 > card helps.**
-> - **Both kits carry this release's lossy files** (kit versions 2026-10-11.2). If you ran an earlier kit, please download again.
+> - **Both kits carry this release's lossy files** (kit versions 2026-10-11.3). If you ran an earlier kit, please download again.
+> - **New: be named on the [thank-you page](docs/thanks.md).** When you send your result, the kit asks for a name or nickname to list. It is optional.
 > - **RX 6000 owners:** AMD's own shaders show ghosting on these cards under Windows. The kit has two
 >   extra reference DLLs and prints a fingerprint of each picture, so your run tells us whether the
 >   exact DLL gives the corrected picture there.
@@ -285,6 +286,8 @@ The scripts are licensed under the GNU GPL v2 or later, like the project they de
 [LICENSE](LICENSE). The prebuilt shaders are modified versions of AMD's, distributed under the same
 license together with AMD's notice; see [`prebuilt/NOTICE.md`](prebuilt/NOTICE.md). Not affiliated
 with or endorsed by AMD.
+
+Testers who have asked to be named are listed on the [thank-you page](docs/thanks.md).
 
 This repository is maintained independently. If this project has provided value to you, and you want to help support the author, consider formalizing your support with a voluntary micro-donation:
 

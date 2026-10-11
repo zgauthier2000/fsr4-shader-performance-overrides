@@ -276,13 +276,17 @@ if '--discord' in sys.argv:
     import json
     b = 'kitboundary7f3a'
     note = os.environ.get('KIT_NOTE', '')
-    payload = json.dumps({'content': (f'Timing kit results: **{gpu}**' + (f' ({note})' if note else ''))[:1900], 'allowed_mentions': {'parse': []}})
+    # a name for the thank-you list, only if the tester typed one: printable characters, one line, at most 40
+    credit = ' '.join(''.join(ch for ch in os.environ.get('KIT_CREDIT', '') if ch.isprintable() and ch not in '`*_~|<>@#\\').split())[:40]
+    payload = json.dumps({'content': (f'Timing kit results: **{gpu}**' + (f' ({note})' if note else '') + (f'\nthank-you list (the tester asked to be named): {credit}' if credit else ''))[:1900], 'allowed_mentions': {'parse': []}})
+    if os.environ.get('KIT_DRYRUN') == '1':      # for testing: show what would be sent, send nothing
+        print(payload); sys.exit(0)
     data = (f'--{b}\r\nContent-Disposition: form-data; name="payload_json"\r\nContent-Type: application/json\r\n\r\n{payload}\r\n'
             f'--{b}\r\nContent-Disposition: form-data; name="files[0]"; filename="summary.txt"\r\nContent-Type: text/plain\r\n\r\n{summary}\n\r\n--{b}--\r\n').encode()
     req = urllib.request.Request(_hook(), data=data, headers={'Content-Type': f'multipart/form-data; boundary={b}', 'User-Agent': 'fsr4-timing-kit'})
     try:
         urllib.request.urlopen(req, timeout=20).read()
-        print('Sent to the project\'s Discord. Thank you!')
+        print('Sent to the project\'s Discord. Thank you: your help is a valued part of this project.')
     except Exception as e:                     # no network, webhook removed, ...
         print(f'Could not send to Discord ({e}). Please use the link or send summary.txt yourself.')
         sys.exit(2)

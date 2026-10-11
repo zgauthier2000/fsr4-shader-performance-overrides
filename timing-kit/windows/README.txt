@@ -13,7 +13,9 @@ How to run it
   2. Close games, browsers and video players.
   3. Double-click fsr4time.exe. It takes about seven minutes. Leave the PC alone while it runs.
   4. At the end it shows a summary, saves it as results-<time>.txt in this folder, and asks
-     whether to send it to the project. Only the summary you see is sent.
+     whether to send it to the project. Only the summary you see is sent. If you send it,
+     you can also type a name or nickname for the project's thank-you page; that is
+     optional, and it is published there only if you type one.
 
 Windows will warn about an unknown program, because the file is not signed. The source is in
 the project's repository (timing-kit/windows/fsr4time.c) with the command that builds it, and the

@@ -204,7 +204,13 @@ if command -v python3 >/dev/null && python3 "$KIT/submit.py" "$OUT" 2>/dev/null;
     echo; echo "=== summary (also in $OUT/summary.txt)"; cat "$OUT/summary.txt"
     if [ -t 0 ]; then
         printf '\nSend this summary (and nothing else) to the Discord results channel of the project? [Y/n] '; read -r answer
-        case $answer in n*|N*) ;; *) python3 "$KIT/submit.py" "$OUT" --discord ;; esac
+        case $answer in n*|N*) ;; *)
+            # optional: a name for the project's thank-you list; sent with the summary only if one is typed
+            echo; echo "Thank you for testing. Your help is a valued part of this project."
+            echo "If you would like to be named on the project's thank-you page, type a name or nickname. It would be published there."
+            printf "(Optional. Enter to skip, and nothing but the summary is sent) > "; read -r credit
+            KIT_CREDIT="$credit" python3 "$KIT/submit.py" "$OUT" --discord ;;
+        esac
     fi
     echo; echo "It can also be sent as a GitHub issue: open this link and press \"Submit new issue\" (needs a GitHub account):"
     echo; cat "$OUT/submit-link.txt"

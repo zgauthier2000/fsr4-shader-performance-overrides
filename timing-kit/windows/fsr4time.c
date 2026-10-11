@@ -37,7 +37,7 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-11.2, experimental"
+#define KIT_VERSION "windows 2026-10-11.3, experimental"
 #define WARM 40
 #define TIMED 200
 #define PHASES 16
@@ -518,8 +518,20 @@ int main(int argc, char** argv) {
         char in[16];
         printf("\nSend this summary (and nothing else) to the project's results channel? [Y/n] ");
         fflush(stdout);
-        if (fgets(in, sizeof(in), stdin) && in[0] != 'n' && in[0] != 'N')
-            printf(Send(summary) ? "Sent. Thank you!\n" : "Could not send it. Please post the results file on the project's GitHub page or Discord instead.\n");
+        if (fgets(in, sizeof(in), stdin) && in[0] != 'n' && in[0] != 'N') {
+            // optional: a name for the project's thank-you list; sent with the summary only if one is typed
+            char name[128], clean[48]; int k = 0;
+            printf("\nThank you for testing. Your help is a valued part of this project.\nIf you would like to be named on the project's thank-you page, type a name or nickname. It would be published there.\n(Optional. Enter to skip, and nothing but the summary is sent) > ");
+            fflush(stdout);
+            if (fgets(name, sizeof(name), stdin))
+                for (const char* c = name; *c && *c != '\r' && *c != '\n' && k < 40; ++c)
+                    if ((unsigned char)*c >= 32 && !strchr("`*_~|<>@#\\\"", *c) && !(*c == ' ' && (k == 0 || clean[k - 1] == ' '))) clean[k++] = *c;
+            while (k > 0 && clean[k - 1] == ' ') --k;
+            clean[k] = 0;
+            if (k) ADD("thank-you list (the tester asked to be named): %s\n", clean);
+            if (getenv("FSR4TIME_DRYSEND")) { FILE* t = fopen(getenv("FSR4TIME_DRYSEND"), "w"); if (t) { fputs(summary, t); fclose(t); } printf("Test: written to %s, nothing sent.\n", getenv("FSR4TIME_DRYSEND")); }      // for testing: the text that would be sent goes to this file instead
+            else printf(Send(summary) ? "Sent. Thank you: your help is a valued part of this project.\n" : "Could not send it. Please post the results file on the project's GitHub page or Discord instead.\n");
+        }
         printf("\nPress Enter to close.");
         fflush(stdout);
         fgets(in, sizeof(in), stdin);
