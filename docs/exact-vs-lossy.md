@@ -193,6 +193,10 @@ The pan-start row was measured on the build without the particle tests; they do 
 column also gives the same gap as error: how much further the picture is from the true image than
 AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 
+- **The figures at rest are for auto exposure off.** With FSR's auto-exposure option on (found 2026-10-11, after release
+  `dll-2026-10-11.4`), the worst flat piece of the still scene changes 0.276 per frame with the lossy build against 0.213 with
+  AMD's shaders, about 30% more; the whole frame (0.034 against 0.041) and fine detail (0.102 against 0.125) remain steadier.
+  All tuning of the lossy build at rest was done with it off. The cause is not yet known.
 - **Fine detail at rest shimmers less than with AMD's shaders** (0.086 against 0.110), and so
   does thin vertical detail alone (16% less; it was 4% more in release `dll-2026-10-09`).
 - **The still picture is within 0.02 dB of AMD's** (0.7 dB below in release `dll-2026-10-07`, 0.15 to 0.2 dB below up to

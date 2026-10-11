@@ -93,7 +93,8 @@ More games and resolutions: [all results](docs/results.md).
 
 > [!TIP]
 > **The lossy DLL: a steadier and more accurate picture at rest in this release, and a page that puts it beside other upscalers.**
-> - **New in this release:** flat areas at rest are steadier than ever (less than half of AMD's own shimmer in the test rig), the
+> - **New in this release:** flat areas at rest are steadier than ever (less than half of AMD's own shimmer in the test rig with auto exposure off; with it on
+>   they are not steadier than AMD's, see the note in the details), the
 >   still picture is back within 0.02 dB of AMD's, and slow changes of brightness are followed sooner, after finding out why
 >   the earlier "folding" worked. [Details below](#a-steadier-more-accurate-picture-at-rest-in-the-lossy-dll-release-dll-2026-10-114).
 > - **Not new, still true:** the lossy DLL takes about half of AMD's FSR 4 time: 2.36 ms against 4.75 ms per frame at 4K on a
@@ -180,13 +181,18 @@ How much each pixel changes from frame to frame with nothing moving:
     still camera (AMD's 32.62), and 0.1 to 0.3 dB lower at 1440p and 1080p output, where it stays above AMD's.
   - A second outline measure with a still camera rose from 4.42 to 4.66 (AMD's 4.01).
 - **Unchanged:** fast sparks and embers, the bright dots in foliage, the softness of moving foliage, the ghost behind bright objects over fast ground.
+- **Found after release (2026-10-11): this holds without auto exposure only.** Everything above was measured with FSR's
+  auto-exposure option off. With it on, as many games run it, the same still scene reads differently: in the worst flat piece
+  the lossy DLL changes 0.276 per frame against 0.213 for AMD's shaders, about 30% more, while the whole frame (0.034 against
+  0.041) and fine detail (0.102 against 0.125) are still steadier than AMD's. The previous release reads 0.290 there, so this
+  release is not a step back, but "less than half of AMD's shimmer" is true only with auto exposure off. The cause is not yet known.
 - **Not checked:** games. This was measured in the test rig only, on one graphics card.
 - These are single runs on made-up scenes.
   [How the cause was found, and the three ways of using it that were compared](research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
 
 > [!NOTE]
 > **An experiment that came out of this: the same rule on the exact files.** The new rule does not need frame skip. Added to the
-> exact files it gives, in the test rig, AMD's picture at the exact DLL's speed with less than half the shimmer at rest, a still
+> exact files it gives, in the test rig with auto exposure off, AMD's picture at the exact DLL's speed with less than half the shimmer at rest, a still
 > picture 0.09 dB closer to the true image, and everything that moves the same as AMD's to within small fractions of a decibel.
 > It would no longer be AMD's picture byte for byte, so it is not in the exact DLL and **not in any download yet**; it is an
 > unreleased test. [The exact files beside the "steady" test build](docs/steady-test.md), with pictures and a chart that places it

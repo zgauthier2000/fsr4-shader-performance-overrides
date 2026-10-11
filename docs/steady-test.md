@@ -97,6 +97,11 @@ the same scenes, the same settings, one run each.
 
 ## What it costs
 
+- **With auto exposure on, it is not steadier in bright flat areas** (found 2026-10-11). Everything on this page was measured
+  with FSR's auto-exposure option off. With it on, the worst flat piece of the still scene changes 0.251 per frame against 0.213
+  for the exact files, 18% more; the whole frame (0.033 against 0.041) and fine detail (0.103 against 0.125) are still steadier,
+  and the still picture still slightly more accurate (44.53 against 44.44 dB). The cause is not yet known.
+
 - **A slow change with nothing moving is followed a little later:** a third of a frame in bright areas, up to
   three-quarters of a frame in dark ones. A change that small is skipped until it has added up to more than the band.
 - **Areas a moving object has just uncovered are 0.10 to 0.15 dB less accurate** at 4K and 1440p output, and two of six
