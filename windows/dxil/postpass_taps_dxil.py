@@ -63,6 +63,8 @@ for i, l in enumerate(L):
     for kk in range(i, -1, -1):
         if (pm := LABEL.match(L[kk])):
             pred = '%' + pm[1]; break
+    if pred is None:
+        sys.exit('postpass_taps_dxil: a guarded read sits in a block without a label; not the expected structure')
     kk = label_at[M] + 1
     while ' = phi ' in L[kk]:
         t = re.sub(rf'\[ [^\]]*, {re.escape(pred)} \],? ?', '', out[kk]).replace(' ,', ',').rstrip()

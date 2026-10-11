@@ -108,6 +108,24 @@ combinations, all identical, with both replaced shaders confirmed running in eac
 - **Never in online games or games with anti-cheat.** The DLL is modified code, and anti-cheat software can treat it as
   tampering. Single-player games only.
 
+## When AMD ships a new version
+
+Everything here was built against AMD's DLL version 4.1.1.2740, and the patcher refuses any other file. Two tools give a
+first answer to "what would a new version need?":
+
+- `inspect_dll.py <dll> <out dir>` prints the DLL's version, how many shader containers it holds and the FSR 4 network
+  shaders by name, and extracts the named ones.
+- `try_tools.py <dll> <work dir>` tries every one of this project's DXIL tools on every network shader of the DLL and
+  prints, tool by tool, how many shaders it accepted and changed. It needs DXC (`DXC_DIR`). Each tool's reason for refusing
+  a shader is kept in `report.json`.
+
+Tried on FSR 4.0.2 (the DLL some games ship), the only other version at hand: frame skip's hook fits model passes 1 to 11,
+and none of the speed rewrites fits, because that version lays out its buffers and thread groups differently (the postpass's
+group is not 256x1x1, the prepass has no sixteen channel sums, the row sizes the tools know appear in few of its shaders).
+Its weights are also different numbers in layers of the same size, so anything tuned against the network's behavior (the fold,
+the lossy thresholds) would have to be measured again. A version that keeps 4.1.1's layout may be much closer; none has been
+seen yet.
+
 ## License
 
 The script is GPL v2 or later (see [`../LICENSE`](../LICENSE)). A DLL it writes is AMD's DLL,

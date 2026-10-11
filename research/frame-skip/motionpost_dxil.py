@@ -19,6 +19,8 @@ strip = lambda l: re.sub(r'\s*;.*$', '', l.rstrip())
 d0 = next(n for n, l in enumerate(L) if l.startswith('define void @'))
 gl = [n for n in range(d0, len(L)) if re.match(r'\s*%[\w.]+ = icmp uge i32 (%[\w.]+), (%[\w.]+)', L[n])][:2]
 ge = [re.match(r'\s*%[\w.]+ = icmp uge i32 (%[\w.]+), (%[\w.]+)', L[n]) for n in gl]
+if len(ge) < 2:
+    sys.exit('motionpost_dxil: the two bounds checks of the pixel position were not found')
 X, WC = ge[0][1], ge[0][2]; Y, HC = ge[1][1], ge[1][2]
 e1 = next(n for n in range(d0 + 1, len(L)) if re.match(r'\s*(br|ret|switch) ', L[n]))
 br = next(n for n in range(gl[1], len(L)) if re.match(r'\s*br i1 ', L[n]))      # the pass's own early-out

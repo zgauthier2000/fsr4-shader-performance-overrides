@@ -60,8 +60,11 @@ while n < len(L):
         while ' = phi ' in L[k]:
             phis.append(k); k += 1
         end = k
-        while not re.match(r'\s*br ', L[end]):
+        while end < len(L) and not re.match(r'\s*br ', L[end]):
             end += 1
+        if end >= len(L):      # a phi that no branch follows: not a tap loop
+            n += 1
+            continue
         body = range(k, end)
         cond = re.match(r'\s*br i1 (%[\w.]+),', L[end])
         cmp_ = re.match(rf'icmp eq i32 (%[\w.]+), ({INT})$', rhs(cond[1])) if cond else None
