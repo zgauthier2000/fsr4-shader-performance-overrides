@@ -114,7 +114,7 @@ One test scene on one graphics card; [the comparison page](docs/upscaler-compari
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-05/fsr4-timing-kit-windows.zip)** (experimental, 150 MB, version 2026-10-12.1 with this release's DLLs): unpack, double-click
 > `fsr4time.exe`, wait about seven minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
-> the result. **The first reports from Windows are in, from eight graphics cards; every further
+> the result. **Reports from Windows are in from eleven graphics chips so far; every further
 > card helps.**
 > - **The Windows kit carries this release's lossy DLLs** and, since version 2026-10-12.1, compares the moving picture as well as the still one. If you ran an earlier one, please download again. The Linux kit (2026-10-11.5) needs no update: the lossy shaders it times are the same in this release.
 > - **New: be named on the [thank-you page](docs/thanks.md).** When you send your result, the kit asks for a name or nickname to list. It is optional.

@@ -1,7 +1,7 @@
 FSR 4.1.1 timing kit for Windows (EXPERIMENTAL)
 ===============================================
 
-Experimental: the first reports from Windows PCs are in, from eight graphics cards. If it fails
+Experimental: reports from Windows PCs are in from eleven graphics chips so far. If it fails
 or shows something odd on your PC, that is exactly the report the project needs.
 
 Times FSR 4.1.1 the way a game runs it, with AMD's own shaders and with this project's DLLs, on
