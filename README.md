@@ -185,7 +185,8 @@ How much each pixel changes from frame to frame with nothing moving:
   auto-exposure option off. With it on, as many games run it, the same still scene reads differently: in the worst flat piece
   the lossy DLL changes 0.276 per frame against 0.213 for AMD's shaders, about 30% more, while the whole frame (0.034 against
   0.041) and fine detail (0.102 against 0.125) are still steadier than AMD's. The previous release reads 0.290 there, so this
-  release is not a step back, but "less than half of AMD's shimmer" is true only with auto exposure off. The cause is not yet known.
+  release is not a step back, but "less than half of AMD's shimmer" is true only with auto exposure off. The cause is not yet known. Film grain also reads differently with it on: AMD's shaders hold strong grain back far better there, and the lossy DLL is then less steady than AMD's on grain of 10 and 15 of 255 (0.40 against 0.36, and 0.57 against 0.48) and 1.5 to 2.9 dB less accurate.
+  Ghosting, particles, wires, foliage and fades read much as with it off.
 - **Not checked:** games. This was measured in the test rig only, on one graphics card.
 - These are single runs on made-up scenes.
   [How the cause was found, and the three ways of using it that were compared](research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).

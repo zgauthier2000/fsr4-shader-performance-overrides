@@ -196,7 +196,7 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 - **The figures at rest are for auto exposure off.** With FSR's auto-exposure option on (found 2026-10-11, after release
   `dll-2026-10-11.4`), the worst flat piece of the still scene changes 0.276 per frame with the lossy build against 0.213 with
   AMD's shaders, about 30% more; the whole frame (0.034 against 0.041) and fine detail (0.102 against 0.125) remain steadier.
-  All tuning of the lossy build at rest was done with it off. The cause is not yet known.
+  All tuning of the lossy build at rest was done with it off. The cause is not yet known. Film grain also reads differently with it on: AMD's shaders hold strong grain back far better there, and the lossy DLL is then less steady than AMD's on grain of 10 and 15 of 255 (0.40 against 0.36, and 0.57 against 0.48) and 1.5 to 2.9 dB less accurate. Ghosting, particles, wires, foliage and fades read much as with it off.
 - **Fine detail at rest shimmers less than with AMD's shaders** (0.086 against 0.110), and so
   does thin vertical detail alone (16% less; it was 4% more in release `dll-2026-10-09`).
 - **The still picture is within 0.02 dB of AMD's** (0.7 dB below in release `dll-2026-10-07`, 0.15 to 0.2 dB below up to
