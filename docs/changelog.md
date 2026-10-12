@@ -2,8 +2,62 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-11.6` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-11.7` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-11 ([release `dll-2026-10-11.7`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.7))
+
+### Rain shown as white dashes
+
+*Written for `dll-2026-10-11.7`: "this release" below means that one.*
+
+One change to the lossy DLL's picture. **The exact DLL is unchanged.**
+
+- **What was wrong:** a tester sent a video of Alan Wake 2 with the lossy DLL: white dashes and specks in a window with
+  rain falling outside. In a still stretch of the video they come and go with every other frame of the game, which is
+  the rhythm of the lossy DLL's skipped frames.
+- **The cause:** the rule that keeps particles visible on skipped frames (a spark has no motion vectors, so it has to be
+  recognized by its brightness). A rain streak is a thin bright line without motion vectors, and the rule showed each
+  one at full strength. The rule of `dll-2026-10-11.6` did not stop it: that one asks for a second bright sample beside
+  the first, and a line always has one, along itself.
+- **The fix:** a bright sample now counts as a spark only as far as it has a bright neighbor in both directions,
+  sideways and above or below. A particle is a spot; a line one pixel wide in the game's frame is not.
+
+| Measured in the test rig at 4K: output pixels more than 20 levels too bright, per million | AMD's shaders | `dll-2026-10-11.6` | This release |
+|---|---|---|---|
+| Rain: faint streaks one pixel wide, falling fast | 0 to 1 | 19,242 to 21,130 | 0 |
+| Rain, four times as bright and slower | 1,258 to 1,314 | 68,189 to 73,960 | 450 to 489 |
+| Rain with the HDR option and auto exposure | 2 | 17,512 to 19,350 | 0 |
+| Single over-bright pixels, new places every frame | 25 | 73 | 14 |
+| Single over-bright pixels, dimmer and three times as many | 0 | 459 | 0 |
+| Fixed glints that the camera jitter hits now and then | 1,460 | 1,446 | 1,411 |
+
+| Measured in the test rig at 4K, on skipped frames | AMD's shaders | `dll-2026-10-11.6` | This release |
+|---|---|---|---|
+| Large particles: share shown | 98% | 98.1% | 98.2% |
+| Tiny fast embers: share shown | 83% | 75.0% | 73.7% |
+| Thin wires, slow pan: brightness (true value 111) | 100 | 58.7 | 52.6 |
+| Thin wires, slow pan: change per frame | 7.16 | 14.38 | 9.60 |
+| Thin wires, fast pan: brightness (true value 111) | 97 | 62.5 | 58.1 |
+| Thin wires, camera still: brightness (true value 111) | 67.4 | 67.1 | 65.8 |
+| Still picture | 44.33 dB | 44.24 dB | 44.24 dB |
+
+- **What got worse:**
+  - Thin wires are dimmer while the camera pans (the table's wire rows). A wire is a line one pixel wide too, and the
+    rule that removes the rain takes some of the wire with it. They also flicker less than before.
+  - Tiny fast embers are shown a little less on skipped frames.
+  - Rain two pixels wide in the game's frame would still pass; that was not measured.
+- **Unchanged:** everything else that was measured: the moving scene at 1080p, 1440p and 4K, rest, ghost and
+  uncovered-area measures, foliage, film grain, 30 to 120 FPS, pan start. The last shader holds as few values as before
+  (16 copies side by side on a Radeon RX 7800 XT under Linux, as files and as DLL) and takes the same time: 0.67 ms
+  against 0.67 ms at 4K, timed alone.
+- **Not checked:**
+  - The game the report came from. The fault was rebuilt as a made-up scene; whether the dashes there are gone is for
+    the tester to say. AMD's shaders make the rig's rain almost invisible, which real rain in a game is not.
+  - The whole upscaler in the timing kit, and a game benchmark.
+  - Windows drivers.
+- These are single runs on made-up scenes.
+  [How the cause was found](../research/frame-skip#rain-and-other-thin-streaks-release-dll-2026-10-117).
 
 ## 2026-10-11 ([release `dll-2026-10-11.6`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.6))
 

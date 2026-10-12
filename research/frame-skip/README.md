@@ -1319,6 +1319,95 @@ from each other by as much. `SB_BLOB=0` rebuilds `dll-2026-10-11.6`'s files byte
 
 Not measured: rain two render pixels wide, slanted rain, and any game.
 
+## Foliage and the network's memory (release `dll-2026-10-12`)
+
+Leaves that sway without motion vectors have been the lossy build's weakest case since the first release with frame skip, and
+no rule that looked at single pixels helped. For this release the network's own verdict was made visible.
+
+### The network's weight in swaying leaves
+
+[`weight_view.py`](weight_view.py) makes the postpass show, in place of the picture, the weight the network gives the new frame
+at each pixel; the stored history is untouched, so the upscaler runs as usual. The rig's foliage scene (dense leaves against sky,
+all swaying two output pixels to either side, none with a motion vector; camera still; 4K, Balanced; one run each):
+
+| Mean weight for the new frame on the leaves | Swaying, period 12 frames | Still leaves |
+|---|---|---|
+| AMD's shaders | 0.50 | 0.006 |
+| Lossy, `dll-2026-10-11.7` | 0.10 | 0.039 |
+| Frame skip on AMD's unmodified network | 0.08 | |
+| AMD's network on every frame, its recurrent image stored on every other frame only | 0.04 | |
+| AMD's network on every frame, the history image stored on every other frame only | 0.66 | |
+
+AMD's network gives swaying leaves half of the new frame. With frame skip it gives a tenth, with or without the lossy build's
+other changes. [`store_gate.py`](store_gate.py) withholds one of the postpass's stores on alternate frames while the network
+runs on every frame: a history two frames old does not hurt, a recurrent image two frames old does all of it. So what
+recognizes change without motion vectors is the network's memory of the frame before (the recurrent image, four channels of
+learned features), and when that is two frames old the verdict becomes "keep the old picture".
+
+It is a matter of how far things move between two runs of the network:
+
+| Sway period, frames | 24 | 18 | 12 | 6 |
+|---|---|---|---|---|
+| AMD's shaders: weight / error on the leaves | 0.44 / 10.2 | 0.50 / 10.7 | 0.50 / 12.1 | 0.015 / 19.5 |
+| Lossy `dll-2026-10-11.7`: weight / error (frames that ran the network, skipped) | 0.49 / 11.9, 13.5 | 0.48 / 13.0, 15.0 | 0.10 / 18.0, 18.6 | 0.015 / 17.8, 18.2 |
+
+AMD's shaders lose the verdict too, one step later: the lossy build handles foliage at 60 FPS the way AMD's shaders handle it at 30.
+
+### What cannot be done about the fast case
+
+- **Showing the new frame alone on skipped frames** does not bring the verdict back (weight 0.04) and costs still leaves under a pan.
+- **Making the recurrent image on a skipped frame:** its channels are not simple functions of the picture (the best linear fit
+  from the true colors explains 47% of one channel and far less of the others).
+- **A hand-made detector:** the difference between new frame and history, averaged over boxes of 1 to 13 pixels, finds about 40% of
+  the swaying pixels at 5% false alarms on still leaves.
+
+That leaves running the network on every frame while foliage moves, which gives up the speed there. Not built.
+
+### The rule for the slow case (`SB_RESTBAND`)
+
+Where the verdict survives (periods 24 and 18 above), a skipped frame did not use it: at rest it took nothing from the new frame
+unless the network's weight was above 0.95 (`SB_RESTW`). Now it also counts between 0.2 and 0.7: it comes in from 0.2 to 0.5 and
+is taken back from 0.6 to 0.7, and where it counts the skipped frame takes the network's own weight for the new frame.
+
+The top of the range is cut because of film grain, which gets such weights too, mostly higher ones. Variants, single runs:
+
+| | Leaves, period 24 (ran / skipped) | Period 18 | Grain 6 / 10 / 15 of 255: change per frame | Grain 10, auto exposure |
+|---|---|---|---|---|
+| AMD's shaders | 10.2 / 10.2 | 10.7 / 10.8 | 0.785 / 1.724 / 2.549 | 0.357 |
+| `dll-2026-10-11.7` | 11.9 / 13.5 | 13.0 / 15.0 | 0.342 / 1.056 / 1.932 | 0.370 |
+| Verdict from 0.2 up, no upper limit, weight not squared anywhere | 10.9 / 11.5 | 12.0 / 12.8 | 0.656 / 2.349 / 3.769 | |
+| The same, only where new frame and history differ a lot | 11.7 / 13.1 | 12.8 / 14.5 | 0.470 / 1.679 / 3.001 | |
+| Range 0.2 to 0.8, weight not squared anywhere | 10.9 / 11.6 | 12.0 / 12.8 | 0.498 / 1.360 / 2.389 | 0.498 |
+| Range 0.2 to 0.8, the network's own weight inside the rule only | 11.0 / 11.8 | 12.0 / 12.9 | 0.542 / 1.413 / 2.420 | 0.519 |
+| **Range 0.2 to 0.7, the same (this release)** | 11.0 / 11.9 | 12.1 / 13.1 | 0.489 / 1.292 / 2.222 | 0.447 |
+
+- **By size of the difference** (fourth row): leaves and grain differ from the history by similar amounts, so this guard takes
+  the foliage gain away before it stops the grain.
+- **Not squaring the weight anywhere** (third and fifth rows) made fine lines in motion change 6% to 14% more per frame; kept
+  inside the rule it costs nothing in motion.
+- **The narrower range** keeps about nine tenths of the foliage gain for half to two thirds of the grain cost.
+
+### The release build against `dll-2026-10-11.7`
+
+Everything in motion is equal to the last digit: the moving scene at 1080p, 1440p, 4K and 5K, 30 to 120 FPS, the ghost and plate
+scenes, pan start, wires in a pan, particles, rain. Different, auto exposure off / on:
+
+| 4K, one run | AMD's shaders | `dll-2026-10-11.7` | This release |
+|---|---|---|---|
+| Flat area at rest: change per frame | | 0.053 / 0.093 | 0.058 / 0.104 |
+| Thin vertical detail: change per frame | | 0.305 / 0.327 | 0.316 / 0.347 |
+| Railing behind moving objects, camera still: change per frame | 0.655 / 0.662 | 0.623 / 0.623 | 0.659 / 0.660 |
+| Grain 10 of 255, the least steady 1% of pixels | 10.38 / 1.93 | 9.37 / 2.35 | 10.36 / 4.39 |
+| Leaves at the usual speed (period 12) | 12.1 | 18.0, 18.6 | 18.1, 18.7 |
+
+The postpass still compiles to 96 registers (16 waves per SIMD on an RX 7800 XT), with 9,028 instructions against 8,991, and takes
+0.693 against 0.675 ms alone at 4K on a frame that runs the network (both slot orders), 0.005 to 0.01 ms more on a skipped one.
+`SB_RESTBAND=off` rebuilds `dll-2026-10-11.7`'s files byte for byte.
+
+Not measured: any game for the picture, the quality set with the HDR option, and where between the two tested ranges the grain
+cost begins to outrun the foliage gain.
+
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
@@ -1480,4 +1569,6 @@ And each output pixel depends on about 50 pixels around it.
 | `skipblend_dxil.py` | the same for the DLL's postpass (DXIL text) |
 | `exposure_steps.py` | since release `dll-2026-10-11.5`: the prepass's exposure re-encoding changes the stored history only by whole 16-bit steps (SPIR-V text); run it on the finished prepass |
 | `exposure_steps_dxil.py` | the same for the DLL's prepass (DXIL text) |
+| `weight_view.py` | test-rig probe: the postpass shows the network's weight for the new frame in place of the picture (SPIR-V text; run it after `skipblend.py`) |
+| `store_gate.py` | test-rig probe: the postpass stores the recurrent image, the history image or both on every other frame only, with the network running on every frame |
 | [`../lossy/wfold.py`](../lossy/wfold.py), `wfold_dxil.py` | since release `dll-2026-10-10` the lossy build runs these on pass 1 with 2 words (`wfold.py 2`), and since `dll-2026-10-11` also on pass 10 with 18 and pass 12 with 4, before the exact rewrites and `frameskip.py` |

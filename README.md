@@ -102,17 +102,17 @@ More games and resolutions: [all results](docs/results.md).
 ## New in this release
 
 > [!TIP]
-> **The lossy DLL: rain is no longer shown as white dashes.**
-> - **New in this release:** rain and other thin streaks that the game draws without motion vectors came out of the
->   lossy DLL as hard white dashes and specks, where AMD's shaders blend them into the picture. In the test rig they
->   are now as faint as with AMD's shaders. Speed is unchanged.
->   [Details below](#rain-shown-as-white-dashes-release-dll-2026-10-117).
-> - **The price:** thin wires are dimmer while the camera pans, and steadier. If you saw no white specks in rain or
->   through windows, there is no need to update.
+> **The lossy DLL: slowly swaying foliage is closer to AMD's.**
+> - **New in this release:** leaves that move slowly without motion vectors lag less. In the test rig the lossy DLL
+>   closes about half of its gap to AMD's shaders there.
+>   [Details below](#slowly-swaying-foliage-release-dll-2026-10-12).
+> - **What it does not fix:** leaves that move fast, leaves during a camera pan, and low frame rates. The cause was
+>   found for this release: the network's own memory of the frame before, which a skipped frame cannot refresh.
+> - **The price:** film grain flickers more than in the last releases. If foliage did not bother you and your games use
+>   film grain, there is no need to update.
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
->   timing for all five, redone with this release, with one chart per upscaler and side-by-side crops. It shows where the
->   lossy DLL leads (accuracy close to FSR 4, areas a moving object has just uncovered) and where it is weakest (moving
->   foliage, a thin wire in a camera pan).
+>   timing for all five, with one chart per upscaler and side-by-side crops. It was made with the build of
+>   `dll-2026-10-11.7`; this release differs from it in the foliage and grain figures given below.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/cmp5-radar2-dark.svg">
@@ -131,7 +131,7 @@ Made-up test scenes on one graphics card; [the comparison page](docs/upscaler-co
 >   - **New in the Windows kit 2026-10-12.3:** every DLL should give the same picture in both of its runs. Where one does
 >     not, the summary now says how different the two are: how many 16x16-pixel blocks, where, and by how much. Two
 >     reports from one RX 7800 XT showed such a difference for the lossy DLL at 4K, and this is there to find out what it is.
->   - **Both kits now carry the lossy build of this release** (`dll-2026-10-11.7`).
+>   - **Both kits carry the lossy build of the release before this one** (`dll-2026-10-11.7`).
 >   - **The Windows kit (2026-10-12.2) now shows which part of the exact DLL saves time on your card.** It carries two more
 >     DLLs: AMD's shaders with only the rewritten last shader, and AMD's shaders with every other rewrite. On some cards
 >     under Windows the exact DLL gains a lot and on others almost nothing, and this is how we find out why.
@@ -158,6 +158,7 @@ Made-up test scenes on one graphics card; [the comparison page](docs/upscaler-co
 
 **The technical pages behind this release:**
 
+- [Foliage and the network's memory](research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12): why moving leaves lag when the network runs on every other frame, what was tried, and the rule for the slow case
 - [Rain and other thin streaks](research/frame-skip#rain-and-other-thin-streaks-release-dll-2026-10-117): why a line passed the rule against single bright pixels, the rule that replaced it, and what it costs thin wires
 - [Sparkling on glossy surfaces, and a shader that held too much](research/frame-skip#sparkling-on-glossy-surfaces-and-a-shader-that-held-too-much-release-dll-2026-10-116): single over-bright pixels taken for sparks, the test scene, and why a rule that cost nothing in the timing kit cost frames in a game
 - [Shimmer with auto exposure on](research/frame-skip#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115): the exposure value's wobble, the store that drops bits, why rounding everything was the wrong fix, and the narrow one that shipped
@@ -171,57 +172,65 @@ Made-up test scenes on one graphics card; [the comparison page](docs/upscaler-co
 - [Weight folding](research/lossy): the earlier experiment the light folds come from
 - [The timing kits](timing-kit): what the Linux and Windows kits measure, and how to read their summaries
 
-### Rain shown as white dashes (release `dll-2026-10-11.7`)
+### Slowly swaying foliage (release `dll-2026-10-12`)
 
 One change to the lossy DLL's picture. **The exact DLL is unchanged.**
 
-- **What was wrong:** a tester sent a video of Alan Wake 2 with the lossy DLL: white dashes and specks in a window with
-  rain falling outside. In a still stretch of the video they come and go with every other frame of the game, which is
-  the rhythm of the lossy DLL's skipped frames.
-- **The cause:** the rule that keeps particles visible on skipped frames (a spark has no motion vectors, so it has to be
-  recognized by its brightness). A rain streak is a thin bright line without motion vectors, and the rule showed each
-  one at full strength. The rule of `dll-2026-10-11.6` did not stop it: that one asks for a second bright sample beside
-  the first, and a line always has one, along itself.
-- **The fix:** a bright sample now counts as a spark only as far as it has a bright neighbor in both directions,
-  sideways and above or below. A particle is a spot; a line one pixel wide in the game's frame is not.
+- **What was wrong:** moving foliage is the lossy DLL's weakest case. Leaves that sway without motion vectors lag and come
+  out softer than with AMD's shaders.
+- **The cause, found for this release:** FSR 4's network keeps a small memory image from the frame before and needs it to
+  recognize things that move without motion vectors. With AMD's shaders it gives swaying leaves about half of the new
+  frame. In the lossy DLL the network runs on every other frame, so that memory is two frames old:
+  - **leaves that move slowly** still get the network's verdict, but the skipped frames did not use it;
+  - **leaves that move fast** lose it: the network's weight for the new frame falls from 50% to under 10%, and the leaves
+    lag. AMD's own shaders do the same when the leaves move twice as fast.
+- **The fix, for the slow case only:** a skipped frame now uses the network's verdict where it gave a middle weight, which
+  is what slowly moving leaves get.
 
-| Measured in the test rig at 4K: output pixels more than 20 levels too bright, per million | AMD's shaders | `dll-2026-10-11.6` | This release |
+| Measured in the test rig at 4K, camera still: error on the leaves, of 255 (frames that ran the network / skipped frames) | AMD's shaders | `dll-2026-10-11.7` | This release |
 |---|---|---|---|
-| Rain: faint streaks one pixel wide, falling fast | 0 to 1 | 19,242 to 21,130 | 0 |
-| Rain, four times as bright and slower | 1,258 to 1,314 | 68,189 to 73,960 | 450 to 489 |
-| Rain with the HDR option and auto exposure | 2 | 17,512 to 19,350 | 0 |
-| Single over-bright pixels, new places every frame | 25 | 73 | 14 |
-| Single over-bright pixels, dimmer and three times as many | 0 | 459 | 0 |
-| Fixed glints that the camera jitter hits now and then | 1,460 | 1,446 | 1,411 |
+| Leaves swaying at half the rig's usual speed | 10.2 / 10.2 | 11.9 / 13.5 | 11.0 / 11.9 |
+| At two thirds of it | 10.7 / 10.8 | 13.0 / 15.0 | 12.1 / 13.1 |
+| At the usual speed (the network's verdict is lost) | 12.1 / 12.1 | 18.0 / 18.6 | 18.1 / 18.7 |
+| Half speed, camera panning | 9.7 / 9.7 | 12.3 / 13.3 | 12.3 / 13.3 |
 
-| Measured in the test rig at 4K, on skipped frames | AMD's shaders | `dll-2026-10-11.6` | This release |
+| The price: film grain, change per frame | AMD's shaders | `dll-2026-10-11.7` | This release |
 |---|---|---|---|
-| Large particles: share shown | 98% | 98.1% | 98.2% |
-| Tiny fast embers: share shown | 83% | 75.0% | 73.7% |
-| Thin wires, slow pan: brightness (true value 111) | 100 | 58.7 | 52.6 |
-| Thin wires, slow pan: change per frame | 7.16 | 14.38 | 9.60 |
-| Thin wires, fast pan: brightness (true value 111) | 97 | 62.5 | 58.1 |
-| Thin wires, camera still: brightness (true value 111) | 67.4 | 67.1 | 65.8 |
-| Still picture | 44.33 dB | 44.24 dB | 44.24 dB |
+| Grain of 6 in 255 | 0.785 | 0.342 | 0.489 |
+| Grain of 10 | 1.724 | 1.056 | 1.292 |
+| Grain of 15 | 2.549 | 1.932 | 2.222 |
+| Grain of 6, auto exposure on | 0.552 | 0.359 | 0.400 |
+| Grain of 10, auto exposure on | 0.357 | 0.370 | 0.447 |
+| Grain of 15, auto exposure on | 0.484 | 0.514 | 0.514 |
 
 - **What got worse:**
-  - Thin wires are dimmer while the camera pans (the table's wire rows). A wire is a line one pixel wide too, and the
-    rule that removes the rain takes some of the wire with it. They also flicker less than before.
-  - Tiny fast embers are shown a little less on skipped frames.
-  - Rain two pixels wide in the game's frame would still pass; that was not measured.
-- **Unchanged:** everything else that was measured: the moving scene at 1080p, 1440p and 4K, rest, ghost and
-  uncovered-area measures, foliage, film grain, 30 to 120 FPS, pan start. The last shader holds as few values as before
-  (16 copies side by side on a Radeon RX 7800 XT under Linux, as files and as DLL) and takes the same time: 0.67 ms
-  against 0.67 ms at 4K, timed alone.
+  - Film grain flickers more than in the last releases: the network gives some grain the same middle weights as leaves.
+    Without auto exposure it stays steadier than with AMD's shaders. With auto exposure on, grain of 10 in 255 is now
+    25% less steady than AMD's (it was 4%).
+  - Flat areas and thin detail at rest change slightly more per frame: a flat area 0.053 to 0.058 (with auto exposure
+    0.093 to 0.104), thin vertical detail 0.305 to 0.316, a railing behind moving objects 0.623 to 0.659 (AMD's 0.655).
+- **What it does not fix:**
+  - Leaves that move fast, as in the third row. No rule in the last shader can: the network's memory cannot be made
+    on a frame that skips the network.
+  - Leaves while the camera pans: the rule applies only where the picture is at rest.
+  - Low frame rates. At 30 FPS a leaf moves twice as far per frame as at 60, so more of the foliage is in the fast case.
+    There the exact DLL remains the better choice.
+- **Unchanged:** everything in motion (the moving scene at 1080p, 1440p, 4K and 5K, 30 to 120 FPS, ghost and plate
+  scenes, pan start), particles, wires, rain, single over-bright pixels. Slow fades are followed slightly sooner.
+- **Speed:** the last shader holds as few values as before (16 copies side by side on a Radeon RX 7800 XT under Linux)
+  and has 37 more instructions of 8,991. Timed alone at 4K: 0.675 to 0.693 ms on a frame that runs the network, 0.005
+  to 0.01 ms more on a skipped one. Shadow of the Tomb Raider's benchmark at 4K Balanced, one run with this release's
+  Linux files: 18,689 frames, 120 FPS. The release before was not run there, so that is not a comparison.
 - **Not checked:**
-  - The game the report came from. The fault was rebuilt as a made-up scene; whether the dashes there are gone is for
-    the tester to say. AMD's shaders make the rig's rain almost invisible, which real rain in a game is not.
-  - The whole upscaler in the timing kit, and a game benchmark.
-  - Windows drivers.
+  - Games, beyond one impression: in Shadow of the Tomb Raider the author found foliage a little better than with the
+    releases before. That game never showed foliage as bad as the report from Alan Wake 2, which was not tried, so
+    whether the reported case improves is for testers to say. The rig's leaves are made up.
+  - The whole upscaler in the timing kit.
+  - Windows drivers, and other graphics chips than the RX 7800 XT.
 - These are single runs on made-up scenes.
-  [How the cause was found](research/frame-skip#rain-and-other-thin-streaks-release-dll-2026-10-117).
+  [How the cause was found](research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12).
 
-Earlier releases, including `dll-2026-10-11.6` (no sparkling on glossy surfaces, a speed loss stopped), `dll-2026-10-11.5` (shimmer in bright flat areas with auto exposure on), `dll-2026-10-11.3` (fewer bright dots in foliage), `dll-2026-10-11.2` (a ghost behind bright objects over fast ground), `dll-2026-10-11` (white beads on thin wires, particles closer to AMD's), `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
+Earlier releases, including `dll-2026-10-11.7` (rain no longer shown as white dashes), `dll-2026-10-11.6` (no sparkling on glossy surfaces, a speed loss stopped), `dll-2026-10-11.5` (shimmer in bright flat areas with auto exposure on), `dll-2026-10-11.3` (fewer bright dots in foliage), `dll-2026-10-11.2` (a ghost behind bright objects over fast ground), `dll-2026-10-11` (white beads on thin wires, particles closer to AMD's), `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
 
 ## Will it work for me?
 

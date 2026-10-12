@@ -344,6 +344,11 @@ Five repairs keep the rest honest (the fifth is the one just described):
 
 ## What the lossy builds cost, measured
 
+> **Release `dll-2026-10-12` changed three things on this page:** slowly swaying foliage (the table under "Moving foliage" below has the new rows), film grain
+> (the grain figures below are the new ones), and slightly more change per frame at rest (a flat area 0.053 to 0.058, thin vertical detail 0.305 to 0.316). Every other figure
+> and every picture is from `dll-2026-10-11.7`'s build, which is equal in everything that moves.
+> [Foliage and the network's memory](../research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12).
+>
 > **Updated for release `dll-2026-10-11.7`.** Against the build this page showed before (`dll-2026-10-11.4`): rain and single over-bright
 > pixels are no longer shown as sparks; thin wires in a camera pan are dimmer and steadier; fast sparks are shown a point or two
 > dimmer; with auto exposure on, bright flat areas no longer shimmer. Everything else moved in the last digit or not at all.
@@ -484,8 +489,9 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
   update on every other frame.
 - **A very thin wire in a camera pan is about half as bright as with AMD's shaders,** and under a slow pan it flickers a third
   more (see the wire picture above). With the camera still it is at AMD's level.
-- **Strong film grain is passed on more than moderate grain.** At 6 of 255 the lossy build's picture changes 0.34 per
-  frame (AMD's 0.79); at 10 of 255, 1.06 (AMD's 1.72); at 15 of 255, 1.93 (AMD's 2.55).
+- **Strong film grain is passed on more than moderate grain.** At 6 of 255 the lossy build's picture changes 0.49 per
+  frame (AMD's 0.79); at 10 of 255, 1.29 (AMD's 1.72); at 15 of 255, 2.22 (AMD's 2.55). With auto exposure on: 0.40 (AMD's 0.55), 0.45 (AMD's 0.36) and 0.51 (AMD's 0.48).
+  Release `dll-2026-10-12` gave up some steadiness here for the foliage rule (before it: 0.34, 1.06, 1.93).
 - **Moving foliage is the lossy build's weakest case.** Leaves that sway without motion vectors, as wind-animated foliage
   often does in games, come out softer than with AMD's shaders. It is a time lag, not an artifact: in swaying foliage FSR 4's
   network deliberately keeps much of the previous picture, and with the network running on every other frame the picture
@@ -494,12 +500,19 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
 
   | | AMD's shaders | Lossy | Release `dll-2026-10-07` |
   |---|---|---|---|
-  | Leaves swaying, camera still | 12.1 | 18.0 to 18.6 | 16.8 to 17.8 |
+  | Leaves swaying, camera still | 12.1 | 18.1 to 18.7 | 16.8 to 17.8 |
+  | Leaves swaying at two thirds of that speed, camera still | 10.7 | 12.1 to 13.1 | not measured |
+  | Leaves swaying at half that speed, camera still | 10.2 | 11.0 to 11.9 | not measured |
+  | Leaves swaying at half that speed, camera panning | 9.7 | 12.3 to 13.3 | not measured |
   | Leaves swaying, camera panning | 10.7 | 17.7 to 18.0 | 16.3 to 17.3 |
   | The same, change of the error per frame | 17.3 | 28.1 | 26.6 |
   | Still leaves, camera panning | 6.2 | 7.5 | 7.8 |
   | Still leaves, camera still | 7.9 | 7.4 | 7.7 |
 
+  The cause is the network's memory of the frame before, which it needs to recognize motion without vectors and which is two
+  frames old when the network runs on every other frame; above a certain speed its verdict is lost
+  ([how that was found](../research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12)). Since release `dll-2026-10-12`
+  skipped frames use the verdict where it survives, which is what the slower rows show (before: 13.0 to 15.0 and 11.9 to 13.5).
   Enlarged side by side the lossy leaves are a little softer and fatter; there is no tearing or second outline. Three
   attempts to find such pixels and give them the new frame did nothing for it (nothing about a single pixel tells a
   slightly older leaf from still detail under camera jitter), and the particle handling plays no part in it. In a game
