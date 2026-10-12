@@ -108,9 +108,11 @@ More games and resolutions: [all results](docs/results.md).
 >   [Details below](#slowly-swaying-foliage-release-dll-2026-10-12).
 > - **What it does not fix:** leaves that move fast, leaves during a camera pan, and low frame rates. The cause was
 >   found for this release: the network's own memory of the frame before, which a skipped frame cannot refresh.
-> - **The price:** film grain flickers more than in the last releases. A second change, a light fold in the network's
->   first layer, wins part of that back. If foliage did not bother you and your games use film grain, there is no need
->   to update.
+> - **The price:** film grain flickers more than in the last releases, but still less than with AMD's shaders: for grain
+>   of 6 in 255 the change per frame is 0.460, against 0.342 in the release before and 0.785 with AMD's. A second change,
+>   a light fold in the network's first layer, wins part of the loss back. The one exception is auto exposure with
+>   stronger grain (10 or 15 in 255), where it flickers slightly more than AMD's, as it did before
+>   ([table below](#slowly-swaying-foliage-release-dll-2026-10-12)).
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, redone with this release, with one chart per upscaler and side-by-side crops. It shows where the
 >   lossy DLL leads (accuracy close to FSR 4, areas a moving object has just uncovered, and now slowly swaying foliage,
