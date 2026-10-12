@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="612" viewBox="0 0 760 612" role="img" aria-label="Five radar charts, one per upscaler, each with nine spokes; on every spoke the best of the five reaches the outer ring and the others reach in proportion to it, so a larger shape is better and a dent is a weakness. Still picture: accuracy (dB): FSR 4.1.1 44.33 dB, Lossy 44.26 dB, FSR 3.1 39.94 dB, HelixSR 41.99 dB, XeSS 42.14 dB. Moving background: accuracy (dB): FSR 4.1.1 49.27 dB, Lossy 48.98 dB, FSR 3.1 47.95 dB, HelixSR 46.92 dB, XeSS 47.70 dB. Thin railing in motion: accuracy (dB): FSR 4.1.1 41.82 dB, Lossy 41.34 dB, FSR 3.1 38.36 dB, HelixSR 40.12 dB, XeSS 40.86 dB. Areas a moving object has just uncovered: accuracy (dB): FSR 4.1.1 34.48 dB, Lossy 36.45 dB, FSR 3.1 29.22 dB, HelixSR 27.11 dB, XeSS 30.20 dB. Tiny fast sparks: share of their brightness shown (%): FSR 4.1.1 83%, Lossy 74%, FSR 3.1 40%, HelixSR 79%, XeSS 50%. Leaves swaying without motion vectors, mean of three sway speeds: error (of 255): FSR 4.1.1 11.0, Lossy 14.5, FSR 3.1 16.7, HelixSR 14.3, XeSS 14.3. Still picture: change per frame (of 255): FSR 4.1.1 0.037, Lossy 0.024, FSR 3.1 0.014, HelixSR 0.020, XeSS 0.084. Thin wire under a slow pan: change per frame (of 255): FSR 4.1.1 7.2, Lossy 11.0, FSR 3.1 8.2, HelixSR 5.6, XeSS 10.1. Time per upscale call at 3840x2160 (ms): FSR 4.1.1 4.76 ms, Lossy 2.22 ms, FSR 3.1 1.16 ms, HelixSR 1.99 ms, XeSS 4.98 ms.">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="612" viewBox="0 0 760 612" role="img" aria-label="Five radar charts, one per upscaler, each with nine spokes; on every spoke the best of the five reaches the outer ring and the others reach in proportion to it, so a larger shape is better and a dent is a weakness. Still picture: accuracy (dB): FSR 4.1.1 44.33 dB, Lossy 44.26 dB, FSR 3.1 39.94 dB, HelixSR 41.99 dB, XeSS 42.14 dB. Moving background: accuracy (dB): FSR 4.1.1 49.27 dB, Lossy 48.98 dB, FSR 3.1 47.95 dB, HelixSR 46.92 dB, XeSS 47.70 dB. Thin railing in motion: accuracy (dB): FSR 4.1.1 41.82 dB, Lossy 41.34 dB, FSR 3.1 38.36 dB, HelixSR 40.12 dB, XeSS 40.86 dB. Areas a moving object has just uncovered: accuracy (dB): FSR 4.1.1 34.48 dB, Lossy 36.45 dB, FSR 3.1 29.22 dB, HelixSR 27.11 dB, XeSS 30.20 dB. Tiny fast sparks: share of their brightness shown (%): FSR 4.1.1 83%, Lossy 74%, FSR 3.1 40%, HelixSR 79%, XeSS 50%. Leaves swaying without motion vectors, mean of three sway speeds: error (of 255): FSR 4.1.1 11.0, Lossy 14.5, FSR 3.1 16.7, HelixSR 14.3, XeSS 14.3. Still picture: change per frame (of 255): FSR 4.1.1 0.037, Lossy 0.024, FSR 3.1 0.014, HelixSR 0.020, XeSS 0.084. Thin wire under a slow pan: change per frame (of 255): FSR 4.1.1 7.2, Lossy 11.0, FSR 3.1 8.2, HelixSR 5.6, XeSS 10.1. Time per upscale call at 3840x2160 (ms): FSR 4.1.1 4.82 ms, Lossy 2.21 ms, FSR 3.1 1.15 ms, HelixSR 2.00 ms, XeSS 4.99 ms.">
 <rect x="0.0" y="0.0" width="760.0" height="612.0" rx="8" fill="#fcfcfb"/>
 <text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">The shape of each upscaler: nine measures</text>
 <text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">On every spoke the best of the five reaches the outer ring. Bigger is better; a dent is a weakness. Dashed: FSR 4.1.1.</text>
@@ -16,7 +16,7 @@
 <line x1="128.0" y1="196.0" x2="65.6" y2="232.0" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="128.0" y1="196.0" x2="57.1" y2="183.5" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="128.0" y1="196.0" x2="81.7" y2="140.8" stroke="#e1e0d9" stroke-width="1"/>
-<polygon points="128.0,124.0 174.3,140.8 198.9,183.5 177.7,224.7 152.6,263.7 103.4,263.7 104.4,209.6 72.9,186.3 116.7,182.6" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="128.0,124.0 174.3,140.8 198.9,183.5 177.7,224.7 152.6,263.7 103.4,263.7 104.4,209.6 72.9,186.3 117.0,182.8" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
 <circle cx="128.0" cy="124.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="174.3" cy="140.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="198.9" cy="183.5" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
@@ -25,7 +25,7 @@
 <circle cx="103.4" cy="263.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="104.4" cy="209.6" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="72.9" cy="186.3" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
-<circle cx="116.7" cy="182.6" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="117.0" cy="182.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <text x="128.0" y="113.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Still</text>
 <text x="180.1" y="132.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Background</text>
 <text x="207.8" y="185.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
@@ -49,8 +49,8 @@
 <line x1="380.0" y1="196.0" x2="317.6" y2="232.0" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="380.0" y1="196.0" x2="309.1" y2="183.5" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="380.0" y1="196.0" x2="333.7" y2="140.8" stroke="#e1e0d9" stroke-width="1"/>
-<polygon points="380.0,124.6 424.8,142.7 447.1,184.2 442.4,232.0 402.0,256.3 361.3,247.3 343.6,217.0 343.9,189.6 355.8,167.2" fill="#eb6834" fill-opacity="0.35" stroke="#eb6834" stroke-width="2" stroke-linejoin="round"/>
-<polygon points="380.0,124.0 426.3,140.8 450.9,183.5 429.7,224.7 404.6,263.7 355.4,263.7 356.4,209.6 324.9,186.3 368.7,182.6" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<polygon points="380.0,124.6 424.8,142.7 447.1,184.2 442.4,232.0 402.0,256.3 361.3,247.3 343.6,217.0 343.9,189.6 355.9,167.3" fill="#eb6834" fill-opacity="0.35" stroke="#eb6834" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="380.0,124.0 426.3,140.8 450.9,183.5 429.7,224.7 404.6,263.7 355.4,263.7 356.4,209.6 324.9,186.3 369.0,182.8" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
 <circle cx="380.0" cy="124.6" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="424.8" cy="142.7" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="447.1" cy="184.2" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
@@ -59,7 +59,7 @@
 <circle cx="361.3" cy="247.3" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="343.6" cy="217.0" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="343.9" cy="189.6" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
-<circle cx="355.8" cy="167.2" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="355.9" cy="167.3" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
 <text x="380.0" y="113.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Still</text>
 <text x="432.1" y="132.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Background</text>
 <text x="459.8" y="185.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
@@ -84,7 +84,7 @@
 <line x1="632.0" y1="196.0" x2="561.1" y2="183.5" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="632.0" y1="196.0" x2="585.7" y2="140.8" stroke="#e1e0d9" stroke-width="1"/>
 <polygon points="632.0,152.6 671.8,148.6 679.6,187.6 659.1,211.7 643.9,228.6 615.8,240.6 569.6,232.0 583.6,187.5 585.7,140.8" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
-<polygon points="632.0,124.0 678.3,140.8 702.9,183.5 681.7,224.7 656.6,263.7 607.4,263.7 608.4,209.6 576.9,186.3 620.7,182.6" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<polygon points="632.0,124.0 678.3,140.8 702.9,183.5 681.7,224.7 656.6,263.7 607.4,263.7 608.4,209.6 576.9,186.3 621.0,182.8" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
 <circle cx="632.0" cy="152.6" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="671.8" cy="148.6" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="679.6" cy="187.6" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
@@ -117,8 +117,8 @@
 <line x1="128.0" y1="446.0" x2="65.6" y2="482.0" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="128.0" y1="446.0" x2="57.1" y2="433.5" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="128.0" y1="446.0" x2="81.7" y2="390.8" stroke="#e1e0d9" stroke-width="1"/>
-<polygon points="128.0,391.0 163.3,403.9 186.3,435.7 149.3,458.3 151.4,510.4 109.1,498.0 84.4,471.2 57.1,433.5 101.0,413.8" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
-<polygon points="128.0,374.0 174.3,390.8 198.9,433.5 177.7,474.7 152.6,513.7 103.4,513.7 104.4,459.6 72.9,436.3 116.7,432.6" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<polygon points="128.0,391.0 163.3,403.9 186.3,435.7 149.3,458.3 151.4,510.4 109.1,498.0 84.4,471.2 57.1,433.5 101.4,414.3" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="128.0,374.0 174.3,390.8 198.9,433.5 177.7,474.7 152.6,513.7 103.4,513.7 104.4,459.6 72.9,436.3 117.0,432.8" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
 <circle cx="128.0" cy="391.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="163.3" cy="403.9" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="186.3" cy="435.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
@@ -127,7 +127,7 @@
 <circle cx="109.1" cy="498.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="84.4" cy="471.2" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="57.1" cy="433.5" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
-<circle cx="101.0" cy="413.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="101.4" cy="414.3" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <text x="128.0" y="363.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Still</text>
 <text x="180.1" y="382.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Background</text>
 <text x="207.8" y="435.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
@@ -151,8 +151,8 @@
 <line x1="380.0" y1="446.0" x2="317.6" y2="482.0" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="380.0" y1="446.0" x2="309.1" y2="433.5" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="380.0" y1="446.0" x2="333.7" y2="390.8" stroke="#e1e0d9" stroke-width="1"/>
-<polygon points="380.0,390.0 418.6,400.0 443.5,434.8 410.4,463.5 394.8,486.8 361.1,498.0 369.6,452.0 340.7,439.1 369.2,433.2" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
-<polygon points="380.0,374.0 426.3,390.8 450.9,433.5 429.7,474.7 404.6,513.7 355.4,513.7 356.4,459.6 324.9,436.3 368.7,432.6" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<polygon points="380.0,390.0 418.6,400.0 443.5,434.8 410.4,463.5 394.8,486.8 361.1,498.0 369.6,452.0 340.7,439.1 369.3,433.3" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="380.0,374.0 426.3,390.8 450.9,433.5 429.7,474.7 404.6,513.7 355.4,513.7 356.4,459.6 324.9,436.3 369.0,432.8" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
 <circle cx="380.0" cy="390.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="418.6" cy="400.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="443.5" cy="434.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
@@ -161,7 +161,7 @@
 <circle cx="361.1" cy="498.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="369.6" cy="452.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <circle cx="340.7" cy="439.1" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
-<circle cx="369.2" cy="433.2" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="369.3" cy="433.3" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
 <text x="380.0" y="363.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Still</text>
 <text x="432.1" y="382.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Background</text>
 <text x="459.8" y="435.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
@@ -185,5 +185,5 @@
 <text x="520.0" y="519.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" text-anchor="start" fill="#52514e">Speed</text>
 <text x="520.0" y="532.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">time per call at 4K</text>
 <text x="24.0" y="584.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">A spoke at half length: twice the error (or the change per frame, or the time) of the best of the five; for sparks, half as much shown.</text>
-<text x="24.0" y="598.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (3.17 ms against 4.76).</text>
+<text x="24.0" y="598.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (3.16 ms against 4.82).</text>
 </svg>

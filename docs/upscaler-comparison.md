@@ -16,7 +16,7 @@ other projects.
   than FSR 3.1, HelixSR and XeSS (and steadier than FSR 4).
 - **Rain** drawn without motion vectors is where the five differ most to the eye: HelixSR shows the streaks as the game drew
   them, FSR 3.1 shows part of them, and FSR 4, the lossy DLL and XeSS blend faint rain almost entirely into the picture.
-- **Speed on this card:** FSR 3.1 is the fastest by a wide margin, then HelixSR, then the lossy DLL, then this project's
+- **Speed on this card:** FSR 3.1 is the fastest by a wide margin, then HelixSR and the lossy DLL (the lossy DLL is the faster of the two at 1080p, HelixSR at 4K), then this project's
   exact DLL, with AMD's FSR 4.1.1 and XeSS the slowest.
 - **Everything here is one graphics card, made-up scenes and single runs.** A game can come out differently.
 
@@ -168,17 +168,17 @@ Graphics-card time for one upscale call, in milliseconds, at the same render rat
 
 | Output | FSR 4.1.1 | This project's exact DLL | Lossy | FSR 3.1 | HelixSR | XeSS |
 |---|---|---|---|---|---|---|
-| 1920x1080 | 1.05 | 0.89 | 0.66 | 0.41 | 0.75 | 1.42 |
-| 2560x1440 | 2.18 | 1.44 | 1.04 | 0.58 | 1.01 | 2.28 |
-| 3840x2160 | 4.76 | 3.17 | 2.22 | 1.16 | 1.99 | 4.98 |
+| 1920x1080 | 1.04 | 0.88 | 0.63 | 0.39 | 0.73 | 1.42 |
+| 2560x1440 | 2.17 | 1.44 | 1.02 | 0.56 | 0.99 | 2.28 |
+| 3840x2160 | 4.82 | 3.16 | 2.21 | 1.15 | 2.00 | 4.99 |
 
 - FSR 4.1.1, the two DLLs of this project, FSR 3.1 and HelixSR were timed by the same program, 200 calls after 40 to warm
   up. XeSS has another interface and was timed by a second program over 32 calls, so its column is not measured in quite
   the same way.
-- The lossy figure is an average over the two kinds of frame: at 4K, 3.20 ms when the network runs and 1.23 ms when it is skipped.
-  The lossy column is derived: the timing kit ran the lossy DLLs of `dll-2026-10-12` and `dll-2026-10-12.2` in one go (0.66 and 0.64,
-  1.09 and 1.02, 2.36 and 2.22 ms), and the figures this table had (0.68, 1.11, 2.36, timed with the build of `dll-2026-10-11.4`) were
-  scaled by that gain. The other columns were not timed again; FSR 4.1.1 read 1.04, 2.18 and 4.90 ms in that kit run.
+- The lossy figure is an average over the two kinds of frame: at 4K, 3.19 ms when the network runs and 1.22 ms when it is skipped.
+- All six columns were timed again on 2026-10-12 with the DLLs of release `dll-2026-10-12.2`, on the still scene, one run each.
+  The table before it had 1.05 / 2.18 / 4.76 for FSR 4.1.1 and 0.68 / 1.11 / 2.36 for the lossy DLL (the build of `dll-2026-10-11.4`);
+  the other columns moved by 0.03 ms at most.
 - XeSS runs a different, slower network on cards that are not Intel's than on Intel Arc. These figures say nothing about XeSS on Arc.
 - All of this is under Proton on Linux. On Windows the same card's FSR 4.1.1 timings differ
   ([what is known](results.md)).

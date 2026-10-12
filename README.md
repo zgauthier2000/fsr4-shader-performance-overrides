@@ -119,21 +119,21 @@ More games and resolutions: [all results](docs/results.md).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/release-radar-dark.svg">
-  <img src="docs/img/release-radar-light.svg" width="760" alt="Two radar charts with nine spokes each. Left: this release's lossy DLL, with the previous release's (dll-2026-10-12) as a dashed outline. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. FSR 4.1.1, previous release, this release: still picture: accuracy 44.33 / 44.26 / 44.26 dB, moving background: accuracy 49.27 / 49.00 / 48.98 dB, areas a moving object has just uncovered: accuracy 34.48 / 36.53 / 36.45 dB, tiny fast sparks: share of their brightness shown 83% / 74% / 74%, leaves swaying without motion vectors, mean of three sway speeds: error 11.0 / 14.6 / 14.5 of 255, still picture with grain of 6 of 255: change per frame 0.785 / 0.460 / 0.330 of 255, thin wire under a slow pan: change per frame 7.2 / 10.3 / 11.0 of 255, still picture: change per frame 0.037 / 0.024 / 0.024 of 255, time per upscale call at 3840x2160 4.76 / 2.36 / 2.22 ms.">
+  <img src="docs/img/release-radar-light.svg" width="760" alt="Two radar charts with nine spokes each. Left: this release's lossy DLL, with the previous release's (dll-2026-10-12) as a dashed outline. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. FSR 4.1.1, previous release, this release: still picture: accuracy 44.33 / 44.26 / 44.26 dB, moving background: accuracy 49.27 / 49.00 / 48.98 dB, areas a moving object has just uncovered: accuracy 34.48 / 36.53 / 36.45 dB, tiny fast sparks: share of their brightness shown 83% / 74% / 74%, leaves swaying without motion vectors, mean of three sway speeds: error 11.0 / 14.6 / 14.5 of 255, still picture with grain of 6 of 255: change per frame 0.785 / 0.460 / 0.330 of 255, thin wire under a slow pan: change per frame 7.2 / 10.3 / 11.0 of 255, still picture: change per frame 0.037 / 0.024 / 0.024 of 255, time per upscale call at 3840x2160 4.82 / 2.36 / 2.21 ms.">
 </picture>
 
-Made-up test scenes on one graphics card, single runs; the two lossy speeds are from one timing-kit run under Proton. [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
+Made-up test scenes on one graphics card, single runs; the previous release's speed is from another run than the other two (2.36 against 2.22 ms there). [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-12.4/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-12.4): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-12.6/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-12.6): unpack, double-click
 > `fsr4time.exe`, wait 15 to 20 minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **Reports from Windows are in from eleven graphics chips so far; every further
 > card helps.**
 > - **Both kits were updated on 2026-10-12; if you ran an earlier one, please download and run again.**
->   - **The kits carry the lossy build of release `dll-2026-10-12`,** the one before this release (Windows kit 2026-10-12.4,
->     Linux kit since 2026-10-12.3). Their lossy timings are for that build; this release's lossy DLL is faster on skipped
->     frames. The exact DLLs in them are this release's.
+>   - **Both kits (2026-10-12.6) carry this release's lossy build.** The Linux kit now also times the lossy build's first
+>     shader on a skipped frame, which this release made cheaper; before, its skipped-frame figure used the exact build's
+>     time for that shader.
 >   - **Since the Windows kit 2026-10-12.3:** every DLL should give the same picture in both of its runs. Where one does
 >     not, the summary now says how different the two are: how many 16x16-pixel blocks, where, and by how much. Two
 >     reports from one RX 7800 XT showed such a difference for the lossy DLL at 4K, and this is there to find out what it is.
@@ -147,7 +147,7 @@ Made-up test scenes on one graphics card, single runs; the two lossy speeds are 
 >     DLL offers.
 >   - **Linux kit 2026-10-12.5:** its time for the lossy build's postpass on a skipped frame was too high and is corrected
 >     (details in the kit's README). Earlier Linux kit results overstate that one figure and the lossy average.
->   - **The Linux kit (2026-10-12.5; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
+>   - **The Linux kit (2026-10-12.6; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
 >     question is settled are gone. It also reports how the card is connected (PCIe link), and when the card is busy
 >     it asks you to close what is using it before it starts.
 > - The Windows kit compares the moving picture as well as the still one.

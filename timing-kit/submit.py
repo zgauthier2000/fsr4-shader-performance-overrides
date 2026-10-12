@@ -137,7 +137,9 @@ for cls in ('1080p', '1440p', '4k'):
         fr = {k: t1[(cls, 'prepass', k)] + seq[(cls, k)] + post[k] for k in ('amd', 'exact')}
         line = f"{cls} frame (prepass + model in sequence + postpass, both orders): AMD {f(fr['amd'])}  exact {f(fr['exact'])} ({100 * fr['exact'] / fr['amd'] - 100:+.0f}%)  [model in sequence {f(seq[(cls, 'amd')])}/{f(seq[(cls, 'exact')])}]"
         if (cls, 'rest') in skp:
-            sk = {k: t1[(cls, 'prepass', 'exact')] + skp[(cls, k)] for k in ('rest', 'moving') if (cls, k) in skp}
+            # the prepass of a skipped frame: its own probe since kit 2026-10-12.6, the exact prepass's time in runs without one
+            pre_sk = t1.get((cls, 'prepass_skipped', 'lossy'), t1[(cls, 'prepass', 'exact')])
+            sk = {k: pre_sk + skp[(cls, k)] for k in ('rest', 'moving') if (cls, k) in skp}
             avg = (fr['exact'] + sum(sk.values()) / len(sk)) / 2
             line += f"  |  lossy, skipped frame (probe): at rest {f(sk['rest'])}" + (f", moving {f(sk['moving'])}" if 'moving' in sk else '') + f"; average of the two kinds of frame about {f(avg)} ({100 * avg / fr['amd'] - 100:+.0f}%)"
         lines.append(line)

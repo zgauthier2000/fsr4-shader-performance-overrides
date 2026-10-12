@@ -23,7 +23,7 @@ MEASURES = [
     ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.5, 16.7, 14.3, 14.3], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.014, 0.020, 0.084], '{:.3f}'),
     ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 11.0, 8.2, 5.6, 10.1], '{:.1f}'),
-    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.76, 2.22, 1.16, 1.99, 4.98], '{:.2f} ms'),
+    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.82, 2.21, 1.15, 2.00, 4.99], '{:.2f} ms'),
 ]
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
 
@@ -98,12 +98,12 @@ def radar(t):
     for a, b in key:
         o += [text(x0, y, a, t, 10.5, 'ink2', weight=600), text(x0, y + 13, b, t, 10.5, 'muted')]; y += 31
     o += [text(24, H - 28, 'A spoke at half length: twice the error (or the change per frame, or the time) of the best of the five; for sparks, half as much shown.', t, 10, 'muted'),
-          text(24, H - 14, "Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (3.17 ms against 4.76).", t, 10, 'muted')]
+          text(24, H - 14, "Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (3.16 ms against 4.82).", t, 10, 'muted')]
     return o
 
 
 # ---- the front page: AMD's FSR 4.1.1, the previous release's lossy DLL and this release's. Same rig and scenes as above (single runs, auto exposure off).
-# The foliage spoke is the mean over three sway speeds of the error on frames the lossy DLL skips the network for; the lossy DLL's two speeds are from one timing-kit run of both releases under Proton.
+# The foliage spoke is the mean over three sway speeds of the error on frames the lossy DLL skips the network for; the previous release's speed is from a timing-kit run of both releases (2.36 against 2.22 ms), the other two from the comparison page's timing.
 R_NAMES = ['FSR 4.1.1', 'the lossy DLL of dll-2026-10-12', 'the lossy DLL of dll-2026-10-12.2']
 R_MEASURES = [
     ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.26, 44.26], '{:.2f} dB'),
@@ -114,7 +114,7 @@ R_MEASURES = [
     ('Film grain', 'Still picture with grain of 6 of 255: change per frame', 'of 255', 'down', [0.785, 0.460, 0.330], '{:.3f}'),
     ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 10.3, 11.0], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.024], '{:.3f}'),
-    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.76, 2.36, 2.22], '{:.2f} ms'),
+    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.82, 2.36, 2.21], '{:.2f} ms'),
 ]
 # One scale for every radar chart: a spoke that the comparison page's chart has too is scaled by the best of its five upscalers, so a build has the same
 # shape in both charts. Film grain is on this chart only: there the best of the three.
@@ -138,7 +138,7 @@ def release_radar(t):
     o += [text(24, H - 56, 'Outer ring: FSR 4.1.1, except uncovered (this release), wire (HelixSR), at rest and speed (FSR 3.1) and film grain (previous release, best of these three).', t, 10, 'muted'),
           text(24, H - 42, "Dashed, left: the previous release (dll-2026-10-12), its figure in brackets where it differs. Dashed, right: this release's lossy DLL.", t, 10, 'muted'),
           text(24, H - 28, 'Foliage: leaves swaying without motion vectors, the mean over three sway speeds of the error on frames the lossy DLL skips the network for.', t, 10, 'muted'),
-          text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: the two lossy DLLs in one timing-kit run under Proton.', t, 10, 'muted')]
+          text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: the previous release is from another run (2.36 against 2.22 there).', t, 10, 'muted')]
     return o
 
 

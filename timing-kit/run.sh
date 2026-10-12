@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # FSR 4.1.1 shader timings on this machine's GPU. Run from a terminal:   bash run.sh
 # With no option it runs the full set (about 16 minutes on a desktop card): all 14 passes at 1080p,
-# 1440p and 4K (each alone, and the model's 12 in sequence), the lossy build's skipped-frame postpass, the postpass
+# 1440p and 4K (each alone, and the model's 12 in sequence), the lossy build's postpass and prepass on a skipped frame, the postpass
 # comparison, the pass 11 versions, the store probes and compiler statistics.
 # Options:  bash run.sh postpass  only the postpass comparison (a minute or two)
 #           bash run.sh quick     all 14 passes and the postpass comparison, without the versions and probes (about 10 minutes)
@@ -115,9 +115,15 @@ timing() {  # timing <class dir> <WxH> <render W H>
     # the lossy build's postpass on a frame that skips the model: a probe that treats every frame as skipped, with the
     # picture at rest and moving 12,6 pixels, and takes the last-layer inputs that the frame before keeps for it as
     # present (since kit 2026-10-12.5; before, it worked them out again on every frame, which a game does not do).
-    # The rest of such a frame is the prepass; the model does not run.
+    # The rest of such a frame is the prepass (timed below); the model does not run.
     say "class $c, output $o: lossy postpass on a skipped frame, probe  (at rest, moving)"
     A="$S/$c/lossy/postpass_skipped_rest.spv" B="$S/$c/lossy/postpass_skipped_moving.spv" N_DISP=30 "$W/bench" ${o%x*} ${o#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
+    # the lossy build's prepass on such a frame (since kit 2026-10-12.6): since release dll-2026-10-12.2 it has a short
+    # copy of its work for skipped frames. The probe always takes that copy.
+    if [ -f "$S/$c/lossy/prepass_skipped.spv" ]; then
+        say "class $c, output $o: lossy prepass on a skipped frame, probe"
+        OUT=$o N_DISP=60 "$W/pbench2" "$S/$c/lossy/prepass_skipped.spv" 2>&1 | grep -E 'round 1' | sed "s#$S/##"
+    fi
 }
 
 # The postpass on its own: AMD's, the shipped rewrite, AMD's with its stores removed (the floor a
