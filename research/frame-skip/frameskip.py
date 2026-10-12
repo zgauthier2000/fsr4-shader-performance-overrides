@@ -276,8 +276,76 @@ else:
                             f'{q}blk = OpSelect %uint {q}yb %fs_pb1 %fs_pb0', f'{q}rw = OpIMul %uint {q}yr %fs_mrow', f'{q}a1 = OpIAdd %uint %fs_mbase {q}rw', f'{q}a2 = OpIAdd %uint {q}a1 {q}blk',
                             f'{q}idx = OpIAdd %uint {q}a2 {q}x'] + word_ptr(q, f'{q}idx') + [f'{q}old = OpAtomicUMax %uint {q}w %fs_u1 %fs_u0 {q}v']
         mv_code += ['OpBranch %fs_mM', '%fs_mM = OpLabel']
+    BRANCH = os.environ.get('FS_BRANCH', '0') == '1'
     out, n_st = [], 0
-    for n, l in enumerate(L):
+    if BRANCH:
+        # FS_BRANCH=1: one branch on "this frame is skipped" around the shader's work, each side with its own copy of the
+        # code. The copy for frames that run the model is AMD's code unchanged; the copy for skipped frames has no tensor
+        # stores (so the compiler drops the work that only fed them) and holds the motion store.
+        # Not the same picture as FS_BRANCH=0 at every render size: there the motion store's code sits in the one copy
+        # that also serves the frames that run the model, and its extra uses of the reprojection values make the compiler
+        # round a few of them differently (seen at 1506x846 and 3012x1694, not at 2260x1272 or 1280x720). With the
+        # branch, a frame that runs the model gets exactly AMD's prepass.
+        # The branch goes inside the shader's leading tests ("is this thread inside the picture"), which stay as they are.
+        end = next(n for n in range(at, len(L)) if L[n].strip() == 'OpFunctionEnd')
+        lab_at = {m[1]: n for n, l in enumerate(L) for m in [re.match(r'\s*(%\w+) = OpLabel', l)] if m}
+        split, inner, tail_at, pos = at, blk, end, at
+        while True:
+            t = next(n for n in range(pos + 1, end) if re.match(r'\s*Op(SelectionMerge|LoopMerge|Branch|BranchConditional|Switch|Return|Kill|Unreachable)\b', L[n]))
+            a = re.match(r'\s*OpSelectionMerge (%\w+) None$', L[t]); b = a and re.match(r'\s*OpBranchConditional %\w+ (%\w+) (%\w+)$', L[t + 1])
+            if not (b and (b[1] == a[1]) != (b[2] == a[1])):
+                break
+            tgt = b[2] if b[1] == a[1] else b[1]
+            mg = lab_at[a[1]]
+            if lab_at.get(tgt) != t + 2 or not all(re.match(r'\s*(%\w+ = OpLabel|OpBranch %\w+|OpReturn)$', L[k]) for k in range(mg, tail_at)):
+                break      # not a leading test: its merge block does more than leave
+            split, inner, tail_at, pos, merge = t + 2, tgt, mg, t + 2, a[1]
+        if MV and mv_at <= split:
+            die('the motion code lies before the place of the branch')
+        top = split == at
+
+        def body(skipped):
+            global n_st
+            o = []
+            for n in range(split + 1, tail_at):
+                l = L[n]
+                m = re.match(r'(\s*)OpStore (%\w+) (%\w+)$', l)
+                if m and is11(m[2]):
+                    n_st += 1
+                    if skipped:
+                        continue
+                if 'OpPhi' in l:
+                    l = re.sub(rf'{re.escape(inner)}(?=\s|$)', '%fs_S' if skipped else '%fs_R', l)
+                    if MV and skipped and n > mv_at:
+                        l = re.sub(rf'{re.escape(mv_block)}(?=\s|$)', '%fs_mM', l)
+                elif not top:
+                    l = re.sub(rf'{re.escape(merge)}(?=\s|$)', '%fs_end', l)
+                o.append(l)
+                if MV and skipped and n == mv_at:
+                    o += [PAD + c for c in mv_code]
+            return o
+        run, skp = body(False), body(True)
+        n_st //= 2
+        ren = {m[1]: m[1] + '_k' for l in skp for m in [re.match(r'\s*(%\w+) = ', l)] if m}
+        skp = [re.sub(r'%\w+', lambda m: ren.get(m[0], m[0]), l) for l in skp]
+        for n, l in enumerate(L[:split + 1]):
+            if n == main_i:
+                out += [PAD + c for c in consts]
+            if n > at and re.match(r'\s*OpStore (%\w+) %\w+$', l) and is11(re.match(r'\s*OpStore (%\w+)', l)[1]):
+                die('a tensor store before the place of the branch')
+            if n > at and 'OpPhi' in l:
+                l = re.sub(rf'{re.escape(blk)}(?=\s|$)', '%fs_cont', l)
+            out.append(l)
+            m = re.match(r'(\s*OpDecorate )(%\w+)( .*)$', l)
+            if m and m[2] in ren:
+                out.append(m[1] + ren[m[2]] + m[3])
+            if n == at:
+                out += [PAD + c for c in code]
+        out += [PAD + c for c in ['OpSelectionMerge %fs_end None', 'OpBranchConditional %fs_skip %fs_S %fs_R', '%fs_R = OpLabel']] + run + \
+            [PAD + '%fs_S = OpLabel'] + skp + [PAD + '%fs_end = OpLabel'] + ([PAD + 'OpUnreachable'] if top else [PAD + f'OpBranch {merge}']) + L[tail_at:]
+        if any('OpPhi' in l for l in L[tail_at:end]):
+            die('a phi after the place of the branch')
+    for n, l in enumerate(L if not BRANCH else []):
         if n == main_i:
             out += [PAD + c for c in consts]
         m = re.match(r'(\s*)OpStore (%\w+) (%\w+)$', l)
