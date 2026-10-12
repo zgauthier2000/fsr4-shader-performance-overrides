@@ -145,6 +145,10 @@ def samples_w(cur):
 
 
 PART = os.environ.get('SB_PART'); BRIGHT = os.environ.get('SB_BRIGHT'); SAMPLE = os.environ.get('SB_SAMPLE')
+_band = None if os.environ.get('SB_RESTBAND', '0.2 0.5 0.6 0.7') == 'off' or not os.environ.get('SB_RESTW') else [float(x) for x in os.environ.get('SB_RESTBAND', '0.2 0.5 0.6 0.7').split()]      # as in skipblend.py
+_hi = [float(x) for x in os.environ['SB_RESTW'].split()] if _band else None
+if _band:
+    os.environ['SB_RESTW'] = f'{_band[0]} {_band[1]}'
 _rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_RESTW') else None      # as in skipblend.py
 _cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_CLAMPW') else None
 DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # as in skipblend.py
@@ -447,7 +451,10 @@ else:
                            [f'  %sb.gm{k} = fmul fast float %sb.gc{k}, {fl(CONST)}'] if CONST is not None else []) + [
                            f'  %sb.om{k} = fsub fast float 1.000000e+00, ' + (f'%sb.gm{k}' if CONST is not None else f'%sb.gc{k}'), f'  %sb.ao{k} = fmul fast float {a}, %sb.om{k}',
                            f'  %sb.gw{k} = fsub fast float 1.000000e+00, %sb.ao{k}', f'  %sb.wm{k} = fmul fast float {w}, %sb.gw{k}'] + (
-                           (part(k, curs, h, n) + ([f'  %sr.a{k} = fsub fast float {w}, {fl(_rw[0])}', f'  %sr.q{k} = fdiv fast float %sr.a{k}, {fl(max(_rw[1] - _rw[0], 1e-6))}', FMAX(f'%sr.u{k}', f'%sr.q{k}', '0.000000e+00'), FMIN(f'%sr.r{k}', f'%sr.u{k}', '1.000000e+00'), f'  %sr.w{k} = fmul fast float %sb.wm{k}, %sr.r{k}', f'  %sb.wq{k} = select i1 %sb.rq{k}, float %sr.w{k}, float %sb.wm{k}'] if _rw else [f'  %sb.wq{k} = select i1 %sb.rq{k}, float 0.000000e+00, float %sb.wm{k}']) + [FMAX(f'%sb.wqq{k}', f'%sb.wq{k}', f'%sb.pf{k}'),
+                           (part(k, curs, h, n) + ([f'  %sr.a{k} = fsub fast float {w}, {fl(_rw[0])}', f'  %sr.q{k} = fdiv fast float %sr.a{k}, {fl(max(_rw[1] - _rw[0], 1e-6))}', FMAX(f'%sr.u{k}', f'%sr.q{k}', '0.000000e+00'), *([FMIN(f'%sr.r{k}', f'%sr.u{k}', '1.000000e+00'), f'  %sr.w{k} = fmul fast float %sb.wm{k}, %sr.r{k}'] if not _band else
+                             [FMIN(f'%sr.rr{k}', f'%sr.u{k}', '1.000000e+00'), f'  %bd.a{k} = fsub fast float {w}, {fl(_band[2])}', f'  %bd.b{k} = fdiv fast float %bd.a{k}, {fl(max(_band[3] - _band[2], 1e-6))}', FMAX(f'%bd.bb{k}', f'%bd.b{k}', '0.000000e+00'), FMIN(f'%bd.c{k}', f'%bd.bb{k}', '1.000000e+00'),
+                              f'  %bd.e{k} = fsub fast float 1.000000e+00, %bd.c{k}', f'  %bd.f{k} = fmul fast float %sr.rr{k}, %bd.e{k}', f'  %bd.g{k} = fsub fast float {w}, {fl(_hi[0])}', f'  %bd.i{k} = fdiv fast float %bd.g{k}, {fl(max(_hi[1] - _hi[0], 1e-6))}',
+                              FMAX(f'%bd.ii{k}', f'%bd.i{k}', '0.000000e+00'), FMIN(f'%bd.j{k}', f'%bd.ii{k}', '1.000000e+00'), FMAX(f'%sr.r{k}', f'%bd.f{k}', f'%bd.j{k}'), f'  %sr.w{k} = fmul fast float {w}, %sr.r{k}']), f'  %sb.wq{k} = select i1 %sb.rq{k}, float %sr.w{k}, float %sb.wm{k}'] if _rw else [f'  %sb.wq{k} = select i1 %sb.rq{k}, float 0.000000e+00, float %sb.wm{k}']) + [FMAX(f'%sb.wqq{k}', f'%sb.wq{k}', f'%sb.pf{k}'),
                                                    f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wqq{k}, float 1.000000e+00)'])
                            if REST else [f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wm{k}, float 1.000000e+00)']) + [
                            f'  %sb.an{k} = fsub fast float 1.000000e+00, %sb.wn{k}']

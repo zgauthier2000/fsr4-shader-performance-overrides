@@ -48,6 +48,12 @@
 #     pixel a weight for the new frame. Where that weight was above t1, a skipped frame at rest still takes the new frame (as far as
 #     the shimmer correction allows); below t0 the rest rule holds as before; a ramp in between. Particles get such weights from the
 #     model, settled detail does not: large soft particles and slow embers come close to AMD's. Strong film grain gets them too.
+#   SB_RESTBAND="t0 t1 u0 u1" (default "0.2 0.5 0.6 0.7"; "off" = as release dll-2026-10-11.7): the verdict also counts for middle weights. Leaves that sway without motion
+#     vectors get weights of about 0.2 to 0.7 from the model as long as they move slowly enough for a model that runs every other frame, and a skipped frame used none of
+#     that: slowly moving foliage lagged. Between t0 and t1 the verdict comes in, between u0 and u1 it is taken back, and SB_RESTW's ramp follows above; where it counts, the
+#     skipped frame takes the model's own weight for the new frame (not squared, without the correction for the jitter). Strong film grain gets mostly higher weights, which
+#     is why the top of the range is cut: with "0.2 0.5 0.7 0.8" grain is less steady still and leaves gain little more. Costs grain steadiness; does nothing during pans, and
+#     nothing for leaves that move fast (the model's memory of the frame before is then two frames old and its verdict collapses).
 # Things far thinner than a render pixel (distant wires): all nine samples miss them on most frames, so the history clamp
 # erased them from the history, and the next sample that hit looked like a spark to the sample test: white beads along the wire.
 #   SB_CLAMPREST (default 0; 1 = as before): no history clamp where the picture is at rest.
@@ -93,6 +99,10 @@ for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1')
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
+# SB_RESTBAND (see the head of the file): the verdict rule also for middle weights. The ramp t0..t1 takes the place of SB_RESTW's in the code below; SB_RESTW's own ramp is added at the end.
+_band = None if os.environ.get('SB_RESTBAND', '0.2 0.5 0.6 0.7') == 'off' or not os.environ.get('SB_RESTW') else [float(x) for x in os.environ.get('SB_RESTBAND', '0.2 0.5 0.6 0.7').split()]
+if _band:
+    _hi = [float(x) for x in os.environ['SB_RESTW'].split()]; os.environ['SB_RESTW'] = f'{_band[0]} {_band[1]}'
 LEAN = os.environ.get('SB_LEAN', '1') == '1'      # same values, laid out to hold fewer of them at once (fewer registers)
 K = float(os.environ.get('SB_K', '32')); CONST = None if os.environ.get('SB_CONST') == 'off' else os.environ.get('SB_CONST', '0'); CAP = float(os.environ.get('SB_CAP', '1')); AW = int(os.environ.get('SB_AW', '1'))
 CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0.5'))
@@ -684,4 +694,17 @@ if (GUARD or BRANCH) and n_guard != 4:
     sys.exit(f'skipblend: {n_guard} guard sites found, expected 4')
 if n_sites != 4:
     sys.exit(f'skipblend: {n_sites} blend sites found, expected 4')
-sys.stdout.write('\n'.join(out))
+text = '\n'.join(out)
+if _band:      # the verdict's ramp t0..t1 is taken back between u0 and u1 and returns with SB_RESTW's; inside the rule the model's own weight, not squared, without the jitter correction
+    text = re.sub(r'(%sb_one = OpConstant %float [^\n]*\n)', lambda m: m[1] + f'%bd_0 = OpConstant %float {_band[2]}\n%bd_d = OpConstant %float {max(_band[3] - _band[2], 1e-6)}\n%bd_h = OpConstant %float {_hi[0]}\n%bd_hd = OpConstant %float {max(_hi[1] - _hi[0], 1e-6)}\n', text, count=1)
+    for k in range(4):
+        w = re.search(rf'%sr_a{k} = OpFSub %float (%\w+) %sr_t0', text)[1]
+        m = re.search(rf'%sr_r{k} = OpExtInst %float (%\w+) NClamp %sr_q{k} (%\w+) %sb_one\n', text); G, Z = m[1], m[2]
+        c = [f'%sr_rr{k} = OpExtInst %float {G} NClamp %sr_q{k} {Z} %sb_one', f'%bd_a{k} = OpFSub %float {w} %bd_0', f'%bd_b{k} = OpFDiv %float %bd_a{k} %bd_d', f'%bd_c{k} = OpExtInst %float {G} NClamp %bd_b{k} {Z} %sb_one',
+             f'%bd_e{k} = OpFSub %float %sb_one %bd_c{k}', f'%bd_f{k} = OpFMul %float %sr_rr{k} %bd_e{k}', f'%bd_g{k} = OpFSub %float {w} %bd_h', f'%bd_i{k} = OpFDiv %float %bd_g{k} %bd_hd',
+             f'%bd_j{k} = OpExtInst %float {G} NClamp %bd_i{k} {Z} %sb_one', f'%sr_r{k} = OpExtInst %float {G} NMax %bd_f{k} %bd_j{k}']
+        text = text.replace(m[0], '\n'.join(c) + '\n')
+        o = f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}'
+        if o not in text: sys.exit('skipblend: verdict rule not found')
+        text = text.replace(o, f'%sr_w{k} = OpFMul %float {w} %sr_r{k}')
+sys.stdout.write(text)
