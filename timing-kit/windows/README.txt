@@ -53,7 +53,7 @@ What it does
                        which part of the exact DLL saves time on your card and which does not;
                        both must give the exact DLL's picture, except on RX 6000 cards, where
                        2b keeps AMD's last shader and so is expected to give AMD's picture.
-  dlls\3-lossy         its lossy DLL of release dll-2026-10-11.5 (faster; the picture is NOT the
+  dlls\3-lossy         its lossy DLL of release dll-2026-10-11.7 (faster; the picture is NOT the
                        same as AMD's)
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
   dlls\5-igpu-lossy    and its lossy one
@@ -79,6 +79,11 @@ Reading the summary
   before it gave that picture. A lossy DLL always differs, as it should. On an RX 6000 card the
   exact DLLs are expected to differ from 1-amd-shaders and to match 1b-amd-shaders-dots-split;
   whether 1c gives that picture too is one of the things the kit is there to find out.
+
+  A DLL should give the same picture in both of its runs. Where it does not, the line says
+  "NOT the same picture in its two runs" and, since kit 2026-10-12.3, how different: how many
+  16x16-pixel blocks of the picture differ, the area they lie in, and the largest shift of a
+  block's mean value. That is a finding worth sending.
 
   These are made-up frames. A game's numbers will differ somewhat; what OptiScaler's overlay
   shows in a game is the real thing, and the kit asks for it at the end if you have it.

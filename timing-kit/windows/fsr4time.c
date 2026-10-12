@@ -40,7 +40,7 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-12.2, experimental"
+#define KIT_VERSION "windows 2026-10-12.3, experimental"
 #define WARM 40
 #define TIMED 200
 #define PHASES 16
@@ -161,7 +161,67 @@ static void UploadRows(ID3D12Resource* tex, UINT w, UINT h, UINT bpp, const uint
     ID3D12Resource_Release(up);
 }
 
-static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh) {
+// When a DLL's two runs give different pictures, the summary also says how different. Whole frames of every run would be gigabytes, so the first run
+// leaves a small record per 16x16-pixel block of its last frame (a hash and the sum of its color values) in a file, and the second run compares its
+// own blocks with it and reports: how many blocks differ, the area they lie in, and the largest shift of a block's mean value.
+#define BLK 16
+struct BlockRec { uint64_t hash; float sum; };
+static float HalfToFloat(uint16_t h) {
+    const int e = (h >> 10) & 31, m = h & 1023;
+    float v = e == 0 ? (float)m / 1024.0f / 16384.0f : e == 31 ? 0.0f : (1.0f + (float)m / 1024.0f) * (e >= 15 ? (float)(1u << (e - 15)) : 1.0f / (float)(1u << (15 - e)));
+    return (h & 0x8000) ? -v : v;
+}
+static void CompareBlocks(const uint8_t* data, UINT pitch, UINT ow, UINT oh, const char* key, uint64_t* whole) {
+    const UINT bw = (ow + BLK - 1) / BLK, bh = (oh + BLK - 1) / BLK, n = bw * bh;
+    struct BlockRec* now = (struct BlockRec*)calloc(n, sizeof(*now));
+    for (UINT i = 0; i < n; ++i) now[i].hash = 1469598103934665603ull;
+    for (UINT y = 0; y < oh; ++y) {
+        const uint8_t* row = data + (size_t)y * pitch;
+        for (UINT x = 0; x < ow; ++x) {
+            struct BlockRec* b = &now[(y / BLK) * bw + x / BLK];
+            for (int c = 0; c < 8; ++c) { b->hash ^= row[x * 8 + c]; b->hash *= 1099511628211ull; }
+            const uint16_t* px = (const uint16_t*)(row + x * 8);
+            b->sum += HalfToFloat(px[0]) + HalfToFloat(px[1]) + HalfToFloat(px[2]);
+        }
+    }
+    uint64_t kh = 1469598103934665603ull;
+    for (const char* q = key; *q; ++q) { kh ^= (uint8_t)*q; kh *= 1099511628211ull; }
+    char file[64];
+    snprintf(file, sizeof(file), "blocks-%016llx.tmp", (unsigned long long)kh);
+    FILE* f = fopen(file, "rb");
+    if (!f) {      // the first run: leave the record
+        f = fopen(file, "wb");
+        if (f) { fwrite(now, sizeof(*now), n, f); fclose(f); }
+    } else {       // the second run: compare
+        struct BlockRec* was = (struct BlockRec*)calloc(n, sizeof(*was));
+        const size_t got = fread(was, sizeof(*was), n, f);
+        fclose(f);
+        if (getenv("FSR4TIME_POKE")) { now[bw + 5].hash ^= 1; now[bw + 5].sum += 0.768f; now[2 * bw + 7].hash ^= 1; *whole ^= 1; }      // test switch: pretend two blocks came out differently
+        if (got == n) {
+            UINT nd = 0, x0 = bw, y0 = bh, x1 = 0, y1 = 0;
+            double worst = 0;
+            for (UINT i = 0; i < n; ++i)
+                if (was[i].hash != now[i].hash) {
+                    const UINT bx = i % bw, by = i / bw;
+                    ++nd; if (bx < x0) x0 = bx; if (bx > x1) x1 = bx; if (by < y0) y0 = by; if (by > y1) y1 = by;
+                    double d = ((double)now[i].sum - (double)was[i].sum) / (BLK * BLK * 3); if (d < 0) d = -d;
+                    if (d > worst) worst = d;
+                }
+            // key | blocks that differ | blocks in all | area in pixels: x0, y0, x1, y1 | largest shift of a block's mean value (1 = full scale)
+            if (nd) Say("D|%s|%u|%u|%u|%u|%u|%u|%.6f\n", key, nd, n, x0 * BLK, y0 * BLK, (x1 + 1) * BLK - 1 < ow - 1 ? (x1 + 1) * BLK - 1 : ow - 1, (y1 + 1) * BLK - 1 < oh - 1 ? (y1 + 1) * BLK - 1 : oh - 1, worst);
+        }
+        free(was);
+    }
+    free(now);
+}
+
+static void DeleteBlockRecords(void) {      // the records the first runs leave for the second ones
+    WIN32_FIND_DATAA fd;
+    HANDLE fh = FindFirstFileA("blocks-*.tmp", &fd);
+    if (fh != INVALID_HANDLE_VALUE) { do DeleteFileA(fd.cFileName); while (FindNextFileA(fh, &fd)); FindClose(fh); }
+}
+
+static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh, const char* key) {
     const UINT pitch = (ow * 8 + 255) & ~255u;
     ID3D12Resource* rb = Buffer(D3D12_HEAP_TYPE_READBACK, (UINT64)pitch * oh);
     D3D12_TEXTURE_COPY_LOCATION src = {.pResource = output, .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX};
@@ -180,6 +240,7 @@ static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh) {
     uint64_t h = 1469598103934665603ull;
     for (UINT y = 0; y < oh; ++y)
         for (UINT x = 0; x < ow * 8; ++x) { h ^= data[(size_t)y * pitch + x]; h *= 1099511628211ull; }
+    if (key) CompareBlocks(data, pitch, ow, oh, key, &h);
     ID3D12Resource_Unmap(rb, 0, NULL);
     ID3D12Resource_Release(rb);
     return h;
@@ -333,7 +394,9 @@ static int RunOne(const char* name, bool quick) {
                 double sum = 0, fastest = ms[0];
                 for (int i = 0; i < TIMED; ++i) { sum += ms[i]; if (ms[i] < fastest) fastest = ms[i]; }
                 const double med = Median(ms, TIMED), me = Median(even, ne), mo = Median(odd, no);
-                const uint64_t h = HashOutput(output, ow, oh);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
+                char key[256];      // names this DLL, version, size and scene: the same in its two runs
+                snprintf(key, sizeof(key), "%s|%s%s|%ux%u|%s", label, provider.versionName ? provider.versionName : chosen_name, idtext, ow, oh, scene ? "moving" : "still");
+                const uint64_t h = HashOutput(output, ow, oh, key);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
                 // name | version name the DLL reports | output | render | scene | mean | median | median where jitter x >= 0 | where < 0 | fastest | picture hash
                 Say("R|%s|%s%s|%ux%u|%ux%u|%s|%.4f|%.4f|%.4f|%.4f|%.4f|%016llx\n", label, provider.versionName ? provider.versionName : chosen_name, idtext, ow, oh, rw, rh,
                     scene ? "moving" : "still", sum / TIMED, med, me, mo, fastest, (unsigned long long)h);
@@ -407,7 +470,7 @@ static bool Send(const char* text) {
     return ok;
 }
 
-struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double mean2; bool hashdiff; };
+struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double mean2; bool hashdiff; char diff[160]; };
 // the figure the summary gives: the mean of a DLL's two runs (or its one run, if the other failed)
 static double Val(const struct Row* w) { return w->n == 2 ? 0.5 * (w->mean + w->mean2) : w->mean; }
 
@@ -458,6 +521,7 @@ int main(int argc, char** argv) {
     if (!nd) { printf("No folders in dlls\\ next to the program.\n"); return 1; }
     // two rounds, the second in reverse order: a DLL's two runs then sit at mirrored places in the sequence, so a drift
     // over the run (the card warming up, something starting in the background) shows as a difference between them
+    DeleteBlockRecords();      // none left over from a run that was cut short
     for (int k = 0; k < (once ? nd : 2 * nd); ++k) {
         const int i = k < nd ? k : 2 * nd - 1 - k;
         char src[MAX_PATH], cmd[1024];
@@ -472,6 +536,7 @@ int main(int argc, char** argv) {
         CloseHandle(pi.hProcess); CloseHandle(pi.hThread);
     }
     DeleteFileA("amd_fidelityfx_upscaler_dx12.dll");
+    DeleteBlockRecords();
 
     // summary
     static struct Row rows[256];
@@ -485,6 +550,14 @@ int main(int argc, char** argv) {
     while (r && fgets(line, sizeof(line), r)) {
         line[strcspn(line, "\r\n")] = 0;
         if (line[0] == 'G' && line[1] == '|') snprintf(gpu, sizeof(gpu), "%s", line + 2);
+        if (line[0] == 'D' && line[1] == '|') {      // how a DLL's second run differed from its first (see CompareBlocks)
+            char dn[64], dv[64], ds[16], dc[8]; unsigned nd, nb, x0, y0, x1, y1; double worst;
+            if (sscanf(line, "D|%63[^|]|%63[^|]|%15[^|]|%7[^|]|%u|%u|%u|%u|%u|%u|%lf", dn, dv, ds, dc, &nd, &nb, &x0, &y0, &x1, &y1, &worst) == 11)
+                for (int j = 0; j < nr; ++j)
+                    if (!strcmp(rows[j].name, dn) && !strcmp(rows[j].ver, dv) && !strcmp(rows[j].size, ds) && !strcmp(rows[j].scene, dc))
+                        snprintf(rows[j].diff, sizeof(rows[j].diff), ": %u of %u blocks of %dx%d pixels differ, within x %u..%u y %u..%u, largest shift of a block's mean %.6f of full scale", nd, nb, BLK, BLK, x0, x1, y0, y1, worst);
+            continue;
+        }
         if (line[0] != 'R' || line[1] != '|') continue;
         if (strstr(line, "|FAILED|")) { fl += snprintf(fails + fl, sizeof(fails) - fl, "%s\n", line + 2); continue; }
         struct Row* w = &rows[nr];
@@ -534,7 +607,7 @@ int main(int argc, char** argv) {
             for (int j = 0; j < i && !same; ++j)
                 if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene) && !strcmp(rows[j].hash, w->hash)) same = &rows[j];
             ADD("  picture %s", w->hash);
-            if (w->hashdiff) ADD(" (NOT the same picture in its two runs)");
+            if (w->hashdiff) ADD(" (NOT the same picture in its two runs%s)", w->diff);
             if (same) ADD(" = %s", same->name);
             else if (ref && ref != w) ADD(" (differs from those above)");
         }
