@@ -1379,7 +1379,7 @@ The top of the range is cut because of film grain, which gets such weights too, 
 | The same, only where new frame and history differ a lot | 11.7 / 13.1 | 12.8 / 14.5 | 0.470 / 1.679 / 3.001 | |
 | Range 0.2 to 0.8, weight not squared anywhere | 10.9 / 11.6 | 12.0 / 12.8 | 0.498 / 1.360 / 2.389 | 0.498 |
 | Range 0.2 to 0.8, the network's own weight inside the rule only | 11.0 / 11.8 | 12.0 / 12.9 | 0.542 / 1.413 / 2.420 | 0.519 |
-| **Range 0.2 to 0.7, the same (this release)** | 11.0 / 11.9 | 12.1 / 13.1 | 0.489 / 1.292 / 2.222 | 0.447 |
+| **Range 0.2 to 0.7, the same (this release's rule)** | 11.0 / 11.9 | 12.1 / 13.1 | 0.489 / 1.292 / 2.222 | 0.447 |
 
 - **By size of the difference** (fourth row): leaves and grain differ from the history by similar amounts, so this guard takes
   the foliage gain away before it stops the grain.
@@ -1387,22 +1387,81 @@ The top of the range is cut because of film grain, which gets such weights too, 
   inside the rule it costs nothing in motion.
 - **The narrower range** keeps about nine tenths of the foliage gain for half to two thirds of the grain cost.
 
+### Winning back grain: a partial fold of pass 1
+
+The rule's price is film grain. Two things were tried against it, alone and together, at 4K, single runs: taking the rule's range
+back further, and [folding](../lossy) pass 1 of the network again (`wfold.py K`: in every output channel of its 3x3 layer the K
+smallest of 36 weight words are merged into their neighbors). Releases `dll-2026-10-10` to `dll-2026-10-11.3` folded 2 words
+there; `dll-2026-10-11.4` took the fold out because it makes the network follow slow fades late.
+
+| | Grain 6 / 10 / 15: change per frame | The same, auto exposure | Leaves, skipped frames, period 24 / 18 | Fade: frames behind, darkening / brightening |
+|---|---|---|---|---|
+| AMD's shaders | 0.785 / 1.724 / 2.549 | 0.552 / 0.357 / 0.484 | 10.2 / 10.8 | 0.62 / 0.46 |
+| `dll-2026-10-11.7` (no rule) | 0.342 / 1.056 / 1.932 | 0.359 / 0.370 / 0.514 | 13.5 / 15.0 | 0.78 / 0.83 |
+| The rule, range taken back from 0.6 to 0.7 | 0.489 / 1.292 / 2.222 | 0.400 / 0.447 / 0.514 | 11.9 / 13.1 | 0.79 / 0.81 |
+| Taken back from 0.55 to 0.65 | 0.465 / 1.238 / 2.132 | 0.393 / 0.423 / 0.514 | 12.1 / 13.4 | |
+| Taken back from 0.5 to 0.6 | 0.440 / 1.191 / 2.074 | 0.387 / 0.399 / 0.514 | 12.4 / 13.8 | |
+| Range 0.6 to 0.7, pass 1 folded by 2 | 0.388 / 1.282 / 2.176 | 0.386 / 0.430 / 0.517 | 12.0 / 13.2 | 1.39 / 1.01 |
+| Folded by 3 | 0.395 / 1.254 / 2.036 | 0.370 / 0.352 / 0.526 | 12.0 / 13.1 | 1.49 / 1.23 |
+| Folded by 4 | 0.397 / 1.287 / 1.866 | 0.359 / 0.347 / 0.541 | 11.8 / 12.8 | 2.33 / 1.99 |
+| **Folded by 3 in three of four channel groups (this release)** | 0.460 / 1.291 / 2.124 | 0.381 / 0.383 / 0.513 | 12.0 / 13.2 | 0.85 / 0.91 |
+
+- **The range** trades grain against the foliage gain, a little of one for a little of the other.
+- **The fold** hardly touches the foliage gain. Its effect on grain is not even in K: under auto exposure, grain of 10 hardly
+  moves at 2 words and drops to AMD's level at 3. Its price is the one known from before: fades come later, and a step in
+  brightness arrives with 10% of it missing on the first frame at 3 words (3% without the fold, 27% at 4 words).
+- **With the fold at 3, the range no longer matters under auto exposure** (grain of 10: 0.352 with the range as it is, 0.349
+  with 0.55 to 0.65), so the range stayed.
+
+**Glints.** The full set of checks found one more price of the fold at 3: glints on a dark surface (bright points smaller than a
+pixel, which the game's frame catches only when the jitter lands on them). Pixels more than 20 / 40 levels over the true image,
+per million, 4K, auto exposure off:
+
+| | Over 20 / over 40 |
+|---|---|
+| AMD's shaders | 1,460 / 99 |
+| No fold | 1,417 / 83 |
+| Folded by 2 | 1,489 / 96 |
+| Folded by 3 | 1,733 / 163 |
+| Folded by 4 | 1,595 / 132 |
+| Folded by 3, only channel group 0 | 1,393 / 83 |
+| Only group 1 | 1,430 / 87 |
+| Only group 2 | 1,436 / 90 |
+| Only group 3 | 1,590 / 123 |
+| **Groups 0, 1 and 2 (this release)** | 1,462 / 92 |
+| Groups 0, 1, 2 folded by 3 and group 3 by 2 | 1,528 / 107 |
+
+- **The extra specks are the network's:** frames that ran the network and skipped frames show the same count (1,719 and 1,747
+  with the fold at 3), so no rule for skipped frames would remove them.
+- **One group of four output channels causes most of it.** The layer's 16 output channels are computed in four groups of four
+  (`wfold.py`'s layers 0 to 3 of pass 1). Group 3 alone gives about half of the rise, and leaving it unfolded puts glints back
+  at AMD's level.
+- **The same group carries most of the fold's lag** (last row of the first table: 0.85 / 0.91 frames behind against 1.49 /
+  1.23, and 4% of a step missing against 10%) and about a third of its gain on grain under auto exposure. The release folds
+  groups 0, 1 and 2 by 3 words (`wfold.py 3 0,1,2`, all six versions of pass 1) and leaves group 3 as AMD's.
+- **A weaker fold for group 3 is not a middle way:** by 2 words it is worse than leaving it out on glints, on lag (1.36 / 1.06)
+  and on grain of 10 under auto exposure (0.395).
+
 ### The release build against `dll-2026-10-11.7`
 
-Everything in motion is equal to the last digit: the moving scene at 1080p, 1440p, 4K and 5K, 30 to 120 FPS, the ghost and plate
-scenes, pan start, wires in a pan, particles, rain. Different, auto exposure off / on:
+With the rule alone everything in motion was equal to the last digit. With the fold the moving scene at 1080p, 1440p, 4K and 5K
+stays within 0.1 dB (just-uncovered areas 0.1 to 0.3 dB better), and 30 to 120 FPS, the ghost and plate scenes, pan start,
+particles and rain move in the last digit. Different, auto exposure off / on:
 
 | 4K, one run | AMD's shaders | `dll-2026-10-11.7` | This release |
 |---|---|---|---|
-| Flat area at rest: change per frame | | 0.053 / 0.093 | 0.058 / 0.104 |
-| Thin vertical detail: change per frame | | 0.305 / 0.327 | 0.316 / 0.347 |
-| Railing behind moving objects, camera still: change per frame | 0.655 / 0.662 | 0.623 / 0.623 | 0.659 / 0.660 |
-| Grain 10 of 255, the least steady 1% of pixels | 10.38 / 1.93 | 9.37 / 2.35 | 10.36 / 4.39 |
-| Leaves at the usual speed (period 12) | 12.1 | 18.0, 18.6 | 18.1, 18.7 |
+| Flat area at rest: change per frame | | 0.053 / 0.093 | 0.053 / 0.097 |
+| Thin vertical detail: change per frame | | 0.305 / 0.327 | 0.316 / 0.344 |
+| Railing behind moving objects, camera still: change per frame | 0.655 / 0.662 | 0.623 / 0.623 | 0.665 / 0.662 |
+| Grain 10 of 255, the least steady 1% of pixels | 10.38 / 1.93 | 9.37 / 2.35 | 10.28 / 2.79 |
+| Leaves at the usual speed (period 12) | 12.1 | 18.0, 18.6 | 18.2, 18.7 |
+| A thin wire in a slow pan, skipped frames: change per frame | 7.16 / 6.79 | 9.60 / 7.54 | 10.34 / 7.84 |
+| Slow fade in a bright flat area: frames behind, darkening | 0.62 / 0.72 | 0.78 / 1.05 | 0.85 / 1.12 |
 
 The postpass still compiles to 96 registers (16 waves per SIMD on an RX 7800 XT), with 9,028 instructions against 8,991, and takes
 0.693 against 0.675 ms alone at 4K on a frame that runs the network (both slot orders), 0.005 to 0.01 ms more on a skipped one.
-`SB_RESTBAND=off` rebuilds `dll-2026-10-11.7`'s files byte for byte.
+`SB_RESTBAND=off` without the fold of pass 1 rebuilds `dll-2026-10-11.7`'s files byte for byte. The fold changes weights and not
+the amount of work.
 
 Not measured: any game for the picture, the quality set with the HDR option, and where between the two tested ranges the grain
 cost begins to outrun the foliage gain.
@@ -1571,4 +1630,4 @@ And each output pixel depends on about 50 pixels around it.
 | `exposure_steps_dxil.py` | the same for the DLL's prepass (DXIL text) |
 | `weight_view.py` | test-rig probe: the postpass shows the network's weight for the new frame in place of the picture (SPIR-V text; run it after `skipblend.py`) |
 | `store_gate.py` | test-rig probe: the postpass stores the recurrent image, the history image or both on every other frame only, with the network running on every frame |
-| [`../lossy/wfold.py`](../lossy/wfold.py), `wfold_dxil.py` | since release `dll-2026-10-10` the lossy build runs these on pass 1 with 2 words (`wfold.py 2`), and since `dll-2026-10-11` also on pass 10 with 18 and pass 12 with 4, before the exact rewrites and `frameskip.py` |
+| [`../lossy/wfold.py`](../lossy/wfold.py), `wfold_dxil.py` | since release `dll-2026-10-10` the lossy build runs these on pass 1 with 2 words (`wfold.py 2`), and since `dll-2026-10-11` also on pass 10 with 18 and pass 12 with 4, before the exact rewrites and `frameskip.py`; since `dll-2026-10-11.4` only pass 10 was folded, and since `dll-2026-10-12` pass 1 is again, by 3 words in three of its four channel groups (`wfold.py 3 0,1,2`) |

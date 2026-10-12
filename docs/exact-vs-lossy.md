@@ -56,30 +56,30 @@ the data, not by hand: [`img/make_comparison_crops.py`](img/make_comparison_crop
 
 **At rest.** The largest difference in a still frame is on thin structures. Over the whole frame
 this release differs from the exact files by 0.10 of 255 on average, release `dll-2026-10-07` by 0.14;
-at the spot where that release was furthest off, 0.58 against 0.71.
+at the spot where that release was furthest off, 0.59 against 0.71.
 
-<img src="img/cmp-still.png" width="760" alt="Still scene, a 90 by 90 pixel piece of the 4K output enlarged four times, at the spot where the lossy build of release dll-2026-10-07 differed most from the exact files: the true image, the exact files, the lossy build of release dll-2026-10-07 and this release's lossy build, and under the two lossy panels their difference from the exact files amplified sixteen times: 0.71 and 0.58 of 255. Thin railings look slightly softer in both lossy panels.">
+<img src="img/cmp-still.png" width="760" alt="Still scene, a 90 by 90 pixel piece of the 4K output enlarged four times, at the spot where the lossy build of release dll-2026-10-07 differed most from the exact files: the true image, the exact files, the lossy build of release dll-2026-10-07 and this release's lossy build, and under the two lossy panels their difference from the exact files amplified sixteen times: 0.71 and 0.59 of 255. Thin railings look slightly softer in both lossy panels.">
 
 **Shimmer at rest.** How much each pixel changes between consecutive frames when nothing moves.
 The piece shown is the one where a lossy build is furthest above the exact files. Release
 `dll-2026-10-09` read 0.157 of 255 per frame there, against 0.126 for the exact files: with frame
 skip on AMD's unchanged network, bright flat areas (the wall and sky in this piece) moved more
-from a skipped frame to the next full one. This release reads 0.058, less than half of the exact files' figure and of
+from a skipped frame to the next full one. This release reads 0.053, less than half of the exact files' figure and of
 release `dll-2026-10-07`'s (0.111): in the last step, corrections too small to matter are skipped. Over the whole frame:
-exact 0.037, `dll-2026-10-07` 0.033, `dll-2026-10-09` 0.036, this release 0.026.
+exact 0.037, `dll-2026-10-07` 0.033, `dll-2026-10-09` 0.036, this release 0.024.
 
-<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still scene showing a bright wall, sky and a water tank, and four maps of how much each pixel changes from frame to frame: the exact files (mean 0.126 of 255), the lossy build of release dll-2026-10-07 (0.111), of release dll-2026-10-09 (0.157) and of this release (0.058). Edges look alike in all four; the flat wall and sky carry a faint texture in the first three maps and are nearly black in this release's.">
+<img src="img/cmp-flicker.png" width="760" alt="Shimmer at rest: a 240 by 160 pixel piece of the still scene showing a bright wall, sky and a water tank, and four maps of how much each pixel changes from frame to frame: the exact files (mean 0.126 of 255), the lossy build of release dll-2026-10-07 (0.111), of release dll-2026-10-09 (0.157) and of this release (0.053). Edges look alike in all four; the flat wall and sky carry a faint texture in the first three maps and are nearly black in this release's.">
 
 **Grain in the picture.** The same still scene with random grain added to every input frame, as a
 game with film grain or noisy reflections gives FSR. AMD's shaders pass the grain on, so their
 picture changes most. The lossy builds hold the picture steadier on the frames they skip, but in
 release `dll-2026-10-09` the test that lets sparks through also let grain through, and the picture
 changed more than twice as much as in the release before (0.550 of 255 per frame over the whole
-frame, against 0.249). This release reads 0.489: it gave up some of that steadiness so that skipped frames can follow slowly swaying leaves, which the network marks the way it marks some grain (0.342 in `dll-2026-10-11.7`, 0.292 in `dll-2026-10-11.3`, whose fold of the first pass held it back further). The piece shown is the one where it gained most.
+frame, against 0.249). This release reads 0.460: it gave up some of that steadiness so that skipped frames can follow slowly swaying leaves, which the network marks the way it marks some grain (0.342 in `dll-2026-10-11.7`, 0.292 in `dll-2026-10-11.3`, whose fold of the first pass held it back further). A lighter fold of the first pass is back in this release and wins a little of it back (0.489 without it). The piece shown is the one where it gained most.
 The grain is synthetic and of moderate strength (6 of 255). Strong grain gets through more: at 10 of 255
 this release reads 1.29 against 0.94 for release `dll-2026-10-10` and 1.72 for AMD's shaders.
 
-<img src="img/cmp-grain.png" width="760" alt="Grain in the picture: a 240 by 160 pixel piece of a dark flat area of the still scene with random grain in every input frame, and four maps of how much each pixel changes from frame to frame: the exact files (mean 2.187 of 255, a dense bright speckle), the lossy build of release dll-2026-10-07 (0.254, nearly black), of release dll-2026-10-09 (0.874, a speckle with bright points) and of this release (0.443, dark in the middle with a fainter speckle toward the edges).">
+<img src="img/cmp-grain.png" width="760" alt="Grain in the picture: a 240 by 160 pixel piece of a dark flat area of the still scene with random grain in every input frame, and four maps of how much each pixel changes from frame to frame: the exact files (mean 2.139 of 255, a dense bright speckle), the lossy build of release dll-2026-10-07 (0.208, nearly black), of release dll-2026-10-09 (1.409, a dense speckle again) and of this release (1.006, the same speckle dimmer, with fewer bright points).">
 
 **In motion, on a skipped frame.** Camera panning as if at 60 FPS. Thin bars in front of a moving
 background are where frame skip is weakest: in both lossy panels the bars are a little rougher
@@ -88,7 +88,7 @@ moving block has just uncovered is the same in both lossy builds (1.3 against 1.
 the error against the true image is 1.16 of 255 in this release, 1.19 in release `dll-2026-10-07`, and
 1.14 with the exact files.
 
-<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy builds skip the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Thin dark bars in front of a moving background: error 2.4, 3.1 and 3.0 of 255. The edge a moving block has just uncovered: 1.0, 1.3 and 1.3.">
+<img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy builds skip the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Thin dark bars in front of a moving background: error 2.4, 3.1 and 3.1 of 255. The edge a moving block has just uncovered: 1.0, 1.3 and 1.3.">
 
 **Particles without motion vectors, on a skipped frame.** This is where the lossy builds before
 and since release `dll-2026-10-09` differ most. Games draw sparks and embers into the picture without telling FSR that they move.
@@ -96,7 +96,7 @@ Release `dll-2026-10-07` kept them where they had been a frame ago, or showed th
 other frame; since `dll-2026-10-09` they are taken from the new frame, and since `dll-2026-10-11` also
 wherever the network itself had asked for the new frame on the frame before.
 
-<img src="img/cmp-particles.png" width="760" alt="Particles drawn without motion vectors on a skipped frame, camera still, two 72 by 72 pixel pieces enlarged five times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Tiny fast sparks: release dll-2026-10-07 shows one of three sparks displaced and one nearly gone (error 3.4 of 255); this release shows all three in place (1.0; exact files 0.8). Larger particles: release dll-2026-10-07 shows them displaced and broken up (15.1); this release shows them in place and smooth, with slightly rough edges (1.5; exact files 0.7).">
+<img src="img/cmp-particles.png" width="760" alt="Particles drawn without motion vectors on a skipped frame, camera still, two 72 by 72 pixel pieces enlarged five times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Tiny fast sparks: release dll-2026-10-07 shows one of three sparks displaced and one nearly gone (error 3.4 of 255); this release shows all three in place (1.0; exact files 0.8). Larger particles: release dll-2026-10-07 shows them displaced and broken up (15.1); this release shows them in place and smooth, with slightly rough edges (1.4; exact files 0.7).">
 
 - **In place, and nearly clean.** In this release's panels the sparks and the larger particles sit where they
   should, and the seams that crossed large particles in the two releases before are gone; their edges are slightly
@@ -120,8 +120,8 @@ rest and, in motion, applied only where the network had already given up on the 
 - **In a camera pan it is about half as bright as with AMD's** (53 against 100 of a true 111 in a slow pan, 58 against 97 in a fast
   one; 59 and 63 in the releases up to `dll-2026-10-11.6`). A wire is a line one pixel wide, and the rule that keeps rain from being
   shown as white dashes (below) takes the part of the wire that used to be shown as sparks.
-- **Under a slow pan it flickers a third more than with AMD's** (9.6 against 7.2 change per frame; 14.6 up to `dll-2026-10-11.6`, 16.9 in
-  `dll-2026-10-11`, 58.6 in `dll-2026-10-10`), and the bright beads along it are gone (+8 against AMD's +19, where it was +42). Going
+- **Under a slow pan it flickers over 40% more than with AMD's** (10.3 against 7.2 change per frame; 9.6 in `dll-2026-10-11.7`, before the first pass was folded again; 14.6 up to `dll-2026-10-11.6`, 16.9 in
+  `dll-2026-10-11`, 58.6 in `dll-2026-10-10`), and the bright beads along it are gone (+9 against AMD's +19, where it was +42). Going
   further would cost the lossy build its lead in just-uncovered areas
   ([the trade](../research/frame-skip#thin-wires-what-the-history-clamp-did-to-them)).
 
@@ -182,7 +182,7 @@ old image would land if the history were shown unchanged. "Outline" is the objec
   depth search; there the lookup is off. One synthetic scene at six motion settings; the author
   also no longer sees the ghost in the game it was reported and recorded in.
 
-<img src="img/cmp-ghost.png" width="760" alt="A second outline beside a moving object on a skipped frame, camera panning 40 pixels per frame and objects drifting 6. Two 128 by 64 pixel pieces of the 4K output, each as true image, exact files, the lossy build of release dll-2026-10-06.6 and the lossy build of this release, with the error against the true image below each. Beside the block's left edge the earlier release shows a broken dark vertical line, the block's edge of a frame ago, which the exact files and this release do not show (error in the piece: 0.52, 0.66 and 0.57 of 255). Beside the railing the earlier release shows two faint extra bars, which the others do not; this release's error there sits on the two real bars instead (0.74, 0.95 and 0.94 of 255).">
+<img src="img/cmp-ghost.png" width="760" alt="A second outline beside a moving object on a skipped frame, camera panning 40 pixels per frame and objects drifting 6. Two 128 by 64 pixel pieces of the 4K output, each as true image, exact files, the lossy build of release dll-2026-10-06.6 and the lossy build of this release, with the error against the true image below each. Beside the block's left edge the earlier release shows a broken dark vertical line, the block's edge of a frame ago, which the exact files and this release do not show (error in the piece: 0.52, 0.66 and 0.58 of 255). Beside the railing the earlier release shows two faint extra bars, which the others do not; this release's error there sits on the two real bars instead (0.74, 0.95 and 0.91 of 255).">
 
 **A still bright object over ground that moves fast.** A tester's video of a racing game with frame generation showed
 the car's white license plate leaving bright streaks on the road behind it with the lossy DLL of release `dll-2026-10-11`,
@@ -194,9 +194,9 @@ Since release `dll-2026-10-11.2` it is applied in full again beside anything tha
 <img src="img/cmp-plate.png" width="760" alt="A white object with dark marks at the top, ground moving fast below it, on a frame that skips the neural network, enlarged. The true image and the exact files show only the ground below the object. The lossy build of release dll-2026-10-11 shows bright outlines of the object's marks on the ground below it. This release's lossy build shows only a faint trace.">
 
 - In the test scene (the object and the ground at the same depth, the ground moving 100 pixels per frame) the error
-  where the object's old image lands is 2.68 against 6.06 in `dll-2026-10-11` and 2.51 in `dll-2026-10-10`; AMD's is 1.62
+  where the object's old image lands is 2.65 against 6.06 in `dll-2026-10-11` and 2.51 in `dll-2026-10-10`; AMD's is 1.62
   (2.57 in `dll-2026-10-11.2`; the stricter spark rule since `dll-2026-10-11.3` gave a little back).
-  With the ground moving 20 pixels per frame it is 4.71 against AMD's 5.79.
+  With the ground moving 20 pixels per frame it is 4.74 against AMD's 5.79.
 - With distinct depths every build was already at AMD's level (1.42 against 1.58).
 - **Not confirmed in the game:** frame generation cannot be run in the test rig, and whether equal depth is what
   happens in that game is not known. A faint trace remains above AMD's level.
@@ -216,12 +216,12 @@ sample for a spark, because it is far brighter than everything the previous pict
 Since release `dll-2026-10-11.3` that rule asks for twice the distance. The test rig only showed the dots once its inputs were sampled as
 a game samples them, unsmoothed.
 
-<img src="img/cmp-foliage-dots.png" width="760" alt="Dark green leaves in front of a pale sky on a frame that skips the neural network, a 200 by 130 pixel piece enlarged three times. The true image shows sharp leaves. The exact files show them soft and clean (1 single bright pixel inside the leaves in this piece). The lossy build of release dll-2026-10-11.2 shows the same leaves sprinkled with single-pixel specks (26). This release's lossy build shows far fewer (9).">
+<img src="img/cmp-foliage-dots.png" width="760" alt="Dark green leaves in front of a pale sky on a frame that skips the neural network, a 200 by 130 pixel piece enlarged three times. The true image shows sharp leaves. The exact files show them soft and clean (1 single bright pixel inside the leaves in this piece). The lossy build of release dll-2026-10-11.2 shows the same leaves sprinkled with single-pixel specks (26). This release's lossy build shows far fewer (8).">
 
 - In the test scene (dense dark leaves swaying in front of a bright sky, hard-sampled inputs) single bright pixels in the
-  leaves number 0.95 per thousand dark pixels on skipped frames, against 2.40 in `dll-2026-10-11.2` and 0.57 with AMD's
-  shaders. While the camera pans: 0.35 against 0.70; AMD's 0.33.
-- With leaves that do not move the count is close to AMD's (1.81 against 1.72; it was 1.72 before release `dll-2026-10-12`).
+  leaves number 0.97 per thousand dark pixels on skipped frames, against 2.40 in `dll-2026-10-11.2` and 0.57 with AMD's
+  shaders. While the camera pans: 0.37 against 0.70; AMD's 0.33.
+- With leaves that do not move the count is close to AMD's (1.79 against 1.72; it was 1.72 before release `dll-2026-10-12`).
 - **The cost:** fast sparks are shown about one point in a hundred dimmer, and large glowing particles under a pan are
   13% further from the true image. A stricter setting still would have removed the dots down to AMD's level and cost
   three times as much in particles ([the settings compared](../research/frame-skip#bright-dots-in-foliage-release-dll-2026-10-113)).
@@ -284,7 +284,14 @@ Release `dll-2026-10-11.4` found out why that works and replaced most of it. Fol
 picture more in flat areas, so the one-step flicker there freezes; for the same reason those areas followed slow changes of
 brightness late. The folds of passes 1 and 12 are gone. What keeps flat areas steady now is a rule in the last step that skips
 corrections of less than about two steps of the picture's number format, and the fold of pass 10 stays because it steadies fine
-detail without that cost ([how it was found](../research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114)). The record of the folding experiment:
+detail without that cost ([how it was found](../research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114)).
+
+Release `dll-2026-10-12` folds the first pass again, differently: 3 of 36 weight groups, in three quarters of the pass's outputs. Its
+rule for slowly swaying foliage made film grain less steady, and this fold wins part of that back. The last quarter of the outputs
+is left as AMD's because folding it made glints on glossy surfaces worse and brought most of the old lag on slow fades back; what
+remains of that lag is 0.85 against 0.78 frames behind in bright flat areas, and a thin wire in a slow pan flickers more (10.3
+against 9.6 change per frame)
+([how it was chosen](../research/frame-skip#winning-back-grain-a-partial-fold-of-pass-1)). The record of the folding experiment:
 [the lossy track](../research/lossy).
 
 ### The model runs on every other frame (frame skip)
@@ -345,8 +352,9 @@ Five repairs keep the rest honest (the fifth is the one just described):
 ## What the lossy builds cost, measured
 
 > **Updated for release `dll-2026-10-12`.** Every figure in the "Lossy" columns and every picture was made again with this release's build. Against the build this page
-> showed before (`dll-2026-10-11.7`): slowly swaying foliage is closer to AMD's (the table under "Moving foliage" below); film grain is less steady; at rest the picture
-> changes slightly more per frame (a flat area 0.053 to 0.058, thin vertical detail 0.305 to 0.316). Everything that moves is equal or moved in the last digit.
+> showed before (`dll-2026-10-11.7`): slowly swaying foliage is closer to AMD's (the table under "Moving foliage" below); film grain is less steady; thin vertical detail
+> at rest changes slightly more per frame (0.305 to 0.316); a thin wire in a slow pan flickers more (9.6 to 10.3); slow fades show slightly later in bright flat areas
+> (0.78 to 0.85 frames behind). The moving scenes stay within 0.1 dB.
 > [Foliage and the network's memory](../research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12).
 >
 > **For release `dll-2026-10-11.7`**, against the build before it (`dll-2026-10-11.4`): rain and single over-bright
@@ -354,31 +362,31 @@ Five repairs keep the rest honest (the fifth is the one just described):
 > dimmer; with auto exposure on, bright flat areas no longer shimmer. Everything else moved in the last digit or not at all.
 > [The rain rule](../research/frame-skip#rain-and-other-thin-streaks-release-dll-2026-10-117).
 
-Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's model with one of its passes lightly folded, motion following, the rest rule, the repairs and the dead band.
+Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's model with two of its passes lightly folded, motion following, the rest rule, the repairs and the dead band.
 "Release `dll-2026-10-07`" is an earlier lossy build, which folded weights in six of the model's layers, and far more strongly.
 
 | | AMD's (= exact files) | Release `dll-2026-10-07` | Lossy | Lossy, against AMD's |
 |---|---|---|---|---|
-| Still picture against the true image | 44.33 dB | 43.60 dB | 44.30 dB | within 0.07%; 0.7% more error |
-| Thin vertical / horizontal detail in the still picture | 27.09 / 28.23 dB | 25.89 / 27.64 dB | 26.85 / 28.16 dB | 0.24 / 0.07 dB below |
-| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.109 | 0.088 | 20% less |
-| Flicker at rest, worst flat piece of the scene | 0.126 | 0.111 | 0.058 | 54% less |
+| Still picture against the true image | 44.33 dB | 43.60 dB | 44.26 dB | within 0.2%; 1.6% more error |
+| Thin vertical / horizontal detail in the still picture | 27.09 / 28.23 dB | 25.89 / 27.64 dB | 26.75 / 28.18 dB | 0.34 / 0.05 dB below |
+| Flicker at rest on fine detail (lower is steadier) | 0.110 | 0.109 | 0.087 | 21% less |
+| Flicker at rest, worst flat piece of the scene | 0.126 | 0.111 | 0.053 | 58% less |
 | Frame-to-frame change on thin vertical detail at rest | 0.364 | 0.380 | 0.316 | 13% less |
-| Moving scene: background | 49.27 dB | 48.61 dB | 49.07 dB | within 0.4%; 5% more error |
+| Moving scene: background | 49.27 dB | 48.61 dB | 49.00 dB | within 0.5%; 6% more error |
 | Moving scene: thin railing | 41.82 dB | 41.12 dB | 41.34 dB | within 1.1%; 12% more error |
-| Moving scene: areas a moving object has just uncovered | 34.48 dB | 36.56 dB | 36.48 dB | 6% above; 37% less error |
-| Still camera, objects moving: thin railing | 42.20 dB | 40.99 dB | 41.17 dB | within 2.4%; 27% more error |
-| Still camera, objects moving: just-uncovered areas | 32.62 dB | 30.93 dB | 31.68 dB | within 2.9%; 24% more error |
+| Moving scene: areas a moving object has just uncovered | 34.48 dB | 36.56 dB | 36.53 dB | 6% above; 38% less error |
+| Still camera, objects moving: thin railing | 42.20 dB | 40.99 dB | 41.12 dB | within 2.6%; 28% more error |
+| Still camera, objects moving: just-uncovered areas | 32.62 dB | 30.93 dB | 31.85 dB | within 2.4%; 19% more error |
 | A wire half a pixel wide, camera still: change per frame along it | 2.9 | 15.7 | 2.8 | level |
-| The same wire under a slow pan: change per frame | 7.2 | not measured | 9.6 | 1.3 times |
+| The same wire under a slow pan: change per frame | 7.2 | not measured | 10.3 | 1.4 times |
 | The same wire under a slow pan: brightness (true value 111) | 100 | not measured | 53 | about half |
-| A still bright object over fast ground at the same depth: error where its old image lands | 1.62 | 7.51 | 2.68 | 65% more |
-| Single bright pixels in swaying foliage against sky, camera still (per thousand dark pixels) | 0.57 | not measured | 0.95 | 1.7 times |
-| The same while the camera pans | 0.33 | not measured | 0.35 | 6% more |
+| A still bright object over fast ground at the same depth: error where its old image lands | 1.62 | 7.51 | 2.65 | 64% more |
+| Single bright pixels in swaying foliage against sky, camera still (per thousand dark pixels) | 0.57 | not measured | 0.97 | 1.7 times |
+| The same while the camera pans | 0.33 | not measured | 0.37 | 12% more |
 | Rain, faint streaks one rendered pixel wide: output pixels more than 20 of 255 too bright, per million | 0 to 1 | 5 to 114 | 0 | level |
-| Single over-bright pixels in the game's frame: the same count | 25 | not measured | 17 | level |
-| A region dimming by 1% per frame, nothing moving: frames behind, bright / dark flat areas | 0.6 / 3.0 | not measured | 0.8 / 2.4 | 0.2 more / 0.6 less |
-| Large particles without motion vectors, skipped frames: error | 0.66 | not measured | 1.35 | 2.0 times |
+| Single over-bright pixels in the game's frame: the same count | 25 | not measured | 12 | level |
+| A region dimming by 1% per frame, nothing moving: frames behind, bright / dark flat areas | 0.6 / 3.0 | not measured | 0.85 / 2.7 | 0.2 more / 0.3 less |
+| Large particles without motion vectors, skipped frames: error | 0.66 | not measured | 1.40 | 2.1 times |
 | Slow embers / fast sparks shown on skipped frames | 81% / 83% | not measured / 16% | 81% / 74% | level / 9 points below |
 | Revealed strip when a pan starts on a skipped frame | 100% of true brightness | 100% | 99 to 100% | the same |
 
@@ -391,16 +399,16 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 - **The figures at rest are for auto exposure off.** With FSR's auto-exposure option on, the build of release
   `dll-2026-10-11.4` shimmered more than AMD's shaders in bright flat areas. Release `dll-2026-10-11.5` removed the cause
   ([how](../research/frame-skip#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115)): with it on, the worst flat
-  piece of the still scene changes 0.104 per frame against 0.213 with AMD's shaders, bright flat areas 0.053 against 0.186,
-  the whole frame 0.030 against 0.041 and fine detail 0.100 against 0.125. Two things remain behind AMD's with it on: slow
-  fades show in bright flat areas about a third of a frame later (1.04 against 0.72 frames behind when darkening, 0.86 against
-  0.46 when brightening), and film grain of medium strength and above is passed on more (0.45 against 0.36 and 0.51 against 0.48 change per frame
-  for grain of 10 and 15 of 255, and 1.3 to 2.5 dB less accurate). Found and measured on Linux; not measured under Windows.
-- **Fine detail at rest shimmers less than with AMD's shaders** (0.088 against 0.110), and so
+  piece of the still scene changes 0.097 per frame against 0.213 with AMD's shaders, bright flat areas 0.052 against 0.186,
+  the whole frame 0.029 against 0.041 and fine detail 0.098 against 0.125. Two things remain behind AMD's with it on: slow
+  fades show in bright flat areas almost half a frame later (1.12 against 0.72 frames behind when darkening, 0.93 against
+  0.46 when brightening), and film grain of medium strength and above is passed on slightly more (0.38 against 0.36 and 0.51 against 0.48 change per frame
+  for grain of 10 and 15 of 255, and 1.2 to 2.3 dB less accurate). Found and measured on Linux; not measured under Windows.
+- **Fine detail at rest shimmers less than with AMD's shaders** (0.087 against 0.110), and so
   does thin vertical detail alone (13% less; it was 4% more in release `dll-2026-10-09`).
 - **The still picture is within 0.02 dB of AMD's** (0.7 dB below in release `dll-2026-10-07`, 0.15 to 0.2 dB below up to
   `dll-2026-10-11.3`). Most of that last gap was the folds, not frame skip.
-- **Just-uncovered areas score above AMD's in the panning scene** (36.48 against 34.48 dB; 36.45 in
+- **Just-uncovered areas score above AMD's in the panning scene** (36.53 against 34.48 dB; 36.45 in
   release `dll-2026-10-10`, a little of which went to the wire fix) and about 1.0 dB below with the camera still and objects moving
   (0.6 dB below in `dll-2026-10-11.3`).
 - **Thin wires in a camera pan are about half as bright as with AMD's shaders** (53 against 100 of a true 111 in a slow pan, 58 against
@@ -414,7 +422,7 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
   | 12,6 / 6,−6 | 1.07 | 1.08 | level |
   | still camera / 8,0 | 1.07 | 1.06 | level |
   | still camera / 6,−6 | 1.74 | 1.90 | 9% more |
-  | still camera / −6,6 | 4.01 | 4.63 | 15% more: a sliver one or two pixels wide beside the trailing edge |
+  | still camera / −6,6 | 4.01 | 4.60 | 15% more: a sliver one or two pixels wide beside the trailing edge |
   | −16,4 / 8,0 (fast pan against the object's motion) | 3.11 | 5.01 | 61% more |
 
   In the last case nothing is left behind: the strip is recognized and shown from the new frame,
@@ -489,8 +497,8 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
   update on every other frame.
 - **A very thin wire in a camera pan is about half as bright as with AMD's shaders,** and under a slow pan it flickers a third
   more (see the wire picture above). With the camera still it is at AMD's level.
-- **Strong film grain is passed on more than moderate grain.** At 6 of 255 the lossy build's picture changes 0.49 per
-  frame (AMD's 0.79); at 10 of 255, 1.29 (AMD's 1.72); at 15 of 255, 2.22 (AMD's 2.55). With auto exposure on: 0.40 (AMD's 0.55), 0.45 (AMD's 0.36) and 0.51 (AMD's 0.48).
+- **Strong film grain is passed on more than moderate grain.** At 6 of 255 the lossy build's picture changes 0.46 per
+  frame (AMD's 0.79); at 10 of 255, 1.29 (AMD's 1.72); at 15 of 255, 2.12 (AMD's 2.55). With auto exposure on: 0.38 (AMD's 0.55), 0.38 (AMD's 0.36) and 0.51 (AMD's 0.48).
   Release `dll-2026-10-12` gave up some steadiness here for the foliage rule (before it: 0.34, 1.06, 1.93).
 - **Moving foliage is the lossy build's weakest case.** Leaves that sway without motion vectors, as wind-animated foliage
   often does in games, come out softer than with AMD's shaders. It is a time lag, not an artifact: in swaying foliage FSR 4's
@@ -500,9 +508,9 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
 
   | | AMD's shaders | Lossy | Release `dll-2026-10-07` |
   |---|---|---|---|
-  | Leaves swaying, camera still | 12.1 | 18.1 to 18.7 | 16.8 to 17.8 |
-  | Leaves swaying at two thirds of that speed, camera still | 10.7 | 12.1 to 13.1 | not measured |
-  | Leaves swaying at half that speed, camera still | 10.2 | 11.0 to 11.9 | not measured |
+  | Leaves swaying, camera still | 12.1 | 18.2 to 18.7 | 16.8 to 17.8 |
+  | Leaves swaying at two thirds of that speed, camera still | 10.7 | 12.2 to 13.2 | not measured |
+  | Leaves swaying at half that speed, camera still | 10.2 | 11.1 to 12.0 | not measured |
   | Leaves swaying at half that speed, camera panning | 9.7 | 12.3 to 13.3 | not measured |
   | Leaves swaying, camera panning | 10.7 | 17.7 to 18.0 | 16.3 to 17.3 |
   | The same, change of the error per frame | 17.3 | 28.1 | 26.6 |
