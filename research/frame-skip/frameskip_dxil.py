@@ -6,6 +6,7 @@
 # NOT bit-exact. The DXIL form of frameskip.py (see there): every other frame the model is skipped
 # and the postpass uses the model's output of the frame before. Same decisions, same mark, same
 # place in the working buffer, so a DLL built with this and the Linux files give the same output.
+# FS_BRANCH as in frameskip.py (default 1; run exposure_steps_dxil.py before this tool).
 import os
 import re
 import sys
@@ -115,7 +116,7 @@ else:
         '  %fs.nx = select i1 %fs.skip, i32 %fs.ox, i32 %fs.jb', '  %fs.ny = select i1 %fs.skip, i32 %fs.oy, i32 %fs.jy',
         f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i32 {RELAY}, i32 undef, i32 %fs.nx, i32 %fs.ny, i32 undef, i32 undef, i8 3, i32 4)',
         '  br label %fs.cont', '', 'fs.cont:']
-    BRANCH = os.environ.get('FS_BRANCH', '0') == '1'       # two copies of the shader's work under one branch on skip, as in frameskip.py
+    BRANCH = os.environ.get('FS_BRANCH', '1') == '1'       # two copies of the shader's work under one branch on skip, as in frameskip.py
     out, n_st = [], 0
     for n, l in enumerate(L if not BRANCH else []):
         m = re.match(r'(\s*)call void @dx\.op\.rawBufferStore\.i32\(i32 140, %dx\.types\.Handle (%[\w.]+), i32 ([^,]+), i32 undef, i32 ([^,]+), i32 ([^,]+), i32 ([^,]+), i32 ([^,]+), i8 (\d+), i32 4\)', l)

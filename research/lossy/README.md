@@ -306,6 +306,10 @@ and 8 of four taps, 1,024 of its 1,600 weight words. Folding half of each:
   follows the scene less closely, the kind of error that shows as trails behind moving things.
   Not used.
 
+Later, with frame skip in place, a much lighter fold of the postpass's convolution (3 words of 36) turned out to steady
+film grain, at no gain in speed. The lossy DLL uses it since release `dll-2026-10-12.2`:
+[the sweep](../frame-skip#folding-the-postpasss-own-layer).
+
 So set 2 stands. What it leaves unfolded is the arithmetic the image depends on most, and the
 passes whose weights are not constants in the shader (3 and 6 to 9). Going faster from here means
 accepting a visible cost.

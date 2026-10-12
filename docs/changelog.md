@@ -2,8 +2,83 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-11.7` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-12` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-12 ([release `dll-2026-10-12`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-12))
+
+### Slowly swaying foliage
+
+*Written for `dll-2026-10-12`: "this release" below means that one.*
+
+Two changes to the lossy DLL's picture. **The exact DLL is unchanged.**
+
+- **What was wrong:** moving foliage is the lossy DLL's weakest case. Leaves that sway without motion vectors lag and come
+  out softer than with AMD's shaders.
+- **The cause, found for this release:** FSR 4's network keeps a small memory image from the frame before and needs it to
+  recognize things that move without motion vectors. With AMD's shaders it gives swaying leaves about half of the new
+  frame. In the lossy DLL the network runs on every other frame, so that memory is two frames old:
+  - **leaves that move slowly** still get the network's verdict, but the skipped frames did not use it;
+  - **leaves that move fast** lose it: the network's weight for the new frame falls from 50% to under 10%, and the leaves
+    lag. AMD's own shaders do the same when the leaves move twice as fast.
+- **The fix, for the slow case only:** a skipped frame now uses the network's verdict where it gave a middle weight, which
+  is what slowly moving leaves get.
+- **The second change, against the fix's price:** the network gives some film grain the same middle weights, so grain
+  flickers more with the fix. To win part of that back, a few of the smallest weights in the network's first layer are
+  merged into their neighbors ("folding", which makes the network lean a little more on the previous picture). It is done
+  in three quarters of that layer's outputs: folding the last quarter as well steadied grain more, but made glints on
+  glossy surfaces and slow fades worse.
+
+| Measured in the test rig at 4K, camera still: error on the leaves, of 255 (frames that ran the network / skipped frames) | AMD's shaders | `dll-2026-10-11.7` | This release |
+|---|---|---|---|
+| Leaves swaying at half the rig's usual speed | 10.2 / 10.2 | 11.9 / 13.5 | 11.1 / 12.0 |
+| At two thirds of it | 10.7 / 10.8 | 13.0 / 15.0 | 12.2 / 13.2 |
+| At the usual speed (the network's verdict is lost) | 12.1 / 12.1 | 18.0 / 18.6 | 18.2 / 18.7 |
+| Half speed, camera panning | 9.7 / 9.7 | 12.3 / 13.3 | 12.2 / 13.3 |
+
+| The price: film grain, change per frame | AMD's shaders | `dll-2026-10-11.7` | The fix alone | This release (fix and fold) |
+|---|---|---|---|---|
+| Grain of 6 in 255 | 0.785 | 0.342 | 0.489 | 0.460 |
+| Grain of 10 | 1.724 | 1.056 | 1.292 | 1.291 |
+| Grain of 15 | 2.549 | 1.932 | 2.222 | 2.124 |
+| Grain of 6, auto exposure on | 0.552 | 0.359 | 0.400 | 0.381 |
+| Grain of 10, auto exposure on | 0.357 | 0.370 | 0.447 | 0.383 |
+| Grain of 15, auto exposure on | 0.484 | 0.514 | 0.514 | 0.513 |
+
+- **What got worse:**
+  - Film grain flickers more than in the last releases: the network gives some grain the same middle weights as leaves.
+    Without auto exposure it stays steadier than with AMD's shaders. With auto exposure on, grain of 10 in 255 is now
+    7% less steady than AMD's (it was 4%; with the fix alone it would be 25%).
+  - Thin detail at rest changes slightly more per frame: thin vertical detail 0.305 to 0.316, a railing behind moving
+    objects 0.623 to 0.665 (AMD's 0.655). With auto exposure on, a flat area goes from 0.093 to 0.097; without it
+    it stays at 0.053.
+  - A thin wire in a slow camera pan is less steady: change per frame 9.60 to 10.34 (AMD's 7.16). This comes from the
+    fold.
+  - Slow fades show slightly later in bright flat areas: 0.78 to 0.85 frames behind when darkening, 0.83 to 0.91 when
+    brightening (AMD's 0.62 and 0.46). This also comes from the fold.
+- **What it does not fix:**
+  - Leaves that move fast, as in the third row. No rule in the last shader can: the network's memory cannot be made
+    on a frame that skips the network.
+  - Leaves while the camera pans: the rule applies only where the picture is at rest.
+  - Low frame rates. At 30 FPS a leaf moves twice as far per frame as at 60, so more of the foliage is in the fast case.
+    There the exact DLL remains the better choice.
+- **Unchanged or within the last digit:** everything in motion (the moving scene at 1080p, 1440p, 4K and 5K, 30 to
+  120 FPS, ghost and plate scenes, pan start), particles, wires with the camera still or panning fast, rain, single
+  over-bright pixels and glints.
+- **Speed:** the last shader holds as few values as before (16 copies side by side on a Radeon RX 7800 XT under Linux)
+  and has 37 more instructions of 8,991. Timed alone at 4K: 0.675 to 0.693 ms on a frame that runs the network, 0.005
+  to 0.01 ms more on a skipped one. The fold changes weights, not the amount of work. Shadow of the Tomb Raider's
+  benchmark at 4K Balanced, one run with this release's Linux files: 18,685 frames, 120 FPS (18,689 with the fix
+  alone). The release before was not run there, so that is not a comparison.
+- **Not checked:**
+  - Games, beyond one impression: in Shadow of the Tomb Raider the author found foliage a little better than with the
+    releases before (seen with the fix alone; this release's build looked good to them there too). That game never
+    showed foliage as bad as the report from Alan Wake 2, which was not tried, so whether the reported case improves
+    is for testers to say. The rig's leaves are made up.
+  - The whole upscaler in the timing kit.
+  - Windows drivers, and other graphics chips than the RX 7800 XT.
+- These are single runs on made-up scenes.
+  [How the cause was found, and how the fold was chosen](../research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12).
 
 ## 2026-10-11 ([release `dll-2026-10-11.7`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.7))
 

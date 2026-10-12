@@ -8,6 +8,10 @@ what that does to frame pacing, frame caps, V-Sync, latency and the numbers an o
 
 It applies to the lossy DLL (the `lossy` folder of each download) only. The exact files take the same time every frame.
 
+Since release `dll-2026-10-12.2` a skipped frame is cheaper than when this page was written: the two kinds of frame are
+about 2.0 ms apart at 4K on an RX 7800 XT in the timing kit, where the same kit read 1.8 ms before. The figures and
+charts below use the 1.7 ms measured earlier and were not redone.
+
 ## In short
 
 <picture>

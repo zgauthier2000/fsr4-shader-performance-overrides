@@ -18,8 +18,9 @@ What it does
   A single over-bright pixel with no bright pixel beside it in the game's frame (the noise of
   traced reflections on glossy surfaces) is not taken for a spark, and neither is a line one
   pixel wide (rain): a spark has to have a bright neighbor both sideways and above or below.
-- The network's arithmetic is AMD's except in two of its layers, where a few of the
-  smallest weights are merged into their neighbors. In the last step a correction smaller
+- The network's arithmetic is AMD's except in two of its layers and in the small layer the
+  last step starts with, where a few of the smallest weights are merged into their
+  neighbors. In the last step a correction smaller
   than about two steps of the picture's number format is skipped, and tiny wobbles of the
   auto-exposure value no longer nudge the stored picture. Together these keep flat areas
   and fine detail at rest at least as steady as with AMD's file.
@@ -36,15 +37,14 @@ What it costs
   move slowly are closer to AMD's since dll-2026-10-12 while the camera is still; leaves that
   move fast, and all moving leaves during a camera pan or at a low frame rate, are not.
 - Very thin things in the distance (power lines, fences) are shown about half as bright as
-  with AMD's file while the camera pans, and flicker up to 45% more in a slow pan. With
+  with AMD's file while the camera pans, and flicker up to 55% more in a slow pan. With
   the camera still they are as bright and as steady as AMD's.
-- Strong film grain is passed on more than with the releases before dll-2026-10-11.4, and
-  since dll-2026-10-12 film grain flickers more than in the releases just before it. Without
-  FSR's auto exposure it stays steadier than with AMD's file; in a game that uses auto
-  exposure, grain of medium strength and above is slightly less steady than with AMD's file.
+- Strong film grain is passed on more than with the releases before dll-2026-10-11.4.
+  Without FSR's auto exposure it stays steadier than with AMD's file; in a game that uses
+  auto exposure, strong grain is slightly less steady than with AMD's file.
 - A slow change of brightness (a fade) shows in bright flat areas a quarter to half a frame
   later than with AMD's file.
-- Frame times alternate: a skipped frame is about 1.7 ms shorter than a normal one on an
+- Frame times alternate: a skipped frame is about 2 ms shorter than a normal one on an
   RX 7800 XT at 4K. With a frame cap or normal V-Sync the average is what counts; with
   low-latency modes or unbuffered V-Sync the longer frames can miss.
   https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/docs/frame-pacing.md

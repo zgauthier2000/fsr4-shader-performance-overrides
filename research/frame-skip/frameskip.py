@@ -20,9 +20,13 @@
 # ran (used with a jitter list that repeats every entry, to show that jitter mismatch is the cause
 # of the extra flicker).
 #
-# On a skipped frame the prepass leaves the model's input tensor as it is (each store writes back
-# the word that was there) and its first thread writes a two-word mark into the working buffer; on
-# other frames it clears it. Every model pass returns at once when it finds the mark.
+# On a skipped frame the prepass leaves the model's input tensor as it is and its first thread
+# writes a two-word mark into the working buffer; on other frames it clears it. Every model pass
+# returns at once when it finds the mark.
+# FS_BRANCH (prepass; default 1 since release dll-2026-10-12.2): the prepass's work in two copies
+# under one branch on skip, the one for skipped frames without the tensor stores. FS_BRANCH=0 is
+# the form of the releases before: one copy, each store writes back the word that was there.
+# With FS_BRANCH=1 run exposure_steps.py BEFORE this tool.
 #
 # Where the mark is: the border-clearing shaders that run after every pass zero the top row, the
 # left column and the cells just past the valid width and height of each tensor, and the passes
@@ -276,7 +280,7 @@ else:
                             f'{q}blk = OpSelect %uint {q}yb %fs_pb1 %fs_pb0', f'{q}rw = OpIMul %uint {q}yr %fs_mrow', f'{q}a1 = OpIAdd %uint %fs_mbase {q}rw', f'{q}a2 = OpIAdd %uint {q}a1 {q}blk',
                             f'{q}idx = OpIAdd %uint {q}a2 {q}x'] + word_ptr(q, f'{q}idx') + [f'{q}old = OpAtomicUMax %uint {q}w %fs_u1 %fs_u0 {q}v']
         mv_code += ['OpBranch %fs_mM', '%fs_mM = OpLabel']
-    BRANCH = os.environ.get('FS_BRANCH', '0') == '1'
+    BRANCH = os.environ.get('FS_BRANCH', '1') == '1'
     out, n_st = [], 0
     if BRANCH:
         # FS_BRANCH=1: one branch on "this frame is skipped" around the shader's work, each side with its own copy of the

@@ -1467,6 +1467,146 @@ Not measured: any game for the picture, the quality set with the HDR option, and
 cost begins to outrun the foliage gain.
 
 
+## A prepass in two copies, and a fold in the last shader (release `dll-2026-10-12.2`)
+
+Two changes: the first makes skipped frames cheaper, the second steadies film grain. Timings are from an RX 7800 XT under
+Linux, 4K output from 2560x1440, one run each in both slot orders unless stated; quality figures are single runs in the test rig.
+
+### Where a skipped frame's time went
+
+A skipped frame costs the prepass, twelve model passes that return at once, and the postpass. Each was timed alone:
+
+| Shader alone, 4K | Frame that runs the network | Skipped frame |
+|---|---|---|
+| Prepass, AMD's (the exact files) | 0.435 ms | |
+| Prepass, lossy, up to `dll-2026-10-12` | 0.49 ms | 0.54 ms |
+| Prepass, lossy, this release | 0.433 ms | 0.297 ms |
+| Postpass, lossy | 0.66 ms | 0.545 ms |
+
+Up to `dll-2026-10-12` the prepass did not get cheaper on a skipped frame, it got dearer. To leave the model's input as it was,
+every one of its stores read the word that was there and wrote it back, chosen by a value the compiler cannot know in advance. So
+all the work that computes the model's input still ran, plus one load per store. The code that records the picture's motion for the postpass sat in the same single copy. The frames that run the network
+paid for both: 0.06 ms over AMD's prepass.
+
+On the postpass side nothing comparable was found. On a skipped frame it already skips its own small network (0.545 against
+0.66 ms). Removing its rules one at a time: the test for particles and sparks costs 0.05 ms, the history clamp 0.015, the dead
+band 0.005, the "who was here a frame ago" record nothing. Each of those is there for a picture fault, so they stay.
+
+### Two copies under one branch
+
+`frameskip.py` now puts one branch on "this frame is skipped" around the prepass's work, with a copy of the code on each side:
+
+- **Frames that run the network** get AMD's code unchanged: plain stores, no motion record.
+- **Skipped frames** get a copy without the stores into the model's input. The compiler then drops everything that only fed
+  those stores. What is left writes the history and exposure images as before and holds the motion record.
+
+The branch goes inside the shader's leading tests ("is this thread inside the picture"), which stay single. In the DLL's
+shaders the same split is made right after the shader's first block.
+
+The exposure rule of `dll-2026-10-11.5` (`exposure_steps.py`) now has to run before `frameskip.py`, not after it: it expects
+one copy of the code and stops if it finds two.
+
+### A rounding difference, found on the way
+
+The new files were expected to give the old files' picture byte for byte. In 42 of 48 rig comparisons they did. The six that
+differed were the moving scenes at 1440p and 5K output (render sizes 1506x846 and 3012x1694).
+
+The cause was in the old form, not the new one. With the motion record in the one copy that also serves the frames that run
+the network, the reprojection values have more uses, and the graphics driver's compiler then rounds a few of them differently.
+Since `dll-2026-10-06.6`, which introduced the record, those frames therefore did not get exactly AMD's prepass result at some
+render sizes. The test: AMD's exact files with only the lossy prepass swapped in, made never to skip, against AMD's exact files.
+
+| Moving scene, 1440p output, final picture against the exact files | Values that differ | Mean difference | Largest |
+|---|---|---|---|
+| Old form | 88% | 0.00012 | 0.19 |
+| Old form without the motion record | none | | |
+| Two copies | none | | |
+
+The two-copy form was then run the same way at 1080p, 1440p, 4K and 5K output, with auto exposure off and on (without the
+exposure rule, which changes the stored history on purpose): identical to AMD's in all eight runs, 8 frames each. Two other
+suspects were ruled out: the order of the two tools, and the mere presence of an extra branch.
+
+So byte equality with the release before is not the test for this change. The full set of rig checks is, and it is level:
+of 100 row pairs over both auto-exposure settings none moved by more than 1% except one ghost-scene row with auto exposure on
+(outline error 5.75 to 5.38, an improvement).
+
+### In the timing kit and in a game
+
+| Whole upscaler, ms per frame (Windows timing kit under Proton, one run, each DLL timed twice in opposite order) | AMD's shaders | `dll-2026-10-12` | This release |
+|---|---|---|---|
+| 4K: average (network frame / skipped frame) | 4.90 | 2.36 (3.25 / 1.46) | 2.22 (3.20 / 1.23) |
+| 1440p | 2.18 | 1.09 (1.50 / 0.66) | 1.02 (1.48 / 0.54) |
+| 1080p | 1.04 | 0.66 (0.92 / 0.35) | 0.64 (0.92 / 0.31) |
+
+Shadow of the Tomb Raider's benchmark at 4K Balanced, one run each on the same day, the Linux files: 18,682 frames, 120 FPS and
+an overlay average of 2.14 ms with `dll-2026-10-12`'s; 18,879 frames, 122 FPS and 2.00 ms with the two-copy prepass (1.05% more
+frames). That run did not have the fold below.
+
+A frame that runs the network and a skipped one are now about 2.0 ms apart at 4K instead of 1.8 in this kit.
+
+### Folding the postpass's own layer
+
+The postpass starts with a 3x3 convolution over the model's 16-channel output: nine taps, four weight words per tap for each
+of 16 outputs. [Weight folding](../lossy#looking-for-more-the-postpass-and-the-smaller-layers-2026-10-06) was tried on it on
+2026-10-06 for speed, with 9 to 24 of the 36 words per output, and dropped: the background got much less steady for 0.01 ms.
+That was before frame skip, and with heavier folds than tried now.
+
+For speed the verdict stands. On today's postpass 9 words save 0.03 ms on a frame that runs the network, 18 save 0.06, 24 save
+0.07 to 0.08, and more saves nothing; 3 words save about 0.01, which is within what the order of the two timing slots changes.
+
+For film grain it does not. Change per frame on a still picture with grain, 4K, auto exposure off:
+
+| Words folded of 36 | Grain 6 of 255 | Grain 10 | Grain 15 | Flat area at rest | Thin wire, slow pan | Bright dots in swaying foliage |
+|---|---|---|---|---|---|---|
+| none (`dll-2026-10-12`) | 0.460 | 1.291 | 2.124 | 0.053 | 10.3 | 0.97 |
+| 2 | 0.490 | 1.251 | 1.976 | 0.055 | 10.4 | 0.91 |
+| 3 (this release) | 0.330 | 1.028 | 1.608 | 0.058 | 11.0 | 1.00 |
+| 4 | 0.289 | 0.914 | 1.495 | 0.059 | 12.1 | 1.05 |
+| 5 | 0.379 | 1.117 | 1.738 | 0.059 | 11.9 | 1.06 |
+| 6 | 0.369 | 1.083 | 1.661 | 0.058 | 12.4 | 1.14 |
+| 9 | 0.281 | 0.957 | 1.545 | 0.069 | 15.1 | 1.20 |
+| AMD's shaders | 0.785 | 1.724 | 2.549 | | 7.2 | 0.57 |
+
+- **It is not a dial.** Two words do almost nothing, the gain arrives with the third, four is the best on grain, five and six
+  are worse again. The costs do rise steadily. We have no explanation for the steps;
+  [the earlier look at why folding steadies a picture](#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114)
+  found the same erratic behavior in the model's first pass.
+- **It is not luck of the grain pattern.** With two other random seeds, grain of 6 reads 0.460 and 0.460 without the fold,
+  0.331 and 0.329 with three words, 0.287 and 0.288 with nine.
+- **It is not in a few outputs.** Folding 9 words in one quarter of the 16 outputs at a time gives 0.441, 0.444, 0.487 and
+  0.454 for grain of 6, against 0.281 for all four quarters together.
+- **Three was chosen** as the lightest setting that has the gain. Four buys about 10% more steadiness in grain for a wire that
+  flickers 17% more than without the fold instead of 7%. Nine also makes fine detail at rest and thin vertical detail less
+  steady and costs 0.05 dB on the still picture; 18 costs far more.
+
+### The release build against `dll-2026-10-12`
+
+Both changes together move exactly the rows the fold moves alone. Auto exposure off / on, 4K, one run:
+
+| | AMD's shaders | `dll-2026-10-12` | This release |
+|---|---|---|---|
+| Grain 6 of 255: change per frame | 0.785 / 0.552 | 0.460 / 0.381 | 0.330 / 0.295 |
+| Grain 10 | 1.724 / 0.357 | 1.291 / 0.383 | 1.028 / 0.331 |
+| Grain 15 | 2.549 / 0.484 | 2.124 / 0.513 | 1.608 / 0.516 |
+| Flat area at rest: change per frame | | 0.053 / 0.097 | 0.058 / 0.100 |
+| Thin vertical detail at rest: change per frame | | 0.316 / 0.344 | 0.310 / 0.372 |
+| A thin wire in a slow pan, skipped frames: change per frame | 7.16 / 6.79 | 10.34 / 7.84 | 11.04 / 8.05 |
+| Glints: brightest stray pixel, levels over the true picture | 100 / 113 | 91 / 148 | 185 / 142 |
+| Glints: pixels more than 20 levels too bright, per million | 1,460 / 1,160 | 1,462 / 1,082 | 1,419 / 1,065 |
+| Fireflies: pixels more than 10 levels too bright, per million | 370 / 137 | 417 / 174 | 434 / 182 |
+| Slow brightening, mid-gray flat area: frames behind | 0.89 / 0.77 | 1.31 / 1.14 | 1.20 / 1.09 |
+| Still foliage: isolated bright dots per thousand dark pixels | 1.72 / 1.76 | 1.79 / 1.78 | 1.68 / 1.70 |
+
+The moving scene at 1080p, 1440p and 4K, 30 to 120 FPS, the ghost and plate scenes, particles, rain, swaying foliage and the
+still picture's accuracy stay within a few percent.
+
+The DLL's shaders are built by `frameskip_dxil.py` and the new `wfold_post_dxil.py`. Both fold tools read the same 576 weight
+words from all 48 postpass versions and hold the same words after folding. The lossy DLLs give the Linux files' output byte for
+byte in 48 of 48 rig runs. With `FS_BRANCH=0` and without the fold the tools rebuild `dll-2026-10-12`'s Linux files and both
+DLLs' shader sets byte for byte.
+
+Not measured: the fold in a game, the quality set with the HDR option, and anything on Windows itself.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
@@ -1559,9 +1699,12 @@ prepass would reach into the kept output.
 
 **On a skipped frame**
 
-- the prepass leaves the model's input tensor as it is (each store writes back the word that was
-  there), so the model's last output stays in place, and its first thread writes a two-word mark
-  into the working buffer; on other frames it clears the mark;
+- the prepass leaves the model's input tensor as it is, so the model's last output stays in place,
+  and its first thread writes a two-word mark into the working buffer; on other frames it clears
+  the mark. Since release `dll-2026-10-12.2` the prepass holds its work twice under one branch, and
+  the copy for skipped frames has no stores into the tensor at all; before that every store wrote
+  back the word that was there
+  ([why that changed](#a-prepass-in-two-copies-and-a-fold-in-the-last-shader-release-dll-2026-10-122));
 - every model pass checks the mark first and returns at once when it is set. A skipped pass costs
   0.023, 0.009 or 0.004 ms depending on its tensor size, 0.13 ms for all twelve against 1.83 ms;
 - the postpass runs as usual, apart from the correction described above.
@@ -1626,8 +1769,9 @@ And each output pixel depends on about 50 pixels around it.
 | `motionpost_dxil.py` | the same for the DLL's postpass (DXIL text) |
 | `skipblend.py` | the shimmer correction, the history clamp, the edge guard and the uncovered-pixel flag for the postpass (SPIR-V text); run it after `motionpost.py` and before the store rewrite |
 | `skipblend_dxil.py` | the same for the DLL's postpass (DXIL text) |
-| `exposure_steps.py` | since release `dll-2026-10-11.5`: the prepass's exposure re-encoding changes the stored history only by whole 16-bit steps (SPIR-V text); run it on the finished prepass |
+| `exposure_steps.py` | since release `dll-2026-10-11.5`: the prepass's exposure re-encoding changes the stored history only by whole 16-bit steps (SPIR-V text); since release `dll-2026-10-12.2` run it on the prepass before `frameskip.py` |
 | `exposure_steps_dxil.py` | the same for the DLL's prepass (DXIL text) |
+| [`../lossy/wfold_post.py`](../lossy/wfold_post.py), `wfold_post_dxil.py` | since release `dll-2026-10-12.2` the lossy build runs these on AMD's postpass with 3 words (`wfold_post.py 3`), before `motionpost.py` |
 | `weight_view.py` | test-rig probe: the postpass shows the network's weight for the new frame in place of the picture (SPIR-V text; run it after `skipblend.py`) |
 | `store_gate.py` | test-rig probe: the postpass stores the recurrent image, the history image or both on every other frame only, with the network running on every frame |
 | [`../lossy/wfold.py`](../lossy/wfold.py), `wfold_dxil.py` | since release `dll-2026-10-10` the lossy build runs these on pass 1 with 2 words (`wfold.py 2`), and since `dll-2026-10-11` also on pass 10 with 18 and pass 12 with 4, before the exact rewrites and `frameskip.py`; since `dll-2026-10-11.4` only pass 10 was folded, and since `dll-2026-10-12` pass 1 is again, by 3 words in three of its four channel groups (`wfold.py 3 0,1,2`) |
