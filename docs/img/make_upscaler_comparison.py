@@ -28,13 +28,13 @@ MEASURES = [
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
 
 
-def score(kind, vs):
-    """each upscaler's value as a share of the best of the five: 1 = the best; for dB, the ratio of the errors"""
+def score(kind, vs, best=None):
+    """each value as a share of the best (of vs, or the one given): 1 = the best; for dB, the ratio of the errors"""
     if kind == 'db':
-        b = max(vs); return [10 ** ((v - b) / 20) for v in vs]
+        b = max(vs) if best is None else best; return [10 ** ((v - b) / 20) for v in vs]
     if kind == 'up':
-        b = max(vs); return [v / b for v in vs]
-    b = min(vs); return [b / v for v in vs]
+        b = max(vs) if best is None else best; return [v / b for v in vs]
+    b = min(vs) if best is None else best; return [b / v for v in vs]
 
 
 SCORES = [score(m[3], m[4]) for m in MEASURES]      # [measure][upscaler]
@@ -116,20 +116,26 @@ R_MEASURES = [
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.024], '{:.3f}'),
     ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.76, 2.36, 2.36], '{:.2f} ms'),
 ]
-R_SCORES = [score(m[3], m[4]) for m in R_MEASURES]
+# One scale for every radar chart: a spoke that the comparison page's chart has too is scaled by the best of its five upscalers, so a build has the same
+# shape in both charts. Film grain is on this chart only: there the best of the three.
+BEST = {m[0]: (min if m[3] == 'down' else max)(m[4]) for m in MEASURES}
+R_SCORES = [score(m[3], m[4], BEST.get(m[0])) for m in R_MEASURES]
+assert all(v <= 1 for sc in R_SCORES for v in sc), 'a build of the front-page chart beats the best of the five: the scale needs it'
 
 
 def release_radar(t):
     lab = ("Two radar charts with nine spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this "
-           "release's lossy DLL as a dashed outline. On every spoke the best of the three reaches the outer ring, so a larger shape is better. "
+           "release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers "
+           "compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. "
            + ' '.join(f'{m[1]} ({m[2]}): ' + ', '.join(f'{R_NAMES[k]} {m[5].format(m[4][k])}' for k in range(3)) + '.' for m in R_MEASURES))
-    H = 446
-    o = frame(H, lab, "This release's lossy DLL beside the previous one and AMD's FSR 4.1.1", 'Outer ring: the best of the three on that measure. Bigger is better; a dent is a weakness.', t)
+    H = 460
+    o = frame(H, lab, "This release's lossy DLL beside the previous one and AMD's FSR 4.1.1", 'Same scale as the upscaler comparison: the outer ring is the best of the five upscalers there. Bigger is better.', t)
     short = [m[0] for m in R_MEASURES]
     for cx, k, ref, title in ((196, 2, 1, 'Lossy DLL, this release'), (566, 0, 2, "AMD's FSR 4.1.1")):
         o.append(text(cx, 92, title, t, 13, 'ink', 'middle', 600))
         radar_panel(o, t, cx, 240, 100, k, short, 10, ref=ref, values=True, M=R_MEASURES, SC=R_SCORES, ours=k > 0, was=1 if k == 2 else None)
-    o += [text(24, H - 42, "Dashed, left: the previous release (dll-2026-10-11.7), its figure in brackets where it differs. Dashed, right: this release's lossy DLL.", t, 10, 'muted'),
+    o += [text(24, H - 56, 'Outer ring: FSR 4.1.1, except uncovered (this release), wire (HelixSR), at rest and speed (FSR 3.1) and film grain (previous release, best of these three).', t, 10, 'muted'),
+          text(24, H - 42, "Dashed, left: the previous release (dll-2026-10-11.7), its figure in brackets where it differs. Dashed, right: this release's lossy DLL.", t, 10, 'muted'),
           text(24, H - 28, 'Foliage: leaves swaying without motion vectors, the mean over three sway speeds of the error on frames the lossy DLL skips the network for.', t, 10, 'muted'),
           text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: 2.36 ms is an earlier lossy build\'s time; it was not measured again for these two.', t, 10, 'muted')]
     return o
