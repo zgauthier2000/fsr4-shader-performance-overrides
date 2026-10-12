@@ -14,13 +14,13 @@ KEYS = ['fsr4', 'lossy', 'fsr3', 'helix', 'xess']
 # The measures of the radar charts, in NAMES order. kind: 'db' = accuracy in dB (higher is better), 'up' = higher is better, 'down' = lower is better.
 # (short label, full name, unit, kind, values, format)
 MEASURES = [
-    ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.31, 39.94, 41.99, 42.14], '{:.2f} dB'),
+    ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.30, 39.94, 41.99, 42.14], '{:.2f} dB'),
     ('Background', 'Moving background: accuracy', 'dB', 'db', [49.27, 49.07, 47.95, 46.92, 47.70], '{:.2f} dB'),
     ('Railing', 'Thin railing in motion: accuracy', 'dB', 'db', [41.82, 41.34, 38.36, 40.12, 40.86], '{:.2f} dB'),
     ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 36.48, 29.22, 27.11, 30.20], '{:.2f} dB'),
     ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 40, 79, 50], '{:.0f}%'),
-    ('Foliage', 'Leaves swaying without motion vectors: error', 'of 255', 'down', [12.1, 18.6, 16.8, 15.5, 15.5], '{:.1f}'),
-    ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.014, 0.020, 0.084], '{:.3f}'),
+    ('Foliage', 'Leaves swaying without motion vectors: error', 'of 255', 'down', [12.1, 18.7, 16.8, 15.5, 15.5], '{:.1f}'),
+    ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.026, 0.014, 0.020, 0.084], '{:.3f}'),
     ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 9.6, 8.2, 5.6, 10.1], '{:.1f}'),
     ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.76, 2.36, 1.16, 1.99, 4.98], '{:.2f} ms'),
 ]

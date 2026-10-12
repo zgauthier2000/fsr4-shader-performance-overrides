@@ -3,7 +3,7 @@
 # make_comparison_crops.py <dir>: the comparison images of docs/exact-vs-lossy.md (cmp-still.png,
 # cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png, cmp-plate.png, cmp-foliage-dots.png, cmp-rain.png), from test-rig output (research/pruning: fsr4img with
 # gen_inputs.py / gen_motion.py, 4K Balanced, 40 frames, the last 8 kept). <dir> holds, for X = exact (the main
-# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-11.7):
+# files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-12):
 #   still_X/                 output_3840x2160_f032..039.raw (RGBA16F), and still_truth.npy, the true 4K image
 #   wires_exact/, wires_rel/ (the lossy build of release dll-2026-10-10), wires_lossy/, wires_truth_037.npy   frame 37 of the thin-wire scene
 #   still_r9/, grain_X/, grain_r9/   the same frames with the lossy build of release dll-2026-10-09 (r9), and of the still scene

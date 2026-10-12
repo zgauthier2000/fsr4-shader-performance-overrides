@@ -111,12 +111,13 @@ More games and resolutions: [all results](docs/results.md).
 > - **The price:** film grain flickers more than in the last releases. If foliage did not bother you and your games use
 >   film grain, there is no need to update.
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
->   timing for all five, with one chart per upscaler and side-by-side crops. It was made with the build of
->   `dll-2026-10-11.7`; this release differs from it in the foliage and grain figures given below.
+>   timing for all five, redone with this release, with one chart per upscaler and side-by-side crops. It shows where the
+>   lossy DLL leads (accuracy close to FSR 4, areas a moving object has just uncovered, and now slowly swaying foliage,
+>   where it is second only to FSR 4) and where it is weakest (fast-moving foliage, a thin wire in a camera pan, film grain).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/cmp5-radar2-dark.svg">
-  <img src="docs/img/cmp5-radar2-light.svg" width="760" alt="Two radar charts with nine spokes each, the lossy DLL and AMD's FSR 4.1.1. On every spoke the best of five upscalers would reach the outer ring, so a larger shape is better. Lossy against FSR 4.1.1: still picture 44.31 against 44.33 dB, moving background 49.07 against 49.27 dB, thin railing 41.34 against 41.82 dB, just-uncovered areas 36.48 against 34.48 dB, tiny fast sparks shown 74% against 83%, swaying foliage error 18.6 against 12.1 of 255, change per frame at rest 0.024 against 0.037, thin wire in a slow pan 9.6 against 7.2, time per call at 4K 2.36 against 4.76 ms.">
+  <img src="docs/img/cmp5-radar2-light.svg" width="760" alt="Two radar charts with nine spokes each, the lossy DLL and AMD's FSR 4.1.1. On every spoke the best of five upscalers would reach the outer ring, so a larger shape is better. Lossy against FSR 4.1.1: still picture 44.30 against 44.33 dB, moving background 49.07 against 49.27 dB, thin railing 41.34 against 41.82 dB, just-uncovered areas 36.48 against 34.48 dB, tiny fast sparks shown 74% against 83%, swaying foliage error 18.7 against 12.1 of 255, change per frame at rest 0.026 against 0.037, thin wire in a slow pan 9.6 against 7.2, time per call at 4K 2.36 against 4.76 ms.">
 </picture>
 
 Made-up test scenes on one graphics card; [the comparison page](docs/upscaler-comparison.md) has the same chart for FSR 3.1, HelixSR and XeSS, the figures, and the scenes the lossy DLL does worst in.
