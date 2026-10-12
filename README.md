@@ -118,7 +118,7 @@ More games and resolutions: [all results](docs/results.md).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/cmp5-radar2-dark.svg">
-  <img src="docs/img/cmp5-radar2-light.svg" width="760" alt="Two radar charts with nine spokes each, the lossy DLL and AMD's FSR 4.1.1. On every spoke the best of five upscalers would reach the outer ring, so a larger shape is better. Lossy against FSR 4.1.1: still picture 44.30 against 44.33 dB, moving background 49.07 against 49.27 dB, thin railing 41.34 against 41.82 dB, just-uncovered areas 36.48 against 34.48 dB, tiny fast sparks shown 74% against 83%, swaying foliage error 18.7 against 12.1 of 255, change per frame at rest 0.026 against 0.037, thin wire in a slow pan 9.6 against 7.2, time per call at 4K 2.36 against 4.76 ms.">
+  <img src="docs/img/cmp5-radar2-light.svg" width="760" alt="Two radar charts with nine spokes each, the lossy DLL and AMD's FSR 4.1.1. On every spoke the best of five upscalers would reach the outer ring, so a larger shape is better. Lossy against FSR 4.1.1: still picture 44.26 against 44.33 dB, moving background 49.00 against 49.27 dB, thin railing 41.34 against 41.82 dB, just-uncovered areas 36.53 against 34.48 dB, tiny fast sparks shown 74% against 83%, swaying foliage error 18.7 against 12.1 of 255, change per frame at rest 0.024 against 0.037, thin wire in a slow pan 10.3 against 7.2, time per call at 4K 2.36 against 4.76 ms.">
 </picture>
 
 Made-up test scenes on one graphics card; [the comparison page](docs/upscaler-comparison.md) has the same chart for FSR 3.1, HelixSR and XeSS, the figures, and the scenes the lossy DLL does worst in.
