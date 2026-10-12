@@ -21,7 +21,8 @@ for l in L:
 glsl = next(m[1] for l in L for m in [re.match(r'\s*(%\w+) = OpExtInstImport "GLSL.std.450"', l)] if m)
 raw = [m[1] for l in L for m in [re.match(r'\s*%\w+ = OpFMul %float (%\w+) %float_12_2887039$', l)] if m]
 first = next((i for i, l in enumerate(L) if re.search(r'OpFMul %float %\w+ %float_12_2887039$', l)), None)
-if first is None or len(raw) != 3: sys.stderr.write('exposure_steps: no exposure re-encoding in this version\n'); sys.exit(3)
+if first is None: sys.stderr.write('exposure_steps: no exposure re-encoding in this version\n'); sys.exit(3)
+if len(raw) != 3: sys.exit(f'exposure_steps: {len(raw)} re-encoded channels instead of 3 (run this before frameskip.py with FS_BRANCH=1)')
 enc = []
 for l in L[first:]:
     m = re.match(rf'\s*(%\w+) = OpExtInst %float {glsl} NMax (%\w+) %float_0$', l)

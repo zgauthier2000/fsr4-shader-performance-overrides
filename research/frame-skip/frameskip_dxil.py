@@ -115,8 +115,9 @@ else:
         '  %fs.nx = select i1 %fs.skip, i32 %fs.ox, i32 %fs.jb', '  %fs.ny = select i1 %fs.skip, i32 %fs.oy, i32 %fs.jy',
         f'  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle {H}, i32 {RELAY}, i32 undef, i32 %fs.nx, i32 %fs.ny, i32 undef, i32 undef, i8 3, i32 4)',
         '  br label %fs.cont', '', 'fs.cont:']
+    BRANCH = os.environ.get('FS_BRANCH', '0') == '1'       # two copies of the shader's work under one branch on skip, as in frameskip.py
     out, n_st = [], 0
-    for n, l in enumerate(L):
+    for n, l in enumerate(L if not BRANCH else []):
         m = re.match(r'(\s*)call void @dx\.op\.rawBufferStore\.i32\(i32 140, %dx\.types\.Handle (%[\w.]+), i32 ([^,]+), i32 undef, i32 ([^,]+), i32 ([^,]+), i32 ([^,]+), i32 ([^,]+), i8 (\d+), i32 4\)', l)
         if m and n > split:
             n_st += 1
@@ -135,7 +136,7 @@ else:
         out.append(l)
         if n == split:
             out += code
-    if not n_st:
+    if not n_st and not BRANCH:
         die('no tensor stores found in the prepass')
     # Motion and nearest depth for the postpass of a skipped frame, as in frameskip.py: one entry (two words) per 4x4 output
     # pixels, written by the thread of the block's first pixel, into the second region of the working buffer.
@@ -210,14 +211,46 @@ else:
                         f'  {q}rw = mul i32 {q}yr, {MR}', f'  {q}a1 = add i32 {q}rw, {MB}', f'  {q}a2 = add i32 {q}a1, {q}blk', f'  {q}x4 = shl i32 {q}x, 2', f'  {q}adr = add i32 {q}a2, {q}x4',
                         f'  {q}old = call i32 @dx.op.atomicBinOp.i32(i32 78, %dx.types.Handle {H}, i32 7, i32 {q}adr, i32 undef, i32 undef, i32 {q}v)']
     mv_code += ['  br label %fs.mM', '', 'fs.mM:']
-    # put it after the line L[mv_at] of the output; later phis that named the block now name fs.mM
-    marker = L[mv_at]
-    i = next(k for k, l in enumerate(out) if l == marker)
-    tail = out[i + 1:]
-    for k, l in enumerate(tail):
-        if ' = phi ' in l:
-            tail[k] = re.sub(rf'{re.escape(blk if blk != "%fs.cont" else "%0")} \]', '%fs.mM ]', l)
-    out = out[:i + 1] + mv_code + tail
+    if BRANCH:
+        # FS_BRANCH=1 (see frameskip.py): the rest of the function twice. A frame that runs the model gets AMD's code
+        # unchanged; a skipped frame gets a copy without the tensor stores, which holds the motion store. The copy's
+        # values and blocks are named (k.<old name>), so the numbering of the unnamed ones stays as it is.
+        fe = next(n for n in range(split + 1, len(L)) if L[n] == '}')
+        blk0 = blk if blk != '%fs.cont' else '%0'
+        ren = {}
+        for n in range(split + 1, fe):
+            m = re.match(r'\s*(%[\w.]+) = ', L[n]) or re.match(r'; <label>:()(\d+)', L[n]) or re.match(r'()([A-Za-z_.][\w.]*):', L[n])
+            if m:
+                v = m[1] or '%' + m[2]
+                ren[v] = '%k.' + v[1:]
+        tok = lambda l: re.sub(r'%[\w.]+', lambda m: ren.get(m[0], m[0]), l)
+        run, skp = [], []
+        for n in range(split + 1, fe):
+            l = L[n]
+            run.append(re.sub(r'%0 \]', '%fs.R ]', l) if ' = phi ' in l else l)
+            if re.match(r'\s*call void @dx\.op\.rawBufferStore\.i32\(', l):
+                n_st += 1
+                continue
+            if ' = phi ' in l:
+                if n > mv_at:
+                    l = re.sub(rf'{re.escape(blk0)} \]', '%fs.mM ]', l)
+                l = re.sub(r'%0 \]', '%fs.S ]', l)
+            m = re.match(r'; <label>:(\d+)', l) or re.match(r'([A-Za-z_.][\w.]*):', l)
+            skp.append(f'k.{m[1]}:' if m else tok(l))
+            if n == mv_at:
+                skp += [tok(c) for c in mv_code]
+        if not n_st:
+            die('no tensor stores found in the prepass')
+        out = L[:split + 1] + code + ['  br i1 %fs.skip, label %fs.S, label %fs.R', '', 'fs.R:'] + run + ['', 'fs.S:'] + skp + L[fe:]
+    else:
+        # put it after the line L[mv_at] of the output; later phis that named the block now name fs.mM
+        marker = L[mv_at]
+        i = next(k for k, l in enumerate(out) if l == marker)
+        tail = out[i + 1:]
+        for k, l in enumerate(tail):
+            if ' = phi ' in l:
+                tail[k] = re.sub(rf'{re.escape(blk if blk != "%fs.cont" else "%0")} \]', '%fs.mM ]', l)
+        out = out[:i + 1] + mv_code + tail
     if need_at:
         grp = next((m[1] for l in out for m in [re.match(r'attributes (#\d+) = \{ nounwind \}\s*$', l)] if m), None) or die('no plain "nounwind" attribute group')
         j = next(k for k, l in enumerate(out) if l.startswith('declare float @dx.op.unary.f32('))
@@ -226,7 +259,7 @@ else:
         j = next(k for k, l in enumerate(out) if l.startswith('declare float @dx.op.unary.f32('))
         out[j:j] = [f'declare i32 @dx.op.bitcastF32toI32(i32, float) {out[j].rsplit(" ", 1)[1]}', '']
     sys.stderr.write(f"frameskip_dxil: motion store after line {mv_at}, depth {'yes' if dc else 'no'}\n")
-    sys.stderr.write(f'frameskip_dxil: {n_st} tensor stores made conditional, row size {S}\n')
+    sys.stderr.write(f"frameskip_dxil: {n_st} tensor stores {'left out of the skipped frame\'s copy' if BRANCH else 'made conditional'}, row size {S}\n")
 # the rest of the entry block is now the block fs.cont
 res, past = [], False
 LAST = 'fs.cont2' if 'fs.cont2:' in out else 'fs.cont'

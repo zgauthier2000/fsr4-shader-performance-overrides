@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# wfold_post.py <words to drop per output channel> < postpass.spvasm > out.spvasm
+# wfold_post.py <words to drop per output channel> [output channels, e.g. 0,1,2,3] < postpass.spvasm > out.spvasm
 # wfold_post.py info < postpass.spvasm
+# wfold_post.py weights < postpass.spvasm
 #
 # NOT bit-exact. The postpass form of wfold.py. The postpass starts with a 3x3 convolution over
 # the model's 16-channel output: nine taps, each 4 weight words (four input channels per word) for
@@ -57,6 +58,9 @@ def word(b):
     return sum((max(-128, min(127, x)) & 0xff) << (8 * k) for k, x in enumerate(b))
 
 
+if sys.argv[1] == 'weights':               # the 576 weight words, to compare with wfold_post_dxil.py's
+    print('\n'.join(f'{i} {t} {g} {W[(i, t, g)][1]}' for i in range(16) for t in range(9) for g in range(4)))
+    sys.exit(0)
 if sys.argv[1] == 'info':
     z = sum(1 for _, v in W.values() if v == 0)
     print(f'3x3 layer: 9 taps x 16 output channels x 4 words = 576 words ({z} already zero); {len(dots)} constant-weight dot products in all')
@@ -66,10 +70,13 @@ if sys.argv[1] == 'info':
     sys.exit(0)
 
 K = int(sys.argv[1])
+only = set(int(x) for x in sys.argv[2].split(',')) if len(sys.argv) > 2 else None      # fold these output channels only
 pos = [(t // 3, t % 3) for t in range(9)]
 new_consts = {}
 dropped = changed = 0
 for i in range(16):
+    if only is not None and i not in only:
+        continue
     B = {(t, g): bytes4(W[(i, t, g)][1]) for t in range(9) for g in range(4)}
     norm = {k: sum(x * x for x in b) for k, b in B.items()}
     drop, kept = [], {g: 9 for g in range(4)}

@@ -12,7 +12,8 @@ for l in L:
 K12, K08 = '0x402893D100000000', '0x3FB4D50600000000'
 raw = [m[1] for l in L for m in [re.match(rf'\s*%[\w.]+ = fmul fast float (%[\w.]+), {K12}\s*$', l)] if m]
 first = next((i for i, l in enumerate(L) if re.search(rf'fmul fast float %[\w.]+, {K12}\s*$', l)), None)
-if first is None or len(raw) != 3: sys.stderr.write('exposure_steps_dxil: no exposure re-encoding in this version\n'); sys.exit(3)
+if first is None: sys.stderr.write('exposure_steps_dxil: no exposure re-encoding in this version\n'); sys.exit(3)
+if len(raw) != 3: sys.exit(f'exposure_steps_dxil: {len(raw)} re-encoded channels instead of 3 (run this before frameskip_dxil.py with FS_BRANCH=1)')
 enc = []
 for l in L[first:]:
     m = re.match(r'\s*(%[\w.]+) = call float @dx\.op\.binary\.f32\(i32 35, float (%[\w.]+), float 0\.000000e\+00\)', l)
