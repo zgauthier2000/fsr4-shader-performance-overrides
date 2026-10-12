@@ -17,6 +17,7 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **HollowVoid** (Intel Arc B580, Windows)
 - **FireGate13** (Steam Deck's graphics chip, Windows)
 - **bombaygypsy** (Radeon RX 6700 XT, Windows)
+- **Vinicius** (Radeon RX 6600, Windows)
 
 ## How to be listed, or taken off
 
