@@ -1,102 +1,94 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="446" viewBox="0 0 760 446" role="img" aria-label="Two radar charts with ten spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. On every spoke the best of the three reaches the outer ring, so a larger shape is better. Still picture: accuracy (dB): FSR 4.1.1 44.33 dB, the lossy DLL of dll-2026-10-11.7 44.31 dB, the lossy DLL of dll-2026-10-12 44.26 dB. Moving background: accuracy (dB): FSR 4.1.1 49.27 dB, the lossy DLL of dll-2026-10-11.7 49.07 dB, the lossy DLL of dll-2026-10-12 49.00 dB. Areas a moving object has just uncovered: accuracy (dB): FSR 4.1.1 34.48 dB, the lossy DLL of dll-2026-10-11.7 36.48 dB, the lossy DLL of dll-2026-10-12 36.53 dB. Tiny fast sparks: share of their brightness shown (%): FSR 4.1.1 83%, the lossy DLL of dll-2026-10-11.7 74%, the lossy DLL of dll-2026-10-12 74%. Leaves swaying without motion vectors: error (of 255): FSR 4.1.1 12.1, the lossy DLL of dll-2026-10-11.7 18.6, the lossy DLL of dll-2026-10-12 18.7. Leaves swaying at half that speed: error (of 255): FSR 4.1.1 10.2, the lossy DLL of dll-2026-10-11.7 13.5, the lossy DLL of dll-2026-10-12 12.0. Still picture with grain of 6 of 255: change per frame (of 255): FSR 4.1.1 0.785, the lossy DLL of dll-2026-10-11.7 0.342, the lossy DLL of dll-2026-10-12 0.460. Thin wire under a slow pan: change per frame (of 255): FSR 4.1.1 7.2, the lossy DLL of dll-2026-10-11.7 9.6, the lossy DLL of dll-2026-10-12 10.3. Still picture: change per frame (of 255): FSR 4.1.1 0.037, the lossy DLL of dll-2026-10-11.7 0.024, the lossy DLL of dll-2026-10-12 0.024. Time per upscale call at 3840x2160 (ms): FSR 4.1.1 4.76 ms, the lossy DLL of dll-2026-10-11.7 2.36 ms, the lossy DLL of dll-2026-10-12 2.36 ms.">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="446" viewBox="0 0 760 446" role="img" aria-label="Two radar charts with nine spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. On every spoke the best of the three reaches the outer ring, so a larger shape is better. Still picture: accuracy (dB): FSR 4.1.1 44.33 dB, the lossy DLL of dll-2026-10-11.7 44.31 dB, the lossy DLL of dll-2026-10-12 44.26 dB. Moving background: accuracy (dB): FSR 4.1.1 49.27 dB, the lossy DLL of dll-2026-10-11.7 49.07 dB, the lossy DLL of dll-2026-10-12 49.00 dB. Areas a moving object has just uncovered: accuracy (dB): FSR 4.1.1 34.48 dB, the lossy DLL of dll-2026-10-11.7 36.48 dB, the lossy DLL of dll-2026-10-12 36.53 dB. Tiny fast sparks: share of their brightness shown (%): FSR 4.1.1 83%, the lossy DLL of dll-2026-10-11.7 74%, the lossy DLL of dll-2026-10-12 74%. Leaves swaying without motion vectors, mean of three sway speeds: error (of 255): FSR 4.1.1 11.0, the lossy DLL of dll-2026-10-11.7 15.7, the lossy DLL of dll-2026-10-12 14.6. Still picture with grain of 6 of 255: change per frame (of 255): FSR 4.1.1 0.785, the lossy DLL of dll-2026-10-11.7 0.342, the lossy DLL of dll-2026-10-12 0.460. Thin wire under a slow pan: change per frame (of 255): FSR 4.1.1 7.2, the lossy DLL of dll-2026-10-11.7 9.6, the lossy DLL of dll-2026-10-12 10.3. Still picture: change per frame (of 255): FSR 4.1.1 0.037, the lossy DLL of dll-2026-10-11.7 0.024, the lossy DLL of dll-2026-10-12 0.024. Time per upscale call at 3840x2160 (ms): FSR 4.1.1 4.76 ms, the lossy DLL of dll-2026-10-11.7 2.36 ms, the lossy DLL of dll-2026-10-12 2.36 ms.">
 <rect x="0.0" y="0.0" width="760.0" height="446.0" rx="8" fill="#1a1a19"/>
 <text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">This release's lossy DLL beside the previous one and AMD's FSR 4.1.1</text>
 <text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Outer ring: the best of the three on that measure. Bigger is better; a dent is a weakness.</text>
 <text x="196.0" y="92.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff">Lossy DLL, this release</text>
-<polygon points="196.0,215.0 210.7,219.8 219.8,232.3 219.8,247.7 210.7,260.2 196.0,265.0 181.3,260.2 172.2,247.7 172.2,232.3 181.3,219.8" fill="none" stroke="#2c2c2a" stroke-width="1"/>
-<polygon points="196.0,190.0 225.4,199.5 243.6,224.5 243.6,255.5 225.4,280.5 196.0,290.0 166.6,280.5 148.4,255.5 148.4,224.5 166.6,199.5" fill="none" stroke="#2c2c2a" stroke-width="1"/>
-<polygon points="196.0,165.0 240.1,179.3 267.3,216.8 267.3,263.2 240.1,300.7 196.0,315.0 151.9,300.7 124.7,263.2 124.7,216.8 151.9,179.3" fill="none" stroke="#2c2c2a" stroke-width="1"/>
-<polygon points="196.0,140.0 254.8,159.1 291.1,209.1 291.1,270.9 254.8,320.9 196.0,340.0 137.2,320.9 100.9,270.9 100.9,209.1 137.2,159.1" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="196.0,215.0 212.1,220.8 220.6,235.7 217.7,252.5 204.6,263.5 187.4,263.5 174.3,252.5 171.4,235.7 179.9,220.8" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="196.0,190.0 228.1,201.7 245.2,231.3 239.3,265.0 213.1,287.0 178.9,287.0 152.7,265.0 146.8,231.3 163.9,201.7" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="196.0,165.0 244.2,182.5 269.9,227.0 261.0,277.5 221.7,310.5 170.3,310.5 131.0,277.5 122.1,227.0 147.8,182.5" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="196.0,140.0 260.3,163.4 294.5,222.6 282.6,290.0 230.2,334.0 161.8,334.0 109.4,290.0 97.5,222.6 131.7,163.4" fill="none" stroke="#2c2c2a" stroke-width="1"/>
 <line x1="196.0" y1="240.0" x2="196.0" y2="140.0" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="196.0" y1="240.0" x2="254.8" y2="159.1" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="196.0" y1="240.0" x2="291.1" y2="209.1" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="196.0" y1="240.0" x2="291.1" y2="270.9" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="196.0" y1="240.0" x2="254.8" y2="320.9" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="196.0" y1="240.0" x2="196.0" y2="340.0" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="196.0" y1="240.0" x2="137.2" y2="320.9" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="196.0" y1="240.0" x2="100.9" y2="270.9" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="196.0" y1="240.0" x2="100.9" y2="209.1" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="196.0" y1="240.0" x2="137.2" y2="159.1" stroke="#2c2c2a" stroke-width="1"/>
-<polygon points="196.0,140.8 253.0,161.6 291.1,209.1 280.8,267.6 234.0,292.3 196.0,325.0 152.3,300.1 129.5,261.6 100.9,209.1 137.2,159.1" fill="#d95926" fill-opacity="0.35" stroke="#d95926" stroke-width="2" stroke-linejoin="round"/>
-<polygon points="196.0,140.2 253.4,160.9 290.6,209.3 280.8,267.6 234.2,292.6 196.0,315.6 137.2,320.9 124.7,263.2 100.9,209.1 137.2,159.1" fill="none" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<line x1="196.0" y1="240.0" x2="260.3" y2="163.4" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="196.0" y1="240.0" x2="294.5" y2="222.6" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="196.0" y1="240.0" x2="282.6" y2="290.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="196.0" y1="240.0" x2="230.2" y2="334.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="196.0" y1="240.0" x2="161.8" y2="334.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="196.0" y1="240.0" x2="109.4" y2="290.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="196.0" y1="240.0" x2="97.5" y2="222.6" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="196.0" y1="240.0" x2="131.7" y2="163.4" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="196.0,140.8 258.3,165.7 294.5,222.6 273.2,284.6 221.8,310.8 170.6,309.9 135.5,275.0 97.5,222.6 131.7,163.4" fill="#d95926" fill-opacity="0.35" stroke="#d95926" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="196.0,140.2 258.8,165.1 293.9,222.7 273.2,284.6 220.0,305.8 161.8,334.0 131.0,277.5 97.5,222.6 131.7,163.4" fill="none" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
 <circle cx="196.0" cy="140.8" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="253.0" cy="161.6" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="291.1" cy="209.1" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="280.8" cy="267.6" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="234.0" cy="292.3" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="196.0" cy="325.0" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="152.3" cy="300.1" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="129.5" cy="261.6" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="100.9" cy="209.1" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="137.2" cy="159.1" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="258.3" cy="165.7" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="294.5" cy="222.6" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="273.2" cy="284.6" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="221.8" cy="310.8" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="170.6" cy="309.9" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="135.5" cy="275.0" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="97.5" cy="222.6" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="131.7" cy="163.4" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
 <text x="196.0" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="middle" fill="#c3c2b7">Still</text>
 <text x="196.0" y="129.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">44.26 dB (44.31)</text>
-<text x="260.1" y="137.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Background</text>
-<text x="260.1" y="150.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">49.00 dB (49.07)</text>
-<text x="299.7" y="209.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Uncovered</text>
-<text x="299.7" y="222.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">36.53 dB (36.48)</text>
-<text x="299.7" y="277.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Sparks</text>
-<text x="299.7" y="289.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">74%</text>
-<text x="260.1" y="337.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Fast foliage</text>
-<text x="260.1" y="349.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">18.7 (18.6)</text>
-<text x="196.0" y="358.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="middle" fill="#c3c2b7">Slow foliage</text>
-<text x="196.0" y="370.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">12.0 (13.5)</text>
-<text x="131.9" y="337.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Film grain</text>
-<text x="131.9" y="349.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">0.460 (0.342)</text>
-<text x="92.3" y="277.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Wire, pan</text>
-<text x="92.3" y="289.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">10.3 (9.6)</text>
-<text x="92.3" y="209.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">At rest</text>
-<text x="92.3" y="222.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">0.024</text>
-<text x="131.9" y="137.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Speed</text>
-<text x="131.9" y="150.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">2.36 ms</text>
+<text x="266.1" y="142.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Background</text>
+<text x="266.1" y="155.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">49.00 dB (49.07)</text>
+<text x="303.3" y="224.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Uncovered</text>
+<text x="303.3" y="237.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">36.53 dB (36.48)</text>
+<text x="290.4" y="298.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Sparks</text>
+<text x="290.4" y="310.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">74%</text>
+<text x="233.3" y="351.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Foliage</text>
+<text x="233.3" y="363.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">14.6 (15.7)</text>
+<text x="158.7" y="351.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Film grain</text>
+<text x="158.7" y="363.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">0.460 (0.342)</text>
+<text x="101.6" y="298.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Wire, pan</text>
+<text x="101.6" y="310.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">10.3 (9.6)</text>
+<text x="88.7" y="224.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">At rest</text>
+<text x="88.7" y="237.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">0.024</text>
+<text x="125.9" y="142.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Speed</text>
+<text x="125.9" y="155.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">2.36 ms</text>
 <text x="566.0" y="92.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff">AMD's FSR 4.1.1</text>
-<polygon points="566.0,215.0 580.7,219.8 589.8,232.3 589.8,247.7 580.7,260.2 566.0,265.0 551.3,260.2 542.2,247.7 542.2,232.3 551.3,219.8" fill="none" stroke="#2c2c2a" stroke-width="1"/>
-<polygon points="566.0,190.0 595.4,199.5 613.6,224.5 613.6,255.5 595.4,280.5 566.0,290.0 536.6,280.5 518.4,255.5 518.4,224.5 536.6,199.5" fill="none" stroke="#2c2c2a" stroke-width="1"/>
-<polygon points="566.0,165.0 610.1,179.3 637.3,216.8 637.3,263.2 610.1,300.7 566.0,315.0 521.9,300.7 494.7,263.2 494.7,216.8 521.9,179.3" fill="none" stroke="#2c2c2a" stroke-width="1"/>
-<polygon points="566.0,140.0 624.8,159.1 661.1,209.1 661.1,270.9 624.8,320.9 566.0,340.0 507.2,320.9 470.9,270.9 470.9,209.1 507.2,159.1" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="566.0,215.0 582.1,220.8 590.6,235.7 587.7,252.5 574.6,263.5 557.4,263.5 544.3,252.5 541.4,235.7 549.9,220.8" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="566.0,190.0 598.1,201.7 615.2,231.3 609.3,265.0 583.1,287.0 548.9,287.0 522.7,265.0 516.8,231.3 533.9,201.7" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="566.0,165.0 614.2,182.5 639.9,227.0 631.0,277.5 591.7,310.5 540.3,310.5 501.0,277.5 492.1,227.0 517.8,182.5" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="566.0,140.0 630.3,163.4 664.5,222.6 652.6,290.0 600.2,334.0 531.8,334.0 479.4,290.0 467.5,222.6 501.7,163.4" fill="none" stroke="#2c2c2a" stroke-width="1"/>
 <line x1="566.0" y1="240.0" x2="566.0" y2="140.0" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="566.0" y1="240.0" x2="624.8" y2="159.1" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="566.0" y1="240.0" x2="661.1" y2="209.1" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="566.0" y1="240.0" x2="661.1" y2="270.9" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="566.0" y1="240.0" x2="624.8" y2="320.9" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="566.0" y1="240.0" x2="566.0" y2="340.0" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="566.0" y1="240.0" x2="507.2" y2="320.9" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="566.0" y1="240.0" x2="470.9" y2="270.9" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="566.0" y1="240.0" x2="470.9" y2="209.1" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="566.0" y1="240.0" x2="507.2" y2="159.1" stroke="#2c2c2a" stroke-width="1"/>
-<polygon points="566.0,140.0 624.8,159.1 641.1,215.6 661.1,270.9 624.8,320.9 566.0,340.0 540.4,275.2 470.9,270.9 504.3,220.0 536.9,199.9" fill="#6d6c66" fill-opacity="0.35" stroke="#6d6c66" stroke-width="2" stroke-linejoin="round"/>
-<polygon points="566.0,140.8 623.0,161.6 661.1,209.1 650.8,267.6 604.0,292.3 566.0,325.0 522.3,300.1 499.5,261.6 470.9,209.1 507.2,159.1" fill="none" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<line x1="566.0" y1="240.0" x2="630.3" y2="163.4" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="566.0" y1="240.0" x2="664.5" y2="222.6" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="566.0" y1="240.0" x2="652.6" y2="290.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="566.0" y1="240.0" x2="600.2" y2="334.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="566.0" y1="240.0" x2="531.8" y2="334.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="566.0" y1="240.0" x2="479.4" y2="290.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="566.0" y1="240.0" x2="467.5" y2="222.6" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="566.0" y1="240.0" x2="501.7" y2="163.4" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="566.0,140.0 630.3,163.4 643.8,226.3 652.6,290.0 600.2,334.0 551.1,280.9 479.4,290.0 502.1,228.7 534.1,202.0" fill="#6d6c66" fill-opacity="0.35" stroke="#6d6c66" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="566.0,140.8 628.3,165.7 664.5,222.6 643.2,284.6 591.8,310.8 540.6,309.9 505.5,275.0 467.5,222.6 501.7,163.4" fill="none" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
 <circle cx="566.0" cy="140.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="624.8" cy="159.1" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="641.1" cy="215.6" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="661.1" cy="270.9" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="624.8" cy="320.9" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="566.0" cy="340.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="540.4" cy="275.2" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="470.9" cy="270.9" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="504.3" cy="220.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
-<circle cx="536.9" cy="199.9" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="630.3" cy="163.4" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="643.8" cy="226.3" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="652.6" cy="290.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="600.2" cy="334.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="551.1" cy="280.9" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="479.4" cy="290.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="502.1" cy="228.7" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="534.1" cy="202.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
 <text x="566.0" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="middle" fill="#c3c2b7">Still</text>
 <text x="566.0" y="129.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">44.33 dB</text>
-<text x="630.1" y="137.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Background</text>
-<text x="630.1" y="150.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">49.27 dB</text>
-<text x="669.7" y="209.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Uncovered</text>
-<text x="669.7" y="222.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">34.48 dB</text>
-<text x="669.7" y="277.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Sparks</text>
-<text x="669.7" y="289.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">83%</text>
-<text x="630.1" y="337.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Fast foliage</text>
-<text x="630.1" y="349.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">12.1</text>
-<text x="566.0" y="358.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="middle" fill="#c3c2b7">Slow foliage</text>
-<text x="566.0" y="370.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10.2</text>
-<text x="501.9" y="337.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Film grain</text>
-<text x="501.9" y="349.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">0.785</text>
-<text x="462.3" y="277.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Wire, pan</text>
-<text x="462.3" y="289.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">7.2</text>
-<text x="462.3" y="209.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">At rest</text>
-<text x="462.3" y="222.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">0.037</text>
-<text x="501.9" y="137.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Speed</text>
-<text x="501.9" y="150.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">4.76 ms</text>
+<text x="636.1" y="142.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Background</text>
+<text x="636.1" y="155.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">49.27 dB</text>
+<text x="673.3" y="224.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Uncovered</text>
+<text x="673.3" y="237.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">34.48 dB</text>
+<text x="660.4" y="298.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Sparks</text>
+<text x="660.4" y="310.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">83%</text>
+<text x="603.3" y="351.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">Foliage</text>
+<text x="603.3" y="363.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">11.0</text>
+<text x="528.7" y="351.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Film grain</text>
+<text x="528.7" y="363.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">0.785</text>
+<text x="471.6" y="298.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Wire, pan</text>
+<text x="471.6" y="310.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">7.2</text>
+<text x="458.7" y="224.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">At rest</text>
+<text x="458.7" y="237.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">0.037</text>
+<text x="495.9" y="142.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="end" fill="#c3c2b7">Speed</text>
+<text x="495.9" y="155.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">4.76 ms</text>
 <text x="24.0" y="404.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Dashed, left: the previous release (dll-2026-10-11.7), its figure in brackets where it differs. Dashed, right: this release's lossy DLL.</text>
-<text x="24.0" y="418.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Foliage: leaves swaying without motion vectors, at the test rig's usual speed and at half of it; error on frames the lossy DLL skips the network for.</text>
+<text x="24.0" y="418.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Foliage: leaves swaying without motion vectors, the mean over three sway speeds of the error on frames the lossy DLL skips the network for.</text>
 <text x="24.0" y="432.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Test rig, 4K output, one card, single runs. Speed: 2.36 ms is an earlier lossy build's time; it was not measured again for these two.</text>
 </svg>

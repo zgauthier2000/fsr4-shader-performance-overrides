@@ -19,7 +19,8 @@ MEASURES = [
     ('Railing', 'Thin railing in motion: accuracy', 'dB', 'db', [41.82, 41.34, 38.36, 40.12, 40.86], '{:.2f} dB'),
     ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 36.53, 29.22, 27.11, 30.20], '{:.2f} dB'),
     ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 40, 79, 50], '{:.0f}%'),
-    ('Foliage', 'Leaves swaying without motion vectors: error', 'of 255', 'down', [12.1, 18.7, 16.8, 15.5, 15.5], '{:.1f}'),
+    # foliage: the mean of the error at the rig's usual sway speed, two thirds and half of it (camera still; for the lossy DLL, frames it skips the network for)
+    ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.6, 16.7, 14.3, 14.3], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.014, 0.020, 0.084], '{:.3f}'),
     ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 10.3, 8.2, 5.6, 10.1], '{:.1f}'),
     ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.76, 2.36, 1.16, 1.99, 4.98], '{:.2f} ms'),
@@ -91,7 +92,7 @@ def radar(t):
     # the sixth place: what the spokes are
     x0, y0 = 520, 344
     o.append(text(x0, y0, 'The spokes', t, 12, 'ink', weight=600))
-    key = [('Still, Background, Railing, Uncovered', 'accuracy against the true image'), ('Sparks', 'tiny fast sparks: share shown'), ('Foliage', 'swaying leaves: accuracy'),
+    key = [('Still, Background, Railing, Uncovered', 'accuracy against the true image'), ('Sparks', 'tiny fast sparks: share shown'), ('Foliage', 'swaying leaves, three speeds: accuracy'),
            ('At rest', 'steadiness of a still picture'), ('Wire, pan', 'steadiness of a thin wire in a slow pan'), ('Speed', 'time per call at 4K')]
     y = y0 + 20
     for a, b in key:
@@ -102,15 +103,14 @@ def radar(t):
 
 
 # ---- the front page: AMD's FSR 4.1.1, the previous release's lossy DLL and this release's. Same rig and scenes as above (single runs, auto exposure off).
-# The foliage spokes are the error on frames the lossy DLL skips the network for; the speed of the lossy DLL was not measured again for either release.
+# The foliage spoke is the mean over three sway speeds of the error on frames the lossy DLL skips the network for; the speed of the lossy DLL was not measured again for either release.
 R_NAMES = ['FSR 4.1.1', 'the lossy DLL of dll-2026-10-11.7', 'the lossy DLL of dll-2026-10-12']
 R_MEASURES = [
     ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.31, 44.26], '{:.2f} dB'),
     ('Background', 'Moving background: accuracy', 'dB', 'db', [49.27, 49.07, 49.00], '{:.2f} dB'),
     ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 36.48, 36.53], '{:.2f} dB'),
     ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 74], '{:.0f}%'),
-    ('Fast foliage', 'Leaves swaying without motion vectors: error', 'of 255', 'down', [12.1, 18.6, 18.7], '{:.1f}'),
-    ('Slow foliage', 'Leaves swaying at half that speed: error', 'of 255', 'down', [10.2, 13.5, 12.0], '{:.1f}'),
+    ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 15.7, 14.6], '{:.1f}'),
     ('Film grain', 'Still picture with grain of 6 of 255: change per frame', 'of 255', 'down', [0.785, 0.342, 0.460], '{:.3f}'),
     ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 9.6, 10.3], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.024], '{:.3f}'),
@@ -120,7 +120,7 @@ R_SCORES = [score(m[3], m[4]) for m in R_MEASURES]
 
 
 def release_radar(t):
-    lab = ("Two radar charts with ten spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this "
+    lab = ("Two radar charts with nine spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this "
            "release's lossy DLL as a dashed outline. On every spoke the best of the three reaches the outer ring, so a larger shape is better. "
            + ' '.join(f'{m[1]} ({m[2]}): ' + ', '.join(f'{R_NAMES[k]} {m[5].format(m[4][k])}' for k in range(3)) + '.' for m in R_MEASURES))
     H = 446
@@ -130,7 +130,7 @@ def release_radar(t):
         o.append(text(cx, 92, title, t, 13, 'ink', 'middle', 600))
         radar_panel(o, t, cx, 240, 100, k, short, 10, ref=ref, values=True, M=R_MEASURES, SC=R_SCORES, ours=k > 0, was=1 if k == 2 else None)
     o += [text(24, H - 42, "Dashed, left: the previous release (dll-2026-10-11.7), its figure in brackets where it differs. Dashed, right: this release's lossy DLL.", t, 10, 'muted'),
-          text(24, H - 28, 'Foliage: leaves swaying without motion vectors, at the test rig\'s usual speed and at half of it; error on frames the lossy DLL skips the network for.', t, 10, 'muted'),
+          text(24, H - 28, 'Foliage: leaves swaying without motion vectors, the mean over three sway speeds of the error on frames the lossy DLL skips the network for.', t, 10, 'muted'),
           text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: 2.36 ms is an earlier lossy build\'s time; it was not measured again for these two.', t, 10, 'muted')]
     return o
 

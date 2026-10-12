@@ -67,6 +67,7 @@ Against the true image; higher dB is better, lower error is better.
 | The same, camera panning | 10.7 | 18.0 | 15.4 | 16.8 | 16.8 |
 | Leaves swaying at two thirds of that speed, camera still | 10.8 | 13.2 | 16.7 | 14.1 | 14.2 |
 | Leaves swaying at half that speed, camera still | 10.2 | 12.0 | 16.6 | 13.5 | 13.1 |
+| Mean of the three sway speeds above (the chart's foliage spoke) | 11.0 | 14.6 | 16.7 | 14.3 | 14.3 |
 | Still leaves, camera panning | 6.2 | 7.5 | 7.6 | 8.2 | 7.4 |
 
 - The lossy DLL is the most accurate after FSR 4 in the first four rows, and the best of all five in just-uncovered areas.
