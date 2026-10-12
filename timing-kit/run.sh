@@ -113,7 +113,9 @@ timing() {  # timing <class dir> <WxH> <render W H>
         echo "sequence $c $o $s_ ${v:-failed}"
     done
     # the lossy build's postpass on a frame that skips the model: a probe that treats every frame as skipped, with the
-    # picture at rest and moving 12,6 pixels. The rest of such a frame is the prepass; the model does not run.
+    # picture at rest and moving 12,6 pixels, and takes the last-layer inputs that the frame before keeps for it as
+    # present (since kit 2026-10-12.5; before, it worked them out again on every frame, which a game does not do).
+    # The rest of such a frame is the prepass; the model does not run.
     say "class $c, output $o: lossy postpass on a skipped frame, probe  (at rest, moving)"
     A="$S/$c/lossy/postpass_skipped_rest.spv" B="$S/$c/lossy/postpass_skipped_moving.spv" N_DISP=30 "$W/bench" ${o%x*} ${o#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
 }

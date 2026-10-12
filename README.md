@@ -145,7 +145,9 @@ Made-up test scenes on one graphics card, single runs; the lossy DLL's speed was
 >     20 minutes are an estimate. `fsr4time.exe --once` gives the short run.
 >   - **It times any FSR 4 DLL you put into a new folder under `dlls`,** not only 4.1.1, and every FSR 4 version that
 >     DLL offers.
->   - **The Linux kit (2026-10-12.3; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
+>   - **Linux kit 2026-10-12.5:** its time for the lossy build's postpass on a skipped frame was too high and is corrected
+>     (details in the kit's README). Earlier Linux kit results overstate that one figure and the lossy average.
+>   - **The Linux kit (2026-10-12.5; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
 >     question is settled are gone. It also reports how the card is connected (PCIe link), and when the card is busy
 >     it asks you to close what is using it before it starts.
 > - The Windows kit compares the moving picture as well as the still one.

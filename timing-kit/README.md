@@ -29,8 +29,12 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Linux kit version 2026-10-12.3** (download again if you have an earlier one): its lossy shaders (the two skipped-frame probes and
-the two layers of the network the lossy build changes) are those of release `dll-2026-10-12`; nothing else changed since 2026-10-12.2. Since 2026-10-12.1: a shorter full run, because three tests whose question is settled are
+**Linux kit version 2026-10-12.5** (download again if you have an earlier one): the time it gives for the lossy build's postpass on
+a skipped frame was too high and is corrected. The probe worked out the last layer's inputs again on every frame; in a game the frame
+before keeps them, and the probe now takes them as present. On an RX 7800 XT at 4K that reading falls from 0.84 to 0.54 ms (one quick run each), and
+the summary's "lossy, skipped frame" and its average fall with it. Earlier Linux kit results overstate those two figures by that
+much; nothing else in them is affected, and the Windows kit, which times whole frames, never was. Since 2026-10-12.3 its lossy shaders
+(the two skipped-frame probes and the two layers of the network the lossy build changes) are those of release `dll-2026-10-12`. Since 2026-10-12.1: a shorter full run, because three tests whose question is settled are
 gone (the two forms of the dot product, the earlier postpass candidates and the old postpass versions); the summary gives
 the PCIe link of the card and of the ports above it; the GPU load is read from the card that is tested, and when that card
 stays busy the script asks you to close what is using it before it goes on.
@@ -262,7 +266,7 @@ with earlier versions of the kit. On the RX 6600 and the RX 6600M the readings a
 (image stores take far too long there under the kit). No report has come from a Radeon 780M, 890M
 or another current integrated GPU yet. If something looks wrong on your machine, please report it.
 
-Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-12.4) (9 MB).
+Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-12.5) (9 MB).
 
 Results received so far: [RESULTS.md](RESULTS.md).
 
