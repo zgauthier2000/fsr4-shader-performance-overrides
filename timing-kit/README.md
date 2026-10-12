@@ -29,8 +29,8 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Linux kit version 2026-10-12.2** (download again if you have an earlier one): its lossy shaders (the two skipped-frame probes) are those of
-release `dll-2026-10-11.7`. Since 2026-10-12.1: a shorter full run, because three tests whose question is settled are
+**Linux kit version 2026-10-12.3** (download again if you have an earlier one): its lossy shaders (the two skipped-frame probes and
+the two layers of the network the lossy build changes) are those of release `dll-2026-10-12`; nothing else changed since 2026-10-12.2. Since 2026-10-12.1: a shorter full run, because three tests whose question is settled are
 gone (the two forms of the dot product, the earlier postpass candidates and the old postpass versions); the summary gives
 the PCIe link of the card and of the ports above it; the GPU load is read from the card that is tested, and when that card
 stays busy the script asks you to close what is using it before it goes on.
@@ -49,8 +49,10 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-12.3/fsr4-timing-kit-windows.zip) (190 MB, updated 2026-10-12) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-12.4/fsr4-timing-kit-windows.zip) (190 MB, updated 2026-10-12) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`; it takes about 15 to 20 minutes.
+
+**New in version 2026-10-12.4:** its lossy DLLs are those of release `dll-2026-10-12` (slowly swaying foliage). Nothing else changed.
 
 **New in version 2026-10-12.3:**
 
@@ -58,7 +60,6 @@ browsers, and double-click `fsr4time.exe`; it takes about 15 to 20 minutes.
   the picture differ, the area they lie in, and the largest shift of a block's mean value. Two reports from one RX 7800 XT
   under Windows flagged the lossy DLL at 4K in the moving scene, and the kit could not say whether that was one pixel or a
   region. Under Proton here no DLL has ever differed between its runs.
-- **Its lossy DLLs are those of release `dll-2026-10-11.7`.**
 
 **New in version 2026-10-12.2:**
 
@@ -90,7 +91,7 @@ browsers, and double-click `fsr4time.exe`; it takes about 15 to 20 minutes.
   Intel Arc B580. The project itself can only run it under Proton, on one RX 7800 XT (4K: 4.7 to 4.9 ms with AMD's shaders,
   3.17 ms exact, 2.37 ms lossy; exact: same picture). Since kit
   2026-10-12.1 the moving scene has a fingerprint too; since
-  2026-10-12.3 its lossy DLLs are those of release `dll-2026-10-11.7`; since 2026-10-11.3 it asks for an optional name for the thank-you notes. The program is not signed, so Windows warns about it;
+  2026-10-12.4 its lossy DLLs are those of release `dll-2026-10-12`; since 2026-10-11.3 it asks for an optional name for the thank-you notes. The program is not signed, so Windows warns about it;
   the source is [`windows/fsr4time.c`](windows/fsr4time.c), with the command that builds it at its top.
 - At the end it shows a summary, saves it next to the program and asks whether to send it. Not for RX 9000 cards.
 
@@ -261,7 +262,7 @@ with earlier versions of the kit. On the RX 6600 and the RX 6600M the readings a
 (image stores take far too long there under the kit). No report has come from a Radeon 780M, 890M
 or another current integrated GPU yet. If something looks wrong on your machine, please report it.
 
-Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-12.3) (9 MB).
+Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-12.4) (9 MB).
 
 Results received so far: [RESULTS.md](RESULTS.md).
 

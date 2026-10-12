@@ -126,16 +126,17 @@ More games and resolutions: [all results](docs/results.md).
 Made-up test scenes on one graphics card, single runs; the lossy DLL's speed was not measured again for these two releases. [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-12.3/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-12.3): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-12.4/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-12.4): unpack, double-click
 > `fsr4time.exe`, wait 15 to 20 minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **Reports from Windows are in from eleven graphics chips so far; every further
 > card helps.**
 > - **Both kits were updated on 2026-10-12; if you ran an earlier one, please download and run again.**
->   - **New in the Windows kit 2026-10-12.3:** every DLL should give the same picture in both of its runs. Where one does
+>   - **Both kits now carry this release's lossy build** (Windows kit 2026-10-12.4, Linux kit 2026-10-12.3). Nothing else
+>     changed in them since the versions before.
+>   - **Since the Windows kit 2026-10-12.3:** every DLL should give the same picture in both of its runs. Where one does
 >     not, the summary now says how different the two are: how many 16x16-pixel blocks, where, and by how much. Two
 >     reports from one RX 7800 XT showed such a difference for the lossy DLL at 4K, and this is there to find out what it is.
->   - **Both kits carry the lossy build of the release before this one** (`dll-2026-10-11.7`).
 >   - **The Windows kit (2026-10-12.2) now shows which part of the exact DLL saves time on your card.** It carries two more
 >     DLLs: AMD's shaders with only the rewritten last shader, and AMD's shaders with every other rewrite. On some cards
 >     under Windows the exact DLL gains a lot and on others almost nothing, and this is how we find out why.
@@ -144,7 +145,7 @@ Made-up test scenes on one graphics card, single runs; the lossy DLL's speed was
 >     20 minutes are an estimate. `fsr4time.exe --once` gives the short run.
 >   - **It times any FSR 4 DLL you put into a new folder under `dlls`,** not only 4.1.1, and every FSR 4 version that
 >     DLL offers.
->   - **The Linux kit (2026-10-12.2; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
+>   - **The Linux kit (2026-10-12.3; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
 >     question is settled are gone. It also reports how the card is connected (PCIe link), and when the card is busy
 >     it asks you to close what is using it before it starts.
 > - The Windows kit compares the moving picture as well as the still one.
