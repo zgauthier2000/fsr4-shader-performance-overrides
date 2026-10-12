@@ -117,11 +117,11 @@ More games and resolutions: [all results](docs/results.md).
 >   where it is second only to FSR 4) and where it is weakest (fast-moving foliage, a thin wire in a camera pan, film grain).
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/cmp5-radar2-dark.svg">
-  <img src="docs/img/cmp5-radar2-light.svg" width="760" alt="Two radar charts with nine spokes each, the lossy DLL and AMD's FSR 4.1.1. On every spoke the best of five upscalers would reach the outer ring, so a larger shape is better. Lossy against FSR 4.1.1: still picture 44.26 against 44.33 dB, moving background 49.00 against 49.27 dB, thin railing 41.34 against 41.82 dB, just-uncovered areas 36.53 against 34.48 dB, tiny fast sparks shown 74% against 83%, swaying foliage error 18.7 against 12.1 of 255, change per frame at rest 0.024 against 0.037, thin wire in a slow pan 10.3 against 7.2, time per call at 4K 2.36 against 4.76 ms.">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/release-radar-dark.svg">
+  <img src="docs/img/release-radar-light.svg" width="760" alt="Three radar charts with ten spokes each: AMD's FSR 4.1.1, the lossy DLL of the previous release (dll-2026-10-11.7) and the lossy DLL of this release. On every spoke the best of the three reaches the outer ring, so a larger shape is better. FSR 4.1.1, previous release, this release: still picture: accuracy 44.33 / 44.31 / 44.26 dB, moving background: accuracy 49.27 / 49.07 / 49.00 dB, areas a moving object has just uncovered: accuracy 34.48 / 36.48 / 36.53 dB, tiny fast sparks: share of their brightness shown 83% / 74% / 74%, leaves swaying without motion vectors: error 12.1 / 18.6 / 18.7 of 255, leaves swaying at half that speed: error 10.2 / 13.5 / 12.0 of 255, still picture with grain of 6 of 255: change per frame 0.785 / 0.342 / 0.460 of 255, thin wire under a slow pan: change per frame 7.2 / 9.6 / 10.3 of 255, still picture: change per frame 0.037 / 0.024 / 0.024 of 255, time per upscale call at 3840x2160 4.76 / 2.36 / 2.36 ms.">
 </picture>
 
-Made-up test scenes on one graphics card; [the comparison page](docs/upscaler-comparison.md) has the same chart for FSR 3.1, HelixSR and XeSS, the figures, and the scenes the lossy DLL does worst in.
+Made-up test scenes on one graphics card, single runs; the lossy DLL's speed was not measured again for these two releases. [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
 
 > ### Help test it: the timing kit
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-12.3/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-12.3): unpack, double-click

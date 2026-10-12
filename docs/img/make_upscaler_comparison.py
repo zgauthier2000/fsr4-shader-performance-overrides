@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_upscaler_comparison.py [<dir>]: the figures of docs/upscaler-comparison.md.
-#   cmp5-radar-{light,dark}.svg (one shape per upscaler), cmp5-radar2-{light,dark}.svg (the lossy DLL and FSR 4.1.1 only, for the front page), steady-quality-{light,dark}.svg (for docs/steady-test.md): charts; the numbers in them are the
+#   cmp5-radar-{light,dark}.svg (one shape per upscaler), release-radar-{light,dark}.svg (FSR 4.1.1, the previous release's lossy DLL and this release's, for the front page), steady-quality-{light,dark}.svg (for docs/steady-test.md): charts; the numbers in them are the
 #       tables of that page (test rig, 4K output from 2260x1272, Radeon RX 7800 XT under Proton, single runs).
 #   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-big.png (large particles), cmp5-plate.png, cmp5-rain.png (frame 39 of the plate scene and of the rain scene): the same piece of one frame from the
 #       five upscalers beside the true image. <dir> holds <scene>_<name>/output_3840x2160_f037.raw (RGBA16F) for scene in still,
@@ -39,9 +39,10 @@ def score(kind, vs):
 SCORES = [score(m[3], m[4]) for m in MEASURES]      # [measure][upscaler]
 
 
-def radar_panel(o, t, cx, cy, r, k, labels, lsize=9.5, ref=0, values=False):
-    """one upscaler's shape: the measures as spokes, the best of the five at the outer ring; the dashed outline is NAMES[ref]"""
+def radar_panel(o, t, cx, cy, r, k, labels, lsize=9.5, ref=0, values=False, M=None, SC=None, ours=None, thin=None):
+    """one upscaler's shape: the measures as spokes, the best of the set at the outer ring; the dashed outline is column ref, the thin solid one column thin"""
     import math
+    MEASURES, SCORES = (M, SC) if M else (globals()['MEASURES'], globals()['SCORES'])
     n = len(MEASURES)
     ang = [math.radians(-90 + i * 360 / n) for i in range(n)]
     pt = lambda i, v: (cx + r * v * math.cos(ang[i]), cy + r * v * math.sin(ang[i]))
@@ -50,12 +51,15 @@ def radar_panel(o, t, cx, cy, r, k, labels, lsize=9.5, ref=0, values=False):
         o.append(f'<polygon points="{ring(v)}" fill="none" stroke="{t["grid"]}" stroke-width="1"/>')
     for i in range(n):
         x, y = pt(i, 1); o.append(line(cx, cy, x, y, t, 'grid', 1))
-    ours = NAMES[k] == 'Lossy'; col = t['lossy'] if ours else t['amd']
+    ours = NAMES[k] == 'Lossy' if ours is None else ours; col = t['lossy'] if ours else t['amd']
     shape = ' '.join(f'{x:.1f},{y:.1f}' for x, y in (pt(i, SCORES[i][k]) for i in range(n)))
     o.append(f'<polygon points="{shape}" fill="{col}" fill-opacity="0.35" stroke="{col}" stroke-width="2" stroke-linejoin="round"/>')
     if ref is not None and ref != k:
         rs = ' '.join(f'{x:.1f},{y:.1f}' for x, y in (pt(i, SCORES[i][ref]) for i in range(n)))
         o.append(f'<polygon points="{rs}" fill="none" stroke="{t["ink2"]}" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>')
+    if thin is not None:
+        rs = ' '.join(f'{x:.1f},{y:.1f}' for x, y in (pt(i, SCORES[i][thin]) for i in range(n)))
+        o.append(f'<polygon points="{rs}" fill="none" stroke="{t["ink"]}" stroke-width="1" stroke-linejoin="round"/>')
     for i in range(n):
         x, y = pt(i, SCORES[i][k]); o.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.5" fill="{col}" stroke="{t["surface"]}" stroke-width="1"/>')
     for i in range(n):
@@ -98,19 +102,37 @@ def radar(t):
     return o
 
 
-def radar2(t):
-    """the front page: the lossy DLL and FSR 4.1.1 only, with their figures at the spokes"""
-    ks = (1, 0)
-    lab = ('Two radar charts with nine spokes each, the lossy DLL and AMD\'s FSR 4.1.1; on every spoke the best of five upscalers (these two, FSR 3.1, HelixSR and XeSS) '
-           'would reach the outer ring, so a larger shape is better. ' + describe(ks))
-    H = 432
-    o = frame(H, lab, "The lossy DLL beside AMD's FSR 4.1.1: nine measures", 'Outer ring: the best of five upscalers on that measure (the other three are on the comparison page). Bigger is better.', t)
-    short = [m[0] for m in MEASURES]
-    for cx, k, title in ((196, 1, 'Lossy DLL'), (566, 0, "AMD's FSR 4.1.1")):
+# ---- the front page: AMD's FSR 4.1.1, the previous release's lossy DLL and this release's. Same rig and scenes as above (single runs, auto exposure off).
+# The foliage spokes are the error on frames the lossy DLL skips the network for; the speed of the lossy DLL was not measured again for either release.
+R_NAMES = ['FSR 4.1.1', 'the lossy DLL of dll-2026-10-11.7', 'the lossy DLL of dll-2026-10-12']
+R_MEASURES = [
+    ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.31, 44.26], '{:.2f} dB'),
+    ('Background', 'Moving background: accuracy', 'dB', 'db', [49.27, 49.07, 49.00], '{:.2f} dB'),
+    ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 36.48, 36.53], '{:.2f} dB'),
+    ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 74], '{:.0f}%'),
+    ('Fast foliage', 'Leaves swaying without motion vectors: error', 'of 255', 'down', [12.1, 18.6, 18.7], '{:.1f}'),
+    ('Slow foliage', 'Leaves swaying at half that speed: error', 'of 255', 'down', [10.2, 13.5, 12.0], '{:.1f}'),
+    ('Film grain', 'Still picture with grain of 6 of 255: change per frame', 'of 255', 'down', [0.785, 0.342, 0.460], '{:.3f}'),
+    ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 9.6, 10.3], '{:.1f}'),
+    ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.024], '{:.3f}'),
+    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.76, 2.36, 2.36], '{:.2f} ms'),
+]
+R_SCORES = [score(m[3], m[4]) for m in R_MEASURES]
+
+
+def release_radar(t):
+    lab = ("Three radar charts with ten spokes each: AMD's FSR 4.1.1, the lossy DLL of the previous release and the lossy DLL of this release. On every spoke the best of "
+           'the three reaches the outer ring, so a larger shape is better. '
+           + ' '.join(f'{m[1]} ({m[2]}): ' + ', '.join(f'{R_NAMES[k]} {m[5].format(m[4][k])}' for k in range(3)) + '.' for m in R_MEASURES))
+    H = 388
+    o = frame(H, lab, "This release, the previous one and AMD's FSR 4.1.1: ten measures", 'On every spoke the best of the three reaches the outer ring. Bigger is better; a dent is a weakness.', t)
+    short = [m[0] for m in R_MEASURES]
+    for cx, k, title in ((134, 0, "AMD's FSR 4.1.1"), (380, 1, 'Lossy, dll-2026-10-11.7'), (626, 2, 'Lossy, dll-2026-10-12')):
         o.append(text(cx, 92, title, t, 13, 'ink', 'middle', 600))
-        radar_panel(o, t, cx, 240, 100, k, short, 10, ref=0 if k == 1 else 1, values=True)
-    o += [text(24, H - 28, "Dashed: the other one's shape. A spoke at half length: twice the error, change per frame or time of the best of the five.", t, 10, 'muted'),
-          text(24, H - 14, "This project's exact DLL gives FSR 4.1.1's picture in 3.17 ms. Test rig, 4K output, one card, single runs.", t, 10, 'muted')]
+        radar_panel(o, t, cx, 216, 70, k, short, 9.5, ref=0 if k else None, values=True, M=R_MEASURES, SC=R_SCORES, ours=k > 0, thin=1 if k == 2 else None)
+    o += [text(24, H - 42, 'Dashed: FSR 4.1.1. Thin line in the right-hand chart: the previous release. A spoke at half length: twice the error, change per frame or time of the best.', t, 10, 'muted'),
+          text(24, H - 28, 'Foliage: leaves swaying without motion vectors, at the test rig\'s usual speed and at half of it; error on frames the lossy DLL skips the network for.', t, 10, 'muted'),
+          text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: 2.36 ms is an earlier lossy build\'s time; it was not measured again for these two.', t, 10, 'muted')]
     return o
 
 
@@ -156,9 +178,9 @@ for th, t in THEMES.items():
     open(f'steady-quality-{th}.svg', 'w').write('\n'.join(steady_quality(t) + ['</svg>']) + '\n')
 
 
-for name, fn in (('radar', radar), ('radar2', radar2)):
+for name, fn in (('cmp5-radar', radar), ('release-radar', release_radar)):
     for th, t in THEMES.items():
-        open(f'cmp5-{name}-{th}.svg', 'w').write('\n'.join(fn(t) + ['</svg>']) + '\n')
+        open(f'{name}-{th}.svg', 'w').write('\n'.join(fn(t) + ['</svg>']) + '\n')
 if len(sys.argv) < 2:
     sys.exit(0)
 
