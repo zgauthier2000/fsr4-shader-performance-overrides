@@ -118,8 +118,6 @@ no sample hit it, and since `dll-2026-10-09` every sample that did hit was shown
 spark. The result was bright dashes crawling along the wire. Since `dll-2026-10-11` that limit is dropped where the picture is at
 rest and, in motion, applied only where the network had already given up on the previous picture or, since `dll-2026-10-11.2`, beside something that moves differently.
 
-<img src="img/cmp-wires.png" width="760" alt="A wire far thinner than a rendered pixel on a skipped frame, camera still, a 150 by 60 pixel piece of the 4K output enlarged four times: the true image shows two thin continuous lines; the exact files show the same lines dimmer but continuous (unevenness along the wire 14 of 255); the lossy build of release dll-2026-10-10 shows separate bright dashes with gaps between them (79); this release's lossy build shows continuous dim lines like the exact files (12).">
-
 <img src="img/cmp-wires-pan.png" width="760" alt="A wire far thinner than a rendered pixel while the camera pans slowly, on a frame the lossy builds skip the network for, a piece with three wires enlarged four times. The true image and the exact files show thin continuous lines. Both lossy builds, release dll-2026-10-12.2 and this release, show them far dimmer and broken into short dashes. Error in the piece: exact 1.53 of 255, dll-2026-10-12.2 3.39, this release 3.35.">
 
 - With the camera still the wire is as steady as with AMD's shaders (change per frame along it 2.8 against 2.9; 40.5 in
@@ -154,10 +152,7 @@ object has just uncovered: the history there still shows the object, and it has 
 The lossy build does that by looking up which surface was at each spot a frame ago.
 
 The table below was made with the lossy build of release `dll-2026-10-07`, which introduced this
-lookup. The image is redrawn with this release's lossy build: it shows no second outline and no
-extra bars. In the railing piece its error is 0.94 of 255 against 0.74 for the exact files, as high
-as the old release's, but it sits on the two real bars, not beside them; that figure was 0.82 in
-`dll-2026-10-07` and has been 0.92 to 0.95 since the folding was taken out in `dll-2026-10-09`.
+lookup. This release's lossy build shows no second outline and no extra bars in that scene either.
 Cases measured with this release, including two that are not at AMD's level, are in [the section below](#what-the-lossy-builds-cost-measured).
 
 The table gives the error against the true image, on skipped frames, exactly where an object's
@@ -188,8 +183,6 @@ old image would land if the history were shown unchanged. "Outline" is the objec
   particles and transparent things), nothing is recorded for it. Some prepass versions have no
   depth search; there the lookup is off. One synthetic scene at six motion settings; the author
   also no longer sees the ghost in the game it was reported and recorded in.
-
-<img src="img/cmp-ghost.png" width="760" alt="A second outline beside a moving object on a skipped frame, camera panning 40 pixels per frame and objects drifting 6. Two 128 by 64 pixel pieces of the 4K output, each as true image, exact files, the lossy build of release dll-2026-10-06.6 and the lossy build of this release, with the error against the true image below each. Beside the block's left edge the earlier release shows a broken dark vertical line, the block's edge of a frame ago, which the exact files and this release do not show (error in the piece: 0.52, 0.66 and 0.57 of 255). Beside the railing the earlier release shows two faint extra bars, which the others do not; this release's error there sits on the two real bars instead (0.74, 0.95 and 0.92 of 255).">
 
 **A still bright object over ground that moves fast.** A tester's video of a racing game with frame generation showed
 the car's white license plate leaving bright streaks on the road behind it with the lossy DLL of release `dll-2026-10-11`,
@@ -224,8 +217,6 @@ Since release `dll-2026-10-11.3` that rule asks for twice the distance. The test
 a game samples them, unsmoothed.
 
 <img src="img/cmp-foliage.png" width="760" alt="Leaves swaying without motion vectors, camera still, on a frame the lossy builds skip the network for, the piece where the lossy build differs most from the exact files, enlarged four times: true image, exact files, the lossy build of release dll-2026-10-12.2 and this release's. Error in the piece: exact 13.16 of 255, both lossy builds 22.05; the two lossy pictures are the same.">
-
-<img src="img/cmp-foliage-dots.png" width="760" alt="Dark green leaves in front of a pale sky on a frame that skips the neural network, a 200 by 130 pixel piece enlarged three times. The true image shows sharp leaves. The exact files show them soft and clean (1 single bright pixel inside the leaves in this piece). The lossy build of release dll-2026-10-11.2 shows the same leaves sprinkled with single-pixel specks (26). This release's lossy build shows far fewer (9).">
 
 - In the test scene (dense dark leaves swaying in front of a bright sky, hard-sampled inputs) single bright pixels in the
   leaves number 1.00 per thousand dark pixels on skipped frames, against 2.40 in `dll-2026-10-11.2` and 0.57 with AMD's
