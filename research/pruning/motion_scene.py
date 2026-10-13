@@ -96,6 +96,54 @@ def draw_foliage(img, t):
     return img
 
 
+# falling leaves: small flat dark leaves in front of a dark sky, drawn into the color only (no motion vectors, no depth), as a game's leaf particles are.
+# Each falls slowly, sways sideways and turns, so its outline goes from a full ellipse to a sliver thinner than a pixel and back; positions are not whole
+# pixels. SCENE_FALL = "count size lit": size = largest half-length in output pixels, lit = share of the leaves that flash yellow while they face the viewer.
+FALL = tuple(float(x) for x in os.environ['SCENE_FALL'].split()) if os.environ.get('SCENE_FALL') else None
+SKY = (np.float32([0.010, 0.040, 0.045]), np.float32([0.016, 0.070, 0.075]))      # dark teal, top and bottom of the box (linear)
+
+
+def fall_leaves(t):
+    """(x, y, half-length a, half-length b, angle, lit) of every falling leaf at frame t, on screen, in output pixels (not whole numbers)."""
+    n = int(FALL[0]); r = np.random.default_rng(23)
+    x0 = r.uniform(0, FBOX[2], n); y0 = r.uniform(0, FBOX[3], n); vy = r.uniform(0.4, 2.2, n) * max(S, 0.5)
+    amp = r.uniform(2, 10, n) * max(S, 0.5); per = r.uniform(30, 70, n); ph = r.uniform(0, 2 * np.pi, n)
+    ra = r.uniform(0.35, 1.0, n) * FALL[1] * max(S, 0.5); tper = r.uniform(14, 40, n); tph = r.uniform(0, 2 * np.pi, n); ang0 = r.uniform(0, np.pi, n); spin = r.uniform(-0.08, 0.08, n)
+    face = np.abs(np.cos(2 * np.pi * t / tper + tph)); rb = ra * np.maximum(face * 0.6, 0.06)
+    lit = (r.uniform(0, 1, n) < (FALL[2] if len(FALL) > 2 else 0))
+    if len(FALL) > 3 and FALL[3] > 0:      # glints: a lit leaf is bright for FALL[4] frames (default 1) every FALL[3] frames, and as large as it gets while it is
+        gl = ((int(t) + np.arange(n) * 7) % int(FALL[3])) < (int(FALL[4]) if len(FALL) > 4 else 1); lit &= gl
+    else:
+        lit &= face > 0.97
+    return FBOX[0] + (x0 + amp * np.sin(2 * np.pi * t / per + ph)) % FBOX[2], FBOX[1] + (y0 + vy * t) % FBOX[3], ra, rb, ang0 + spin * t, lit
+
+
+def fall_mask(t, grow=0):
+    m = np.zeros((OH, OW), bool)
+    for x, y, ra, rb, an, lit in zip(*fall_leaves(t)):
+        k = int(ra) + 1 + grow; m[max(0, int(y) - k):max(0, int(y) + k + 2), max(0, int(x) - k):max(0, int(x) + k + 2)] = True
+    return m
+
+
+def draw_fall(img, t, leaves=True):
+    if not FALL:
+        return img
+    g = (np.arange(FBOX[3]) / FBOX[3]).astype(np.float32)[:, None, None]
+    img[FBOX[1]:FBOX[1] + FBOX[3], FBOX[0]:FBOX[0] + FBOX[2]] = SKY[0] * (1 - g) + SKY[1] * g
+    if not leaves:
+        return img
+    for x, y, ra, rb, an, lit in zip(*fall_leaves(t)):
+        k = int(ra) + 2; ya, yb, xa, xb = max(0, int(y) - k), min(OH, int(y) + k + 2), max(0, int(x) - k), min(OW, int(x) + k + 2)
+        if ya >= yb or xa >= xb:
+            continue
+        yy, xx = np.mgrid[ya:yb, xa:xb]; c, s_ = np.cos(an), np.sin(an); u = (xx - x) * c + (yy - y) * s_; v = -(xx - x) * s_ + (yy - y) * c
+        d = np.sqrt((u / ra) ** 2 + (v / rb) ** 2)
+        a = np.clip((1.0 - d) * min(ra, rb) + 0.5, 0, 1)[..., None].astype(np.float32)          # hard edge, one pixel of anti-aliasing in the true image
+        col = np.float32([0.55, 0.42, 0.06]) if lit else np.float32([0.004, 0.007, 0.006])
+        img[ya:yb, xa:xb] = img[ya:yb, xa:xb] * (1 - a) + col * a
+    return img
+
+
 # wires: thin lines hanging between poles, fixed to the scene, far thinner than a render pixel (distant power lines). Each new sample either
 # hits a wire or misses it, so the samples flicker between the wire's and the background's color; the upscaler has to average that into a line.
 # SCENE_WIRES = "count width brightness": width in output pixels, brightness 0..1 (linear) of the wire.
@@ -167,4 +215,4 @@ def truth(world, t):
         tex = np.where((((tx // 40) % 3 == 1) & (ty % 200 > 60) & (ty % 200 < 140))[:, None], np.float32(0.03), np.float32(float(os.environ['SCENE_BLOCKCOL'])) * np.ones_like(tex))
     img[by, bx] = tex
     img[bars] = np.float32([0.02, 0.02, 0.025])
-    return draw_particles(draw_wires(draw_foliage(img, t), t), t)
+    return draw_particles(draw_wires(draw_fall(draw_foliage(img, t), t), t), t)

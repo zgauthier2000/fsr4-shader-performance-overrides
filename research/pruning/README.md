@@ -122,4 +122,5 @@ output size has finer detail per pixel, as in a game. Without `SCENE` everything
 | `metric.py` | PSNR and pixel-error statistics between two outputs, or an output and the ground truth |
 | `motion_scene.py`, `gen_motion.py` | the moving scene and its inputs (color, motion vectors, depth, jitter, true frames); `SCENE_PARTICLES` adds bright dots and `SCENE_FOLIAGE` dense swaying leaves, both drawn without motion vectors; `SCENE_WIRES` adds wires far thinner than a render pixel, drawn hit-or-miss as a game does |
 | `particles.py`, `foliage.py`, `wires.py` | how much of each particle is shown where it is; the error on the leaves and how much it changes from frame to frame; how even and how steady a thin wire is along its length |
+| `fall.py` | small dark leaves falling in front of a dark sky without motion vectors (`SCENE_FALL="count size lit"` in `motion_scene.py`): how much of a leaf is shown, what is left where it was, and pixels brighter than the true image around it |
 | `metric_motion.py` | per-region error and frame-to-frame change for the moving scene |
