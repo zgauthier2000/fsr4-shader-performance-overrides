@@ -28,7 +28,7 @@ def flow(t):
               "It starts from the network's weight for the new frame, kept from the network's last run and moved along with the picture, and squares it. "
               "Then it asks whether the picture is at rest at this pixel. At rest the weight becomes zero, so nothing is taken from the new frame, unless one of three things says the content "
               "changed without the game reporting motion: the previous picture lies outside the range of the nine new samples around the pixel, the new frame differs from it by more than a "
-              "quarter of that range, or the network itself had given the pixel a middle or a very high weight. In motion the weight is kept and the previous picture is limited to the range "
+              "quarter of that range, or the network itself had given the pixel a middle or a very high weight. In motion the weight is kept and, beside anything that moves differently from the pixel, the previous picture is limited to the range "
               "of the nine new samples. Next, at rest and in motion, a spark test: a new sample far outside the previous picture around the pixel is taken, as far as it has a bright neighbor "
               "both sideways and above or below. Two cases then take the new frame alone: a pixel that was hidden a frame ago behind something nearer that moves differently, and one whose "
               "previous picture scrolled in from outside the screen. The pixel is mixed from the new frame and the previous picture with the resulting weight. Last, on every frame, "
@@ -69,17 +69,17 @@ def flow(t):
         '',
         'Then the weight is kept (in case c: the network\'s own).'], 'lossy', '3')
     yr = box(o, t, xr, y, half, 'Keep the weight, limit the history', [
-        'The history is held inside the range of the nine new',
-        'samples, widened by half of that range. Where the picture',
-        'changed, a plausible color is mixed in instead of an',
-        'outdated one.',
+        'Beside anything that moves differently from this pixel',
+        '(edges of moving things), the history is held inside the',
+        'range of the nine new samples, widened by half of that',
+        'range. Where the picture changed, a plausible color is',
+        'mixed in instead of an outdated one.',
         '',
-        '  in full beside anything that moves differently from',
-        '  this pixel (edges of moving things);',
+        'Elsewhere the history is left as it is. The nine samples',
+        'miss a thing far thinner than a rendered pixel (a distant',
+        'wire) on most frames, and the limit would take it away.',
         '',
-        "  elsewhere in proportion to the network's weight: not at",
-        '  all at 0, in full from 0.3. Settled content, such as a',
-        '  thin wire the network has built up, is left alone.',
+        '',
         '',
         'Not applied at rest.'], 'lossy', '4')
     y = max(yl, yr)

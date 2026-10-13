@@ -2,8 +2,78 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-12.2` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-13` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-13 ([release `dll-2026-10-13`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-13))
+
+### Thin edges in front of a moving scene
+
+*Written for `dll-2026-10-13`: "this release" below means that one.*
+
+Three changes to the lossy DLL, all about what a skipped frame knows of the picture's motion. **The exact DLL is unchanged.**
+
+The fault they answer: a thin thing that stays in place on screen while the scene behind it moves (the edge of a weapon,
+a railing, a pole) could keep a faint copy of itself beside it, where the background comes out from behind it.
+
+- **A memory rule.** FSR 4's network keeps a small memory image from one run to the next. One of its values tells the
+  next run to keep the old picture. A thing that stands still on screen handed that value on to the background coming
+  out from behind it, and the network, which had last seen the place two frames ago, then kept the thing's old image
+  there. On a skipped frame, places at rest that have differently moving content around them now store a higher value.
+  This removes the copy on the frames that run the network.
+- **Finer motion for the last shader's rules.** A skipped frame's rules ask "is the picture at rest here" and "does
+  anything around here move differently". They took the motion from a record with one entry per block of 4x4 output
+  pixels, so a thing thinner than a block shared its neighbors' motion. The first shader now also writes every pixel's
+  motion into an unused channel of an image it writes anyway, and the rules read it per 2x2 pixels. The network's
+  result itself is still moved per 4x4 block: moving it more finely was tried and made other things worse.
+- **A storage fault, fixed.** Since `dll-2026-10-06.6` the 4x4 motion record lost its entries along two diagonal lines
+  across the screen on every skipped frame, because another of FSR 4's shaders clears those places. At 4K that was 0.4%
+  of the blocks, which then read "no motion". The record now steps around them. No effect of the fault on a picture
+  could be measured before the fix; a thin wire in a camera pan is steadier with it.
+
+| Old image of thin bars fixed on screen, where the moving background comes out from behind them: error of 255, on frames that run the network / on skipped frames | AMD's shaders | `dll-2026-10-12.2` | This release |
+|---|---|---|---|
+| Bars 2 pixels wide, background moving 8 pixels per frame, bar at the first of four positions across a 4-pixel block | 0.75 / 0.76 | 4.32 / 0.72 | 0.67 / 0.70 |
+| The same, second position | 0.69 / 0.74 | 0.68 / 4.40 | 0.65 / 3.07 |
+| The same, third position (the fourth is clean in all three) | 0.82 / 0.90 | 0.68 / 2.36 | 0.63 / 1.75 |
+| Bars at mixed positions, background moving 4 pixels per frame | 1.13 / 1.13 | 3.34 / 1.91 | 0.87 / 1.61 |
+| ... 20 pixels per frame | 0.55 / 0.66 | 1.83 / 2.48 | 0.51 / 1.36 |
+| ... 8 pixels sideways and 3 down | 1.15 / 1.26 | 3.12 / 2.47 | 1.07 / 1.83 |
+| Bars 1 pixel wide, 8 pixels per frame | 1.03 / 1.04 | 1.52 / 2.68 | 0.77 / 1.76 |
+| Bars 2 pixels wide, rendered at 1707x960 (Quality) | 1.03 / 0.91 | 0.96 / 3.04 | 0.83 / 1.70 |
+
+1440p output, rendered at 1440p unless stated; single runs on a made-up scene.
+
+- **What is left:** on skipped frames the copy is weaker but not gone (the right-hand figures above). The network's
+  result is still moved per 4x4 block there.
+- **What got worse** (`dll-2026-10-12.2` to this release; both from the finer motion for the rules):
+  - Areas a moving object has just uncovered, in the panning scene, at every output size: 36.45 to 35.90 dB at 4K
+    (AMD's 34.48), 35.58 to 35.01 at 1440p (34.62), 33.62 to 33.50 at 1080p (32.61), 40.50 to 40.19 at 5K (39.90). With
+    auto exposure on at 4K: 36.64 to 36.05 dB. It stays above AMD's at each size.
+  - The outline of objects moving sideways in front of a still camera: error where the old image lands 1.07 to 1.31
+    (AMD's 1.07).
+- **What got better besides the bars:**
+  - An object moving against a panning background: error at its outline 5.13 to 4.01 (AMD's 3.11), with auto exposure
+    on 5.55 to 3.90.
+  - A thin wire in a slow camera pan: change per frame 11.04 to 10.18 (AMD's 7.16), with auto exposure on 8.05 to 7.41.
+- **Speed is unchanged.** Whole upscaler in the Windows timing kit under Proton on a Radeon RX 7800 XT, one run,
+  average per frame, `dll-2026-10-12.2` to this release: 2.23 to 2.22 ms at 4K, 1.03 to 1.03 at 1440p, 0.65 to 0.65 at
+  1080p (AMD's shaders: 4.89, 2.17, 1.06). At 1080p a skipped frame takes 0.32 instead of 0.31 ms.
+- **Unchanged or within 3%:** the still picture, flat areas and thin detail at rest, film grain, the rest of the moving
+  scene at every size and from 30 to 120 FPS, particles, rain, fireflies, glints, foliage, fades, the plate scenes.
+- **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced with the Linux files, one run: 18,916 frames and 122 FPS, the
+  overlay's average upscaler time 2.01 ms (`dll-2026-10-12.2` the day before: 18,879 frames, 122 FPS, 2.00 ms). The
+  picture looked great there and thin edges excellent, by eye. That is one game at one setting;
+  the games the fault was reported from have not been tried.
+- **Not checked:**
+  - Windows drivers. The image whose spare channel the lossy DLL now uses is declared with three channels in FSR 4's
+    shaders. Under Proton the fourth arrives intact, at every size and option tried. Whether every Windows driver
+    passes it on is not known. If one does not, fine detail at rest would shimmer on every other frame: if you see
+    that with this release and not with `dll-2026-10-12.2`, please report it.
+  - The bar scenes at 4K and 1080p output (the scenes of the full check were run at every size).
+  - The quality checks with the HDR option set (the DLLs were compared with the Linux files with it).
+- These are single runs on made-up scenes.
+  [How the old image was traced to the network's memory, the spare channel, and the cleared diagonals](../research/frame-skip/README.md#finer-motion-for-the-rules-a-memory-rule-and-two-cleared-diagonals-release-dll-2026-10-13).
 
 ## 2026-10-12 ([release `dll-2026-10-12.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-12.2))
 

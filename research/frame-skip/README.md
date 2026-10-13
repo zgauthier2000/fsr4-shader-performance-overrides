@@ -1811,6 +1811,99 @@ looked great and thin edges excellent, by eye.
 Not measured: the games the fault was reported from, the bar scenes at 4K and 1080p output, the quality set with the HDR
 option, and anything on Windows itself.
 
+## A thin wire in a pan: the clamp only beside different motion (release `dll-2026-10-13.2`)
+
+A wire far thinner than a rendered pixel (a distant power line) was shown at about half its brightness while the camera pans:
+53 of a true 111 in a slow pan, where AMD's shaders show 100. One rule did most of that, and what the rule was kept for is
+covered by a later one.
+
+### Which rule dims the wire
+
+Each rule of a skipped frame switched off in turn, the wire scene in a slow pan (2 and 1 pixels per frame), 4K output from
+2260x1272, skipped frames, one run each:
+
+| | Wire brightness (true 110.7) | Change per frame | Unevenness along the wire ("beads") | Bright peaks over the true wire |
+|---|---|---|---|---|
+| AMD's shaders | 100.2 | 7.16 | +9.3 | +18.9 |
+| `dll-2026-10-13` | 52.9 | 10.18 | +15.4 | +5.6 |
+| no history clamp at all (`SB_CLAMP=off`) | 76.7 | 5.32 | +6.6 | +5.3 |
+| the clamp's line moved from 0 to 0.3 up to 0.2 to 0.5 (`SB_CLAMPW="0.2 0.5"`) | 68.2 | 6.66 | +10.2 | +4.3 |
+| spark test without its neighbor rules (`SB_LONE=0`) | 59.0 | 15.33 | +20.8 | +42.7 |
+| ... with a neighbor in one direction only (`SB_BLOB=0`) | 59.0 | 15.36 | +20.8 | +43.4 |
+| the weight not squared (`SB_CONST=off`) | 54.6 | 12.04 | +17.4 | +10.5 |
+| no spark test (`SB_SAMPLE=off`) | 52.9 | 10.05 | +15.3 | +4.7 |
+| no clamp beside different motion (`SB_CLAMPEDGE=0`) | 53.0 | 10.23 | +15.5 | +6.1 |
+| no memory rule (`SB_MEMSTILL=off`) | 52.9 | 10.19 | +15.3 | +5.1 |
+
+- **The history clamp is the rule.** On a skipped frame in motion it limits the previous picture to the range of the nine new
+  samples around the pixel, and all nine miss such a wire on most frames. Since `dll-2026-10-11` it is applied in proportion
+  to the network's weight of a frame ago ([above](#thin-wires-what-the-history-clamp-did-to-them)): not at all at 0, in full
+  from 0.3. In a pan the network's weight along the wire is often above 0, so part of the wire was still taken away on every
+  skipped frame.
+- **The spark test is not it.** Letting it take the wire's hits again makes the wire a little brighter and brings the beads back.
+- **With the clamp off nothing else adds.** The same switches on top of `SB_CLAMP=off`: the weight not squared 72.4 (dimmer:
+  the new frame mostly misses the wire), spark test without its neighbor rules 78.4 with peaks of +34.9, no spark test 76.8.
+  What is left between 77 and AMD's 100 is not a rule of the last shader. A guess, not measured: the network rebuilds the
+  wire on every other frame only, while the picture is resampled along the motion on every frame.
+
+### The clamp only beside different motion (`SB_CLAMPW=edge`)
+
+The clamp in motion has had a second trigger since `dll-2026-10-11.2`: in full, whatever the network's weight, wherever
+something near the pixel, or what now sits where its content was, moves differently
+([a still object over fast ground](#a-still-object-over-fast-ground-release-dll-2026-10-112)). `SB_CLAMPW=edge`, the default
+from this release, keeps that trigger and drops the one by weight. In the wire scene everything moves alike, so the wire
+gets the figures of "no history clamp at all".
+
+When the weight trigger was introduced, switching the clamp off in motion cost 2.4 dB in just-uncovered areas (the table in
+the section linked above). That was before the clamp beside different motion, before the uncovered test had depth and a
+record of who was where, and before the rules read motion per 2x2 pixels. With those in place the weight trigger buys
+little: just-uncovered areas in the panning scene read 35.90 dB before and after at 4K, and lose 0.2 to 0.3 dB at 1440p and 5K output (the table below).
+
+`SB_CLAMPW="0.0 0.3"` rebuilds `dll-2026-10-13`'s Linux files and both DLLs' shader sets byte for byte.
+
+### The release build against `dll-2026-10-13`
+
+Auto exposure off / on, 4K output from 2260x1272, skipped frames, one run:
+
+| | AMD's shaders | `dll-2026-10-13` | This release |
+|---|---|---|---|
+| Thin wire, slow pan: brightness (true 110.7) | 100.2 / 92.4 | 52.9 / 47.8 | 76.7 / 70.2 |
+| ... change per frame | 7.16 / 6.79 | 10.18 / 7.41 | 5.36 / 4.66 |
+| ... unevenness along the wire | +9.3 / +9.8 | +15.4 / +12.5 | +6.7 / +6.7 |
+| Thin wire, fast pan: brightness (true 110.9) | 97.4 / 91.9 | 58.5 / 53.4 | 69.9 / 64.0 |
+| Thin wire, camera still: brightness | 67.4 / 60.8 | 64.7 / 57.4 | 64.7 / 57.4 |
+| Large particles in a pan: error | 0.73 / 0.75 | 1.72 / 1.67 | 1.83 / 1.79 |
+| Ghost, object against a panning background: outline | 3.11 / 2.90 | 4.01 / 3.90 | 3.74 / 4.31 |
+| Just-uncovered areas, panning scene, 4K | 34.48 dB | 35.90 / 36.05 dB | 35.90 / 36.01 dB |
+| ... 1440p | 34.62 / 35.51 dB | 35.01 / 35.70 dB | 34.85 / 35.59 dB |
+| ... 1080p | 32.61 / 33.74 dB | 33.50 / 34.34 dB | 33.58 / 34.39 dB |
+| ... 5K | 39.90 / 40.51 dB | 40.19 / 40.77 dB | 39.90 / 40.65 dB |
+| Just-uncovered areas, camera still and objects moving | 32.62 / 33.06 dB | 31.77 / 32.23 dB | 31.77 / 32.25 dB |
+| A still bright object over fast ground, same depth: error | 1.62 | 2.64 | 2.65 |
+
+- Five of 50 row pairs of the full check move by more than 3% in each mode: the two wire rows in a pan, the large particles
+  in a pan, the ghost row above, and the count of bright dots in hard-sampled foliage in a pan (0.35 to 0.33; with auto
+  exposure on 0.34 to 0.34 on skipped frames). No run failed.
+- **Worse:** large particles while the camera pans, by 6 to 7%; just-uncovered areas at 1440p output (0.16 dB, 0.11 with auto exposure
+  on) and at 5K (0.29 and 0.12 dB), where the weight trigger still did something. Both stay below the full check's 3% line, and at
+  5K the figure is now AMD's.
+- **Mixed:** the ghost outline against a panning background is 7% better with auto exposure off and 11% worse with it on.
+- Everything at rest is unchanged, and so are the still picture, grain, rain, fireflies, glints, foliage, fades, the rest of the
+  moving scene at 1080p, 1440p, 4K and 5K and from 30 to 120 FPS, and the thin bars fixed on screen that `dll-2026-10-13` was
+  about (ten bar scenes at 1440p output: every figure within 0.02 of that release's).
+
+The lossy DLLs give the Linux files' output byte for byte in 48 of 48 rig runs.
+
+Time: the weight term drops out of the last shader (42 instructions fewer, the same 96 registers and 16 waves on an RX 7800
+XT). In the timing kit's probe at 4K the last shader of a skipped frame reads 0.58 ms before and after, in both slot orders.
+
+In a game: Shadow of the Tomb Raider's benchmark at 4K Balanced with the Linux files, one run: 18,875 frames, 122 FPS, the
+overlay's average upscaler time 2.00 ms (`dll-2026-10-13` the same day: 18,916 frames, 122 FPS, 2.01 ms); the picture looked
+great, by eye.
+
+Not measured: a game scene with such wires, the wire scenes at other output sizes than 4K, the quality set with the HDR
+option, and this release on Windows itself.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in

@@ -39,8 +39,8 @@ What it costs
   than with AMD's file: the picture there is averaged over about one more frame. Leaves that
   move slowly are closer to AMD's since dll-2026-10-12 while the camera is still; leaves that
   move fast, and all moving leaves during a camera pan or at a low frame rate, are not.
-- Very thin things in the distance (power lines, fences) are shown about half as bright as
-  with AMD's file while the camera pans, and flicker up to 45% more in a slow pan. With
+- Very thin things in the distance (power lines, fences) are shown 25 to 30% dimmer than
+  with AMD's file while the camera pans (about half as bright up to dll-2026-10-13). With
   the camera still they are as bright and as steady as AMD's.
 - Strong film grain is passed on more than with the releases before dll-2026-10-11.4.
   Without FSR's auto exposure it stays steadier than with AMD's file; in a game that uses

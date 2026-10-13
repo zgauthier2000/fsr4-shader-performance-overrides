@@ -11,8 +11,7 @@ other projects.
 - **Picture accuracy:** the lossy DLL stays close to AMD's FSR 4.1.1 and ahead of the other three: within 0.1 dB of FSR 4
   on a still picture, where XeSS, HelixSR and FSR 3.1 are 2 to 4 dB behind.
 - **Where the lossy DLL is last of the five:** leaves that sway fast without motion vectors (with slowly swaying leaves it is
-  second after FSR 4). A very thin wire in a camera pan it draws dimmer than any of the others, and in a slow pan that wire flickers more than
-  with any of them. In film grain it is busier
+  second after FSR 4). A very thin wire in a camera pan it draws dimmer than any of the others (and steadier than any of them). In film grain it is busier
   than FSR 3.1, HelixSR and XeSS (and steadier than FSR 4).
 - **Rain** drawn without motion vectors is where the five differ most to the eye: HelixSR shows the streaks as the game drew
   them, FSR 3.1 shows part of them, and FSR 4, the lossy DLL and XeSS blend faint rain almost entirely into the picture.
@@ -22,7 +21,7 @@ other projects.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/cmp5-radar-dark.svg">
-  <img src="img/cmp5-radar-light.svg" width="760" alt="Five radar charts, one per upscaler, the lossy DLL first and its shape as a dashed outline in the other four, each with ten spokes: accuracy, thin railing, just-uncovered areas, old image beside moving objects, thin bars fixed on screen, tiny fast sparks, swaying foliage, steadiness at rest, brightness of a thin wire in a pan, and speed. On every spoke the best of the five reaches the outer ring and the others reach in proportion. FSR 4.1.1 reaches the ring on every picture spoke except just-uncovered areas, where it is a little short, and is short on steadiness at rest and on speed. The lossy DLL has nearly FSR 4.1.1's shape on accuracy, the railing and the fixed bars, is slightly ahead on just-uncovered areas, shorter on old image, sparks and foliage, far shorter on the wire, and longer on steadiness at rest and speed. FSR 3.1 is longest on speed and steadiness at rest, close to the ring on the wire, and shortest on accuracy and sparks. HelixSR is strong on sparks and short on the fixed bars and just-uncovered areas. XeSS is short on the fixed bars, old image, steadiness at rest and speed. The figures are in the tables below.">
+  <img src="img/cmp5-radar-light.svg" width="760" alt="Five radar charts, one per upscaler, the lossy DLL first and its shape as a dashed outline in the other four, each with ten spokes: accuracy, thin railing, just-uncovered areas, old image beside moving objects, thin bars fixed on screen, tiny fast sparks, swaying foliage, steadiness at rest, brightness of a thin wire in a pan, and speed. On every spoke the best of the five reaches the outer ring and the others reach in proportion. FSR 4.1.1 reaches the ring on every picture spoke except just-uncovered areas, where it is a little short, and is short on steadiness at rest and on speed. The lossy DLL has nearly FSR 4.1.1's shape on accuracy, the railing and the fixed bars, is slightly ahead on just-uncovered areas, shorter on old image, sparks and foliage, much shorter on the wire, and longer on steadiness at rest and speed. FSR 3.1 is longest on speed and steadiness at rest, close to the ring on the wire, and shortest on accuracy and sparks. HelixSR is strong on sparks and short on the fixed bars and just-uncovered areas. XeSS is short on the fixed bars, old image, steadiness at rest and speed. The figures are in the tables below.">
 </picture>
 
 **How to read it.** One shape per upscaler, all on the same ten spokes. On each spoke the best of the five reaches the outer ring; the
@@ -39,7 +38,7 @@ of the picture where the five differ most from each other, picked by that script
 | Name here | What it is | Version | Settings |
 |---|---|---|---|
 | FSR 4.1.1 | AMD's FSR 4 (INT8 model) with AMD's own shaders. This project's exact DLL gives the same picture, byte for byte | 4.1.1 | defaults |
-| Lossy | this project's lossy DLL: FSR 4.1.1's network on every other frame | release `dll-2026-10-13` (auto exposure is off on this page) | defaults |
+| Lossy | this project's lossy DLL: FSR 4.1.1's network on every other frame | release `dll-2026-10-13.2` (auto exposure is off on this page) | defaults |
 | FSR 3.1 | AMD's FSR 3.1 upscaler, from the same AMD file as FSR 4.1.1 | 3.1.5 | defaults |
 | HelixSR | a community upscaler that runs NVIDIA's DLSS "Model E" network as ordinary compute shaders behind FSR 3.1's interface | 1.2.0 | defaults (its main network, sharpening off) |
 | XeSS | Intel's XeSS, in the form that runs on any graphics card | 2.0.2 | defaults, no auto exposure |
@@ -60,13 +59,13 @@ Against the true image; higher dB is better, lower error is better.
 | Scene | FSR 4.1.1 | Lossy | FSR 3.1 | HelixSR | XeSS |
 |---|---|---|---|---|---|
 | Still picture | 44.33 dB | 44.26 dB | 39.94 dB | 41.99 dB | 42.14 dB |
-| Moving scene: background | 49.27 dB | 48.98 dB | 47.95 dB | 46.92 dB | 47.70 dB |
+| Moving scene: background | 49.27 dB | 48.99 dB | 47.95 dB | 46.92 dB | 47.70 dB |
 | Mean of the two rows above (the chart's accuracy spoke) | 46.80 dB | 46.62 dB | 43.95 dB | 44.45 dB | 44.92 dB |
 | Moving scene: thin railing | 41.82 dB | 41.34 dB | 38.36 dB | 40.12 dB | 40.86 dB |
 | Moving scene: areas a moving object has just uncovered | 34.48 dB | 35.90 dB | 29.22 dB | 27.11 dB | 30.20 dB |
 | The same with the camera still and the objects moving | 32.62 dB | 31.77 dB | 29.96 dB | 29.76 dB | 31.53 dB |
 | Mean of the two rows above (the chart's uncovered spoke) | 33.55 dB | 33.84 dB | 29.59 dB | 28.44 dB | 30.87 dB |
-| A still bright object over fast ground at the same depth: error where its old image lands, of 255 | 1.62 | 2.64 | 3.09 | 2.27 | 2.15 |
+| A still bright object over fast ground at the same depth: error where its old image lands, of 255 | 1.62 | 2.65 | 3.09 | 2.27 | 2.15 |
 | Leaves swaying without motion vectors, camera still: error of 255 | 12.1 | 18.7 | 16.8 | 15.5 | 15.5 |
 | The same, camera panning | 10.7 | 18.0 | 15.4 | 16.8 | 16.8 |
 | Leaves swaying at two thirds of that speed, camera still | 10.8 | 13.0 | 16.7 | 14.1 | 14.2 |
@@ -156,18 +155,18 @@ The figures are for the frames the lossy DLL skips the network for.
 | 12,6 / −6,6 | 0.85 | 0.87 | 0.93 | 2.64 | 1.77 |
 | 12,6 / 6,−6 | 1.07 | 1.09 | 1.11 | 1.95 | 1.43 |
 | still camera / 8,0 | 1.07 | 1.31 | 1.56 | 1.80 | 1.51 |
-| still camera / 6,−6 | 1.74 | 1.89 | 3.43 | 3.53 | 2.43 |
-| still camera / −6,6 | 4.01 | 4.66 | 6.96 | 7.29 | 6.56 |
-| −16,4 / 8,0 (fast pan against the object's motion) | 3.11 | 4.01 | 5.35 | 4.69 | 18.06 |
-| A still bright object over fast ground (the row in the table above) | 1.62 | 2.64 | 3.09 | 2.27 | 2.15 |
-| Mean of the seven (the chart's old-image spoke) | 1.92 | 2.35 | 3.20 | 3.45 | 4.84 |
+| still camera / 6,−6 | 1.74 | 1.90 | 3.43 | 3.53 | 2.43 |
+| still camera / −6,6 | 4.01 | 4.67 | 6.96 | 7.29 | 6.56 |
+| −16,4 / 8,0 (fast pan against the object's motion) | 3.11 | 3.74 | 5.35 | 4.69 | 18.06 |
+| A still bright object over fast ground (the row in the table above) | 1.62 | 2.65 | 3.09 | 2.27 | 2.15 |
+| Mean of the seven (the chart's old-image spoke) | 1.92 | 2.32 | 3.20 | 3.45 | 4.84 |
 
 | Thin bars fixed on screen, background panning (pixels per frame); frames with the network and without, mean | FSR 4.1.1 | Lossy | FSR 3.1 | HelixSR | XeSS |
 |---|---|---|---|---|---|
 | 6,0 | 0.94 | 0.96 | 0.96 | 3.74 | 1.26 |
 | 12,0 | 0.73 | 0.83 | 0.97 | 3.05 | 3.74 |
-| 30,0 | 0.53 | 0.66 | 0.62 | 1.61 | 7.62 |
-| 12,4 | 1.10 | 1.19 | 1.63 | 3.29 | 2.81 |
+| 30,0 | 0.53 | 0.65 | 0.62 | 1.61 | 7.62 |
+| 12,4 | 1.10 | 1.20 | 1.63 | 3.29 | 2.81 |
 | Mean of the four (the chart's fixed-bars spoke) | 0.82 | 0.91 | 1.04 | 2.92 | 3.85 |
 
 - **The lossy DLL is second to FSR 4 in both tables,** and ahead of the other three or level with them in every row but two: the bright object over fast ground, where HelixSR and XeSS are ahead,
@@ -179,7 +178,7 @@ The figures are for the frames the lossy DLL skips the network for.
   up to 3.1 on those that skip it ([the figures](../research/frame-skip/README.md#finer-motion-for-the-rules-a-memory-rule-and-two-cleared-diagonals-release-dll-2026-10-13)).
   The other three upscalers were not run at that size.
 
-<img src="img/cmp5-ghost.png" width="760" alt="Old image beside a moving object, camera still: the narrow strip beside a striped object where its image of a frame ago would land, shown at full brightness, enlarged five times. Error in the strip: FSR 4.1.1 4.2 of 255, the lossy DLL 5.0, XeSS 7.1, HelixSR 8.1, FSR 3.1 8.2. All five show the strip close to the true image; the differences are small to the eye.">
+<img src="img/cmp5-ghost.png" width="760" alt="Old image beside a moving object, camera still: the narrow strip beside a striped object where its image of a frame ago would land, shown at full brightness, enlarged five times. Error in the strip: FSR 4.1.1 4.2 of 255, the lossy DLL 5.1, XeSS 7.1, HelixSR 8.1, FSR 3.1 8.2. All five show the strip close to the true image; the differences are small to the eye.">
 
 <img src="img/cmp5-bars.png" width="760" alt="Thin bars fixed on screen in front of a background panning by 12 pixels per frame, a piece with two bars enlarged four times and brightened three times. The true image, FSR 4.1.1 (error 0.6 of 255 where the bars' old image would land) and FSR 3.1 (0.8) show only the two bars. The lossy DLL (1.0) shows one faint thin line beside the left bar. HelixSR (3.4) shows several faint copies of the bars and XeSS (9.6) several clear ones.">
 
@@ -192,15 +191,15 @@ How much the picture changes from one frame to the next where it should not, in 
 | Still picture, whole frame | 0.037 | 0.024 | 0.014 | 0.020 | 0.084 |
 | Moving scene: background | 0.079 | 0.024 | 0.077 | 0.193 | 0.085 |
 | A wire half a pixel wide, camera still | 2.9 | 2.8 | 2.3 | 2.4 | 4.2 |
-| The same wire under a slow pan | 7.2 | 10.2 | 8.2 | 5.6 | 10.1 |
-| The same wire under a slow pan: its brightness, of 255 (true: 111; the chart's wire spoke is the distance from that) | 100 | 53 | 121 | 135 | 90 |
+| The same wire under a slow pan | 7.2 | 5.4 | 8.2 | 5.6 | 10.1 |
+| The same wire under a slow pan: its brightness, of 255 (true: 111; the chart's wire spoke is the distance from that) | 100 | 77 | 121 | 135 | 90 |
 | Still picture with grain of 6 of 255 | 0.785 | 0.330 | 0.162 | 0.213 | 0.182 |
 | Still picture with grain of 10 of 255 | 1.724 | 1.028 | 0.308 | 0.300 | 0.228 |
 
 - The lossy DLL has the steadiest moving background of the five.
-- **A thin wire under a slow pan is its weakest steadiness case:** over 40% more flicker than FSR 4, and level with XeSS as the
-  least steady of the five. Two light folds added to it: the one in the network's first layer in release `dll-2026-10-12` (9.6 to 10.3) and the one in the last shader in `dll-2026-10-12.2` (to 11.0); fixing a storage fault in the motion record took some of it back in `dll-2026-10-13` (to 10.2). It also draws that wire dimmer than any of them: 53 of 255 against a true 111, where FSR 4 shows 100, XeSS 90,
-  FSR 3.1 121 and HelixSR 135.
+- **A thin wire under a slow pan was its weakest steadiness case up to release `dll-2026-10-13`** (10.2, level with XeSS as the least steady of the five). Since `dll-2026-10-13.2`
+  it is the steadiest of the five there, a little ahead of HelixSR. Before that, two light folds had added to it: the one in the network's first layer in release `dll-2026-10-12` (9.6 to 10.3) and the one in the last shader in `dll-2026-10-12.2` (to 11.0); fixing a storage fault in the motion record took some of it back in `dll-2026-10-13` (to 10.2). It still draws that wire dimmer than any of them: 77 of 255 against a true 111 (53 up to `dll-2026-10-13`), where FSR 4 shows 100, XeSS 90,
+  FSR 3.1 121 and HelixSR 135. On the chart's measure, the distance from the true brightness, that is 34 against 11 for FSR 4 and FSR 3.1, 21 for XeSS and 24 for HelixSR.
 - **Grain:** FSR 4 passes grain on almost unchanged. The lossy DLL holds some of it back on the frames it skips, but FSR 3.1, HelixSR
   and XeSS all hold it back much further. Release `dll-2026-10-12` gave up steadiness here for the slow-foliage rows above (0.460 and 1.291; the
   release before it read 0.342 and 1.056), and release `dll-2026-10-12.2` won it back with a light fold in the last shader.
@@ -210,7 +209,7 @@ How much the picture changes from one frame to the next where it should not, in 
 
 <img src="img/cmp5-rest.png" width="760" alt="Steadiness at rest: a piece of the still picture and, for each of the five, a map of how much every pixel changes from one frame to the next, brightened 120 times, at the place where FSR 4.1.1 changes most. Mean change in the piece: FSR 4.1.1 0.145 of 255, XeSS 0.122, the lossy DLL 0.064, HelixSR 0.052, FSR 3.1 0.038. Whole frame: 0.036, 0.082, 0.022, 0.019 and 0.013.">
 
-<img src="img/cmp5-wires.png" width="760" alt="A wire far thinner than a rendered pixel while the camera pans slowly, a piece with three wires enlarged four times. True image: thin continuous gray lines. FSR 4.1.1 (error 1.6 of 255) and FSR 3.1 (1.2) show them continuous and nearly as bright; XeSS (2.0) dimmer and dotted; HelixSR (3.1) thicker and brighter than the true image; the lossy DLL (3.7) shows them far dimmer, the upper two almost gone in most of the piece.">
+<img src="img/cmp5-wires.png" width="760" alt="A wire far thinner than a rendered pixel while the camera pans slowly, a piece with three wires enlarged four times. True image: thin continuous gray lines. FSR 4.1.1 (error 1.6 of 255) and FSR 3.1 (1.2) show them continuous and nearly as bright; XeSS (2.0) dimmer and dotted; HelixSR (3.1) thicker and brighter than the true image; the lossy DLL (3.0) shows the lowest wire continuous and dimmer, and the upper two, which lie almost level, only at the right end of the piece.">
 
 ## Speed
 
@@ -227,7 +226,8 @@ Graphics-card time for one upscale call, in milliseconds, at the same render rat
   up. XeSS has another interface and was timed by a second program over 32 calls, so its column is not measured in quite
   the same way.
 - The lossy figure is an average over the two kinds of frame: at 4K, 3.21 ms when the network runs and 1.22 ms when it is skipped.
-- All six columns were timed again on 2026-10-13 with the DLLs of release `dll-2026-10-13`, on the still scene, one run each.
+- All six columns were timed on 2026-10-13 with the DLLs of release `dll-2026-10-13`, on the still scene, one run each. Release `dll-2026-10-13.2`'s lossy DLL was not timed
+  again here: the one shader it changes takes the same time in the timing kit's probe.
   The table before it, timed a day earlier with `dll-2026-10-12.2`, had 0.63 / 1.02 / 2.21 for the lossy DLL; no column moved by more
   than 0.02 ms. The lossy DLL's 0.02 ms at 1080p matches what the timing kit shows for this release's skipped frame there.
 - XeSS runs a different, slower network on cards that are not Intel's than on Intel Arc. These figures say nothing about XeSS on Arc.
