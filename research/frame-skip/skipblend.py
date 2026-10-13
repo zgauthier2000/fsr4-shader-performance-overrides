@@ -326,12 +326,13 @@ if CLAMPM is not None or UNCOV:
 
     # SB_ALPHA=1 (PROTOTYPE, after motionpost.py MP_ALPHA=1): a cell's motion is the one its first pixel carries in the prepass's image; the block's entry where that says "too fast"
     SAE = 'e' if os.environ.get('SB_ALPHA', '0') == '1' and any('%mp_aim = ' in l for l in L) else ''
+    SA_REST = os.environ.get('SB_ALPHA', '0') == 'rest' and any('%mp_aim = ' in l for l in L)      # only the at-rest rule's "this cell does not move" from the channel; every lookup of the uncovered test stays per block
     _mpdef = {m[1]: m[2] for l in L for m in [re.match(r'\s*(%mp_a(?:rp|r|i|ip|im)) = (.*)$', l)] if m}
-    SA_IMG = [f"{k.replace('%mp_a', '%sm_ia')} = {re.sub(r'%mp_a(rp|r|i|ip|im)(?!\\w)', lambda m: '%sm_ia' + m[1], _mpdef[k])}" for k in ('%mp_arp', '%mp_ar', '%mp_ai', '%mp_aip', '%mp_aim')] if SAE else []
+    SA_IMG_ = [f"{k.replace('%mp_a', '%sm_ia')} = {re.sub(r'%mp_a(rp|r|i|ip|im)(?!\\w)', lambda m: '%sm_ia' + m[1], _mpdef[k])}" for k in ('%mp_arp', '%mp_ar', '%mp_ai', '%mp_aip', '%mp_aim')] if (SAE or SA_REST) else []
     sa_done = []
     def mread(p, x, y):
         """motion (output pixels, signed) stored for the cell (x, y), clamped into the frame; one entry per 2x2 cells"""
-        pre = [] if sa_done or not SAE else SA_IMG; sa_done.append(1)      # the image, loaded where the first lookup is made
+        pre = [] if sa_done or not (SAE or SA_REST) else SA_IMG_; sa_done.append(1)      # the image, loaded where the first lookup is made
         return pre + [f'{p}xc = OpExtInst %uint {GLSL} SClamp {x} %sb_c0 %sm_wm', f'{p}yc = OpExtInst %uint {GLSL} SClamp {y} %sb_c0 %sm_hm',
                 f'{p}xq = OpShiftRightLogical %uint {p}xc %sm_c1', f'{p}yq = OpShiftRightLogical %uint {p}yc %sm_c1',
                 f'{p}yr = OpShiftRightLogical %uint {p}yq %sm_c1', f'{p}yo = OpBitwiseAnd %uint {p}yq %sm_c1', f'{p}yb = OpINotEqual %bool {p}yo %sb_c0',
@@ -413,7 +414,12 @@ if CLAMPM is not None or UNCOV:
             flag = f'{p}acc'
         # at rest: this cell does not move, and neither does anything looked at around it
         if REST:
-            mh += ['%sm_c0u = OpIEqual %bool %sm_am %sb_c0', f'%sm_nany = OpLogicalNot %bool {any_}', '%sm_rin = OpLogicalAnd %bool %sm_c0u %sm_nany']
+            if SA_REST:
+                q = '%sm_ra'
+                mh += [f'{q}px = OpShiftLeftLogical %uint %sm_pxc %sm_c1', f'{q}py = OpShiftLeftLogical %uint %sm_pyc %sm_c1', f'{q}co = OpCompositeConstruct %v2uint {q}px {q}py',
+                       f'{q}f = OpImageFetch %v4float %sm_iaim {q}co Lod %uint_0', f'{q}a = OpCompositeExtract %float {q}f 3', f'{q}ok = OpFOrdGreaterThan %bool {q}a %mp_alim',
+                       f'{q}z = OpFOrdEqual %bool {q}a %mp_a32', f'{q}zb = OpIEqual %bool %sm_am %sb_c0', f'{q}c0 = OpSelect %bool {q}ok {q}z {q}zb']
+            mh += ['%sm_c0u = ' + ('OpLogicalAnd %bool %sm_rac0 %sm_rac0' if SA_REST else 'OpIEqual %bool %sm_am %sb_c0'), f'%sm_nany = OpLogicalNot %bool {any_}', '%sm_rin = OpLogicalAnd %bool %sm_c0u %sm_nany']
         if DEPTH and os.environ.get('SB_PLANE', '1') == '1':
             # The exact form of that test: the prepass has recorded, for every block, the nearest surface that was there a
             # frame ago (frameskip.py). This pixel's content was at p + D_p then; if the surface recorded there is another
