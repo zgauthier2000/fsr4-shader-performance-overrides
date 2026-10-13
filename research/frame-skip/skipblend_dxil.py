@@ -7,7 +7,7 @@
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
 import os, re, sys
 # the changed-content tests of skipblend.py are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', '0.0 0.3')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
@@ -171,7 +171,8 @@ _hi = [float(x) for x in os.environ['SB_RESTW'].split()] if _band else None
 if _band:
     os.environ['SB_RESTW'] = f'{_band[0]} {_band[1]}'
 _rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_RESTW') else None      # as in skipblend.py
-_cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_CLAMPW') else None
+CWEDGE = os.environ.get('SB_CLAMPW') == 'edge'      # as in skipblend.py
+_cw = [float(x) for x in ('0 0' if CWEDGE else os.environ['SB_CLAMPW']).split()] if os.environ.get('SB_CLAMPW') else None
 DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # as in skipblend.py
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'
 LONE = os.environ.get('SB_LONE', '1') == '1'      # as in skipblend.py
@@ -504,9 +505,9 @@ else:
                                    f'  %sb.hc{c}{k} = call float @dx.op.binary.f32(i32 35, float %sb.h1{c}{k}, float %sb.lo{c}{k})',
                                    # no clamp at rest; in motion the clamp in proportion to the model's verdict (as in skipblend.py)
                                    *([f'  %sb.hcr{c}{k} = select i1 %sm.rest, float {h[c]}, float %sb.hc{c}{k}'] if NOCLAMPREST and REST else []),
-                                   *([f'  %sb.cwa{c}{k} = fsub fast float {w}, {fl(_cw[0])}', f'  %sb.cwq{c}{k} = fdiv fast float %sb.cwa{c}{k}, {fl(max(_cw[1] - _cw[0], 1e-6))}',
-                                      FMAX(f'%sb.cwu{c}{k}', f'%sb.cwq{c}{k}', '0.000000e+00'), FMIN(f'%sb.cwr{c}{k}', f'%sb.cwu{c}{k}', '1.000000e+00'),
-                                      f'  %sb.cwx{c}{k} = fsub fast float ' + (f'%sb.hcr{c}{k}' if NOCLAMPREST and REST else f'%sb.hc{c}{k}') + f', {h[c]}', *([f'  %sb.cwe{c}{k} = select i1 %sm.edge, float 1.000000e+00, float %sb.cwr{c}{k}'] if EDGE else []), f'  %sb.cwy{c}{k} = fmul fast float %sb.cwx{c}{k}, ' + (f'%sb.cwe{c}{k}' if EDGE else f'%sb.cwr{c}{k}'),
+                                   *([*([] if CWEDGE else [f'  %sb.cwa{c}{k} = fsub fast float {w}, {fl(_cw[0])}', f'  %sb.cwq{c}{k} = fdiv fast float %sb.cwa{c}{k}, {fl(max(_cw[1] - _cw[0], 1e-6))}',
+                                      FMAX(f'%sb.cwu{c}{k}', f'%sb.cwq{c}{k}', '0.000000e+00'), FMIN(f'%sb.cwr{c}{k}', f'%sb.cwu{c}{k}', '1.000000e+00')]),
+                                      f'  %sb.cwx{c}{k} = fsub fast float ' + (f'%sb.hcr{c}{k}' if NOCLAMPREST and REST else f'%sb.hc{c}{k}') + f', {h[c]}', *([f'  %sb.cwe{c}{k} = select i1 %sm.edge, float 1.000000e+00, float ' + ('0.000000e+00' if CWEDGE else f'%sb.cwr{c}{k}')] if EDGE else []), f'  %sb.cwy{c}{k} = fmul fast float %sb.cwx{c}{k}, ' + (f'%sb.cwe{c}{k}' if EDGE else '0.000000e+00' if CWEDGE else f'%sb.cwr{c}{k}'),
                                       f'  %sb.cwh{c}{k} = fadd fast float {h[c]}, %sb.cwy{c}{k}',
                                       (f'  %sb.hcw{c}{k} = select i1 %sm.rest, float {h[c]}, float %sb.cwh{c}{k}' if NOCLAMPREST and REST else f'  %sb.hcw{c}{k} = fmul fast float %sb.cwh{c}{k}, 1.000000e+00')] if _cw else []),
                                    f'  %sb.hd{c}{k} = fsub fast float ' + (f'%sb.hcw{c}{k}' if _cw else f'%sb.hcr{c}{k}' if NOCLAMPREST and REST else f'%sb.hc{c}{k}') + f', {h[c]}', f'  %sb.ha{c}{k} = fmul fast float %sb.hd{c}{k}, %sb.an{k}',

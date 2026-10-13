@@ -60,13 +60,16 @@
 # Things far thinner than a render pixel (distant wires): all nine samples miss them on most frames, so the history clamp
 # erased them from the history, and the next sample that hit looked like a spark to the sample test: white beads along the wire.
 #   SB_CLAMPREST (default 0; 1 = as before): no history clamp where the picture is at rest.
-#   SB_CLAMPW="t0 t1" (default "0.0 0.3"; "off" = as before): in motion, the clamp in proportion to the model's verdict of a frame
+#   SB_CLAMPW="t0 t1" ("0.0 0.3" up to release dll-2026-10-13; "off" = as before; default now "edge", see below): in motion, the clamp in proportion to the model's verdict of a frame
 #     ago: in full where its weight for the new frame was above t1 (it had given up the history there: just-uncovered areas), not
 #     at all at t0 and below (settled content, which includes a wire the model has been building up).
 #   SB_CLAMPEDGE (default 1; 0 = as release dll-2026-10-11): the clamp in full, whatever the model's verdict, where something near the
 #     pixel, or what now sits where its content was, moves differently from it. The verdict is a frame old and knows nothing of what
 #     has just come out from behind a still object: without this a bright object over fast-moving ground (a white license plate over
 #     the road) left its image on the ground wherever the uncovered test cannot fire (no depth search in the prepass, or equal depths).
+#   SB_CLAMPW=edge (default): in motion the clamp only where SB_CLAMPEDGE applies it, nowhere by the model's verdict. In a pan the verdict on a wire far thinner than a render
+#     pixel is often above t0, and the clamp then took part of the wire away on every skipped frame: such a wire was shown at about half its brightness. What the verdict was
+#     there for (old picture beside things that move differently) SB_CLAMPEDGE has covered since. SB_CLAMPW="0.0 0.3" gives release dll-2026-10-13's behavior.
 # Dead band (SB_DEAD, default 2; "off" = as release dll-2026-10-11.3): on every frame, a pixel whose three channels would each move by less than
 # SB_DEAD x history x 2^-10 keeps its history exactly. That is one to two steps of the 16-bit float the history is stored in at that value (SB_DEAD = 2: two
 # to four). At rest the network keeps asking for corrections of about that size in flat areas, and whether they survive the rounding is what shimmer at rest
@@ -98,7 +101,7 @@
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
 import os, re, sys
 # the changed-content tests (below) are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', '0.0 0.3')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
@@ -122,7 +125,8 @@ br = next(n for n in range(ge[1], len(L)) if 'OpBranchConditional' in L[n])
 lab = L[br].split()[-1]; lab0 = lab
 at = next(n for n, l in enumerate(L) if re.match(rf'\s*{re.escape(lab)} = OpLabel', l))
 _rw = [float(x) for x in os.environ['SB_RESTW'].split()] if os.environ.get('SB_RESTW') else None
-_cw = [float(x) for x in os.environ['SB_CLAMPW'].split()] if os.environ.get('SB_CLAMPW') else None
+CWEDGE = os.environ.get('SB_CLAMPW') == 'edge'      # the clamp in motion only beside surfaces that move differently (SB_CLAMPEDGE), nowhere by the model's verdict
+_cw = [float(x) for x in ('0 0' if CWEDGE else os.environ['SB_CLAMPW']).split()] if os.environ.get('SB_CLAMPW') else None
 EDGE = os.environ.get('SB_CLAMPEDGE', '1') == '1' and os.environ.get('SB_UNCOV', 'depth') != 'off' and bool(os.environ.get('SB_CLAMPW'))      # the clamp in full beside surfaces that move differently
 DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # dead band, in 16-bit float steps (see the head of the file)
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'      # no history clamp where the picture is at rest (needs the rest rule's flag)
@@ -673,8 +677,8 @@ else:
                                      f'%sb_h1{c}{k} = OpExtInst %float {GLSL} NMin {h[c]} %sb_hi{c}{k}', f'%sb_hc{c}{k} = OpExtInst %float {GLSL} NMax %sb_h1{c}{k} %sb_lo{c}{k}',
                                      # no clamp at rest; in motion the clamp in proportion to the model's verdict (see the head of the file)
                                      *([f'%sb_hcr{c}{k} = OpSelect %float %sm_rest {h[c]} %sb_hc{c}{k}'] if NOCLAMPREST and REST else []),
-                                     *([f'%sb_cwa{c}{k} = OpFSub %float {w} %sb_cw0', f'%sb_cwq{c}{k} = OpFDiv %float %sb_cwa{c}{k} %sb_cwd', f'%sb_cwr{c}{k} = OpExtInst %float {GLSL} NClamp %sb_cwq{c}{k} %sm_fz %sb_one',
-                                        f'%sb_cwx{c}{k} = OpFSub %float ' + (f'%sb_hcr{c}{k}' if NOCLAMPREST and REST else f'%sb_hc{c}{k}') + f' {h[c]}', *([f'%sb_cwe{c}{k} = OpSelect %float %sm_edge %sb_one %sb_cwr{c}{k}'] if EDGE else []), f'%sb_cwy{c}{k} = OpFMul %float %sb_cwx{c}{k} ' + (f'%sb_cwe{c}{k}' if EDGE else f'%sb_cwr{c}{k}'), f'%sb_cwh{c}{k} = OpFAdd %float {h[c]} %sb_cwy{c}{k}',
+                                     *([*([] if CWEDGE else [f'%sb_cwa{c}{k} = OpFSub %float {w} %sb_cw0', f'%sb_cwq{c}{k} = OpFDiv %float %sb_cwa{c}{k} %sb_cwd', f'%sb_cwr{c}{k} = OpExtInst %float {GLSL} NClamp %sb_cwq{c}{k} %sm_fz %sb_one']),
+                                        f'%sb_cwx{c}{k} = OpFSub %float ' + (f'%sb_hcr{c}{k}' if NOCLAMPREST and REST else f'%sb_hc{c}{k}') + f' {h[c]}', *([f'%sb_cwe{c}{k} = OpSelect %float %sm_edge %sb_one ' + ('%sm_fz' if CWEDGE else f'%sb_cwr{c}{k}')] if EDGE else []), f'%sb_cwy{c}{k} = OpFMul %float %sb_cwx{c}{k} ' + (f'%sb_cwe{c}{k}' if EDGE else '%sm_fz' if CWEDGE else f'%sb_cwr{c}{k}'), f'%sb_cwh{c}{k} = OpFAdd %float {h[c]} %sb_cwy{c}{k}',
                                         (f'%sb_hcw{c}{k} = OpSelect %float %sm_rest {h[c]} %sb_cwh{c}{k}' if NOCLAMPREST and REST else f'%sb_hcw{c}{k} = OpFMul %float %sb_cwh{c}{k} %sb_one')] if _cw else []),
                                      f'%sb_hd{c}{k} = OpFSub %float ' + (f'%sb_hcw{c}{k}' if _cw else f'%sb_hcr{c}{k}' if NOCLAMPREST and REST else f'%sb_hc{c}{k}') + f' {h[c]}', f'%sb_ha{c}{k} = OpFMul %float %sb_hd{c}{k} %sb_an{k}',
                                      f'%sb_rc{c}{k} = OpFAdd %float {mix[c]} %sb_ha{c}{k}']
