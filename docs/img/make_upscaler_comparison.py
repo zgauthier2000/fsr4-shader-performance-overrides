@@ -3,7 +3,7 @@
 # make_upscaler_comparison.py [<dir>]: the figures of docs/upscaler-comparison.md.
 #   cmp5-radar-{light,dark}.svg (one shape per upscaler), release-radar-{light,dark}.svg (this release's lossy DLL over the previous one's, and FSR 4.1.1 under this release's, for the front page), steady-quality-{light,dark}.svg (for docs/steady-test.md): charts; the numbers in them are the
 #       tables of that page (test rig, 4K output from 2260x1272, Radeon RX 7800 XT under Proton, single runs).
-#   With <dir>: cmp5-still.png, cmp5-wires.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-motion.png, cmp5-big.png (large particles), cmp5-plate.png, cmp5-rain.png (frame 39 of the plate scene and of the rain scene): the same piece of one frame from the
+#   With <dir>: one picture per picture spoke: cmp5-still.png, cmp5-motion.png (the railing), cmp5-uncovered.png, cmp5-uncovered-still.png, cmp5-ghost.png, cmp5-plate.png, cmp5-bars.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-rest.png (a change map), cmp5-wires.png (under a slow pan), and for the tables cmp5-big.png (large particles) and cmp5-rain.png: the same piece of one frame from the
 #       five upscalers beside the true image. <dir> holds <scene>_<name>/output_3840x2160_f037.raw (RGBA16F) for scene in still,
 #       wires, sparks, foliage, motion and name in fsr4, lossy, fsr3, helix, xess, and <scene>_truth.npy (the true 4K image).
 import sys
@@ -241,19 +241,28 @@ def box(a, kh, kw):
     return (c[kh:, kw:] - c[:-kh, kw:] - c[kh:, :-kw] + c[:-kh, :-kw]) / kh / kw
 
 
-def crops(scene, title, sub, kw, kh, z, area, gain=1.0, name=None, only_changed=False, frame=37):
-    """the kw x kh piece inside `area` (x0, y0, x1, y1) where the five differ most from each other, enlarged z times"""
+def crops(scene, title, sub, kw, kh, z, area, gain=1.0, name=None, only_changed=False, frame=37, mask=None, shade=False):
+    """the kw x kh piece inside `area` (x0, y0, x1, y1) where the five differ most from each other, enlarged z times;
+    mask: a file <dir>/<mask>.npy (4K, boolean), only differences inside it count (the part of the picture a measure looks at);
+    the piece is then centered on that part, and with shade the rest of the piece is dimmed"""
     tru = srgb(np.load(f'{D}/{scene}_truth.npy').astype(np.float32))
     out = {k: srgb(np.fromfile(f'{D}/{scene}_{k}/output_3840x2160_f{frame:03d}.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3]) for k in KEYS}
     spread = np.std(np.stack([out[k].mean(2) for k in KEYS]), 0)
     if only_changed:      # only where this scene's true image differs from the still scene's: the particles, not the picture behind them
         spread = spread * (np.abs(tru - srgb(np.load(f'{D}/still_truth.npy').astype(np.float32))).mean(2) > 0.02)
+    mk = np.load(f'{D}/{mask}.npy') if mask else None
+    if mask:
+        spread = spread * mk
     x0, y0, x1, y1 = area
     s = box(spread, kh, kw)[y0:y1 - kh, x0:x1 - kw]; y, x = np.unravel_index(np.argmax(s), s.shape); y += y0; x += x0
+    if mask:      # center the piece on the measured part inside it
+        ys, xs = np.nonzero(mk[y:y + kh, x:x + kw]); y = int(np.clip(y + ys.mean() - kh / 2, 0, HH - kh)); x = int(np.clip(x + xs.mean() - kw / 2, 0, WW - kw))
     c = lambda a: a[y:y + kh, x:x + kw]
-    pic = lambda a: (np.clip(np.repeat(np.repeat(c(a), z, 0), z, 1) * gain, 0, 1) * 255 + 0.5).astype(np.uint8)
-    panels = [('true image', pic(tru))] + [(f'{n}: {np.abs(c(out[k]) - c(tru)).mean() * 255:.1f}', pic(out[k])) for n, k in zip(NAMES, KEYS)]
-    print(scene, 'window', x, y, ' '.join(p[0] for p in panels[1:]))
+    dim = np.where(c(mk), 1.0, 0.4)[:, :, None] if (mask and shade) else 1.0
+    pic = lambda a: (np.clip(np.repeat(np.repeat(c(a) * dim, z, 0), z, 1) * gain, 0, 1) * 255 + 0.5).astype(np.uint8)
+    err = lambda a: (np.abs(c(a) - c(tru)).mean(2)[c(mk)] if mask else np.abs(c(a) - c(tru))).mean() * 255      # with a mask: over the measured part of the piece
+    panels = [('true image', pic(tru))] + [(f'{n}: {err(out[k]):.1f}', pic(out[k])) for n, k in zip(NAMES, KEYS)]
+    print(name or scene, 'window', x, y, ' '.join(p[0] for p in panels[1:]))
     pw, ph, gap, m = kw * z, kh * z, 14, 28
     top = 112 + 28 * sub.count('\n')
     im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
@@ -264,13 +273,47 @@ def crops(scene, title, sub, kw, kh, z, area, gain=1.0, name=None, only_changed=
     im.save(name or f'cmp5-{scene}.png', optimize=True)
 
 
+def restmap(kw=240, kh=150, z=2, gain=120):
+    """steadiness at rest: how much each pixel of the still picture changes from frame 36 to frame 37, as a map, at the piece where FSR 4.1.1 changes most"""
+    fr = lambda k, n: srgb(np.fromfile(f'{D}/rest_{k}/output_3840x2160_f{n:03d}.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3])
+    ch = {k: np.abs(fr(k, 37) - fr(k, 36)).mean(2) for k in KEYS}
+    spread = ch['fsr4']      # where FSR 4.1.1, the reference, changes most
+    s = box(spread, kh, kw)[200:HH - 200 - kh, 200:WW - 200 - kw]; y, x = np.unravel_index(np.argmax(s), s.shape); y += 200; x += 200
+    c = lambda a: a[y:y + kh, x:x + kw]
+    tru = srgb(np.load(f'{D}/rest_truth.npy').astype(np.float32))
+    pic = lambda a: (np.clip(np.repeat(np.repeat(a, z, 0), z, 1), 0, 1) * 255 + 0.5).astype(np.uint8)
+    mp = lambda a: np.repeat(pic(np.clip(c(a) * gain, 0, 1))[:, :, None], 3, 2)
+    panels = [('the picture (true image)', pic(c(tru)))] + [(f'{n}: {c(ch[k]).mean() * 255:.3f}', mp(ch[k])) for n, k in zip(NAMES, KEYS)]
+    print('rest window', x, y, ' '.join(p[0] for p in panels[1:]), '| whole frame:', ' '.join(f'{k} {ch[k].mean() * 255:.3f}' for k in KEYS))
+    title = 'Steadiness at rest: what changes from one frame to the next'
+    sub = ('A still picture, nothing moves. The piece where FSR 4.1.1 changes most, enlarged 2 times; the maps show the change of each pixel\n'
+           f'from one frame to the next, brightened {gain} times. Under each: mean change in this piece, of 255. Darker is steadier.')
+    pw, ph, gap, m = kw * z, kh * z, 14, 28
+    top = 112 + 28 * sub.count('\n')
+    im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
+    d.text((m, 22), title, font=font(30), fill=INK); d.multiline_text((m, 66), sub, font=font(20), fill=MUTED, spacing=8)
+    for i, (pl, a) in enumerate(panels):
+        px, py = m + (i % 3) * (pw + gap), top + (i // 3) * (ph + 44)
+        im.paste(Image.fromarray(a), (px, py)); d.text((px, py + ph + 6), pl, font=font(20), fill=INK if pl.startswith('Lossy') else MUTED)
+    im.save('cmp5-rest.png', optimize=True)
+
+
+# One picture per picture spoke of the chart (and two for scenes that are in the tables only: large particles, rain).
 E = 'Under each: mean error against the true image in this piece, of 255.'
-crops('still', 'Still picture: fine detail', f'A piece of the 4K output where the five upscalers differ most from each other, enlarged 4 times.\n{E}', 150, 90, 4, (200, 200, WW - 200, HH - 200))
-crops('wires', 'A wire far thinner than a rendered pixel, camera still', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (250, 250, 1950, 1900))
+EM = 'Under each: mean error against the true image in the measured part of this piece, of 255.'
+ES = 'The measured part is shown at full brightness, the rest dimmed. Under each: mean error against the true image in that part, of 255.'
+FULL = (200, 200, WW - 200, HH - 200)
+crops('still', 'Still picture: fine detail', f'A piece of the 4K output where the five upscalers differ most from each other, enlarged 4 times.\n{E}', 150, 90, 4, FULL)
+crops('motion', 'Moving scene: a thin railing', f'Camera panning, the railing moving the other way. The piece of the railing where the five differ most, enlarged 4 times.\n{EM}', 150, 90, 4, FULL, mask='motion_mask_rail')
+crops('motion', 'Just uncovered, camera panning', f'What a moving object has uncovered in the last four frames. The piece of it where the five differ most, enlarged 5 times.\n{ES}', 120, 72, 5, FULL, mask='motion_mask_uncovered', name='cmp5-uncovered.png', shade=True)
+crops('stillcam', 'Just uncovered, camera still', f'The camera is still and the objects move. The piece of what they have just uncovered where the five differ most,\nenlarged 5 times. {ES}', 120, 72, 5, FULL, mask='stillcam_mask', name='cmp5-uncovered-still.png', shade=True)
+crops('ghost10', 'Old image beside a moving object', f'Camera still, the object moving. Where its image of a frame ago would land if it were left behind: the piece where the five\ndiffer most, enlarged 5 times. {ES}', 120, 72, 5, FULL, mask='ghost10_mask', name='cmp5-ghost.png', shade=True)
+crops('plate', 'A still bright object over ground that moves fast', f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is, at the same depth.\nThe piece just below it where the five differ most, enlarged 2 times. {E}', 240, 160, 2, (2300, 800, 3100, 1000), frame=39)
+crops('bars', 'Thin bars fixed on screen in front of a moving background', f'The bars stay in place, the background pans by 12 pixels per frame. Between the bars, where their image of a frame ago\nwould land: the piece where the five differ most, enlarged 4 times and brightened 3 times. {EM}', 150, 90, 4, FULL, mask='bars_mask', gain=3)
 crops('sparks', 'Tiny fast sparks drawn without motion vectors', f'Camera still. Where the five differ most, enlarged 5 times. {E}', 120, 72, 5, (250, 250, 1950, 1900), only_changed=True)
 crops('foliage', 'Leaves swaying without motion vectors, camera still', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (300, 300, 1900, 1850))
-crops('motion', 'Moving scene: fine stripes on a moving object', f'Camera panning. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (1900, 250, 3300, 1500))
-crops('plate', 'A still bright object over ground that moves fast', f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is, at the same depth.\nThe piece just below it where the five differ most, enlarged 2 times. {E}', 240, 160, 2, (2300, 800, 3100, 1000), frame=39)
+restmap()
+crops('wirepan', 'A wire far thinner than a rendered pixel, camera panning slowly', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (250, 250, 1950, 1900), name='cmp5-wires.png')
 crops('big', 'Large glowing particles drawn without motion vectors', f'Camera still. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (250, 250, 1950, 1900), only_changed=True)
 
 # ---- rain: thin fast streaks without motion vectors over a dark surface (research/pruning/rain.py), frame 39. There is no "true image" to score against
