@@ -85,7 +85,7 @@ def figure(t):
          'the same shaders as the exact files except model pass 10, which merges a few of its smallest weights, and the postpass, which skips corrections smaller than about two steps of the picture\'s number format, about 2.9 ms. '
          'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.1 ms. '
          'The two kinds of frame alternate, 2.01 ms on average, 52% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
-         'still picture 44.31 dB against 44.33, flicker on fine detail at rest 0.086 against 0.110, areas just uncovered by a moving object 36.48 dB against 34.48. '
+         'still picture 44.26 dB against 44.33, flicker on fine detail at rest 0.087 against 0.110, areas just uncovered by a moving object 35.90 dB against 34.48. '
          'Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 34, 'Exact files and lossy builds, pass by pass', t, 16, 'ink', weight=600),
@@ -133,8 +133,8 @@ def figure(t):
     o.append(text(x2, y + 30, "Test scene, 4K Balanced. Exact files = AMD's.", t, 11, 'muted'))
     o.append(text(x2 + 196, y + 52, "AMD's", t, 11, 'muted', 'end'))
     o.append(text(x2 + 284, y + 52, 'Lossy', t, 11, 'muted', 'end'))
-    for i, (lab, a, b) in enumerate([('Still picture', '44.33 dB', '44.31 dB'), ('Flicker at rest, fine detail', '0.110', '0.086'),
-                                     ('Areas just uncovered', '34.48 dB', '36.48 dB')]):
+    for i, (lab, a, b) in enumerate([('Still picture', '44.33 dB', '44.26 dB'), ('Flicker at rest, fine detail', '0.110', '0.087'),
+                                     ('Areas just uncovered', '34.48 dB', '35.90 dB')]):
         yy = y + 72 + i * 22
         o.append(text(x2, yy, lab, t, 12, 'ink'))
         o.append(text(x2 + 196, yy, a, t, 12, 'ink2', 'end'))
