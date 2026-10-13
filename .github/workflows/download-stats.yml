@@ -32,6 +32,6 @@ jobs:
           cd "$RUNNER_TEMP/stats"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add downloads.csv runs.csv summary.md
+          git add downloads.csv runs.csv summary.md downloads-light.svg downloads-dark.svg
           git commit --quiet -m "Download counts $(date -u +%F)"
           git push --quiet origin download-stats
