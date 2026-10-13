@@ -22,13 +22,14 @@ other projects.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/cmp5-radar-dark.svg">
-  <img src="img/cmp5-radar-light.svg" width="760" alt="Five radar charts, one per upscaler, each with nine spokes: still picture, moving background, thin railing, just-uncovered areas, tiny fast sparks, swaying foliage, steadiness at rest, steadiness of a thin wire in a pan, and speed. On every spoke the best of the five reaches the outer ring and the others reach in proportion. FSR 4.1.1 fills the ring on accuracy, sparks and foliage and is short on speed and steadiness at rest. The lossy DLL has nearly FSR 4.1.1's shape on accuracy, is the best on just-uncovered areas, shorter on foliage and sparks, and longer on speed and steadiness at rest. FSR 3.1 is longest on speed and steadiness at rest and shortest on accuracy and sparks. HelixSR is longest on the wire and strong on sparks, short on just-uncovered areas. XeSS is short on speed, on steadiness at rest and on sparks. The figures are in the tables below.">
+  <img src="img/cmp5-radar-light.svg" width="760" alt="Five radar charts, one per upscaler, each with ten spokes: accuracy, thin railing, just-uncovered areas, old image beside moving objects, thin bars fixed on screen, tiny fast sparks, swaying foliage, steadiness at rest, brightness of a thin wire in a pan, and speed. On every spoke the best of the five reaches the outer ring and the others reach in proportion. FSR 4.1.1 reaches the ring on every picture spoke except just-uncovered areas, where it is a little short, and is short on steadiness at rest and on speed. The lossy DLL has nearly FSR 4.1.1's shape on accuracy, the railing and the fixed bars, is slightly ahead on just-uncovered areas, shorter on old image, sparks and foliage, far shorter on the wire, and longer on steadiness at rest and speed. FSR 3.1 is longest on speed and steadiness at rest, close to the ring on the wire, and shortest on accuracy and sparks. HelixSR is strong on sparks and short on the fixed bars and just-uncovered areas. XeSS is short on the fixed bars, old image, steadiness at rest and speed. The figures are in the tables below.">
 </picture>
 
-**How to read it.** One shape per upscaler, all on the same nine spokes. On each spoke the best of the five reaches the outer ring; the
+**How to read it.** One shape per upscaler, all on the same ten spokes. On each spoke the best of the five reaches the outer ring; the
 others reach in proportion: a spoke at half length means twice the error (or twice the change per frame, or twice the time) of the
 best one, and for sparks half as much of them shown. A bigger shape is better and a dent is a weakness. The dashed outline in each
 panel is FSR 4.1.1, for comparison. The spokes do not weigh the same to the eye in a game, so the area of a shape is not a score.
+Several spokes are means over more than one scene, so that none rests on the one scene an upscaler does best or worst in; the tables mark those rows.
 
 The charts and pictures on this page are made by [`img/make_upscaler_comparison.py`](img/make_upscaler_comparison.py); the crops show the piece
 of the picture where the five differ most from each other, picked by that script from the data.
@@ -60,8 +61,11 @@ Against the true image; higher dB is better, lower error is better.
 |---|---|---|---|---|---|
 | Still picture | 44.33 dB | 44.26 dB | 39.94 dB | 41.99 dB | 42.14 dB |
 | Moving scene: background | 49.27 dB | 48.98 dB | 47.95 dB | 46.92 dB | 47.70 dB |
+| Mean of the two rows above (the chart's accuracy spoke) | 46.80 dB | 46.62 dB | 43.95 dB | 44.45 dB | 44.92 dB |
 | Moving scene: thin railing | 41.82 dB | 41.34 dB | 38.36 dB | 40.12 dB | 40.86 dB |
 | Moving scene: areas a moving object has just uncovered | 34.48 dB | 35.90 dB | 29.22 dB | 27.11 dB | 30.20 dB |
+| The same with the camera still and the objects moving | 32.62 dB | 31.77 dB | 29.96 dB | 29.76 dB | 31.53 dB |
+| Mean of the two rows above (the chart's uncovered spoke) | 33.55 dB | 33.84 dB | 29.59 dB | 28.44 dB | 30.87 dB |
 | A still bright object over fast ground at the same depth: error where its old image lands, of 255 | 1.62 | 2.64 | 3.09 | 2.27 | 2.15 |
 | Leaves swaying without motion vectors, camera still: error of 255 | 12.1 | 18.7 | 16.8 | 15.5 | 15.5 |
 | The same, camera panning | 10.7 | 18.0 | 15.4 | 16.8 | 16.8 |
@@ -70,7 +74,8 @@ Against the true image; higher dB is better, lower error is better.
 | Mean of the three sway speeds above (the chart's foliage spoke) | 11.0 | 14.6 | 16.7 | 14.3 | 14.3 |
 | Still leaves, camera panning | 6.2 | 7.5 | 7.6 | 8.2 | 7.4 |
 
-- The lossy DLL is the most accurate after FSR 4 in the first four rows, and the best of all five in just-uncovered areas.
+- The lossy DLL is the most accurate after FSR 4 in the still picture, the background and the railing. In just-uncovered areas it is the best of the five
+  while the camera pans and second to FSR 4 with the camera still.
 - **Behind a still bright object over fast ground it is behind HelixSR and XeSS** and ahead of FSR 3.1; FSR 4 is clearly best there.
   This row came with release `dll-2026-10-11.2`, which fixed a ghost in that case (the release before it scored 6.06).
 
@@ -136,6 +141,39 @@ eight frames. As the game draws it, about 5,900 per million of its own pixels ca
   old ones on screen: about 20,000 pixels per million, more than three times what the game drew
   ([what was wrong](exact-vs-lossy.md#what-the-difference-looks-like)).
 
+## Old image beside moving things
+
+Error against the true image where a thing's image of a frame ago would land if it were left behind, in steps of 255. Lower is better.
+The figures are for the frames the lossy DLL skips the network for.
+
+| A moving object; camera / object, pixels per frame | FSR 4.1.1 | Lossy | FSR 3.1 | HelixSR | XeSS |
+|---|---|---|---|---|---|
+| 12,6 / −6,6 | 0.85 | 0.87 | 0.93 | 2.64 | 1.77 |
+| 12,6 / 6,−6 | 1.07 | 1.09 | 1.11 | 1.95 | 1.43 |
+| still camera / 8,0 | 1.07 | 1.31 | 1.56 | 1.80 | 1.51 |
+| still camera / 6,−6 | 1.74 | 1.89 | 3.43 | 3.53 | 2.43 |
+| still camera / −6,6 | 4.01 | 4.66 | 6.96 | 7.29 | 6.56 |
+| −16,4 / 8,0 (fast pan against the object's motion) | 3.11 | 4.01 | 5.35 | 4.69 | 18.06 |
+| A still bright object over fast ground (the row in the table above) | 1.62 | 2.64 | 3.09 | 2.27 | 2.15 |
+| Mean of the seven (the chart's old-image spoke) | 1.92 | 2.35 | 3.20 | 3.45 | 4.84 |
+
+| Thin bars fixed on screen, background panning (pixels per frame); frames with the network and without, mean | FSR 4.1.1 | Lossy | FSR 3.1 | HelixSR | XeSS |
+|---|---|---|---|---|---|
+| 6,0 | 0.94 | 0.96 | 0.96 | 3.74 | 1.26 |
+| 12,0 | 0.73 | 0.83 | 0.97 | 3.05 | 3.74 |
+| 30,0 | 0.53 | 0.66 | 0.62 | 1.61 | 7.62 |
+| 12,4 | 1.10 | 1.19 | 1.63 | 3.29 | 2.81 |
+| Mean of the four (the chart's fixed-bars spoke) | 0.82 | 0.91 | 1.04 | 2.92 | 3.85 |
+
+- **The lossy DLL is second to FSR 4 in both tables,** and ahead of the other three or level with them in every row but two: the bright object over fast ground, where HelixSR and XeSS are ahead,
+  and the bars at 30 pixels per frame, where FSR 3.1 is slightly ahead.
+- **Old image is still the lossy DLL's own kind of fault against FSR 4:** about a fifth more error on the mean, most of it in the last three object rows.
+- **The bars are 3 output pixels wide, 101 apart, at 4K output from 2260x1272,** like every other scene on this page. Release `dll-2026-10-13`
+  was made for this case, and at this size the lossy DLL was already close to FSR 4 before it (0.99 on the mean). The fault it answered
+  showed at 1440p output rendered at 1440p, where the lossy DLL read up to 4.3 against 0.75 and now reads 0.67 on the frames that run the network and
+  up to 3.1 on those that skip it ([the figures](../research/frame-skip/README.md#finer-motion-for-the-rules-a-memory-rule-and-two-cleared-diagonals-release-dll-2026-10-13)).
+  The other three upscalers were not run at that size.
+
 ## Steadiness
 
 How much the picture changes from one frame to the next where it should not, in steps of 255. Lower is steadier.
@@ -146,6 +184,7 @@ How much the picture changes from one frame to the next where it should not, in 
 | Moving scene: background | 0.079 | 0.024 | 0.077 | 0.193 | 0.085 |
 | A wire half a pixel wide, camera still | 2.9 | 2.8 | 2.3 | 2.4 | 4.2 |
 | The same wire under a slow pan | 7.2 | 10.2 | 8.2 | 5.6 | 10.1 |
+| The same wire under a slow pan: its brightness, of 255 (true: 111; the chart's wire spoke is the distance from that) | 100 | 53 | 121 | 135 | 90 |
 | Still picture with grain of 6 of 255 | 0.785 | 0.330 | 0.162 | 0.213 | 0.182 |
 | Still picture with grain of 10 of 255 | 1.724 | 1.028 | 0.308 | 0.300 | 0.228 |
 

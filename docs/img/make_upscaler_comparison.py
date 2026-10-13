@@ -13,16 +13,32 @@ NAMES = ['FSR 4.1.1', 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
 KEYS = ['fsr4', 'lossy', 'fsr3', 'helix', 'xess']
 # The measures of the radar charts, in NAMES order. kind: 'db' = accuracy in dB (higher is better), 'up' = higher is better, 'down' = lower is better.
 # (short label, full name, unit, kind, values, format)
+# Several spokes are means over scenes, so that a spoke does not rest on the one scene an upscaler happens to do best or worst in. The parts
+# (4K output from 2260x1272, single runs; cmp/results*.txt and cmp/results_radar*.txt of the test rig):
+mean = lambda *rows: [round(sum(c) / len(c), 2) for c in zip(*rows)]
+STILL = [44.33, 44.26, 39.94, 41.99, 42.14]            # still picture, dB
+BACKGROUND = [49.27, 48.98, 47.95, 46.92, 47.70]       # moving scene, background, dB
+UNC_PAN = [34.48, 35.90, 29.22, 27.11, 30.20]          # just-uncovered areas, camera panning, dB
+UNC_STILL = [32.62, 31.77, 29.96, 29.76, 31.53]        # the same with the camera still and the objects moving, dB
+# old image beside a moving object on the frames the lossy DLL skips (error of 255 where the object's image of a frame ago would land):
+# six scenes (camera / objects in pixels per frame: 12,6 / -6,6; 12,6 / 6,-6; still / 8,0; still / 6,-6; still / -6,6; -16,4 / 8,0) and the plate scene
+GHOST = [[0.85, 0.87, 0.93, 2.64, 1.77], [1.07, 1.09, 1.11, 1.95, 1.43], [1.07, 1.31, 1.56, 1.80, 1.51], [1.74, 1.89, 3.43, 3.53, 2.43],
+         [4.01, 4.66, 6.96, 7.29, 6.56], [3.11, 4.01, 5.35, 4.69, 18.06], [1.62, 2.64, 3.09, 2.27, 2.15]]
+# thin bars fixed on screen in front of a panning background (3 output pixels wide, 101 apart; pans 6,0 / 12,0 / 30,0 / 12,4): error of 255 where
+# the bars' image of a frame ago lands, mean of the frames the lossy DLL runs the network for and those it skips
+BARS = [[0.94, 0.96, 0.96, 3.735, 1.26], [0.73, 0.83, 0.965, 3.045, 3.735], [0.53, 0.655, 0.62, 1.61, 7.615], [1.095, 1.19, 1.63, 3.29, 2.81]]
+WIRE_TRUE = 110.7; WIRE_SHOWN = [100.2, 52.9, 121.5, 134.6, 89.7]      # a thin wire under a slow pan: its brightness of 255
 MEASURES = [
-    ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.26, 39.94, 41.99, 42.14], '{:.2f} dB'),
-    ('Background', 'Moving background: accuracy', 'dB', 'db', [49.27, 48.98, 47.95, 46.92, 47.70], '{:.2f} dB'),
+    ('Accuracy', 'Still picture and moving background, mean: accuracy', 'dB', 'db', mean(STILL, BACKGROUND), '{:.2f} dB'),
     ('Railing', 'Thin railing in motion: accuracy', 'dB', 'db', [41.82, 41.34, 38.36, 40.12, 40.86], '{:.2f} dB'),
-    ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 35.90, 29.22, 27.11, 30.20], '{:.2f} dB'),
+    ('Uncovered', 'Areas a moving object has just uncovered, mean of a panning and a still camera: accuracy', 'dB', 'db', mean(UNC_PAN, UNC_STILL), '{:.2f} dB'),
+    ('Old image', 'Old image beside a moving object, mean of seven scenes: error', 'of 255', 'down', mean(*GHOST), '{:.2f}'),
+    ('Fixed bars', 'Thin bars fixed on screen in front of a panning background, mean of four pans: error where their old image lands', 'of 255', 'down', mean(*BARS), '{:.2f}'),
     ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 40, 79, 50], '{:.0f}%'),
     # foliage: the mean of the error at the rig's usual sway speed, two thirds and half of it (camera still; for the lossy DLL, frames it skips the network for)
     ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.5, 16.7, 14.3, 14.3], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.014, 0.020, 0.084], '{:.3f}'),
-    ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 10.2, 8.2, 5.6, 10.1], '{:.1f}'),
+    ('Wire, pan', 'Thin wire under a slow pan: how far its brightness is from the true one', 'of 255', 'down', [round(abs(v - WIRE_TRUE), 1) for v in WIRE_SHOWN], '{:.1f}'),
     ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.82, 2.22, 1.14, 2.00, 4.98], '{:.2f} ms'),
 ]
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
@@ -79,10 +95,10 @@ def describe(names):
 
 
 def radar(t):
-    lab = ('Five radar charts, one per upscaler, each with nine spokes; on every spoke the best of the five reaches the outer ring and the others reach in '
+    lab = ('Five radar charts, one per upscaler, each with ten spokes; on every spoke the best of the five reaches the outer ring and the others reach in '
            'proportion to it, so a larger shape is better and a dent is a weakness. ' + describe(range(5)))
     H = 612
-    o = frame(H, lab, 'The shape of each upscaler: nine measures', 'On every spoke the best of the five reaches the outer ring. Bigger is better; a dent is a weakness. Dashed: FSR 4.1.1.', t)
+    o = frame(H, lab, 'The shape of each upscaler: ten measures', 'On every spoke the best of the five reaches the outer ring. Bigger is better; a dent is a weakness. Dashed: FSR 4.1.1.', t)
     cxs, cys, r = (128, 380, 632), (196, 446), 72
     short = [m[0] for m in MEASURES]
     for k, n in enumerate(NAMES):
@@ -92,27 +108,34 @@ def radar(t):
     # the sixth place: what the spokes are
     x0, y0 = 520, 344
     o.append(text(x0, y0, 'The spokes', t, 12, 'ink', weight=600))
-    key = [('Still, Background, Railing, Uncovered', 'accuracy against the true image'), ('Sparks', 'tiny fast sparks: share shown'), ('Foliage', 'swaying leaves, three speeds: accuracy'),
-           ('At rest', 'steadiness of a still picture'), ('Wire, pan', 'steadiness of a thin wire in a slow pan'), ('Speed', 'time per call at 4K')]
-    y = y0 + 20
+    key = [('Accuracy, Railing, Uncovered', 'accuracy against the true image'), ('Old image', 'left beside moving objects, seven scenes'),
+           ('Fixed bars', 'old image of thin things fixed on screen'), ('Sparks', 'tiny fast sparks: share shown'), ('Foliage', 'swaying leaves, three speeds: accuracy'),
+           ('At rest', 'steadiness of a still picture'), ('Wire, pan', 'a thin wire in a pan: brightness off the true one'), ('Speed', 'time per call at 4K')]
+    y = y0 + 18
     for a, b in key:
-        o += [text(x0, y, a, t, 10.5, 'ink2', weight=600), text(x0, y + 13, b, t, 10.5, 'muted')]; y += 31
+        o += [text(x0, y, a, t, 10, 'ink2', weight=600), text(x0, y + 12, b, t, 10, 'muted')]; y += 27
     o += [text(24, H - 28, 'A spoke at half length: twice the error (or the change per frame, or the time) of the best of the five; for sparks, half as much shown.', t, 10, 'muted'),
           text(24, H - 14, "Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (3.17 ms against 4.82).", t, 10, 'muted')]
     return o
 
 
 # ---- the front page: AMD's FSR 4.1.1, the previous release's lossy DLL and this release's. Same rig and scenes as above (single runs, auto exposure off).
-# The foliage spoke is the mean over three sway speeds of the error on frames the lossy DLL skips the network for; each release's speed is from the comparison page's timing with that release, a day apart (a timing-kit run of both in one go under Proton: 2.23 and 2.22 ms).
+# Columns: FSR 4.1.1, the previous release, this release. The spokes are those of the chart above (the lossy DLLs' parts from the same scenes run with each release),
+# without the railing and with film grain: the mean change per frame of a still picture with grain of 6, 10 and 15 of 255.
+# Each release's speed is from the comparison page's timing with that release, a day apart (a timing-kit run of both in one go under Proton: 2.23 and 2.22 ms).
 R_NAMES = ['FSR 4.1.1', 'the lossy DLL of dll-2026-10-12.2', 'the lossy DLL of dll-2026-10-13']
+col = lambda rows, k: [r[k] for r in rows]
+P_GHOST = [0.87, 1.09, 1.07, 1.92, 4.64, 5.13, 2.66]; P_BARS = [1.035, 0.875, 0.76, 1.295]      # the previous release on the scenes of GHOST and BARS
+m3 = lambda a, b, c: [round(sum(v) / len(v), 2) for v in (a, b, c)]
 R_MEASURES = [
-    ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.26, 44.26], '{:.2f} dB'),
-    ('Background', 'Moving background: accuracy', 'dB', 'db', [49.27, 48.98, 48.98], '{:.2f} dB'),
-    ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 36.45, 35.90], '{:.2f} dB'),
+    ('Accuracy', MEASURES[0][1], 'dB', 'db', [MEASURES[0][4][0], round((44.26 + 48.98) / 2, 2), MEASURES[0][4][1]], '{:.2f} dB'),
+    ('Uncovered', MEASURES[2][1], 'dB', 'db', [MEASURES[2][4][0], round((36.45 + 31.84) / 2, 2), MEASURES[2][4][1]], '{:.2f} dB'),
+    ('Old image', MEASURES[3][1], 'of 255', 'down', m3(col(GHOST, 0), P_GHOST, col(GHOST, 1)), '{:.2f}'),
+    ('Fixed bars', MEASURES[4][1], 'of 255', 'down', m3(col(BARS, 0), P_BARS, col(BARS, 1)), '{:.2f}'),
     ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 74], '{:.0f}%'),
     ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.5, 14.5], '{:.1f}'),
-    ('Film grain', 'Still picture with grain of 6 of 255: change per frame', 'of 255', 'down', [0.785, 0.330, 0.330], '{:.3f}'),
-    ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 11.0, 10.2], '{:.1f}'),
+    ('Film grain', 'Still picture with grain of 6, 10 and 15 of 255, mean: change per frame', 'of 255', 'down', m3([0.785, 1.724, 2.549], [0.330, 1.028, 1.608], [0.330, 1.028, 1.608]), '{:.2f}'),
+    ('Wire, pan', MEASURES[8][1], 'of 255', 'down', [MEASURES[8][4][0], round(WIRE_TRUE - 52.5, 1), MEASURES[8][4][1]], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.024], '{:.3f}'),
     ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.82, 2.21, 2.22], '{:.2f} ms'),
 ]
@@ -120,12 +143,12 @@ R_MEASURES = [
 # shape in both charts. Film grain is on this chart only: there the best of the three.
 BEST = {m[0]: (min if m[3] == 'down' else max)(m[4]) for m in MEASURES}
 R_SCORES = [score(m[3], m[4], BEST.get(m[0])) for m in R_MEASURES]
-# The previous release is not one of the five, so its dashed outline may pass the outer ring (just-uncovered areas, 36.45 against this release's 35.90 dB: 7% beyond).
+# The previous release is not one of the five, so its dashed outline may pass the outer ring (just-uncovered areas: 34.15 against this release's 33.84 dB).
 assert all(v <= (1.08 if k == 1 else 1.02) for sc in R_SCORES for k, v in enumerate(sc)), 'a build of the front-page chart is well beyond the best of the five: the scale needs it'
 
 
 def release_radar(t):
-    lab = ("Two radar charts with nine spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this "
+    lab = ("Two radar charts with ten spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this "
            "release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers "
            "compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. "
            + ' '.join(f'{m[1]} ({m[2]}): ' + ', '.join(f'{R_NAMES[k]} {m[5].format(m[4][k])}' for k in range(3)) + '.' for m in R_MEASURES))
@@ -135,9 +158,9 @@ def release_radar(t):
     for cx, k, ref, title in ((196, 2, 1, 'Lossy DLL, this release'), (566, 0, 2, "AMD's FSR 4.1.1")):
         o.append(text(cx, 92, title, t, 13, 'ink', 'middle', 600))
         radar_panel(o, t, cx, 240, 100, k, short, 10, ref=ref, values=True, M=R_MEASURES, SC=R_SCORES, ours=k > 0, was=1 if k == 2 else None)
-    o += [text(24, H - 56, 'Outer ring: FSR 4.1.1, except uncovered (this release), wire (HelixSR), at rest and speed (FSR 3.1) and film grain (both lossy DLLs, best of these three).', t, 10, 'muted'),
+    o += [text(24, H - 56, 'Outer ring: FSR 4.1.1, except uncovered (this release), at rest and speed (FSR 3.1) and film grain (both lossy DLLs, best of these three).', t, 10, 'muted'),
           text(24, H - 42, "Dashed, left: the previous release (dll-2026-10-12.2), its figure in brackets where it differs; it passes the ring at uncovered. Dashed, right: this release's lossy DLL.", t, 10, 'muted'),
-          text(24, H - 28, 'Foliage: leaves swaying without motion vectors, the mean over three sway speeds of the error on frames the lossy DLL skips the network for.', t, 10, 'muted'),
+          text(24, H - 28, 'Most spokes are means over several scenes; old image, fixed bars and foliage are measured on frames the lossy DLL skips the network for.', t, 10, 'muted'),
           text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: the two releases were timed a day apart; a timing-kit run of both reads 2.23 and 2.22 ms.', t, 10, 'muted')]
     return o
 
