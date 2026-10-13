@@ -103,7 +103,7 @@ browsers, and double-click `fsr4time.exe`; it takes about 15 to 20 minutes.
 - **Experimental:** reports from Windows PCs are in from eleven graphics chips so far: Radeon RX 6600, RX 6700, RX 6700 XT,
   RX 6750 XT, RX 7600, RX 7800 XT and RX 7900 XTX, the Radeon 890M, the Steam Deck's chip, a GeForce RTX 3060 Ti and an
   Intel Arc B580. The project itself can only run it under Proton, on one RX 7800 XT (4K: 4.7 to 4.9 ms with AMD's shaders,
-  3.17 ms exact, 2.37 ms lossy; exact: same picture). Since kit
+  3.17 ms exact, 2.21 ms lossy; exact: same picture). Since kit
   2026-10-12.1 the moving scene has a fingerprint too; since
   2026-10-13 its lossy DLLs are those of release `dll-2026-10-13`; since 2026-10-11.3 it asks for an optional name for the thank-you notes. The program is not signed, so Windows warns about it;
   the source is [`windows/fsr4time.c`](windows/fsr4time.c), with the command that builds it at its top.

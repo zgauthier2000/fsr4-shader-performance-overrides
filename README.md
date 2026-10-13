@@ -50,7 +50,7 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
-  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.15 milliseconds, 120 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers.">
+  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.01 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers.">
 </picture>
 
 - **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
@@ -87,7 +87,7 @@ output, FSR 4.1.1 Balanced. Your card and your game will give other numbers:
 |---|---|---|---|
 | AMD's shaders | 4.16 ms | 97 FPS | the reference |
 | Exact | 2.99 ms (−28%) | 109 FPS (+12%) | identical |
-| Lossy | 2.15 ms (−48%) | 120 FPS (+24%) | still picture within 0.2 dB of AMD's |
+| Lossy | 2.01 ms (−52%) | 122 FPS (+26%) | still picture within 0.2 dB of AMD's |
 
 More games and resolutions: [all results](docs/results.md).
 
@@ -123,10 +123,10 @@ More games and resolutions: [all results](docs/results.md).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/release-radar-dark.svg">
-  <img src="docs/img/release-radar-light.svg" width="760" alt="Two radar charts with nine spokes each. Left: this release's lossy DLL, with the previous release's (dll-2026-10-12.2) as a dashed outline; it passes the outer ring on one spoke, just-uncovered areas, where it was better. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. FSR 4.1.1, previous release, this release: still picture: accuracy 44.33 / 44.26 / 44.26 dB, moving background: accuracy 49.27 / 48.98 / 48.98 dB, areas a moving object has just uncovered: accuracy 34.48 / 36.45 / 35.90 dB, tiny fast sparks: share of their brightness shown 83% / 74% / 74%, leaves swaying without motion vectors, mean of three sway speeds: error 11.0 / 14.5 / 14.5 of 255, still picture with grain of 6 of 255: change per frame 0.785 / 0.330 / 0.330 of 255, thin wire under a slow pan: change per frame 7.2 / 11.0 / 10.2 of 255, still picture: change per frame 0.037 / 0.024 / 0.024 of 255, time per upscale call at 3840x2160 4.82 / 2.21 / 2.21 ms.">
+  <img src="docs/img/release-radar-light.svg" width="760" alt="Two radar charts with nine spokes each. Left: this release's lossy DLL, with the previous release's (dll-2026-10-12.2) as a dashed outline; it passes the outer ring on one spoke, just-uncovered areas, where it was better. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. FSR 4.1.1, previous release, this release: still picture: accuracy 44.33 / 44.26 / 44.26 dB, moving background: accuracy 49.27 / 48.98 / 48.98 dB, areas a moving object has just uncovered: accuracy 34.48 / 36.45 / 35.90 dB, tiny fast sparks: share of their brightness shown 83% / 74% / 74%, leaves swaying without motion vectors, mean of three sway speeds: error 11.0 / 14.5 / 14.5 of 255, still picture with grain of 6 of 255: change per frame 0.785 / 0.330 / 0.330 of 255, thin wire under a slow pan: change per frame 7.2 / 11.0 / 10.2 of 255, still picture: change per frame 0.037 / 0.024 / 0.024 of 255, time per upscale call at 3840x2160 4.82 / 2.21 / 2.22 ms.">
 </picture>
 
-Made-up test scenes on one graphics card, single runs; the speed was timed with the previous release's lossy DLL, and a timing-kit run of both under Proton reads 2.23 and 2.22 ms. [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
+Made-up test scenes on one graphics card, single runs; the two releases' speeds were timed a day apart (2.21 and 2.22 ms), and a timing-kit run of both in one go under Proton reads 2.23 and 2.22 ms. [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
 
 > ### Help test it: the timing kit
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-13/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-13): unpack, double-click

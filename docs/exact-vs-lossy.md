@@ -39,7 +39,7 @@ the skipped-frame handling is on the [frame-skip page](../research/frame-skip).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
-  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 2.99 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: the same shaders as the exact files except model pass 10, which merges a few of its smallest weights, and the postpass, which skips corrections smaller than about two steps of the picture's number format, about 3.0 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.3 ms. The two kinds of frame alternate, 2.15 ms on average, 48% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 44.31 dB against 44.33, flicker on fine detail at rest 0.086 against 0.110, areas just uncovered by a moving object 36.48 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
+  <img src="img/exact-vs-lossy-light.svg" width="760" alt="How the exact files and the lossy test builds differ from AMD's FSR 4.1.1 shaders, pass by pass. AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output (model passes 3 and 6 untouched), 2.99 ms, the image is AMD's byte for byte. Lossy build on a frame that runs the model: the same shaders as the exact files except model pass 10, which merges a few of its smallest weights, and the postpass, which skips corrections smaller than about two steps of the picture's number format, about 2.9 ms. Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model's last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.1 ms. The two kinds of frame alternate, 2.01 ms on average, 52% less than AMD's. Cost of the lossy build in a test scene at 4K Balanced: still picture 44.31 dB against 44.33, flicker on fine detail at rest 0.086 against 0.110, areas just uncovered by a moving object 36.48 dB against 34.48. Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">
 </picture>
 
 The figure is made by [`img/make_exact_vs_lossy.py`](img/make_exact_vs_lossy.py).
@@ -233,7 +233,7 @@ a game samples them, unsmoothed.
 |---|---|---|
 | Image | AMD's, byte for byte | close to AMD's, not the same |
 | How the time is saved | same work, done more efficiently | less work |
-| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 2.99 ms | 2.15 ms |
+| Upscaler time, Shadow of the Tomb Raider, 4K Balanced (AMD's: 4.16 ms) | 2.99 ms | 2.01 ms |
 | Upscaler time, Rise of the Tomb Raider, 4K Balanced (AMD's: 4.29 ms) | 2.97 ms (the previous exact files) | 2.05 ms (an earlier lossy release) |
 | Frame times | even | alternate between a shorter and a longer frame |
 | Checked how | output compared with AMD's, byte for byte | measured against the true image and against AMD's output |
@@ -463,19 +463,18 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 
 | Benchmark, 4K Balanced, RX 7800 XT | AMD's shaders | Exact files | Lossy |
 |---|---|---|---|
-| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 2.99 ms (−28%) | 2.15 ms (−48%) |
-| Shadow of the Tomb Raider: average FPS | 97 | 109 | 120 |
+| Shadow of the Tomb Raider: upscaler time | 4.16 ms | 2.99 ms (−28%) | 2.01 ms (−52%) |
+| Shadow of the Tomb Raider: average FPS | 97 | 109 | 122 |
 | Rise of the Tomb Raider: upscaler time | 4.29 ms | 2.97 ms (−31%) | 2.05 ms (−52%) * |
 | Rise of the Tomb Raider: overall score | 97.67 FPS | 109.61 FPS | 122.34 FPS * |
 
 \* The Rise of the Tomb Raider lossy run used the lossy build of release `dll-2026-10-06.3`, which
-also folded weights; it has not been repeated. In Shadow of the Tomb Raider the previous lossy
-release measured 2.05 ms and 122 FPS: taking the folding out cost about 0.07 ms and the particle
-tests about 0.03 ms (single runs). The Rise of the Tomb Raider exact figure is from before the
+also folded weights; it has not been repeated. In Shadow of the Tomb Raider the lossy figure has moved with the releases (single runs): 2.05 ms and 122 FPS
+with an early release that folded more weights; taking that folding out cost about 0.07 ms and the particle tests about 0.03 ms: 2.15 ms and
+120 FPS up to `dll-2026-10-12`; 2.00 ms and 122 FPS since the first shader got a short copy for skipped frames in `dll-2026-10-12.2`. The Rise of the Tomb Raider exact figure is from before the
 prepass and postpass rewrites of release `dll-2026-10-07`.
 
-The Shadow of the Tomb Raider lossy run was made with release `dll-2026-10-11.6`. This release changes only the last shader, which
-takes the same time when timed alone (0.67 against 0.67 ms at 4K); the benchmark was not repeated.
+The Shadow of the Tomb Raider lossy run was made with release `dll-2026-10-13` on 2026-10-13 (18,916 frames). AMD's and the exact figure are from earlier runs.
 
 The lossy figures are from the Linux files. The Windows DLLs carry
 the same shaders (their output is byte-identical to the Linux files' in the test rig, under

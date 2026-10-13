@@ -24,10 +24,10 @@ ROWS = [
      ['The reference: all fourteen passes as AMD ships them.']),
     ('Exact files', 'every frame', EXACT, 2.99, '2.99 ms', 'exact',
      ["Twelve passes do the same arithmetic, laid out so the GPU gets through it faster. The image is AMD's, byte for byte."]),
-    ('Lossy build', 'a frame that runs the model (every other frame)', LOSSY_RUN, 3.0, 'about 3.0 ms', 'lossy',
+    ('Lossy build', 'a frame that runs the model (every other frame)', LOSSY_RUN, 2.9, 'about 2.9 ms', 'lossy',
      ["The exact files' shaders, except that one model pass merges a few of its smallest weights (steadier fine detail)",
       "and the last pass skips corrections too small to matter (steadier flat areas). The prepass notes each area's motion."]),
-    ('Lossy build', 'a skipped frame (every other frame)', LOSSY_SKIP, 1.3, 'about 1.3 ms', 'lossy',
+    ('Lossy build', 'a skipped frame (every other frame)', LOSSY_SKIP, 1.1, 'about 1.1 ms', 'lossy',
      ["The model does not run, and its last result follows the picture's motion. The picture is almost entirely the",
       "previous one moved along with the scene; the new frame counts for very little, except where the model had asked",
       "for it. Repairs: the history limited to the new frame's colors around the pixel, less weight where the nearest",
@@ -82,9 +82,9 @@ def figure(t):
          'aria-label="How the exact files and the lossy test builds differ from AMD\'s FSR 4.1.1 shaders, pass by pass. '
          "AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output "
          '(model passes 3 and 6 untouched), 2.99 ms, the image is AMD\'s byte for byte. Lossy build on a frame that runs the model: '
-         'the same shaders as the exact files except model pass 10, which merges a few of its smallest weights, and the postpass, which skips corrections smaller than about two steps of the picture\'s number format, about 3.0 ms. '
-         'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.3 ms. '
-         'The two kinds of frame alternate, 2.15 ms on average, 48% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
+         'the same shaders as the exact files except model pass 10, which merges a few of its smallest weights, and the postpass, which skips corrections smaller than about two steps of the picture\'s number format, about 2.9 ms. '
+         'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.1 ms. '
+         'The two kinds of frame alternate, 2.01 ms on average, 52% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
          'still picture 44.31 dB against 44.33, flicker on fine detail at rest 0.086 against 0.110, areas just uncovered by a moving object 36.48 dB against 34.48. '
          'Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
@@ -123,7 +123,7 @@ def figure(t):
     o.append(text(24, y + 30, 'Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT', t, 11, 'muted'))
     bx, bw = 24 + 84, 150
     for i, (lab, v, kind, note) in enumerate([("AMD's", 4.16, 'amd', '4.16 ms  ·  97 FPS'), ('Exact', 2.99, 'exact', '2.99 ms  ·  109 FPS  ·  28% less'),
-                                              ('Lossy', 2.15, 'lossy', '2.15 ms  ·  120 FPS  ·  48% less')]):
+                                              ('Lossy', 2.01, 'lossy', '2.01 ms  ·  122 FPS  ·  52% less')]):
         yy = y + 46 + i * 26
         o.append(text(bx - 10, yy + 12, lab, t, 12, 'ink', 'end'))
         o.append(hbar(bx, yy, bw * v / 4.16, 16, t[kind]))

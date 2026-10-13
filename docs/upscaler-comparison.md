@@ -168,18 +168,17 @@ Graphics-card time for one upscale call, in milliseconds, at the same render rat
 
 | Output | FSR 4.1.1 | This project's exact DLL | Lossy | FSR 3.1 | HelixSR | XeSS |
 |---|---|---|---|---|---|---|
-| 1920x1080 | 1.04 | 0.88 | 0.63 | 0.39 | 0.73 | 1.42 |
-| 2560x1440 | 2.17 | 1.44 | 1.02 | 0.56 | 0.99 | 2.28 |
-| 3840x2160 | 4.82 | 3.16 | 2.21 | 1.15 | 2.00 | 4.99 |
+| 1920x1080 | 1.04 | 0.89 | 0.65 | 0.40 | 0.73 | 1.43 |
+| 2560x1440 | 2.19 | 1.44 | 1.03 | 0.57 | 1.00 | 2.28 |
+| 3840x2160 | 4.82 | 3.17 | 2.22 | 1.14 | 2.00 | 4.98 |
 
 - FSR 4.1.1, the two DLLs of this project, FSR 3.1 and HelixSR were timed by the same program, 200 calls after 40 to warm
   up. XeSS has another interface and was timed by a second program over 32 calls, so its column is not measured in quite
   the same way.
-- The lossy figure is an average over the two kinds of frame: at 4K, 3.19 ms when the network runs and 1.22 ms when it is skipped.
-- All six columns were timed on 2026-10-12 with the DLLs of release `dll-2026-10-12.2`, on the still scene, one run each. Release `dll-2026-10-13`'s lossy DLL was not timed
-  again here; in a timing-kit run of both under Proton the two read 2.23 and 2.22 ms at 4K.
-  The table before it had 1.05 / 2.18 / 4.76 for FSR 4.1.1 and 0.68 / 1.11 / 2.36 for the lossy DLL (the build of `dll-2026-10-11.4`);
-  the other columns moved by 0.03 ms at most.
+- The lossy figure is an average over the two kinds of frame: at 4K, 3.21 ms when the network runs and 1.22 ms when it is skipped.
+- All six columns were timed again on 2026-10-13 with the DLLs of release `dll-2026-10-13`, on the still scene, one run each.
+  The table before it, timed a day earlier with `dll-2026-10-12.2`, had 0.63 / 1.02 / 2.21 for the lossy DLL; no column moved by more
+  than 0.02 ms. The lossy DLL's 0.02 ms at 1080p matches what the timing kit shows for this release's skipped frame there.
 - XeSS runs a different, slower network on cards that are not Intel's than on Intel Arc. These figures say nothing about XeSS on Arc.
 - All of this is under Proton on Linux. On Windows the same card's FSR 4.1.1 timings differ
   ([what is known](results.md)).

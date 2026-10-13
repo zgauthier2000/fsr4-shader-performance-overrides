@@ -5,7 +5,7 @@
 ## In short
 
 - **At 4K on a Radeon RX 7800 XT** FSR 4.1.1 takes about 4.2 ms per frame with AMD's shaders, about 3.0 ms with the exact
-  files and about 2.15 ms with the lossy ones. In a benchmark that is 97, 109 and 120 frames per second.
+  files and about 2.0 ms with the lossy ones. In a benchmark that is 97, 109 and 122 frames per second.
 - **The gain shrinks with the output resolution.** At 1440p the exact files gain less, and at 1080p almost nothing; the
   lossy files still help there, because they skip work.
 - **On RX 6000 cards** tester reports with the exact files range from a few percent to about 30% at 4K, and we do not yet know
@@ -22,19 +22,19 @@ Shadow of the Tomb Raider's built-in benchmark, 4K output, FSR 4.1.1 Balanced, R
 |---|---|---|---|
 | AMD's shaders | 4.16 ms | | 97 |
 | Exact files | 2.99 ms (−28%) | 16947 | 109 (+12%) |
-| Lossy files | 2.15 ms (−48%) | 18565 | 120 (+24%) |
+| Lossy files | 2.01 ms (−52%) | 18916 | 122 (+26%) |
 
-The AMD figure and the exact figure are from earlier runs of the same benchmark; the exact files of this release differ from
+The lossy figure is one run of 2026-10-13 with the files of release `dll-2026-10-13`. The AMD figure and the exact figure are from earlier runs of the same benchmark; the exact files of this release differ from
 those only in the last pass's store path (1 to 2% of that pass in a bench), and that 4K run was not repeated with them.
 
 The same three, timed without a game by the [Windows timing kit](../timing-kit/README.md#windows-experimental) through the DLLs
-(under Proton on the same card; whole upscaler, made-up frames, mean of 200 calls):
+(under Proton on the same card; whole upscaler, made-up frames, mean of 200 calls; one run of 2026-10-13 with the DLLs of release `dll-2026-10-13`):
 
 | Output (render size as in Balanced) | AMD's shaders | Exact DLL | Lossy DLL (frame that runs the model / skipped frame) |
 |---|---|---|---|
-| 1080p | 1.05 ms | 0.89 ms (−15%) | 0.66 ms (0.91 / 0.34), −37% |
-| 1440p | 2.18 ms | 1.46 ms (−33%) | 1.10 ms (1.51 / 0.66), −50% |
-| 4K | 4.93 ms | 3.16 ms (−36%) | 2.36 ms (3.28 / 1.44), −52% |
+| 1080p | 1.04 ms | 0.89 ms (−15%) | 0.65 ms (0.92 / 0.32), −37% |
+| 1440p | 2.19 ms | 1.44 ms (−34%) | 1.03 ms (1.49 / 0.55), −53% |
+| 4K | 4.82 ms | 3.17 ms (−34%) | 2.22 ms (3.21 / 1.22), −54% |
 
 - **The kit reads higher gains at low resolutions than a game shows.** In Shadow of the Tomb Raider at 1080p output the
   exact files measured 0.79 ms against AMD's 0.80 ms: no gain worth the name, where the kit says 15%. A game's numbers are
