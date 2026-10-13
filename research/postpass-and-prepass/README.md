@@ -442,7 +442,7 @@ prepass is reprojection arithmetic at full occupancy, with nothing found to remo
 ## Two ideas from a community set, rebuilt here (2026-10-07)
 
 In the files since release `dll-2026-10-07`. A community
-member's exact shader set ([measured here](../community-lossy-set#a-later-set-that-keeps-amds-image-2026-10-07))
+member's exact shader set ([measured here](../community-lossy-set/README.md#a-later-set-that-keeps-amds-image-2026-10-07))
 was slightly faster than this repository's in the prepass and the postpass. Both ideas were
 rebuilt from AMD's shaders with this repository's own tools.
 
@@ -534,7 +534,7 @@ than before.
 - **Timed alone** (the DLL's last pass as vkd3d-proton translates it, RX 7800 XT): 0.42 to 0.43 ms before and 0.29 to 0.30 ms
   now at 1440p output; 0.69 to 0.90 ms before (it varied from run to run) and 0.65 to 0.66 ms now at 4K; 0.17 ms both at 1080p.
   The same as the Linux file now.
-- **Timed as a whole upscaler through the DLL**, as a game runs it (the [Windows timing kit](../../timing-kit#windows-experimental)
+- **Timed as a whole upscaler through the DLL**, as a game runs it (the [Windows timing kit](../../timing-kit/README.md#windows-experimental)
   under Proton, same card): no difference. 3.16 ms at 4K with both DLLs, 1.46 against 1.43 ms at 1440p, 0.89 ms at 1080p with both.
   A pass timed alone does not predict the whole upscaler; the slow state of the previous last pass did not occur in that flow.
 - **On Windows it is not measured.** Another driver compiles the shaders there.

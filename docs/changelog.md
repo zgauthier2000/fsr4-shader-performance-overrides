@@ -71,7 +71,7 @@ Two changes to the lossy DLL. **The exact DLL is unchanged.**
   - Windows drivers, and other graphics chips than the RX 7800 XT. The timings above are from Proton.
   - The quality checks with the HDR option set (the DLLs were compared with the Linux files with it).
 - These are single runs on made-up scenes.
-  [Where a skipped frame's time went, the rounding difference, and the fold's sweep](../research/frame-skip#a-prepass-in-two-copies-and-a-fold-in-the-last-shader-release-dll-2026-10-122).
+  [Where a skipped frame's time went, the rounding difference, and the fold's sweep](../research/frame-skip/README.md#a-prepass-in-two-copies-and-a-fold-in-the-last-shader-release-dll-2026-10-122).
 
 ## 2026-10-12 ([release `dll-2026-10-12`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-12))
 
@@ -146,7 +146,7 @@ Two changes to the lossy DLL's picture. **The exact DLL is unchanged.**
   - The whole upscaler in the timing kit.
   - Windows drivers, and other graphics chips than the RX 7800 XT.
 - These are single runs on made-up scenes.
-  [How the cause was found, and how the fold was chosen](../research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12).
+  [How the cause was found, and how the fold was chosen](../research/frame-skip/README.md#foliage-and-the-networks-memory-release-dll-2026-10-12).
 
 ## 2026-10-11 ([release `dll-2026-10-11.7`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.7))
 
@@ -200,7 +200,7 @@ One change to the lossy DLL's picture. **The exact DLL is unchanged.**
   - The whole upscaler in the timing kit, and a game benchmark.
   - Windows drivers.
 - These are single runs on made-up scenes.
-  [How the cause was found](../research/frame-skip#rain-and-other-thin-streaks-release-dll-2026-10-117).
+  [How the cause was found](../research/frame-skip/README.md#rain-and-other-thin-streaks-release-dll-2026-10-117).
 
 ## 2026-10-11 ([release `dll-2026-10-11.6`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.6))
 
@@ -255,7 +255,7 @@ One change to the lossy DLL's picture and one to its speed. **The exact DLL is u
   - Windows drivers. How many copies of the shader run side by side is the driver's compiler's doing, and it was
     measured under Linux only.
 - These are single runs on made-up scenes.
-  [How the cause was found, and what held the shader back](../research/frame-skip#sparkling-on-glossy-surfaces-and-a-shader-that-held-too-much-release-dll-2026-10-116).
+  [How the cause was found, and what held the shader back](../research/frame-skip/README.md#sparkling-on-glossy-surfaces-and-a-shader-that-held-too-much-release-dll-2026-10-116).
 
 ## 2026-10-11 ([release `dll-2026-10-11.5`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.5))
 
@@ -303,7 +303,7 @@ With auto exposure off, every figure of the last release holds to within a few t
   - Games. This was measured in the test rig only, on one graphics card.
   - Which games run FSR with auto exposure on.
 - These are single runs on made-up scenes.
-  [How the cause was found, and the wider fix that was tried and dropped](../research/frame-skip#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115).
+  [How the cause was found, and the wider fix that was tried and dropped](../research/frame-skip/README.md#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115).
 
 > [!NOTE]
 > **An experiment that came out of this: the same rule on the exact files.** The new rule does not need frame skip. Added to the
@@ -365,7 +365,7 @@ How much each pixel changes from frame to frame with nothing moving:
   Ghosting, particles, wires, foliage and fades read much as with it off.
 - **Not checked:** games. This was measured in the test rig only, on one graphics card.
 - These are single runs on made-up scenes.
-  [How the cause was found, and the three ways of using it that were compared](../research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
+  [How the cause was found, and the three ways of using it that were compared](../research/frame-skip/README.md#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
 
 ## 2026-10-11 ([release `dll-2026-10-11.3`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.3))
 
@@ -408,7 +408,7 @@ A piece of the foliage scene on a frame that skips the network, enlarged:
   the softness. With a lot of moving vegetation the exact DLL remains the better choice.
 - **Not checked:** the game the video came from was not run here, and the tester has not yet tried this build.
 - These are single runs on made-up scenes.
-  [How the cause was found, and the settings that were compared](../research/frame-skip#bright-dots-in-foliage-release-dll-2026-10-113).
+  [How the cause was found, and the settings that were compared](../research/frame-skip/README.md#bright-dots-in-foliage-release-dll-2026-10-113).
 
 ## 2026-10-11 ([release `dll-2026-10-11.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11.2))
 
@@ -451,7 +451,7 @@ The test scene on a frame that skips the network, enlarged:
   ghost when the object and the ground have the same depth; whether that is what happens in the game is not known.
   A faint trace remains above AMD's level (2.57 against 1.62), as in `dll-2026-10-10`.
 - These are single runs on made-up scenes.
-  [How the cause was found](../research/frame-skip#a-still-object-over-fast-ground-release-dll-2026-10-112).
+  [How the cause was found](../research/frame-skip/README.md#a-still-object-over-fast-ground-release-dll-2026-10-112).
 
 ## 2026-10-11 ([release `dll-2026-10-11`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-11))
 
@@ -495,7 +495,7 @@ One wire on a frame that skips the network, camera still, enlarged:
   shown at 76% against AMD's 83%, and [moving foliage](exact-vs-lossy.md#limits-of-the-lossy-builds) is
   softer than with AMD's.
 - These are single runs on made-up scenes; in games it was looked at on one machine.
-  [How each cause was found](../research/frame-skip#thin-wires-particles-and-light-folds-release-dll-2026-10-11).
+  [How each cause was found](../research/frame-skip/README.md#thin-wires-particles-and-light-folds-release-dll-2026-10-11).
 
 ## 2026-10-10 ([release `dll-2026-10-10`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-10))
 
@@ -535,7 +535,7 @@ The same with grain in every frame, in the piece where this release gained most:
   (error around them 2.8 against 1.7 in the rig; AMD's shaders 0.7), and the still picture is
   0.06 dB further from AMD's.
 - **An unexpected find:** merging a few of the smallest weights in the network's first layer makes flat areas as steady as with AMD's shaders, at a cost of about 0.05 dB in a still picture and no measurable change in speed. Why it works is not yet understood.
-  [How the two causes were found](../research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
+  [How the two causes were found](../research/frame-skip/README.md#shimmer-reported-after-release-dll-2026-10-09-two-causes).
 
 ## 2026-10-09 ([release `dll-2026-10-09`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-09))
 
@@ -598,9 +598,9 @@ an RX 7000 card that has not been measured either.
 
 The technical pages behind that release:
 
-- [Particles, sparks and embers on skipped frames](../research/frame-skip#content-without-motion-vectors-particles-sparks-embers-release-dll-2026-10-09): what went wrong, the three tests that fix it, what was tried and rejected, what it costs
+- [Particles, sparks and embers on skipped frames](../research/frame-skip/README.md#content-without-motion-vectors-particles-sparks-embers-release-dll-2026-10-09): what went wrong, the three tests that fix it, what was tried and rejected, what it costs
 - [Why weight folding was taken out](../research/lossy): the record of the experiment the lossy DLL no longer uses
-- [The Windows DLL's last pass, and code left in the files](../research/postpass-and-prepass#the-windows-dlls-last-pass-and-code-left-in-the-files-release-dll-2026-10-09): what changed inside the DLLs, how it compiles for each chip, timed alone and as a whole upscaler
+- [The Windows DLL's last pass, and code left in the files](../research/postpass-and-prepass/README.md#the-windows-dlls-last-pass-and-code-left-in-the-files-release-dll-2026-10-09): what changed inside the DLLs, how it compiles for each chip, timed alone and as a whole upscaler
 - [Which download for which graphics chip](gpu-support.md#which-download-dll-2026-10-09-and-later): how four builds became two, and the RX 6000 fix that is now in both
 - [Frame pacing with the lossy DLL](frame-pacing.md): what the alternating frame cost means for frame caps, V-Sync and latency
 
@@ -623,7 +623,7 @@ The technical pages behind that release:
   44 with the DLLs (run under Proton), over four output-size classes, render sizes from
   Ultra Performance to native, several option settings and a moving scene. Both ideas came from
   a community member's shader set and were rebuilt here from AMD's shaders
-  ([details](../research/postpass-and-prepass#two-ideas-from-a-community-set-rebuilt-here-2026-10-07)).
+  ([details](../research/postpass-and-prepass/README.md#two-ideas-from-a-community-set-rebuilt-here-2026-10-07)).
   The timings are from Linux; what the DLLs gain on Windows has not been measured.
 - **A ghost beside moving characters is fixed, in the lossy test builds.** With the camera turning
   fast around a third-person character, release 6 could show a second, broken outline of the
@@ -639,7 +639,7 @@ The technical pages behind that release:
   | Camera still, object 20 pixels per frame: thin bars' old image | 0.65 | 4.34 | 0.73 |
 
   The author no longer sees it in the game it was reported and reproduced in.
-  [Details](../research/frame-skip#who-was-here-a-frame-ago-release-dll-2026-10-07).
+  [Details](../research/frame-skip/README.md#who-was-here-a-frame-ago-release-dll-2026-10-07).
 - **If you use a lossy build of release 6 at 1080p output or below, update.** There the per-block
   motion was stored in overlapping places, and motion was less steady than in release 5
   (background frame-to-frame change 0.146 against AMD's 0.089; now 0.072). Larger outputs were
@@ -667,7 +667,7 @@ The technical pages behind that release:
   122 FPS both. In
   that benchmark the author could see the difference: patterns that used to show on stairs were
   gone. One person's impression in one game.
-  [How it was found](../research/frame-skip#nothing-from-the-new-frame-at-rest-release-dll-2026-10-07).
+  [How it was found](../research/frame-skip/README.md#nothing-from-the-new-frame-at-rest-release-dll-2026-10-07).
   Overview: [exact and lossy builds compared](exact-vs-lossy.md).
 
   > **WARNING: the lossy builds change the image.** They are not the same as the main files or
@@ -711,7 +711,7 @@ The technical pages behind that release:
 
   Speed, Shadow of the Tomb Raider's benchmark (4K Balanced, RX 7800 XT, Linux files, one run
   each): 2.06 ms and 18893 frames, against 2.11 ms and 18850 with release 5; 122 FPS both.
-  [How it works](../research/frame-skip#following-the-pictures-motion-release-dll-2026-10-066).
+  [How it works](../research/frame-skip/README.md#following-the-pictures-motion-release-dll-2026-10-066).
   Overview: [exact and lossy builds compared](exact-vs-lossy.md).
 
   > **WARNING: the lossy builds change the image.** They are not the same as the main files or
@@ -740,7 +740,7 @@ The technical pages behind that release:
 
   Speed is unchanged: 122 FPS and 2.11 ms in Shadow of the Tomb Raider's benchmark (4K Balanced,
   RX 7800 XT), against 122 FPS and 2.09 ms.
-  [How it works, and what else was tried](../research/frame-skip#leaning-on-the-history-on-skipped-frames-release-dll-2026-10-065).
+  [How it works, and what else was tried](../research/frame-skip/README.md#leaning-on-the-history-on-skipped-frames-release-dll-2026-10-065).
   Overview: [exact and lossy builds compared](exact-vs-lossy.md).
 
   > **WARNING: the lossy builds change the image.** They are not the same as the main files or
@@ -764,7 +764,7 @@ The technical pages behind that release:
 
   Flicker at rest and the still picture are unchanged, and so is speed: all the skipped-frame
   work now sits in a branch that frames running the model do not take.
-  [How it works and what was measured](../research/frame-skip#history-clamp-on-skipped-frames-release-dll-2026-10-064).
+  [How it works and what was measured](../research/frame-skip/README.md#history-clamp-on-skipped-frames-release-dll-2026-10-064).
   New page: [exact and lossy builds compared](exact-vs-lossy.md).
 
   > **WARNING: the lossy builds change the image.** They are not the same as the main files or
@@ -781,7 +781,7 @@ The technical pages behind that release:
   camera started to turn on a skipped frame, the strip that scrolled in was shown at about a
   tenth of its brightness for that one frame. The lossy builds of releases `dll-2026-10-06` and
   `.2` have this; if you use one, update. In the test scene the strip is now at full brightness,
-  and nothing else changes. [How it was found and fixed](../research/frame-skip#dark-bands-at-the-screen-edge-fixed-in-release-dll-2026-10-063).
+  and nothing else changes. [How it was found and fixed](../research/frame-skip/README.md#dark-bands-at-the-screen-edge-fixed-in-release-dll-2026-10-063).
 - **Files:** the five `test-lossy…` files are replaced; names in OptiScaler stay the same. The main
   DLL and the other test builds, which give AMD's image, never had the problem and are unchanged.
 
@@ -800,7 +800,7 @@ The technical pages behind that release:
   | Moving scene, areas just uncovered | 34.48 dB | 30.09 dB | 29.17 dB |
 
   About half of the extra flicker is gone, not all of it. Speed is unchanged (2.09 ms, 122 FPS
-  in the benchmark below). [What was tried and how it works](../research/frame-skip#reducing-the-shimmer).
+  in the benchmark below). [What was tried and how it works](../research/frame-skip/README.md#reducing-the-shimmer).
 
   > **WARNING: the lossy builds change the image.** They are not the same as the main files or
   > AMD's DLL. With frame skip, fine detail such as distant objects still shimmers more than
@@ -853,7 +853,7 @@ The technical pages behind that release:
   timing-kit result from an RX 6000-series card showed this project's postpass 35% faster than
   AMD's at 4K but 15% slower at 1080p. The hybrid build keeps AMD's postpass at 1080p output and
   below and uses the rewrite above that. RX 6000 owners at 1080p: please compare it with
-  `test-rdna2.zip`. [Details](gpu-support.md#test-build-rdna2-hybrid-2026-10-05).
+  `test-rdna2.zip`. [Details](gpu-support.md#test-build-rdna2-hybrid-2026-10-05-withdrawn-2026-10-07).
 
 ## 2026-10-05 (release `dll-2026-10-05.3`): lossy test builds and the timing kit
 
@@ -870,7 +870,7 @@ The technical pages behind that release:
   to 2.91 ms, and 109 to 111 FPS; no difference was visible there. In the test scenes it costs
   0.3 to 0.7 dB of accuracy at every output size, and fine repeating patterns are 17 to 31% less
   steady in motion at 1440p output. For desktop RX 7000 cards; shows as `4.1.1-r3-lossy-cyboman`.
-  [Measurements, tools and what to watch for](../research/lossy#the-opt-in-test-build-2026-10-05).
+  [Measurements, tools and what to watch for](../research/lossy/README.md#the-opt-in-test-build-2026-10-05).
 - **Lossy builds for other GPUs too:** `test-lossy-rdna2.zip` (RX 6000),
   `test-lossy-rdna2-compact.zip` (RDNA2 and Steam Deck) and `test-lossy-igpu.zip` (RDNA3
   integrated GPUs). Each is the exact build for that GPU with the same lossy model passes, and
@@ -939,7 +939,7 @@ The technical pages behind that release:
   while files built from that user's own shader dump are correct. `./check_prebuilt.sh` now tells
   you whether they fit yours, and [Making a shader dump](shader-dump.md) walks through it. On
   RDNA2 the DLL is the simpler route and just as fast.
-- **New research:** a [motion test](../research/pruning#motion-test) that measures shimmer, and a
+- **New research:** a [motion test](../research/pruning/README.md#motion-test) that measures shimmer, and a
   measured look at a [community shader set](../research/community-lossy-set) that trades image
   quality for more speed.
 
@@ -1014,5 +1014,5 @@ memory they read is unchanged, so the total is where it was (7,668 to 5,321 MB t
   [GPU support](gpu-support.md#integrated-gpus-radeon-780m-and-similar).
 - The figures are read requests between the GPU's cache and memory, counted in a standalone
   benchmark of each pass; each one includes about 200 MB that belongs to the measurement itself.
-  Details: [research](../research/postpass-and-prepass#memory-traffic-of-every-pass-and-pass-11s-stores).
+  Details: [research](../research/postpass-and-prepass/README.md#memory-traffic-of-every-pass-and-pass-11s-stores).
   Earlier change: [the phased postpass](../results/phased-postpass), 2026-10-03.

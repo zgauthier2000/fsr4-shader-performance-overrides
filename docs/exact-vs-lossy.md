@@ -75,7 +75,7 @@ game with film grain or noisy reflections gives FSR. AMD's shaders pass the grai
 picture changes most. The lossy builds hold the picture steadier on the frames they skip, but in
 release `dll-2026-10-09` the test that lets sparks through also let grain through, and the picture
 changed more than twice as much as in the release before (0.550 of 255 per frame over the whole
-frame, against 0.249). This release reads 0.330. Release `dll-2026-10-12` had given up some steadiness so that skipped frames can follow slowly swaying leaves, which the network marks the way it marks some grain (0.460 there, 0.342 in `dll-2026-10-11.7`, 0.292 in `dll-2026-10-11.3`); a light fold in the last shader's own network layer wins it back since `dll-2026-10-12.2` ([the sweep](../research/frame-skip#a-prepass-in-two-copies-and-a-fold-in-the-last-shader-release-dll-2026-10-122)). The piece shown is the one where it gained most.
+frame, against 0.249). This release reads 0.330. Release `dll-2026-10-12` had given up some steadiness so that skipped frames can follow slowly swaying leaves, which the network marks the way it marks some grain (0.460 there, 0.342 in `dll-2026-10-11.7`, 0.292 in `dll-2026-10-11.3`); a light fold in the last shader's own network layer wins it back since `dll-2026-10-12.2` ([the sweep](../research/frame-skip/README.md#a-prepass-in-two-copies-and-a-fold-in-the-last-shader-release-dll-2026-10-122)). The piece shown is the one where it gained most.
 The grain is synthetic and of moderate strength (6 of 255). Strong grain gets through more: at 10 of 255
 this release reads 1.03 against 0.94 for release `dll-2026-10-10`, 1.29 for `dll-2026-10-12` and 1.72 for AMD's shaders.
 
@@ -123,7 +123,7 @@ rest and, in motion, applied only where the network had already given up on the 
 - **Under a slow pan it flickers over 40% more than with AMD's** (10.2 against 7.2 change per frame; 11.0 in `dll-2026-10-12.2`, before a storage fault in the motion record was fixed; 10.3 in `dll-2026-10-12`, before the fold in the last shader; 9.6 in `dll-2026-10-11.7`, before the first pass was folded again; 14.6 up to `dll-2026-10-11.6`, 16.9 in
   `dll-2026-10-11`, 58.6 in `dll-2026-10-10`), and the bright beads along it are gone (+6 against AMD's +19, where it was +42). Going
   further would cost the lossy build its lead in just-uncovered areas
-  ([the trade](../research/frame-skip#thin-wires-what-the-history-clamp-did-to-them)).
+  ([the trade](../research/frame-skip/README.md#thin-wires-what-the-history-clamp-did-to-them)).
 
 **Rain.** A tester's video of a game with rain outside a window showed white dashes and specks in the glass with the lossy DLL
 of release `dll-2026-10-11.6`. Games draw rain as thin bright streaks without motion vectors. To the rule that keeps sparks visible
@@ -139,7 +139,7 @@ Since this release a bright sample counts as a spark only if it has a bright nei
   `dll-2026-10-11.6` and 7,786 in `dll-2026-10-11.5`; AMD's 25.
 - **The cost** is the wire in a pan, above, and about a point and a half on fast sparks.
 - **Not confirmed in the game,** and streaks two rendered pixels wide would still pass; that was not measured.
-  [How it was found](../research/frame-skip#rain-and-other-thin-streaks-release-dll-2026-10-117).
+  [How it was found](../research/frame-skip/README.md#rain-and-other-thin-streaks-release-dll-2026-10-117).
 
 **Ghosting beside moving objects.** A ghost is an object's image of a frame ago showing through
 where the object no longer is. With frame skip the risk is on skipped frames, in the area an
@@ -207,7 +207,7 @@ at rest because their folded network trusted the previous picture more in flat a
 change late: in a test scene where a region dims by 1% per frame, 1.3 frames behind in bright flat areas and 4.1 in dark ones,
 against 0.6 and 3.0 for AMD's shaders. Since release `dll-2026-10-11.4` flat areas are kept steady another way (corrections too small to matter are
 skipped in the last step), and this release reads 0.8 and 2.6. After a sudden change of 20% it has caught up to within 3% on the first frame,
-like AMD's. [How this was found](../research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
+like AMD's. [How this was found](../research/frame-skip/README.md#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
 
 **Bright dots in foliage.** A tester's video showed trees against a bright sky, camera still, with single bright pixels
 flickering inside the dark foliage, with the lossy DLL of release `dll-2026-10-11.2`. A game does not smooth what it renders: each rendered pixel is one sample of the scene,
@@ -224,7 +224,7 @@ a game samples them, unsmoothed.
 - With leaves that do not move the count is close to AMD's (1.68 against 1.72; it was 1.72 before release `dll-2026-10-12` and 1.79 in it).
 - **The cost:** fast sparks are shown about one point in a hundred dimmer, and large glowing particles under a pan are
   13% further from the true image. A stricter setting still would have removed the dots down to AMD's level and cost
-  three times as much in particles ([the settings compared](../research/frame-skip#bright-dots-in-foliage-release-dll-2026-10-113)).
+  three times as much in particles ([the settings compared](../research/frame-skip/README.md#bright-dots-in-foliage-release-dll-2026-10-113)).
 - **Not confirmed in the game.** And the softness of moving foliage, below, is unchanged by this.
 
 ## At a glance
@@ -275,23 +275,23 @@ about 0.35 dB in a still picture and nearly all of the loss on a moving backgrou
 out in release `dll-2026-10-09`. Release `dll-2026-10-10` put a small part back, for another reason: with 2 of the
 first pass's 36 weight groups merged into their neighbors, bright flat areas at rest are as steady as with
 AMD's shaders, where without it frame skip made them move more
-([how that was found](../research/frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes)). It costs about
+([how that was found](../research/frame-skip/README.md#shimmer-reported-after-release-dll-2026-10-09-two-causes)). It costs about
 0.05 dB in a still picture. Release `dll-2026-10-11` did the same, as lightly,
 in two more passes (10 and 12)
-([details](../research/frame-skip#two-more-light-folds)).
+([details](../research/frame-skip/README.md#two-more-light-folds)).
 
 Release `dll-2026-10-11.4` found out why that works and replaced most of it. Folding makes the network trust the previous
 picture more in flat areas, so the one-step flicker there freezes; for the same reason those areas followed slow changes of
 brightness late. The folds of passes 1 and 12 are gone. What keeps flat areas steady now is a rule in the last step that skips
 corrections of less than about two steps of the picture's number format, and the fold of pass 10 stays because it steadies fine
-detail without that cost ([how it was found](../research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114)).
+detail without that cost ([how it was found](../research/frame-skip/README.md#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114)).
 
 Release `dll-2026-10-12` folds the first pass again, differently: 3 of 36 weight groups, in three quarters of the pass's outputs. Its
 rule for slowly swaying foliage made film grain less steady, and this fold wins part of that back. The last quarter of the outputs
 is left as AMD's because folding it made glints on glossy surfaces worse and brought most of the old lag on slow fades back; what
 remains of that lag is 0.85 against 0.78 frames behind in bright flat areas, and a thin wire in a slow pan flickers more (10.3
 against 9.6 change per frame; 11.0 with the fold in the last shader of release `dll-2026-10-12.2`, 10.2 since `dll-2026-10-13`)
-([how it was chosen](../research/frame-skip#winning-back-grain-a-partial-fold-of-pass-1)). The record of the folding experiment:
+([how it was chosen](../research/frame-skip/README.md#winning-back-grain-a-partial-fold-of-pass-1)). The record of the folding experiment:
 [the lossy track](../research/lossy).
 
 ### The model runs on every other frame (frame skip)
@@ -355,22 +355,22 @@ Five repairs keep the rest honest (the fifth is the one just described):
 > showed before (`dll-2026-10-12.2`): areas a moving object has just uncovered are less accurate in the panning scene (36.45 to 35.90 dB; AMD's 34.48); the outline of
 > objects moving sideways in front of a still camera is stronger (1.07 to 1.31); the outline of an object against a fast pan is weaker (5.13 to 4.01); a thin wire in a
 > slow pan is steadier (11.0 to 10.2 change per frame). The scenes at rest are unchanged. What the release is mainly about, a thin thing fixed on screen in front of a
-> moving scene, is not among this page's scenes: [the figures](../research/frame-skip#finer-motion-for-the-rules-a-memory-rule-and-two-cleared-diagonals-release-dll-2026-10-13).
+> moving scene, is not among this page's scenes: [the figures](../research/frame-skip/README.md#finer-motion-for-the-rules-a-memory-rule-and-two-cleared-diagonals-release-dll-2026-10-13).
 >
 > **Before that, for release `dll-2026-10-12.2`,** against `dll-2026-10-12`: film grain is steadier (0.460 to 0.330 change per frame for grain of 6 of 255, 1.29 to 1.03 for 10, 2.12 to 1.61 for 15); a flat area
 > at rest changes slightly more per frame (0.053 to 0.058); a thin wire in a slow pan flickers more (10.3 to 11.0); with auto exposure on, thin vertical detail at rest
 > changes more per frame (0.344 to 0.372). The moving scenes stay within 0.1 dB. The lossy DLL is also faster (2.36 to 2.22 ms at 4K), which this page's figures do not show.
-> [A prepass in two copies, and a fold in the last shader](../research/frame-skip#a-prepass-in-two-copies-and-a-fold-in-the-last-shader-release-dll-2026-10-122).
+> [A prepass in two copies, and a fold in the last shader](../research/frame-skip/README.md#a-prepass-in-two-copies-and-a-fold-in-the-last-shader-release-dll-2026-10-122).
 >
 > **For release `dll-2026-10-12`**, against the build before it (`dll-2026-10-11.7`): slowly swaying foliage is closer to AMD's (the table under "Moving foliage" below); film grain is less steady; thin vertical detail
 > at rest changes slightly more per frame (0.305 to 0.316); a thin wire in a slow pan flickers more (9.6 to 10.3); slow fades show slightly later in bright flat areas
 > (0.78 to 0.85 frames behind). The moving scenes stay within 0.1 dB.
-> [Foliage and the network's memory](../research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12).
+> [Foliage and the network's memory](../research/frame-skip/README.md#foliage-and-the-networks-memory-release-dll-2026-10-12).
 >
 > **For release `dll-2026-10-11.7`**, against the build before it (`dll-2026-10-11.4`): rain and single over-bright
 > pixels are no longer shown as sparks; thin wires in a camera pan are dimmer and steadier; fast sparks are shown a point or two
 > dimmer; with auto exposure on, bright flat areas no longer shimmer. Everything else moved in the last digit or not at all.
-> [The rain rule](../research/frame-skip#rain-and-other-thin-streaks-release-dll-2026-10-117).
+> [The rain rule](../research/frame-skip/README.md#rain-and-other-thin-streaks-release-dll-2026-10-117).
 
 Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's model with two of its passes lightly folded, motion following, the rest rule, the repairs and the dead band.
 "Release `dll-2026-10-07`" is an earlier lossy build, which folded weights in six of the model's layers, and far more strongly.
@@ -408,7 +408,7 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
 
 - **The figures at rest are for auto exposure off.** With FSR's auto-exposure option on, the build of release
   `dll-2026-10-11.4` shimmered more than AMD's shaders in bright flat areas. Release `dll-2026-10-11.5` removed the cause
-  ([how](../research/frame-skip#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115)): with it on, the worst flat
+  ([how](../research/frame-skip/README.md#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115)): with it on, the worst flat
   piece of the still scene changes 0.100 per frame against 0.213 with AMD's shaders, bright flat areas 0.052 against 0.186,
   the whole frame 0.030 against 0.041 and fine detail 0.099 against 0.125. Two things remain behind AMD's with it on: slow
   fades show in bright flat areas almost half a frame later (1.10 against 0.72 frames behind when darkening, 0.90 against
@@ -440,7 +440,7 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
   frame on skipped frames scores 5.24). In the still-camera cases the motion that moves the network's result is stored once per
   4x4 pixels, and a pixel in a cell whose corner is on the object takes the object's motion. Since `dll-2026-10-13` the rules of a
   skipped frame read a finer motion, one value per 2x2 pixels; that helped the last case and cost the sideways one.
-  See the [frame-skip page](../research/frame-skip#who-was-here-a-frame-ago-release-dll-2026-10-07).
+  See the [frame-skip page](../research/frame-skip/README.md#who-was-here-a-frame-ago-release-dll-2026-10-07).
 - **Particles without motion vectors** (bright dots drawn into the picture only; share of each
   one shown where it truly is, on skipped frames; frames that run the model show 82 to 98%):
 
@@ -493,7 +493,7 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
 - **Frame skip costs more at some real frame rates than others.** In the moving test scene at a
   fixed on-screen speed, just-uncovered areas are above AMD's at 60 and 120 FPS and about 1 dB
   below at 30 and 90, and thin structures 0.9 to 1.3 dB below at every rate
-  ([by frame rate](../research/frame-skip#by-frame-rate)). The shimmer also
+  ([by frame rate](../research/frame-skip/README.md#by-frame-rate)). The shimmer also
   alternates at half the real frame rate, so it is slower and easier to see (that part is
   reasoning, not a measurement). With frame generation on top of a low base rate, the exact
   build is the safer choice.
@@ -531,7 +531,7 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
 
   The cause is the network's memory of the frame before, which it needs to recognize motion without vectors and which is two
   frames old when the network runs on every other frame; above a certain speed its verdict is lost
-  ([how that was found](../research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12)). Since release `dll-2026-10-12`
+  ([how that was found](../research/frame-skip/README.md#foliage-and-the-networks-memory-release-dll-2026-10-12)). Since release `dll-2026-10-12`
   skipped frames use the verdict where it survives, which is what the slower rows show (before: 13.0 to 15.0 and 11.9 to 13.5).
   Enlarged side by side the lossy leaves are a little softer and fatter; there is no tearing or second outline. Three
   attempts to find such pixels and give them the new frame did nothing for it (nothing about a single pixel tells a

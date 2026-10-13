@@ -139,7 +139,7 @@ similar damage.
 
 ## Image quality: motion
 
-The moving scene described in [`../pruning`](../pruning#motion-test): a panning background, a
+The moving scene described in [`../pruning`](../pruning/README.md#motion-test): a panning background, a
 moving block with fine stripes, and a moving railing of 3-pixel bars. "Change" is how much a point
 of the scene changes between two consecutive output frames, in 8-bit steps; 0 would be perfectly
 stable, and more means shimmer.
@@ -277,7 +277,7 @@ pair timed in both slot orders (the tool favors its first slot by about 0.02 ms)
 Fewer exchanges in the prepass and a tidier postpass on the same store rewrite. Both ideas were
 then rebuilt in this repository's own tools, for every version: the prepass at 0.434 ms and the
 postpass at 0.644 ms at 4K, byte-identical to AMD's. See the
-[postpass and prepass page](../postpass-and-prepass#two-ideas-from-a-community-set-rebuilt-here-2026-10-07).
+[postpass and prepass page](../postpass-and-prepass/README.md#two-ideas-from-a-community-set-rebuilt-here-2026-10-07).
 They are in the files since release `dll-2026-10-07`.
 
 **Limits of the folder.** It holds 14 of the shaders FSR 4.1.1 can use; this repository's prebuilt

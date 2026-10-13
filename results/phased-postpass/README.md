@@ -38,7 +38,7 @@ rate uncapped, standing at the same spot. Radeon RX 7800 XT, Mesa 26.2.3 (RADV),
   settings; the two other rows were read at the same spot in the game, one after the other.
 
 In the game's built-in benchmark the phased version averages 108 FPS, against 104 with the first
-rewrite and 97 with AMD's shaders ([full results](../shadow-of-the-tomb-raider#4k-with-the-phased-postpass)).
+rewrite and 97 with AMD's shaders ([full results](../shadow-of-the-tomb-raider/README.md#4k-with-the-phased-postpass)).
 
 First rewrite:
 
@@ -51,7 +51,7 @@ Phased postpass:
 ## Rise of the Tomb Raider
 
 The game's built-in benchmark at 4K, FSR 4.1.1 Balanced, one run each
-([full results](../rise-of-the-tomb-raider#4k-with-the-phased-postpass)):
+([full results](../rise-of-the-tomb-raider/README.md#4k-with-the-phased-postpass)):
 
 | Shaders | Upscaler time | Overall score |
 |---|---|---|

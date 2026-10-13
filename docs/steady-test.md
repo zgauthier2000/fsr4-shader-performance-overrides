@@ -25,7 +25,7 @@ With nothing moving, FSR 4's network still asks for a small correction to every 
 areas it gives each new frame about 16% weight. The correction that results is about the size of one step of the 16-bit
 floats the picture is kept in, so whether it survives the rounding decides whether the pixel changes. That one-step
 movement is the shimmer of flat areas at rest. The rule skips corrections of that size; real changes are far larger and
-pass through. [How this was found](../research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
+pass through. [How this was found](../research/frame-skip/README.md#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
 
 ## Side by side
 
@@ -102,7 +102,7 @@ the same scenes, the same settings, one run each.
   for the exact files, 18% more; the whole frame (0.033 against 0.041) and fine detail (0.103 against 0.125) are still steadier,
   and the still picture still slightly more accurate (44.53 against 44.44 dB). The cause was found later the same day and is
   removed in the lossy DLL of release `dll-2026-10-11.5`
-  ([how](../research/frame-skip#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115)). With the same change this
+  ([how](../research/frame-skip/README.md#shimmer-with-auto-exposure-on-the-history-store-release-dll-2026-10-115)). With the same change this
   test build reads 0.090 against 0.213 in the worst flat piece and 0.051 against 0.186 in bright flat areas with auto exposure
   on (one run, not in any download).
 
@@ -124,5 +124,5 @@ the same scenes, the same settings, one run each.
 ## Where to read more
 
 - [Exact and lossy compared](exact-vs-lossy.md): the two builds that are released
-- [Why folding steadied the picture, and what replaced it](../research/frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114): where the rule comes from
+- [Why folding steadied the picture, and what replaced it](../research/frame-skip/README.md#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114): where the rule comes from
 - The pictures are made by [`img/make_steady_comparison.py`](img/make_steady_comparison.py)

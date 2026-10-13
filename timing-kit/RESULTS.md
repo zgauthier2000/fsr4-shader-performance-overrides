@@ -49,7 +49,7 @@ AMD's shader, then the exact rewrite, in ms. Steam Machine figures are from its 
   1080p:** 4% slower on the Steam Machine, 15% slower on the RX 6700M. The scattered stores it
   removes cost most at large sizes; at 1080p its extra registers are what is left. This matches
   the RX 6000 reports from games (about 30% at 4K, a few percent below), and it is what the
-  [RDNA2 hybrid test build](../docs/gpu-support.md#test-build-rdna2-hybrid-2026-10-05) is for.
+  [RDNA2 hybrid test build](../docs/gpu-support.md#test-build-rdna2-hybrid-2026-10-05-withdrawn-2026-10-07) is for.
 - **Pass 11: the shipped version is the best of the four on both smaller chips** (Steam Machine
   0.56 ms at 4K against AMD's 0.64, unrolled 0.61, compact rows 0.66; RX 6700M 0.41 against
   0.50, 0.44, 0.52). The compact version is slower than AMD's on both.

@@ -19,12 +19,12 @@
 - **Why a light form came back (releases `dll-2026-10-10` and `dll-2026-10-11`):** an unexpected find. Without any folding, bright flat areas at rest
   shimmered more than with AMD's shaders. Merging just 2 of the first layer's 36 weight groups made them as steady as with
   AMD's shaders, at a cost of about 0.05 dB in a still picture and no measurable change in speed.
-  [How it was found](../frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes).
+  [How it was found](../frame-skip/README.md#shimmer-reported-after-release-dll-2026-10-09-two-causes).
 - **Why it worked, and what is left of it (release `dll-2026-10-11.4`):** folding lowers the weight the network gives each new frame
   in flat areas, so the single-step flicker there freezes; the same lower weight makes those areas follow slow changes late. How
   much it lowers the weight swings with the number of weights folded, in no order. Flat areas are now kept steady by a rule in
   the last step instead, and only the tenth layer is still folded, for fine detail.
-  [The investigation](../frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
+  [The investigation](../frame-skip/README.md#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114).
 - **What this page is:** the record of the original experiment: how the settings were tuned, what else was tried on the
   network's arithmetic, and one by-product that turned out to be exact and went into the main files.
 
@@ -39,10 +39,10 @@ available as a separate, opt-in test build; see [the last section](#the-opt-in-t
 > simpler rounding) were taken out in release `dll-2026-10-09`: with the model running on every other frame
 > ([frame skip](../frame-skip)), they saved about 0.07 ms per frame (1% of the frame rate in Shadow of the Tomb Raider at 4K) and cost
 > about 0.35 dB in a still picture. Since release `dll-2026-10-10` the lossy build folds 2 of pass 1's 36 weight words again
-> (`wfold.py 2`), and since `dll-2026-10-11` 18 of pass 10's and 4 of pass 12's ([details](../frame-skip#two-more-light-folds)), not for speed but because it keeps bright flat areas and fine detail steady under frame skip
-> ([how that was found](../frame-skip#shimmer-reported-after-release-dll-2026-10-09-two-causes)). Release `dll-2026-10-11` adds 18 words in pass 10 and 4 in pass 12, for steadier
-> fine detail and moderate grain ([details](../frame-skip#two-more-light-folds)). Release `dll-2026-10-11.4` keeps only the fold of pass 10
-> and replaces the other two with a dead band in the postpass ([why](../frame-skip#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114)). Everything below is the record of
+> (`wfold.py 2`), and since `dll-2026-10-11` 18 of pass 10's and 4 of pass 12's ([details](../frame-skip/README.md#two-more-light-folds)), not for speed but because it keeps bright flat areas and fine detail steady under frame skip
+> ([how that was found](../frame-skip/README.md#shimmer-reported-after-release-dll-2026-10-09-two-causes)). Release `dll-2026-10-11` adds 18 words in pass 10 and 4 in pass 12, for steadier
+> fine detail and moderate grain ([details](../frame-skip/README.md#two-more-light-folds)). Release `dll-2026-10-11.4` keeps only the fold of pass 10
+> and replaces the other two with a dead band in the postpass ([why](../frame-skip/README.md#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114)). Everything below is the record of
 > the original experiment; the tools still work.
 
 > **WARNING: the test build changes the image.** It is not the same as the main DLL, the prebuilt
@@ -50,7 +50,7 @@ available as a separate, opt-in test build; see [the last section](#the-opt-in-t
 
 It builds on two things: the measurement of a [community shader set](../community-lossy-set), which
 showed that some model passes can lose weights without a measurable cost, and the
-[motion test](../pruning#motion-test), which gives figures to tune against.
+[motion test](../pruning/README.md#motion-test), which gives figures to tune against.
 
 ## The tool
 
@@ -308,7 +308,7 @@ and 8 of four taps, 1,024 of its 1,600 weight words. Folding half of each:
 
 Later, with frame skip in place, a much lighter fold of the postpass's convolution (3 words of 36) turned out to steady
 film grain, at no gain in speed. The lossy DLL uses it since release `dll-2026-10-12.2`:
-[the sweep](../frame-skip#folding-the-postpasss-own-layer).
+[the sweep](../frame-skip/README.md#folding-the-postpasss-own-layer).
 
 So set 2 stands. What it leaves unfolded is the arithmetic the image depends on most, and the
 passes whose weights are not constants in the shader (3 and 6 to 9). Going faster from here means

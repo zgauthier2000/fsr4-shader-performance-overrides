@@ -81,7 +81,7 @@ and the ground are at the same depth in this scene; with distinct depths the los
 
 - **In foliage it depends on how fast the leaves move.** At the rig's usual sway speed the lossy DLL is the least accurate of
   the five: FSR 4's network needs its memory of the frame before to recognize motion without vectors, and with the network
-  running on every other frame that memory is too old ([why](../research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12)).
+  running on every other frame that memory is too old ([why](../research/frame-skip/README.md#foliage-and-the-networks-memory-release-dll-2026-10-12)).
   At two thirds and at half of that speed it is second only to FSR 4, ahead of XeSS, HelixSR and FSR 3.1. The two slower rows came
   with release `dll-2026-10-12`, which made skipped frames use the network's verdict there (the release before scored 15.0 and 13.5).
   The figures are for the frames that skip the network; on the others the lossy DLL reads 11.9 and 11.1.

@@ -1547,7 +1547,7 @@ A frame that runs the network and a skipped one are now about 2.0 ms apart at 4K
 ### Folding the postpass's own layer
 
 The postpass starts with a 3x3 convolution over the model's 16-channel output: nine taps, four weight words per tap for each
-of 16 outputs. [Weight folding](../lossy#looking-for-more-the-postpass-and-the-smaller-layers-2026-10-06) was tried on it on
+of 16 outputs. [Weight folding](../lossy/README.md#looking-for-more-the-postpass-and-the-smaller-layers-2026-10-06) was tried on it on
 2026-10-06 for speed, with 9 to 24 of the 36 words per output, and dropped: the background got much less steady for 0.01 ms.
 That was before frame skip, and with heavier folds than tried now.
 

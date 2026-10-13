@@ -27,7 +27,7 @@ Shadow of the Tomb Raider's built-in benchmark, 4K output, FSR 4.1.1 Balanced, R
 The AMD figure and the exact figure are from earlier runs of the same benchmark; the exact files of this release differ from
 those only in the last pass's store path (1 to 2% of that pass in a bench), and that 4K run was not repeated with them.
 
-The same three, timed without a game by the [Windows timing kit](../timing-kit#windows-experimental) through the DLLs
+The same three, timed without a game by the [Windows timing kit](../timing-kit/README.md#windows-experimental) through the DLLs
 (under Proton on the same card; whole upscaler, made-up frames, mean of 200 calls):
 
 | Output (render size as in Balanced) | AMD's shaders | Exact DLL | Lossy DLL (frame that runs the model / skipped frame) |
