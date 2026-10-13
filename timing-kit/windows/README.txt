@@ -53,7 +53,7 @@ What it does
                        which part of the exact DLL saves time on your card and which does not;
                        both must give the exact DLL's picture, except on RX 6000 cards, where
                        2b keeps AMD's last shader and so is expected to give AMD's picture.
-  dlls\3-lossy         its lossy DLL of release dll-2026-10-13 (faster; the picture is NOT the
+  dlls\3-lossy         its lossy DLL of release dll-2026-10-13.2 (faster; the picture is NOT the
                        same as AMD's)
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
   dlls\5-igpu-lossy    and its lossy one

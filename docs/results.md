@@ -28,13 +28,13 @@ The lossy figure is one run of 2026-10-13 with the files of release `dll-2026-10
 those only in the last pass's store path (1 to 2% of that pass in a bench), and that 4K run was not repeated with them.
 
 The same three, timed without a game by the [Windows timing kit](../timing-kit/README.md#windows-experimental) through the DLLs
-(under Proton on the same card; whole upscaler, made-up frames, mean of 200 calls; one run of 2026-10-13 with the DLLs of release `dll-2026-10-13`):
+(under Proton on the same card; whole upscaler, made-up frames, mean of 200 calls; one run of 2026-10-13 with the DLLs of release `dll-2026-10-13.2`):
 
 | Output (render size as in Balanced) | AMD's shaders | Exact DLL | Lossy DLL (frame that runs the model / skipped frame) |
 |---|---|---|---|
-| 1080p | 1.04 ms | 0.89 ms (−15%) | 0.65 ms (0.92 / 0.32), −37% |
-| 1440p | 2.19 ms | 1.44 ms (−34%) | 1.03 ms (1.49 / 0.55), −53% |
-| 4K | 4.82 ms | 3.17 ms (−34%) | 2.22 ms (3.21 / 1.22), −54% |
+| 1080p | 1.05 ms | 0.90 ms (−14%) | 0.64 ms (0.91 / 0.32), −39% |
+| 1440p | 2.20 ms | 1.44 ms (−34%) | 1.03 ms (1.48 / 0.55), −53% |
+| 4K | 4.81 ms | 3.16 ms (−34%) | 2.21 ms (3.21 / 1.21), −54% |
 
 - **The kit reads higher gains at low resolutions than a game shows.** In Shadow of the Tomb Raider at 1080p output the
   exact files measured 0.79 ms against AMD's 0.80 ms: no gain worth the name, where the kit says 15%. A game's numbers are

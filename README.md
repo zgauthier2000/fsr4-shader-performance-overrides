@@ -125,20 +125,19 @@ More games and resolutions: [all results](docs/results.md).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/release-radar-dark.svg">
-  <img src="docs/img/release-radar-light.svg" width="760" alt="Two radar charts with ten spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. Still picture and moving background, mean: accuracy (dB): FSR 4.1.1 46.80 dB, the lossy DLL of dll-2026-10-13 46.62 dB, the lossy DLL of dll-2026-10-13.2 46.62 dB. Areas a moving object has just uncovered, mean of a panning and a still camera: accuracy (dB): FSR 4.1.1 33.55 dB, the lossy DLL of dll-2026-10-13 33.84 dB, the lossy DLL of dll-2026-10-13.2 33.85 dB. Old image beside a moving object, mean of seven scenes: error (of 255): FSR 4.1.1 1.92, the lossy DLL of dll-2026-10-13 2.35, the lossy DLL of dll-2026-10-13.2 2.31. Thin bars fixed on screen in front of a panning background, mean of four pans: error where their old image lands (of 255): FSR 4.1.1 0.82, the lossy DLL of dll-2026-10-13 0.91, the lossy DLL of dll-2026-10-13.2 0.91. Tiny fast sparks: share of their brightness shown (%): FSR 4.1.1 83%, the lossy DLL of dll-2026-10-13 74%, the lossy DLL of dll-2026-10-13.2 74%. Leaves swaying without motion vectors, mean of three sway speeds: error (of 255): FSR 4.1.1 11.0, the lossy DLL of dll-2026-10-13 14.5, the lossy DLL of dll-2026-10-13.2 14.5. Still picture with grain of 6, 10 and 15 of 255, mean: change per frame (of 255): FSR 4.1.1 1.69, the lossy DLL of dll-2026-10-13 0.99, the lossy DLL of dll-2026-10-13.2 1.06. Thin wire under a slow pan: how far its brightness is from the true one (of 255): FSR 4.1.1 10.5, the lossy DLL of dll-2026-10-13 57.8, the lossy DLL of dll-2026-10-13.2 34.0. Still picture: change per frame (of 255): FSR 4.1.1 0.037, the lossy DLL of dll-2026-10-13 0.024, the lossy DLL of dll-2026-10-13.2 0.024. Time per upscale call, mean of 1080p, 1440p and 4K output (ms): FSR 4.1.1 2.68 ms, the lossy DLL of dll-2026-10-13 1.30 ms, the lossy DLL of dll-2026-10-13.2 1.30 ms.">
+  <img src="docs/img/release-radar-light.svg" width="760" alt="Two radar charts with ten spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. Still picture and moving background, mean: accuracy (dB): FSR 4.1.1 46.80 dB, the lossy DLL of dll-2026-10-13 46.62 dB, the lossy DLL of dll-2026-10-13.2 46.62 dB. Areas a moving object has just uncovered, mean of a panning and a still camera: accuracy (dB): FSR 4.1.1 33.55 dB, the lossy DLL of dll-2026-10-13 33.84 dB, the lossy DLL of dll-2026-10-13.2 33.85 dB. Old image beside a moving object, mean of seven scenes: error (of 255): FSR 4.1.1 1.92, the lossy DLL of dll-2026-10-13 2.35, the lossy DLL of dll-2026-10-13.2 2.31. Thin bars fixed on screen in front of a panning background, mean of four pans: error where their old image lands (of 255): FSR 4.1.1 0.82, the lossy DLL of dll-2026-10-13 0.91, the lossy DLL of dll-2026-10-13.2 0.91. Tiny fast sparks: share of their brightness shown (%): FSR 4.1.1 83%, the lossy DLL of dll-2026-10-13 74%, the lossy DLL of dll-2026-10-13.2 74%. Leaves swaying without motion vectors, mean of three sway speeds: error (of 255): FSR 4.1.1 11.0, the lossy DLL of dll-2026-10-13 14.5, the lossy DLL of dll-2026-10-13.2 14.5. Still picture with grain of 6, 10 and 15 of 255, mean: change per frame (of 255): FSR 4.1.1 1.69, the lossy DLL of dll-2026-10-13 0.99, the lossy DLL of dll-2026-10-13.2 1.06. Thin wire under a slow pan: how far its brightness is from the true one (of 255): FSR 4.1.1 10.5, the lossy DLL of dll-2026-10-13 57.8, the lossy DLL of dll-2026-10-13.2 34.0. Still picture: change per frame (of 255): FSR 4.1.1 0.037, the lossy DLL of dll-2026-10-13 0.024, the lossy DLL of dll-2026-10-13.2 0.024. Time per upscale call, mean of 1080p, 1440p and 4K output (ms): FSR 4.1.1 2.69 ms, the lossy DLL of dll-2026-10-13 1.30 ms, the lossy DLL of dll-2026-10-13.2 1.29 ms.">
 </picture>
 
-Made-up test scenes on one graphics card, single runs; the speed spoke is the mean over 1080p, 1440p and 4K output, timed with the previous release's lossy DLL (the one shader that changed takes the same time in the timing kit's probe). [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
+Made-up test scenes on one graphics card, single runs; the speed spoke is the mean over 1080p, 1440p and 4K output, the two releases timed a few hours apart (at 4K: 2.22 and 2.21 ms). [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-13/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-13): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-13.2/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-13.2): unpack, double-click
 > `fsr4time.exe`, wait 15 to 20 minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **Reports from Windows are in from eleven graphics chips so far; every further
 > card helps.**
 > - **Both kits were updated on 2026-10-13; if you ran an earlier one, please download and run again.**
->   - **Both kits (2026-10-13) carry the lossy build of `dll-2026-10-13`,** not this release's; the two take the same
->     time. On Windows the lossy
+>   - **Both kits (2026-10-13.2) carry this release's lossy build.** Nothing else changed in them. On Windows the lossy
 >     DLL uses an image channel in a way that is only checked under Proton so far, so a run there is worth a lot: the
 >     kit shows whether the lossy DLL gives the same picture in both of its runs on your card.
 >   - **Since 2026-10-12.6 the Linux kit also times the lossy build's first shader on a skipped frame,** which
@@ -156,7 +155,7 @@ Made-up test scenes on one graphics card, single runs; the speed spoke is the me
 >     DLL offers.
 >   - **Linux kit 2026-10-12.5:** its time for the lossy build's postpass on a skipped frame was too high and is corrected
 >     (details in the kit's README). Earlier Linux kit results overstate that one figure and the lossy average.
->   - **The Linux kit (2026-10-13; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
+>   - **The Linux kit (2026-10-13.2; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
 >     question is settled are gone. It also reports how the card is connected (PCIe link), and when the card is busy
 >     it asks you to close what is using it before it starts.
 > - The Windows kit compares the moving picture as well as the still one.
@@ -254,17 +253,17 @@ nothing changes: the lowered threshold applies only where the picture is at rest
 - **Unchanged or within 3%:** fine detail and flat areas at rest, the still picture, the moving scene at every size and from
   30 to 120 FPS apart from the two rows above, the other ghost scenes, the plate scenes,
   tiny particles, rain, fireflies, glints, foliage, fades, and the thin bars fixed on screen that `dll-2026-10-13` was about.
-- **Speed is unchanged.** The last shader of a skipped frame reads 0.59 ms at 4K before and after in the timing kit's
-  probe on a Radeon RX 7800 XT, and still fits the same number of registers.
+- **Speed is unchanged.** Whole upscaler in the Windows timing kit under Proton on a Radeon RX 7800 XT, one quick run of each kit, average per
+  frame at 4K, `dll-2026-10-13` to this release: 2.21 to 2.22 ms (3.20 to 3.21 on a frame that runs the network, 1.21 to 1.22 on a skipped one;
+  AMD's shaders 4.81). At 1080p: 0.64 to 0.65 ms. The last shader still fits the same number of registers.
 - **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced with the Linux files, one run each: with both changes 18,849 frames,
-  122 FPS and an average upscaler time of 2.01 ms in the overlay; with the first change only 18,875 frames, 122 FPS, 2.00 ms, and the picture
-  looked great there, by eye (`dll-2026-10-13` the same day: 18,916 frames, 122 FPS, 2.01 ms). The three are level. That is one game at one
+  122 FPS and an average upscaler time of 2.01 ms in the overlay; with the first change only 18,875 frames, 122 FPS, 2.00 ms. The picture
+  looked great in both, by eye (`dll-2026-10-13` the same day: 18,916 frames, 122 FPS, 2.01 ms). The three are level. That is one game at one
   setting, and not a scene picked for thin wires or falling leaves.
 - **Not checked:**
   - This release on Windows itself. The lossy DLL has used a spare channel of one of FSR 4's images since `dll-2026-10-13`, which is checked under Proton only. One Windows user reports that release working and looking right; this one changes nothing about the channel.
   - The wire and leaf scenes at other output sizes than 4K (the scenes of the full check were run at every size).
   - The quality checks with the HDR option set (the DLLs were compared with the Linux files with it).
-  - The whole upscaler in the Windows timing kit; the figures of `dll-2026-10-13` stand in for it.
 - These are single runs on made-up scenes.
   [Which rule dims the wire, and why the limit by weight could go](research/frame-skip/README.md#a-thin-wire-in-a-pan-the-clamp-only-beside-different-motion-release-dll-2026-10-132);
   [telling a small moving thing from grain](research/frame-skip/README.md#small-dark-things-without-motion-vectors-a-one-sided-test-sb_oneside).

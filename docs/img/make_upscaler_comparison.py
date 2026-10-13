@@ -28,7 +28,7 @@ GHOST = [[0.85, 0.87, 0.93, 2.64, 1.77], [1.07, 1.09, 1.11, 1.95, 1.43], [1.07, 
 # the bars' image of a frame ago lands, mean of the frames the lossy DLL runs the network for and those it skips
 BARS = [[0.94, 0.965, 0.96, 3.735, 1.26], [0.73, 0.825, 0.965, 3.045, 3.735], [0.53, 0.65, 0.62, 1.61, 7.615], [1.095, 1.19, 1.63, 3.29, 2.81]]
 # time per upscale call in ms at 1920x1080, 2560x1440 and 3840x2160 output (the page's speed table)
-SPEED = [[1.04, 0.65, 0.40, 0.73, 1.43], [2.19, 1.03, 0.57, 1.00, 2.28], [4.82, 2.22, 1.14, 2.00, 4.98]]
+SPEED = [[1.05, 0.64, 0.40, 0.73, 1.43], [2.20, 1.03, 0.57, 1.01, 2.28], [4.81, 2.21, 1.15, 2.00, 4.98]]
 WIRE_TRUE = 110.7; WIRE_SHOWN = [100.2, 76.7, 121.5, 134.6, 89.7]      # a thin wire under a slow pan: its brightness of 255
 MEASURES = [
     ('Accuracy', 'Still picture and moving background, mean: accuracy', 'dB', 'db', mean(STILL, BACKGROUND), '{:.2f} dB'),
@@ -118,14 +118,14 @@ def radar(t):
     for a, b in key:
         o += [text(x0, y, a, t, 10, 'ink2', weight=600), text(x0, y + 12, b, t, 10, 'muted')]; y += 27
     o += [text(24, H - 28, 'A spoke at half length: twice the error (or the change per frame, or the time) of the best of the five; for sparks, half as much shown.', t, 10, 'muted'),
-          text(24, H - 14, "Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (1.83 ms against 2.68).", t, 10, 'muted')]
+          text(24, H - 14, "Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (1.83 ms against 2.69).", t, 10, 'muted')]
     return o
 
 
 # ---- the front page: AMD's FSR 4.1.1, the previous release's lossy DLL and this release's. Same rig and scenes as above (single runs, auto exposure off).
 # Columns: FSR 4.1.1, the previous release, this release. The spokes are those of the chart above (the lossy DLLs' parts from the same scenes run with each release),
 # without the railing and with film grain: the mean change per frame of a still picture with grain of 6, 10 and 15 of 255.
-# The speed is the comparison page's timing of dll-2026-10-13; this release's lossy DLL was not timed again there (the one shader that changed reads the same in the timing kit's probe).
+# Each release's speed is from the comparison page's timing with that release, a few hours apart on the same day.
 R_NAMES = ['FSR 4.1.1', 'the lossy DLL of dll-2026-10-13', 'the lossy DLL of dll-2026-10-13.2']
 col = lambda rows, k: [r[k] for r in rows]
 P_GHOST = [0.87, 1.09, 1.31, 1.89, 4.66, 4.01, 2.64]; P_BARS = [0.96, 0.83, 0.655, 1.19]      # the previous release on the scenes of GHOST and BARS
@@ -140,7 +140,7 @@ R_MEASURES = [
     ('Film grain', 'Still picture with grain of 6, 10 and 15 of 255, mean: change per frame', 'of 255', 'down', m3([0.785, 1.724, 2.549], [0.330, 1.028, 1.608], [0.320, 1.081, 1.773]), '{:.2f}'),
     ('Wire, pan', MEASURES[8][1], 'of 255', 'down', [MEASURES[8][4][0], round(WIRE_TRUE - 52.9, 1), MEASURES[8][4][1]], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.024], '{:.3f}'),
-    ('Speed', MEASURES[9][1], 'ms', 'down', [MEASURES[9][4][0], MEASURES[9][4][1], MEASURES[9][4][1]], '{:.2f} ms'),
+    ('Speed', MEASURES[9][1], 'ms', 'down', [MEASURES[9][4][0], round((0.65 + 1.03 + 2.22) / 3, 2), MEASURES[9][4][1]], '{:.2f} ms'),
 ]
 # One scale for every radar chart: a spoke that the comparison page's chart has too is scaled by the best of its five upscalers, so a build has the same
 # shape in both charts. Film grain is on this chart only: there the best of the three.
@@ -164,7 +164,7 @@ def release_radar(t):
     o += [text(24, H - 56, 'Outer ring: FSR 4.1.1, except uncovered (this release), at rest and speed (FSR 3.1) and film grain (the previous release, best of these three).', t, 10, 'muted'),
           text(24, H - 42, "Dashed, left: the previous release (dll-2026-10-13), its figure in brackets where it differs. Dashed, right: this release's lossy DLL.", t, 10, 'muted'),
           text(24, H - 28, 'Most spokes are means over several scenes; old image, fixed bars and foliage are measured on frames the lossy DLL skips the network for.', t, 10, 'muted'),
-          text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: mean of 1080p, 1440p and 4K, timed with the previous release; the changed shader takes the same time.', t, 10, 'muted')]
+          text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: mean of 1080p, 1440p and 4K; the two releases were timed a few hours apart.', t, 10, 'muted')]
     return o
 
 
