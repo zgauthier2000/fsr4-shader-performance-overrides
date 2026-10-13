@@ -117,7 +117,9 @@ More games and resolutions: [all results](docs/results.md).
 >   4K and 1080p they do not).
 > - **Speed is unchanged,** and so is the exact DLL.
 > - **In one game so far** (Shadow of the Tomb Raider, 4K Balanced): the picture looked great and the speed is the
->   same as before. **This release has not been run on Windows itself.**
+>   same as before.
+> - **Tested on** a Radeon RX 7800 XT under Linux: the Linux files in the game and the test rig, the DLLs under Proton
+>   in the test rig and the timing kit.
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, with one chart per upscaler and side-by-side crops. It shows where the
 >   lossy DLL leads (accuracy close to FSR 4, areas a moving object has just uncovered, slowly swaying foliage, where it
@@ -260,8 +262,10 @@ nothing changes: the lowered threshold applies only where the picture is at rest
   122 FPS and an average upscaler time of 2.01 ms in the overlay; with the first change only 18,875 frames, 122 FPS, 2.00 ms. The picture
   looked great in both, by eye (`dll-2026-10-13` the same day: 18,916 frames, 122 FPS, 2.01 ms). The three are level. That is one game at one
   setting, and not a scene picked for thin wires or falling leaves.
+- **Tested on** a Radeon RX 7800 XT under Linux: the Linux files in the game and in the test rig, the DLLs under Proton in the test rig and the
+  timing kit. The lossy DLL has used a spare channel of one of FSR 4's images since `dll-2026-10-13`; one Windows user reports that release
+  working and looking right, and this one changes nothing about the channel.
 - **Not checked:**
-  - This release on Windows itself. The lossy DLL has used a spare channel of one of FSR 4's images since `dll-2026-10-13`, which is checked under Proton only. One Windows user reports that release working and looking right; this one changes nothing about the channel.
   - The wire and leaf scenes at other output sizes than 4K (the scenes of the full check were run at every size).
   - The quality checks with the HDR option set (the DLLs were compared with the Linux files with it).
 - These are single runs on made-up scenes.
