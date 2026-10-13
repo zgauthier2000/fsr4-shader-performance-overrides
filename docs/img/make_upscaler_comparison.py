@@ -98,15 +98,16 @@ def describe(names):
 
 def radar(t):
     lab = ('Five radar charts, one per upscaler, each with ten spokes; on every spoke the best of the five reaches the outer ring and the others reach in '
-           'proportion to it, so a larger shape is better and a dent is a weakness. ' + describe(range(5)))
+           'proportion to it, so a larger shape is better and a dent is a weakness. The lossy DLL comes first, and its shape is the dashed outline in the other four. ' + describe(range(5)))
     H = 612
-    o = frame(H, lab, 'The shape of each upscaler: ten measures', 'On every spoke the best of the five reaches the outer ring. Bigger is better; a dent is a weakness. Dashed: FSR 4.1.1.', t)
+    o = frame(H, lab, 'The shape of each upscaler: ten measures', 'On every spoke the best of the five reaches the outer ring. Bigger is better; a dent is a weakness. Dashed: the lossy DLL.', t)
     cxs, cys, r = (128, 380, 632), (196, 446), 72
     short = [m[0] for m in MEASURES]
-    for k, n in enumerate(NAMES):
-        cx, cy = cxs[k % 3], cys[k // 3]
-        o.append(text(cx, cy - r - 30, n, t, 13, 'ink', 'middle', 600))
-        radar_panel(o, t, cx, cy, r, k, short)
+    lossy = NAMES.index('Lossy')
+    for i, k in enumerate([lossy] + [k for k in range(len(NAMES)) if k != lossy]):      # this project's lossy DLL first; its outline is the dashed one in the other panels
+        cx, cy = cxs[i % 3], cys[i // 3]
+        o.append(text(cx, cy - r - 30, NAMES[k], t, 13, 'ink', 'middle', 600))
+        radar_panel(o, t, cx, cy, r, k, short, ref=lossy)
     # the sixth place: what the spokes are
     x0, y0 = 520, 344
     o.append(text(x0, y0, 'The spokes', t, 12, 'ink', weight=600))
