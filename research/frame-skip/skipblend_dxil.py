@@ -524,4 +524,5 @@ if (GUARD or BRANCH) and n_guard != 4:
     sys.exit(f'skipblend_dxil: {n_guard} guard sites found, expected 4')
 if n_sites != 4:
     sys.exit(f'skipblend_dxil: {n_sites} blend sites found, expected 4')
-sys.stdout.write('\n'.join(out))
+from frameskip_layout import holes_dxil      # step past the cleared diagonals
+sys.stdout.write('\n'.join(holes_dxil('\n'.join(out).split('\n'), S, 0)))

@@ -212,6 +212,8 @@ else:
                         f'  {q}rw = mul i32 {q}yr, {MR}', f'  {q}a1 = add i32 {q}rw, {MB}', f'  {q}a2 = add i32 {q}a1, {q}blk', f'  {q}x4 = shl i32 {q}x, 2', f'  {q}adr = add i32 {q}a2, {q}x4',
                         f'  {q}old = call i32 @dx.op.atomicBinOp.i32(i32 78, %dx.types.Handle {H}, i32 7, i32 {q}adr, i32 undef, i32 undef, i32 {q}v)']
     mv_code += ['  br label %fs.mM', '', 'fs.mM:']
+    from frameskip_layout import holes_dxil
+    mv_code = holes_dxil(mv_code, S, 1)      # step past the cleared diagonals (frameskip_layout.py)
     if BRANCH:
         # FS_BRANCH=1 (see frameskip.py): the rest of the function twice. A frame that runs the model gets AMD's code
         # unchanged; a skipped frame gets a copy without the tensor stores, which holds the motion store. The copy's

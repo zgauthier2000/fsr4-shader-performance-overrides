@@ -205,4 +205,5 @@ for (a, b) in blocks:
 for n, l in enumerate(rest):
     if ' OpPhi ' in l and cur != (rlabels[-1] if rlabels else lab):
         rest[n] = rn(l, rlabels[-1] if rlabels else lab, cur)
-sys.stdout.write('\n'.join(out + rest))
+from frameskip_layout import holes_spv_module      # step past the cleared diagonals
+sys.stdout.write('\n'.join(holes_spv_module('\n'.join(out + rest).split('\n'), 'mp', S, 1)))

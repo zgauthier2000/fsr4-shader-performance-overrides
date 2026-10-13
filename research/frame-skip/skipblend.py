@@ -707,4 +707,5 @@ if _band:      # the verdict's ramp t0..t1 is taken back between u0 and u1 and r
         o = f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}'
         if o not in text: sys.exit('skipblend: verdict rule not found')
         text = text.replace(o, f'%sr_w{k} = OpFMul %float {w} %sr_r{k}')
-sys.stdout.write(text)
+from frameskip_layout import holes_spv_module      # step past the cleared diagonals
+sys.stdout.write('\n'.join(holes_spv_module(text.split('\n'), 'sm', S, 0)))

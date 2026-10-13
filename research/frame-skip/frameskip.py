@@ -89,7 +89,7 @@ rp, heap, elem_t = st
 PAD = '               '
 
 
-from frameskip_layout import plane_layout
+from frameskip_layout import plane_layout, holes_spv
 
 
 def word_ptr(p, word):
@@ -280,6 +280,7 @@ else:
                             f'{q}blk = OpSelect %uint {q}yb %fs_pb1 %fs_pb0', f'{q}rw = OpIMul %uint {q}yr %fs_mrow', f'{q}a1 = OpIAdd %uint %fs_mbase {q}rw', f'{q}a2 = OpIAdd %uint {q}a1 {q}blk',
                             f'{q}idx = OpIAdd %uint {q}a2 {q}x'] + word_ptr(q, f'{q}idx') + [f'{q}old = OpAtomicUMax %uint {q}w %fs_u1 %fs_u0 {q}v']
         mv_code += ['OpBranch %fs_mM', '%fs_mM = OpLabel']
+        mv_code, _hc = holes_spv(mv_code, 'fs', S, 1); consts += _hc      # step past the cleared diagonals (frameskip_layout.py)
     BRANCH = os.environ.get('FS_BRANCH', '1') == '1'
     out, n_st = [], 0
     if BRANCH:

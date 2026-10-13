@@ -179,4 +179,5 @@ if not any(l.startswith('declare') and '@dx.op.rawBufferStore.i32(' in l for l i
     grp = next((m[1] for l in L for m in [re.match(r'attributes (#\d+) = \{ nounwind \}\s*$', l)] if m), None) or die('no plain "nounwind" attribute group')
     j = next(n for n, l in enumerate(rest) if l.startswith('declare'))
     rest[j:j] = [f'declare void @dx.op.rawBufferStore.i32(i32, %dx.types.Handle, i32, i32, i32, i32, i32, i32, i8, i32) {grp}', '']
-sys.stdout.write('\n'.join(out + rest))
+from frameskip_layout import holes_dxil      # step past the cleared diagonals
+sys.stdout.write('\n'.join(holes_dxil('\n'.join(out + rest).split('\n'), S, 1)))
