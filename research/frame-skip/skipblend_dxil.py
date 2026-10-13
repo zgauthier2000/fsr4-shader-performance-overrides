@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS, SB_REST (as in skipblend.py)
+# skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS, SB_REST (as in skipblend.py);
+# prototypes, off by default: SB_ALPHA=1 with MP_ALPHA=rules, SB_MEMSTILL
 # The DXIL form of skipblend.py (see there): on a skipped frame the weight of the new frame is
 # reduced where the nearest sample is farther from the pixel than it was in the frame the model
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
@@ -62,13 +63,32 @@ if UNCOV:
     def sabs(p, v):
         return [f'  {p}n = sub i32 0, {v}', f'  {p}s = icmp slt i32 {v}, 0', f'  {p} = select i1 {p}s, i32 {p}n, i32 {v}']
 
+    # SB_ALPHA=1 with MP_ALPHA=rules (PROTOTYPE, as in skipblend.py): a cell's motion is the one its first pixel carries in the fourth channel of the
+    # prepass's image (frameskip_dxil.py FS_ALPHA=1); the block's entry where that says "too fast"
+    if os.environ.get('SB_ALPHA', '0') not in ('0', '1'):
+        sys.exit('skipblend_dxil: only SB_ALPHA=1 has a DXIL form')
+    SAE = 'e' if os.environ.get('SB_ALPHA', '0') == '1' and os.environ.get('MP_ALPHA', '0') == 'rules' else ''
+    if SAE:
+        ia = {m[1] for l in L for m in [re.search(r'@dx\.op\.annotateHandle\(i32 216, %dx\.types\.Handle (%[\w.]+), %dx\.types\.ResourceProperties \{ i32 2, i32 776 \}\)', l)] if m}
+        if len(ia) != 1 or not d0 < next(i for i, l in enumerate(L) if re.match(rf'\s*{re.escape(min(ia))} = ', l)) < e1:
+            sys.exit('skipblend_dxil: SB_ALPHA: the prepass image was not found')
+        IA = ia.pop()
+
+    def aread(p):
+        return [f'  {p}apx = shl i32 {p}xc, 1', f'  {p}apy = shl i32 {p}yc, 1',
+                f'  {p}af = call %dx.types.ResRet.f16 @dx.op.textureLoad.f16(i32 66, %dx.types.Handle %sm.ia, i32 0, i32 {p}apx, i32 {p}apy, i32 undef, i32 undef, i32 undef, i32 undef)',
+                f'  {p}ah = extractvalue %dx.types.ResRet.f16 {p}af, 3', f'  {p}aa = fpext half {p}ah to float', f'  {p}aok = fcmp ogt float {p}aa, -2.047500e+03',
+                f'  {p}ac = fsub float {p}aa, 3.200000e+01', f'  {p}aq = fmul float {p}ac, 1.562500e-02', f'  {p}ayf = call float @dx.op.unary.f32(i32 26, float {p}aq)',
+                f'  {p}ay64 = fmul float {p}ayf, 6.400000e+01', f'  {p}axf = fsub float {p}ac, {p}ay64', f'  {p}axi = fptosi float {p}axf to i32', f'  {p}ayi = fptosi float {p}ayf to i32',
+                f'  {p}d0 = select i1 {p}aok, i32 {p}axi, i32 {p}d0e', f'  {p}e0 = select i1 {p}aok, i32 {p}ayi, i32 {p}e0e']
+
     def mread(p, x, y):
         return sclamp(f'{p}xc', x, 0, '%sm.wm') + sclamp(f'{p}yc', y, 0, '%sm.hm') + [
             f'  {p}xq = lshr i32 {p}xc, 1', f'  {p}yq = lshr i32 {p}yc, 1', f'  {p}yr = lshr i32 {p}yq, 1', f'  {p}yo = and i32 {p}yq, 1', f'  {p}yb = icmp ne i32 {p}yo, 0',
             f'  {p}bk = select i1 {p}yb, i32 {(2048 if S == 15392 else 4096) * 4}, i32 {48 * 4}', f'  {p}rw = mul i32 {p}yr, {S}', f'  {p}a1 = add i32 {p}rw, {MBASE}', f'  {p}a2 = add i32 {p}a1, {p}bk',
             f'  {p}x2 = shl i32 {p}xq, 3', f'  {p}ix = add i32 {p}a2, {p}x2',
             f'  {p}mr = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %sb.h, i32 {p}ix, i32 undef, i8 1, i32 4)', f'  {p}m = extractvalue %dx.types.ResRet.i32 {p}mr, 0',
-            f'  {p}xs = shl i32 {p}m, 16', f'  {p}d0 = ashr i32 {p}xs, 16', f'  {p}e0 = ashr i32 {p}m, 16'] + sclamp(f'{p}dx', f'{p}d0', -254, 254) + sclamp(f'{p}dy', f'{p}e0', -254, 254)
+            f'  {p}xs = shl i32 {p}m, 16', f'  {p}d0{SAE} = ashr i32 {p}xs, 16', f'  {p}e0{SAE} = ashr i32 {p}m, 16'] + (aread(p) if SAE else []) + sclamp(f'{p}dx', f'{p}d0', -254, 254) + sclamp(f'{p}dy', f'{p}e0', -254, 254)
 
     def dread(p):
         return [f'  {p}di = add i32 {p}ix, 4', f'  {p}dr = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %sb.h, i32 {p}di, i32 undef, i8 1, i32 4)',
@@ -78,7 +98,8 @@ if UNCOV:
         return [f'  {p}sx = sub i32 {ax}, {bx}', f'  {p}sy = sub i32 {ay}, {by}'] + sabs(f'{p}ux', f'{p}sx') + sabs(f'{p}uy', f'{p}sy') + [
                 f'  {p}mc = icmp ugt i32 {p}ux, {p}uy', f'  {p}mx = select i1 {p}mc, i32 {p}ux, i32 {p}uy', f'  {p} = icmp ule i32 {p}mx, {lim}']
 
-    mh = ['  br i1 %sb.skip, label %sm.T, label %sm.M', '', 'sm.T:', f'  %sm.wm = add i32 {WCc}, -1', f'  %sm.hm = add i32 {HCc}, -1'] + mread('%sm.p', Xc, Yc)
+    mh = ['  br i1 %sb.skip, label %sm.T, label %sm.M', '', 'sm.T:', f'  %sm.wm = add i32 {WCc}, -1', f'  %sm.hm = add i32 {HCc}, -1'] + (
+          [f'  %sm.ia = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle {IA}, %dx.types.ResourceProperties {{ i32 2, i32 776 }})'] if SAE else []) + mread('%sm.p', Xc, Yc)
     OFFS = [int(x) for x in os.environ.get('SB_UNCOV_OFFS', '3,8').split(',') if x]
     offs = [o for d in OFFS for o in ((d, 0), (-d, 0), (0, d), (0, -d))]
     flag, any_, stage2 = 'false', None, []
@@ -524,5 +545,31 @@ if (GUARD or BRANCH) and n_guard != 4:
     sys.exit(f'skipblend_dxil: {n_guard} guard sites found, expected 4')
 if n_sites != 4:
     sys.exit(f'skipblend_dxil: {n_sites} blend sites found, expected 4')
+if os.environ.get('SB_MEMSTILL', 'off') != 'off':
+    # PROTOTYPE, as in skipblend.py: on a skipped frame a cell whose own stored motion is zero while something looked at around it moves
+    # differently stores at least SB_MEMSTILL in the third channel of the model's memory image.
+    L2 = '\n'.join(out).split('\n'); D2 = {m[1]: m[2] for l in L2 for m in [re.match(r'\s*(%[\w.]+) = (.*?)(\s*;.*)?$', l)] if m}
+    if '%sm.rest' not in D2 or '%sm.nany' not in D2:
+        sys.exit('skipblend_dxil: SB_MEMSTILL needs the rest rule (SB_REST=1)')
+    anyid = re.match(r'xor i1 (%[\w.]+), true', D2['%sm.nany'])[1]; o2 = []; k = 0
+    V = fl(float(os.environ['SB_MEMSTILL']))
+    for l in L2:
+        m = re.match(r'(\s*call void @dx\.op\.textureStore\.f16\(i32 67, %dx\.types\.Handle )(%[\w.]+)(, i32 %[\w.]+, i32 %[\w.]+, i32 undef, half %[\w.]+, half %[\w.]+, half )(%[\w.]+)(, half %[\w.]+, i8 15\).*)$', l)
+        if m and re.search(r'ResourceProperties \{ i32 4098, i32 1032 \}', D2.get(m[2], '')):      # the memory image: the one with four 16-bit channels among the images written
+            # the rule is applied to the value before it is narrowed to 16 bits: the stored result is the same as skipblend.py's (narrowing keeps
+            # the order of values), and vkd3d-proton switches the whole shader to another floating-point mode when a value is narrowed and widened again
+            src = re.match(r'fptrunc float (%[\w.]+) to half$', D2.get(m[4], '')) or sys.exit('skipblend_dxil: the memory value is not narrowed from a float')
+            o2 += [f'  %ms.x{k} = call float @dx.op.binary.f32(i32 35, float {src[1]}, float {V})', f'  %ms.s{k} = select i1 %ms.still, float %ms.x{k}, float {src[1]}',
+                   f'  %ms.h{k} = fptrunc float %ms.s{k} to half', f'{m[1]}{m[2]}{m[3]}%ms.h{k}{m[5]}']
+            k += 1; continue
+        o2.append(l)
+        if re.match(r'\s*%sm\.rin = ', l):
+            o2.append(f'  %ms.in = and i1 %sm.c0u, {anyid}')
+        r = re.match(r'\s*%sm\.rest = phi i1 \[ %sm\.rin, (%[\w.]+) \], \[ false, (%[\w.]+) \]', l)
+        if r:
+            o2.append(f'  %ms.still = phi i1 [ %ms.in, {r[1]} ], [ false, {r[2]} ]')
+    if k != 4 or '  %ms.still = phi' not in '\n'.join(o2):
+        sys.exit(f'skipblend_dxil: {k} stores of the memory image found, expected 4')
+    out = o2
 from frameskip_layout import holes_dxil      # step past the cleared diagonals
 sys.stdout.write('\n'.join(holes_dxil('\n'.join(out).split('\n'), S, 0)))

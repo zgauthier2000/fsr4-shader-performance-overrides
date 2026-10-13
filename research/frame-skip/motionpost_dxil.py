@@ -10,6 +10,8 @@ import os, re, sys
 L = sys.stdin.read().split('\n')
 text = '\n'.join(L)
 die = lambda m: sys.exit(f'motionpost_dxil: {m}')
+if os.environ.get('MP_ALPHA', '0') not in ('0', 'rules'):      # 'rules' (PROTOTYPE): nothing to do here; skipblend_dxil.py SB_ALPHA=1 reads the finer motion itself
+    die('MP_ALPHA=1 has no DXIL form (only MP_ALPHA=rules)')
 S = next((x for x in (15392, 30752, 61472) if re.search(rf'\bi32 {x}\b', text)), None) or die('no known row size')
 width = S // 16 - 2; REGION = (width * 9 // 16 + 2) * S
 MARK = REGION + S + 128; MBASE = REGION + S; CBASE = REGION * 3 // 2 + S + 16

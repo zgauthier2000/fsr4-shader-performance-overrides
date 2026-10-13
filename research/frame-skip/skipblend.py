@@ -739,7 +739,7 @@ if os.environ.get('SB_MEMSTILL', 'off') != 'off':
         if '= OpFunction' in l and first: o2.append(f"%ms_v = OpConstant %float {float(os.environ['SB_MEMSTILL'])}"); first = False
         m = re.match(r'\s*OpImageWrite (%\w+) (%\w+) (%\w+)', l); ld = m and re.match(r'OpLoad %\w+ (%\w+)', defs.get(m[1], ''))
         ac = ld and re.match(r'OpAccessChain %\w+ (%\w+) (%\w+)', defs.get(ld[1], ''))
-        if ac and ac[1] == '%30':
+        if ac and re.match(r'OpIAdd %uint %\w+ %uint_6$', defs.get(ac[2], '')):      # the memory image: index 6 of the images written
             fc = re.match(r'OpFConvert %v4float (%\w+)$', defs.get(m[3], '')); t = fc and re.match(r'OpCompositeConstruct %v4half (%\w+) (%\w+) (%\w+) (%\w+)$', defs.get(fc[1], ''))
             if not t: sys.exit('skipblend: the memory texel is not four 16-bit values')
             o2 += [f'%ms_e{k} = OpFConvert %float {t[3]}', f'%ms_x{k} = OpExtInst %float {GLSL} FMax %ms_e{k} %ms_v', f'%ms_s{k} = OpSelect %float %ms_still %ms_x{k} %ms_e{k}', f'%ms_h{k} = OpFConvert %half %ms_s{k}',

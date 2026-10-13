@@ -214,6 +214,17 @@ else:
     mv_code += ['  br label %fs.mM', '', 'fs.mM:']
     from frameskip_layout import holes_dxil
     mv_code = holes_dxil(mv_code, S, 1)      # step past the cleared diagonals (frameskip_layout.py)
+    # FS_ALPHA=1 (PROTOTYPE, as in frameskip.py): on a skipped frame every pixel's own displacement goes into the fourth channel of the
+    # image the prepass writes per output pixel: dx + 64 * dy + 32 for |dx|, |dy| <= 31, -2048 for anything faster.
+    ALPHA = os.environ.get('FS_ALPHA', '0') == '1'
+    if ALPHA:
+        if not BRANCH:
+            die('FS_ALPHA needs the two-copy form (FS_BRANCH=1)')
+        mv_code = [f'  %fs.arx = call float @dx.op.unary.f32(i32 26, float {mvx})', f'  %fs.ary = call float @dx.op.unary.f32(i32 26, float {mvy})',
+                   '  %fs.aax = call float @dx.op.unary.f32(i32 6, float %fs.arx)', '  %fs.aay = call float @dx.op.unary.f32(i32 6, float %fs.ary)',
+                   '  %fs.ao1 = fcmp ole float %fs.aax, 3.100000e+01', '  %fs.ao2 = fcmp ole float %fs.aay, 3.100000e+01', '  %fs.aok = and i1 %fs.ao1, %fs.ao2',
+                   '  %fs.am = fmul float %fs.ary, 6.400000e+01', '  %fs.as = fadd float %fs.arx, %fs.am', '  %fs.at = fadd float %fs.as, 3.200000e+01',
+                   '  %fs.acode = select i1 %fs.aok, float %fs.at, float -2.048000e+03'] + mv_code
     if BRANCH:
         # FS_BRANCH=1 (see frameskip.py): the rest of the function twice. A frame that runs the model gets AMD's code
         # unchanged; a skipped frame gets a copy without the tensor stores, which holds the motion store. The copy's
@@ -227,6 +238,31 @@ else:
                 v = m[1] or '%' + m[2]
                 ren[v] = '%k.' + v[1:]
         tok = lambda l: re.sub(r'%[\w.]+', lambda m: ren.get(m[0], m[0]), l)
+        a_st = a_phi = None
+        if ALPHA:
+            # the image store of the skipped frame's copy; where its block can be reached without passing the motion code (the thread's
+            # pixel outside the picture), the code gets a phi with the escape value on that path
+            STORE = re.compile(r'(\s*call void @dx\.op\.textureStore\.f16\(i32 67, %dx\.types\.Handle %[\w.]+, i32 %[\w.]+, i32 %[\w.]+, i32 undef, half (%[\w.]+), half %[\w.]+, half %[\w.]+, half )(%[\w.]+)(, i8 15\).*)$')
+            cs = [n for n in range(split + 1, fe) for m in [STORE.match(L[n])] if m and m[2] == m[3]]
+            if len(cs) != 1:
+                die(f'FS_ALPHA: {len(cs)} image stores of the form (r, g, b, r) found, expected 1')
+            a_st = cs[0]
+            if a_st < mv_at:
+                die('FS_ALPHA: the image store lies before the motion code')
+            b0_ = max(n for n in range(split, a_st) if re.match(r'; <label>:\d+', L[n]) or re.match(r'[A-Za-z_.][\w.]*:', L[n]) or n == split)
+            ph = [n for n in range(b0_ + 1, a_st) if ' = phi ' in L[n]]
+            if ph:
+                a_phi = ph[-1]
+                lab_at = {'%' + m[1]: n for n in range(d0, fe) for m in [re.match(r'; <label>:(\d+)', L[n])] if m}
+                a_vals = []
+                for lb in re.findall(r'\[ [^,\]]+, (%[\w.]+) \]', L[a_phi]):
+                    if lb != '%0' and lb not in lab_at:
+                        die(f'FS_ALPHA: block {lb} not found')
+                    a_vals.append('%fs.acode' if lb == blk0 or (lb != '%0' and lab_at[lb] > mv_at) else '-2.048000e+03')
+                if len(set(a_vals)) != 2:
+                    die('FS_ALPHA: cannot tell which way into the image store passes the motion code')
+            elif b0_ < mv_at:
+                die('FS_ALPHA: the image store is not reached through the motion code alone')
         run, skp = [], []
         for n in range(split + 1, fe):
             l = L[n]
@@ -239,7 +275,13 @@ else:
                     l = re.sub(rf'{re.escape(blk0)} \]', '%fs.mM ]', l)
                 l = re.sub(r'%0 \]', '%fs.S ]', l)
             m = re.match(r'; <label>:(\d+)', l) or re.match(r'([A-Za-z_.][\w.]*):', l)
+            if n == a_st:
+                skp.append(f"  %fs.ah = fptrunc float {'%fs.aph' if a_phi else '%fs.acode'} to half")
+                l = STORE.sub(lambda t: t[1] + '%fs.ah' + t[4], l)
             skp.append(f'k.{m[1]}:' if m else tok(l))
+            if n == a_phi:      # the labels as the phi above names them now
+                labs = re.findall(r'\[ [^,\]]+, (%[\w.]+) \]', skp[-1])
+                skp.append('  %fs.aph = phi float ' + ', '.join(f'[ {v}, {lb} ]' for v, lb in zip(a_vals, labs)))
             if n == mv_at:
                 skp += [tok(c) for c in mv_code]
         if not n_st:
