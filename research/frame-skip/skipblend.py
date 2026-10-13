@@ -149,6 +149,8 @@ HFETCH = []; CIMG = []
 def _scan():
     for l in L:
         m = re.match(r'\s*(%\w+) = OpImageFetch %v4float (%\w+) (%\w+) Lod', l)
+        if m and re.match(r'%(mp_a|sm_)', m[1]):      # a read of the motion code in the fourth channel (MP_ALPHA / SB_ALPHA), not one of AMD's history fetches
+            continue
         if m and _heap(m[2]) == '%uint_9':
             cc = re.match(r'OpCompositeConstruct %v2uint (%\w+) (%\w+)', defs.get(m[3], '')) or sys.exit('skipblend: unexpected history coordinate')
             HFETCH.append((m[2], cc[1], cc[2]))
