@@ -239,7 +239,19 @@ else:
         consts += [f'%fs_mbase = OpConstant %uint {(REGION + S) // 4}', f'%fs_mrow = OpConstant %uint {S // 4}', '%fs_mb0 = OpConstant %uint 48', f'%fs_mb1 = OpConstant %uint {(2048 if S == 15392 else 4096)}',
                    '%fs_u1 = OpConstant %uint 1', '%fs_u2 = OpConstant %uint 2', '%fs_u3 = OpConstant %uint 3', '%fs_u16 = OpConstant %uint 16', '%fs_u65535 = OpConstant %uint 65535',
                    '%fs_fone = OpConstant %float 1', '%fs_fm = OpConstant %float -254', '%fs_fp = OpConstant %float 254']
-        mv_code = [f'%fs_mxy = OpBitwiseOr %uint {px} {py}', '%fs_mev = OpBitwiseAnd %uint %fs_mxy %fs_u3', '%fs_mis = OpIEqual %bool %fs_mev %fs_u0',
+        # FS_ALPHA=1 (PROTOTYPE): on a skipped frame every pixel's own displacement goes into the fourth channel of the image the prepass
+        # writes per output pixel (AMD writes red there again; the postpass does not read it): dx + 64 * dy + 32 for |dx|, |dy| <= 31
+        # (whole numbers a 16-bit float holds exactly), -2048 for anything faster. motionpost.py MP_ALPHA=1 reads it per 2x2 cell.
+        ALPHA = os.environ.get('FS_ALPHA', '0') == '1'
+        a_code = []
+        if ALPHA:
+            consts += ['%fs_a31 = OpConstant %float 31', '%fs_a64 = OpConstant %float 64', '%fs_a32 = OpConstant %float 32', '%fs_aesc = OpConstant %float -2048']
+            a_code = [f'%fs_arx = OpExtInst %float {glsl} RoundEven {mvx}', f'%fs_ary = OpExtInst %float {glsl} RoundEven {mvy}',
+                      f'%fs_aax = OpExtInst %float {glsl} FAbs %fs_arx', f'%fs_aay = OpExtInst %float {glsl} FAbs %fs_ary',
+                      '%fs_ao1 = OpFOrdLessThanEqual %bool %fs_aax %fs_a31', '%fs_ao2 = OpFOrdLessThanEqual %bool %fs_aay %fs_a31', '%fs_aok = OpLogicalAnd %bool %fs_ao1 %fs_ao2',
+                      '%fs_am = OpFMul %float %fs_ary %fs_a64', '%fs_as = OpFAdd %float %fs_arx %fs_am', '%fs_at = OpFAdd %float %fs_as %fs_a32',
+                      '%fs_acode = OpSelect %float %fs_aok %fs_at %fs_aesc']
+        mv_code = a_code + [f'%fs_mxy = OpBitwiseOr %uint {px} {py}', '%fs_mev = OpBitwiseAnd %uint %fs_mxy %fs_u3', '%fs_mis = OpIEqual %bool %fs_mev %fs_u0',
                    '%fs_mdo = OpLogicalAnd %bool %fs_mis %fs_skip', 'OpSelectionMerge %fs_mM None', 'OpBranchConditional %fs_mdo %fs_mT %fs_mM', '%fs_mT = OpLabel',
                    f'%fs_mrx = OpExtInst %float {glsl} RoundEven {mvx}', f'%fs_mry = OpExtInst %float {glsl} RoundEven {mvy}',
                    f'%fs_mcx = OpExtInst %float {glsl} NClamp %fs_mrx %fs_fm %fs_fp', f'%fs_mcy = OpExtInst %float {glsl} NClamp %fs_mry %fs_fm %fs_fp',
@@ -309,6 +321,23 @@ else:
             die('the motion code lies before the place of the branch')
         top = split == at
 
+        # FS_ALPHA: the image write of the skipped frame's copy. Its first channel comes through a phi where the thread's pixel can also be
+        # outside the picture; the code gets a phi beside it (escape value on that path).
+        a_comp = a_phi = None
+        if MV and ALPHA:
+            cs = [n for n in range(split + 1, tail_at) if re.match(r'\s*%\w+ = OpCompositeConstruct %v4half (%\w+) %\w+ %\w+ \1$', L[n])]
+            if len(cs) != 1:
+                die(f'FS_ALPHA: {len(cs)} image values of the form (r, g, b, r) found, expected 1')
+            a_comp = cs[0]; r0 = re.match(r'\s*%\w+ = OpCompositeConstruct %v4half (%\w+)', L[a_comp])[1]
+            src = re.match(r'OpFConvert %half (%\w+)$', defs.get(r0, (0, ''))[1] if isinstance(defs.get(r0), tuple) else defs.get(r0, ''))
+            sd = src and (defs[src[1]][1] if isinstance(defs[src[1]], tuple) else defs[src[1]])
+            ph = sd and re.match(r'OpPhi %float (%\w+) (%\w+) (%\w+) (%\w+)$', sd)
+            if ph:
+                a_phi = max(n for n in range(split + 1, a_comp) if 'OpPhi' in L[n]); la, lb = lab_at[ph[2]], lab_at[ph[4]]
+                if (la > mv_at) == (lb > mv_at):
+                    die('FS_ALPHA: cannot tell which way into the image write passes the motion code')
+                a_labels = (ph[2], ph[4]); a_vals = ('%fs_acode' if la > mv_at else '%fs_aesc', '%fs_acode' if lb > mv_at else '%fs_aesc')
+
         def body(skipped):
             global n_st
             o = []
@@ -325,7 +354,12 @@ else:
                         l = re.sub(rf'{re.escape(mv_block)}(?=\s|$)', '%fs_mM', l)
                 elif not top:
                     l = re.sub(rf'{re.escape(merge)}(?=\s|$)', '%fs_end', l)
+                if skipped and a_comp == n:
+                    l = re.sub(r'%\w+$', '%fs_ah', l); o.append(PAD + f"%fs_ah = OpFConvert %half {'%fs_aph' if a_phi else '%fs_acode'}")
                 o.append(l)
+                if skipped and a_phi == n:      # the labels as the phi above names them (already renamed where the branch was put in)
+                    lab = re.match(r'\s*%\w+ = OpPhi %\w+ %\w+ (%\w+) %\w+ (%\w+)$', l)
+                    o.append(PAD + f'%fs_aph = OpPhi %float {a_vals[0]} {lab[1]} {a_vals[1]} {lab[2]}')
                 if MV and skipped and n == mv_at:
                     o += [PAD + c for c in mv_code]
             return o

@@ -60,6 +60,27 @@ c = ([f"%mp_jlo = OpConstant %float {float(os.environ['MP_SPOILJ'].split(',')[0]
      '%mp_b0 = OpConstant %uint 48', f'%mp_b1 = OpConstant %uint {(2048 if S == 15392 else 4096)}', f'%mp_lo = OpConstant %uint {(-254) & 0xffffffff}', '%mp_hi = OpConstant %uint 254']
 if os.environ.get('MP_FORCE'):
     c += [f"%mp_fx = OpConstant %uint {int(os.environ['MP_FORCE'].split(',')[0]) & 0xffffffff}", f"%mp_fy = OpConstant %uint {int(os.environ['MP_FORCE'].split(',')[1]) & 0xffffffff}"]
+# MP_ALPHA=1 (PROTOTYPE, with frameskip.py FS_ALPHA=1): the cell's motion is the one its first pixel carries in the fourth channel of the prepass's image
+# (dx + 64 * dy + 32, |dx|, |dy| <= 31); where that says "too fast" (-2048) the entry of the 4x4 block is used as before.
+AE, A_CODE = '', []
+if os.environ.get('MP_ALPHA', '0') == '1':
+    AE = 'e'
+    for f9 in (m for l in L for m in [re.match(r'\s*(%\w+) = OpIAdd %uint (%\w+) %uint_9$', l)] if m):      # index 9 of the sampled images (another array has an index 9 too)
+        acd = next(m for l in L for m in [re.match(rf'\s*(%\w+) = OpAccessChain (%\w+) (%\w+) {re.escape(f9[1])}$', l)] if m)
+        ld = next(m for l in L for m in [re.match(rf'\s*(%\w+) = OpLoad (%\w+) {re.escape(acd[1])}$', l)] if m)
+        if any(re.match(rf'\s*%\w+ = OpImageFetch %v4float {re.escape(ld[1])} ', l) for l in L):
+            break
+    else:
+        sys.exit('motionpost: MP_ALPHA: the prepass image was not found')
+    reg = next(m for l in L for m in [re.match(rf'\s*{re.escape(f9[2])} = OpLoad %uint (%\w+)$', l)] if m)
+    regac = next(m for l in L for m in [re.match(rf'\s*{re.escape(reg[1])} = (OpAccessChain .*)$', l)] if m)
+    c += ['%mp_a32 = OpConstant %float 32', '%mp_a64 = OpConstant %float 64', '%mp_ai64 = OpConstant %float 0.015625', '%mp_alim = OpConstant %float -2047.5']
+    A_CODE = [f'%mp_arp = {regac[1]}', '%mp_ar = OpLoad %uint %mp_arp', '%mp_ai = OpIAdd %uint %mp_ar %uint_9', f'%mp_aip = OpAccessChain {acd[2]} {acd[3]} %mp_ai', f'%mp_aim = OpLoad {ld[2]} %mp_aip',
+              f'%mp_apx = OpShiftLeftLogical %uint {X} %mp_c1', f'%mp_apy = OpShiftLeftLogical %uint {Y} %mp_c1', '%mp_aco = OpCompositeConstruct %v2uint %mp_apx %mp_apy',
+              '%mp_af = OpImageFetch %v4float %mp_aim %mp_aco Lod %uint_0', '%mp_aa = OpCompositeExtract %float %mp_af 3', '%mp_aok = OpFOrdGreaterThan %bool %mp_aa %mp_alim',
+              '%mp_ac = OpFSub %float %mp_aa %mp_a32', '%mp_aq = OpFMul %float %mp_ac %mp_ai64', f'%mp_ayf = OpExtInst %float {GLSL} RoundEven %mp_aq',
+              '%mp_ay64 = OpFMul %float %mp_ayf %mp_a64', '%mp_axf = OpFSub %float %mp_ac %mp_ay64', '%mp_axi = OpConvertFToS %uint %mp_axf', '%mp_ayi = OpConvertFToS %uint %mp_ayf',
+              '%mp_dx0 = OpSelect %uint %mp_aok %mp_axi %mp_dx0e', '%mp_dy0 = OpSelect %uint %mp_aok %mp_ayi %mp_dy0e']
 head = ['%mp_r1 = OpAccessChain %_ptr_PushConstant_uint %registers %uint_1', '%mp_r = OpLoad %uint %mp_r1', '%mp_bi = OpIAdd %uint %mp_r %uint_11',
         f'%mp_bp = OpAccessChain %_ptr_StorageBuffer_SSBO {SSBO} %mp_bi',
         '%mp_p0 = OpAccessChain %_ptr_StorageBuffer_uint %mp_bp %uint_0 %mp_w0', '%mp_v0 = OpLoad %uint %mp_p0',
@@ -70,7 +91,8 @@ head = ['%mp_r1 = OpAccessChain %_ptr_PushConstant_uint %registers %uint_1', '%m
         '%mp_yr = OpShiftRightLogical %uint %mp_yq %mp_c1', '%mp_yo = OpBitwiseAnd %uint %mp_yq %mp_c1', '%mp_yb = OpINotEqual %bool %mp_yo %mp_c0',
         '%mp_blk = OpSelect %uint %mp_yb %mp_b1 %mp_b0', '%mp_rw = OpIMul %uint %mp_yr %mp_row', '%mp_a1 = OpIAdd %uint %mp_base %mp_rw', '%mp_a2 = OpIAdd %uint %mp_a1 %mp_blk',
         '%mp_x2 = OpShiftLeftLogical %uint %mp_xq %mp_c1', '%mp_idx = OpIAdd %uint %mp_a2 %mp_x2', '%mp_pm = OpAccessChain %_ptr_StorageBuffer_uint %mp_bp %uint_0 %mp_idx', '%mp_m = OpLoad %uint %mp_pm',
-        '%mp_xs = OpShiftLeftLogical %uint %mp_m %mp_c16', '%mp_dx0 = OpShiftRightArithmetic %uint %mp_xs %mp_c16', '%mp_dy0 = OpShiftRightArithmetic %uint %mp_m %mp_c16',
+        '%mp_xs = OpShiftLeftLogical %uint %mp_m %mp_c16', f'%mp_dx0{AE} = OpShiftRightArithmetic %uint %mp_xs %mp_c16', f'%mp_dy0{AE} = OpShiftRightArithmetic %uint %mp_m %mp_c16',
+        *A_CODE,
         *(['%mp_dx1 = OpCopyObject %uint %mp_fx', '%mp_dy1 = OpCopyObject %uint %mp_fy'] if os.environ.get('MP_FORCE') else [f'%mp_dx1 = OpExtInst %uint {GLSL} SClamp %mp_dx0 %mp_lo %mp_hi', f'%mp_dy1 = OpExtInst %uint {GLSL} SClamp %mp_dy0 %mp_lo %mp_hi']),
         '%mp_dx = OpSelect %uint %mp_skip %mp_dx1 %mp_c0', '%mp_dy = OpSelect %uint %mp_skip %mp_dy1 %mp_c0',
         '%mp_mx = OpShiftRightArithmetic %uint %mp_dx %mp_c1', '%mp_my = OpShiftRightArithmetic %uint %mp_dy %mp_c1',

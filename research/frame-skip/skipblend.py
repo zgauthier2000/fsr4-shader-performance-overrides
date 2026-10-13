@@ -324,15 +324,26 @@ if CLAMPM is not None or UNCOV:
           f'%sm_dbase = OpConstant %uint {(REGION * 3 // 2 + 2 * S) // 4}', '%sm_db1 = OpConstant %uint 5120', '%sm_two = OpConstant %uint 2', '%sm_false = OpConstantFalse %bool', '%sm_m1 = OpConstant %uint 4294967295', '%sm_fz = OpConstant %float 0', '%sm_fone = OpConstant %float 1'] + (
           [f'%sm_inv = OpConstant %float {1.0 / CLAMPM}'] if CLAMPM is not None else [])
 
+    # SB_ALPHA=1 (PROTOTYPE, after motionpost.py MP_ALPHA=1): a cell's motion is the one its first pixel carries in the prepass's image; the block's entry where that says "too fast"
+    SAE = 'e' if os.environ.get('SB_ALPHA', '0') == '1' and any('%mp_aim = ' in l for l in L) else ''
+    _mpdef = {m[1]: m[2] for l in L for m in [re.match(r'\s*(%mp_a(?:rp|r|i|ip|im)) = (.*)$', l)] if m}
+    SA_IMG = [f"{k.replace('%mp_a', '%sm_ia')} = {re.sub(r'%mp_a(rp|r|i|ip|im)(?!\\w)', lambda m: '%sm_ia' + m[1], _mpdef[k])}" for k in ('%mp_arp', '%mp_ar', '%mp_ai', '%mp_aip', '%mp_aim')] if SAE else []
+    sa_done = []
     def mread(p, x, y):
         """motion (output pixels, signed) stored for the cell (x, y), clamped into the frame; one entry per 2x2 cells"""
-        return [f'{p}xc = OpExtInst %uint {GLSL} SClamp {x} %sb_c0 %sm_wm', f'{p}yc = OpExtInst %uint {GLSL} SClamp {y} %sb_c0 %sm_hm',
+        pre = [] if sa_done or not SAE else SA_IMG; sa_done.append(1)      # the image, loaded where the first lookup is made
+        return pre + [f'{p}xc = OpExtInst %uint {GLSL} SClamp {x} %sb_c0 %sm_wm', f'{p}yc = OpExtInst %uint {GLSL} SClamp {y} %sb_c0 %sm_hm',
                 f'{p}xq = OpShiftRightLogical %uint {p}xc %sm_c1', f'{p}yq = OpShiftRightLogical %uint {p}yc %sm_c1',
                 f'{p}yr = OpShiftRightLogical %uint {p}yq %sm_c1', f'{p}yo = OpBitwiseAnd %uint {p}yq %sm_c1', f'{p}yb = OpINotEqual %bool {p}yo %sb_c0',
                 f'{p}bk = OpSelect %uint {p}yb %sm_b1 %sm_b0', f'{p}rw = OpIMul %uint {p}yr %sm_row', f'{p}a1 = OpIAdd %uint %sm_base {p}rw', f'{p}a2 = OpIAdd %uint {p}a1 {p}bk',
                 f'{p}x2 = OpShiftLeftLogical %uint {p}xq %sm_c1', f'{p}ix = OpIAdd %uint {p}a2 {p}x2',
                 f'{p}pm = OpAccessChain %_ptr_StorageBuffer_uint %sb_bp %uint_0 {p}ix', f'{p}m = OpLoad %uint {p}pm',
-                f'{p}xs = OpShiftLeftLogical %uint {p}m %sm_c16', f'{p}d0 = OpShiftRightArithmetic %uint {p}xs %sm_c16', f'{p}e0 = OpShiftRightArithmetic %uint {p}m %sm_c16',
+                f'{p}xs = OpShiftLeftLogical %uint {p}m %sm_c16', f'{p}d0{SAE} = OpShiftRightArithmetic %uint {p}xs %sm_c16', f'{p}e0{SAE} = OpShiftRightArithmetic %uint {p}m %sm_c16',
+                *([f'{p}apx = OpShiftLeftLogical %uint {p}xc %sm_c1', f'{p}apy = OpShiftLeftLogical %uint {p}yc %sm_c1', f'{p}aco = OpCompositeConstruct %v2uint {p}apx {p}apy',
+                   f'{p}af = OpImageFetch %v4float %sm_iaim {p}aco Lod %uint_0', f'{p}aa = OpCompositeExtract %float {p}af 3', f'{p}aok = OpFOrdGreaterThan %bool {p}aa %mp_alim',
+                   f'{p}ac = OpFSub %float {p}aa %mp_a32', f'{p}aq = OpFMul %float {p}ac %mp_ai64', f'{p}ayf = OpExtInst %float {GLSL} RoundEven {p}aq',
+                   f'{p}ay64 = OpFMul %float {p}ayf %mp_a64', f'{p}axf = OpFSub %float {p}ac {p}ay64', f'{p}axi = OpConvertFToS %uint {p}axf', f'{p}ayi = OpConvertFToS %uint {p}ayf',
+                   f'{p}d0 = OpSelect %uint {p}aok {p}axi {p}d0e', f'{p}e0 = OpSelect %uint {p}aok {p}ayi {p}e0e'] if SAE else []),
                 f'{p}dx = OpExtInst %uint {GLSL} SClamp {p}d0 %sm_lo %sm_hi', f'{p}dy = OpExtInst %uint {GLSL} SClamp {p}e0 %sm_lo %sm_hi']
 
     def dread(p):
