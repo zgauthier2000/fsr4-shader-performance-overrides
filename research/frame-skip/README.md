@@ -1964,9 +1964,9 @@ in both slot orders.
 
 In a game: Shadow of the Tomb Raider's benchmark at 4K Balanced with the Linux files, one run: 18,875 frames, 122 FPS, the
 overlay's average upscaler time 2.00 ms (`dll-2026-10-13` the same day: 18,916 frames, 122 FPS, 2.01 ms); the picture looked
-great, by eye. That run was made with the wire change only.
+great, by eye. That run was made with the wire change only; with both changes a run read 18,849 frames, 122 FPS and 2.01 ms.
 
-Not measured: a game scene with such wires, the game the leaves were reported from, the build with both changes in any game, the wire and leaf scenes at other output sizes than 4K, the quality set with the HDR
+Not measured: a game scene with such wires, the game the leaves were reported from, the wire and leaf scenes at other output sizes than 4K, the quality set with the HDR
 option, and this release on Windows itself.
 
 ## By frame rate

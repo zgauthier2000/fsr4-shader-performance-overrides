@@ -256,9 +256,10 @@ nothing changes: the lowered threshold applies only where the picture is at rest
   tiny particles, rain, fireflies, glints, foliage, fades, and the thin bars fixed on screen that `dll-2026-10-13` was about.
 - **Speed is unchanged.** The last shader of a skipped frame reads 0.59 ms at 4K before and after in the timing kit's
   probe on a Radeon RX 7800 XT, and still fits the same number of registers.
-- **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced with the Linux files, one run, made with the first change only:
-  18,875 frames and 122 FPS, the overlay's average upscaler time 2.00 ms (`dll-2026-10-13` the same day: 18,916 frames, 122 FPS, 2.01 ms).
-  The picture looked great there, by eye. That is one game at one setting, and not a scene picked for thin wires. The build with both changes has not been run in a game.
+- **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced with the Linux files, one run each: with both changes 18,849 frames,
+  122 FPS and an average upscaler time of 2.01 ms in the overlay; with the first change only 18,875 frames, 122 FPS, 2.00 ms, and the picture
+  looked great there, by eye (`dll-2026-10-13` the same day: 18,916 frames, 122 FPS, 2.01 ms). The three are level. That is one game at one
+  setting, and not a scene picked for thin wires or falling leaves.
 - **Not checked:**
   - This release on Windows itself. The lossy DLL has used a spare channel of one of FSR 4's images since `dll-2026-10-13`, which is checked under Proton only. One Windows user reports that release working and looking right; this one changes nothing about the channel.
   - The wire and leaf scenes at other output sizes than 4K (the scenes of the full check were run at every size).

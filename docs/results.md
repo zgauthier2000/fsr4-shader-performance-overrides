@@ -24,7 +24,7 @@ Shadow of the Tomb Raider's built-in benchmark, 4K output, FSR 4.1.1 Balanced, R
 | Exact files | 2.99 ms (−28%) | 16947 | 109 (+12%) |
 | Lossy files | 2.01 ms (−52%) | 18916 | 122 (+26%) |
 
-The lossy figure is one run of 2026-10-13 with the files of release `dll-2026-10-13`; a run with `dll-2026-10-13.2` the same day read 2.00 ms, 18875 frames and 122 FPS. The AMD figure and the exact figure are from earlier runs of the same benchmark; the exact files of this release differ from
+The lossy figure is one run of 2026-10-13 with the files of release `dll-2026-10-13`; a run with `dll-2026-10-13.2` the same day read 2.01 ms, 18849 frames and 122 FPS. The AMD figure and the exact figure are from earlier runs of the same benchmark; the exact files of this release differ from
 those only in the last pass's store path (1 to 2% of that pass in a bench), and that 4K run was not repeated with them.
 
 The same three, timed without a game by the [Windows timing kit](../timing-kit/README.md#windows-experimental) through the DLLs

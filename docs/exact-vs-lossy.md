@@ -490,7 +490,7 @@ with an early release that folded more weights; taking that folding out cost abo
 120 FPS up to `dll-2026-10-12`; 2.00 ms and 122 FPS since the first shader got a short copy for skipped frames in `dll-2026-10-12.2`. The Rise of the Tomb Raider exact figure is from before the
 prepass and postpass rewrites of release `dll-2026-10-07`.
 
-The Shadow of the Tomb Raider lossy run was made with release `dll-2026-10-13` on 2026-10-13 (18,916 frames); a run with `dll-2026-10-13.2` the same day read 2.00 ms, 122 FPS and 18,875 frames. AMD's and the exact figure are from earlier runs.
+The Shadow of the Tomb Raider lossy run was made with release `dll-2026-10-13` on 2026-10-13 (18,916 frames); a run with `dll-2026-10-13.2` the same day read 2.01 ms, 122 FPS and 18,849 frames. AMD's and the exact figure are from earlier runs.
 
 The lossy figures are from the Linux files. The Windows DLLs carry
 the same shaders (their output is byte-identical to the Linux files' in the test rig, under
