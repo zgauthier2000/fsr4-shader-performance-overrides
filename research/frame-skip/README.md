@@ -1859,11 +1859,70 @@ the section linked above). That was before the clamp beside different motion, be
 record of who was where, and before the rules read motion per 2x2 pixels. With those in place the weight trigger buys
 little: just-uncovered areas in the panning scene read 35.90 dB before and after at 4K, and lose 0.2 to 0.3 dB at 1440p and 5K output (the table below).
 
-`SB_CLAMPW="0.0 0.3"` rebuilds `dll-2026-10-13`'s Linux files and both DLLs' shader sets byte for byte.
+`SB_CLAMPW="0.0 0.3" SB_ONESIDE=off` rebuilds `dll-2026-10-13`'s Linux files and both DLLs' shader sets byte for byte.
+
+### Small dark things without motion vectors: a one-sided test (`SB_ONESIDE`)
+
+Reported from a game: dark leaves, a few pixels across, falling and turning in front of a dark sky with the camera nearly still; sparkling
+around them, and trails. A rig scene for it (`SCENE_FALL` in the scene generator: flat dark leaves that fall, sway and turn, drawn into the
+color only, hard-sampled) shows the lossy build pulsing: on the frames that run the network a leaf is shown as with AMD's shaders, on the
+frames between less of it is, and more is left where it was.
+
+| 4K output, camera still, skipped frames | Leaf's darkness shown | Left where it was up to 3 frames ago |
+|---|---|---|
+| AMD's shaders | 79.1% | 5.4% |
+| `dll-2026-10-13` (and with the wire change) | 71.2% | 8.5% |
+
+**The cause** is the test that lets changed content through where the picture is at rest (`SB_BRIGHT`): the resampled new frame must differ
+from the history by more than a quarter of the range of the nine new samples plus a floor of 0.05. The floor was raised from 0.02 in
+`dll-2026-10-10` to keep film grain out. A leaf's edge covers part of a pixel, so its difference is a fraction of the leaf's contrast and
+stays under the threshold.
+
+**What does not separate a leaf from grain:**
+
+| Tried | Leaf shown | Grain 10 of 255: change per frame | Grain 15 |
+|---|---|---|---|
+| as released | 71.2% | 1.028 | 1.608 |
+| floor 0.03 (both changed-content tests) | 73.5% | 1.098 | 1.840 |
+| floor 0.02 | 75.2% | 1.231 | 2.041 |
+| floor 0.01 | 76.7% | 1.434 | 2.284 |
+| floor in proportion to brightness, factor 0.2 / 0.5 | 71.6% / 71.1% | 1.287 / 1.075 | 2.086 / 1.654 |
+| floor 0.01 only where the network's weight of a frame ago was high (0.6 to 0.8 and above) | 75.3% | 1.393 | 2.181 |
+| range factor 0.1 in place of 0.25 | 73.5% | 1.059 | 1.815 |
+| range factor near 0 | 75.2% | 1.105 | 1.995 |
+
+- A floor that follows the brightness does nothing for the leaves and lets more grain through. The values these tests compare behave like
+  perceptual ones, not like linear light: a dark scene does not have smaller differences in them.
+- The network's weight does not help either: where it was low, a pixel that passes the test takes almost nothing from the new frame anyway,
+  so the cost and the gain both come from the pixels where it was high.
+
+**What does:** which side the change is on. A leaf that has moved in changes some of the nine samples, all in one direction, and leaves the
+others at the history's value: the history sits at one end of the samples' range. Grain scatters the samples around the history.
+`SB_ONESIDE="a factor floor"` adds a second form of the test, threshold `factor` x range + `floor`, that counts only where
+|smallest + largest sample - 2 x history| > `a` x range:
+
+| `SB_ONESIDE`, factor 0.05, floor 0.01 | Leaf shown | Grain 6 | Grain 10 | Grain 15 |
+|---|---|---|---|---|
+| off | 71.2% | 0.330 | 1.028 | 1.608 |
+| a = 0.95 | 73.5% | 0.325 | 1.025 | 1.627 |
+| a = 0.85 (the default) | 75.5% | 0.320 | 1.081 | 1.773 |
+| a = 0.7 | 76.8% | 0.312 | 1.199 | 1.971 |
+| a = 0.5 | 77.6% | 0.304 | 1.319 | 2.187 |
+
+At 0.85 it gives the leaf what a floor of 0.02 gives, for about a quarter of that floor's cost at grain of 10 and under half at 15.
+
+**What it does not do:**
+
+- The trace where a leaf was stays (8.4% against 8.5%; AMD's 5.4%). Replacing the history there outright would cure it and would erase thin
+  wires at rest again: from one frame, a place a leaf has left and a wire the samples miss look the same.
+- In a pan nothing changes, because the test belongs to the rule for places at rest. In a fast pan (12 and 6 pixels per frame) the lossy build
+  shows a leaf at 78.3% on the frames that run the network and 60.8% between (AMD's 72.2% and 72.9%).
+- A leaf's brief bright flash (a lit side turning to the viewer for a frame or two) is in the game's frame and both show it: AMD's shaders at
+  66 to 74% of its brightness, the lossy build at 69 to 79%.
 
 ### The release build against `dll-2026-10-13`
 
-Auto exposure off / on, 4K output from 2260x1272, skipped frames, one run:
+Both changes together. Auto exposure off / on, 4K output from 2260x1272, skipped frames, one run:
 
 | | AMD's shaders | `dll-2026-10-13` | This release |
 |---|---|---|---|
@@ -1879,29 +1938,35 @@ Auto exposure off / on, 4K output from 2260x1272, skipped frames, one run:
 | ... 1080p | 32.61 / 33.74 dB | 33.50 / 34.34 dB | 33.58 / 34.39 dB |
 | ... 5K | 39.90 / 40.51 dB | 40.19 / 40.77 dB | 39.90 / 40.65 dB |
 | Just-uncovered areas, camera still and objects moving | 32.62 / 33.06 dB | 31.77 / 32.23 dB | 31.77 / 32.25 dB |
-| A still bright object over fast ground, same depth: error | 1.62 | 2.64 | 2.65 |
+| A still bright object over fast ground, same depth: error | 1.62 | 2.64 | 2.64 |
+| Still picture with grain of 6 of 255: change per frame | 0.785 / 0.55 | 0.330 / 0.295 | 0.320 / 0.308 |
+| ... grain of 10 | 1.724 | 1.028 | 1.081 |
+| ... grain of 15 | 2.549 | 1.608 | 1.773 |
+| Large particles, camera still: error | 0.66 | 1.40 / 1.35 | 1.25 / 1.21 |
+| Thin vertical detail at rest: change per frame | 0.364 | 0.310 / 0.372 | 0.313 / 0.358 |
 
-- Five of 50 row pairs of the full check move by more than 3% in each mode: the two wire rows in a pan, the large particles
-  in a pan, the ghost row above, and the count of bright dots in hard-sampled foliage in a pan (0.35 to 0.33; with auto
-  exposure on 0.34 to 0.34 on skipped frames). No run failed.
-- **Worse:** large particles while the camera pans, by 6 to 7%; just-uncovered areas at 1440p output (0.16 dB, 0.11 with auto exposure
+- With the wire change alone, five of 50 row pairs of the full check move by more than 3% in each mode: the two wire rows in a pan, the
+  large particles in a pan, the ghost row above, and the count of bright dots in hard-sampled foliage in a pan (0.35 to 0.33). The one-sided
+  test adds the grain rows, the large particles with the camera still, and rows whose figure is a single brightest pixel. No run failed.
+- **Worse:** film grain of 10 and 15 of 255 with auto exposure off, by 5 and 10%, and grain of 6 with it on, by 4%; large particles while the camera pans, by 6 to 7%; just-uncovered areas at 1440p output (0.16 dB, 0.11 with auto exposure
   on) and at 5K (0.29 and 0.12 dB), where the weight trigger still did something. Both stay below the full check's 3% line, and at
   5K the figure is now AMD's.
 - **Mixed:** the ghost outline against a panning background is 7% better with auto exposure off and 11% worse with it on.
-- Everything at rest is unchanged, and so are the still picture, grain, rain, fireflies, glints, foliage, fades, the rest of the
+- Fine detail and flat areas at rest are unchanged, and so are the still picture, rain, the firefly and glint counts, foliage, fades, the rest of the
   moving scene at 1080p, 1440p, 4K and 5K and from 30 to 120 FPS, and the thin bars fixed on screen that `dll-2026-10-13` was
   about (ten bar scenes at 1440p output: every figure within 0.02 of that release's).
 
 The lossy DLLs give the Linux files' output byte for byte in 48 of 48 rig runs.
 
-Time: the weight term drops out of the last shader (42 instructions fewer, the same 96 registers and 16 waves on an RX 7800
-XT). In the timing kit's probe at 4K the last shader of a skipped frame reads 0.58 ms before and after, in both slot orders.
+Time: the weight term drops out of the last shader and the one-sided test comes in (56 instructions more in all, the same 96 registers
+and 16 waves on an RX 7800 XT). In the timing kit's probe at 4K the last shader of a skipped frame reads 0.58 to 0.60 ms before and after,
+in both slot orders.
 
 In a game: Shadow of the Tomb Raider's benchmark at 4K Balanced with the Linux files, one run: 18,875 frames, 122 FPS, the
 overlay's average upscaler time 2.00 ms (`dll-2026-10-13` the same day: 18,916 frames, 122 FPS, 2.01 ms); the picture looked
-great, by eye.
+great, by eye. That run was made with the wire change only.
 
-Not measured: a game scene with such wires, the wire scenes at other output sizes than 4K, the quality set with the HDR
+Not measured: a game scene with such wires, the game the leaves were reported from, the build with both changes in any game, the wire and leaf scenes at other output sizes than 4K, the quality set with the HDR
 option, and this release on Windows itself.
 
 ## By frame rate

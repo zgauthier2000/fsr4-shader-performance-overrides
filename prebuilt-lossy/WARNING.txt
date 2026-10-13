@@ -42,6 +42,10 @@ What it costs
 - Very thin things in the distance (power lines, fences) are shown 25 to 30% dimmer than
   with AMD's file while the camera pans (about half as bright up to dll-2026-10-13). With
   the camera still they are as bright and as steady as AMD's.
+- Small dark things that move without the game reporting their motion (leaves falling in
+  front of a dark sky) are shown less fully on every other frame, so they can seem to pulse,
+  and they leave a faint trace. Since dll-2026-10-13.2 the pulse is about half as strong
+  with the camera still; while the camera pans it is as before.
 - Strong film grain is passed on more than with the releases before dll-2026-10-11.4.
   Without FSR's auto exposure it stays steadier than with AMD's file; in a game that uses
   auto exposure, strong grain is slightly less steady than with AMD's file.

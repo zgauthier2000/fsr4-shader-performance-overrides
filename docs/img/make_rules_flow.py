@@ -23,12 +23,12 @@ def box(o, t, x, y, w, head, lines, accent=None, tag=None):
 
 
 def flow(t):
-    H = 1080
+    H = 1096
     o = frame(H, "Flow chart: what the lossy DLL's last shader does with one output pixel on a frame that skips the neural network. "
               "It starts from the network's weight for the new frame, kept from the network's last run and moved along with the picture, and squares it. "
               "Then it asks whether the picture is at rest at this pixel. At rest the weight becomes zero, so nothing is taken from the new frame, unless one of three things says the content "
               "changed without the game reporting motion: the previous picture lies outside the range of the nine new samples around the pixel, the new frame differs from it by more than a "
-              "quarter of that range, or the network itself had given the pixel a middle or a very high weight. In motion the weight is kept and, beside anything that moves differently from the pixel, the previous picture is limited to the range "
+              "quarter of that range (or by much less, where the previous picture lies at one end of that range), or the network itself had given the pixel a middle or a very high weight. In motion the weight is kept and, beside anything that moves differently from the pixel, the previous picture is limited to the range "
               "of the nine new samples. Next, at rest and in motion, a spark test: a new sample far outside the previous picture around the pixel is taken, as far as it has a bright neighbor "
               "both sideways and above or below. Two cases then take the new frame alone: a pixel that was hidden a frame ago behind something nearer that moves differently, and one whose "
               "previous picture scrolled in from outside the screen. The pixel is mixed from the new frame and the previous picture with the resulting weight. Last, on every frame, "
@@ -62,7 +62,8 @@ def flow(t):
         '  a  the history lies outside the range of the nine new',
         '      samples (by a quarter of that range), or',
         '  b  the blended new frame differs from the history by',
-        '      more than a quarter of that range, or',
+        '      more than a quarter of that range (far less where',
+        '      the history lies at one end of the range), or',
         '  c  the network itself had given a middle weight, about',
         '      0.2 to 0.7 (slowly swaying leaves), or one above',
         '      0.95 (particles, embers).',

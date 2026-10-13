@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1080" viewBox="0 0 760 1080" role="img" aria-label="Flow chart: what the lossy DLL's last shader does with one output pixel on a frame that skips the neural network. It starts from the network's weight for the new frame, kept from the network's last run and moved along with the picture, and squares it. Then it asks whether the picture is at rest at this pixel. At rest the weight becomes zero, so nothing is taken from the new frame, unless one of three things says the content changed without the game reporting motion: the previous picture lies outside the range of the nine new samples around the pixel, the new frame differs from it by more than a quarter of that range, or the network itself had given the pixel a middle or a very high weight. In motion the weight is kept and, beside anything that moves differently from the pixel, the previous picture is limited to the range of the nine new samples. Next, at rest and in motion, a spark test: a new sample far outside the previous picture around the pixel is taken, as far as it has a bright neighbor both sideways and above or below. Two cases then take the new frame alone: a pixel that was hidden a frame ago behind something nearer that moves differently, and one whose previous picture scrolled in from outside the screen. The pixel is mixed from the new frame and the previous picture with the resulting weight. Last, on every frame, a change smaller than two to four steps of the stored number format is dropped.">
-<rect x="0.0" y="0.0" width="760.0" height="1080.0" rx="8" fill="#1a1a19"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1096" viewBox="0 0 760 1096" role="img" aria-label="Flow chart: what the lossy DLL's last shader does with one output pixel on a frame that skips the neural network. It starts from the network's weight for the new frame, kept from the network's last run and moved along with the picture, and squares it. Then it asks whether the picture is at rest at this pixel. At rest the weight becomes zero, so nothing is taken from the new frame, unless one of three things says the content changed without the game reporting motion: the previous picture lies outside the range of the nine new samples around the pixel, the new frame differs from it by more than a quarter of that range (or by much less, where the previous picture lies at one end of that range), or the network itself had given the pixel a middle or a very high weight. In motion the weight is kept and, beside anything that moves differently from the pixel, the previous picture is limited to the range of the nine new samples. Next, at rest and in motion, a spark test: a new sample far outside the previous picture around the pixel is taken, as far as it has a bright neighbor both sideways and above or below. Two cases then take the new frame alone: a pixel that was hidden a frame ago behind something nearer that moves differently, and one whose previous picture scrolled in from outside the screen. The pixel is mixed from the new frame and the previous picture with the resulting weight. Last, on every frame, a change smaller than two to four steps of the stored number format is dropped.">
+<rect x="0.0" y="0.0" width="760.0" height="1096.0" rx="8" fill="#1a1a19"/>
 <text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">The last shader's rules on a skipped frame</text>
 <text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">What happens to one output pixel when the network did not run. A frame that runs the network goes straight to step 7.</text>
 <rect x="24.0" y="72.0" width="712.0" height="84.0" rx="6" fill="#262624" stroke="#2c2c2a" stroke-width="1.5"/>
@@ -25,7 +25,7 @@
 <line x1="562.0" y1="332.0" x2="562.0" y2="358.0" stroke="#898781" stroke-width="1.5"/><polygon points="562.0,362.0 559.0,355.7 565.0,355.7" fill="#898781"/>
 <text x="206.0" y="351.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">yes, at rest</text>
 <text x="570.0" y="351.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">no, it moves</text>
-<rect x="24.0" y="362.0" width="348.0" height="244.0" rx="6" fill="#262624" stroke="#d95926" stroke-width="1.5"/>
+<rect x="24.0" y="362.0" width="348.0" height="260.0" rx="6" fill="#262624" stroke="#d95926" stroke-width="1.5"/>
 <rect x="34.0" y="371.0" width="22.0" height="20.0" rx="10" fill="#d95926"/>
 <text x="45.0" y="386.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">3</text>
 <text x="64.0" y="386.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Take nothing from the new frame</text>
@@ -36,12 +36,13 @@
 <text x="36.0" y="470.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">  a  the history lies outside the range of the nine new</text>
 <text x="36.0" y="486.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">      samples (by a quarter of that range), or</text>
 <text x="36.0" y="502.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">  b  the blended new frame differs from the history by</text>
-<text x="36.0" y="518.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">      more than a quarter of that range, or</text>
-<text x="36.0" y="534.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">  c  the network itself had given a middle weight, about</text>
-<text x="36.0" y="550.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">      0.2 to 0.7 (slowly swaying leaves), or one above</text>
-<text x="36.0" y="566.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">      0.95 (particles, embers).</text>
-<text x="36.0" y="582.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7"></text>
-<text x="36.0" y="598.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Then the weight is kept (in case c: the network's own).</text>
+<text x="36.0" y="518.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">      more than a quarter of that range (far less where</text>
+<text x="36.0" y="534.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">      the history lies at one end of the range), or</text>
+<text x="36.0" y="550.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">  c  the network itself had given a middle weight, about</text>
+<text x="36.0" y="566.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">      0.2 to 0.7 (slowly swaying leaves), or one above</text>
+<text x="36.0" y="582.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">      0.95 (particles, embers).</text>
+<text x="36.0" y="598.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7"></text>
+<text x="36.0" y="614.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Then the weight is kept (in case c: the network's own).</text>
 <rect x="388.0" y="362.0" width="348.0" height="244.0" rx="6" fill="#262624" stroke="#d95926" stroke-width="1.5"/>
 <rect x="398.0" y="371.0" width="22.0" height="20.0" rx="10" fill="#d95926"/>
 <text x="409.0" y="386.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">4</text>
@@ -59,38 +60,38 @@
 <text x="400.0" y="566.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7"></text>
 <text x="400.0" y="582.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7"></text>
 <text x="400.0" y="598.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Not applied at rest.</text>
-<line x1="198.0" y1="606.0" x2="198.0" y2="618.0" stroke="#898781" stroke-width="1.5"/>
-<line x1="562.0" y1="606.0" x2="562.0" y2="618.0" stroke="#898781" stroke-width="1.5"/>
-<line x1="198.0" y1="618.0" x2="562.0" y2="618.0" stroke="#898781" stroke-width="1.5"/>
-<line x1="380.0" y1="618.0" x2="380.0" y2="634.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,638.0 377.0,631.7 383.0,631.7" fill="#898781"/>
-<rect x="24.0" y="638.0" width="712.0" height="84.0" rx="6" fill="#262624" stroke="#d95926" stroke-width="1.5"/>
-<rect x="34.0" y="647.0" width="22.0" height="20.0" rx="10" fill="#d95926"/>
-<text x="45.0" y="662.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">5</text>
-<text x="64.0" y="662.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Spark test, at rest and in motion</text>
-<text x="36.0" y="682.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">If the nearest new sample lies far outside the 3x3 history pixels around this pixel, take the new frame, the more the</text>
-<text x="36.0" y="698.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">further outside it is. The sample counts only as far as it has a bright neighbor both sideways and above or below:</text>
-<text x="36.0" y="714.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">a spark is a spot, while a single over-bright pixel (reflection noise) or a one-pixel line (rain, a wire) is not.</text>
-<line x1="380.0" y1="722.0" x2="380.0" y2="738.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,742.0 377.0,735.7 383.0,735.7" fill="#898781"/>
-<rect x="24.0" y="742.0" width="712.0" height="100.0" rx="6" fill="#262624" stroke="#d95926" stroke-width="1.5"/>
-<rect x="34.0" y="751.0" width="22.0" height="20.0" rx="10" fill="#d95926"/>
-<text x="45.0" y="766.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">6</text>
-<text x="64.0" y="766.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Two cases take the new frame alone</text>
-<text x="36.0" y="786.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Just uncovered: what was at this place a frame ago was nearer to the camera and moves differently, so the history</text>
-<text x="36.0" y="802.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">here still shows the thing that was in front.</text>
-<text x="36.0" y="818.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Scrolled in: the history is far darker than the new frame in every color channel, because it came from outside the</text>
-<text x="36.0" y="834.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">screen when the camera began to turn.</text>
-<line x1="380.0" y1="842.0" x2="380.0" y2="858.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,862.0 377.0,855.7 383.0,855.7" fill="#898781"/>
-<rect x="24.0" y="862.0" width="712.0" height="36.0" rx="6" fill="#262624" stroke="#2c2c2a" stroke-width="1.5"/>
-<text x="36.0" y="886.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Mix:   weight x new frame  +  (1 - weight) x history</text>
-<line x1="380.0" y1="898.0" x2="380.0" y2="914.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,918.0 377.0,911.7 383.0,911.7" fill="#898781"/>
-<rect x="24.0" y="918.0" width="712.0" height="68.0" rx="6" fill="#262624" stroke="#3987e5" stroke-width="1.5"/>
-<rect x="34.0" y="927.0" width="22.0" height="20.0" rx="10" fill="#3987e5"/>
-<text x="45.0" y="942.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">7</text>
-<text x="64.0" y="942.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Dead band, on every frame (also those that run the network)</text>
-<text x="36.0" y="962.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">If no color channel would change by more than two to four steps of the number format the history is stored in,</text>
-<text x="36.0" y="978.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">the history is kept exactly. This is what keeps flat areas at rest steady.</text>
-<line x1="380.0" y1="986.0" x2="380.0" y2="1002.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,1006.0 377.0,999.7 383.0,999.7" fill="#898781"/>
-<rect x="24.0" y="1006.0" width="712.0" height="36.0" rx="6" fill="#262624" stroke="#2c2c2a" stroke-width="1.5"/>
-<text x="36.0" y="1030.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Shown on screen, and stored as the history for the next frame</text>
-<text x="24.0" y="1064.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Orange: only on frames that skip the network. Blue: on every frame. The thresholds are the defaults of the tool that writes these rules.</text>
+<line x1="198.0" y1="622.0" x2="198.0" y2="634.0" stroke="#898781" stroke-width="1.5"/>
+<line x1="562.0" y1="622.0" x2="562.0" y2="634.0" stroke="#898781" stroke-width="1.5"/>
+<line x1="198.0" y1="634.0" x2="562.0" y2="634.0" stroke="#898781" stroke-width="1.5"/>
+<line x1="380.0" y1="634.0" x2="380.0" y2="650.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,654.0 377.0,647.7 383.0,647.7" fill="#898781"/>
+<rect x="24.0" y="654.0" width="712.0" height="84.0" rx="6" fill="#262624" stroke="#d95926" stroke-width="1.5"/>
+<rect x="34.0" y="663.0" width="22.0" height="20.0" rx="10" fill="#d95926"/>
+<text x="45.0" y="678.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">5</text>
+<text x="64.0" y="678.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Spark test, at rest and in motion</text>
+<text x="36.0" y="698.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">If the nearest new sample lies far outside the 3x3 history pixels around this pixel, take the new frame, the more the</text>
+<text x="36.0" y="714.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">further outside it is. The sample counts only as far as it has a bright neighbor both sideways and above or below:</text>
+<text x="36.0" y="730.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">a spark is a spot, while a single over-bright pixel (reflection noise) or a one-pixel line (rain, a wire) is not.</text>
+<line x1="380.0" y1="738.0" x2="380.0" y2="754.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,758.0 377.0,751.7 383.0,751.7" fill="#898781"/>
+<rect x="24.0" y="758.0" width="712.0" height="100.0" rx="6" fill="#262624" stroke="#d95926" stroke-width="1.5"/>
+<rect x="34.0" y="767.0" width="22.0" height="20.0" rx="10" fill="#d95926"/>
+<text x="45.0" y="782.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">6</text>
+<text x="64.0" y="782.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Two cases take the new frame alone</text>
+<text x="36.0" y="802.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Just uncovered: what was at this place a frame ago was nearer to the camera and moves differently, so the history</text>
+<text x="36.0" y="818.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">here still shows the thing that was in front.</text>
+<text x="36.0" y="834.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Scrolled in: the history is far darker than the new frame in every color channel, because it came from outside the</text>
+<text x="36.0" y="850.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">screen when the camera began to turn.</text>
+<line x1="380.0" y1="858.0" x2="380.0" y2="874.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,878.0 377.0,871.7 383.0,871.7" fill="#898781"/>
+<rect x="24.0" y="878.0" width="712.0" height="36.0" rx="6" fill="#262624" stroke="#2c2c2a" stroke-width="1.5"/>
+<text x="36.0" y="902.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Mix:   weight x new frame  +  (1 - weight) x history</text>
+<line x1="380.0" y1="914.0" x2="380.0" y2="930.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,934.0 377.0,927.7 383.0,927.7" fill="#898781"/>
+<rect x="24.0" y="934.0" width="712.0" height="68.0" rx="6" fill="#262624" stroke="#3987e5" stroke-width="1.5"/>
+<rect x="34.0" y="943.0" width="22.0" height="20.0" rx="10" fill="#3987e5"/>
+<text x="45.0" y="958.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">7</text>
+<text x="64.0" y="958.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Dead band, on every frame (also those that run the network)</text>
+<text x="36.0" y="978.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">If no color channel would change by more than two to four steps of the number format the history is stored in,</text>
+<text x="36.0" y="994.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">the history is kept exactly. This is what keeps flat areas at rest steady.</text>
+<line x1="380.0" y1="1002.0" x2="380.0" y2="1018.0" stroke="#898781" stroke-width="1.5"/><polygon points="380.0,1022.0 377.0,1015.7 383.0,1015.7" fill="#898781"/>
+<rect x="24.0" y="1022.0" width="712.0" height="36.0" rx="6" fill="#262624" stroke="#2c2c2a" stroke-width="1.5"/>
+<text x="36.0" y="1046.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Shown on screen, and stored as the history for the next frame</text>
+<text x="24.0" y="1080.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Orange: only on frames that skip the network. Blue: on every frame. The thresholds are the defaults of the tool that writes these rules.</text>
 </svg>
