@@ -1,23 +1,45 @@
 # Downloads of the release files
 
-Updated 2026-10-13 12:41 UTC; counted since 2026-10-11 22:32 UTC. Files that were replaced before then are not in it.
+**Total downloads: 14,914**
+
+Updated 2026-10-13 12:59 UTC; counted since 2026-10-11 22:32 UTC. Files that were replaced before then are not in it. Since counting began: 1,647 downloads in 1.6 days, 1,028 per 24 hours on average.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="downloads-dark.svg">
+  <img src="downloads-light.svg" width="760" alt="Two charts: the total downloads of the release files at each day's reading, and the downloads added per day. The figures are in the table below.">
+</picture>
+
+## Per day
+
+One line per day (UTC), from that day's last reading. "Added" is what came in since the last reading of the day before; the readings are not exactly 24 hours apart, so the hours each one covers are given.
+
+| Day | Read at | Total | Added | Hours covered | Added: DLLs, desktop | Added: DLLs, integrated | Added: Windows kit | Added: Linux kit |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-13 | 12:59 | 14,914 | 1,008 | 23.9 | 714 | 163 | 94 | 20 |
+| 2026-10-12 | 13:08 | 13,906 | 639 | 14.6 | 450 | 112 | 55 | 8 |
+| 2026-10-11 | 22:32 | 13,267 | counting began | | | | | |
+
+The four columns on the right do not add up to "Added": checksum files and other small files are downloaded too.
+
+## By kind and by release
 
 | Kind of download | Downloads | Of these, in files since replaced |
 |---|---|---|
-| DLLs: desktop cards and other | 12,887 | 0 |
-| DLLs: integrated graphics | 1,526 | 0 |
-| Timing kit: Linux | 28 | 0 |
-| Timing kit: Windows | 154 | 0 |
+| DLLs: desktop cards and other | 12,898 | 0 |
+| DLLs: integrated graphics | 1,533 | 0 |
+| Timing kit: Linux | 30 | 0 |
+| Timing kit: Windows | 155 | 0 |
 
 | Release | Downloads | Of these, in files since replaced |
 |---|---|---|
-| `dll-2026-10-13` | 0 | 0 |
+| `timing-kit-2026-10-13` | 3 | 0 |
+| `dll-2026-10-13` | 20 | 0 |
 | `timing-kit-2026-10-12.6` | 48 | 0 |
 | `timing-kit-2026-10-12.5` | 8 | 0 |
 | `timing-kit-2026-10-12.4` | 33 | 0 |
 | `timing-kit-2026-10-12.3` | 79 | 0 |
-| `dll-2026-10-12.2` | 352 | 0 |
-| `dll-2026-10-12` | 271 | 0 |
+| `dll-2026-10-12.2` | 355 | 0 |
+| `dll-2026-10-12` | 272 | 0 |
 | `dll-2026-10-11.7` | 622 | 0 |
 | `dll-2026-10-11.6` | 53 | 0 |
 | `dll-2026-10-11.5` | 305 | 0 |
@@ -46,4 +68,4 @@ Updated 2026-10-13 12:41 UTC; counted since 2026-10-11 22:32 UTC. Files that wer
 | `dll-2026-10-04` | 26 | 0 |
 | `dll-2026-10-03` | 117 | 0 |
 
-All files: 14,887. `downloads.csv` has a line for every day a file's count changed; `runs.csv` has the totals of every run.
+All files: 14,914. `downloads.csv` has a line for every day a file's count changed; `runs.csv` has the totals of every run.
