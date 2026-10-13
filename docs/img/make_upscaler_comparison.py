@@ -30,6 +30,7 @@ BARS = [[0.94, 0.965, 0.96, 3.735, 1.26], [0.73, 0.825, 0.965, 3.045, 3.735], [0
 # time per upscale call in ms at 1920x1080, 2560x1440 and 3840x2160 output (the page's speed table)
 SPEED = [[1.05, 0.64, 0.40, 0.73, 1.43], [2.20, 1.03, 0.57, 1.01, 2.28], [4.81, 2.21, 1.15, 2.00, 4.98]]
 WIRE_TRUE = 110.7; WIRE_SHOWN = [100.2, 76.7, 121.5, 134.6, 89.7]      # a thin wire under a slow pan: its brightness of 255
+wire_close = lambda v: round(100 * (1 - abs(v - WIRE_TRUE) / WIRE_TRUE), 1)      # how close to the true brightness, in percent (too bright counts like too dim)
 MEASURES = [
     ('Accuracy', 'Still picture and moving background, mean: accuracy', 'dB', 'db', mean(STILL, BACKGROUND), '{:.2f} dB'),
     ('Railing', 'Thin railing in motion: accuracy', 'dB', 'db', [41.82, 41.34, 38.36, 40.12, 40.86], '{:.2f} dB'),
@@ -40,7 +41,7 @@ MEASURES = [
     # foliage: the mean of the error at the rig's usual sway speed, two thirds and half of it (camera still; for the lossy DLL, frames it skips the network for)
     ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.5, 16.7, 14.3, 14.3], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.014, 0.020, 0.084], '{:.3f}'),
-    ('Wire, pan', 'Thin wire under a slow pan: how far its brightness is from the true one', 'of 255', 'down', [round(abs(v - WIRE_TRUE), 1) for v in WIRE_SHOWN], '{:.1f}'),
+    ('Wire, pan', 'Thin wire under a slow pan: how close its brightness is to the true one', '%', 'up', [wire_close(v) for v in WIRE_SHOWN], '{:.1f}%'),
     ('Speed', 'Time per upscale call, mean of 1080p, 1440p and 4K output', 'ms', 'down', mean(*SPEED), '{:.2f} ms'),
 ]
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
@@ -113,7 +114,7 @@ def radar(t):
     o.append(text(x0, y0, 'The spokes', t, 12, 'ink', weight=600))
     key = [('Accuracy, Railing, Uncovered', 'accuracy against the true image'), ('Old image', 'left beside moving objects, seven scenes'),
            ('Fixed bars', 'old image of thin things fixed on screen'), ('Sparks', 'tiny fast sparks: share shown'), ('Foliage', 'swaying leaves, three speeds: accuracy'),
-           ('At rest', 'steadiness of a still picture'), ('Wire, pan', 'a thin wire in a pan: brightness off the true one'), ('Speed', 'time per call, mean of three output sizes')]
+           ('At rest', 'steadiness of a still picture'), ('Wire, pan', 'a thin wire in a pan: brightness close to the true one'), ('Speed', 'time per call, mean of three output sizes')]
     y = y0 + 18
     for a, b in key:
         o += [text(x0, y, a, t, 10, 'ink2', weight=600), text(x0, y + 12, b, t, 10, 'muted')]; y += 27
@@ -138,7 +139,7 @@ R_MEASURES = [
     ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 74], '{:.0f}%'),
     ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.5, 14.5], '{:.1f}'),
     ('Film grain', 'Still picture with grain of 6, 10 and 15 of 255, mean: change per frame', 'of 255', 'down', m3([0.785, 1.724, 2.549], [0.330, 1.028, 1.608], [0.320, 1.081, 1.773]), '{:.2f}'),
-    ('Wire, pan', MEASURES[8][1], 'of 255', 'down', [MEASURES[8][4][0], round(WIRE_TRUE - 52.9, 1), MEASURES[8][4][1]], '{:.1f}'),
+    ('Wire, pan', MEASURES[8][1], '%', 'up', [MEASURES[8][4][0], wire_close(52.9), MEASURES[8][4][1]], '{:.1f}%'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.024], '{:.3f}'),
     ('Speed', MEASURES[9][1], 'ms', 'down', [MEASURES[9][4][0], round((0.65 + 1.03 + 2.22) / 3, 2), MEASURES[9][4][1]], '{:.2f} ms'),
 ]

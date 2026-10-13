@@ -21,7 +21,7 @@ other projects.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/cmp5-radar-dark.svg">
-  <img src="img/cmp5-radar-light.svg" width="760" alt="Five radar charts, one per upscaler, the lossy DLL first and its shape as a dashed outline in the other four, each with ten spokes: accuracy, thin railing, just-uncovered areas, old image beside moving objects, thin bars fixed on screen, tiny fast sparks, swaying foliage, steadiness at rest, brightness of a thin wire in a pan, and speed. On every spoke the best of the five reaches the outer ring and the others reach in proportion. FSR 4.1.1 reaches the ring on every picture spoke except just-uncovered areas, where it is a little short, and is short on steadiness at rest and on speed. The lossy DLL has nearly FSR 4.1.1's shape on accuracy, the railing and the fixed bars, is slightly ahead on just-uncovered areas, shorter on old image, sparks and foliage, much shorter on the wire, and longer on steadiness at rest and speed. FSR 3.1 is longest on speed and steadiness at rest, close to the ring on the wire, and shortest on accuracy and sparks. HelixSR is strong on sparks and short on the fixed bars and just-uncovered areas. XeSS is short on the fixed bars, old image, steadiness at rest and speed. The figures are in the tables below.">
+  <img src="img/cmp5-radar-light.svg" width="760" alt="Five radar charts, one per upscaler, the lossy DLL first and its shape as a dashed outline in the other four, each with ten spokes: accuracy, thin railing, just-uncovered areas, old image beside moving objects, thin bars fixed on screen, tiny fast sparks, swaying foliage, steadiness at rest, brightness of a thin wire in a pan, and speed. On every spoke the best of the five reaches the outer ring and the others reach in proportion. FSR 4.1.1 reaches the ring on every picture spoke except just-uncovered areas, where it is a little short, and is short on steadiness at rest and on speed. The lossy DLL has nearly FSR 4.1.1's shape on accuracy, the railing and the fixed bars, is slightly ahead on just-uncovered areas, shorter on old image, sparks and foliage, shorter on the wire, and longer on steadiness at rest and speed. FSR 3.1 is longest on speed and steadiness at rest, close to the ring on the wire, and shortest on accuracy and sparks. HelixSR is strong on sparks and short on the fixed bars and just-uncovered areas. XeSS is short on the fixed bars, old image, steadiness at rest and speed. The figures are in the tables below.">
 </picture>
 
 **How to read it.** One shape per upscaler, all on the same ten spokes. On each spoke the best of the five reaches the outer ring; the
@@ -192,14 +192,15 @@ How much the picture changes from one frame to the next where it should not, in 
 | Moving scene: background | 0.079 | 0.024 | 0.077 | 0.193 | 0.085 |
 | A wire half a pixel wide, camera still | 2.9 | 2.8 | 2.3 | 2.4 | 4.2 |
 | The same wire under a slow pan | 7.2 | 5.4 | 8.2 | 5.6 | 10.1 |
-| The same wire under a slow pan: its brightness, of 255 (true: 111; the chart's wire spoke is the distance from that) | 100 | 77 | 121 | 135 | 90 |
+| The same wire under a slow pan: its brightness, of 255 (true: 111) | 100 | 77 | 121 | 135 | 90 |
+| ... how close that is to the true brightness (the chart's wire spoke; too bright counts like too dim) | 90.5% | 69.3% | 90.2% | 78.4% | 81.0% |
 | Still picture with grain of 6 of 255 | 0.785 | 0.320 | 0.162 | 0.213 | 0.182 |
 | Still picture with grain of 10 of 255 | 1.724 | 1.081 | 0.308 | 0.300 | 0.228 |
 
 - The lossy DLL has the steadiest moving background of the five.
 - **A thin wire under a slow pan was its weakest steadiness case up to release `dll-2026-10-13`** (10.2, level with XeSS as the least steady of the five). Since `dll-2026-10-13.2`
   it is the steadiest of the five there, a little ahead of HelixSR. Before that, two light folds had added to it: the one in the network's first layer in release `dll-2026-10-12` (9.6 to 10.3) and the one in the last shader in `dll-2026-10-12.2` (to 11.0); fixing a storage fault in the motion record took some of it back in `dll-2026-10-13` (to 10.2). It still draws that wire dimmer than any of them: 77 of 255 against a true 111 (53 up to `dll-2026-10-13`), where FSR 4 shows 100, XeSS 90,
-  FSR 3.1 121 and HelixSR 135. On the chart's measure, the distance from the true brightness, that is 34 against 11 for FSR 4 and FSR 3.1, 21 for XeSS and 24 for HelixSR.
+  FSR 3.1 121 and HelixSR 135. On the chart's measure, how close each comes to the true brightness, that is 69% (48% up to `dll-2026-10-13`) against 90.5% for FSR 4, 90% for FSR 3.1, 81% for XeSS and 78% for HelixSR.
 - **Grain:** FSR 4 passes grain on almost unchanged. The lossy DLL holds some of it back on the frames it skips, but FSR 3.1, HelixSR
   and XeSS all hold it back much further. Release `dll-2026-10-12` gave up steadiness here for the slow-foliage rows above (0.460 and 1.291; the
   release before it read 0.342 and 1.056), release `dll-2026-10-12.2` won it back with a light fold in the last shader (0.330 and 1.028), and release `dll-2026-10-13.2`
