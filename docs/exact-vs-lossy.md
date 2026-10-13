@@ -301,8 +301,8 @@ model's result from the frame before, which is still in memory. The last layers 
 sit in the postpass; their result is saved by the frame that runs the model and read back on the
 skipped frame, so they are not rerun either.
 
-- **What it saves:** about 0.85 ms on average. A skipped frame takes about
-  1.3 ms, a normal one about 3.0 ms.
+- **What it saves:** about 1.0 ms on average. A skipped frame takes about
+  1.1 ms, a normal one about 2.9 ms.
 - **What it costs:** the reused result is one frame old, so a skipped frame cannot be trusted to
   mix the new frame in properly. What it does instead is described next.
 
