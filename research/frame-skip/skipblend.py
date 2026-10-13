@@ -47,6 +47,12 @@
 #     detail; this is what tells an arriving spark from still detail under another jitter. Such a pixel takes the new frame
 #     by how far outside the sample is: all of it SB_SAMPLEFULL x range beyond the threshold. SB_SAMPLEALL=0: at rest only
 #     (default: also in motion, where the history is already aligned to the frame).
+#   SB_ONESIDE="a factor floor" (default "0.85 0.05 0.01" since release dll-2026-10-13.2; "off" = as before): the SB_BRIGHT test a second time with a lower
+#     threshold (factor x range + floor), counted only where the history lies at one end of the range of the nine new samples:
+#     |smallest + largest - 2 x history| > a x range. A small thing that has moved in without motion vectors (a dark leaf falling in front of a dark sky) puts
+#     the samples that changed all on one side of the history, and by less than SB_BRIGHT asks for where it covers only part of the pixel: such leaves were
+#     shown late and left a trace. Film grain scatters the samples around the history, so most of it does not pass; lowering SB_BRIGHTABS instead helps the
+#     leaves as much and costs grain three to four times more. Costs some steadiness in strong grain (10 and 15 of 255: about 5% and 10%).
 #   SB_RESTW="t0 t1" (default "0.95 0.995"; "off"): the model's own verdict. On the last frame it ran, the model gave every
 #     pixel a weight for the new frame. Where that weight was above t1, a skipped frame at rest still takes the new frame (as far as
 #     the shimmer correction allows); below t0 the rest rule holds as before; a ramp in between. Particles get such weights from the
@@ -101,7 +107,7 @@
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
 import os, re, sys
 # the changed-content tests (below) are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
@@ -130,7 +136,7 @@ _cw = [float(x) for x in ('0 0' if CWEDGE else os.environ['SB_CLAMPW']).split()]
 EDGE = os.environ.get('SB_CLAMPEDGE', '1') == '1' and os.environ.get('SB_UNCOV', 'depth') != 'off' and bool(os.environ.get('SB_CLAMPW'))      # the clamp in full beside surfaces that move differently
 DEAD = None if os.environ.get('SB_DEAD', '2') in ('off', '0') else float(os.environ.get('SB_DEAD', '2'))      # dead band, in 16-bit float steps (see the head of the file)
 NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'      # no history clamp where the picture is at rest (needs the rest rule's flag)
-c = ([f'%db_rel = OpConstant %float {DEAD / 1024}'] if DEAD is not None else []) + ([f'%sb_cw0 = OpConstant %float {_cw[0]}', f'%sb_cwd = OpConstant %float {max(_cw[1] - _cw[0], 1e-6)}'] if _cw else []) + ([f'%sr_t0 = OpConstant %float {_rw[0]}', f'%sr_d = OpConstant %float {max(_rw[1] - _rw[0], 1e-6)}'] if _rw else []) + ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
+c = ([f'%db_rel = OpConstant %float {DEAD / 1024}'] if DEAD is not None else []) + ([f'%sb_cw0 = OpConstant %float {_cw[0]}', f'%sb_cwd = OpConstant %float {max(_cw[1] - _cw[0], 1e-6)}'] if _cw else []) + ([f'%sr_t0 = OpConstant %float {_rw[0]}', f'%sr_d = OpConstant %float {max(_rw[1] - _rw[0], 1e-6)}'] if _rw else []) + ([f'%ss_m = OpConstant %float {float(os.environ["SB_SAMPLE"])}', f'%ss_abs = OpConstant %float {float(os.environ.get("SB_SAMPLEABS", "0.05"))}', f'%ss_full = OpConstant %float {float(os.environ.get("SB_SAMPLEFULL", "0.5"))}', '%ss_o4294967295 = OpConstant %uint 4294967295', '%ss_o0 = OpConstant %uint 0', '%ss_o1 = OpConstant %uint 1'] if os.environ.get('SB_SAMPLE') else []) + ([f'%sb_fullw = OpConstant %float {float(os.environ["SB_FULLW"])}', '%sb_feps = OpConstant %float 0.0001'] if os.environ.get('SB_FULLW') else []) + ([f'%sb_brw = OpConstant %float {float(os.environ["SB_BRIGHT"])}', f'%sb_bra = OpConstant %float {float(os.environ.get("SB_BRIGHTABS", "0.05"))}'] if os.environ.get('SB_BRIGHT') else []) + ((lambda b: [f'%sb_osa = OpConstant %float {b[0]}', f'%sb_osf = OpConstant %float {b[1]}', f'%sb_osl = OpConstant %float {b[2]}'])([float(x) for x in os.environ['SB_ONESIDE'].split()]) if os.environ.get('SB_ONESIDE') and os.environ.get('SB_BRIGHT') else []) + ([f'%sb_partw = OpConstant %float {float(os.environ["SB_PART"])}', f'%sb_parta = OpConstant %float {float(os.environ.get("SB_PARTABS", "0"))}'] if os.environ.get('SB_PART') else []) + (['%sb_tt = OpConstantTrue %bool'] if os.environ.get('SB_FORCESKIP') else []) + ['%sb_m1 = OpConstant %uint 1511506142', '%sb_m2 = OpConstant %uint 168889943', f'%sb_k = OpConstant %float {K}', '%sb_one = OpConstant %float 1',
      f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0', f"%sb_thr = OpConstant %float {float(os.environ.get('SB_THR', '0'))}", f"%sb_rel = OpConstant %float {float(os.environ.get('SB_REL', '0.1'))}"] + ([f"%sb_slack = OpConstant %float {CLAMP}"] if CLAMP is not None else []) + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
 if CONST:
     c.append(f'%sb_const = OpConstant %float {float(CONST)}')
@@ -279,6 +285,7 @@ SUC = {}
 def SU(v):
     SUC[v] = f'%ss_o{v & 0xffffffff}'; return SUC[v]
 PART = os.environ.get('SB_PART'); PARTABS = float(os.environ.get('SB_PARTABS', '0'))
+_os = [float(x) for x in os.environ['SB_ONESIDE'].split()] if os.environ.get('SB_ONESIDE') else None      # see the head of the file
 def part(k, curs, h):
     if SAMPLE is not None:      # both tests: the rest rule holds only where neither sees a change; the share of the new frame is the larger of the two
         a = [l.replace(f'%sb_rq{k} ', f'%sb_rqO{k} ').replace(f'%sb_pf{k} ', f'%sb_pfO{k} ') for l in part_old(k, curs, h)]
@@ -315,6 +322,12 @@ def part_old(k, curs, h):
                 code.append(f'%sb_qo{c}{k} = OpLogicalOr %bool %sb_qo{c}{k}x %sb_bgs{c}{k}')
             else:
                 code.append(f'%sb_qo{c}{k} = OpLogicalOr %bool %sb_qo{c}{k}x %sb_bg{c}{k}')
+        if _os and BRIGHT is not None:      # SB_ONESIDE: the SB_BRIGHT test again with a lower threshold, where the history lies at one end of the nine samples' range
+            assert code[-1].startswith(f'%sb_qo{c}{k} = '); code[-1] = code[-1].replace(f'%sb_qo{c}{k} = ', f'%sb_qoy{c}{k} = ', 1)
+            code += [f'%sb_os{c}{k} = OpFAdd %float {mn} {mx}', f'%sb_ot{c}{k} = OpFSub %float %sb_os{c}{k} {h[c]}', f'%sb_ou{c}{k} = OpFSub %float %sb_ot{c}{k} {h[c]}', f'%sb_ov{c}{k} = OpExtInst %float {GLSL} FAbs %sb_ou{c}{k}',
+                     f'%sb_ow{c}{k} = OpFMul %float %sb_qr{c}{k} %sb_osa', f'%sb_ox{c}{k} = OpFOrdGreaterThan %bool %sb_ov{c}{k} %sb_ow{c}{k}',
+                     f'%sb_oy{c}{k} = OpExtInst %float {GLSL} FAbs %sb_bd{c}{k}', f'%sb_oz{c}{k} = OpFMul %float %sb_qr{c}{k} %sb_osf', f'%sb_oa{c}{k} = OpFAdd %float %sb_oz{c}{k} %sb_osl', f'%sb_ob{c}{k} = OpFOrdGreaterThan %bool %sb_oy{c}{k} %sb_oa{c}{k}',
+                     f'%sb_oc{c}{k} = OpLogicalAnd %bool %sb_ox{c}{k} %sb_ob{c}{k}', f'%sb_qo{c}{k} = OpLogicalOr %bool %sb_qoy{c}{k} %sb_oc{c}{k}']
         outs.append(f'%sb_qo{c}{k}')
     if FULLW is not None and BRIGHT is not None:
         code += [f'%sb_fm{k} = OpExtInst %float {GLSL} NMax %sb_ff0{k} %sb_ff1{k}', f'%sb_fn{k} = OpExtInst %float {GLSL} NMax %sb_fm{k} %sb_ff2{k}', f'%sb_pf{k} = OpSelect %float %sm_rest %sb_fn{k} %sm_fz']

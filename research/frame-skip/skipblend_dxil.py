@@ -7,7 +7,7 @@
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
 import os, re, sys
 # the changed-content tests of skipblend.py are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
@@ -241,6 +241,13 @@ def part(k, curs, h, at):
                     flags.append(f'%sb.bgs{c}{k}')
                 else:
                     flags.append(f'%sb.bg{c}{k}')
+                if os.environ.get('SB_ONESIDE'):      # as in skipblend.py; |x| > t written as x > t or -x > t
+                    oa, of, ol = (float(x) for x in os.environ['SB_ONESIDE'].split())
+                    c_ += [f'  %sb.os{c}{k} = fadd fast float {mn}, {mx}', f'  %sb.ot{c}{k} = fsub fast float %sb.os{c}{k}, {h[c]}', f'  %sb.ou{c}{k} = fsub fast float %sb.ot{c}{k}, {h[c]}', f'  %sb.on{c}{k} = fsub fast float 0.000000e+00, %sb.ou{c}{k}',
+                           f'  %sb.ow{c}{k} = fmul fast float %sb.qr{c}{k}, {fl(oa)}', f'  %sb.ox1{c}{k} = fcmp ogt float %sb.ou{c}{k}, %sb.ow{c}{k}', f'  %sb.ox2{c}{k} = fcmp ogt float %sb.on{c}{k}, %sb.ow{c}{k}', f'  %sb.ox{c}{k} = or i1 %sb.ox1{c}{k}, %sb.ox2{c}{k}',
+                           f'  %sb.om{c}{k} = fsub fast float 0.000000e+00, %sb.bd{c}{k}', f'  %sb.oz{c}{k} = fmul fast float %sb.qr{c}{k}, {fl(of)}', f'  %sb.oa{c}{k} = fadd fast float %sb.oz{c}{k}, {fl(ol)}',
+                           f'  %sb.ob1{c}{k} = fcmp ogt float %sb.bd{c}{k}, %sb.oa{c}{k}', f'  %sb.ob2{c}{k} = fcmp ogt float %sb.om{c}{k}, %sb.oa{c}{k}', f'  %sb.ob{c}{k} = or i1 %sb.ob1{c}{k}, %sb.ob2{c}{k}', f'  %sb.oc{c}{k} = and i1 %sb.ox{c}{k}, %sb.ob{c}{k}']
+                    flags.append(f'%sb.oc{c}{k}')
             cur_ = flags[0]
             for i, f_ in enumerate(flags[1:]):
                 c_.append(f'  %sb.qo{c}{k}.{i} = or i1 {cur_}, {f_}'); cur_ = f'%sb.qo{c}{k}.{i}'
