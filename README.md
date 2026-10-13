@@ -129,16 +129,17 @@ More games and resolutions: [all results](docs/results.md).
 Made-up test scenes on one graphics card, single runs; the speed was timed with the previous release's lossy DLL, and a timing-kit run of both under Proton reads 2.23 and 2.22 ms. [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-12.6/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-12.6): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-13/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-13): unpack, double-click
 > `fsr4time.exe`, wait 15 to 20 minutes. It times FSR 4 with AMD's shaders and with these DLLs on
 > your graphics card, shows which DLLs give the same picture on your machine, and offers to send
 > the result. **Reports from Windows are in from eleven graphics chips so far; every further
 > card helps.**
-> - **Both kits were updated on 2026-10-12; if you ran an earlier one, please download and run again.**
->   - **Both kits (2026-10-12.6) carry the lossy build of `dll-2026-10-12.2`,** not this release's; the two take the same
->     time. The Linux kit also times the lossy build's first
->     shader on a skipped frame, which `dll-2026-10-12.2` made cheaper; before, its skipped-frame figure used the exact build's
->     time for that shader.
+> - **Both kits were updated on 2026-10-13; if you ran an earlier one, please download and run again.**
+>   - **Both kits (2026-10-13) carry this release's lossy build.** Nothing else changed in them. On Windows the lossy
+>     DLL uses an image channel in a way that is only checked under Proton so far, so a run there is worth a lot: the
+>     kit shows whether the lossy DLL gives the same picture in both of its runs on your card.
+>   - **Since 2026-10-12.6 the Linux kit also times the lossy build's first shader on a skipped frame,** which
+>     `dll-2026-10-12.2` made cheaper; before, its skipped-frame figure used the exact build's time for that shader.
 >   - **Since the Windows kit 2026-10-12.3:** every DLL should give the same picture in both of its runs. Where one does
 >     not, the summary now says how different the two are: how many 16x16-pixel blocks, where, and by how much. Two
 >     reports from one RX 7800 XT showed such a difference for the lossy DLL at 4K, and this is there to find out what it is.
@@ -152,7 +153,7 @@ Made-up test scenes on one graphics card, single runs; the speed was timed with 
 >     DLL offers.
 >   - **Linux kit 2026-10-12.5:** its time for the lossy build's postpass on a skipped frame was too high and is corrected
 >     (details in the kit's README). Earlier Linux kit results overstate that one figure and the lossy average.
->   - **The Linux kit (2026-10-12.6; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
+>   - **The Linux kit (2026-10-13; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
 >     question is settled are gone. It also reports how the card is connected (PCIe link), and when the card is busy
 >     it asks you to close what is using it before it starts.
 > - The Windows kit compares the moving picture as well as the still one.
