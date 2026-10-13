@@ -27,6 +27,8 @@ GHOST = [[0.85, 0.87, 0.93, 2.64, 1.77], [1.07, 1.09, 1.11, 1.95, 1.43], [1.07, 
 # thin bars fixed on screen in front of a panning background (3 output pixels wide, 101 apart; pans 6,0 / 12,0 / 30,0 / 12,4): error of 255 where
 # the bars' image of a frame ago lands, mean of the frames the lossy DLL runs the network for and those it skips
 BARS = [[0.94, 0.96, 0.96, 3.735, 1.26], [0.73, 0.83, 0.965, 3.045, 3.735], [0.53, 0.655, 0.62, 1.61, 7.615], [1.095, 1.19, 1.63, 3.29, 2.81]]
+# time per upscale call in ms at 1920x1080, 2560x1440 and 3840x2160 output (the page's speed table)
+SPEED = [[1.04, 0.65, 0.40, 0.73, 1.43], [2.19, 1.03, 0.57, 1.00, 2.28], [4.82, 2.22, 1.14, 2.00, 4.98]]
 WIRE_TRUE = 110.7; WIRE_SHOWN = [100.2, 52.9, 121.5, 134.6, 89.7]      # a thin wire under a slow pan: its brightness of 255
 MEASURES = [
     ('Accuracy', 'Still picture and moving background, mean: accuracy', 'dB', 'db', mean(STILL, BACKGROUND), '{:.2f} dB'),
@@ -39,7 +41,7 @@ MEASURES = [
     ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.5, 16.7, 14.3, 14.3], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.014, 0.020, 0.084], '{:.3f}'),
     ('Wire, pan', 'Thin wire under a slow pan: how far its brightness is from the true one', 'of 255', 'down', [round(abs(v - WIRE_TRUE), 1) for v in WIRE_SHOWN], '{:.1f}'),
-    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.82, 2.22, 1.14, 2.00, 4.98], '{:.2f} ms'),
+    ('Speed', 'Time per upscale call, mean of 1080p, 1440p and 4K output', 'ms', 'down', mean(*SPEED), '{:.2f} ms'),
 ]
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
 
@@ -110,19 +112,19 @@ def radar(t):
     o.append(text(x0, y0, 'The spokes', t, 12, 'ink', weight=600))
     key = [('Accuracy, Railing, Uncovered', 'accuracy against the true image'), ('Old image', 'left beside moving objects, seven scenes'),
            ('Fixed bars', 'old image of thin things fixed on screen'), ('Sparks', 'tiny fast sparks: share shown'), ('Foliage', 'swaying leaves, three speeds: accuracy'),
-           ('At rest', 'steadiness of a still picture'), ('Wire, pan', 'a thin wire in a pan: brightness off the true one'), ('Speed', 'time per call at 4K')]
+           ('At rest', 'steadiness of a still picture'), ('Wire, pan', 'a thin wire in a pan: brightness off the true one'), ('Speed', 'time per call, mean of three output sizes')]
     y = y0 + 18
     for a, b in key:
         o += [text(x0, y, a, t, 10, 'ink2', weight=600), text(x0, y + 12, b, t, 10, 'muted')]; y += 27
     o += [text(24, H - 28, 'A spoke at half length: twice the error (or the change per frame, or the time) of the best of the five; for sparks, half as much shown.', t, 10, 'muted'),
-          text(24, H - 14, "Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (3.17 ms against 4.82).", t, 10, 'muted')]
+          text(24, H - 14, "Test rig, 4K output, one card, single runs. This project's exact DLL has FSR 4.1.1's shape with a longer speed spoke (1.83 ms against 2.68).", t, 10, 'muted')]
     return o
 
 
 # ---- the front page: AMD's FSR 4.1.1, the previous release's lossy DLL and this release's. Same rig and scenes as above (single runs, auto exposure off).
 # Columns: FSR 4.1.1, the previous release, this release. The spokes are those of the chart above (the lossy DLLs' parts from the same scenes run with each release),
 # without the railing and with film grain: the mean change per frame of a still picture with grain of 6, 10 and 15 of 255.
-# Each release's speed is from the comparison page's timing with that release, a day apart (a timing-kit run of both in one go under Proton: 2.23 and 2.22 ms).
+# Each release's speed is from the comparison page's timing with that release, a day apart (a timing-kit run of both in one go under Proton: 2.23 and 2.22 ms at 4K).
 R_NAMES = ['FSR 4.1.1', 'the lossy DLL of dll-2026-10-12.2', 'the lossy DLL of dll-2026-10-13']
 col = lambda rows, k: [r[k] for r in rows]
 P_GHOST = [0.87, 1.09, 1.07, 1.92, 4.64, 5.13, 2.66]; P_BARS = [1.035, 0.875, 0.76, 1.295]      # the previous release on the scenes of GHOST and BARS
@@ -137,7 +139,7 @@ R_MEASURES = [
     ('Film grain', 'Still picture with grain of 6, 10 and 15 of 255, mean: change per frame', 'of 255', 'down', m3([0.785, 1.724, 2.549], [0.330, 1.028, 1.608], [0.330, 1.028, 1.608]), '{:.2f}'),
     ('Wire, pan', MEASURES[8][1], 'of 255', 'down', [MEASURES[8][4][0], round(WIRE_TRUE - 52.5, 1), MEASURES[8][4][1]], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.024], '{:.3f}'),
-    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.82, 2.21, 2.22], '{:.2f} ms'),
+    ('Speed', MEASURES[9][1], 'ms', 'down', [MEASURES[9][4][0], round((0.63 + 1.02 + 2.21) / 3, 2), MEASURES[9][4][1]], '{:.2f} ms'),
 ]
 # One scale for every radar chart: a spoke that the comparison page's chart has too is scaled by the best of its five upscalers, so a build has the same
 # shape in both charts. Film grain is on this chart only: there the best of the three.
@@ -161,7 +163,7 @@ def release_radar(t):
     o += [text(24, H - 56, 'Outer ring: FSR 4.1.1, except uncovered (this release), at rest and speed (FSR 3.1) and film grain (both lossy DLLs, best of these three).', t, 10, 'muted'),
           text(24, H - 42, "Dashed, left: the previous release (dll-2026-10-12.2), its figure in brackets where it differs; it passes the ring at uncovered. Dashed, right: this release's lossy DLL.", t, 10, 'muted'),
           text(24, H - 28, 'Most spokes are means over several scenes; old image, fixed bars and foliage are measured on frames the lossy DLL skips the network for.', t, 10, 'muted'),
-          text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: the two releases were timed a day apart; a timing-kit run of both reads 2.23 and 2.22 ms.', t, 10, 'muted')]
+          text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: mean of 1080p, 1440p and 4K; the two releases were timed a day apart.', t, 10, 'muted')]
     return o
 
 

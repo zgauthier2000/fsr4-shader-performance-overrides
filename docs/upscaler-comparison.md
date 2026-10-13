@@ -221,6 +221,7 @@ Graphics-card time for one upscale call, in milliseconds, at the same render rat
 | 1920x1080 | 1.04 | 0.89 | 0.65 | 0.40 | 0.73 | 1.43 |
 | 2560x1440 | 2.19 | 1.44 | 1.03 | 0.57 | 1.00 | 2.28 |
 | 3840x2160 | 4.82 | 3.17 | 2.22 | 1.14 | 2.00 | 4.98 |
+| Mean of the three (the chart's speed spoke) | 2.68 | 1.83 | 1.30 | 0.70 | 1.24 | 2.90 |
 
 - FSR 4.1.1, the two DLLs of this project, FSR 3.1 and HelixSR were timed by the same program, 200 calls after 40 to warm
   up. XeSS has another interface and was timed by a second program over 32 calls, so its column is not measured in quite
