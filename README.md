@@ -175,6 +175,7 @@ Made-up test scenes on one graphics card, single runs; the previous release's sp
 - [Bright dots in foliage](research/frame-skip#bright-dots-in-foliage-release-dll-2026-10-113): why sky seen through leaves was shown as sparks, and the settings that were compared
 - [A still object over fast ground](research/frame-skip#a-still-object-over-fast-ground-release-dll-2026-10-112): why release `dll-2026-10-11` left a ghost there, and the two fixes that were tried
 - [Thin wires, particles and light folds](research/frame-skip#thin-wires-particles-and-light-folds-release-dll-2026-10-11): what erased the wires, the network's own verdict as a signal, and which further layers were folded
+- [The lossy DLL's rules on a skipped frame](docs/lossy-rules.md): one flow chart of what the last shader does when the network did not run, and which fault each rule answers
 - [The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md): five upscalers on the same scenes and the same timing, with charts and crops
 - [Exact and lossy compared](docs/exact-vs-lossy.md): every measurement of the lossy DLL against AMD's, with comparison pictures, and its limits (moving foliage, wires under a slow pan)
 - [Weight folding](research/lossy): the earlier experiment the light folds come from
