@@ -21,6 +21,7 @@
 # instead of an outdated one.
 # All of this sits in one branch per output pixel that is taken on skipped frames only.
 # Frames that ran the model keep the model's values bit for bit.
+# SB_MEMSTILL (default off; prototype, e.g. 0.45): see the end of this file.
 # Options (environment): SB_K (default 32), SB_AW (0, 1 or 2: power of a in the factor, default 1),
 # SB_REL (default 0.1), SB_THR (absolute floor of the guard's limit, default 0), SB_GUARD=0 (no guard),
 # SB_CLAMP (default 0.5; "off" for none), SB_BRANCH=0 (the layout of releases dll-2026-10-06.2 and .3:
@@ -726,5 +727,28 @@ if _band:      # the verdict's ramp t0..t1 is taken back between u0 and u1 and r
         o = f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}'
         if o not in text: sys.exit('skipblend: verdict rule not found')
         text = text.replace(o, f'%sr_w{k} = OpFMul %float {w} %sr_r{k}')
+if os.environ.get('SB_MEMSTILL', 'off') != 'off':
+    # PROTOTYPE. The model's memory image: a low value in its third channel makes the model keep the old picture on its next run. A thing
+    # that stands still on screen in front of a moving scene (a weapon, a railing) hands that memory to the background that comes out from
+    # behind it, and the model, which last saw the place two frames ago, then keeps the thing's old image there. On a skipped frame, a cell
+    # whose own stored motion is zero while something looked at around it moves differently stores at least SB_MEMSTILL in that channel.
+    L2 = text.split('\n'); defs = {m[1]: m[2] for l in L2 for m in [re.match(r'\s*(%\w+) = (.*)$', l)] if m}
+    if '%sm_rest' not in defs or '%sm_nany' not in defs: sys.exit('skipblend: SB_MEMSTILL needs the rest rule (SB_REST=1)')
+    anyid = re.match(r'OpLogicalNot %bool (%\w+)', defs['%sm_nany'])[1]; rest = defs['%sm_rest'].split(); o2 = []; k = 0; first = True
+    for l in L2:
+        if '= OpFunction' in l and first: o2.append(f"%ms_v = OpConstant %float {float(os.environ['SB_MEMSTILL'])}"); first = False
+        m = re.match(r'\s*OpImageWrite (%\w+) (%\w+) (%\w+)', l); ld = m and re.match(r'OpLoad %\w+ (%\w+)', defs.get(m[1], ''))
+        ac = ld and re.match(r'OpAccessChain %\w+ (%\w+) (%\w+)', defs.get(ld[1], ''))
+        if ac and ac[1] == '%30':
+            fc = re.match(r'OpFConvert %v4float (%\w+)$', defs.get(m[3], '')); t = fc and re.match(r'OpCompositeConstruct %v4half (%\w+) (%\w+) (%\w+) (%\w+)$', defs.get(fc[1], ''))
+            if not t: sys.exit('skipblend: the memory texel is not four 16-bit values')
+            o2 += [f'%ms_e{k} = OpFConvert %float {t[3]}', f'%ms_x{k} = OpExtInst %float {GLSL} FMax %ms_e{k} %ms_v', f'%ms_s{k} = OpSelect %float %ms_still %ms_x{k} %ms_e{k}', f'%ms_h{k} = OpFConvert %half %ms_s{k}',
+                   f'%ms_c{k} = OpCompositeConstruct %v4half {t[1]} {t[2]} %ms_h{k} {t[4]}', f'%ms_w{k} = OpFConvert %v4float %ms_c{k}', f'               OpImageWrite {m[1]} {m[2]} %ms_w{k}']
+            k += 1; continue
+        o2.append(l)
+        if re.match(r'\s*%sm_rin = ', l): o2.append(f'%ms_in = OpLogicalAnd %bool %sm_c0u {anyid}')
+        if re.match(r'\s*%sm_rest = OpPhi', l): o2.append(f'%ms_still = OpPhi %bool %ms_in {rest[3]} %sm_false {rest[5]}')
+    if k != 4: sys.exit(f'skipblend: {k} stores of the memory image found, expected 4')
+    text = '\n'.join(o2)
 from frameskip_layout import holes_spv_module      # step past the cleared diagonals
 sys.stdout.write('\n'.join(holes_spv_module(text.split('\n'), 'sm', S, 0)))
