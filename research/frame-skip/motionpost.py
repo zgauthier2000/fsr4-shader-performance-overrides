@@ -60,10 +60,12 @@ c = ([f"%mp_jlo = OpConstant %float {float(os.environ['MP_SPOILJ'].split(',')[0]
      '%mp_b0 = OpConstant %uint 48', f'%mp_b1 = OpConstant %uint {(2048 if S == 15392 else 4096)}', f'%mp_lo = OpConstant %uint {(-254) & 0xffffffff}', '%mp_hi = OpConstant %uint 254']
 if os.environ.get('MP_FORCE'):
     c += [f"%mp_fx = OpConstant %uint {int(os.environ['MP_FORCE'].split(',')[0]) & 0xffffffff}", f"%mp_fy = OpConstant %uint {int(os.environ['MP_FORCE'].split(',')[1]) & 0xffffffff}"]
-# MP_ALPHA=1 (PROTOTYPE, with frameskip.py FS_ALPHA=1): the cell's motion is the one its first pixel carries in the fourth channel of the prepass's image
+# MP_ALPHA (with frameskip.py FS_ALPHA=1). 'rules' (default since release dll-2026-10-13): the model's result is moved by the block's entry as before;
+# only the image and the constants are set up here, for skipblend.py SB_ALPHA=1. '0': as before that release. '1' (experiment, no DXIL form): the cell's motion is the one its first pixel carries in the fourth channel of the prepass's image
 # (dx + 64 * dy + 32, |dx|, |dy| <= 31); where that says "too fast" (-2048) the entry of the 4x4 block is used as before.
 AE, A_CODE = '', []
-if os.environ.get('MP_ALPHA', '0') in ('1', 'rules'):      # 'rules': the network's result is moved by the block's entry as before; only the image and the constants are set up, for skipblend.py SB_ALPHA=1
+MP_ALPHA = os.environ.get('MP_ALPHA', 'rules')
+if MP_ALPHA in ('1', 'rules'):
     AE = 'e'
     for f9 in (m for l in L for m in [re.match(r'\s*(%\w+) = OpIAdd %uint (%\w+) %uint_9$', l)] if m):      # index 9 of the sampled images (another array has an index 9 too)
         acd = next(m for l in L for m in [re.match(rf'\s*(%\w+) = OpAccessChain (%\w+) (%\w+) {re.escape(f9[1])}$', l)] if m)
@@ -81,7 +83,7 @@ if os.environ.get('MP_ALPHA', '0') in ('1', 'rules'):      # 'rules': the networ
               '%mp_ac = OpFSub %float %mp_aa %mp_a32', '%mp_aq = OpFMul %float %mp_ac %mp_ai64', f'%mp_ayf = OpExtInst %float {GLSL} RoundEven %mp_aq',
               '%mp_ay64 = OpFMul %float %mp_ayf %mp_a64', '%mp_axf = OpFSub %float %mp_ac %mp_ay64', '%mp_axi = OpConvertFToS %uint %mp_axf', '%mp_ayi = OpConvertFToS %uint %mp_ayf',
               '%mp_dx0 = OpSelect %uint %mp_aok %mp_axi %mp_dx0e', '%mp_dy0 = OpSelect %uint %mp_aok %mp_ayi %mp_dy0e']
-    if os.environ['MP_ALPHA'] == 'rules':
+    if MP_ALPHA == 'rules':
         AE, A_CODE = '', A_CODE[:5]
 head = ['%mp_r1 = OpAccessChain %_ptr_PushConstant_uint %registers %uint_1', '%mp_r = OpLoad %uint %mp_r1', '%mp_bi = OpIAdd %uint %mp_r %uint_11',
         f'%mp_bp = OpAccessChain %_ptr_StorageBuffer_SSBO {SSBO} %mp_bi',

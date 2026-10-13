@@ -214,9 +214,9 @@ else:
     mv_code += ['  br label %fs.mM', '', 'fs.mM:']
     from frameskip_layout import holes_dxil
     mv_code = holes_dxil(mv_code, S, 1)      # step past the cleared diagonals (frameskip_layout.py)
-    # FS_ALPHA=1 (PROTOTYPE, as in frameskip.py): on a skipped frame every pixel's own displacement goes into the fourth channel of the
+    # FS_ALPHA (default 1 with FS_BRANCH=1, since release dll-2026-10-13; as in frameskip.py): on a skipped frame every pixel's own displacement goes into the fourth channel of the
     # image the prepass writes per output pixel: dx + 64 * dy + 32 for |dx|, |dy| <= 31, -2048 for anything faster.
-    ALPHA = os.environ.get('FS_ALPHA', '0') == '1'
+    ALPHA = os.environ.get('FS_ALPHA', '1' if BRANCH else '0') == '1'
     if ALPHA:
         if not BRANCH:
             die('FS_ALPHA needs the two-copy form (FS_BRANCH=1)')

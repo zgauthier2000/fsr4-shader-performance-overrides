@@ -21,7 +21,9 @@
 # instead of an outdated one.
 # All of this sits in one branch per output pixel that is taken on skipped frames only.
 # Frames that ran the model keep the model's values bit for bit.
-# SB_MEMSTILL (default off; prototype, e.g. 0.45): see the end of this file.
+# SB_MEMSTILL (default 0.45 since release dll-2026-10-13; "off" for none): see the end of this file.
+# SB_ALPHA (default 1 since release dll-2026-10-13, after motionpost.py MP_ALPHA=rules; 0 = as before): the rules below take a cell's
+# motion from the fourth channel of the prepass's image (frameskip.py FS_ALPHA), one value per 2x2 cell, instead of the 4x4 block's entry.
 # Options (environment): SB_K (default 32), SB_AW (0, 1 or 2: power of a in the factor, default 1),
 # SB_REL (default 0.1), SB_THR (absolute floor of the guard's limit, default 0), SB_GUARD=0 (no guard),
 # SB_CLAMP (default 0.5; "off" for none), SB_BRANCH=0 (the layout of releases dll-2026-10-06.2 and .3:
@@ -327,9 +329,9 @@ if CLAMPM is not None or UNCOV:
           f'%sm_dbase = OpConstant %uint {(REGION * 3 // 2 + 2 * S) // 4}', '%sm_db1 = OpConstant %uint 5120', '%sm_two = OpConstant %uint 2', '%sm_false = OpConstantFalse %bool', '%sm_m1 = OpConstant %uint 4294967295', '%sm_fz = OpConstant %float 0', '%sm_fone = OpConstant %float 1'] + (
           [f'%sm_inv = OpConstant %float {1.0 / CLAMPM}'] if CLAMPM is not None else [])
 
-    # SB_ALPHA=1 (PROTOTYPE, after motionpost.py MP_ALPHA=1): a cell's motion is the one its first pixel carries in the prepass's image; the block's entry where that says "too fast"
-    SAE = 'e' if os.environ.get('SB_ALPHA', '0') == '1' and any('%mp_aim = ' in l for l in L) else ''
-    SA_REST = os.environ.get('SB_ALPHA', '0') == 'rest' and any('%mp_aim = ' in l for l in L)      # only the at-rest rule's "this cell does not move" from the channel; every lookup of the uncovered test stays per block
+    # SB_ALPHA=1 (after motionpost.py MP_ALPHA=rules or 1): a cell's motion is the one its first pixel carries in the prepass's image; the block's entry where that says "too fast"
+    SAE = 'e' if os.environ.get('SB_ALPHA', '1') == '1' and any('%mp_aim = ' in l for l in L) else ''
+    SA_REST = os.environ.get('SB_ALPHA', '1') == 'rest' and any('%mp_aim = ' in l for l in L)      # only the at-rest rule's "this cell does not move" from the channel; every lookup of the uncovered test stays per block
     _mpdef = {m[1]: m[2] for l in L for m in [re.match(r'\s*(%mp_a(?:rp|r|i|ip|im)) = (.*)$', l)] if m}
     SA_IMG_ = [f"{k.replace('%mp_a', '%sm_ia')} = {re.sub(r'%mp_a(rp|r|i|ip|im)(?!\\w)', lambda m: '%sm_ia' + m[1], _mpdef[k])}" for k in ('%mp_arp', '%mp_ar', '%mp_ai', '%mp_aip', '%mp_aim')] if (SAE or SA_REST) else []
     sa_done = []
@@ -727,8 +729,9 @@ if _band:      # the verdict's ramp t0..t1 is taken back between u0 and u1 and r
         o = f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}'
         if o not in text: sys.exit('skipblend: verdict rule not found')
         text = text.replace(o, f'%sr_w{k} = OpFMul %float {w} %sr_r{k}')
-if os.environ.get('SB_MEMSTILL', 'off') != 'off':
-    # PROTOTYPE. The model's memory image: a low value in its third channel makes the model keep the old picture on its next run. A thing
+MEMSTILL = os.environ.get('SB_MEMSTILL', '0.45' if '%sm_rest = ' in text and '%sm_nany = ' in text else 'off')      # without the rest rule (SB_REST=0) there is nothing to apply it to
+if MEMSTILL != 'off':
+    # The model's memory image: a low value in its third channel makes the model keep the old picture on its next run. A thing
     # that stands still on screen in front of a moving scene (a weapon, a railing) hands that memory to the background that comes out from
     # behind it, and the model, which last saw the place two frames ago, then keeps the thing's old image there. On a skipped frame, a cell
     # whose own stored motion is zero while something looked at around it moves differently stores at least SB_MEMSTILL in that channel.
@@ -736,7 +739,7 @@ if os.environ.get('SB_MEMSTILL', 'off') != 'off':
     if '%sm_rest' not in defs or '%sm_nany' not in defs: sys.exit('skipblend: SB_MEMSTILL needs the rest rule (SB_REST=1)')
     anyid = re.match(r'OpLogicalNot %bool (%\w+)', defs['%sm_nany'])[1]; rest = defs['%sm_rest'].split(); o2 = []; k = 0; first = True
     for l in L2:
-        if '= OpFunction' in l and first: o2.append(f"%ms_v = OpConstant %float {float(os.environ['SB_MEMSTILL'])}"); first = False
+        if '= OpFunction' in l and first: o2.append(f"%ms_v = OpConstant %float {float(MEMSTILL)}"); first = False
         m = re.match(r'\s*OpImageWrite (%\w+) (%\w+) (%\w+)', l); ld = m and re.match(r'OpLoad %\w+ (%\w+)', defs.get(m[1], ''))
         ac = ld and re.match(r'OpAccessChain %\w+ (%\w+) (%\w+)', defs.get(ld[1], ''))
         if ac and re.match(r'OpIAdd %uint %\w+ %uint_6$', defs.get(ac[2], '')):      # the memory image: index 6 of the images written

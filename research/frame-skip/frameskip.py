@@ -27,6 +27,8 @@
 # under one branch on skip, the one for skipped frames without the tensor stores. FS_BRANCH=0 is
 # the form of the releases before: one copy, each store writes back the word that was there.
 # With FS_BRANCH=1 run exposure_steps.py BEFORE this tool.
+# FS_ALPHA (prepass; default 1 since release dll-2026-10-13, needs FS_BRANCH=1): a skipped frame's copy writes every pixel's own
+# motion into the fourth channel of the image the prepass writes per output pixel, for skipblend.py's rules (see below, at ALPHA).
 #
 # Where the mark is: the border-clearing shaders that run after every pass zero the top row, the
 # left column and the cells just past the valid width and height of each tensor, and the passes
@@ -239,10 +241,10 @@ else:
         consts += [f'%fs_mbase = OpConstant %uint {(REGION + S) // 4}', f'%fs_mrow = OpConstant %uint {S // 4}', '%fs_mb0 = OpConstant %uint 48', f'%fs_mb1 = OpConstant %uint {(2048 if S == 15392 else 4096)}',
                    '%fs_u1 = OpConstant %uint 1', '%fs_u2 = OpConstant %uint 2', '%fs_u3 = OpConstant %uint 3', '%fs_u16 = OpConstant %uint 16', '%fs_u65535 = OpConstant %uint 65535',
                    '%fs_fone = OpConstant %float 1', '%fs_fm = OpConstant %float -254', '%fs_fp = OpConstant %float 254']
-        # FS_ALPHA=1 (PROTOTYPE): on a skipped frame every pixel's own displacement goes into the fourth channel of the image the prepass
+        # FS_ALPHA (default 1 with FS_BRANCH=1, since release dll-2026-10-13; 0 = as before): on a skipped frame every pixel's own displacement goes into the fourth channel of the image the prepass
         # writes per output pixel (AMD writes red there again; the postpass does not read it): dx + 64 * dy + 32 for |dx|, |dy| <= 31
-        # (whole numbers a 16-bit float holds exactly), -2048 for anything faster. motionpost.py MP_ALPHA=1 reads it per 2x2 cell.
-        ALPHA = os.environ.get('FS_ALPHA', '0') == '1'
+        # (whole numbers a 16-bit float holds exactly), -2048 for anything faster. skipblend.py reads it per 2x2 cell (SB_ALPHA).
+        ALPHA = os.environ.get('FS_ALPHA', os.environ.get('FS_BRANCH', '1')) == '1'
         a_code = []
         if ALPHA:
             consts += ['%fs_a31 = OpConstant %float 31', '%fs_a64 = OpConstant %float 64', '%fs_a32 = OpConstant %float 32', '%fs_aesc = OpConstant %float -2048']

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS, SB_REST (as in skipblend.py);
-# prototypes, off by default: SB_ALPHA=1 with MP_ALPHA=rules, SB_MEMSTILL
+# SB_ALPHA (default 1, with MP_ALPHA=rules, the default) and SB_MEMSTILL (default 0.45; "off" for none), both since release dll-2026-10-13
 # The DXIL form of skipblend.py (see there): on a skipped frame the weight of the new frame is
 # reduced where the nearest sample is farther from the pixel than it was in the frame the model
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
@@ -63,11 +63,11 @@ if UNCOV:
     def sabs(p, v):
         return [f'  {p}n = sub i32 0, {v}', f'  {p}s = icmp slt i32 {v}, 0', f'  {p} = select i1 {p}s, i32 {p}n, i32 {v}']
 
-    # SB_ALPHA=1 with MP_ALPHA=rules (PROTOTYPE, as in skipblend.py): a cell's motion is the one its first pixel carries in the fourth channel of the
+    # SB_ALPHA=1 with MP_ALPHA=rules (as in skipblend.py): a cell's motion is the one its first pixel carries in the fourth channel of the
     # prepass's image (frameskip_dxil.py FS_ALPHA=1); the block's entry where that says "too fast"
-    if os.environ.get('SB_ALPHA', '0') not in ('0', '1'):
+    if os.environ.get('SB_ALPHA', '1') not in ('0', '1'):
         sys.exit('skipblend_dxil: only SB_ALPHA=1 has a DXIL form')
-    SAE = 'e' if os.environ.get('SB_ALPHA', '0') == '1' and os.environ.get('MP_ALPHA', '0') == 'rules' else ''
+    SAE = 'e' if os.environ.get('SB_ALPHA', '1') == '1' and os.environ.get('MP_ALPHA', 'rules') == 'rules' else ''
     if SAE:
         ia = {m[1] for l in L for m in [re.search(r'@dx\.op\.annotateHandle\(i32 216, %dx\.types\.Handle (%[\w.]+), %dx\.types\.ResourceProperties \{ i32 2, i32 776 \}\)', l)] if m}
         if len(ia) != 1 or not d0 < next(i for i, l in enumerate(L) if re.match(rf'\s*{re.escape(min(ia))} = ', l)) < e1:
@@ -545,14 +545,16 @@ if (GUARD or BRANCH) and n_guard != 4:
     sys.exit(f'skipblend_dxil: {n_guard} guard sites found, expected 4')
 if n_sites != 4:
     sys.exit(f'skipblend_dxil: {n_sites} blend sites found, expected 4')
-if os.environ.get('SB_MEMSTILL', 'off') != 'off':
-    # PROTOTYPE, as in skipblend.py: on a skipped frame a cell whose own stored motion is zero while something looked at around it moves
+_t = '\n'.join(out)
+MEMSTILL = os.environ.get('SB_MEMSTILL', '0.45' if '%sm.rest = ' in _t and '%sm.nany = ' in _t else 'off')      # without the rest rule there is nothing to apply it to
+if MEMSTILL != 'off':
+    # As in skipblend.py: on a skipped frame a cell whose own stored motion is zero while something looked at around it moves
     # differently stores at least SB_MEMSTILL in the third channel of the model's memory image.
     L2 = '\n'.join(out).split('\n'); D2 = {m[1]: m[2] for l in L2 for m in [re.match(r'\s*(%[\w.]+) = (.*?)(\s*;.*)?$', l)] if m}
     if '%sm.rest' not in D2 or '%sm.nany' not in D2:
         sys.exit('skipblend_dxil: SB_MEMSTILL needs the rest rule (SB_REST=1)')
     anyid = re.match(r'xor i1 (%[\w.]+), true', D2['%sm.nany'])[1]; o2 = []; k = 0
-    V = fl(float(os.environ['SB_MEMSTILL']))
+    V = fl(float(MEMSTILL))
     for l in L2:
         m = re.match(r'(\s*call void @dx\.op\.textureStore\.f16\(i32 67, %dx\.types\.Handle )(%[\w.]+)(, i32 %[\w.]+, i32 %[\w.]+, i32 undef, half %[\w.]+, half %[\w.]+, half )(%[\w.]+)(, half %[\w.]+, i8 15\).*)$', l)
         if m and re.search(r'ResourceProperties \{ i32 4098, i32 1032 \}', D2.get(m[2], '')):      # the memory image: the one with four 16-bit channels among the images written
