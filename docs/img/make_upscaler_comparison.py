@@ -17,12 +17,12 @@ MEASURES = [
     ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.26, 39.94, 41.99, 42.14], '{:.2f} dB'),
     ('Background', 'Moving background: accuracy', 'dB', 'db', [49.27, 48.98, 47.95, 46.92, 47.70], '{:.2f} dB'),
     ('Railing', 'Thin railing in motion: accuracy', 'dB', 'db', [41.82, 41.34, 38.36, 40.12, 40.86], '{:.2f} dB'),
-    ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 36.45, 29.22, 27.11, 30.20], '{:.2f} dB'),
+    ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 35.90, 29.22, 27.11, 30.20], '{:.2f} dB'),
     ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 40, 79, 50], '{:.0f}%'),
     # foliage: the mean of the error at the rig's usual sway speed, two thirds and half of it (camera still; for the lossy DLL, frames it skips the network for)
     ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.5, 16.7, 14.3, 14.3], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.014, 0.020, 0.084], '{:.3f}'),
-    ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 11.0, 8.2, 5.6, 10.1], '{:.1f}'),
+    ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 10.2, 8.2, 5.6, 10.1], '{:.1f}'),
     ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.82, 2.21, 1.15, 2.00, 4.99], '{:.2f} ms'),
 ]
 SPEED_NAMES = ['FSR 4.1.1', "This project's exact DLL", 'Lossy', 'FSR 3.1', 'HelixSR', 'XeSS']
@@ -103,25 +103,25 @@ def radar(t):
 
 
 # ---- the front page: AMD's FSR 4.1.1, the previous release's lossy DLL and this release's. Same rig and scenes as above (single runs, auto exposure off).
-# The foliage spoke is the mean over three sway speeds of the error on frames the lossy DLL skips the network for; the previous release's speed is from a timing-kit run of both releases (2.36 against 2.22 ms), the other two from the comparison page's timing.
-R_NAMES = ['FSR 4.1.1', 'the lossy DLL of dll-2026-10-12', 'the lossy DLL of dll-2026-10-12.2']
+# The foliage spoke is the mean over three sway speeds of the error on frames the lossy DLL skips the network for; the speeds are from the comparison page's timing of dll-2026-10-12.2; this release's was not timed again there (a timing-kit run of both under Proton: 2.23 and 2.22 ms).
+R_NAMES = ['FSR 4.1.1', 'the lossy DLL of dll-2026-10-12.2', 'the lossy DLL of dll-2026-10-13']
 R_MEASURES = [
     ('Still', 'Still picture: accuracy', 'dB', 'db', [44.33, 44.26, 44.26], '{:.2f} dB'),
-    ('Background', 'Moving background: accuracy', 'dB', 'db', [49.27, 49.00, 48.98], '{:.2f} dB'),
-    ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 36.53, 36.45], '{:.2f} dB'),
+    ('Background', 'Moving background: accuracy', 'dB', 'db', [49.27, 48.98, 48.98], '{:.2f} dB'),
+    ('Uncovered', 'Areas a moving object has just uncovered: accuracy', 'dB', 'db', [34.48, 36.45, 35.90], '{:.2f} dB'),
     ('Sparks', 'Tiny fast sparks: share of their brightness shown', '%', 'up', [83, 74, 74], '{:.0f}%'),
-    ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.6, 14.5], '{:.1f}'),
-    ('Film grain', 'Still picture with grain of 6 of 255: change per frame', 'of 255', 'down', [0.785, 0.460, 0.330], '{:.3f}'),
-    ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 10.3, 11.0], '{:.1f}'),
+    ('Foliage', 'Leaves swaying without motion vectors, mean of three sway speeds: error', 'of 255', 'down', [11.0, 14.5, 14.5], '{:.1f}'),
+    ('Film grain', 'Still picture with grain of 6 of 255: change per frame', 'of 255', 'down', [0.785, 0.330, 0.330], '{:.3f}'),
+    ('Wire, pan', 'Thin wire under a slow pan: change per frame', 'of 255', 'down', [7.2, 11.0, 10.2], '{:.1f}'),
     ('At rest', 'Still picture: change per frame', 'of 255', 'down', [0.037, 0.024, 0.024], '{:.3f}'),
-    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.82, 2.36, 2.21], '{:.2f} ms'),
+    ('Speed', 'Time per upscale call at 3840x2160', 'ms', 'down', [4.82, 2.21, 2.21], '{:.2f} ms'),
 ]
 # One scale for every radar chart: a spoke that the comparison page's chart has too is scaled by the best of its five upscalers, so a build has the same
 # shape in both charts. Film grain is on this chart only: there the best of the three.
 BEST = {m[0]: (min if m[3] == 'down' else max)(m[4]) for m in MEASURES}
 R_SCORES = [score(m[3], m[4], BEST.get(m[0])) for m in R_MEASURES]
-# The previous release is not one of the five, so its dashed outline may pass the outer ring a little (just-uncovered areas, 36.53 against this release's 36.45 dB).
-assert all(v <= 1.02 for sc in R_SCORES for v in sc), 'a build of the front-page chart is well beyond the best of the five: the scale needs it'
+# The previous release is not one of the five, so its dashed outline may pass the outer ring (just-uncovered areas, 36.45 against this release's 35.90 dB: 7% beyond).
+assert all(v <= (1.08 if k == 1 else 1.02) for sc in R_SCORES for k, v in enumerate(sc)), 'a build of the front-page chart is well beyond the best of the five: the scale needs it'
 
 
 def release_radar(t):
@@ -135,10 +135,10 @@ def release_radar(t):
     for cx, k, ref, title in ((196, 2, 1, 'Lossy DLL, this release'), (566, 0, 2, "AMD's FSR 4.1.1")):
         o.append(text(cx, 92, title, t, 13, 'ink', 'middle', 600))
         radar_panel(o, t, cx, 240, 100, k, short, 10, ref=ref, values=True, M=R_MEASURES, SC=R_SCORES, ours=k > 0, was=1 if k == 2 else None)
-    o += [text(24, H - 56, 'Outer ring: FSR 4.1.1, except uncovered (this release), wire (HelixSR), at rest and speed (FSR 3.1) and film grain (previous release, best of these three).', t, 10, 'muted'),
-          text(24, H - 42, "Dashed, left: the previous release (dll-2026-10-12), its figure in brackets where it differs. Dashed, right: this release's lossy DLL.", t, 10, 'muted'),
+    o += [text(24, H - 56, 'Outer ring: FSR 4.1.1, except uncovered (this release), wire (HelixSR), at rest and speed (FSR 3.1) and film grain (both lossy DLLs, best of these three).', t, 10, 'muted'),
+          text(24, H - 42, "Dashed, left: the previous release (dll-2026-10-12.2), its figure in brackets where it differs; it passes the ring at uncovered. Dashed, right: this release's lossy DLL.", t, 10, 'muted'),
           text(24, H - 28, 'Foliage: leaves swaying without motion vectors, the mean over three sway speeds of the error on frames the lossy DLL skips the network for.', t, 10, 'muted'),
-          text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: the previous release is from another run (2.36 against 2.22 there).', t, 10, 'muted')]
+          text(24, H - 14, 'Test rig, 4K output, one card, single runs. Speed: timed with the previous release; a timing-kit run of both reads 2.23 and 2.22 ms.', t, 10, 'muted')]
     return o
 
 

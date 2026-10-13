@@ -33,6 +33,7 @@ was found and measured.
 |---|---|---|---|
 | 1 | The weight, squared | Shimmer on skipped frames: the old weight took too much of a frame whose samples fall elsewhere. [Write-up](../research/frame-skip#leaning-on-the-history-on-skipped-frames-release-dll-2026-10-065) | `dll-2026-10-06.5` |
 | 2, 3 | Nothing from the new frame at rest | Fine detail at rest shimmered more than with AMD's shaders. [Write-up](../research/frame-skip#nothing-from-the-new-frame-at-rest-release-dll-2026-10-07) | `dll-2026-10-07` |
+| 2, 4, 6 | ... with motion per 2x2 pixels | A thin thing fixed on screen in front of a moving scene shared its neighbors' motion and kept a faint copy of itself beside it. [Write-up](../research/frame-skip#finer-motion-for-the-rules-a-memory-rule-and-two-cleared-diagonals-release-dll-2026-10-13) | `dll-2026-10-13` |
 | 3 a, b | Content that changed without motion | Particles, sparks and embers froze on every skipped frame, because games draw them without motion vectors. [Write-up](../research/frame-skip#content-without-motion-vectors-particles-sparks-embers-release-dll-2026-10-09) | `dll-2026-10-09` |
 | 3 c | The network's own verdict, high weights | Large soft particles and slow embers were still too dim. [Write-up](../research/frame-skip#the-models-own-verdict-particles) | `dll-2026-10-11` |
 | 3 c | The network's own verdict, middle weights | Slowly swaying leaves lagged. [Write-up](../research/frame-skip#foliage-and-the-networks-memory-release-dll-2026-10-12) | `dll-2026-10-12` |
@@ -51,8 +52,12 @@ was found and measured.
 
 - **Before these rules run,** the network's result of the frame before is moved along with the picture, so that each
   pixel gets the weight that belonged to its content. The motion for that is kept once per block of 4x4 output pixels.
-- **The motion is per block, the rules are per pixel.** Something thinner than a block shares its neighbors' motion.
-  That is a known limit: a thin edge in front of a moving background can keep a faint old image beside it.
+- **The rules' own motion is finer since `dll-2026-10-13`:** one value per 2x2 output pixels, for motion up to 31
+  pixels per frame; beyond that they use the block's. The network's result is still moved per block, so a thin edge
+  in front of a moving background can keep a faint old image beside it on skipped frames. That is a known limit.
+- **One rule is not about the picture at all.** Where a skipped frame finds a place at rest with differently moving
+  content around it, it raises one value of the memory the network keeps for its next run, so that the network does
+  not hold on to the old picture there. [Write-up](../research/frame-skip#the-memory-rule-sb_memstill)
 - **The numbers are defaults, not laws.** Every threshold in the chart is a setting of the tool that writes these rules
   ([`skipblend.py`](../research/frame-skip/skipblend.py), whose head lists them all), chosen by measuring in the test rig.
 - **Frames that run the network** get AMD's mix unchanged, and then step 7.

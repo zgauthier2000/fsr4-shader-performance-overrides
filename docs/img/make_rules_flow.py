@@ -46,7 +46,7 @@ def flow(t):
         'Where it had given the old picture up (weight near 1), nothing changes.'], 'lossy', '1')
     o.append(arrow(cx, y, cx, y + 20, t)); y += 20
     y = box(o, t, LEFT, y, RIGHT - LEFT, 'Is the picture at rest here?', [
-        'At rest = the motion kept for this 4x4-pixel block is zero, and no block looked at around it (3 and 8 cells to each',
+        'At rest = the motion kept for these 2x2 pixels is zero, and nothing looked at around them (3 and 8 cells to each',
         'side) moves differently.'], 'lossy', '2')
     # the two branches
     half = (RIGHT - LEFT - 16) / 2

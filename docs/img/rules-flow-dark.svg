@@ -19,7 +19,7 @@
 <rect x="34.0" y="273.0" width="22.0" height="20.0" rx="10" fill="#d95926"/>
 <text x="45.0" y="288.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">2</text>
 <text x="64.0" y="288.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Is the picture at rest here?</text>
-<text x="36.0" y="308.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">At rest = the motion kept for this 4x4-pixel block is zero, and no block looked at around it (3 and 8 cells to each</text>
+<text x="36.0" y="308.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">At rest = the motion kept for these 2x2 pixels is zero, and nothing looked at around them (3 and 8 cells to each</text>
 <text x="36.0" y="324.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">side) moves differently.</text>
 <line x1="198.0" y1="332.0" x2="198.0" y2="358.0" stroke="#898781" stroke-width="1.5"/><polygon points="198.0,362.0 195.0,355.7 201.0,355.7" fill="#898781"/>
 <line x1="562.0" y1="332.0" x2="562.0" y2="358.0" stroke="#898781" stroke-width="1.5"/><polygon points="562.0,362.0 559.0,355.7 565.0,355.7" fill="#898781"/>

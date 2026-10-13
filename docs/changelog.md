@@ -2,8 +2,76 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-12` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-12.2` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-12 ([release `dll-2026-10-12.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-12.2))
+
+### Cheaper skipped frames, steadier grain
+
+*Written for `dll-2026-10-12.2`: "this release" below means that one.*
+
+Two changes to the lossy DLL. **The exact DLL is unchanged.**
+
+- **The first shader, in two copies.** The lossy DLL runs FSR 4's network on every other frame. On the frames in
+  between, the first shader (the "prepass", which prepares the network's input) still did all of its work and then
+  threw most of it away. It now holds its work twice: AMD's code unchanged for the frames that run the network, and a
+  short copy for the frames that skip it, which only records the picture's motion for the last shader.
+- **A fold in the last shader.** The last shader (the "postpass") starts with a small network layer of its own. In each
+  of its 16 outputs the three smallest of 36 groups of weights are merged into their neighbors ("folding"). This does
+  not save time. It makes the last shader lean slightly more on the previous picture where the picture is noisy.
+- **Found on the way:** since `dll-2026-10-06.6` the lossy first shader also wrote the motion record on the frames that
+  run the network, and that extra code made the graphics driver's compiler round a few of the shader's other values
+  differently. At some render sizes (seen at 1506x846 and 3012x1694, not at 2260x1272 or 1280x720) those frames
+  therefore did not get exactly AMD's first-shader result: with everything else AMD's, the final picture differed by
+  0.0001 on average. With two copies they do get it, at all four sizes.
+
+| Whole upscaler, ms per frame: Windows timing kit under Proton, Radeon RX 7800 XT, one run | AMD's shaders | `dll-2026-10-12` | This release |
+|---|---|---|---|
+| 4K output: average | 4.90 | 2.36 | 2.22 |
+| 4K: frame that runs the network / skipped frame | | 3.25 / 1.46 | 3.20 / 1.23 |
+| 1440p output: average | 2.18 | 1.09 | 1.02 |
+| 1440p: frame that runs the network / skipped frame | | 1.50 / 0.66 | 1.48 / 0.54 |
+| 1080p output: average | 1.04 | 0.66 | 0.64 |
+| 1080p: frame that runs the network / skipped frame | | 0.92 / 0.35 | 0.92 / 0.31 |
+
+| Film grain on a still picture at 4K, change per frame | AMD's shaders | `dll-2026-10-11.7` | `dll-2026-10-12` | This release |
+|---|---|---|---|---|
+| Grain of 6 in 255 | 0.785 | 0.342 | 0.460 | 0.330 |
+| Grain of 10 | 1.724 | 1.056 | 1.291 | 1.028 |
+| Grain of 15 | 2.549 | 1.932 | 2.124 | 1.608 |
+| Grain of 6, auto exposure on | 0.552 | 0.359 | 0.381 | 0.295 |
+| Grain of 10, auto exposure on | 0.357 | 0.370 | 0.383 | 0.331 |
+| Grain of 15, auto exposure on | 0.484 | 0.514 | 0.513 | 0.516 |
+
+- **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced, one run each on the same day: 18,682 frames and
+  120 FPS with `dll-2026-10-12`'s Linux files, 18,879 frames and 122 FPS with the two-copy first shader (1% more
+  frames). The overlay's average upscaler time read 2.14 and 2.00 ms. The fold was not in that run; it does not change
+  the amount of work.
+- **What got worse** (all from the fold; `dll-2026-10-12` to this release):
+  - A flat area at rest changes slightly more per frame: 0.053 to 0.058, and 0.097 to 0.100 with auto exposure on.
+    With AMD's shaders the first figure is 0.126.
+  - A thin wire in a slow camera pan is less steady: change per frame 10.34 to 11.04 (AMD's 7.16); with auto exposure
+    on 7.84 to 8.05.
+  - Thin vertical detail at rest with auto exposure on: change per frame 0.344 to 0.372.
+  - In the scene with glints on a glossy surface, the single brightest stray pixel is 185 levels too bright instead
+    of 91 (AMD's 100). The number of stray pixels there went slightly down (1,462 to 1,419 per million over 20 levels;
+    AMD's 1,460), and with auto exposure on the brightest one reads 142 against 148 before.
+  - In the firefly scene, 434 instead of 417 pixels per million are more than 10 levels too bright (AMD's 370).
+- **What got better besides grain:** grain is also closer to the true picture (0.3 to 0.9 dB); a slow brightening
+  shows in a mid-gray flat area 1.20 instead of 1.31 frames late (AMD's 0.89); still foliage has slightly fewer isolated bright
+  dots (1.68 against 1.79 per thousand dark pixels).
+- **Unchanged or within a few percent:** the moving scene at 1080p, 1440p and 4K, 30 to 120 FPS, the ghost and plate
+  scenes, particles, rain, swaying foliage, the still picture's accuracy.
+- **Why three, and why it is not a dial:** two words do almost nothing for grain, three give most of the gain, four a
+  little more at a higher price for the wire, five and six are worse than four again. We measured that and cannot
+  explain it. The result repeats to the third digit over three random grain patterns.
+- **Not checked:**
+  - The fold in a game: the benchmark run above had the first change only.
+  - Windows drivers, and other graphics chips than the RX 7800 XT. The timings above are from Proton.
+  - The quality checks with the HDR option set (the DLLs were compared with the Linux files with it).
+- These are single runs on made-up scenes.
+  [Where a skipped frame's time went, the rounding difference, and the fold's sweep](../research/frame-skip#a-prepass-in-two-copies-and-a-fold-in-the-last-shader-release-dll-2026-10-122).
 
 ## 2026-10-12 ([release `dll-2026-10-12`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-12))
 

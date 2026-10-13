@@ -1607,6 +1607,210 @@ DLLs' shader sets byte for byte.
 
 Not measured: the fold in a game, the quality set with the HDR option, and anything on Windows itself.
 
+## Finer motion for the rules, a memory rule, and two cleared diagonals (release `dll-2026-10-13`)
+
+Three changes that all concern what a skipped frame knows about the picture's motion. They started from one fault: a thin thing
+fixed on screen in front of a moving scene kept a faint copy of itself beside it. Quality figures are single runs in the test
+rig; timings are from an RX 7800 XT under Linux.
+
+### The fault, and a trap in measuring it
+
+The scene: thin vertical bars that stay in place on screen while the background pans sideways, 1440p output. The measure: the
+error against the true picture in the strip where each bar's image of a frame ago lands, between the bars, taken separately on
+frames that run the network and on skipped frames.
+
+The first figures were alarming and wrong. With the rig's evenly spaced railing (bars 2 pixels wide, 16 apart) and a pan of 8
+pixels per frame, half the spacing, the lossy build read 12.0 against AMD's 0.9. Moving the railing by one, two and three pixels
+gave 0.70, 0.71 and 0.72 for the lossy build, and 1.19, 16.9 and 2.36 for AMD's own shaders. That is FSR 4's network confusing a
+periodic pattern under a pan of half its period; the lossy build only changes which alignment triggers it. **Thin-structure
+ghosts must not be judged from one alignment of a periodic pattern.** Everything below uses bars 64 or 67 pixels apart.
+
+With isolated bars a smaller fault remains that is the lossy build's own. It depends on where the bar sits in a 4-pixel block:
+
+| Bars 2 pixels wide, pan 8 pixels per frame: error of 255, frames that run the network / skipped frames | AMD's shaders | `dll-2026-10-12.2` |
+|---|---|---|
+| First of four positions across a block | 0.75 / 0.76 | 4.32 / 0.72 |
+| Second | 0.69 / 0.74 | 0.68 / 4.40 |
+| Third | 0.82 / 0.90 | 0.68 / 2.36 |
+| Fourth | 0.71 / 0.82 | 0.67 / 0.78 |
+
+Bars 4 pixels wide read 0.69 / 1.5, bars 8 pixels wide are level with AMD's. The fault is the bar's old image, all or nothing
+per pixel: about a sixth of the pixels in the strip carry the bar at four fifths of its strength, most where the true background
+is dark.
+
+### Two causes
+
+**On skipped frames: motion per 4x4 block.** The record of the picture's motion has one entry per block of 4x4 output pixels,
+taken from the block's first pixel. A block that holds both bar and background gets one motion for both: the bar's, and then the
+background pixels in it are treated as at rest, or the background's, and then the bar is.
+
+**On frames that run the network: the network's memory.** This was not expected, because those frames run AMD's code on AMD's
+inputs. What differs is what the skipped frame before them stored. Switching off each group of the postpass's rules left the
+figure where it was (4.3 to 4.6). Withholding the skipped frame's stores did not:
+
+| First position, frames that run the network | Error of 255 |
+|---|---|
+| `dll-2026-10-12.2` | 4.32 |
+| The skipped frame stores a constant 0.5 in all four channels of the memory image | 0.68 |
+| ... AMD's typical background values (0.53, 0.44, 0.35, 0.59) | 7.26 |
+| Only the third channel set: to 0.2 / 0.35 / 0.8 | 5.85 / 2.31 / 0.59 |
+| Only the first, second or fourth channel set | no effect |
+
+The network keeps a small image from one run to the next, four channels per cell. A low value in its third channel makes the
+next run keep the old picture. With AMD's shaders that channel reads about 0.44 on the bar and 0.35 on the background; in the
+lossy build's two-frame loop it settles at 0.27 to 0.33 on the bar (why lower is not known). The skipped frame moves the memory
+along with the picture like everything else, so a bar that stands still hands its low value to the background that comes out
+from behind it, and the network, which last saw that place two frames ago, keeps the bar there.
+
+### The memory rule (`SB_MEMSTILL`)
+
+Raising the third channel wherever anything around a cell moves differently cured the bars and was far too blunt: just-uncovered
+areas in the moving scene fell from 36.45 to 34.42 dB and fine stripes changed 1.85 instead of 0.77 per frame.
+
+The rule that shipped is narrow. On a skipped frame, a cell **whose own motion is zero** while something around it moves
+differently stores at least 0.45 in the third channel: the case of a thing fixed on screen beside motion, and nothing else.
+(0.5 gives the same figures within noise.)
+
+| Frames that run the network: error of 255 | AMD's shaders | `dll-2026-10-12.2` | With the rule |
+|---|---|---|---|
+| First position, pan 8 | 0.75 | 4.32 | 0.66 |
+| Mixed positions, pan 4 | 1.13 | 3.34 | 0.89 |
+| Pan 8 sideways and 3 down | 1.15 | 3.12 | 1.06 |
+| Pan 20 | 0.55 | 1.83 | 0.52 |
+| Bars 1 pixel wide | 1.03 | 1.52 | 0.84 |
+
+Alone, the rule moved three of 50 row pairs of the full check by more than 3%, all small; the one that matters: a thin wire in a
+slow pan changes 11.17 instead of 11.04 per frame. The diagonal fix below more than makes up for it.
+
+### A spare channel for finer motion (`FS_ALPHA`, `MP_ALPHA`, `SB_ALPHA`)
+
+For the skipped frames the record has to be finer than a block. A 2x2 grid in the working buffer was costed and dropped: it
+needs four times the entries, and a test of which words survive a skipped frame (below) showed more cleared places than were
+known.
+
+The prepass writes one image per **output pixel**: red, green, blue and red again, as 16-bit floats. The postpass reads the first
+three channels and nothing reads the fourth. A pattern written there on skipped frames arrived in the postpass exactly, at 1080p,
+1440p (native and upscaled), 4K and 5K with five sets of options (9 runs), and writing it changed nothing else (0 of 45 frames
+differ). On frames that run the network AMD's code writes the channel, so it is free on skipped frames only, which is where it
+is needed.
+
+The skipped frame's copy of the prepass now writes each pixel's own motion there, as one number: `dx + 64 * dy + 32` for motion
+up to 31 output pixels per frame on either axis, and -2048 for anything faster. A 16-bit float holds those whole numbers
+exactly. Where the code says "faster" the reader falls back to the block's entry.
+
+Three ways of using it were built and run through the full check (auto exposure off, 4K):
+
+| | `dll-2026-10-12.2` | Network's result moved per 2x2 cell | ... and the rules read it | Rules only (shipped) |
+|---|---|---|---|---|
+| Just-uncovered areas | 36.45 dB | 35.84 | 35.75 | 35.87 |
+| Ghost, still camera, objects moving diagonally: outline | 4.64 | 5.29 | 5.30 | 4.61 |
+| Ghost, object against a panning background: outline | 5.13 | 5.36 | 5.53 | 3.91 |
+| ... its body | 3.19 | 4.16 | 4.14 | 2.94 |
+| Ghost, still camera, objects moving sideways: outline | 1.07 | 1.06 | 1.06 | 1.31 |
+| Thin wire in a slow pan: change per frame | 11.04 | 10.64 | 10.18 | 10.67 |
+
+Moving the network's result more finely is what one would expect to help most, and it made outlines and bodies of moving objects
+worse. Why is not known. With the rules alone reading the finer motion (`MP_ALPHA=rules`), those losses are gone and one ghost
+scene gets clearly better; the cost is half a decibel in just-uncovered areas, which stay above AMD's 34.48, and the outline in
+the sideways scene.
+
+On the bars' skipped frames, `dll-2026-10-12.2` to rules only: second position 4.40 to 3.28 (pixels more than 10 levels off:
+10.5% to 3.2%), third 2.36 to 2.02, pan 20 2.48 to 1.68, rendered at 1707x960 3.04 to 1.92. Frames that run the network are
+untouched by it; that is the memory rule's part.
+
+**A bug on the way.** The first results of all three were void. `skipblend.py` finds AMD's four history reads by counting the
+shader's reads of this very image, and the new read of the motion code came first, so three of four pixels tested their
+neighbor's history. It showed when a scene in which nothing moves changed. The lesson kept: for a change that should only act on
+motion, check "nothing moves gives the release's picture, byte for byte" first.
+
+### Two cleared diagonals (`FS_HOLE`)
+
+To see what a finer grid could use, every prepass thread wrote a pattern word into the second region of the working buffer on a
+skipped frame, and the postpass showed which words survived. Besides the borders that were known, two diagonal lines are
+zeroed on every skipped frame: 8 words wide, moving 8 words per buffer row. They are the left border of a half-width tensor that
+shares the region, whose border-clearing shader runs on skipped frames too.
+
+Both lines cross the motion record. With everything moving 60 pixels per frame at 4K, 1,918 of 518,400 blocks read "no motion"
+on each skipped frame, in every lossy release since `dll-2026-10-06.6`. `frameskip_layout.py` now steps every word offset in a
+row past the two lines, in the prepass, the postpass and their DXIL forms.
+
+| Blocks that read another motion than the scene's, per skipped frame | Before | After |
+|---|---|---|
+| 4K output | 2,784 | 928 |
+| 1080p | 1,344 | 448 |
+| 1440p | 3,138 | 2,544 |
+| 5K | 4,042 | 3,428 |
+
+What is left, at every size: the top block row (4 pixel rows), which sits in a border row. At output sizes below the largest of
+a size class also a vertical band, at 1440p ten blocks wide on every other block row. No effect of either on the picture was
+found (in the 1440p band the lossy build differs from AMD's by 0.16 of 255, against 0.17 beside it). The rules no longer depend
+on the record for motion up to 31 pixels per frame; the network's result still does.
+
+Alone, the fix moved these rows of the full check and made none worse: a thin wire in a slow pan changes 10.17 instead of 11.04
+per frame and its bright peaks fall from +10.3 to +5.2; the outline of an object against a panning background 5.13 to 4.80.
+
+### What it costs in time
+
+| Postpass alone, 4K, both slot orders | `dll-2026-10-12.2` | This release |
+|---|---|---|
+| Skipped frame | 0.54 ms | 0.59 to 0.60 ms |
+| Frame that runs the network | 0.66 to 0.68 ms | +0.005 ms |
+
+All of it is the rules' extra reads; the memory rule and the prepass's write cost nothing measurable (+0.002 ms). At 1080p
+everything is level. The whole upscaler in the Windows timing kit under Proton does not show the 0.05 ms:
+
+| Whole upscaler, moving scene, ms per frame: average (frame that runs the network / skipped frame), one run | AMD's shaders | `dll-2026-10-12.2` | This release |
+|---|---|---|---|
+| 4K | 4.89 | 2.23 (3.21 / 1.24) | 2.22 (3.22 / 1.22) |
+| 1440p | 2.17 | 1.03 (1.50 / 0.54) | 1.03 (1.49 / 0.55) |
+| 1080p | 1.06 | 0.65 (0.92 / 0.31) | 0.65 (0.92 / 0.32) |
+
+Why the kit and the single-shader timing disagree at 4K was not looked into. The kit's moving scene is one uniform pan; the
+single-shader timing forces a skipped frame with a fixed motion.
+
+### In the DLL: a value narrowed and widened again
+
+The DXIL form of the memory rule first read the stored 16-bit value back, as the SPIR-V form does. The DLL then no longer gave
+the Linux files' output: about 85% of all values differed slightly from the second frame on, in still scenes too. A DXIL value
+that is narrowed to 16 bits and widened again makes vkd3d-proton translate the **whole shader** under another floating-point
+mode. The rule is now applied to the value before it is narrowed, which stores the same result, since narrowing keeps the order
+of values.
+
+The DLL's prepass image is declared with three channels, and the lossy DLL writes and reads its fourth. Under vkd3d-proton that
+works. What a Windows driver does with it is not known.
+
+### The release build against `dll-2026-10-12.2`
+
+All three changes together. Auto exposure off / on, 4K unless stated, one run:
+
+| | AMD's shaders | `dll-2026-10-12.2` | This release |
+|---|---|---|---|
+| Ghost, object against a panning background: outline | 3.11 / 2.90 | 5.13 / 5.55 | 4.01 / 3.90 |
+| ... its body | 3.51 / 3.26 | 3.19 / 3.14 | 2.92 / 2.94 |
+| Thin wire in a slow pan, skipped frames: change per frame | 7.16 / 6.79 | 11.04 / 8.05 | 10.18 / 7.41 |
+| ... its bright peaks, levels over the true wire | +18.9 / +13.4 | +10.3 / -2.3 | +5.6 / -5.4 |
+| Fine stripes in motion: change per frame | | 0.767 / 0.752 | 0.746 / 0.732 |
+| Ghost, still camera, objects moving sideways: outline | 1.07 / 1.07 | 1.07 / 1.10 | 1.31 / 1.33 |
+| Just-uncovered areas, 4K | 34.48 dB | 36.45 / 36.64 dB | 35.90 / 36.05 dB |
+| ... 1440p | 34.62 / 35.51 dB | 35.58 / 36.19 dB | 35.01 / 35.70 dB |
+| ... 1080p | 32.61 / 33.74 dB | 33.62 / 34.51 dB | 33.50 / 34.34 dB |
+| ... 5K | 39.90 / 40.51 dB | 40.50 / 41.04 dB | 40.19 / 40.77 dB |
+
+Seven of 50 row pairs of the full check move by more than 3% in each mode, and no run failed. The still picture, flat areas and
+thin detail at rest, grain, particles, rain, fireflies, glints, foliage, fades and the plate scenes are unchanged or within 3%.
+A scene in which nothing moves gives `dll-2026-10-12.2`'s picture byte for byte.
+
+The lossy DLLs give the Linux files' output byte for byte in 48 of 48 rig runs and in 8 further runs on the bar scenes and a
+ghost scene. With `FS_HOLE=0 FS_ALPHA=0 MP_ALPHA=0 SB_MEMSTILL=off` the tools rebuild `dll-2026-10-12.2`'s Linux files and both
+DLLs' shader sets byte for byte.
+
+In a game: Shadow of the Tomb Raider's benchmark at 4K Balanced with the Linux files, one run: 18,916 frames, 122 FPS, the
+overlay's average upscaler time 2.01 ms (`dll-2026-10-12.2` the day before: 18,879 frames, 122 FPS, 2.00 ms); the picture
+looked great and thin edges excellent, by eye.
+
+Not measured: the games the fault was reported from, the bar scenes at 4K and 1080p output, the quality set with the HDR
+option, and anything on Windows itself.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
@@ -1764,7 +1968,7 @@ And each output pixel depends on about 50 pixels around it.
 |---|---|
 | `frameskip.py` | the change for the prepass and the model passes as vkd3d-proton translates them (SPIR-V text) |
 | `frameskip_dxil.py` | the same for the DLL's shaders (DXIL text); same decisions, same mark, same place |
-| `frameskip_layout.py` | where the record of "who was here a frame ago" sits in the working buffer and how its words are packed |
+| `frameskip_layout.py` | where the record of "who was here a frame ago" sits in the working buffer and how its words are packed; since release `dll-2026-10-13` also the map that steps the motion record past two diagonals another shader clears |
 | `motionpost.py` | motion following and the kept vectors for the postpass (SPIR-V text); run it on AMD's postpass, before `skipblend.py` |
 | `motionpost_dxil.py` | the same for the DLL's postpass (DXIL text) |
 | `skipblend.py` | the shimmer correction, the history clamp, the edge guard and the uncovered-pixel flag for the postpass (SPIR-V text); run it after `motionpost.py` and before the store rewrite |
