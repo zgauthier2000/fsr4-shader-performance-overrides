@@ -90,6 +90,11 @@ the error against the true image is 1.16 of 255 in this release, 1.19 in release
 
 <img src="img/cmp-motion.png" width="760" alt="Moving scene on a frame the lossy builds skip the model for, two 90 by 90 pixel pieces enlarged four times, each shown as true image, exact files, the lossy build of release dll-2026-10-07 and this release's lossy build. Thin dark bars in front of a moving background: error 2.4, 3.1 and 3.1 of 255. The edge a moving block has just uncovered: 1.1, 1.4 and 1.3.">
 
+**The same, with the camera still and the objects moving.** Here the lossy build is behind AMD's in just-uncovered areas (31.77 against 32.62 dB over the frame), where in the panning scene it is ahead.
+The piece below is the one where the two differ most.
+
+<img src="img/cmp-uncovered-still.png" width="760" alt="Just-uncovered areas with the camera still and the objects moving, on a frame the lossy builds skip the network for: the strip a striped object has uncovered, at full brightness beside the dimmed object, enlarged five times, as true image, exact files, the lossy build of release dll-2026-10-12.2 and this release's. Error in the strip in this piece: exact 1.67 of 255, dll-2026-10-12.2 1.90, this release 1.92.">
+
 **Particles without motion vectors, on a skipped frame.** This is where the lossy builds before
 and since release `dll-2026-10-09` differ most. Games draw sparks and embers into the picture without telling FSR that they move.
 Release `dll-2026-10-07` kept them where they had been a frame ago, or showed them dimmed, on every
@@ -114,6 +119,8 @@ spark. The result was bright dashes crawling along the wire. Since `dll-2026-10-
 rest and, in motion, applied only where the network had already given up on the previous picture or, since `dll-2026-10-11.2`, beside something that moves differently.
 
 <img src="img/cmp-wires.png" width="760" alt="A wire far thinner than a rendered pixel on a skipped frame, camera still, a 150 by 60 pixel piece of the 4K output enlarged four times: the true image shows two thin continuous lines; the exact files show the same lines dimmer but continuous (unevenness along the wire 14 of 255); the lossy build of release dll-2026-10-10 shows separate bright dashes with gaps between them (79); this release's lossy build shows continuous dim lines like the exact files (12).">
+
+<img src="img/cmp-wires-pan.png" width="760" alt="A wire far thinner than a rendered pixel while the camera pans slowly, on a frame the lossy builds skip the network for, a piece with three wires enlarged four times. The true image and the exact files show thin continuous lines. Both lossy builds, release dll-2026-10-12.2 and this release, show them far dimmer and broken into short dashes. Error in the piece: exact 1.53 of 255, dll-2026-10-12.2 3.39, this release 3.35.">
 
 - With the camera still the wire is as steady as with AMD's shaders (change per frame along it 2.8 against 2.9; 40.5 in
   release `dll-2026-10-10`) and nearly as bright (66 against 67 of a true 111).
@@ -215,6 +222,8 @@ and between leaves a sample now and then lands on the sky. On skipped frames the
 sample for a spark, because it is far brighter than everything the previous picture has around it, and showed it at once.
 Since release `dll-2026-10-11.3` that rule asks for twice the distance. The test rig only showed the dots once its inputs were sampled as
 a game samples them, unsmoothed.
+
+<img src="img/cmp-foliage.png" width="760" alt="Leaves swaying without motion vectors, camera still, on a frame the lossy builds skip the network for, the piece where the lossy build differs most from the exact files, enlarged four times: true image, exact files, the lossy build of release dll-2026-10-12.2 and this release's. Error in the piece: exact 13.16 of 255, both lossy builds 22.05; the two lossy pictures are the same.">
 
 <img src="img/cmp-foliage-dots.png" width="760" alt="Dark green leaves in front of a pale sky on a frame that skips the neural network, a 200 by 130 pixel piece enlarged three times. The true image shows sharp leaves. The exact files show them soft and clean (1 single bright pixel inside the leaves in this piece). The lossy build of release dll-2026-10-11.2 shows the same leaves sprinkled with single-pixel specks (26). This release's lossy build shows far fewer (9).">
 
@@ -441,6 +450,13 @@ AMD's is. The exact files are 100% of AMD's in every row: the same bytes.
   4x4 pixels, and a pixel in a cell whose corner is on the object takes the object's motion. Since `dll-2026-10-13` the rules of a
   skipped frame read a finer motion, one value per 2x2 pixels; that helped the last case and cost the sideways one.
   See the [frame-skip page](../research/frame-skip/README.md#who-was-here-a-frame-ago-release-dll-2026-10-07).
+
+  <img src="img/cmp-ghost-still.png" width="760" alt="Old image beside a moving object with the camera still (the row still camera / −6,6 of the table), on a frame the lossy builds skip the network for: the narrow strip where the object's image of a frame ago would land, at full brightness, enlarged five times. Error in the strip in this piece: exact 4.18 of 255, the lossy build of release dll-2026-10-12.2 4.76, this release 4.98.">
+
+  <img src="img/cmp-bars.png" width="760" alt="Thin bars fixed on screen in front of a background panning by 12 pixels per frame, on a frame the lossy builds skip the network for, a piece with two bars enlarged four times and brightened three times. The true image and the exact files show only the bars. Both lossy builds show a faint thin line beside the left bar, where its image of a frame ago lands. Error there in this piece: exact 1.61 of 255, the lossy build of release dll-2026-10-12.2 2.51, this release 2.20.">
+
+  The bars are the case release `dll-2026-10-13` was made for. At this size (4K output from 2260x1272) the fault was small before it and is a little smaller now; at 1440p output rendered at 1440p it was much larger
+  ([the figures](../research/frame-skip/README.md#finer-motion-for-the-rules-a-memory-rule-and-two-cleared-diagonals-release-dll-2026-10-13)).
 - **Particles without motion vectors** (bright dots drawn into the picture only; share of each
   one shown where it truly is, on skipped frames; frames that run the model show 82 to 98%):
 

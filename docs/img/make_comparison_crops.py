@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_comparison_crops.py <dir>: the comparison images of docs/exact-vs-lossy.md (cmp-still.png,
-# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png, cmp-plate.png, cmp-foliage-dots.png, cmp-rain.png), from test-rig output (research/pruning: fsr4img with
+# cmp-motion.png, cmp-flicker.png, cmp-grain.png, cmp-particles.png, cmp-wires.png, cmp-plate.png, cmp-foliage-dots.png, cmp-rain.png; with "spokes": cmp-wires-pan.png,
+# cmp-uncovered-still.png, cmp-ghost-still.png, cmp-bars.png, cmp-foliage.png), from test-rig output (research/pruning: fsr4img with
 # gen_inputs.py / gen_motion.py, 4K Balanced, 40 frames, the last 8 kept). <dir> holds, for X = exact (the main
 # files), prev (the lossy build of release dll-2026-10-07) and lossy (the current lossy build, release dll-2026-10-12):
 #   still_X/                 output_3840x2160_f032..039.raw (RGBA16F), and still_truth.npy, the true 4K image
@@ -83,6 +84,36 @@ def sheet(title, sub, rows, name, note=None):
     im.save(name, optimize=True)
     print(name, im.size)
 
+
+if sys.argv[2:3] == ['spokes']:      # make_comparison_crops.py <dir> spokes : pictures of the radar chart's spokes that the sheets below do not show
+    # <dir> is the data folder of docs/img/make_upscaler_comparison.py (the five-upscaler rig), which also holds <scene>_prev/: the lossy build of the
+    # release before (dll-2026-10-12.2). exact = its fsr4 folders (AMD's shaders give the exact files' picture). Frame 37, a frame the lossy builds skip.
+    #   wirepan = a thin wire under a slow pan; stillcam = camera still, objects moving (just-uncovered areas); ghost10 = the same scene's strip where the
+    #   object's image of a frame ago would land; bars = thin bars fixed on screen, background panning 12 pixels per frame; foliage = leaves swaying
+    #   without motion vectors. <scene>_mask.npy marks the part a measure looks at.
+    def spoke(scene, title, sub, name, kw, kh, z, area=(200, 200, W - 200, H - 200), mask=None, shade=False, gain=1.0):
+        tru = srgb(np.load(f'{D}/{scene}_truth.npy').astype(np.float32)); T = {k: load(f'{scene}_{k}', 37) for k in ('fsr4', 'prev', 'lossy')}
+        diff = np.abs(T['lossy'] - T['fsr4']).mean(2); mk = np.load(f'{D}/{mask}.npy') if mask else None
+        if mask: diff = diff * mk
+        x0, y0, x1, y1 = area; c = np.cumsum(np.cumsum(np.pad(diff, ((1, 0), (1, 0))), 0), 1)
+        sm = (c[kh:, kw:] - c[:-kh, kw:] - c[kh:, :-kw] + c[:-kh, :-kw])[y0:y1 - kh, x0:x1 - kw]; y, x = np.unravel_index(np.argmax(sm), sm.shape); y += y0; x += x0
+        if mask:
+            ys, xs = np.nonzero(mk[y:y + kh, x:x + kw]); y = int(np.clip(y + ys.mean() - kh / 2, 0, H - kh)); x = int(np.clip(x + xs.mean() - kw / 2, 0, W - kw))
+        cp = lambda a: a[y:y + kh, x:x + kw]
+        dim = np.where(cp(mk), 1.0, 0.4)[:, :, None] if (mask and shade) else 1.0
+        pic = lambda a: rgb8(zoom(cp(a) * dim, z) * gain)
+        err = {k: float((np.abs(cp(v) - cp(tru)).mean(2)[cp(mk)] if mask else np.abs(cp(v) - cp(tru))).mean() * 255) for k, v in T.items()}
+        print(name, 'window', x, y, {k: round(v, 2) for k, v in err.items()})
+        part = 'the measured part of this piece' if mask else 'this piece'
+        sheet(title, sub, [('', [('true image', pic(tru)), ("exact files (= AMD's)", pic(T['fsr4'])), ('lossy, release dll-2026-10-12.2', pic(T['prev'])), ('lossy, this release', pic(T['lossy']))])],
+              name, note=f"Mean error against the true image in {part}, of 255: exact %.2f, dll-2026-10-12.2 %.2f, this release %.2f." % (err['fsr4'], err['prev'], err['lossy']))
+    S = 'on a frame that skips the network'
+    spoke('wirepan', f'A wire far thinner than a rendered pixel while the camera pans slowly, {S}', 'The piece where the lossy build differs most from the exact files, enlarged 4 times.', 'cmp-wires-pan.png', 150, 90, 4, area=(250, 250, 1950, 1900))
+    spoke('stillcam', f'Just uncovered by a moving object, camera still, {S}', 'What the object has uncovered in the last four frames is shown at full brightness, the rest dimmed.\nThe piece where the lossy build differs most from the exact files, enlarged 5 times.', 'cmp-uncovered-still.png', 120, 72, 5, mask='stillcam_mask', shade=True)
+    spoke('ghost10', f'Old image beside a moving object, camera still, {S}', "Where the object's image of a frame ago would land is shown at full brightness, the rest dimmed.\nThe piece where the lossy build differs most from the exact files, enlarged 5 times.", 'cmp-ghost-still.png', 120, 72, 5, mask='ghost10_mask', shade=True)
+    spoke('bars', f'Thin bars fixed on screen in front of a panning background, {S}', "The bars stay in place and the background moves by 12 pixels per frame. A piece between the bars, where their image of a frame ago\nwould land, enlarged 4 times and brightened 3 times.", 'cmp-bars.png', 150, 90, 4, mask='bars_mask', gain=3)
+    spoke('foliage', f'Leaves swaying without motion vectors, camera still, {S}', 'The piece where the lossy build differs most from the exact files, enlarged 4 times.', 'cmp-foliage.png', 150, 90, 4, area=(300, 300, 1900, 1850))
+    sys.exit(0)
 
 if sys.argv[2:3] == ['plate']:      # make_comparison_crops.py <dir> plate : only cmp-plate.png (needs only the plate_* data)
     # ---- a still bright object over ground that moves fast, at the same depth, on a skipped frame (research/pruning: SCENE_VB="0 -100"
