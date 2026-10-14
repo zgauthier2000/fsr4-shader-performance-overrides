@@ -13,7 +13,7 @@ W, H = 760, 318
 ROWS = [  # label, what happens to the picture, ms per frame, FPS, color
     ("AMD's shaders", 'the reference', 4.16, 97, 'amd'),
     ('Exact DLL', 'same picture, byte for byte', 2.99, 109, 'exact'),
-    ('Lossy DLL', 'very close picture, opt-in', 2.01, 122, 'lossy'),
+    ('Lossy DLL', 'very close picture, opt-in', 2.06, 122, 'lossy'),
 ]
 X0, XMAX, MS_MAX = 232, 600, 4.5
 

@@ -50,7 +50,7 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
-  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.01 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers.">
+  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.06 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers.">
 </picture>
 
 - **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
@@ -87,7 +87,7 @@ output, FSR 4.1.1 Balanced. Your card and your game will give other numbers:
 |---|---|---|---|
 | AMD's shaders | 4.16 ms | 97 FPS | the reference |
 | Exact | 2.99 ms (−28%) | 109 FPS (+12%) | identical |
-| Lossy | 2.01 ms (−52%) | 122 FPS (+26%) | still picture within 0.2 dB of AMD's |
+| Lossy | 2.06 ms (−50%) | 122 FPS (+26%) | still picture within 0.2 dB of AMD's |
 
 More games and resolutions: [all results](docs/results.md).
 
@@ -119,8 +119,9 @@ More games and resolutions: [all results](docs/results.md).
 >   steadier than with AMD's shaders); the railing of the panning test scene flickers up to 3% more and strong film grain is about 5% less
 >   steady with auto exposure off.
 > - **Speed:** up to 0.02 ms more per frame at 4K (under 1%). The exact DLL is unchanged.
-> - **Not run in a game yet.** Tested on a Radeon RX 7800 XT under Linux: the Linux files in the test rig, the DLLs under
->   Proton in the test rig and the timing kit.
+> - **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced on a Radeon RX 7800 XT under Linux, one run: 18,891 frames and 122 FPS,
+>   the overlay's average upscaler time 2.06 ms (`dll-2026-10-13.2`: 18,849 frames, 122 FPS, 2.01 ms), level within one run's scatter.
+>   Also tested in the test rig (Linux files, and the DLLs under Proton) and the timing kit.
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, with one chart per upscaler and side-by-side crops. It shows where the
 >   lossy DLL leads (accuracy close to FSR 4, areas a moving object has just uncovered, slowly swaying foliage, where it
@@ -267,8 +268,9 @@ AMD's shaders, more so when brightening.
   kit under Proton on a Radeon RX 7800 XT, one quick run each: `dll-2026-10-13.2` 2.21 ms at 4K, this release without its third change 2.21 ms, and
   with it 2.24 ms on the still scene and 2.23 ms on the moving one (AMD's shaders 4.87). At 1440p 1.07 ms, at 1080p 0.68 ms. The last shader still
   fits the same number of registers.
-- **Not run in a game yet.** Tested on a Radeon RX 7800 XT under Linux: the Linux files in the test rig, the DLLs under Proton in the test rig and
-  the timing kit.
+- **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced on a Radeon RX 7800 XT under Linux, one run: 18,891 frames and 122 FPS,
+  the overlay's average upscaler time 2.06 ms (`dll-2026-10-13.2`: 18,849 frames, 122 FPS, 2.01 ms), level within one run's scatter. Also tested in the test rig (Linux files, and the DLLs under Proton)
+  and the timing kit.
 - **Not checked:**
   - The leaf and fade scenes at other output sizes than 4K (the scenes of the full check were run at every size).
   - The quality checks with the HDR option set (the DLLs were compared with the Linux files with it).

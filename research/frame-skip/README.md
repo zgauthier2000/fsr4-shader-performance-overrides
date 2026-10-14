@@ -2118,6 +2118,9 @@ output size and frame rate, wires, fades, rain and fireflies, are level.
 | Grain of 10 of 255: change per frame | 1.724 / 0.357 | 1.081 / 0.332 | 1.088 / 0.333 |
 | Foliage seen against the sky: isolated bright dots per thousand dark pixels | 0.57 / 0.53 | 0.97 / 0.97 | 1.01 / 0.97 |
 
+**In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced, one run with the release: 18,891 frames, 122 FPS, the overlay's
+average upscaler time 2.06 ms (`dll-2026-10-13.2` the day before: 18,849 frames, 122 FPS, 2.01 ms). Level within one run's scatter.
+
 **Time.** The first two changes are level with `dll-2026-10-13.2` in the timing kit's probe. The fade rule costs about 0.015 ms per frame in
 the last shader at 4K (probe, both slot orders: 0.577 to 0.593 ms on a skipped frame, 0.683 to 0.696 ms on a frame that runs the network;
 1080p +0.005); the prepass is level and the last shader still fits 96 registers and 16 waves. The whole upscaler in the Windows kit under
