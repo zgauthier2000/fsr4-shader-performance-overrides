@@ -133,42 +133,12 @@ The change in this release that shows most in a single picture: a still object o
 
 > ### Help test it: the timing kit
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-13.2/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-13.2): unpack, double-click
-> `fsr4time.exe`, wait 15 to 20 minutes. It times FSR 4 with AMD's shaders and with these DLLs on
-> your graphics card, shows which DLLs give the same picture on your machine, and offers to send
-> the result. **Reports from Windows are in from eleven graphics chips so far; every further
-> card helps.**
-> - **Both kits were updated on 2026-10-13; if you ran an earlier one, please download and run again.**
->   - **Both kits (2026-10-13.2) carry the lossy build of `dll-2026-10-13.2`,** the release before this one. Nothing else changed in them. On Windows the lossy
->     DLL uses an image channel in a way that is only checked under Proton so far, so a run there is worth a lot: the
->     kit shows whether the lossy DLL gives the same picture in both of its runs on your card.
->   - **Since 2026-10-12.6 the Linux kit also times the lossy build's first shader on a skipped frame,** which
->     `dll-2026-10-12.2` made cheaper; before, its skipped-frame figure used the exact build's time for that shader.
->   - **Since the Windows kit 2026-10-12.3:** every DLL should give the same picture in both of its runs. Where one does
->     not, the summary now says how different the two are: how many 16x16-pixel blocks, where, and by how much. Two
->     reports from one RX 7800 XT showed such a difference for the lossy DLL at 4K, and this is there to find out what it is.
->   - **The Windows kit (2026-10-12.2) now shows which part of the exact DLL saves time on your card.** It carries two more
->     DLLs: AMD's shaders with only the rewritten last shader, and AMD's shaders with every other rewrite. On some cards
->     under Windows the exact DLL gains a lot and on others almost nothing, and this is how we find out why.
->   - **It times every DLL twice,** in opposite order, and shows both figures where they disagree, so a disturbed
->     reading can be told from a real difference. That makes the run longer than before (seven minutes); the 15 to
->     20 minutes are an estimate. `fsr4time.exe --once` gives the short run.
->   - **It times any FSR 4 DLL you put into a new folder under `dlls`,** not only 4.1.1, and every FSR 4 version that
->     DLL offers.
->   - **Linux kit 2026-10-12.5:** its time for the lossy build's postpass on a skipped frame was too high and is corrected
->     (details in the kit's README). Earlier Linux kit results overstate that one figure and the lossy average.
->   - **The Linux kit (2026-10-13.2; shorter since 2026-10-12.1):** 16 minutes for the full run on an RX 7800 XT, since three tests whose
->     question is settled are gone. It also reports how the card is connected (PCIe link), and when the card is busy
->     it asks you to close what is using it before it starts.
-> - The Windows kit compares the moving picture as well as the still one.
-> - **New: be named on the [thank-you page](docs/thanks.md).** When you send your result, the kit asks for a name or nickname to list. It is optional.
-> - **RX 6000 owners:** AMD's own shaders show ghosting on these cards under Windows. The kit has two
->   extra reference DLLs and prints a fingerprint of each picture, so your run tells us whether the
->   exact DLL gives the corrected picture there.
-> - **Not only Radeon:** the DLLs should run on any graphics chip whose driver supports DirectX 12 with
->   Shader Model 6.6, which includes GeForce and Intel Arc.
-> - **Linux and the Steam Deck:** [the Linux kit](timing-kit), updated the same day. It now times the lossy
->   build's one changed model pass, and its check that the model passes give AMD's output, blind in kits before
->   2026-10-10, is fixed.
+> `fsr4time.exe`, wait 15 to 20 minutes. It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
+> that each DLL gives the same picture, and offers to send the result. Reports are in from eleven graphics chips so far;
+> every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
+>
+> - The kits (2026-10-13.2) carry the lossy build of `dll-2026-10-13.2`, the release before this one. If you ran a kit older than 2026-10-13, please run again.
+> - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
 >
 > [What the kits do](timing-kit/README.md#windows-experimental)
 
