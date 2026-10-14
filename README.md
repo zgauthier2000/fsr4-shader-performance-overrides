@@ -102,24 +102,21 @@ More games and resolutions: [all results](docs/results.md).
 ## New in this release
 
 > [!TIP]
-> **The lossy DLL: a very thin wire keeps more of its brightness while the camera pans, and small dark things pulse less.**
-> - **Thin wires:** something far thinner than a rendered pixel (a distant power line, a fence wire) was shown at about
->   half its brightness while the camera pans. [Details below](#a-thin-wire-in-a-camera-pan-and-small-dark-things-at-rest-release-dll-2026-10-132).
-> - **Now:** in a slow pan the wire reads 77 of a true 111 where it read 53 (AMD's shaders: 100); in a fast pan 70
->   where it read 58 (AMD's 97). It is still dimmer than with AMD's shaders.
-> - **It also flickers less:** 5.4 change per frame in the slow pan where it was 10.2 (AMD's 7.2).
-> - **Small dark things that move without motion vectors** (reported: dark leaves falling in front of a dark sky): with the
->   camera still they were shown fully on every other frame only. The gap between the two kinds of frame is about
->   halved (71% to 76% of the leaf shown on the frames between; AMD's shaders 79%). The faint trace they leave is not
->   reduced, and nothing changes while the camera pans.
-> - **The price:** strong film grain is 5 to 10% less steady (still steadier than with AMD's shaders); large particles while the camera pans are 6% further from the true image (1.83 against 1.72 of
->   255; AMD's 0.73), and areas a moving object has just uncovered lose 0.2 to 0.3 dB at 1440p and 5K output (at
->   4K and 1080p they do not).
+> **The lossy DLL: small dark things pulse less, and less of an old image is left beside moving objects.**
+> - **Small dark things that move without motion vectors** (dark leaves falling in front of a dark sky): with the camera
+>   still they are shown more fully on the frames that skip the network (75.5% to 77.3% of the leaf; AMD's shaders 79.1%), and the
+>   trace they leave is a little shorter (8.4% to 7.9%; AMD's 5.4%). A change now counts where it lasts two frames, which film grain
+>   rarely does. [Details below](#a-change-that-lasts-two-frames-and-a-tighter-limit-beside-moving-objects-release-dll-2026-10-14).
+>   While the camera pans nothing changes.
+> - **Beside moving objects** the last shader keeps less of their old image: the outline of an object moving in front of a
+>   still camera 1.30 to 1.15 (AMD's 1.07), a still object over fast ground 2.64 to 2.25 (1.62), thin bars fixed on screen in
+>   front of a pan 0.91 to 0.86 (0.82).
+> - **The price:** the railing of the panning test scene flickers up to 3% more, strong film grain is about 5% less
+>   steady with auto exposure off (still steadier than with AMD's shaders), and the outline of an object against a fast pan is
+>   weaker with auto exposure off (3.74 to 4.02; AMD's 3.11) and stronger with it on.
 > - **Speed is unchanged,** and so is the exact DLL.
-> - **In one game so far** (Shadow of the Tomb Raider, 4K Balanced): the picture looked great and the speed is the
->   same as before.
-> - **Tested on** a Radeon RX 7800 XT under Linux: the Linux files in the game and the test rig, the DLLs under Proton
->   in the test rig and the timing kit.
+> - **Not run in a game yet.** Tested on a Radeon RX 7800 XT under Linux: the Linux files in the test rig, the DLLs under
+>   Proton in the test rig and the timing kit.
 > - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
 >   timing for all five, with one chart per upscaler and side-by-side crops. It shows where the
 >   lossy DLL leads (accuracy close to FSR 4, areas a moving object has just uncovered, slowly swaying foliage, where it
@@ -127,10 +124,10 @@ More games and resolutions: [all results](docs/results.md).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/release-radar-dark.svg">
-  <img src="docs/img/release-radar-light.svg" width="760" alt="Two radar charts with ten spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. Still picture and moving background, mean: accuracy (dB): FSR 4.1.1 46.80 dB, the lossy DLL of dll-2026-10-13 46.62 dB, the lossy DLL of dll-2026-10-13.2 46.62 dB. Areas a moving object has just uncovered, mean of a panning and a still camera: accuracy (dB): FSR 4.1.1 33.55 dB, the lossy DLL of dll-2026-10-13 33.84 dB, the lossy DLL of dll-2026-10-13.2 33.85 dB. Old image beside a moving object, mean of seven scenes: error (of 255): FSR 4.1.1 1.92, the lossy DLL of dll-2026-10-13 2.35, the lossy DLL of dll-2026-10-13.2 2.31. Thin bars fixed on screen in front of a panning background, mean of four pans: error where their old image lands (of 255): FSR 4.1.1 0.82, the lossy DLL of dll-2026-10-13 0.91, the lossy DLL of dll-2026-10-13.2 0.91. Tiny fast sparks: share of their brightness shown (%): FSR 4.1.1 83%, the lossy DLL of dll-2026-10-13 74%, the lossy DLL of dll-2026-10-13.2 74%. Leaves swaying without motion vectors, mean of three sway speeds: error (of 255): FSR 4.1.1 11.0, the lossy DLL of dll-2026-10-13 14.5, the lossy DLL of dll-2026-10-13.2 14.5. Still picture with grain of 6, 10 and 15 of 255, mean: change per frame (of 255): FSR 4.1.1 1.69, the lossy DLL of dll-2026-10-13 0.99, the lossy DLL of dll-2026-10-13.2 1.06. Thin wire under a slow pan: how close its brightness is to the true one (%): FSR 4.1.1 90.5%, the lossy DLL of dll-2026-10-13 47.8%, the lossy DLL of dll-2026-10-13.2 69.3%. Still picture: change per frame (of 255): FSR 4.1.1 0.037, the lossy DLL of dll-2026-10-13 0.024, the lossy DLL of dll-2026-10-13.2 0.024. Time per upscale call, mean of 1080p, 1440p and 4K output (ms): FSR 4.1.1 2.69 ms, the lossy DLL of dll-2026-10-13 1.30 ms, the lossy DLL of dll-2026-10-13.2 1.29 ms.">
+  <img src="docs/img/release-radar-light.svg" width="760" alt="Two radar charts with ten spokes each. Left: this release's lossy DLL, with the previous release's as a dashed outline. Right: AMD's FSR 4.1.1, with this release's lossy DLL as a dashed outline. The spokes have the scale of the upscaler comparison's chart: the outer ring is the best of the five upscalers compared there (FSR 4.1.1, the lossy DLL, FSR 3.1, HelixSR, XeSS), and for film grain the best of these three. A larger shape is better. Still picture and moving background, mean: accuracy (dB): FSR 4.1.1 46.80 dB, the lossy DLL of dll-2026-10-13.2 46.62 dB, the lossy DLL of dll-2026-10-14 46.62 dB. Areas a moving object has just uncovered, mean of a panning and a still camera: accuracy (dB): FSR 4.1.1 33.55 dB, the lossy DLL of dll-2026-10-13.2 33.85 dB, the lossy DLL of dll-2026-10-14 33.94 dB. Old image beside a moving object, mean of seven scenes: error (of 255): FSR 4.1.1 1.92, the lossy DLL of dll-2026-10-13.2 2.31, the lossy DLL of dll-2026-10-14 2.27. Thin bars fixed on screen in front of a panning background, mean of four pans: error where their old image lands (of 255): FSR 4.1.1 0.82, the lossy DLL of dll-2026-10-13.2 0.91, the lossy DLL of dll-2026-10-14 0.86. Tiny fast sparks: share of their brightness shown (%): FSR 4.1.1 83%, the lossy DLL of dll-2026-10-13.2 74%, the lossy DLL of dll-2026-10-14 74%. Leaves swaying without motion vectors, mean of three sway speeds: error (of 255): FSR 4.1.1 11.0, the lossy DLL of dll-2026-10-13.2 14.5, the lossy DLL of dll-2026-10-14 14.6. Still picture with grain of 6, 10 and 15 of 255, mean: change per frame (of 255): FSR 4.1.1 1.69, the lossy DLL of dll-2026-10-13.2 1.06, the lossy DLL of dll-2026-10-14 1.09. Thin wire under a slow pan: how close its brightness is to the true one (%): FSR 4.1.1 90.5%, the lossy DLL of dll-2026-10-13.2 69.3%, the lossy DLL of dll-2026-10-14 69.3%. Still picture: change per frame (of 255): FSR 4.1.1 0.037, the lossy DLL of dll-2026-10-13.2 0.024, the lossy DLL of dll-2026-10-14 0.024. Time per upscale call, mean of 1080p, 1440p and 4K output (ms): FSR 4.1.1 2.69 ms, the lossy DLL of dll-2026-10-13.2 1.29 ms, the lossy DLL of dll-2026-10-14 1.29 ms.">
 </picture>
 
-Made-up test scenes on one graphics card, single runs; the speed spoke is the mean over 1080p, 1440p and 4K output, the two releases timed a few hours apart (at 4K: 2.22 and 2.21 ms). [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
+Made-up test scenes on one graphics card, single runs; the speed spoke is the mean over 1080p, 1440p and 4K output from the comparison page's timing, which was made with the previous release (in the timing kit the two read level: 2.21 ms at 4K). [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
 
 > ### Help test it: the timing kit
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-13.2/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-13.2): unpack, double-click
@@ -139,7 +136,7 @@ Made-up test scenes on one graphics card, single runs; the speed spoke is the me
 > the result. **Reports from Windows are in from eleven graphics chips so far; every further
 > card helps.**
 > - **Both kits were updated on 2026-10-13; if you ran an earlier one, please download and run again.**
->   - **Both kits (2026-10-13.2) carry this release's lossy build.** Nothing else changed in them. On Windows the lossy
+>   - **Both kits (2026-10-13.2) carry the lossy build of `dll-2026-10-13.2`,** the release before this one. Nothing else changed in them. On Windows the lossy
 >     DLL uses an image channel in a way that is only checked under Proton so far, so a run there is worth a lot: the
 >     kit shows whether the lossy DLL gives the same picture in both of its runs on your card.
 >   - **Since 2026-10-12.6 the Linux kit also times the lossy build's first shader on a skipped frame,** which
@@ -175,6 +172,7 @@ Made-up test scenes on one graphics card, single runs; the speed spoke is the me
 
 **The technical pages behind this release:**
 
+- [A change that lasts two frames, and a tighter limit beside different motion](research/frame-skip/README.md#a-change-that-lasts-two-frames-and-a-tighter-limit-beside-different-motion-release-dll-2026-10-14): how a skipped frame tells a small thing that has moved in from film grain by asking for the same change on two frames, why the note travels through the first shader, and what a tighter limit beside moving objects costs
 - [Small dark things without motion vectors: a one-sided test](research/frame-skip/README.md#small-dark-things-without-motion-vectors-a-one-sided-test-sb_oneside): why dark leaves falling in front of a dark sky pulsed, what does not tell them from film grain, and what does
 - [A thin wire in a pan: the clamp only beside different motion](research/frame-skip/README.md#a-thin-wire-in-a-pan-the-clamp-only-beside-different-motion-release-dll-2026-10-132): which rule of a skipped frame dimmed a wire far thinner than a rendered pixel, and why it could go
 - [Finer motion for the rules, a memory rule, and two cleared diagonals](research/frame-skip/README.md#finer-motion-for-the-rules-a-memory-rule-and-two-cleared-diagonals-release-dll-2026-10-13): how an old image beside thin things fixed on screen was traced to the network's memory, a spare image channel for finer motion, and a storage fault
@@ -194,85 +192,71 @@ Made-up test scenes on one graphics card, single runs; the speed spoke is the me
 - [Weight folding](research/lossy): the earlier experiment the light folds come from
 - [The timing kits](timing-kit): what the Linux and Windows kits measure, and how to read their summaries
 
-### A thin wire in a camera pan, and small dark things at rest (release `dll-2026-10-13.2`)
+### A change that lasts two frames, and a tighter limit beside moving objects (release `dll-2026-10-14`)
 
 Two changes to the lossy DLL's rules for a frame that skips the network. **The exact DLL is unchanged.**
 
-**1. A thin wire in a camera pan.** Something far thinner than a rendered pixel, such as a distant power line, was shown at about half
-its brightness while the camera pans.
+**1. Small dark things that move without motion vectors.** `dll-2026-10-13.2` halved the pulse of dark leaves falling in front of a dark
+sky with the camera still, but its test still cannot tell the edge of a leaf from film grain in a single frame.
 
-- **The cause.** On a skipped frame in motion, the last shader limits the previous picture to the range of the nine new
-  samples around each pixel, so that an outdated color is not carried on. Those samples miss such a wire on most frames,
-  and the limit then takes part of the wire away. Since `dll-2026-10-11` the limit was applied in proportion to the
-  network's weight, which spared most of a wire at rest but not in a pan.
-- **The change.** In motion the limit now applies only beside things that move differently from the pixel, which is
-  where an outdated color comes from. That trigger has existed since `dll-2026-10-11.2`; the one by weight is gone.
+- **The change.** Every frame now notes, per pixel, whether the new frame lies above or below the old picture by more than a small amount.
+  A skipped frame counts the content as changed where its own difference passes that amount in the same direction as the note of the frame
+  before. Grain differs in a new place on every frame; a leaf that has moved in, or the sky where a leaf has just been, differs on two frames
+  in a row.
+- **The note travels through the first shader.** It is kept in a spare channel of FSR 4's history image, and the first shader of a skipped
+  frame, which reads that image anyway, passes it on, moved with the picture. Reading it back in the last shader directly cost 0.06 ms per
+  skipped frame at 4K; this way it costs nothing measurable.
 
-| A wire half a rendered pixel wide, 4K output, skipped frames; auto exposure off / on | AMD's shaders | `dll-2026-10-13` | This release |
+| Dark leaves falling in front of a dark sky, 4K output, skipped frames; auto exposure off / on | AMD's shaders | `dll-2026-10-13.2` | This release |
 |---|---|---|---|
-| Slow pan: brightness (true 110.7) | 100.2 / 92.4 | 52.9 / 47.8 | 76.7 / 70.2 |
-| Slow pan: change per frame | 7.16 / 6.79 | 10.18 / 7.41 | 5.36 / 4.66 |
-| Slow pan: unevenness along the wire | +9.3 / +9.8 | +15.4 / +12.5 | +6.7 / +6.7 |
-| Fast pan: brightness (true 110.9) | 97.4 / 91.9 | 58.5 / 53.4 | 69.9 / 64.0 |
-| Camera still: brightness | 67.4 / 60.8 | 64.7 / 57.4 | 64.7 / 57.4 |
+| Camera still: share of the leaf's darkness shown | 79.1% / 80.9% | 75.5% / 75.9% | 77.3% / 77.6% |
+| Camera still: left where a leaf was up to 3 frames ago | 5.4% / 5.1% | 8.4% / 9.0% | 7.9% / 8.5% |
+| Slow pan: shown | 69.3% / 70.1% | 70.1% / 71.8% | 70.0% / 71.6% |
+| Fast pan: shown | 72.9% / 74.6% | 60.8% / 62.1% | 60.8% / 62.0% |
+| Tiny slow particles, camera still: left behind | 10.5% / 10.5% | 12.8% / 13.4% | 11.5% / 11.8% |
 
-Single runs on a made-up scene in a test rig.
+On the frames that run the network the leaf is shown as before (81%). While the camera pans nothing changes: the at-rest tests do not
+apply there.
 
-**2. Small dark things that move without motion vectors.** Reported from a game with dark leaves falling in front of a dark sky: with the
-camera still, the leaves pulsed and left a faint trace. In the test rig the lossy DLL showed such a leaf fully on the frames that run the
-network and less of it on the frames between.
+**2. A tighter limit beside moving objects.** On a skipped frame, beside anything that moves differently from the pixel, the last shader
+limits the old picture to the range of the nine new samples around the pixel. That range used to be widened by half of itself; since
+`dll-2026-10-13.2` the limit applies only beside different motion, which made the tight form affordable. Less of an object's old image is
+left beside it:
 
-- **The cause.** Where the picture is at rest, a skipped frame takes nothing from the new frame unless a test finds that the content changed.
-  That test has a threshold that keeps film grain out, and the edge of a small leaf, which covers only part of a pixel, stays below it.
-- **The change.** The threshold is lower where the old picture lies at one end of the range of the new samples around the pixel. A thing that
-  has moved in puts the changed samples all on one side of the old picture; grain scatters them around it, so most grain still does not pass.
-
-| Dark leaves falling in front of a dark sky, 4K output; frames that run the network / skipped frames | AMD's shaders | `dll-2026-10-13` | This release |
+| Error where a thing's old image would land, skipped frames (of 255); auto exposure off / on | AMD's shaders | `dll-2026-10-13.2` | This release |
 |---|---|---|---|
-| Camera still: share of the leaf's darkness shown | 79.3% / 79.1% | 81.2% / 71.2% | 81.1% / 75.5% |
-| Camera still: left where a leaf was up to 3 frames ago | 5.3% / 5.4% | 4.6% / 8.5% | 4.6% / 8.4% |
-| Camera still, auto exposure on: shown | 80.9% / 80.9% | 80.7% / 71.3% | 80.9% / 75.9% |
-| Slow pan: shown | 69.0% / 69.3% | 80.5% / 70.1% | 80.4% / 70.1% |
-| Fast pan: shown | 72.2% / 72.9% | 78.3% / 60.6% | 78.3% / 60.8% |
-
-This is a partial cure. With the camera still the pulse is about halved. The trace a leaf leaves is not reduced, and while the camera pans
-nothing changes: the lowered threshold applies only where the picture is at rest. Whether it is enough in the game it was reported from is not known.
+| An object moving in front of a still camera (8,0): its outline | 1.07 / 1.07 | 1.30 / 1.33 | 1.15 / 1.17 |
+| A still bright object over fast ground at the same depth | 1.62 / 1.61 | 2.64 / 2.43 | 2.25 / 2.09 |
+| Thin bars fixed on screen in front of a pan, mean of four pans (auto exposure off) | 0.82 | 0.91 | 0.86 |
+| Areas a moving object has just uncovered, panning scene at 5K output: accuracy | 39.90 / 40.51 dB | 39.90 / 40.65 dB | 40.55 / 41.17 dB |
 
 **What both changes cost and leave open:**
 
-- **What is left of the wire:** it is still dimmer in a pan than with AMD's shaders. No other rule of the last shader adds to
-  it; our guess, not measured, is that this is what running the network on every other frame costs such a wire.
 - **What got worse:**
-  - Strong film grain is a little less steady (from the second change): change per frame of a still picture with grain of 10 of 255 1.028 to 1.081, with
-    grain of 15 1.608 to 1.773 (AMD's 1.724 and 2.549); with grain of 6 it is level (0.330 to 0.320). With auto exposure on only grain of 6 moves (0.295 to 0.308; AMD's 0.55).
-  - Large particles while the camera pans (from the first change): error 1.72 to 1.83 of 255 (AMD's 0.73); with auto exposure on 1.67 to 1.79 (0.75).
-  - Areas a moving object has just uncovered, in the panning scene at two of four output sizes: 35.01 to 34.85 dB at 1440p (AMD's 34.62) and
-    40.19 to 39.90 dB at 5K (39.90); with auto exposure on 35.70 to 35.59 and 40.77 to 40.65. At 4K they read 35.90 dB before and after
-    (AMD's 34.48), at 1080p 33.50 and 33.58 (32.61).
-- **What got better besides:** large particles with the camera still: error 1.40 to 1.25 of 255 (AMD's 0.66).
-- **Mixed:** the outline of an object moving against a panning background: 4.01 to 3.74 with auto exposure off, 3.90 to
-  4.31 with it on (AMD's 3.11 and 2.90).
-- **Unchanged or within 3%:** fine detail and flat areas at rest, the still picture, the moving scene at every size and from
-  30 to 120 FPS apart from the two rows above, the other ghost scenes, the plate scenes,
-  tiny particles, rain, fireflies, glints, foliage, fades, and the thin bars fixed on screen that `dll-2026-10-13` was about.
-- **Speed is unchanged.** Whole upscaler in the Windows timing kit under Proton on a Radeon RX 7800 XT, one quick run of each kit, average per
-  frame at 4K, `dll-2026-10-13` to this release: 2.21 to 2.22 ms (3.20 to 3.21 on a frame that runs the network, 1.21 to 1.22 on a skipped one;
-  AMD's shaders 4.81). At 1080p: 0.64 to 0.65 ms. The last shader still fits the same number of registers.
-- **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced with the Linux files, one run each: with both changes 18,849 frames,
-  122 FPS and an average upscaler time of 2.01 ms in the overlay; with the first change only 18,875 frames, 122 FPS, 2.00 ms. The picture
-  looked great in both, by eye (`dll-2026-10-13` the same day: 18,916 frames, 122 FPS, 2.01 ms). The three are level. That is one game at one
-  setting, and not a scene picked for thin wires or falling leaves.
-- **Tested on** a Radeon RX 7800 XT under Linux: the Linux files in the game and in the test rig, the DLLs under Proton in the test rig and the
-  timing kit. The lossy DLL has used a spare channel of one of FSR 4's images since `dll-2026-10-13`; one Windows user reports that release
-  working and looking right, and this one changes nothing about the channel.
+  - The railing of the panning test scene changes a little more per frame, at every output size: 1.414 to 1.462 at 1440p (AMD's 1.419), 1.349 to
+    1.367 at 1080p (1.276), 0.961 to 0.969 at 4K; with auto exposure on 1.503 to 1.545 at 1440p (1.483).
+  - Strong film grain is a little less steady with auto exposure off: change per frame of a still picture with grain of 15 of 255 1.773 to 1.867
+    (AMD's 2.549); grain of 6 and 10 are level (0.320 to 0.322, 1.081 to 1.088). With auto exposure on all three are level.
+  - The outline of an object against a fast pan (−16,4 / 8,0): 3.74 to 4.02 with auto exposure off (AMD's 3.11); with it on it improves, 4.31 to
+    4.25 (AMD's 2.90). This row scatters between 3.6 and 4.3 across the settings that were tried.
+  - Isolated bright dots in foliage seen against the sky, camera still: 0.97 to 1.01 per thousand dark pixels with auto exposure off (AMD's 0.57).
+- **What got better besides:** large particles with the camera still, 1.25 to 1.21 of 255 (AMD's 0.66); flat areas at rest with auto exposure on
+  change a little less per frame (0.100 to 0.096); just-uncovered areas at 4K, 35.90 to 36.02 dB (AMD's 34.48).
+- **Unchanged or within 2%:** fine detail and flat areas at rest, the still picture, the moving scene from 30 to 120 FPS, the other ghost and plate
+  scenes, wires, fast sparks, rain, fireflies, glints, swaying foliage and fades. The two changes do not interact: every row that moved, moved as it
+  does with one of them alone.
+- **Speed is unchanged.** Whole upscaler in the Windows timing kit under Proton on a Radeon RX 7800 XT, one quick run with both DLLs side by side,
+  average per frame at 4K: 2.21 ms before and after (3.20 / 3.19 ms on a frame that runs the network, 1.21 / 1.22 ms on a skipped one; AMD's
+  shaders 4.83). At 1440p 1.03 to 1.04 ms, at 1080p 0.67 to 0.66 ms. The last shader still fits the same number of registers.
+- **Not run in a game yet.** Tested on a Radeon RX 7800 XT under Linux: the Linux files in the test rig, the DLLs under Proton in the test rig and
+  the timing kit.
 - **Not checked:**
-  - The wire and leaf scenes at other output sizes than 4K (the scenes of the full check were run at every size).
+  - The leaf scenes at other output sizes than 4K (the scenes of the full check were run at every size).
   - The quality checks with the HDR option set (the DLLs were compared with the Linux files with it).
 - These are single runs on made-up scenes.
-  [Which rule dims the wire, and why the limit by weight could go](research/frame-skip/README.md#a-thin-wire-in-a-pan-the-clamp-only-beside-different-motion-release-dll-2026-10-132);
-  [telling a small moving thing from grain](research/frame-skip/README.md#small-dark-things-without-motion-vectors-a-one-sided-test-sb_oneside).
+  [A change that lasts two frames, and a tighter limit beside different motion](research/frame-skip/README.md#a-change-that-lasts-two-frames-and-a-tighter-limit-beside-different-motion-release-dll-2026-10-14).
 
-Earlier releases, including `dll-2026-10-13` (less of an old image beside thin things fixed on screen), `dll-2026-10-12.2` (cheaper skipped frames, steadier film grain), `dll-2026-10-12` (slowly swaying foliage closer to AMD's), `dll-2026-10-11.7` (rain no longer shown as white dashes), `dll-2026-10-11.6` (no sparkling on glossy surfaces, a speed loss stopped), `dll-2026-10-11.5` (shimmer in bright flat areas with auto exposure on), `dll-2026-10-11.3` (fewer bright dots in foliage), `dll-2026-10-11.2` (a ghost behind bright objects over fast ground), `dll-2026-10-11` (white beads on thin wires, particles closer to AMD's), `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
+Earlier releases, including `dll-2026-10-13.2` (a thin wire in a camera pan brighter, dark falling leaves pulse less), `dll-2026-10-13` (less of an old image beside thin things fixed on screen), `dll-2026-10-12.2` (cheaper skipped frames, steadier film grain), `dll-2026-10-12` (slowly swaying foliage closer to AMD's), `dll-2026-10-11.7` (rain no longer shown as white dashes), `dll-2026-10-11.6` (no sparkling on glossy surfaces, a speed loss stopped), `dll-2026-10-11.5` (shimmer in bright flat areas with auto exposure on), `dll-2026-10-11.3` (fewer bright dots in foliage), `dll-2026-10-11.2` (a ghost behind bright objects over fast ground), `dll-2026-10-11` (white beads on thin wires, particles closer to AMD's), `dll-2026-10-10` (less shimmer on grain and flat areas) and `dll-2026-10-09` (particles on skipped frames, two downloads instead of eight): [changelog](docs/changelog.md).
 
 ## Will it work for me?
 

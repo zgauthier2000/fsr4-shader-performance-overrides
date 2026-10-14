@@ -45,7 +45,8 @@ What it costs
 - Small dark things that move without the game reporting their motion (leaves falling in
   front of a dark sky) are shown less fully on every other frame, so they can seem to pulse,
   and they leave a faint trace. Since dll-2026-10-13.2 the pulse is about half as strong
-  with the camera still; while the camera pans it is as before.
+  with the camera still, and since dll-2026-10-14 a little weaker again, with a slightly
+  shorter trace; while the camera pans it is as before.
 - Strong film grain is passed on more than with the releases before dll-2026-10-11.4.
   Without FSR's auto exposure it stays steadier than with AMD's file; in a game that uses
   auto exposure, strong grain is slightly less steady than with AMD's file.

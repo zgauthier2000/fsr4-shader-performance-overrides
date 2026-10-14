@@ -84,7 +84,7 @@ def sheet(title, sub, rows, name, note=None):
 
 if sys.argv[2:3] == ['spokes']:      # make_comparison_crops.py <dir> spokes : pictures of the radar chart's spokes that the sheets below do not show
     # <dir> is the data folder of docs/img/make_upscaler_comparison.py (the five-upscaler rig), which also holds <scene>_prev/: the lossy build of the
-    # release before (dll-2026-10-13). exact = its fsr4 folders (AMD's shaders give the exact files' picture). Frame 37, a frame the lossy builds skip.
+    # release before (dll-2026-10-13.2). exact = its fsr4 folders (AMD's shaders give the exact files' picture). Frame 37, a frame the lossy builds skip.
     #   wirepan = a thin wire under a slow pan; stillcam = camera still, objects moving (just-uncovered areas); ghost10 = the same scene's strip where the
     #   object's image of a frame ago would land; bars = thin bars fixed on screen, background panning 12 pixels per frame; foliage = leaves swaying
     #   without motion vectors. <scene>_mask.npy marks the part a measure looks at.
@@ -102,8 +102,8 @@ if sys.argv[2:3] == ['spokes']:      # make_comparison_crops.py <dir> spokes : p
         err = {k: float((np.abs(cp(v) - cp(tru)).mean(2)[cp(mk)] if mask else np.abs(cp(v) - cp(tru))).mean() * 255) for k, v in T.items()}
         print(name, 'window', x, y, {k: round(v, 2) for k, v in err.items()})
         part = 'the measured part of this piece' if mask else 'this piece'
-        sheet(title, sub, [('', [('true image', pic(tru)), ("exact files (= AMD's)", pic(T['fsr4'])), ('lossy, release dll-2026-10-13', pic(T['prev'])), ('lossy, this release', pic(T['lossy']))])],
-              name, note=f"Mean error against the true image in {part}, of 255: exact %.2f, dll-2026-10-13 %.2f, this release %.2f." % (err['fsr4'], err['prev'], err['lossy']))
+        sheet(title, sub, [('', [('true image', pic(tru)), ("exact files (= AMD's)", pic(T['fsr4'])), ('lossy, release dll-2026-10-13.2', pic(T['prev'])), ('lossy, this release', pic(T['lossy']))])],
+              name, note=f"Mean error against the true image in {part}, of 255: exact %.2f, dll-2026-10-13.2 %.2f, this release %.2f." % (err['fsr4'], err['prev'], err['lossy']))
     S = 'on a frame that skips the network'
     spoke('wirepan', f'A wire far thinner than a rendered pixel while the camera pans slowly, {S}', 'The piece where the lossy build differs most from the exact files, enlarged 4 times.', 'cmp-wires-pan.png', 150, 90, 4, area=(250, 250, 1950, 1900))
     spoke('stillcam', f'Just uncovered by a moving object, camera still, {S}', 'What the object has uncovered in the last four frames is shown at full brightness, the rest dimmed.\nThe piece where the lossy build differs most from the exact files, enlarged 5 times.', 'cmp-uncovered-still.png', 120, 72, 5, mask='stillcam_mask', shade=True)

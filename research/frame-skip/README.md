@@ -1969,6 +1969,105 @@ great, by eye. That run was made with the wire change only; with both changes a 
 Not measured: a game scene with such wires, the game the leaves were reported from, the wire and leaf scenes at other output sizes than 4K, the quality set with the HDR
 option, and this release on Windows itself.
 
+## A change that lasts two frames, and a tighter limit beside different motion (release `dll-2026-10-14`)
+
+Two changes to the last shader's rules for a skipped frame. Both came out of sweeps on `dll-2026-10-13.2`'s lossy build in the test rig;
+neither changes a frame that runs the network, and the exact files are unchanged.
+
+### A change that lasts two frames (`SB_PERSIST`, `FS_PERSIST`)
+
+`dll-2026-10-13.2` lowered the threshold of the at-rest test for small dark things that move without motion vectors
+([the one-sided test](#small-dark-things-without-motion-vectors-a-one-sided-test-sb_oneside)). That halved the pulse of the dark falling
+leaves, but the test still cannot tell the edge of a leaf from film grain in one frame, and any lower threshold lets grain through.
+
+**The idea.** Grain is new at every pixel on every frame. A leaf that has moved in, or the sky where a leaf has just been, differs from the
+history in the same direction on two frames in a row. So every frame (both kinds) notes, for each pixel, whether the resampled new frame lies
+above the history by more than a small floor (+1), below it (−1), or neither (0). A skipped frame then counts a channel as changed where its
+own difference passes the same floor in the same direction as that note. A pixel that passes twice is almost never grain.
+
+**Where the note is kept.** In the fourth channel of the history image (image 1): AMD's shader writes red there a second time and nothing
+reads it. The first form read it back directly in the skipped frame's last shader, which cost about 0.06 ms per skipped frame at 4K in the
+timing kit's probe: one more scattered image read per pixel. The form that shipped hands the note through the prepass instead. The prepass
+of a skipped frame already reads the history image at nine places around each pixel and writes a per-pixel image that the last shader reads;
+its fourth channel carries the motion code (since `dll-2026-10-13`), but the last shader reads that code only at the first pixel of each 2x2
+cell. The other three pixels now carry the center tap's note instead, moved with the picture as the prepass's history read is, and the first
+pixel of a cell takes its right neighbor's. The extra cost is a select in the prepass and a read the last shader makes from an image it
+already reads.
+
+| 4K output, kit probe, mean of both slot orders | `dll-2026-10-13.2` | Note read back directly | Through the prepass (released) |
+|---|---|---|---|
+| Last shader, skipped frame | 0.58 ms | +0.06 ms | ±0.00 ms |
+| Last shader, frame that runs the network | 0.68 ms | +0.04 ms | +0.01 ms |
+| Prepass | 0.31 ms | | +0.003 ms |
+
+**The floor.** Dark falling leaves with the camera still (4K, skipped frames) against film grain of 10 and 15 of 255 (change per frame of a
+still picture, auto exposure off). Single runs; the release's floor is 0.02.
+
+| Floor | Leaf shown | Trail | Grain 10 | Grain 15 |
+|---|---|---|---|---|
+| AMD's shaders | 79.1% | 5.4% | 1.724 | 2.549 |
+| `dll-2026-10-13.2` (no note) | 75.5% | 8.4% | 1.081 | 1.773 |
+| 0.005 | 78.5% | 7.5% | 1.179 | 1.967 |
+| 0.0075 | 78.3% | 7.6% | 1.150 | 1.949 |
+| 0.01 | 78.2% | 7.7% | 1.134 | 1.931 |
+| 0.015 | 77.8% | 7.7% | 1.124 | 1.892 |
+| **0.02** | **77.3%** | **7.9%** | **1.088** | **1.867** |
+| 0.03 | 76.8% | 8.1% | 1.080 | 1.791 |
+
+At 0.02 grain of 10 stays where it was (1.081 to 1.088) and grain of 15 moves by 5%; lower floors show more of the leaf and cost grain
+faster than they gain. Grain of 6 is level at every floor (0.32). The trail a leaf leaves shrinks only a little: what is left of it is
+where the history is replaced too slowly, not where the test misses. Nothing changes while the camera pans: the at-rest tests do not apply there.
+
+### A tighter limit beside different motion (`SB_CLAMP=0`)
+
+On a skipped frame in motion, beside things that move differently from the pixel, the last shader limits the history to the range of the
+nine new samples around the pixel, widened by `SB_CLAMP` times that range (0.5 since `dll-2026-10-06.4`). Since `dll-2026-10-13.2` the limit
+applies only there ([the clamp only beside different motion](#the-clamp-only-beside-different-motion-sb_clampwedge)), which spares thin wires
+in a pan; that made a tighter limit affordable. A sweep of 0, 0.125, 0.25 and 0.5 improved steadily towards 0; the release takes 0.
+
+| Single runs, auto exposure off / on | AMD's shaders | `dll-2026-10-13.2` (0.5) | This release (0) |
+|---|---|---|---|
+| A moving object over a still background: error at its outline (of 255) | 1.07 / 1.07 | 1.30 / 1.33 | 1.15 / 1.17 |
+| Plate over ground at the same depth: error in its body, skipped frames | 1.62 / 1.61 | 2.64 / 2.43 | 2.25 / 2.09 |
+| Just uncovered, panning scene, 5K | 39.90 / 40.51 dB | 39.90 / 40.65 dB | 40.55 / 41.17 dB |
+| Railing, 1440p panning scene: change per frame | 1.419 / 1.483 | 1.414 / 1.503 | 1.462 / 1.545 |
+| A moving object over a fast background (−16,4 / 8,0): error at its outline | 3.11 / 2.90 | 3.74 / 4.31 | 4.02 / 4.25 |
+
+What it costs: the railing of the panning scene changes a little more per frame at every output size (1080p 1.349 to 1.367, 5K 0.546 to
+0.554, auto exposure off), and the outline over a fast background moves both ways (worse with auto exposure off, better with it on; that row
+scatters between 3.6 and 4.3 across the settings of the sweep). The just-uncovered figure gains less at 4K (35.90 to 36.02 dB, auto exposure on 36.01 to 36.14) and not at 1080p (33.58 to 33.52 dB).
+
+### The two together
+
+The full set of rig checks ran on the two changes together, with auto exposure off and on. Every row that moved by more than 2% from
+`dll-2026-10-13.2` moved as it did with one of the two changes alone, give or take 0.01: they do not interact. Flat areas at rest with auto
+exposure on change a little less per frame (0.100 to 0.096); the rest of the checks, from the still picture to the moving scene at every
+output size and frame rate, wires, fades, rain and fireflies, are level.
+
+| Single runs, 4K unless stated; auto exposure off / on | AMD's shaders | `dll-2026-10-13.2` | This release |
+|---|---|---|---|
+| Dark falling leaves, camera still: shown on skipped frames | 79.1% / 80.9% | 75.5% / 75.9% | 77.3% / 77.6% |
+| The same: left where a leaf was up to 3 frames ago | 5.4% / 5.1% | 8.4% / 9.0% | 7.9% / 8.5% |
+| Dark falling leaves, slow / fast pan: shown on skipped frames (auto exposure off) | 69.3% / 72.9% | 70.1% / 60.8% | 70.0% / 60.8% |
+| Tiny slow particles: left behind | 10.5% / 10.5% | 12.8% / 13.4% | 11.5% / 11.8% |
+| Large particles, camera still: error (of 255) | 0.66 / 0.66 | 1.25 / 1.21 | 1.21 / 1.17 |
+| Grain of 15 of 255: change per frame | 2.549 / 0.484 | 1.773 / 0.517 | 1.867 / 0.519 |
+| Grain of 10 of 255: change per frame | 1.724 / 0.357 | 1.081 / 0.332 | 1.088 / 0.333 |
+| Foliage seen against the sky: isolated bright dots per thousand dark pixels | 0.57 / 0.53 | 0.97 / 0.97 | 1.01 / 0.97 |
+
+In the timing kit the release is level with `dll-2026-10-13.2`: the probe's last shader 0.581 to 0.579 ms on a skipped frame and 0.678 to
+0.687 ms on a frame that runs the network (both within the spread between runs), the prepass 0.308 to 0.311 ms; the last shader still fits
+96 registers and 16 waves. The whole upscaler in the Windows kit under Proton, one quick run: 2.21 ms at 4K before and after; on a skipped
+frame 1.21 to 1.22 ms, and 0.55 to 0.56 ms at 1440p.
+
+**In the DLL.** The DXIL forms of both tools follow the SPIR-V ones; the note is handed on as the 16-bit value it was read as, with no
+narrowing and widening (see [a value narrowed and widened again](#in-the-dll-a-value-narrowed-and-widened-again)). The store rewrite of the
+last shader (`postpass_lds_dxil.py`, and `postpass_lds_vkd3d.py` on Linux) used to require that the history's fourth value repeat red; it now
+keeps a fourth value of its own. The lossy DLLs give the Linux files' output byte for byte in 48 of 48 runs of the test rig under Proton;
+`dll-2026-10-13.2`'s DLLs give 0 of 48 against the same files.
+
+Switches: `SB_PERSIST=off FS_PERSIST=0 SB_CLAMP=0.5` rebuild `dll-2026-10-13.2`'s files and both DLLs' shader sets byte for byte.
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
