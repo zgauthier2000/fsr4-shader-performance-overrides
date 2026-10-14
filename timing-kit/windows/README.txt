@@ -11,7 +11,7 @@ https://github.com/zgauthier2000/fsr4-shader-performance-overrides
 How to run it
   1. Unpack the whole folder somewhere (not inside the zip viewer).
   2. Close games, browsers and video players.
-  3. Double-click fsr4time.exe. It takes about 15 to 20 minutes. Leave the PC alone while it runs.
+  3. Double-click fsr4time.exe. It takes about 20 to 25 minutes. Leave the PC alone while it runs.
   4. At the end it shows a summary, saves it as results-<time>.txt in this folder, and asks
      whether to send it to the project. Only the summary you see is sent. If you send it,
      you can also type a name or nickname for the project's thank-you page; that is
@@ -53,10 +53,18 @@ What it does
                        which part of the exact DLL saves time on your card and which does not;
                        both must give the exact DLL's picture, except on RX 6000 cards, where
                        2b keeps AMD's last shader and so is expected to give AMD's picture.
+  dlls\2c-exact-shared-taps
+                       the exact DLL with a candidate postpass ("shared taps", not in a release
+                       yet) that converts each input pixel once instead of once for every output
+                       pixel next to it. Same picture as 2-exact. It holds more in registers,
+                       so on RX 6000 cards, the RX 7600 and integrated graphics fewer groups run
+                       at once; comparing it with 2-exact shows whether that costs time there.
   dlls\3-lossy         its lossy DLL of release dll-2026-10-14 (faster; the picture is NOT the
                        same as AMD's)
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
-  dlls\5-igpu-lossy    and its lossy one
+  dlls\4b-igpu-exact-shared-taps
+                       the same candidate in the exact DLL for integrated graphics
+  dlls\5-igpu-lossy    the lossy DLL for integrated graphics
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
   these, make a folder for it in dlls\ and put its amd_fidelityfx_upscaler_dx12.dll there. For

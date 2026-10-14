@@ -138,6 +138,11 @@ postpass_section() {
             [ -e "$f" ] || continue
             say "postpass at $2: AMD's against candidate $(basename "$f" .spv)"
             A="$S/$1/amd/postpass.spv" B="$f" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1|bytes differ|DIFFER' | sed "s#$S/##"
+            # the candidate against the shipped rewrite directly, in both orders (the first slot reads a little lower): the
+            # differences these candidates are about are a few hundredths of a millisecond
+            say "postpass at $2: shipped against candidate $(basename "$f" .spv), both orders"
+            A="$S/$1/exact/postpass.spv" B="$f" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
+            A="$f" B="$S/$1/exact/postpass.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
         done
     done
     # (Kits up to 2026-10-11.5 also timed the two forms Mesa can give an int8 dot product on RDNA2 here. No card showed a

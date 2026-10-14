@@ -160,14 +160,19 @@ if t2:
         lines.append(f'second round at 1080p: readings differ by up to {100 * max(dev):.0f}% (typical {100 * sorted(dev)[len(dev) // 2]:.0f}%)')
 
 # the postpass on its own (postpass.txt): several readings of AMD's, the rewrite, the no-stores floor, candidates
-pp, size = {}, None
+pp, size, vs = {}, None, None
+pvs = {}                                             # (candidate, size) -> {'shipped': [...], 'cand': [...]}: the direct readings, both orders
 suspect = []
 for l in read('postpass.txt').split('\n'):
-    h = re.match(r'=== postpass at (\d+x\d+):', l)
+    h = re.match(r'=== postpass at (\d+x\d+):(.*)$', l)
     if h:
         size = SIZES.get(h[1], h[1])
+        vs = re.search(r'shipped against candidate (\S+?),', h[2])
+        vs = vs[1].replace('postpass_', '') if vs else None
     m = re.match(r'round 1\s+\S+?/(amd|exact|probes|candidates)/postpass(\w*)\.spv .*median ([\d.]+) ms', l)
-    if m and size:
+    if m and size and vs:
+        pvs.setdefault((vs, size), {}).setdefault('shipped' if m[1] == 'exact' else 'cand', []).append(float(m[3]))
+    elif m and size:
         kind = {'amd': 'amd', 'exact': 'ours', 'probes': 'nostores'}.get(m[1], 'cand' + m[2])
         pp.setdefault(size, {}).setdefault(kind, []).append(float(m[3]))
 for size in ('1080p', '1440p', '4k'):
@@ -188,6 +193,16 @@ for size in ('1080p', '1440p', '4k'):
     lines.append(f'postpass {size}: ' + '  '.join(parts))
     if 'nostores' in d_ and a > 6 * med(d_['nostores']):
         suspect.append(f'{size}: AMD\'s postpass takes {a / med(d_["nostores"]):.0f} times as long as the same code without its stores')
+for cand in sorted({k[0] for k in pvs}):
+    parts = []
+    for size in ('1080p', '1440p', '4k'):
+        v = pvs.get((cand, size), {})
+        if len(v.get('shipped', [])) == 2 and len(v.get('cand', [])) == 2:
+            a, b = sum(v['shipped']) / 2, sum(v['cand']) / 2
+            parts.append(f'{size} {f(a)}/{f(b)} ({100 * b / a - 100:+.1f}%)')
+        elif v:
+            parts.append(f'{size} incomplete')
+    lines.append(f'postpass shipped/candidate {cand}, both orders: ' + '  '.join(parts))
 if suspect:
     lines.append('SUSPECT RUN: writes to memory are far slower than on other machines with this kind of GPU, and games on such\n  machines do not show it. Readings that involve stores (prepass, postpass, passes 1, 2, 9, 11, 12) may not reflect games. ' + '; '.join(suspect))
 df = {}
