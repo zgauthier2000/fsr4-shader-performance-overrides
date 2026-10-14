@@ -314,4 +314,74 @@ for l in out:
     elif past and ' = phi ' in l:
         l = re.sub(r'%0 \]', f'%{LAST} ]', l)
     res.append(l)
+# FS_PERSIST (prepass; default 1 with FS_ALPHA since release dll-2026-10-14; 0 = as before; as in frameskip.py): on a skipped frame the fourth channel of the
+# image store carries the fourth channel of the center history tap (the fifth of the nine samples of the history image in the skipped frame's copy) instead
+# of the motion code, except at the first pixel of each 2x2 cell. The tap lies in a block of its own; its value reaches the store through phis that carry 0
+# on every path that does not pass it (frameskip.py: a function variable set to 0 first). It is passed on as the half it was read as (no float round trip).
+if mode != 'model' and ALPHA and os.environ.get('FS_PERSIST', '1') == '1':
+    L = '\n'.join(res).split('\n')
+    s0 = next((n for n, l in enumerate(L) if l == 'fs.S:'), None)
+    if s0 is None: die("FS_PERSIST: the skipped frame's copy (fs.S) was not found")
+    fe = next(n for n in range(s0, len(L)) if L[n] == '}')
+    # the motion code as narrowed for the store, and the store
+    ah = [n for n in range(s0, fe) if re.match(r'\s*%fs\.ah = fptrunc float %[\w.]+ to half$', L[n])]
+    if len(ah) != 1: die(f'FS_PERSIST: {len(ah)} motion-code values found, expected 1')
+    st = [n for n in range(s0, fe) if re.match(r'\s*call void @dx\.op\.textureStore\.f16\(.*half %fs\.ah, i8 15\)', L[n])]
+    if len(st) != 1: die(f'FS_PERSIST: {len(st)} stores of the motion code found, expected 1')
+    sm = re.match(r'\s*call void @dx\.op\.textureStore\.f16\(i32 67, %dx\.types\.Handle %[\w.]+, i32 (%[\w.]+), i32 (%[\w.]+), ', L[st[0]])
+    xy = [m for l in L[s0:fe] for m in [re.match(r'\s*%fs\.mxy = or i32 (%[\w.]+), (%[\w.]+)$', l)] if m]
+    if len(xy) != 1 or (xy[0][1], xy[0][2]) != (sm[1], sm[2]): die('FS_PERSIST: ' + 'the pixel position of the store is not the one of the motion code')
+    # the nine history taps of the skipped copy: one handle with nine samples
+    taps = {}
+    for n in range(s0, fe):
+        m = re.match(r'\s*(%[\w.]+) = call %dx\.types\.ResRet\.f16 @dx\.op\.sampleLevel\.f16\(i32 62, %dx\.types\.Handle (%[\w.]+),', L[n])
+        if m: taps.setdefault(m[2], []).append((n, m[1]))
+    nine = [v for v in taps.values() if len(v) == 9]
+    if len(nine) != 1: die(f'FS_PERSIST: {len(nine)} groups of nine taps in the skipped copy, expected 1')
+    tn, tv = nine[0][4]
+    # blocks of the skipped copy, their successors and predecessors
+    blk_at, starts = {}, []
+    cur = 'fs.S'
+    for n in range(s0, fe):
+        m = re.match(r'([A-Za-z_.][\w.]*):', L[n])
+        if m: cur = m[1]; starts.append((cur, n))
+        blk_at[n] = cur
+    succ = {b: [] for b, _ in starts}
+    for n in range(s0, fe):
+        for t in re.findall(r'label %([\w.]+)', L[n]):
+            if t not in succ[blk_at[n]]: succ[blk_at[n]].append(t)
+    pred = {b: [] for b, _ in starts}
+    for b, ts in succ.items():
+        for t in ts:
+            if t in pred: pred[t].append(b)
+    T, S = blk_at[tn], blk_at[st[0]]
+    reach, todo = set(), list(succ[T])
+    while todo:
+        b = todo.pop()
+        if b in reach or b not in succ: continue
+        reach.add(b); todo += succ[b]
+    phis, memo = {}, {}
+    def v_end(b): return '%pp.w' if b == T else v_start(b)
+    def v_start(b):
+        if b not in reach: return '0xH0000'
+        if b in memo: return memo[b]
+        nm = f'%pp.p{len(memo)}'; memo[b] = nm
+        phis[b] = f'  {nm} = phi half ' + ', '.join(f'[ {v_end(p)}, %{p} ]' for p in pred[b])
+        return nm
+    if S == T:
+        if tn > st[0]: die('FS_PERSIST: ' + 'the store lies before the tap in the same block')
+        val = '%pp.w'
+    else:
+        val = v_start(S)
+    out = []
+    lab_line = {n: b for b, n in starts}
+    for n, l in enumerate(L):
+        if n == st[0]:
+            out += [f'  %pp.xy = or i32 {sm[1]}, {sm[2]}', '  %pp.o = and i32 %pp.xy, 1', '  %pp.first = icmp eq i32 %pp.o, 0', f'  %pp.v = select i1 %pp.first, half %fs.ah, half {val}']
+            out.append(l.replace('half %fs.ah, i8 15)', 'half %pp.v, i8 15)')); continue
+        out.append(l)
+        if n in lab_line and lab_line[n] in phis: out.append(phis[lab_line[n]])
+        if n == tn: out.append(f'  %pp.w = extractvalue %dx.types.ResRet.f16 {tv}, 3')
+    res = out
+    sys.stderr.write(f'frameskip_dxil: FS_PERSIST: center tap {tv} in {T}, store in {S}, {len(phis)} phis\n')
 sys.stdout.write('\n'.join(res))

@@ -165,7 +165,7 @@ for i in range(check_line, end):
         halfs = halfs + 1
         continue
     values = [m[6], m[7], m[8], m[9]]
-    nc, ty = (4 if kind == 'f16' else 3), 'float'
+    nc, ty = (4 if kind == 'f16' or (HALF and values[3] != values[0]) else 3), 'float'      # a float texel with a fourth value of its own (the lossy build's flag, skipblend_dxil.py SB_PERSIST) keeps it (4 values per pixel are there with POSTPASS_HALF=1)
     if kind == 'f16':
         src = [re.match(r'fptrunc float (%[\w.]+) to half$', re.sub(r'\s*;.*$', '', defs.get(v, (0, ''))[1])) for v in values]
         if not all(src):
@@ -185,7 +185,9 @@ for i in range(check_line, end):
     t = targets[key]
     if t['kind'] != kind:
         die('stores to one texture differ in type')
-    if kind == 'f32' and values[3] != values[0]:
+    if t['nc'] != nc:
+        die('stores to one texture differ in their fourth value: ' + lines[i].strip()[:100])
+    if kind == 'f32' and not HALF and values[3] != values[0]:
         die('float texel is not (x, y, z, x): ' + lines[i].strip()[:100])
     t['count'] += 1
     if t['direct']:
@@ -285,7 +287,7 @@ for t_i, key in enumerate(sorted(targets, key=lambda k: not targets[k]['direct']
                          f'i32 undef, half {vals[0]}, half {vals[1]}, half {vals[2]}, half {vals[3]}, i8 15)')
         else:
             flush.append(f'  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle {handles[key]}, i32 {px}, i32 {py}, '
-                         f'i32 undef, float {vals[0]}, float {vals[1]}, float {vals[2]}, float {vals[0]}, i8 15)')
+                         f'i32 undef, float {vals[0]}, float {vals[1]}, float {vals[2]}, float {vals[3] if nc == 4 else vals[0]}, i8 15)')
         flush.append(f'  br label %{nxt}')
     flush += ['', f'bb.next{t_i}:']
 flush += ['  ret void']

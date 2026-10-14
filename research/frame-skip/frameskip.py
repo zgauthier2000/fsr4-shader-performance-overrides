@@ -407,4 +407,35 @@ else:
     if not n_st:
         die('no tensor stores found in the prepass')
     sys.stderr.write(f'frameskip: {n_st} tensor stores made conditional, row size {S}\n')
+# FS_PERSIST (prepass; default 1 with FS_ALPHA since release dll-2026-10-14; 0 = as before): on a skipped frame the prepass passes on, in the fourth channel of its
+# per-pixel image, the fourth channel of its center history tap: the flag the postpass stored there on the frame before (skipblend.py SB_PERSIST), moved with
+# the picture. The first pixel of each 2x2 cell keeps the motion code (the only place the postpass reads it); the others carry the flag.
+if mode == 'prepass' and globals().get('ALPHA') and os.environ.get('FS_PERSIST', '1') == '1':
+    L = '\n'.join(out).split('\n')
+    ai = [n for n, l in enumerate(L) if re.match(r'\s*%fs_ah_k = OpFConvert %half (%\w+)$', l)]
+    if len(ai) != 1: die(f'FS_PERSIST: {len(ai)} motion-code values found, expected 1')
+    code = re.match(r'\s*%fs_ah_k = OpFConvert %half (%\w+)$', L[ai[0]])[1]
+    # the skipped copy's nine history taps (renamed with _k), the fifth = the center (measured with a probe in the test rig)
+    taps = [(n, m[1], m[2]) for n, l in enumerate(L) for m in [re.match(r'\s*(%\w+_k) = OpImageSampleExplicitLod %v4float (%\w+) ', l)] if m]
+    img = {}
+    for n, v, si in taps: img.setdefault(si, []).append((n, v))
+    nine = [x for x in img.values() if len(x) == 9]
+    if len(nine) != 1: die(f'FS_PERSIST: {len(nine)} groups of nine taps in the skipped copy, expected 1')
+    tn, tv = nine[0][4]
+    xy = [m for l in L for m in [re.match(r'\s*%fs_mxy_k = OpBitwiseOr %uint (%\w+) (%\w+)$', l)] if m]
+    if len(xy) != 1: die('FS_PERSIST: pixel position not found')
+    px, py = xy[0][1], xy[0][2]
+    out = []; first_lab = False; consts_done = False
+    for n, l in enumerate(L):
+        if not consts_done and re.match(r'\s*%\w+ = OpFunction ', l):
+            out += ['%pp_pf = OpTypePointer Function %float', '%pp_z = OpConstant %float 0', '%pp_u1 = OpConstant %uint 1', '%pp_u0 = OpConstant %uint 0']; consts_done = True
+        if n == ai[0]:
+            out += ['%pp_xy = OpBitwiseOr %uint ' + px + ' ' + py, '%pp_o = OpBitwiseAnd %uint %pp_xy %pp_u1', '%pp_first = OpIEqual %bool %pp_o %pp_u0',
+                    '%pp_fl = OpLoad %float %pp_var', f'%pp_v = OpSelect %float %pp_first {code} %pp_fl']
+            out.append(l.replace(f'OpFConvert %half {code}', 'OpFConvert %half %pp_v')); continue
+        out.append(l)
+        if not first_lab and re.match(r'\s*%\w+ = OpLabel', l):
+            out += ['%pp_var = OpVariable %pp_pf Function', 'OpStore %pp_var %pp_z']; first_lab = True
+        if n == tn:
+            out += [f'%pp_e = OpCompositeExtract %float {tv} 3', 'OpStore %pp_var %pp_e']
 sys.stdout.write('\n'.join(out))

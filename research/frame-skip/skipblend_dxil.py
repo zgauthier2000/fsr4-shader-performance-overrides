@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS, SB_REST (as in skipblend.py);
-# SB_ALPHA (default 1, with MP_ALPHA=rules, the default) and SB_MEMSTILL (default 0.45; "off" for none), both since release dll-2026-10-13
+# SB_ALPHA (default 1, with MP_ALPHA=rules, the default) and SB_MEMSTILL (default 0.45; "off" for none), both since release dll-2026-10-13; SB_PERSIST (default 0.02
+# since release dll-2026-10-14)
 # The DXIL form of skipblend.py (see there): on a skipped frame the weight of the new frame is
 # reduced where the nearest sample is farther from the pixel than it was in the frame the model
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
@@ -12,7 +13,11 @@ for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1')
     if os.environ[_k] == 'off':
         del os.environ[_k]
 K = float(os.environ.get('SB_K', '32'))
-CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0.5'))
+CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0'))      # 0 since release dll-2026-10-14 (0.5 before)
+# SB_PERSIST=<floor> (default 0.02 since release dll-2026-10-14; "off" = as before; as in skipblend.py, with frameskip_dxil.py FS_PERSIST=1): every frame stores in
+# the fourth channel of image 1 a signed flag, +1 where a channel of the resampled new frame lies above the history by more than the floor, -1 below; the prepass
+# moves it with the picture, and a skipped frame counts a channel as changed where its own difference passes the floor in the same direction as that flag.
+_ps = None if os.environ.get('SB_PERSIST', '0.02') == 'off' else [0.0, 0.0, float(os.environ.get('SB_PERSIST', '0.02'))]
 GUARD = os.environ.get('SB_GUARD', '1') == '1'; REL = float(os.environ.get('SB_REL', '0.1')); THR = float(os.environ.get('SB_THR', '0'))
 CONST = None if os.environ.get('SB_CONST') == 'off' else float(os.environ.get('SB_CONST', '0'))   # a further constant factor on skipped frames
 L = sys.stdin.read().split('\n')
@@ -248,6 +253,18 @@ def part(k, curs, h, at):
                            f'  %sb.om{c}{k} = fsub fast float 0.000000e+00, %sb.bd{c}{k}', f'  %sb.oz{c}{k} = fmul fast float %sb.qr{c}{k}, {fl(of)}', f'  %sb.oa{c}{k} = fadd fast float %sb.oz{c}{k}, {fl(ol)}',
                            f'  %sb.ob1{c}{k} = fcmp ogt float %sb.bd{c}{k}, %sb.oa{c}{k}', f'  %sb.ob2{c}{k} = fcmp ogt float %sb.om{c}{k}, %sb.oa{c}{k}', f'  %sb.ob{c}{k} = or i1 %sb.ob1{c}{k}, %sb.ob2{c}{k}', f'  %sb.oc{c}{k} = and i1 %sb.ox{c}{k}, %sb.ob{c}{k}']
                     flags.append(f'%sb.oc{c}{k}')
+                if _ps:      # SB_PERSIST: the flag as the prepass passed it on; %ps.X/Y{k} = the pixel's position, filled in from its store below
+                    if not SAE:
+                        sys.exit('skipblend_dxil: SB_PERSIST needs the prepass image (SB_ALPHA=1)')
+                    if c == 0:
+                        c_ += [f'  %ps.xy{k} = or i32 %ps.X{k}, %ps.Y{k}', f'  %ps.xo{k} = and i32 %ps.xy{k}, 1', f'  %ps.xf{k} = icmp eq i32 %ps.xo{k}, 0', f'  %ps.x1{k} = add i32 %ps.X{k}, 1',
+                               f'  %ps.xx{k} = select i1 %ps.xf{k}, i32 %ps.x1{k}, i32 %ps.X{k}',
+                               f'  %ps.ia{k} = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle {IA}, %dx.types.ResourceProperties {{ i32 2, i32 776 }})',
+                               f'  %ps.qf{k} = call %dx.types.ResRet.f16 @dx.op.textureLoad.f16(i32 66, %dx.types.Handle %ps.ia{k}, i32 0, i32 %ps.xx{k}, i32 %ps.Y{k}, i32 undef, i32 undef, i32 undef, i32 undef)',
+                               f'  %ps.qh{k} = extractvalue %dx.types.ResRet.f16 %ps.qf{k}, 3', f'  %ps.qa{k} = fpext half %ps.qh{k} to float',
+                               f'  %ps.pu{k} = fcmp ogt float %ps.qa{k}, 2.500000e-01', f'  %ps.pd{k} = fcmp olt float %ps.qa{k}, -2.500000e-01']
+                    c_ += [f'  %ps.cu{c}{k} = and i1 %pw.u{c}{k}, %ps.pu{k}', f'  %ps.cd{c}{k} = and i1 %pw.w{c}{k}, %ps.pd{k}', f'  %ps.co{c}{k} = or i1 %ps.cu{c}{k}, %ps.cd{c}{k}']
+                    flags.append(f'%ps.co{c}{k}')
             cur_ = flags[0]
             for i, f_ in enumerate(flags[1:]):
                 c_.append(f'  %sb.qo{c}{k}.{i} = or i1 {cur_}, {f_}'); cur_ = f'%sb.qo{c}{k}.{i}'
@@ -467,7 +484,15 @@ else:
                 if len(pend['sum']) == 3:
                     k = pend['k']; h = pend['hist']; w, a = pend['w'], pend['a']
                     curs = [cur for r, cur in pend['sum']]; sums = [r for r, cur in pend['sum']]
-                    c_ = [f'  br i1 %sb.skip, label %sb.T{k}, label %sb.M{k}', '', f'sb.T{k}:']
+                    c_ = []
+                    if _ps:      # SB_PERSIST: the test with the floor alone, worked out in front of the branch (as in skipblend.py); |d| > t as d > t or -d > t
+                        for c in range(3):
+                            c_ += [f'  %pw.d{c}{k} = fsub fast float {curs[c]}, {h[c]}', f'  %pw.u{c}{k} = fcmp ogt float %pw.d{c}{k}, {fl(_ps[2])}',
+                                   f'  %pw.n{c}{k} = fsub fast float 0.000000e+00, %pw.d{c}{k}', f'  %pw.w{c}{k} = fcmp ogt float %pw.n{c}{k}, {fl(_ps[2])}']
+                        c_ += [f'  %pw.ua{k} = or i1 %pw.u0{k}, %pw.u1{k}', f'  %pw.au{k} = or i1 %pw.ua{k}, %pw.u2{k}', f'  %pw.wa{k} = or i1 %pw.w0{k}, %pw.w1{k}', f'  %pw.ad{k} = or i1 %pw.wa{k}, %pw.w2{k}',
+                               f'  %pw.su{k} = select i1 %pw.au{k}, float 1.000000e+00, float 0.000000e+00', f'  %pw.sd{k} = select i1 %pw.ad{k}, float 1.000000e+00, float 0.000000e+00',
+                               f'  %pw.sv{k} = fsub fast float %pw.su{k}, %pw.sd{k}']
+                    c_ += [f'  br i1 %sb.skip, label %sb.T{k}, label %sb.M{k}', '', f'sb.T{k}:']
                     for ax, pos, dj in (('x', pend['posx'], '%sb.djx'), ('y', pend['posy'], '%sb.djy')):
                         c_ += [f'  %sb.rn{ax}{k} = call float @dx.op.unary.f32(i32 26, float {pos})', f'  %sb.dn{ax}{k} = fsub fast float {pos}, %sb.rn{ax}{k}',
                                f'  %sb.pp{ax}{k} = fadd fast float {pos}, {dj}', f'  %sb.rp{ax}{k} = call float @dx.op.unary.f32(i32 26, float %sb.pp{ax}{k})',
@@ -581,5 +606,18 @@ if MEMSTILL != 'off':
     if k != 4 or '  %ms.still = phi' not in '\n'.join(o2):
         sys.exit(f'skipblend_dxil: {k} stores of the memory image found, expected 4')
     out = o2
+if _ps:
+    # every frame (both kinds) stores the flag in the fourth channel of image 1 (the history: the store of the blended color, whose fourth value AMD fills
+    # with red again), and the skipped-frame test reads the pixel position from that store
+    o2 = []; k_ = 0; pos = {}
+    for l in out:
+        for l_ in l.split('\n'):
+            m = re.match(r'(\s*call void @dx\.op\.textureStore\.f32\(i32 67, %dx\.types\.Handle %[\w.]+, i32 (%[\w.]+), i32 (%[\w.]+), i32 undef, float %sb\.r0(\d), float %sb\.r1\4, float %sb\.r2\4, float )%sb\.r0\4(, i8 15\).*)$', l_)
+            if m:
+                pos[m[4]] = (m[2], m[3]); l_ = f'{m[1]}%pw.sv{m[4]}{m[5]}'; k_ += 1
+            o2.append(l_)
+    if k_ != 4 or sorted(pos) != ['0', '1', '2', '3']:
+        sys.exit(f'skipblend_dxil: SB_PERSIST: {k_} stores of image 1 found, expected 4')
+    out = [re.sub(r'%ps\.([XY])(\d)(?![\w.])', lambda t: pos[t[2]][0 if t[1] == 'X' else 1], l) for l in o2]
 from frameskip_layout import holes_dxil      # step past the cleared diagonals
 sys.stdout.write('\n'.join(holes_dxil('\n'.join(out).split('\n'), S, 0)))

@@ -26,7 +26,7 @@
 # motion from the fourth channel of the prepass's image (frameskip.py FS_ALPHA), one value per 2x2 cell, instead of the 4x4 block's entry.
 # Options (environment): SB_K (default 32), SB_AW (0, 1 or 2: power of a in the factor, default 1),
 # SB_REL (default 0.1), SB_THR (absolute floor of the guard's limit, default 0), SB_GUARD=0 (no guard),
-# SB_CLAMP (default 0.5; "off" for none), SB_BRANCH=0 (the layout of releases dll-2026-10-06.2 and .3:
+# SB_CLAMP (default 0 since release dll-2026-10-14, 0.5 before; "off" for none), SB_BRANCH=0 (the layout of releases dll-2026-10-06.2 and .3:
 # no branch, selects instead; with SB_CLAMP=off it rebuilds release .3's files),
 # SB_UNCOV (default "depth": a pixel whose content was hidden a frame ago behind a nearer surface that moves
 # differently takes the new frame alone, from the motion and depth frameskip.py's prepass stores; "off" for none,
@@ -53,6 +53,13 @@
 #     the samples that changed all on one side of the history, and by less than SB_BRIGHT asks for where it covers only part of the pixel: such leaves were
 #     shown late and left a trace. Film grain scatters the samples around the history, so most of it does not pass; lowering SB_BRIGHTABS instead helps the
 #     leaves as much and costs grain three to four times more. Costs some steadiness in strong grain (10 and 15 of 255: about 5% and 10%).
+#   SB_PERSIST=<floor> (default 0.02 since release dll-2026-10-14; "off" = as before; needs frameskip.py FS_PERSIST=1, its default): a change that lasts
+#     two frames. Every frame stores, in the fourth channel of image 1 (AMD writes red there again and nothing reads it), +1 where a channel of the resampled new
+#     frame lies above the history by more than the floor, -1 below. The prepass of a skipped frame passes that flag on, moved with the picture, in the fourth
+#     channel of its per-pixel image (the first pixel of a 2x2 cell keeps the motion code; it takes its right neighbor's flag), and the skipped frame counts a
+#     channel as changed where its own difference passes the floor in the same direction. Grain passes at random places each frame; a thing that stays (a
+#     leaf that has settled, the place a leaf has left) passes twice. Dark falling leaves with the camera still: shown 75.5% -> 77.3% (AMD's 79.1%), trail
+#     8.4% -> 7.9%; tiny slow particles left behind 12.8% -> 11.5%. Costs a little steadiness in strong grain (15 of 255: about 5%, auto exposure off).
 #   SB_RESTW="t0 t1" (default "0.95 0.995"; "off"): the model's own verdict. On the last frame it ran, the model gave every
 #     pixel a weight for the new frame. Where that weight was above t1, a skipped frame at rest still takes the new frame (as far as
 #     the shimmer correction allows); below t0 the rest rule holds as before; a ramp in between. Particles get such weights from the
@@ -117,7 +124,7 @@ if _band:
     _hi = [float(x) for x in os.environ['SB_RESTW'].split()]; os.environ['SB_RESTW'] = f'{_band[0]} {_band[1]}'
 LEAN = os.environ.get('SB_LEAN', '1') == '1'      # same values, laid out to hold fewer of them at once (fewer registers)
 K = float(os.environ.get('SB_K', '32')); CONST = None if os.environ.get('SB_CONST') == 'off' else os.environ.get('SB_CONST', '0'); CAP = float(os.environ.get('SB_CAP', '1')); AW = int(os.environ.get('SB_AW', '1'))
-CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0.5'))
+CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0'))      # 0 since release dll-2026-10-14 (0.5 before)
 GUARD = os.environ.get('SB_GUARD', '1') == '1'
 L = sys.stdin.read().split('\n')
 S = int(sys.argv[1]) if len(sys.argv) > 1 else next((x for x in (15392, 30752, 61472) if any(f'%uint_{x} = ' in l for l in L)), None) or sys.exit('skipblend: no known row size')
@@ -286,6 +293,29 @@ def SU(v):
     SUC[v] = f'%ss_o{v & 0xffffffff}'; return SUC[v]
 PART = os.environ.get('SB_PART'); PARTABS = float(os.environ.get('SB_PARTABS', '0'))
 _os = [float(x) for x in os.environ['SB_ONESIDE'].split()] if os.environ.get('SB_ONESIDE') else None      # see the head of the file
+# SB_PERSIST=<floor> (see the head of the file): every frame stores in the fourth channel of image 1 a signed flag, +1 where a channel of the resampled new frame lies
+# above the history by more than the floor, -1 below; frameskip.py (FS_PERSIST) passes it on, moved with the picture, through the prepass's per-pixel image
+_ps = None if os.environ.get('SB_PERSIST', '0.02') == 'off' else [0.0, 0.0, float(os.environ.get('SB_PERSIST', '0.02'))]
+PS_EARLY = {}      # per site: the stored flag and the per-channel (upward, downward) tests, worked out in front of the skip branch
+def _ps_pre(k, curs, h):
+    o = []; acc = '%ps_f0'
+    for c in range(3):
+        q = f'%pw_{c}{k}'
+        o += [f'{q}d = OpFSub %float {curs[c]} {h[c]}', f'{q}up = OpFOrdGreaterThan %bool {q}d %ps_l', f'{q}nd = OpFNegate %float {q}d', f'{q}dn = OpFOrdGreaterThan %bool {q}nd %ps_l',
+              f'{q}vu = OpSelect %float {q}up %ps_b{c} %ps_f0', f'{q}vd = OpSelect %float {q}dn %ps_b{c + 3} %ps_f0', f'{q}su = OpFAdd %float {acc} {q}vu', f'{q}sd = OpFAdd %float {q}su {q}vd']; acc = f'{q}sd'
+    o += [f'%pw_au{k}a = OpLogicalOr %bool %pw_0{k}up %pw_1{k}up', f'%pw_au{k} = OpLogicalOr %bool %pw_au{k}a %pw_2{k}up', f'%pw_ad{k}a = OpLogicalOr %bool %pw_0{k}dn %pw_1{k}dn', f'%pw_ad{k} = OpLogicalOr %bool %pw_ad{k}a %pw_2{k}dn',
+          f'%pw_su{k} = OpSelect %float %pw_au{k} %ps_b0 %ps_f0', f'%pw_sd{k} = OpSelect %float %pw_ad{k} %ps_b0 %ps_f0', f'%pw_sv{k} = OpFSub %float %pw_su{k} %pw_sd{k}']
+    PS_EARLY[int(k)] = (f'%pw_sv{k}', [(f'%pw_{c}{k}up', f'%pw_{c}{k}dn') for c in range(3)]); return o
+NM_CURS = {}; NM_W = []      # per site: the three resampled colors; (coordinate x, y, image load chain) of the image-1 writes, in order
+def _nm_scan():
+    for l in L:
+        m = re.match(r'\s*OpImageWrite (%\w+) (%\w+) (%\w+)', l); ld = m and re.match(r'OpLoad (%\w+) (%\w+)', defs.get(m[1], ''))
+        ac = ld and re.match(r'OpAccessChain (%\w+) (%\w+) (%\w+)', defs.get(ld[2], ''))
+        ia = ac and re.match(r'OpIAdd %uint (%\w+) (%uint_1)$', defs.get(ac[3], ''))
+        if ia:
+            cc = re.match(r'OpCompositeConstruct (%\w+) (%\w+) (%\w+)$', defs.get(m[2], '')) or sys.exit('skipblend: unexpected coordinate of the image write')
+            bl = re.match(r'OpLoad %uint (%\w+)', defs.get(ia[1], '')); NM_W.append({'ct': cc[1], 'x': cc[2], 'y': cc[3], 'it': ld[1], 'pt': ac[1], 'tab': ac[2], 'one': ia[2], 'bp': defs[bl[1]]})
+    if len(NM_W) != 4: sys.exit(f'skipblend: {len(NM_W)} writes of image 1 found, expected 4')
 def part(k, curs, h):
     if SAMPLE is not None:      # both tests: the rest rule holds only where neither sees a change; the share of the new frame is the larger of the two
         a = [l.replace(f'%sb_rq{k} ', f'%sb_rqO{k} ').replace(f'%sb_pf{k} ', f'%sb_pfO{k} ') for l in part_old(k, curs, h)]
@@ -328,6 +358,17 @@ def part_old(k, curs, h):
                      f'%sb_ow{c}{k} = OpFMul %float %sb_qr{c}{k} %sb_osa', f'%sb_ox{c}{k} = OpFOrdGreaterThan %bool %sb_ov{c}{k} %sb_ow{c}{k}',
                      f'%sb_oy{c}{k} = OpExtInst %float {GLSL} FAbs %sb_bd{c}{k}', f'%sb_oz{c}{k} = OpFMul %float %sb_qr{c}{k} %sb_osf', f'%sb_oa{c}{k} = OpFAdd %float %sb_oz{c}{k} %sb_osl', f'%sb_ob{c}{k} = OpFOrdGreaterThan %bool %sb_oy{c}{k} %sb_oa{c}{k}',
                      f'%sb_oc{c}{k} = OpLogicalAnd %bool %sb_ox{c}{k} %sb_ob{c}{k}', f'%sb_qo{c}{k} = OpLogicalOr %bool %sb_qoy{c}{k} %sb_oc{c}{k}']
+        if _ps and BRIGHT is not None:      # SB_PERSIST: changed where the test passes now in the same direction as the flag the prepass passed on
+            if not NM_W: _nm_scan()
+            NM_CURS[int(k)] = (curs, h); w = NM_W[int(k)]; q = f'%ps_{c}{k}'
+            assert code[-1].startswith(f'%sb_qo{c}{k} = '); code[-1] = code[-1].replace(f'%sb_qo{c}{k} = ', f'%sb_qop{c}{k} = ', 1)
+            if c == 0:      # the first pixel of a 2x2 cell holds the motion code there: its right neighbor's flag
+                code += [f'%ps_xy{k} = OpBitwiseOr %uint {w["x"]} {w["y"]}', f'%ps_xo{k} = OpBitwiseAnd %uint %ps_xy{k} %ps_i1', f'%ps_xf{k} = OpIEqual %bool %ps_xo{k} %ps_i0',
+                         f'%ps_x1{k} = OpIAdd %uint {w["x"]} %ps_i1', f'%ps_xx{k} = OpSelect %uint %ps_xf{k} %ps_x1{k} {w["x"]}', f'%ps_cq{k} = OpCompositeConstruct %v2uint %ps_xx{k} {w["y"]}',
+                         f'%ps_qf{k} = OpImageFetch %v4float %mp_aim %ps_cq{k} Lod %uint_0', f'%ps_qa{k} = OpCompositeExtract %float %ps_qf{k} 3',
+                         f'%ps_pu{k} = OpFOrdGreaterThan %bool %ps_qa{k} %ps_q', f'%ps_pd{k} = OpFOrdLessThan %bool %ps_qa{k} %ps_mq']
+            up, dn = PS_EARLY[int(k)][1][c]
+            code += [f'{q}cu = OpLogicalAnd %bool {up} %ps_pu{k}', f'{q}cd = OpLogicalAnd %bool {dn} %ps_pd{k}', f'{q}co = OpLogicalOr %bool {q}cu {q}cd', f'%sb_qo{c}{k} = OpLogicalOr %bool %sb_qop{c}{k} {q}co']
         outs.append(f'%sb_qo{c}{k}')
     if FULLW is not None and BRIGHT is not None:
         code += [f'%sb_fm{k} = OpExtInst %float {GLSL} NMax %sb_ff0{k} %sb_ff1{k}', f'%sb_fn{k} = OpExtInst %float {GLSL} NMax %sb_fm{k} %sb_ff2{k}', f'%sb_pf{k} = OpSelect %float %sm_rest %sb_fn{k} %sm_fz']
@@ -640,7 +681,7 @@ else:
                 if len(pend['sum']) == 3:
                     k = pend['k']; h = pend['hist']; w, a = pend['w'], pend['a']
                     curs = [cur for r, cur in pend['sum']]; sums = [r for r, cur in pend['sum']]
-                    code = ['OpSelectionMerge %sb_M' + str(k) + ' None', f'OpBranchConditional %sb_skip %sb_T{k} %sb_M{k}', f'%sb_T{k} = OpLabel']
+                    code = (_ps_pre(k, curs, h) if _ps else []) + ['OpSelectionMerge %sb_M' + str(k) + ' None', f'OpBranchConditional %sb_skip %sb_T{k} %sb_M{k}', f'%sb_T{k} = OpLabel']
                     pcode = part(k, curs, h) if REST else []      # (worked out here so that the lean layout can put its first part at the head of the branch)
                     code += NEAR_FIRST.get(k, [])
                     # the weight of the new frame, corrected for where its samples fall now
@@ -769,6 +810,24 @@ if MEMSTILL != 'off':
         if re.match(r'\s*%sm_rin = ', l): o2.append(f'%ms_in = OpLogicalAnd %bool %sm_c0u {anyid}')
         if re.match(r'\s*%sm_rest = OpPhi', l): o2.append(f'%ms_still = OpPhi %bool %ms_in {rest[3]} %sm_false {rest[5]}')
     if k != 4: sys.exit(f'skipblend: {k} stores of the memory image found, expected 4')
+    text = '\n'.join(o2)
+if _ps:      # every frame (both kinds) stores the flag for the next frame in the fourth channel of image 1 (AMD writes red there again; nothing reads it)
+    if len(NM_CURS) != 4: sys.exit(f'skipblend: SB_PERSIST placed at {len(NM_CURS)} sites, expected 4')
+    L2 = text.split('\n'); d2 = {m[1]: m[2] for l in L2 for m in [re.match(r'\s*(%\w+) = (.*)$', l)] if m}; o2 = []; k = 0; first = True; tab = NM_W[0]['tab']
+    for l in L2:
+        if l.strip() == f'OpDecorate {tab} NonReadable': continue
+        if 'OpCapability StorageImageWriteWithoutFormat' in l: o2 += [l, '               OpCapability StorageImageReadWithoutFormat']; continue
+        if '= OpFunction' in l and first:
+            o2 += [f'%ps_a = OpConstant %float {_ps[0]}', f'%ps_f = OpConstant %float {_ps[1]}', f'%ps_l = OpConstant %float {_ps[2]}', '%ps_f0 = OpConstant %float 0', '%ps_f63 = OpConstant %float 63', '%ps_q = OpConstant %float 0.25', '%ps_mq = OpConstant %float -0.25']
+            o2 += [f'%ps_i{i} = OpConstant %uint {i}' for i in range(6)] + [f'%ps_b{i} = OpConstant %float {float(1 << i)}' for i in range(6)]; first = False
+        m = re.match(r'\s*OpImageWrite (%\w+) (%\w+) (%\w+)', l); ld = m and re.match(r'OpLoad %\w+ (%\w+)', d2.get(m[1], ''))
+        ac = ld and re.match(r'OpAccessChain %\w+ (%\w+) (%\w+)', d2.get(ld[1], ''))
+        if ac and ac[1] == tab and re.match(r'OpIAdd %uint %\w+ %uint_1$', d2.get(ac[2], '')):
+            cc = re.match(r'OpCompositeConstruct %v4float (%\w+) (%\w+) (%\w+) (%\w+)$', d2.get(m[3], '')) or sys.exit('skipblend: unexpected value written to image 1')
+            o2 += [f'%pw_v{k} = OpCompositeConstruct %v4float {cc[1]} {cc[2]} {cc[3]} {PS_EARLY[k][0]}', f'               OpImageWrite {m[1]} {m[2]} %pw_v{k}']
+            k += 1; continue
+        o2.append(l)
+    if k != 4: sys.exit(f'skipblend: {k} stores of image 1 rewritten, expected 4')
     text = '\n'.join(o2)
 from frameskip_layout import holes_spv_module      # step past the cleared diagonals
 sys.stdout.write('\n'.join(holes_spv_module(text.split('\n'), 'sm', S, 0)))

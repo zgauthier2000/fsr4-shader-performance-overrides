@@ -264,7 +264,8 @@ for number, line in enumerate(lines):
             die(f'unexpected coordinate of {s}')
         x, y = coord[1], coord[2]
         texel = defs[m[3]]
-        if texel.startswith('OpFConvert %v4float'):
+        _t = re.match(r'OpCompositeConstruct %v4float (%\w+) (%\w+) (%\w+) (%\w+)$', texel)
+        if texel.startswith('OpFConvert %v4float') or (_t and _t[4] != _t[1]):      # a texel with a fourth value of its own (the lossy build's flag, skipblend.py SB_PERSIST) is stored as four values
             kind = 'xyzw'
             comps = []
             for c in range(4):
@@ -297,7 +298,7 @@ for number, line in enumerate(lines):
     out.append(line)
 
 kinds = sorted(k for _, k in slots.values())
-if kinds != ['xyzw', 'xyzx', 'xyzx'] or sorted(stores.values()) != [4, 4, 4] or not flushed:
+if kinds not in (['xyzw', 'xyzx', 'xyzx'], ['xyzw', 'xyzw', 'xyzx']) or sorted(stores.values()) != [4, 4, 4] or not flushed:
     die(f'expected 4 stores to each of three images, found {sorted(stores.values())} {kinds}')
 seen = set()
 fv = [pad + f'{nm} = OpVariable {pt} Function' for nm, pt in fvars if not (nm in seen or seen.add(nm))]
