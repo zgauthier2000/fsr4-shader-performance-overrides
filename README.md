@@ -93,9 +93,12 @@ More games and resolutions: [all results](docs/results.md).
 
 > [!NOTE]
 > **Two settings where you will see little or no gain:**
-> - **FSR's debug view (the overlay that draws FSR's watermark and debug panels).** The faster shaders do not cover the
+> - **FSR's debug view (the debug panels FSR can draw over the picture).** The faster shaders do not cover the
 >   debug versions of FSR's last pass, so AMD's own slow one runs and most of the gain is gone. Switch the debug view off
->   to measure or to play.
+>   to measure or to play. FSR's version watermark (the white text in the top left corner, switched on with the
+>   `MLSR-WATERMARK` environment variable) is not the debug view: with it on, every DLL keeps its full gain and frame
+>   skip works as usual (measured under Proton on an RX 7800 XT). It shows the DLL's version name, such as
+>   `4.1.1-CYBOMAN`, so it also tells you which build is running.
 > - **Ultra Performance mode.** The lossy DLL does not skip frames there, so it is no faster than the exact DLL. The
 >   exact DLL's own gain still applies.
 
