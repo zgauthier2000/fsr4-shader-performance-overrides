@@ -101,6 +101,8 @@ More games and resolutions: [all results](docs/results.md).
 
 ## New in this release
 
+**[See what this release changes against the previous one, in pictures and figures →](docs/releases/dll-2026-10-14.md)**
+
 > [!TIP]
 > **The lossy DLL: slow fades keep up better, small dark things pulse less, and less of an old image is left beside moving objects.**
 > - **Slow fades** (a scene growing lighter or darker with nothing moving): bright flat areas followed them up to half a frame later than with
@@ -124,9 +126,9 @@ More games and resolutions: [all results](docs/results.md).
 >   lossy DLL leads (accuracy close to FSR 4, areas a moving object has just uncovered, slowly swaying foliage, where it
 >   is second only to FSR 4) and where it is weakest (fast-moving foliage, the brightness of a thin wire in a camera pan).
 
-<img src="docs/img/release-example.png" width="100%" alt="A white object stays still at the same depth as ground that moves down by 100 pixels per frame; the piece of ground just below it, enlarged 3 times, in the true image, with AMD's shaders, with the lossy DLL of dll-2026-10-13.2 and with that of dll-2026-10-14, on frame 39, a frame the lossy DLL skips the network for. Below each picture, its error against the true image amplified 16 times. With dll-2026-10-13.2 two bright rectangles of leftover image show where the object's dark notches used to be (error 2.53 of 255 where the object's old image lands); with dll-2026-10-14 they are much fainter (1.91), close to AMD's shaders (1.87).">
+<a href="docs/releases/dll-2026-10-14.md"><img src="docs/img/rel-2026-10-14-plate.png" width="100%" alt="A white object stays still at the same depth as ground that moves down by 100 pixels per frame; the piece of ground just below it, enlarged 3 times, in the true image, with AMD's shaders, with the lossy DLL of dll-2026-10-13.2 and with that of dll-2026-10-14, on frame 39, a frame the lossy DLL skips the network for. Below each picture, its error against the true image amplified 16 times. With dll-2026-10-13.2 two bright rectangles of leftover image show where the object's dark notches used to be (error 2.53 of 255 where the object's old image lands); with dll-2026-10-14 they are much fainter (1.91), close to AMD's shaders (1.87)."></a>
 
-The change in this release that shows most in a single picture: a still object over ground that moves fast. One frame (39) of a made-up test scene, single run; the error under each picture is measured where the object's old image lands, on this frame. Over the whole scene it goes from 2.64 to 2.26 (AMD's 1.62). The fades gain more in figures, but a lag does not show in a still picture. [The comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
+The change in this release that shows most in a single picture: a still object over ground that moves fast. One frame (39) of a made-up test scene, single run; the error under each picture is measured where the object's old image lands, on this frame. Over the whole scene it goes from 2.64 to 2.26 (AMD's 1.62). The fades gain more in figures, but a lag does not show in a still picture: [the release page](docs/releases/dll-2026-10-14.md) has them as a chart, with every change, what got worse and what was not checked. [The upscaler comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
 
 > ### Help test it: the timing kit
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-13.2/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-13.2): unpack, double-click

@@ -1,0 +1,21 @@
+{"tag": "dll-2026-10-14",
+ "sheets": [
+  {"name": "plate", "scene": "platesd", "frame": 39, "x": 2300, "y": 820, "w": 240, "h": 140, "zoom": 3, "err": true,
+   "title": "A still bright object over ground that moves fast",
+   "sub": "The ground moves down by 100 pixels per frame; the white object stays where it is, at the same depth. Frame 39, a frame the lossy DLL skips the network for.\nThe piece just below the object, enlarged 3 times; under each picture, the error against the true image in the area where the object's old image lands (of 255).",
+   "cap": {"truth": "true image", "amd": "AMD's shaders: 1.87", "rel": "lossy, dll-2026-10-13.2: 2.53", "new": "lossy, dll-2026-10-14: 1.91"}},
+  {"name": "leaves", "scene": "leaf", "frame": 37, "x": 1372, "y": 758, "w": 160, "h": 100, "zoom": 5, "bright": 3.0,
+   "title": "Dark leaves falling in front of a dark sky, camera still",
+   "sub": "Frame 37, a frame the lossy DLL skips the network for. The 160 x 100 pixel piece with the most leaf pixels, enlarged 5 times and brightened 3 times;\nunder each picture, the share of the leaves' darkness shown in this piece.",
+   "cap": {"truth": "true image", "amd": "AMD's shaders: 82.1%", "rel": "lossy, dll-2026-10-13.2: 78.6%", "new": "lossy, dll-2026-10-14: 80.0%"}},
+  {"name": "outline", "scene": "ghost", "frame": 35, "x": 2420, "y": 300, "w": 160, "h": 100, "zoom": 5, "err": true,
+   "title": "An object moving sideways in front of a still camera",
+   "sub": "The object moves 8 pixels per frame. Frame 35, a frame the lossy DLL skips the network for. The piece with the most of the area where the object's outline\nof a frame ago lands, enlarged 5 times; under each picture, the error against the true image in that area of the piece (of 255).",
+   "cap": {"truth": "true image", "amd": "AMD's shaders: 1.32", "rel": "lossy, dll-2026-10-13.2: 1.72", "new": "lossy, dll-2026-10-14: 1.38"}}
+ ],
+ "fades": {"frames": [32, 33, 34, 35, 36, 37, 38, 39], "kinds": ["r", "s", "r", "s", "r", "s", "r", "s"], "range": [0.3, 1.6], "ticks": [0.4, 0.8, 1.2, 1.6],
+   "labels": {"amd": "AMD's shaders", "rel": "lossy, dll-2026-10-13.2", "new": "lossy, dll-2026-10-14"},
+   "charts": [
+    {"title": "Brightening: frames behind", "amd": [0.70, 0.64, 0.58, 0.53, 0.49, 0.47, 0.45, 0.45], "rel": [0.93, 1.47, 0.77, 1.28, 0.65, 1.15, 0.58, 1.11], "new": [0.92, 0.93, 0.78, 0.81, 0.66, 0.70, 0.57, 0.63]},
+    {"title": "Darkening: frames behind", "amd": [0.70, 0.68, 0.67, 0.65, 0.64, 0.64, 0.62, 0.60], "rel": [0.81, 1.18, 0.74, 1.11, 0.68, 1.05, 0.60, 0.96], "new": [0.75, 0.79, 0.70, 0.78, 0.66, 0.74, 0.61, 0.69]}]}
+}
