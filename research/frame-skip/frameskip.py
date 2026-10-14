@@ -438,4 +438,26 @@ if mode == 'prepass' and globals().get('ALPHA') and os.environ.get('FS_PERSIST',
             out += ['%pp_var = OpVariable %pp_pf Function', 'OpStore %pp_var %pp_z']; first_lab = True
         if n == tn:
             out += [f'%pp_e = OpCompositeExtract %float {tv} 3', 'OpStore %pp_var %pp_e']
+    # FS_PERSISTRUN (default 1 with FS_PERSIST since release dll-2026-10-14; 0 = as before): the copy that runs on frames with the network does the same at every
+    # pixel (there is no motion code on those frames), so the note reaches every frame (skipblend.py SB_FADE)
+    if os.environ.get('FS_PERSISTRUN', '1') == '1':
+        L = '\n'.join(out).split('\n')
+        cs = [(n, m) for n, l in enumerate(L) for m in [re.match(r'(\s*)(%\w+) = OpCompositeConstruct %v4half (%\w+) (%\w+) (%\w+) \3$', l)] if m and not m[2].endswith('_k')]
+        if len(cs) != 1: die(f'FS_PERSISTRUN: {len(cs)} image values of the form (r, g, b, r) in the run copy, expected 1')
+        cn, cm = cs[0]
+        taps = [(n, m[1], m[2]) for n, l in enumerate(L) for m in [re.match(r'\s*(%\w+) = OpImageSampleExplicitLod %v4float (%\w+) ', l)] if m and not m[1].endswith('_k')]
+        img = {}
+        for n, v, si in taps: img.setdefault(si, []).append((n, v))
+        nine = [x for x in img.values() if len(x) == 9]
+        if len(nine) != 1: die(f'FS_PERSISTRUN: {len(nine)} groups of nine taps in the run copy, expected 1')
+        tn, tv = nine[0][4]
+        out = []
+        for n, l in enumerate(L):
+            if n == cn:
+                out += ['%pr_fl = OpLoad %float %pr_var', '%pr_h = OpFConvert %half %pr_fl', f'{cm[1]}{cm[2]} = OpCompositeConstruct %v4half {cm[3]} {cm[4]} {cm[5]} %pr_h']; continue
+            out.append(l)
+            if l.strip() == '%pp_var = OpVariable %pp_pf Function': out.append('%pr_var = OpVariable %pp_pf Function')
+            if l.strip() == 'OpStore %pp_var %pp_z': out.append('OpStore %pr_var %pp_z')
+            if n == tn:
+                out += [f'%pr_e = OpCompositeExtract %float {tv} 3', 'OpStore %pr_var %pr_e']
 sys.stdout.write('\n'.join(out))

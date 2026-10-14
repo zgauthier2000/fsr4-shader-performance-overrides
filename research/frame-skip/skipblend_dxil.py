@@ -18,6 +18,12 @@ CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('S
 # the fourth channel of image 1 a signed flag, +1 where a channel of the resampled new frame lies above the history by more than the floor, -1 below; the prepass
 # moves it with the picture, and a skipped frame counts a channel as changed where its own difference passes the floor in the same direction as that flag.
 _ps = None if os.environ.get('SB_PERSIST', '0.02') == 'off' else [0.0, 0.0, float(os.environ.get('SB_PERSIST', '0.02'))]
+# SB_FADE="t floor" (default "0.0015 0.0001" since release dll-2026-10-14; "off" = as before; as in skipblend.py, with frameskip_dxil.py FS_PERSISTRUN=1) and SB_FADEU
+# (default 0.01): the stored value carries +-4 where this frame's green drift passes t x history + floor; the dead band is released on every frame where the drift
+# repeats the note's direction (note read from the prepass's image at the dead band); on a skipped frame the pixel takes the network's weight as it is where the
+# green drift lies in the band t x history + floor < |d| < SB_FADEU x history.
+_fd = None if (os.environ.get('SB_FADE', '0.0015 0.0001') == 'off' or not _ps) else [float(x) for x in os.environ.get('SB_FADE', '0.0015 0.0001').split()]
+FU = float(os.environ.get('SB_FADEU', '0.01'))
 GUARD = os.environ.get('SB_GUARD', '1') == '1'; REL = float(os.environ.get('SB_REL', '0.1')); THR = float(os.environ.get('SB_THR', '0'))
 CONST = None if os.environ.get('SB_CONST') == 'off' else float(os.environ.get('SB_CONST', '0'))   # a further constant factor on skipped frames
 L = sys.stdin.read().split('\n')
@@ -262,7 +268,10 @@ def part(k, curs, h, at):
                                f'  %ps.ia{k} = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle {IA}, %dx.types.ResourceProperties {{ i32 2, i32 776 }})',
                                f'  %ps.qf{k} = call %dx.types.ResRet.f16 @dx.op.textureLoad.f16(i32 66, %dx.types.Handle %ps.ia{k}, i32 0, i32 %ps.xx{k}, i32 %ps.Y{k}, i32 undef, i32 undef, i32 undef, i32 undef)',
                                f'  %ps.qh{k} = extractvalue %dx.types.ResRet.f16 %ps.qf{k}, 3', f'  %ps.qa{k} = fpext half %ps.qh{k} to float',
-                               f'  %ps.pu{k} = fcmp ogt float %ps.qa{k}, 2.500000e-01', f'  %ps.pd{k} = fcmp olt float %ps.qa{k}, -2.500000e-01']
+                               *([f'  %ps.pu{k} = fcmp ogt float %ps.qa{k}, 2.500000e-01', f'  %ps.pd{k} = fcmp olt float %ps.qa{k}, -2.500000e-01'] if not _fd else
+                                 [f'  %fd.pu{k} = fcmp ogt float %ps.qa{k}, 2.000000e+00', f'  %fd.pd{k} = fcmp olt float %ps.qa{k}, -2.000000e+00', f'  %fd.o1{k} = select i1 %fd.pd{k}, float -4.000000e+00, float 0.000000e+00',
+                                  f'  %fd.o{k} = select i1 %fd.pu{k}, float 4.000000e+00, float %fd.o1{k}', f'  %fd.sv{k} = fsub fast float %ps.qa{k}, %fd.o{k}',
+                                  f'  %ps.pu{k} = fcmp ogt float %fd.sv{k}, 2.500000e-01', f'  %ps.pd{k} = fcmp olt float %fd.sv{k}, -2.500000e-01'])]
                     c_ += [f'  %ps.cu{c}{k} = and i1 %pw.u{c}{k}, %ps.pu{k}', f'  %ps.cd{c}{k} = and i1 %pw.w{c}{k}, %ps.pd{k}', f'  %ps.co{c}{k} = or i1 %ps.cu{c}{k}, %ps.cd{c}{k}']
                     flags.append(f'%ps.co{c}{k}')
             cur_ = flags[0]
@@ -339,6 +348,15 @@ def part(k, curs, h, at):
     c_ += [(f'  %sb.pf{k} = fmul fast float {t}g, 1.000000e+00' if os.environ.get('SB_SAMPLEALL') == '1' else f'  %sb.pf{k} = select i1 %sm.rest, float {t}g, float 0.000000e+00'),
            f'  {t}z = fcmp ole float %sb.pf{k}, 0.000000e+00', f'  %sb.rqS{k} = and i1 %sm.rest, {t}z', f'  %sb.rq{k} = and i1 %sb.rqO{k}, %sb.rqS{k}']
     return c_
+
+
+def band3(k, w, curs, h):
+    """SB_FADE mode 3 with the band: where the green drift now lies in t x h + floor < |d| < u x h, in the note's direction, the network's weight as it is"""
+    return [f'  %f3.bt{k} = fmul fast float {h[1]}, {fl(_fd[0])}', f'  %f3.b{k} = fadd fast float %f3.bt{k}, {fl(_fd[1])}', f'  %f3.B{k} = fmul fast float {h[1]}, {fl(FU)}',
+            f'  %f3.d{k} = fsub fast float {curs[1]}, {h[1]}', f'  %f3.n{k} = fsub fast float 0.000000e+00, %f3.d{k}', f'  %f3.u1{k} = fcmp ogt float %f3.d{k}, %f3.b{k}',
+            f'  %f3.u2{k} = fcmp olt float %f3.d{k}, %f3.B{k}', f'  %f3.w1{k} = fcmp ogt float %f3.n{k}, %f3.b{k}', f'  %f3.w2{k} = fcmp olt float %f3.n{k}, %f3.B{k}',
+            f'  %f3.uu{k} = and i1 %f3.u1{k}, %f3.u2{k}', f'  %f3.ww{k} = and i1 %f3.w1{k}, %f3.w2{k}', f'  %f3.cu{k} = and i1 %f3.uu{k}, %fd.pu{k}', f'  %f3.cd{k} = and i1 %f3.ww{k}, %fd.pd{k}',
+            f'  %f3.c{k} = or i1 %f3.cu{k}, %f3.cd{k}', f'  %f3.wm{k} = fmul fast float {w}, 1.000000e+00', f'  %sb.wqF{k} = select i1 %f3.c{k}, float %f3.wm{k}, float %sb.wq{k}']
 
 
 def samples(cur):
@@ -492,6 +510,10 @@ else:
                         c_ += [f'  %pw.ua{k} = or i1 %pw.u0{k}, %pw.u1{k}', f'  %pw.au{k} = or i1 %pw.ua{k}, %pw.u2{k}', f'  %pw.wa{k} = or i1 %pw.w0{k}, %pw.w1{k}', f'  %pw.ad{k} = or i1 %pw.wa{k}, %pw.w2{k}',
                                f'  %pw.su{k} = select i1 %pw.au{k}, float 1.000000e+00, float 0.000000e+00', f'  %pw.sd{k} = select i1 %pw.ad{k}, float 1.000000e+00, float 0.000000e+00',
                                f'  %pw.sv{k} = fsub fast float %pw.su{k}, %pw.sd{k}']
+                        if _fd:      # the green drift's sign, +-4 on top of the flag
+                            c_ += [f'  %fd.tm{k} = fmul fast float {h[1]}, {fl(_fd[0])}', f'  %fd.t{k} = fadd fast float %fd.tm{k}, {fl(_fd[1])}', f'  %fd.u{k} = fcmp ogt float %pw.d1{k}, %fd.t{k}',
+                                   f'  %fd.n{k} = fsub fast float 0.000000e+00, %pw.d1{k}', f'  %fd.w{k} = fcmp ogt float %fd.n{k}, %fd.t{k}', f'  %fd.uv{k} = select i1 %fd.u{k}, float 4.000000e+00, float 0.000000e+00',
+                                   f'  %fd.wv{k} = select i1 %fd.w{k}, float 4.000000e+00, float 0.000000e+00', f'  %fd.v1{k} = fadd fast float %pw.sv{k}, %fd.uv{k}', f'  %fd.v{k} = fsub fast float %fd.v1{k}, %fd.wv{k}']
                     c_ += [f'  br i1 %sb.skip, label %sb.T{k}, label %sb.M{k}', '', f'sb.T{k}:']
                     for ax, pos, dj in (('x', pend['posx'], '%sb.djx'), ('y', pend['posy'], '%sb.djy')):
                         c_ += [f'  %sb.rn{ax}{k} = call float @dx.op.unary.f32(i32 26, float {pos})', f'  %sb.dn{ax}{k} = fsub fast float {pos}, %sb.rn{ax}{k}',
@@ -508,7 +530,7 @@ else:
                            (part(k, curs, h, n) + ([f'  %sr.a{k} = fsub fast float {w}, {fl(_rw[0])}', f'  %sr.q{k} = fdiv fast float %sr.a{k}, {fl(max(_rw[1] - _rw[0], 1e-6))}', FMAX(f'%sr.u{k}', f'%sr.q{k}', '0.000000e+00'), *([FMIN(f'%sr.r{k}', f'%sr.u{k}', '1.000000e+00'), f'  %sr.w{k} = fmul fast float %sb.wm{k}, %sr.r{k}'] if not _band else
                              [FMIN(f'%sr.rr{k}', f'%sr.u{k}', '1.000000e+00'), f'  %bd.a{k} = fsub fast float {w}, {fl(_band[2])}', f'  %bd.b{k} = fdiv fast float %bd.a{k}, {fl(max(_band[3] - _band[2], 1e-6))}', FMAX(f'%bd.bb{k}', f'%bd.b{k}', '0.000000e+00'), FMIN(f'%bd.c{k}', f'%bd.bb{k}', '1.000000e+00'),
                               f'  %bd.e{k} = fsub fast float 1.000000e+00, %bd.c{k}', f'  %bd.f{k} = fmul fast float %sr.rr{k}, %bd.e{k}', f'  %bd.g{k} = fsub fast float {w}, {fl(_hi[0])}', f'  %bd.i{k} = fdiv fast float %bd.g{k}, {fl(max(_hi[1] - _hi[0], 1e-6))}',
-                              FMAX(f'%bd.ii{k}', f'%bd.i{k}', '0.000000e+00'), FMIN(f'%bd.j{k}', f'%bd.ii{k}', '1.000000e+00'), FMAX(f'%sr.r{k}', f'%bd.f{k}', f'%bd.j{k}'), f'  %sr.w{k} = fmul fast float {w}, %sr.r{k}']), f'  %sb.wq{k} = select i1 %sb.rq{k}, float %sr.w{k}, float %sb.wm{k}'] if _rw else [f'  %sb.wq{k} = select i1 %sb.rq{k}, float 0.000000e+00, float %sb.wm{k}']) + [FMAX(f'%sb.wqq{k}', f'%sb.wq{k}', f'%sb.pf{k}'),
+                              FMAX(f'%bd.ii{k}', f'%bd.i{k}', '0.000000e+00'), FMIN(f'%bd.j{k}', f'%bd.ii{k}', '1.000000e+00'), FMAX(f'%sr.r{k}', f'%bd.f{k}', f'%bd.j{k}'), f'  %sr.w{k} = fmul fast float {w}, %sr.r{k}']), f'  %sb.wq{k} = select i1 %sb.rq{k}, float %sr.w{k}, float %sb.wm{k}'] if _rw else [f'  %sb.wq{k} = select i1 %sb.rq{k}, float 0.000000e+00, float %sb.wm{k}']) + (band3(k, w, curs, h) if _fd else []) + [FMAX(f'%sb.wqq{k}', f'%sb.wqF{k}' if _fd else f'%sb.wq{k}', f'%sb.pf{k}'),
                                                    f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wqq{k}, float 1.000000e+00)'])
                            if REST else [f'  %sb.wn{k} = call float @dx.op.binary.f32(i32 36, float %sb.wm{k}, float 1.000000e+00)']) + [
                            f'  %sb.an{k} = fsub fast float 1.000000e+00, %sb.wn{k}']
@@ -561,7 +583,16 @@ else:
                         for c in range(3):
                             c_ += [f'  %db.d{c}{k} = fsub fast float %sb.rp{c}{k}, {h[c]}', f'  %db.t{c}{k} = fmul fast float {h[c]}, {fl(DEAD / 1024)}', f'  %db.n{c}{k} = fsub fast float -0.000000e+00, %db.t{c}{k}',
                                    f'  %db.u{c}{k} = fcmp fast olt float %db.d{c}{k}, %db.t{c}{k}', f'  %db.v{c}{k} = fcmp fast ogt float %db.d{c}{k}, %db.n{c}{k}', f'  %db.l{c}{k} = and i1 %db.u{c}{k}, %db.v{c}{k}']
-                        c_ += [f'  %db.p{k} = and i1 %db.l0{k}, %db.l1{k}', f'  %db.q{k} = and i1 %db.p{k}, %db.l2{k}'] + [f'  %sb.r{c}{k} = select i1 %db.q{k}, float {h[c]}, float %sb.rp{c}{k}' for c in range(3)]
+                        if _fd:      # the note as the prepass passed it on (every frame; the first pixel of a cell on a skipped frame: its right neighbor's), and this frame's drift
+                            c_ += [f'  %fr.xy{k} = or i32 %ps.X{k}, %ps.Y{k}', f'  %fr.xo{k} = and i32 %fr.xy{k}, 1', f'  %fr.xf{k} = icmp eq i32 %fr.xo{k}, 0', f'  %fr.fs{k} = and i1 %fr.xf{k}, %sb.skip',
+                                   f'  %fr.x1{k} = add i32 %ps.X{k}, 1', f'  %fr.xx{k} = select i1 %fr.fs{k}, i32 %fr.x1{k}, i32 %ps.X{k}',
+                                   f'  %fr.ia{k} = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle {IA}, %dx.types.ResourceProperties {{ i32 2, i32 776 }})',
+                                   f'  %fr.qf{k} = call %dx.types.ResRet.f16 @dx.op.textureLoad.f16(i32 66, %dx.types.Handle %fr.ia{k}, i32 0, i32 %fr.xx{k}, i32 %ps.Y{k}, i32 undef, i32 undef, i32 undef, i32 undef)',
+                                   f'  %fr.qh{k} = extractvalue %dx.types.ResRet.f16 %fr.qf{k}, 3', f'  %fr.qa{k} = fpext half %fr.qh{k} to float',
+                                   f'  %fr.pu{k} = fcmp ogt float %fr.qa{k}, 2.000000e+00', f'  %fr.pd{k} = fcmp olt float %fr.qa{k}, -2.000000e+00',
+                                   f'  %fr.nu{k} = fcmp ogt float %fd.v{k}, 2.000000e+00', f'  %fr.nd{k} = fcmp olt float %fd.v{k}, -2.000000e+00',
+                                   f'  %fr.cu{k} = and i1 %fr.nu{k}, %fr.pu{k}', f'  %fr.cd{k} = and i1 %fr.nd{k}, %fr.pd{k}', f'  %fr.c{k} = or i1 %fr.cu{k}, %fr.cd{k}', f'  %fd.nk{k} = xor i1 %fr.c{k}, true']
+                        c_ += [f'  %db.p{k} = and i1 %db.l0{k}, %db.l1{k}'] + ([f'  %db.qa{k} = and i1 %db.p{k}, %db.l2{k}', f'  %db.q{k} = and i1 %db.qa{k}, %fd.nk{k}'] if _fd else [f'  %db.q{k} = and i1 %db.p{k}, %db.l2{k}']) + [f'  %sb.r{c}{k} = select i1 %db.q{k}, float {h[c]}, float %sb.rp{c}{k}' for c in range(3)]
                     out += c_
                     for c in range(3):
                         ren[sums[c]] = f'%sb.r{c}{k}'
@@ -614,7 +645,7 @@ if _ps:
         for l_ in l.split('\n'):
             m = re.match(r'(\s*call void @dx\.op\.textureStore\.f32\(i32 67, %dx\.types\.Handle %[\w.]+, i32 (%[\w.]+), i32 (%[\w.]+), i32 undef, float %sb\.r0(\d), float %sb\.r1\4, float %sb\.r2\4, float )%sb\.r0\4(, i8 15\).*)$', l_)
             if m:
-                pos[m[4]] = (m[2], m[3]); l_ = f'{m[1]}%pw.sv{m[4]}{m[5]}'; k_ += 1
+                pos[m[4]] = (m[2], m[3]); l_ = f'{m[1]}%' + ('fd.v' if _fd else 'pw.sv') + f'{m[4]}{m[5]}'; k_ += 1
             o2.append(l_)
     if k_ != 4 or sorted(pos) != ['0', '1', '2', '3']:
         sys.exit(f'skipblend_dxil: SB_PERSIST: {k_} stores of image 1 found, expected 4')

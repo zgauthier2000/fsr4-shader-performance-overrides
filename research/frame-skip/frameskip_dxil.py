@@ -384,4 +384,61 @@ if mode != 'model' and ALPHA and os.environ.get('FS_PERSIST', '1') == '1':
         if n == tn: out.append(f'  %pp.w = extractvalue %dx.types.ResRet.f16 {tv}, 3')
     res = out
     sys.stderr.write(f'frameskip_dxil: FS_PERSIST: center tap {tv} in {T}, store in {S}, {len(phis)} phis\n')
+# FS_PERSISTRUN (prepass; default 1 with FS_PERSIST since release dll-2026-10-14; 0 = as before; as in frameskip.py): the copy that runs on frames with the network
+# (fs.R ... fs.S) writes the center history tap's fourth channel in place of AMD's repeated red, at every pixel, carried to the store through phis as above.
+if mode != 'model' and ALPHA and os.environ.get('FS_PERSIST', '1') == '1' and os.environ.get('FS_PERSISTRUN', '1') == '1':
+    L = '\n'.join(res).split('\n')
+    r0 = next((n for n, l in enumerate(L) if l == 'fs.R:'), None); r1 = next((n for n, l in enumerate(L) if l == 'fs.S:'), None)
+    if r0 is None or r1 is None or r1 < r0: die('FS_PERSISTRUN: the run copy (fs.R ... fs.S) was not found')
+    ST = re.compile(r'(\s*call void @dx\.op\.textureStore\.f16\(i32 67, %dx\.types\.Handle %[\w.]+, i32 %[\w.]+, i32 %[\w.]+, i32 undef, half (%[\w.]+), half %[\w.]+, half %[\w.]+, half )(%[\w.]+)(, i8 15\).*)$')
+    st = [n for n in range(r0, r1) for m in [ST.match(L[n])] if m and m[2] == m[3]]
+    if len(st) != 1: die(f'FS_PERSISTRUN: {len(st)} image stores of the form (r, g, b, r) in the run copy, expected 1')
+    taps = {}
+    for n in range(r0, r1):
+        m = re.match(r'\s*(%[\w.]+) = call %dx\.types\.ResRet\.f16 @dx\.op\.sampleLevel\.f16\(i32 62, %dx\.types\.Handle (%[\w.]+),', L[n])
+        if m: taps.setdefault(m[2], []).append((n, m[1]))
+    nine = [v for v in taps.values() if len(v) == 9]
+    if len(nine) != 1: die(f'FS_PERSISTRUN: {len(nine)} groups of nine taps in the run copy, expected 1')
+    tn, tv = nine[0][4]
+    blk_at, starts = {}, []; cur = 'fs.R'
+    for n in range(r0, r1):
+        m = re.match(r'; <label>:(\d+)', L[n]) or re.match(r'([A-Za-z_.][\w.]*):', L[n])
+        if m: cur = m[1]; starts.append((cur, n))
+        blk_at[n] = cur
+    succ = {b: [] for b, _ in starts}
+    for n in range(r0, r1):
+        for t in re.findall(r'label %([\w.]+)', L[n]):
+            if t not in succ[blk_at[n]]: succ[blk_at[n]].append(t)
+    pred = {b: [] for b, _ in starts}
+    for b, ts in succ.items():
+        for t in ts:
+            if t in pred: pred[t].append(b)
+    T, S = blk_at[tn], blk_at[st[0]]
+    reach, todo = set(), list(succ[T])
+    while todo:
+        b = todo.pop()
+        if b in reach or b not in succ: continue
+        reach.add(b); todo += succ[b]
+    phis, memo = {}, {}
+    def v_end(b): return '%pr.w' if b == T else v_start(b)
+    def v_start(b):
+        if b not in reach: return '0xH0000'
+        if b in memo: return memo[b]
+        nm = f'%pr.p{len(memo)}'; memo[b] = nm
+        phis[b] = f'  {nm} = phi half ' + ', '.join(f'[ {v_end(p)}, %{p} ]' for p in pred[b])
+        return nm
+    if S == T:
+        if tn > st[0]: die('FS_PERSISTRUN: the store lies before the tap in the same block')
+        val = '%pr.w'
+    else:
+        val = v_start(S)
+    out = []; lab_line = {n: b for b, n in starts}
+    for n, l in enumerate(L):
+        if n == st[0]:
+            m = ST.match(l); out.append(f'{m[1]}{val}{m[4]}'); continue
+        out.append(l)
+        if n in lab_line and lab_line[n] in phis: out.append(phis[lab_line[n]])
+        if n == tn: out.append(f'  %pr.w = extractvalue %dx.types.ResRet.f16 {tv}, 3')
+    res = out
+    sys.stderr.write(f'frameskip_dxil: FS_PERSISTRUN: center tap {tv} in {T}, store in {S}, {len(phis)} phis\n')
 sys.stdout.write('\n'.join(res))

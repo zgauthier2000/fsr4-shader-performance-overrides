@@ -296,6 +296,13 @@ _os = [float(x) for x in os.environ['SB_ONESIDE'].split()] if os.environ.get('SB
 # SB_PERSIST=<floor> (see the head of the file): every frame stores in the fourth channel of image 1 a signed flag, +1 where a channel of the resampled new frame lies
 # above the history by more than the floor, -1 below; frameskip.py (FS_PERSIST) passes it on, moved with the picture, through the prepass's per-pixel image
 _ps = None if os.environ.get('SB_PERSIST', '0.02') == 'off' else [0.0, 0.0, float(os.environ.get('SB_PERSIST', '0.02'))]
+# SB_FADE="t floor" (default "0.0015 0.0001" since release dll-2026-10-14; "off" = as before; with SB_PERSIST and frameskip.py FS_PERSISTRUN=1): a slow fade.
+# The stored value also carries +-4 where this frame's green channel lies above / below the history by more than t x history + floor; the prepass passes it on
+# on every frame. Where this frame's drift repeats the note's direction, the dead band does not hold the history (every frame); on a skipped frame, where the green
+# drift now lies in a band, t x history + floor < |d| < SB_FADEU x history (default 0.01), in the note's direction, the pixel takes the network's weight as it is
+# (not squared, no at-rest rule). See the head of the file.
+_fd = None if (os.environ.get('SB_FADE', '0.0015 0.0001') == 'off' or not _ps) else [float(x) for x in os.environ.get('SB_FADE', '0.0015 0.0001').split()]
+FU = float(os.environ.get('SB_FADEU', '0.01'))
 PS_EARLY = {}      # per site: the stored flag and the per-channel (upward, downward) tests, worked out in front of the skip branch
 def _ps_pre(k, curs, h):
     o = []; acc = '%ps_f0'
@@ -305,7 +312,14 @@ def _ps_pre(k, curs, h):
               f'{q}vu = OpSelect %float {q}up %ps_b{c} %ps_f0', f'{q}vd = OpSelect %float {q}dn %ps_b{c + 3} %ps_f0', f'{q}su = OpFAdd %float {acc} {q}vu', f'{q}sd = OpFAdd %float {q}su {q}vd']; acc = f'{q}sd'
     o += [f'%pw_au{k}a = OpLogicalOr %bool %pw_0{k}up %pw_1{k}up', f'%pw_au{k} = OpLogicalOr %bool %pw_au{k}a %pw_2{k}up', f'%pw_ad{k}a = OpLogicalOr %bool %pw_0{k}dn %pw_1{k}dn', f'%pw_ad{k} = OpLogicalOr %bool %pw_ad{k}a %pw_2{k}dn',
           f'%pw_su{k} = OpSelect %float %pw_au{k} %ps_b0 %ps_f0', f'%pw_sd{k} = OpSelect %float %pw_ad{k} %ps_b0 %ps_f0', f'%pw_sv{k} = OpFSub %float %pw_su{k} %pw_sd{k}']
-    PS_EARLY[int(k)] = (f'%pw_sv{k}', [(f'%pw_{c}{k}up', f'%pw_{c}{k}dn') for c in range(3)]); return o
+    acc = f'%pw_sv{k}'
+    if _fd:      # SB_FADE: the green drift's sign, +-4 on top of the flag
+        o += [f'%fd_s{k} = OpCopyObject %float %pw_1{k}d', f'%fd_h{k} = OpCopyObject %float {h[1]}',
+              f'%fd_tm{k} = OpFMul %float %fd_h{k} %fd_tc', f'%fd_t{k} = OpFAdd %float %fd_tm{k} %fd_fl', f'%fd_u{k} = OpFOrdGreaterThan %bool %fd_s{k} %fd_t{k}', f'%fd_n{k} = OpFNegate %float %fd_s{k}',
+              f'%fd_w{k} = OpFOrdGreaterThan %bool %fd_n{k} %fd_t{k}', f'%fd_uv{k} = OpSelect %float %fd_u{k} %ps_b2 %ps_f0', f'%fd_wv{k} = OpSelect %float %fd_w{k} %ps_b2 %ps_f0',
+              f'%fd_v1{k} = OpFAdd %float %pw_sv{k} %fd_uv{k}', f'%fd_v{k} = OpFSub %float %fd_v1{k} %fd_wv{k}']; acc = f'%fd_v{k}'
+        if not NM_W: _nm_scan()
+    PS_EARLY[int(k)] = (acc, [(f'%pw_{c}{k}up', f'%pw_{c}{k}dn') for c in range(3)]); return o
 NM_CURS = {}; NM_W = []      # per site: the three resampled colors; (coordinate x, y, image load chain) of the image-1 writes, in order
 def _nm_scan():
     for l in L:
@@ -366,7 +380,12 @@ def part_old(k, curs, h):
                 code += [f'%ps_xy{k} = OpBitwiseOr %uint {w["x"]} {w["y"]}', f'%ps_xo{k} = OpBitwiseAnd %uint %ps_xy{k} %ps_i1', f'%ps_xf{k} = OpIEqual %bool %ps_xo{k} %ps_i0',
                          f'%ps_x1{k} = OpIAdd %uint {w["x"]} %ps_i1', f'%ps_xx{k} = OpSelect %uint %ps_xf{k} %ps_x1{k} {w["x"]}', f'%ps_cq{k} = OpCompositeConstruct %v2uint %ps_xx{k} {w["y"]}',
                          f'%ps_qf{k} = OpImageFetch %v4float %mp_aim %ps_cq{k} Lod %uint_0', f'%ps_qa{k} = OpCompositeExtract %float %ps_qf{k} 3',
-                         f'%ps_pu{k} = OpFOrdGreaterThan %bool %ps_qa{k} %ps_q', f'%ps_pd{k} = OpFOrdLessThan %bool %ps_qa{k} %ps_mq']
+                         *((f'%ps_pu{k} = OpFOrdGreaterThan %bool %ps_qa{k} %ps_q', f'%ps_pd{k} = OpFOrdLessThan %bool %ps_qa{k} %ps_mq') if not _fd else
+                           (f'%fd_pu{k} = OpFOrdGreaterThan %bool %ps_qa{k} %fd_two', f'%fd_pd{k} = OpFOrdLessThan %bool %ps_qa{k} %fd_mtwo', f'%fd_o1{k} = OpSelect %float %fd_pd{k} %fd_mfour %ps_f0',
+                            f'%fd_o{k} = OpSelect %float %fd_pu{k} %ps_b2 %fd_o1{k}', f'%fd_sv{k} = OpFSub %float %ps_qa{k} %fd_o{k}',
+                            f'%ps_pu{k} = OpFOrdGreaterThan %bool %fd_sv{k} %ps_q', f'%ps_pd{k} = OpFOrdLessThan %bool %fd_sv{k} %ps_mq',
+                            f'%fd_vu{k} = OpFOrdGreaterThan %bool %fd_v{k} %fd_two', f'%fd_vd{k} = OpFOrdLessThan %bool %fd_v{k} %fd_mtwo',
+                            f'%fd_cu{k} = OpLogicalAnd %bool %fd_vu{k} %fd_pu{k}', f'%fd_cd{k} = OpLogicalAnd %bool %fd_vd{k} %fd_pd{k}', f'%fd_c{k} = OpLogicalOr %bool %fd_cu{k} %fd_cd{k}'))]
             up, dn = PS_EARLY[int(k)][1][c]
             code += [f'{q}cu = OpLogicalAnd %bool {up} %ps_pu{k}', f'{q}cd = OpLogicalAnd %bool {dn} %ps_pd{k}', f'{q}co = OpLogicalOr %bool {q}cu {q}cd', f'%sb_qo{c}{k} = OpLogicalOr %bool %sb_qop{c}{k} {q}co']
         outs.append(f'%sb_qo{c}{k}')
@@ -698,7 +717,13 @@ else:
                              f'%sb_ao{k} = OpFMul %float %sb_ap{k} %sb_om{k}', f'%sb_gw{k} = OpFSub %float %sb_one %sb_ao{k}',
                              f'%sb_wm{k} = OpFMul %float {w} %sb_gw{k}'] + (
                              # where the picture does not move, a skipped frame takes nothing from the new frame
-                             (pcode + ([f'%sr_a{k} = OpFSub %float {w} %sr_t0', f'%sr_q{k} = OpFDiv %float %sr_a{k} %sr_d', f'%sr_r{k} = OpExtInst %float {GLSL} NClamp %sr_q{k} %sm_fz %sb_one', f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}', f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sr_w{k} %sb_wm{k}'] if _rw else [f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sm_fz %sb_wm{k}']) + [f'%sb_wqq{k} = OpExtInst %float {GLSL} NMax %sb_wq{k} %sb_pf{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wqq{k} %sb_one'])
+                             (pcode + ([f'%sr_a{k} = OpFSub %float {w} %sr_t0', f'%sr_q{k} = OpFDiv %float %sr_a{k} %sr_d', f'%sr_r{k} = OpExtInst %float {GLSL} NClamp %sr_q{k} %sm_fz %sb_one', f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}', f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sr_w{k} %sb_wm{k}'] if _rw else [f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sm_fz %sb_wm{k}']) + ([f'%sb_wqq{k} = OpExtInst %float {GLSL} NMax %sb_wq{k} %sb_pf{k}'] if not _fd else
+                              [f'%f3_wm{k} = OpFMul %float {w} %sb_one',      # SB_FADE: the network's weight as it is, where the green drift lies in the band in the note's direction
+                               f'%f3bt{k} = OpFMul %float {h[1]} %fd_tc', f'%f3b{k} = OpFAdd %float %f3bt{k} %fd_fl', f'%f3B{k} = OpFMul %float {h[1]} %fd_up', f'%f3d{k} = OpFSub %float {curs[1]} {h[1]}',
+                               f'%f3n{k} = OpFNegate %float %f3d{k}', f'%f3u1{k} = OpFOrdGreaterThan %bool %f3d{k} %f3b{k}', f'%f3u2{k} = OpFOrdLessThan %bool %f3d{k} %f3B{k}',
+                               f'%f3w1{k} = OpFOrdGreaterThan %bool %f3n{k} %f3b{k}', f'%f3w2{k} = OpFOrdLessThan %bool %f3n{k} %f3B{k}', f'%f3uu{k} = OpLogicalAnd %bool %f3u1{k} %f3u2{k}',
+                               f'%f3ww{k} = OpLogicalAnd %bool %f3w1{k} %f3w2{k}', f'%f3cu{k} = OpLogicalAnd %bool %f3uu{k} %fd_pu{k}', f'%f3cd{k} = OpLogicalAnd %bool %f3ww{k} %fd_pd{k}',
+                               f'%f3c{k} = OpLogicalOr %bool %f3cu{k} %f3cd{k}', f'%sb_wqF{k} = OpSelect %float %f3c{k} %f3_wm{k} %sb_wq{k}', f'%sb_wqq{k} = OpExtInst %float {GLSL} NMax %sb_wqF{k} %sb_pf{k}']) + [f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wqq{k} %sb_one'])
                              if REST else [f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wm{k} %sb_one']) + [
                              f'%sb_an{k} = OpFSub %float %sb_one %sb_wn{k}']
                     # the mix again with the corrected weights: the shader's own nine lines, renamed
@@ -756,7 +781,17 @@ else:
                         for c in range(3):
                             code += [f'%db_d{c}{k} = OpFSub %float %sb_rp{c}{k} {h[c]}', f'%db_a{c}{k} = OpExtInst %float {GLSL} FAbs %db_d{c}{k}', f'%db_t{c}{k} = OpFMul %float {h[c]} %db_rel',
                                      f'%db_l{c}{k} = OpFOrdLessThan %bool %db_a{c}{k} %db_t{c}{k}']
-                        code += [f'%db_p{k} = OpLogicalAnd %bool %db_l0{k} %db_l1{k}', f'%db_q{k} = OpLogicalAnd %bool %db_p{k} %db_l2{k}'] + [
+                        if _fd:      # SB_FADE: the note as the prepass passed it on (every frame; on a skipped frame the first pixel of a cell reads its right neighbor's), and
+                            # this frame's drift read back from the value it stores: where both agree, the dead band does not hold
+                            w_ = NM_W[int(k)]
+                            code += [f'%fr_xy{k} = OpBitwiseOr %uint {w_["x"]} {w_["y"]}', f'%fr_xo{k} = OpBitwiseAnd %uint %fr_xy{k} %ps_i1', f'%fr_xf{k} = OpIEqual %bool %fr_xo{k} %ps_i0',
+                                     f'%fr_fs{k} = OpLogicalAnd %bool %fr_xf{k} %sb_skip', f'%fr_x1{k} = OpIAdd %uint {w_["x"]} %ps_i1', f'%fr_xx{k} = OpSelect %uint %fr_fs{k} %fr_x1{k} {w_["x"]}',
+                                     f'%fr_cq{k} = OpCompositeConstruct %v2uint %fr_xx{k} {w_["y"]}', f'%fr_qf{k} = OpImageFetch %v4float %mp_aim %fr_cq{k} Lod %uint_0', f'%fr_qa{k} = OpCompositeExtract %float %fr_qf{k} 3',
+                                     f'%fr_pu{k} = OpFOrdGreaterThan %bool %fr_qa{k} %fd_two', f'%fr_pd{k} = OpFOrdLessThan %bool %fr_qa{k} %fd_mtwo',
+                                     f'%fr_nu{k} = OpFOrdGreaterThan %bool %fd_v{k} %fd_two', f'%fr_nd{k} = OpFOrdLessThan %bool %fd_v{k} %fd_mtwo',
+                                     f'%fr_cu{k} = OpLogicalAnd %bool %fr_nu{k} %fr_pu{k}', f'%fr_cd{k} = OpLogicalAnd %bool %fr_nd{k} %fr_pd{k}', f'%fr_c{k} = OpLogicalOr %bool %fr_cu{k} %fr_cd{k}',
+                                     f'%fd_nk{k} = OpLogicalNot %bool %fr_c{k}']
+                        code += [f'%db_p{k} = OpLogicalAnd %bool %db_l0{k} %db_l1{k}'] + ([f'%db_qa{k} = OpLogicalAnd %bool %db_p{k} %db_l2{k}', f'%db_q{k} = OpLogicalAnd %bool %db_qa{k} %fd_nk{k}'] if _fd else [f'%db_q{k} = OpLogicalAnd %bool %db_p{k} %db_l2{k}']) + [
                                  f'%sb_r{c}{k} = OpSelect %float %db_q{k} {h[c]} %sb_rp{c}{k}' for c in range(3)]
                     out += code
                     for c in range(3):
@@ -820,6 +855,7 @@ if _ps:      # every frame (both kinds) stores the flag for the next frame in th
         if '= OpFunction' in l and first:
             o2 += [f'%ps_a = OpConstant %float {_ps[0]}', f'%ps_f = OpConstant %float {_ps[1]}', f'%ps_l = OpConstant %float {_ps[2]}', '%ps_f0 = OpConstant %float 0', '%ps_f63 = OpConstant %float 63', '%ps_q = OpConstant %float 0.25', '%ps_mq = OpConstant %float -0.25']
             o2 += [f'%ps_i{i} = OpConstant %uint {i}' for i in range(6)] + [f'%ps_b{i} = OpConstant %float {float(1 << i)}' for i in range(6)]; first = False
+            if _fd: o2 += [f'%fd_up = OpConstant %float {FU}', f'%fd_tc = OpConstant %float {_fd[0]}', f'%fd_fl = OpConstant %float {_fd[1]}', '%fd_two = OpConstant %float 2', '%fd_mtwo = OpConstant %float -2', '%fd_mfour = OpConstant %float -4', '%fd_false = OpConstantFalse %bool']
         m = re.match(r'\s*OpImageWrite (%\w+) (%\w+) (%\w+)', l); ld = m and re.match(r'OpLoad %\w+ (%\w+)', d2.get(m[1], ''))
         ac = ld and re.match(r'OpAccessChain %\w+ (%\w+) (%\w+)', d2.get(ld[1], ''))
         if ac and ac[1] == tab and re.match(r'OpIAdd %uint %\w+ %uint_1$', d2.get(ac[2], '')):
