@@ -104,7 +104,7 @@ More games and resolutions: [all results](docs/results.md).
 > [!TIP]
 > **The lossy DLL: slow fades keep up better, small dark things pulse less, and less of an old image is left beside moving objects.**
 > - **Slow fades** (a scene growing lighter or darker with nothing moving): bright flat areas followed them up to half a frame later than with
->   AMD's shaders. Now brightening is 0.64 frames behind where it was 0.88 (AMD's 0.46), darkening 0.68 where it was 0.82 (AMD's 0.62).
+>   AMD's shaders. Now brightening is 0.64 frames behind where it was 0.87 (AMD's 0.46), darkening 0.68 where it was 0.82 (AMD's 0.62).
 >   [Details below](#a-change-that-lasts-two-frames-a-tighter-limit-beside-moving-objects-and-slow-fades-release-dll-2026-10-14).
 > - **Small dark things that move without motion vectors** (dark leaves falling in front of a dark sky): with the camera
 >   still they are shown more fully on the frames that skip the network (75.5% to 77.5% of the leaf; AMD's shaders 79.1%), and the
@@ -245,15 +245,15 @@ AMD's shaders, more so when brightening.
 
 | Bright flat areas during a slow fade, 4K: frames behind; auto exposure off / on | AMD's shaders | `dll-2026-10-13.2` | This release |
 |---|---|---|---|
-| Brightening | 0.46 / 0.46 | 0.88 / 0.90 | 0.64 / 0.71 |
-| Darkening | 0.62 / 0.72 | 0.82 / 1.09 | 0.68 / 0.81 |
-| Mid-bright flat areas, brightening | 0.89 / 0.77 | 1.21 / 1.08 | 0.91 / 0.82 |
+| Brightening | 0.46 / 0.46 | 0.87 / 0.91 | 0.64 / 0.71 |
+| Darkening | 0.62 / 0.72 | 0.82 / 1.11 | 0.68 / 0.81 |
+| Mid-bright flat areas, brightening | 0.89 / 0.77 | 1.22 / 1.10 | 0.91 / 0.82 |
 
 **What the three changes cost and leave open:**
 
 - **What got worse:**
   - Flat areas at rest change more per frame (from the third change): the worst piece of the still scene 0.057 to 0.078 (AMD's 0.126), with
-    auto exposure on 0.096 to 0.118 (AMD's 0.213). A moving background changes a little more too: 0.022 to 0.028 at 4K (auto exposure on 0.030
+    auto exposure on 0.100 to 0.118 (AMD's 0.213). A moving background changes a little more too: 0.022 to 0.028 at 4K (auto exposure on 0.030
     to 0.036).
   - The railing of the panning test scene changes a little more per frame, at every output size: 1.414 to 1.462 at 1440p (AMD's 1.419), 1.349 to
     1.367 at 1080p (1.276), 0.961 to 0.969 at 4K; with auto exposure on 1.503 to 1.545 at 1440p (1.483).

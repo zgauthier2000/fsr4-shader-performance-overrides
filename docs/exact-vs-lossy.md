@@ -353,7 +353,7 @@ Five repairs keep the rest honest (the fifth is the one just described):
 ## What the lossy builds cost, measured
 
 > **Updated for release `dll-2026-10-14`.** Every figure in the "Lossy" columns and every picture was made again with this release's build. Against the build this page
-> showed before (`dll-2026-10-13.2`): slow fades show in bright flat areas sooner (0.82 to 0.68 frames behind when darkening, 0.88 to 0.64 when brightening; AMD's 0.62
+> showed before (`dll-2026-10-13.2`): slow fades show in bright flat areas sooner (0.82 to 0.68 frames behind when darkening, 0.87 to 0.64 when brightening; AMD's 0.62
 > and 0.46), and less of an object's old image is left beside it (an object in front of a still camera 1.31 to 1.15, a still object over fast ground 2.64 to 2.26;
 > AMD's 1.07 and 1.62). Flat areas at rest change more per frame (worst piece 0.057 to 0.078; AMD's 0.126) and the moving background a little more; strong film grain is
 > a little less steady (1.77 to 1.86 change per frame at grain of 15 of 255; AMD's 2.55). The dark falling leaves and the fade scenes'
