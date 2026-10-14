@@ -132,12 +132,12 @@ More games and resolutions: [all results](docs/results.md).
 The change in this release that shows most in a single picture: a still object over ground that moves fast. One frame (39) of a made-up test scene, single run; the error under each picture is measured where the object's old image lands, on this frame. Over the whole scene it goes from 2.64 to 2.26 (AMD's 1.62). The fades gain more in figures, but a lag does not show in a still picture: [the release page](docs/releases/dll-2026-10-14.md) has them as a chart, with every change, what got worse and what was not checked. [The upscaler comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-13.2/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-13.2): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-14/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-14): unpack, double-click
 > `fsr4time.exe`, wait 15 to 20 minutes. It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
 > that each DLL gives the same picture, and offers to send the result. Reports are in from eleven graphics chips so far;
 > every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
 >
-> - The kits (2026-10-13.2) carry the lossy build of `dll-2026-10-13.2`, the release before this one. If you ran a kit older than 2026-10-13, please run again.
+> - The kits (2026-10-14) carry this release's lossy build. If you ran a kit older than 2026-10-13, please run again.
 > - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
 >
 > [What the kits do](timing-kit/README.md#windows-experimental)

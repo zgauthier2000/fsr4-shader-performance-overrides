@@ -29,13 +29,12 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Linux kit version 2026-10-13.2** (download again if you have an earlier one): its lossy shaders are those of release `dll-2026-10-13.2`. Nothing
-else changed. Since version 2026-10-12.6 it times the lossy build's prepass on a skipped frame too (a probe that always takes the short copy
+**Linux kit version 2026-10-14** (download again if you have an earlier one): its lossy shaders are those of release `dll-2026-10-14` (the probes of
+the prepass and the postpass on a skipped frame). Nothing else changed. Since version 2026-10-12.6 it times the lossy build's prepass on a skipped frame too (a probe that always takes the short copy
 the prepass has for such frames since `dll-2026-10-12.2`), and the summary's "lossy, skipped frame" is that probe plus the postpass probe.
-On an RX 7800 XT at 4K, one quick run: prepass probe 0.33 ms, skipped frame 0.91 ms, average of the two kinds of frame 1.99 ms
-(version 2026-10-13 with `dll-2026-10-13`'s build: 0.33, 0.92 and 2.00; version 2026-10-12.6 with `dll-2026-10-12.2`'s: 0.31, 0.85 and 1.96). So the probes
-have read a skipped frame 0.06 to 0.07 ms higher at 4K since `dll-2026-10-13`; the Windows kit, which times whole frames, reads all three builds alike
-under Proton (1.22, 1.21 and 1.24 ms on a skipped frame), and so did a game benchmark. Results from earlier kit versions describe the lossy build of the release they carried.
+On an RX 7800 XT at 4K, one quick run: skipped frame 0.92 ms, average of the two kinds of frame 2.00 ms (version 2026-10-13.2 with
+`dll-2026-10-13.2`'s build: 0.91 and 1.99; version 2026-10-12.6 with `dll-2026-10-12.2`'s: 0.85 and 1.96). The probes have read a skipped frame 0.06 to
+0.07 ms higher at 4K since `dll-2026-10-13`; the Windows kit, which times whole frames, reads those builds alike under Proton, and so did a game benchmark. Results from earlier kit versions describe the lossy build of the release they carried.
 
 **Since 2026-10-12.5:** the time it gives for the lossy build's postpass on
 a skipped frame was too high and is corrected. The probe worked out the last layer's inputs again on every frame; in a game the frame
@@ -61,8 +60,10 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-13.2/fsr4-timing-kit-windows.zip) (190 MB, updated 2026-10-13) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-14/fsr4-timing-kit-windows.zip) (190 MB, updated 2026-10-14) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`; it takes about 15 to 20 minutes.
+
+**New in version 2026-10-14:** its lossy DLLs are those of release `dll-2026-10-14` (slow fades keep up better, small dark things are shown more fully with the camera still, less of an old image beside moving objects). Nothing else changed.
 
 **New in version 2026-10-13.2:** its lossy DLLs are those of release `dll-2026-10-13.2` (a thin wire keeps more of its brightness in a camera pan; small dark things pulse less). Nothing else changed.
 
@@ -97,15 +98,19 @@ browsers, and double-click `fsr4time.exe`; it takes about 15 to 20 minutes.
   are the exception:** AMD's own shaders show ghosting there, so the exact DLLs are expected to differ from them and to match
   the second reference instead, AMD's shaders with only the last shader's dot products split into two steps. A third
   reference carries all three changes of the community's 4.1.1b fix for those cards, rebuilt here from AMD's shaders.
+- **Every DLL is timed twice, in opposite order:** all of them in order, then all in reverse order. A DLL timed early in a run
+  can read differently from one timed late (the GPU warming up, something else starting on the PC); with both orders each DLL gets
+  an early and a late slot. The summary gives the mean of the two runs, and both figures where they differ by more than 3%, so a
+  disturbed reading can be told from a real difference. `fsr4time.exe --once` times each DLL once, in about half the time.
 - **Other makes of graphics card:** nothing in the kit is specific to Radeon, and the DLLs should run on any graphics chip whose driver supports DirectX 12 with Shader Model 6.6.
   People run them on GeForce and Intel Arc graphics as well, and no timing from such a card exists yet. A run there shows whether the rewrites, which were made for
   Radeon chips, help or cost time, and whether the exact DLL's picture is AMD's on that driver too.
 - **Experimental:** reports from Windows PCs are in from eleven graphics chips so far: Radeon RX 6600, RX 6700, RX 6700 XT,
   RX 6750 XT, RX 7600, RX 7800 XT and RX 7900 XTX, the Radeon 890M, the Steam Deck's chip, a GeForce RTX 3060 Ti and an
   Intel Arc B580. The project itself can only run it under Proton, on one RX 7800 XT (4K: 4.7 to 4.9 ms with AMD's shaders,
-  3.17 ms exact, 2.22 ms lossy; exact: same picture). Since kit
+  3.17 ms exact, 2.24 ms lossy; exact: same picture). Since kit
   2026-10-12.1 the moving scene has a fingerprint too; since
-  2026-10-13.2 its lossy DLLs are those of release `dll-2026-10-13.2`; since 2026-10-11.3 it asks for an optional name for the thank-you notes. The program is not signed, so Windows warns about it;
+  2026-10-14 its lossy DLLs are those of release `dll-2026-10-14`; since 2026-10-11.3 it asks for an optional name for the thank-you notes. The program is not signed, so Windows warns about it;
   the source is [`windows/fsr4time.c`](windows/fsr4time.c), with the command that builds it at its top.
 - At the end it shows a summary, saves it next to the program and asks whether to send it. Not for RX 9000 cards.
 
@@ -276,7 +281,7 @@ with earlier versions of the kit. On the RX 6600 and the RX 6600M the readings a
 (image stores take far too long there under the kit). No report has come from a Radeon 780M, 890M
 or another current integrated GPU yet. If something looks wrong on your machine, please report it.
 
-Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-13.2) (9 MB).
+Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-14) (9 MB).
 
 Results received so far: [RESULTS.md](RESULTS.md).
 
