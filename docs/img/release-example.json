@@ -1,0 +1,5 @@
+{"scene": "platesd", "frame": 39, "x": 2300, "y": 820, "w": 240, "h": 140, "zoom": 3,
+ "title": "A still bright object over ground that moves fast",
+ "sub": "The ground moves down by 100 pixels per frame; the white object stays where it is, at the same depth. Frame 39, a frame the lossy DLL skips the network for.\nThe piece just below the object, enlarged 3 times; under each picture, the error against the true image in the area where the object's old image lands (of 255).",
+ "labels": {"truth": "true image", "amd": "AMD's shaders", "rel": "lossy, dll-2026-10-13.2", "new": "lossy, dll-2026-10-14"},
+ "err": {"amd": 1.87, "rel": 2.53, "new": 1.91}}
