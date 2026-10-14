@@ -23,16 +23,16 @@ def box(o, t, x, y, w, head, lines, accent=None, tag=None):
 
 
 def flow(t):
-    H = 1112
+    H = 1168
     o = frame(H, "Flow chart: what the lossy DLL's last shader does with one output pixel on a frame that skips the neural network. "
               "It starts from the network's weight for the new frame, kept from the network's last run and moved along with the picture, and squares it. "
               "Then it asks whether the picture is at rest at this pixel. At rest the weight becomes zero, so nothing is taken from the new frame, unless one of three things says the content "
               "changed without the game reporting motion: the previous picture lies outside the range of the nine new samples around the pixel, the new frame differs from it by more than a "
-              "quarter of that range (or by much less, where the previous picture lies at one end of that range, or by a little, where it did so in the same direction on the frame before), or the network itself had given the pixel a middle or a very high weight. In motion the weight is kept and, beside anything that moves differently from the pixel, the previous picture is limited to the range "
+              "quarter of that range (or by much less, where the previous picture lies at one end of that range, or by a little, where it did so in the same direction on the frame before), or the green channel drifts by a small amount in the same direction as on the frame before (a slow fade: then the network's own weight, not squared), or the network itself had given the pixel a middle or a very high weight. In motion the weight is kept and, beside anything that moves differently from the pixel, the previous picture is limited to the range "
               "of the nine new samples. Next, at rest and in motion, a spark test: a new sample far outside the previous picture around the pixel is taken, as far as it has a bright neighbor "
               "both sideways and above or below. Two cases then take the new frame alone: a pixel that was hidden a frame ago behind something nearer that moves differently, and one whose "
               "previous picture scrolled in from outside the screen. The pixel is mixed from the new frame and the previous picture with the resulting weight. Last, on every frame, "
-              "a change smaller than two to four steps of the stored number format is dropped.",
+              "a change smaller than two to four steps of the stored number format is dropped, except where a small drift repeats the frame before's (a slow fade).",
               "The last shader's rules on a skipped frame", 'What happens to one output pixel when the network did not run. A frame that runs the network goes straight to step 7.', t)
     cx = W / 2
     y = 72
@@ -67,9 +67,11 @@ def flow(t):
         '      little where it did so the frame before too), or',
         '  c  the network itself had given a middle weight, about',
         '      0.2 to 0.7 (slowly swaying leaves), or one above',
-        '      0.95 (particles, embers).',
+        '      0.95 (particles, embers), or',
+        '  d  a small drift repeats the frame before\'s (a slow',
+        '      fade): the network\'s own weight, not squared.',
         '',
-        'Then the weight is kept (in case c: the network\'s own).'], 'lossy', '3')
+        'Then the weight is kept (in cases c and d: the network\'s own).'], 'lossy', '3')
     yr = box(o, t, xr, y, half, 'Keep the weight, limit the history', [
         'Beside anything that moves differently from this pixel',
         '(edges of moving things), the history is held inside the',
@@ -80,6 +82,8 @@ def flow(t):
         'Elsewhere the history is left as it is. The nine samples',
         'miss a thing far thinner than a rendered pixel (a distant',
         'wire) on most frames, and the limit would take it away.',
+        '',
+        '',
         '',
         '',
         '',
@@ -105,7 +109,8 @@ def flow(t):
     o.append(arrow(cx, y, cx, y + 20, t)); y += 20
     y = box(o, t, LEFT, y, RIGHT - LEFT, 'Dead band, on every frame (also those that run the network)', [
         'If no color channel would change by more than two to four steps of the number format the history is stored in,',
-        'the history is kept exactly. This is what keeps flat areas at rest steady.'], 'exact', '7')
+        'the history is kept exactly, except where a small drift repeats the frame before\'s (a slow fade).',
+        'This is what keeps flat areas at rest steady.'], 'exact', '7')
     o.append(arrow(cx, y, cx, y + 20, t)); y += 20
     y = box(o, t, LEFT, y, RIGHT - LEFT, 'Shown on screen, and stored as the history for the next frame', [], 'grid')
     o.append(text(LEFT, y + 22, 'Orange: only on frames that skip the network. Blue: on every frame. The thresholds are the defaults of the tool that writes these rules.', t, 11, 'muted'))

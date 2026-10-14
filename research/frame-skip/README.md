@@ -1969,10 +1969,10 @@ great, by eye. That run was made with the wire change only; with both changes a 
 Not measured: a game scene with such wires, the game the leaves were reported from, the wire and leaf scenes at other output sizes than 4K, the quality set with the HDR
 option, and this release on Windows itself.
 
-## A change that lasts two frames, and a tighter limit beside different motion (release `dll-2026-10-14`)
+## A change that lasts two frames, a tighter limit beside different motion, and slow fades (release `dll-2026-10-14`)
 
-Two changes to the last shader's rules for a skipped frame. Both came out of sweeps on `dll-2026-10-13.2`'s lossy build in the test rig;
-neither changes a frame that runs the network, and the exact files are unchanged.
+Three changes to the last shader's rules. All came out of sweeps on `dll-2026-10-13.2`'s lossy build in the test rig. The first two act on
+skipped frames only; the third also lets the dead band give way on frames that run the network. The exact files are unchanged.
 
 ### A change that lasts two frames (`SB_PERSIST`, `FS_PERSIST`)
 
@@ -2037,14 +2037,77 @@ What it costs: the railing of the panning scene changes a little more per frame 
 0.554, auto exposure off), and the outline over a fast background moves both ways (worse with auto exposure off, better with it on; that row
 scatters between 3.6 and 4.3 across the settings of the sweep). The just-uncovered figure gains less at 4K (35.90 to 36.02 dB, auto exposure on 36.01 to 36.14) and not at 1080p (33.58 to 33.52 dB).
 
-### The two together
+### Slow fades (`SB_FADE`, `FS_PERSISTRUN`)
+
+A slow change of brightness with nothing moving showed in bright flat areas almost half a frame later than with AMD's shaders. The
+rig's fade scenes (a region dimming or brightening by 1% a frame, 4K), split by frame kind, show where the lag sits: on the skipped frames.
+
+| Bright flat areas, frames behind; frame that runs the network / skipped frame, auto exposure off | Brightening | Darkening |
+|---|---|---|
+| AMD's shaders | 0.45 / 0.45 | 0.62 / 0.60 |
+| `dll-2026-10-13.2` | 0.58 / 1.11 | 0.60 / 0.96 |
+| ... without the dead band | 0.53 / 0.97 | 0.50 / 0.64 |
+| ... without the at-rest rule | 0.56 / 0.88 | 0.61 / 0.96 |
+| ... without squaring the new frame's share on skipped frames | 0.58 / 0.95 | 0.63 / 0.90 |
+| ... without all three | 0.52 / 0.64 | 0.48 / 0.53 |
+
+Three skipped-frame rules each hold part of it: the dead band (a change smaller than two steps of the stored number format is dropped),
+the at-rest rule (nothing from the new frame where the picture does not move) and the squaring of the new frame's share. All three exist
+for steadiness at rest, so none can simply go: without the dead band alone, flat areas at rest change almost three times as much per frame
+(0.057 to 0.148). AMD's network reacts faster to brightening than to darkening (0.46 against 0.62 frames behind), and these rules throw
+that away, which is why brightening lagged more. The memory rule, the spark test and the network's verdict at rest play no part.
+
+**The rule.** The note of the two-frame test above gets a second part: +4 or −4 where the green channel of the resampled new frame lies
+above or below the history by more than 0.15% of the history (plus a floor of 0.0001). The prepass now passes the note on also on frames
+that run the network (`FS_PERSISTRUN`; there it writes the center history tap's fourth channel in place of AMD's repeated red, which nothing
+reads), so it reaches every frame. Where this frame's drift repeats the note's direction:
+
+- on every frame, the dead band does not hold the history;
+- on a skipped frame, where the green drift lies between 0.15% and 1% of the history (a fade's drift is small), the pixel takes the
+  network's own weight, without the squaring and without the at-rest rule.
+
+**What was tried first.** Releasing the dead band on skipped frames only did nothing: at rest a skipped frame takes nothing from the new
+frame anyway, so there the dead band has nothing to hold back; it matters on frames that run the network, which the note did not reach
+until `FS_PERSISTRUN`. Releasing it on every frame gave darkening most of the way to AMD's level but left brightening at 0.8 frames
+behind. Taking the network's weight wherever the drift repeated also fixed brightening, but grain and fine detail then passed the test
+by chance (a grain pixel moves by far more than 0.15% in some direction every frame) and lost 11 to 18% of their steadiness; requiring
+all three channels to agree changed nothing. The upper limit of the band is what keeps grain and texture out:
+
+| Auto exposure off, 4K, single runs | AMD | Without the fade rule | Network's weight, no band | Band up to 1% (released) | Band up to 4% |
+|---|---|---|---|---|---|
+| Brightening fade, bright flat: frames behind | 0.46 | 0.88 | 0.65 | 0.64 | 0.65 |
+| Darkening fade, bright flat | 0.62 | 0.82 | 0.68 | 0.68 | 0.68 |
+| Grain of 10 / 15 of 255: change per frame | 1.724 / 2.549 | 1.088 / 1.867 | 1.280 / 2.121 | 1.100 / 1.860 | 1.105 / 1.857 |
+| Thin vertical detail at rest | 0.364 | 0.317 | 0.371 | 0.321 | 0.335 |
+| Flat areas at rest, worst piece | 0.126 | 0.057 | 0.086 | 0.078 | 0.080 |
+
+**Registers.** The last shader sits at exactly 96 registers, the limit for 16 waves on RDNA3. Adding up the drift of all three channels in
+front of the per-pixel branch, or taking the unsquared weight with the jitter-distance correction (which the squaring otherwise lets the
+compiler delete), pushed it to 120 registers and 12 waves. The green channel alone and the network's weight as it is keep 96.
+
+**What it costs and gives** (the full set of rig checks against the build without it, single runs, auto exposure off / on):
+
+| | AMD | Without the fade rule | With it |
+|---|---|---|---|
+| Darkening fade, bright / mid flat: frames behind | 0.62 / 0.91, 0.72 / 0.90 | 0.82 / 0.98, 1.09 / 1.03 | 0.68 / 0.78, 0.81 / 0.86 |
+| Brightening fade, bright / mid flat | 0.46 / 0.89, 0.46 / 0.77 | 0.88 / 1.21, 0.90 / 1.08 | 0.64 / 0.91, 0.71 / 0.82 |
+| Flat areas at rest, worst piece: change per frame | 0.126 / 0.213 | 0.057 / 0.096 | 0.078 / 0.118 |
+| Bright flat areas at rest | – / 0.186 | 0.011 / 0.052 | 0.026 / 0.060 |
+| Moving background, 4K: change per frame | – | 0.022 / 0.030 | 0.028 / 0.036 |
+| Plate over fast ground, same depth (auto exposure on) | 1.61 | 2.09 | 2.20 |
+
+Grain of 10 and 15 of 255, fine and thin detail, accuracy everywhere, leaves, particles, wires and rain stay within 2% (thin vertical
+detail with auto exposure on: steadier, 0.367 to 0.350). The outline of an object against a fast pan improves with auto exposure off
+(4.02 to 3.80).
+
+### The first two together
 
 The full set of rig checks ran on the two changes together, with auto exposure off and on. Every row that moved by more than 2% from
 `dll-2026-10-13.2` moved as it did with one of the two changes alone, give or take 0.01: they do not interact. Flat areas at rest with auto
 exposure on change a little less per frame (0.100 to 0.096); the rest of the checks, from the still picture to the moving scene at every
 output size and frame rate, wires, fades, rain and fireflies, are level.
 
-| Single runs, 4K unless stated; auto exposure off / on | AMD's shaders | `dll-2026-10-13.2` | This release |
+| Single runs, 4K unless stated; auto exposure off / on | AMD's shaders | `dll-2026-10-13.2` | The first two changes |
 |---|---|---|---|
 | Dark falling leaves, camera still: shown on skipped frames | 79.1% / 80.9% | 75.5% / 75.9% | 77.3% / 77.6% |
 | The same: left where a leaf was up to 3 frames ago | 5.4% / 5.1% | 8.4% / 9.0% | 7.9% / 8.5% |
@@ -2055,18 +2118,20 @@ output size and frame rate, wires, fades, rain and fireflies, are level.
 | Grain of 10 of 255: change per frame | 1.724 / 0.357 | 1.081 / 0.332 | 1.088 / 0.333 |
 | Foliage seen against the sky: isolated bright dots per thousand dark pixels | 0.57 / 0.53 | 0.97 / 0.97 | 1.01 / 0.97 |
 
-In the timing kit the release is level with `dll-2026-10-13.2`: the probe's last shader 0.581 to 0.579 ms on a skipped frame and 0.678 to
-0.687 ms on a frame that runs the network (both within the spread between runs), the prepass 0.308 to 0.311 ms; the last shader still fits
-96 registers and 16 waves. The whole upscaler in the Windows kit under Proton, one quick run: 2.21 ms at 4K before and after; on a skipped
-frame 1.21 to 1.22 ms, and 0.55 to 0.56 ms at 1440p.
+**Time.** The first two changes are level with `dll-2026-10-13.2` in the timing kit's probe. The fade rule costs about 0.015 ms per frame in
+the last shader at 4K (probe, both slot orders: 0.577 to 0.593 ms on a skipped frame, 0.683 to 0.696 ms on a frame that runs the network;
+1080p +0.005); the prepass is level and the last shader still fits 96 registers and 16 waves. The whole upscaler in the Windows kit under
+Proton, one quick run, the build without the fade rule against the release: 4K still 2.224 to 2.242 ms, moving 2.220 to 2.226 ms; 1440p
+1.052 to 1.066 / 1.055 to 1.061 ms; 1080p 0.676 to 0.680 / 0.674 to 0.680 ms (AMD's shaders 4.87 ms at 4K).
 
-**In the DLL.** The DXIL forms of both tools follow the SPIR-V ones; the note is handed on as the 16-bit value it was read as, with no
+**In the DLL.** The DXIL forms of the tools follow the SPIR-V ones; the note is handed on as the 16-bit value it was read as, with no
 narrowing and widening (see [a value narrowed and widened again](#in-the-dll-a-value-narrowed-and-widened-again)). The store rewrite of the
 last shader (`postpass_lds_dxil.py`, and `postpass_lds_vkd3d.py` on Linux) used to require that the history's fourth value repeat red; it now
 keeps a fourth value of its own. The lossy DLLs give the Linux files' output byte for byte in 48 of 48 runs of the test rig under Proton;
 `dll-2026-10-13.2`'s DLLs give 0 of 48 against the same files.
 
-Switches: `SB_PERSIST=off FS_PERSIST=0 SB_CLAMP=0.5` rebuild `dll-2026-10-13.2`'s files and both DLLs' shader sets byte for byte.
+Switches: `SB_FADE=off FS_PERSISTRUN=0` rebuild the build without the fade rule; with `SB_PERSIST=off FS_PERSIST=0 SB_CLAMP=0.5` as well,
+`dll-2026-10-13.2`'s files and both DLLs' shader sets, byte for byte.
 
 ## By frame rate
 

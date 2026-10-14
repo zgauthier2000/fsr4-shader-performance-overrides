@@ -50,8 +50,10 @@ What it costs
 - Strong film grain is passed on more than with the releases before dll-2026-10-11.4.
   Without FSR's auto exposure it stays steadier than with AMD's file; in a game that uses
   auto exposure, strong grain is slightly less steady than with AMD's file.
-- A slow change of brightness (a fade) shows in bright flat areas a quarter to half a frame
-  later than with AMD's file.
+- A slow change of brightness (a fade) shows in bright flat areas up to a quarter of a frame
+  later than with AMD's file (up to half a frame before dll-2026-10-14). To follow it, flat
+  areas at rest are allowed a little more change per frame than before; they are still
+  steadier than with AMD's file.
 - Frame times alternate: a skipped frame is about 2 ms shorter than a normal one on an
   RX 7800 XT at 4K. With a frame cap or normal V-Sync the average is what counts; with
   low-latency modes or unbuffered V-Sync the longer frames can miss.
