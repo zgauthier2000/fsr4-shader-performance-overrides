@@ -2025,7 +2025,7 @@ nine new samples around the pixel, widened by `SB_CLAMP` times that range (0.5 s
 applies only there ([the clamp only beside different motion](#the-clamp-only-beside-different-motion-sb_clampwedge)), which spares thin wires
 in a pan; that made a tighter limit affordable. A sweep of 0, 0.125, 0.25 and 0.5 improved steadily towards 0; the release takes 0.
 
-| Single runs, auto exposure off / on | AMD's shaders | `dll-2026-10-13.2` (0.5) | This release (0) |
+| Single runs, auto exposure off / on | AMD's shaders | `dll-2026-10-13.2` (0.5) | Limit at 0 (without the fade rule) |
 |---|---|---|---|
 | A moving object over a still background: error at its outline (of 255) | 1.07 / 1.07 | 1.30 / 1.33 | 1.15 / 1.17 |
 | Plate over ground at the same depth: error in its body, skipped frames | 1.62 / 1.61 | 2.64 / 2.43 | 2.25 / 2.09 |

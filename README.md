@@ -230,7 +230,7 @@ left beside it:
 | An object moving in front of a still camera (8,0): its outline | 1.07 / 1.07 | 1.30 / 1.33 | 1.15 / 1.17 |
 | A still bright object over fast ground at the same depth | 1.62 / 1.61 | 2.64 / 2.43 | 2.25 / 2.09 |
 | Thin bars fixed on screen in front of a pan, mean of four pans (auto exposure off) | 0.82 | 0.91 | 0.86 |
-| Areas a moving object has just uncovered, panning scene at 5K output: accuracy | 39.90 / 40.51 dB | 39.90 / 40.65 dB | 40.55 / 41.17 dB |
+| Areas a moving object has just uncovered, panning scene at 5K output: accuracy | 39.90 / 40.51 dB | 39.90 / 40.65 dB | 40.34 / 41.12 dB |
 
 **3. Slow fades.** When a scene grows lighter or darker with nothing moving, bright flat areas followed up to half a frame later than with
 AMD's shaders, more so when brightening.
@@ -255,8 +255,8 @@ AMD's shaders, more so when brightening.
   - Flat areas at rest change more per frame (from the third change): the worst piece of the still scene 0.057 to 0.078 (AMD's 0.126), with
     auto exposure on 0.100 to 0.118 (AMD's 0.213). A moving background changes a little more too: 0.022 to 0.028 at 4K (auto exposure on 0.030
     to 0.036).
-  - The railing of the panning test scene changes a little more per frame, at every output size: 1.414 to 1.462 at 1440p (AMD's 1.419), 1.349 to
-    1.367 at 1080p (1.276), 0.961 to 0.969 at 4K; with auto exposure on 1.503 to 1.545 at 1440p (1.483).
+  - The railing of the panning test scene changes a little more per frame, at every output size: 1.414 to 1.469 at 1440p (AMD's 1.419), 1.349 to
+    1.366 at 1080p (1.276), 0.961 to 0.974 at 4K; with auto exposure on 1.503 to 1.550 at 1440p (1.483).
   - Strong film grain is a little less steady with auto exposure off: change per frame of a still picture with grain of 15 of 255 1.773 to 1.860
     (AMD's 2.549); grain of 6 and 10 are level (0.320 to 0.325, 1.081 to 1.100). With auto exposure on all three are level.
   - Isolated bright dots in foliage seen against the sky, camera still: 0.97 to 1.01 per thousand dark pixels with auto exposure off (AMD's 0.57).
