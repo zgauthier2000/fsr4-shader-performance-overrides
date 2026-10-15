@@ -38,22 +38,10 @@ in motion.
 - **Speed:** the steady test runs at the exact DLL's speed (+0.01 ms at 4K). The bias DLL runs AMD's shaders, so it
   has AMD's speed, about 50% more time per frame than the other two.
 
-## On the upscaler comparison's scale
-
-The ten spokes of the [upscaler comparison](upscaler-comparison.md#in-short)'s chart, on its scale: on every spoke
-the best of the five upscalers compared there reaches the outer ring. On these measures the three are nearly the same
-shape. The steady test reaches further at rest; the bias DLL is shorter on the wire and on speed. In the middle and right charts
-the dashed outline is the exact DLL's shape, for comparison.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="img/bias-radar-dark.svg">
-  <img src="img/bias-radar-light.svg" width="760" alt="Three radar charts with the ten spokes of the upscaler comparison's chart, on its scale. Exact DLL: accuracy 46.80 dB, railing 41.82 dB, uncovered 33.55 dB, old image 1.92, fixed bars 0.82, sparks 83%, foliage 11.0, at rest 0.037, wire in a pan 90.5%, speed 1.83 ms. Steady test: 46.89 dB, 41.82 dB, 33.51 dB, 1.96, 0.83, 83%, 11.1, 0.026, 90.9%, 1.84 ms. Community bias DLL 0.5: 46.77 dB, 41.76 dB, 33.53 dB, 2.01, 0.86, 83%, 11.5, 0.035, 85.3%, 2.67 ms. The three shapes nearly overlap; the steady test reaches further on the at-rest spoke, the bias DLL is shorter on the wire and on speed.">
-</picture>
-
 ## Where the three differ
 
-Ten measures where they do differ. Here the best of the three reaches the outer ring, so the shapes show the trade
-between them rather than their place among other upscalers. The dashed outline is again the exact DLL.
+Ten measures where the three differ most. On every spoke the best of the three reaches the outer ring, so the shapes
+show the trade between them. In the middle and right charts the dashed outline is the exact DLL's shape, for comparison.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/bias-differ-dark.svg">
@@ -144,7 +132,7 @@ The two could be combined. That has not been tried.
 ## What was checked, and what was not
 
 - Checked: the full check (about 30 sections, three output sizes plus 5K, auto exposure off and on) for the steady test
-  and each bias setting, the comparison rig's scenes for the radar chart, and the timing above. The steady test's
+  and each bias setting, the comparison rig's moving scene for the chart, and the timing above. The steady test's
   DLL gives its Linux twin's output byte for byte in 30 of 30 comparisons, and with both rules off it rebuilds the
   released exact DLL byte for byte.
 - Not checked: any game, Windows drivers, other cards; bias 1.5; the steady test's build for integrated graphics (not

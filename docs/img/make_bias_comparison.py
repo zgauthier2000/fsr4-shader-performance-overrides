@@ -2,62 +2,19 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_bias_comparison.py [<dir>]: the figures of docs/research-history-bias.md: the exact DLL, this project's steady test build (unreleased) and a
 # community DLL that biases FSR 4.1.1's history blend (its "bias 0.5" file).
-#   bias-radar-{light,dark}.svg: the ten spokes of the upscaler comparison's chart, on its scale (the outer ring is the best of the five upscalers there)
 #   bias-differ-{light,dark}.svg: ten measures where the three differ, the best of the three at the outer ring
 #   With <dir>: bias-rest.png (a change map), bias-motion.png (the railing), bias-wire.png, bias-rain.png, bias-uncovered.png: the piece where the three differ most.
 #       <dir> holds <scene>_<fsr4|lossy|dll>/output_3840x2160_f03{6,7}.raw (RGBA16F; lossy = the steady test, dll = the community DLL) and <scene>_truth.npy.
-# Figures: test rig, 4K output from 2260x1272 (Balanced), Radeon RX 7800 XT under Proton, single runs, auto exposure off unless marked; speed: Windows
-# timing kit under Proton, all three in one run.
+# Figures: test rig, 4K output from 2260x1272 (Balanced), Radeon RX 7800 XT under Proton, single runs, auto exposure off unless marked.
 import sys
 from make_explainers import THEMES, frame, text
-from make_upscaler_comparison import MEASURES, score, radar_panel, wire_close, mean
+from make_upscaler_comparison import score, radar_panel, wire_close
 
 B_NAMES = ["Exact DLL (AMD's picture)", 'Steady test (this project)', 'Community bias DLL (0.5)']
-# The parts of the comparison chart's spokes, in B_NAMES order. The exact DLL's picture is AMD's byte for byte, so its picture figures are FSR 4.1.1's
-# on the comparison page (the same rig gave the same figures again for this page).
-STILL = [44.33, 44.42, 44.26]; BACKGROUND = [49.27, 49.36, 49.29]
-UNC_PAN = [34.48, 34.44, 34.56]; UNC_STILL = [32.62, 32.58, 32.51]
-GHOST = [[0.85, 0.85, 0.86], [1.07, 1.06, 1.10], [1.07, 1.07, 1.08], [1.74, 1.74, 1.79], [4.01, 4.03, 4.09], [3.11, 3.36, 3.52], [1.62, 1.61, 1.64]]
-BARS = [[0.94, 0.945, 0.995], [0.73, 0.725, 0.76], [0.53, 0.535, 0.555], [1.095, 1.10, 1.12]]
-FOLIAGE = [[12.09, 10.72, 10.17], [12.16, 10.81, 10.25], [12.42, 11.54, 10.62]]      # error at three sway speeds
-SPEED = [[0.896, 1.445, 3.143], [0.903, 1.452, 3.159], [1.057, 2.181, 4.775]]          # ms at 1080p, 1440p, 4K output, moving picture
-B_MEASURES = [
-    ('Accuracy', MEASURES[0][1], 'dB', 'db', mean(STILL, BACKGROUND), '{:.2f} dB'),
-    ('Railing', MEASURES[1][1], 'dB', 'db', [41.82, 41.82, 41.76], '{:.2f} dB'),
-    ('Uncovered', MEASURES[2][1], 'dB', 'db', mean(UNC_PAN, UNC_STILL), '{:.2f} dB'),
-    ('Old image', MEASURES[3][1], 'of 255', 'down', mean(*GHOST), '{:.2f}'),
-    ('Fixed bars', MEASURES[4][1], 'of 255', 'down', mean(*BARS), '{:.2f}'),
-    ('Sparks', MEASURES[5][1], '%', 'up', [83, 83, 83], '{:.0f}%'),
-    ('Foliage', MEASURES[6][1], 'of 255', 'down', [round(sum(v) / 3, 1) for v in FOLIAGE], '{:.1f}'),
-    ('At rest', MEASURES[7][1], 'of 255', 'down', [0.037, 0.026, 0.035], '{:.3f}'),
-    ('Wire, pan', MEASURES[8][1], '%', 'up', [wire_close(v) for v in (100.2, 100.6, 94.4)], '{:.1f}%'),
-    ('Speed', MEASURES[9][1], 'ms', 'down', [round(sum(v) / 3, 2) for v in SPEED], '{:.2f} ms'),
-]
-assert [m[0] for m in B_MEASURES] == [m[0] for m in MEASURES]
-BEST = {m[0]: (min if m[3] == 'down' else max)(m[4]) for m in MEASURES}      # the comparison chart's scale
-B_SCORES = [score(m[3], m[4], BEST[m[0]]) for m in B_MEASURES]
-assert all(v <= 1.02 for sc in B_SCORES for v in sc), 'a build is beyond the best of the five: the scale needs it'
 
 
 def desc(names, M):
     return ' '.join(f'{m[1]} ({m[2]}): ' + ', '.join(f'{n} {m[5].format(m[4][k])}' for k, n in enumerate(names)) + '.' for m in M)
-
-
-def bias_radar(t):
-    lab = ("Three radar charts with the ten spokes of the upscaler comparison's chart and on its scale: on every spoke the best of the five upscalers compared "
-           "there reaches the outer ring. Left: this project's exact DLL. Middle: the steady test, right: the community "
-           "bias DLL, each with the exact DLL's shape as a dashed outline for comparison. The three shapes are nearly the same; the steady test reaches further at rest, the bias DLL "
-           "is shorter on the wire and on speed. " + desc(B_NAMES, B_MEASURES))
-    H = 430
-    o = frame(H, lab, 'The three on the upscaler comparison\'s scale', 'The outer ring is the best of that page\'s five upscalers. Bigger is better. Dashed outline: the exact DLL.', t)
-    short = [m[0] for m in B_MEASURES]
-    for cx, k, ref, title in ((128, 0, None, B_NAMES[0]), (380, 1, 0, B_NAMES[1]), (632, 2, 0, B_NAMES[2])):
-        o.append(text(cx, 96, title, t, 12.5, 'ink', 'middle', 600))
-        radar_panel(o, t, cx, 228, 64, k, short, 8.5, ref=ref, values=True, M=B_MEASURES, SC=B_SCORES, ours=k == 1)
-    o += [text(24, H - 42, 'Dashed outline: the exact DLL\'s shape. Old image: seven scenes; fixed bars: four pans; foliage: three sway speeds; speed: mean of 1080p, 1440p, 4K.', t, 10, 'muted'),
-          text(24, H - 28, "Speed: Windows timing kit under Proton, the three in one run. The bias DLL runs AMD's own shaders, so it has AMD's speed.", t, 10, 'muted'),
-          text(24, H - 14, 'Test rig, 4K output from 2260x1272, Radeon RX 7800 XT, single runs, auto exposure off. Neither test build has been tried in a game.', t, 10, 'muted')]
-    return o
 
 
 # Where the three differ: the best of the three at the outer ring (not the comparison page's scale). Full check of each build (shift/fc.sh), standard
@@ -94,7 +51,7 @@ def bias_differ(t):
 
 
 if __name__ == '__main__':
-    for name, fn in (('bias-radar', bias_radar), ('bias-differ', bias_differ)):
+    for name, fn in (('bias-differ', bias_differ),):
         for th, t in THEMES.items():
             open(f'{name}-{th}.svg', 'w').write('\n'.join(fn(t) + ['</svg>']) + '\n')
 
