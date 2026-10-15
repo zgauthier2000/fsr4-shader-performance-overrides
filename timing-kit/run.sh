@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-or-later
 # FSR 4.1.1 shader timings on this machine's GPU. Run from a terminal:   bash run.sh
-# With no option it runs the full set (about 16 minutes on a desktop card): all 14 passes at 1080p,
-# 1440p and 4K (each alone, and the model's 12 in sequence), the lossy build's postpass and prepass on a skipped frame, the postpass
-# comparison, the pass 11 versions, the store probes and compiler statistics.
+# With no option it runs the full set, in about 15 minutes (a slow chip somewhat longer): all 14 passes at 1080p, 1440p and 4K
+# (each alone, and the model's 12 in sequence), the lossy build's postpass and prepass on a skipped frame, the postpass comparison
+# with the candidates (the exact postpass with shared color taps; the lossy postpass with the register cut, both not released yet)
+# and compiler statistics; then more rounds of the per-pass timing while the run stays within about 15 minutes.
 # Options:  bash run.sh postpass  only the postpass comparison (a minute or two)
-#           bash run.sh quick     all 14 passes and the postpass comparison, without the versions and probes (about 10 minutes)
+#           bash run.sh quick     all 14 passes and the postpass comparison, one round (a few minutes)
 #           bash run.sh traffic   the full set, plus the memory-traffic capture with the bundled driver build
+#           KIT_MINUTES=10 bash run.sh   lets the rounds stop at about 10 minutes instead of 15
 # On a machine with two GPUs the discrete one is used;  KIT_GPU=integrated bash run.sh  uses the integrated one.
 # Nothing is installed or changed on the machine; results go into results/<name>-<time>/ next to this file.
 set -u
@@ -145,11 +147,23 @@ postpass_section() {
             A="$f" B="$S/$1/exact/postpass.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
         done
     done
+    # The lossy postpass, as released and with the register cut (since kit 2026-10-15; not released yet: the same picture, but
+    # 80 registers and 12 waves instead of 128 and 8 on RX 6000 cards, the RX 7600 and integrated graphics), on a frame that
+    # runs the model and on a skipped frame at rest and moving (probes as above), in both orders.
+    for c in "1080p 1920x1080 1280 720" "4k 3840x2160 2560 1440"; do set -- $c
+        for k in network skipped_rest skipped_moving; do
+            [ -e "$S/$1/lossy/postpass_${k}_regcut.spv" ] || continue
+            say "lossy postpass at $2: released against register cut ($k), both orders"
+            A="$S/$1/lossy/postpass_$k.spv" B="$S/$1/lossy/postpass_${k}_regcut.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1|bytes differ|DIFFER|IDENTICAL' | sed "s#$S/##"
+            A="$S/$1/lossy/postpass_${k}_regcut.spv" B="$S/$1/lossy/postpass_$k.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
+        done
+    done
+    echo "elapsed: $SECONDS s"
     # (Kits up to 2026-10-11.5 also timed the two forms Mesa can give an int8 dot product on RDNA2 here. No card showed a
     # difference, so that test is gone; so are the earlier postpass candidates and the old postpass versions.)
     say "compiled code of the postpass versions"
     for c in 1080p 4k; do
-        for f in "$S/$c/amd/postpass.spv" "$S/$c/exact/postpass.spv" "$S/$c"/candidates/postpass_*.spv; do
+        for f in "$S/$c/amd/postpass.spv" "$S/$c/exact/postpass.spv" "$S/$c"/candidates/postpass_*.spv "$S/$c"/lossy/postpass_network*.spv "$S/$c"/lossy/postpass_skipped_moving*.spv; do
             [ -e "$f" ] || continue
             echo "--- $c $(basename "$(dirname "$f")")/$(basename "$f" .spv)"
             RADV_DEBUG=shaderstats,nocache A="$f" B="$f" N_DISP=1 "$W/bench" 1920 1080 1280 720 2>&1 | grep -E '^(VGPRs|Code size|LDS size|Subgroups per SIMD|Instructions|Branches):' | head -6
@@ -161,27 +175,31 @@ if [ "$MODE" = postpass ]; then
     MODE=postpass-only
 fi
 
-rounds=2; [ "$MODE" = quick ] && rounds=1
+BUDGET=$(( ${KIT_MINUTES:-15} * 60 ))
 if [ "$MODE" != postpass-only ]; then
 # 1440p output uses the same shader versions as 4K (the "4k" set)
-{ timing 1080p 1920x1080 1280 720; timing 4k 2560x1440 1707 960; timing 4k 3840x2160 2560 1440; } 2>&1 | tee "$OUT/timing-round1.txt"
-# second round at 1080p only, to see how well the readings repeat
-[ $rounds = 2 ] && timing 1080p 1920x1080 1280 720 2>&1 | tee "$OUT/timing-round2.txt"
+r0=$SECONDS
+{ timing 1080p 1920x1080 1280 720; timing 4k 2560x1440 1707 960; timing 4k 3840x2160 2560 1440; echo "elapsed: $SECONDS s"; } 2>&1 | tee "$OUT/timing-round1.txt"
+last=$(( SECONDS - r0 ))
 postpass_section 2>&1 | tee "$OUT/postpass.txt"
+# More rounds of the same while they fit in the time (the last round's length is the estimate): the summary gives each reading's
+# median over the rounds, and how much the rounds differ. A slow chip gets none; the quick run none.
+r=1
+while [ "$MODE" != quick ] && [ $r -lt 8 ] && [ $(( SECONDS + last )) -le $BUDGET ]; do
+    r=$(( r + 1 )); r0=$SECONDS
+    { timing 1080p 1920x1080 1280 720; timing 4k 2560x1440 1707 960; timing 4k 3840x2160 2560 1440; echo "elapsed: $SECONDS s"; } > "$OUT/timing-round$r.txt" 2>&1
+    last=$(( SECONDS - r0 )); echo "round $r done ($last s; $SECONDS s in all)"
+done
+# no second full round fitted: a second one at 1080p only (about a third of a round), as kits before 2026-10-15 did, if that fits
+if [ "$MODE" != quick ] && [ $r = 1 ] && [ $(( SECONDS + last / 3 )) -le $BUDGET ]; then
+    r=2; { timing 1080p 1920x1080 1280 720; echo "elapsed: $SECONDS s"; } > "$OUT/timing-round2.txt" 2>&1; echo "round 2 (1080p only) done ($SECONDS s in all)"
+fi
+echo "rounds of the per-pass timing: $r" | tee -a "$OUT/system.txt"
 fi
 
+# (Kits up to 2026-10-14.2 also timed the pass 11 versions and store probes here, in the full run: older questions, dropped
+# in kit 2026-10-15 to give the time to more rounds.)
 if [ "$MODE" != quick ] && [ "$MODE" != postpass-only ]; then
-{
-    for c in "1080p 1920x1080" "4k 3840x2160"; do set -- $c
-        say "pass 11 versions, class $1"
-        OUT=$2 N_DISP=100 "$W/mbench" 2 "$S/$1"/pass11/*.spv 2>&1 | sed "s#$S/##"
-    done
-    say "probes at 4K: the same shader with its stores removed (how much of the time is writing)"
-    P=$S/probes-4k
-    OUT=3840x2160 N_DISP=60 "$W/pbench2" "$P/prepass_amd.spv" "$P/prepass_amd_no_stores.spv" 2>&1 | grep 'round 1' | sed "s#$S/##"
-    A="$P/postpass_amd.spv" B="$P/postpass_amd_no_stores.spv" N_DISP=30 "$W/bench" 2>&1 | grep 'round 1' | sed "s#$S/##"
-    for k in 1 4 7 11 12; do N_DISP=100 "$W/mbench" "${levels[$k]}" "$P/pass${k}_amd.spv" "$P/pass${k}_amd_no_stores.spv" 2>&1 | sed "s#$S/##"; done
-} 2>&1 | tee "$OUT/variants.txt"
 {
     say "compiled code (instructions, registers, waves) for AMD's and the exact 1080p shaders"
     for s in amd exact; do for p in prepass pass1 pass11 pass12 postpass; do

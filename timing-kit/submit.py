@@ -98,7 +98,14 @@ def timings(text):
     return t
 
 
-t1, t2 = timings(read('timing-round1.txt')), timings(read('timing-round2.txt'))
+# rounds (since kit 2026-10-15 as many as fit in the run's time, each over all three sizes; before, a second one at 1080p only):
+# each reading is the median over the rounds that have it
+rounds = [t for t in (timings(read(f'timing-round{i}.txt')) for i in range(1, 9)) if t]
+def median(v):
+    v = sorted(v); n = len(v)
+    return v[n // 2] if n % 2 else 0.5 * (v[n // 2 - 1] + v[n // 2])
+t1 = {k: median([t[k] for t in rounds if k in t]) for k in (rounds[0] if rounds else {})}
+t2 = rounds[1] if len(rounds) > 1 else {}
 lines.append('')
 if t1:
     lines.append('ms per pass: AMD / exact' + (' / lossy (passes 1 and 10: the lossy build folds a few of their weights)' if any(k[2] == 'lossy' for k in t1) else ''))
@@ -154,10 +161,10 @@ for l in read('timing-round1.txt').split('\n'):
         spread.append(f'{size} post {m[1]} {f(float(m[2]))} to {f(float(m[4]))} (median {f(float(m[3]))})')
 if spread:
     lines.append('unsteady postpass readings (min to max of 15 runs): ' + '  '.join(spread))
-if t2:
-    dev = [abs(t2[k] / t1[k] - 1) for k in t2 if k in t1 and t1[k] > 0]
+if len(rounds) > 1:
+    dev = [abs(t[k] / t1[k] - 1) for t in rounds for k in t if k in t1 and t1[k] > 0]
     if dev:
-        lines.append(f'second round at 1080p: readings differ by up to {100 * max(dev):.0f}% (typical {100 * sorted(dev)[len(dev) // 2]:.0f}%)')
+        lines.append(f'{len(rounds)} rounds; a reading differs from its median over the rounds by up to {100 * max(dev):.0f}% (typical {100 * sorted(dev)[len(dev) // 2]:.0f}%)')
 
 # the postpass on its own (postpass.txt): several readings of AMD's, the rewrite, the no-stores floor, candidates
 pp, size, vs = {}, None, None
@@ -203,6 +210,28 @@ for cand in sorted({k[0] for k in pvs}):
         elif v:
             parts.append(f'{size} incomplete')
     lines.append(f'postpass shipped/candidate {cand}, both orders: ' + '  '.join(parts))
+# the lossy postpass as released and with the register cut (since kit 2026-10-15), both orders, three kinds of frame
+lr, size, kind, differs = {}, None, None, []
+for l in read('postpass.txt').split('\n'):
+    h = re.match(r'=== lossy postpass at (\d+x\d+): released against register cut \((\w+)\)', l)
+    if h:
+        size, kind = SIZES.get(h[1], h[1]), h[2]; continue
+    if l.startswith('==='):
+        size = None; continue
+    m = re.match(r'round 1\s+\S+/lossy/postpass_\w+?(_regcut)?\.spv .*median ([\d.]+) ms', l)
+    if m and size:
+        lr.setdefault((size, kind), {}).setdefault('cut' if m[1] else 'rel', []).append(float(m[2]))
+    if size and re.search(r'DIFFER|: [1-9]\d* of \d+ bytes differ', l):
+        differs.append(f'{size} {kind}')
+if lr:
+    parts = []
+    for (size, kind), v in lr.items():
+        if len(v.get('rel', [])) == 2 and len(v.get('cut', [])) == 2:
+            a, b = sum(v['rel']) / 2, sum(v['cut']) / 2
+            parts.append(f'{size} {kind.replace("skipped_", "skip-")} {f(a)}/{f(b)} ({100 * b / a - 100:+.1f}%)')
+        else:
+            parts.append(f'{size} {kind} incomplete')
+    lines.append('lossy postpass released/register cut, both orders: ' + '  '.join(parts) + ('  OUTPUT DIFFERS: ' + ', '.join(differs) if differs else ''))
 if suspect:
     lines.append('SUSPECT RUN: writes to memory are far slower than on other machines with this kind of GPU, and games on such\n  machines do not show it. Readings that involve stores (prepass, postpass, passes 1, 2, 9, 11, 12) may not reflect games. ' + '; '.join(suspect))
 df = {}

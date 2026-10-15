@@ -134,12 +134,14 @@ More games and resolutions: [all results](docs/results.md).
 pictures it costs something there; the release page shows a typical frame and the lossy DLL against the exact DLL on every measure.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-14/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-14): unpack, double-click
-> `fsr4time.exe`, wait a few minutes (2 on an RX 7800 XT; people report about 5 under Windows; slower chips take longer). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15/fsr4-timing-kit-windows.zip)** (experimental, about 300 MB, version 2026-10-15): unpack, double-click
+> `fsr4time.exe`, wait about 15 minutes (up to about 20 on a slow chip). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
 > that each DLL gives the same picture, and offers to send the result. Reports are in from eleven graphics chips so far;
 > every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
 >
-> - The kits (2026-10-14) carry this release's lossy build. If you ran a kit older than 2026-10-13, please run again.
+> - New in the kits (2026-10-15): two changes planned for the next release that may be slower on RX 6000 cards, the RX 7600 and
+>   integrated graphics than on the card the project is developed on, and Ultra Performance. Results from those chips are the ones
+>   most needed now. [What is new](timing-kit/README.md#in-short)
 > - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
 >
 > [What the kits do](timing-kit/README.md#windows-experimental)

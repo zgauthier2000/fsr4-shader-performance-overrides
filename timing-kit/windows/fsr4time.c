@@ -3,12 +3,14 @@
 // Direct3D 12, with each upscaler DLL found in the folders next to it (dlls\<name>\amd_fidelityfx_upscaler_dx12.dll),
 // on made-up frames. No game, no OptiScaler. Derived from research/pruning/fsr4img.c.
 //
-//   fsr4time.exe            runs every DLL in dlls\ at 1080p, 1440p and 4K output, still and moving picture, twice
-//                           (the DLLs in name order, then in reverse order), prints a summary, saves it as
-//                           results-<time>.txt and offers to send it
+//   fsr4time.exe            runs every DLL in dlls\ at 1080p, 1440p and 4K output with the Balanced preset's render size and
+//                           with Ultra Performance's (a third of the output), still and moving picture, in rounds (the DLLs in
+//                           name order, then in reverse order, and so on) for about 15 minutes, at least two rounds; prints a
+//                           summary, saves it as results-<time>.txt and offers to send it
 //   fsr4time.exe --run <name> <results file>     (used by the first form: one DLL, in a process of its own)
 //   fsr4time.exe --quick    1080p and 4K only
-//   fsr4time.exe --once     every DLL timed once instead of twice
+//   fsr4time.exe --once     one round only
+//   fsr4time.exe --minutes N   the time the rounds may take (default 15)
 //   fsr4time.exe --no-questions   asks nothing at the end and sends nothing
 //   fsr4time.exe --send-test   sends one message that says it is a test (to check that sending works)
 //
@@ -40,10 +42,11 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-14.2, experimental"
+#define KIT_VERSION "windows 2026-10-15, experimental"
 #define WARM 40
 #define TIMED 200
-#define PHASES 16
+#define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
+#define MAXROUNDS 8
 
 static FILE* out;      // the results file of this run
 static void Say(const char* fmt, ...) {
@@ -301,7 +304,10 @@ static int RunOne(const char* name, bool quick) {
     if (!nv) { Say("R|%s|FAILED|this DLL offers no FSR 4 on this GPU (%llu versions listed)\n", name, (unsigned long long)count); return 1; }
     Say("G|%s\n", gpu);
 
-    static const struct { UINT ow, oh, rw, rh; } sizes[] = {{1920, 1080, 1130, 636}, {2560, 1440, 1506, 848}, {3840, 2160, 2260, 1272}};
+    // the Balanced preset's render size (16 jitter steps, as in every kit before) and Ultra Performance's (72 steps, as FSR asks a game for)
+    static const struct { UINT ow, oh, rw, rh; int phases; const char* tag; } sizes[] = {
+        {1920, 1080, 1130, 636, 16, ""}, {2560, 1440, 1506, 848, 16, ""}, {3840, 2160, 2260, 1272, 16, ""},
+        {1920, 1080, 640, 360, 72, " UP"}, {2560, 1440, 853, 480, 72, " UP"}, {3840, 2160, 1280, 720, 72, " UP"}};
     ID3D12QueryHeap* qh;
     D3D12_QUERY_HEAP_DESC qhd = {.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP, .Count = 2};
     CHECK(ID3D12Device_CreateQueryHeap(device, &qhd, &IID_ID3D12QueryHeap, (void**)&qh));
@@ -315,15 +321,18 @@ static int RunOne(const char* name, bool quick) {
         char label[64], idtext[40] = "";      // with one variant the lines carry the folder's name alone, as before
         if (nv == 1) snprintf(label, sizeof(label), "%s", name);
         else { snprintf(label, sizeof(label), "%.40s, variant %d of %d", name, vi + 1, nv); snprintf(idtext, sizeof(idtext), ", id %llx", (unsigned long long)chosen); }
-        for (int si = 0; si < 3; ++si) {
-            if (quick && si == 1) continue;
+        for (int si = 0; si < 6; ++si) {
+            if (quick && (si == 1 || si == 4)) continue;
             const UINT ow = sizes[si].ow, oh = sizes[si].oh, rw = sizes[si].rw, rh = sizes[si].rh;
+            const int phases = sizes[si].phases;
+            char sz[24];      // the size as the summary names it: the output, and " UP" for Ultra Performance
+            snprintf(sz, sizeof(sz), "%ux%u%s", ow, oh, sizes[si].tag);
             struct ffxCreateBackendDX12Desc backend = {0};
             backend.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12; backend.device = device;
             struct ffxOverrideVersion ov = {0};
             ov.header.type = FFX_API_DESC_TYPE_OVERRIDE_VERSION; ov.versionId = chosen; ov.header.pNext = &backend.header;
             ID3D12Resource* color[PHASES];
-            for (int p = 0; p < PHASES; ++p) color[p] = Texture(DXGI_FORMAT_R16G16B16A16_FLOAT, rw, rh, false);
+            for (int p = 0; p < phases; ++p) color[p] = Texture(DXGI_FORMAT_R16G16B16A16_FLOAT, rw, rh, false);
             ID3D12Resource* depth = Texture(DXGI_FORMAT_R32_FLOAT, rw, rh, false);
             ID3D12Resource* motion = Texture(DXGI_FORMAT_R16G16_FLOAT, rw, rh, false);
             ID3D12Resource* output = Texture(DXGI_FORMAT_R16G16B16A16_FLOAT, ow, oh, true);
@@ -338,7 +347,7 @@ static int RunOne(const char* name, bool quick) {
                 for (size_t i = 0; i < (size_t)rw * rh; ++i) { mbuf[2 * i] = Half((float)vx * sx); mbuf[2 * i + 1] = Half((float)vy * sy); }
                 UploadRows(motion, rw, rh, 4, (const uint8_t*)mbuf);
                 float jx[PHASES], jy[PHASES];
-                for (int p = 0; p < PHASES; ++p) {
+                for (int p = 0; p < phases; ++p) {
                     jx[p] = Halton(p + 1, 2) - 0.5f; jy[p] = Halton(p + 1, 3) - 0.5f;
                     for (UINT y = 0; y < rh; ++y)
                         for (UINT x = 0; x < rw; ++x) {
@@ -356,14 +365,14 @@ static int RunOne(const char* name, bool quick) {
                 create.fpMessage = Message;
                 ffxContext context = NULL;
                 ffxReturnCode_t rc = ffx.CreateContext(&context, &create.header, NULL);
-                if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|create context %d at %ux%u\n", label, (int)rc, ow, oh); goto next_variant; }
+                if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|create context %d at %s\n", label, (int)rc, sz); goto next_variant; }
                 struct ffxQueryGetProviderVersion provider = {0};
                 provider.header.type = FFX_API_QUERY_DESC_TYPE_GET_PROVIDER_VERSION;
                 ffx.Query(&context, &provider.header);
                 static double ms[TIMED], even[TIMED], odd[TIMED];
                 int ne = 0, no = 0;
                 for (int frame = 0; frame < WARM + TIMED; ++frame) {
-                    const int p = frame % PHASES;
+                    const int p = frame % phases;
                     struct ffxDispatchDescUpscale d = {0};
                     d.header.type = FFX_API_DISPATCH_DESC_TYPE_UPSCALE; d.commandList = list;
                     d.color = Resource(color[p], FFX_API_SURFACE_FORMAT_R16G16B16A16_FLOAT, FFX_API_RESOURCE_STATE_COMMON);
@@ -377,7 +386,7 @@ static int RunOne(const char* name, bool quick) {
                     d.cameraNear = 0.05f; d.cameraFar = 3000.0f; d.cameraFovAngleVertical = 0.75f; d.viewSpaceToMetersFactor = 1.0f;
                     ID3D12GraphicsCommandList_EndQuery(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 0);
                     rc = ffx.Dispatch(&context, &d.header);
-                    if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|dispatch %d at %ux%u\n", label, (int)rc, ow, oh); goto next_variant; }
+                    if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|dispatch %d at %s\n", label, (int)rc, sz); goto next_variant; }
                     ID3D12GraphicsCommandList_EndQuery(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 1);
                     ID3D12GraphicsCommandList_ResolveQueryData(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 0, 2, qbuf, 0);
                     Submit();
@@ -395,14 +404,14 @@ static int RunOne(const char* name, bool quick) {
                 for (int i = 0; i < TIMED; ++i) { sum += ms[i]; if (ms[i] < fastest) fastest = ms[i]; }
                 const double med = Median(ms, TIMED), me = Median(even, ne), mo = Median(odd, no);
                 char key[256];      // names this DLL, version, size and scene: the same in its two runs
-                snprintf(key, sizeof(key), "%s|%s%s|%ux%u|%s", label, provider.versionName ? provider.versionName : chosen_name, idtext, ow, oh, scene ? "moving" : "still");
+                snprintf(key, sizeof(key), "%s|%s%s|%s|%s", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, scene ? "moving" : "still");
                 const uint64_t h = HashOutput(output, ow, oh, key);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
                 // name | version name the DLL reports | output | render | scene | mean | median | median where jitter x >= 0 | where < 0 | fastest | picture hash
-                Say("R|%s|%s%s|%ux%u|%ux%u|%s|%.4f|%.4f|%.4f|%.4f|%.4f|%016llx\n", label, provider.versionName ? provider.versionName : chosen_name, idtext, ow, oh, rw, rh,
+                Say("R|%s|%s%s|%s|%ux%u|%s|%.4f|%.4f|%.4f|%.4f|%.4f|%016llx\n", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, rw, rh,
                     scene ? "moving" : "still", sum / TIMED, med, me, mo, fastest, (unsigned long long)h);
                 ffx.DestroyContext(&context, NULL);
             }
-            for (int p = 0; p < PHASES; ++p) ID3D12Resource_Release(color[p]);
+            for (int p = 0; p < phases; ++p) ID3D12Resource_Release(color[p]);
             ID3D12Resource_Release(depth); ID3D12Resource_Release(motion); ID3D12Resource_Release(output);
             free(cbuf); free(dbuf); free(mbuf);
         }
@@ -470,9 +479,14 @@ static bool Send(const char* text) {
     return ok;
 }
 
-struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double mean2; bool hashdiff; char diff[160]; };
-// the figure the summary gives: the mean of a DLL's two runs (or its one run, if the other failed)
-static double Val(const struct Row* w) { return w->n == 2 ? 0.5 * (w->mean + w->mean2) : w->mean; }
+struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXROUNDS]; bool hashdiff; char diff[160]; };
+// the figure the summary gives: the mean of a DLL's runs (one per round; fewer if a run failed)
+static double Val(const struct Row* w) { double t = 0; for (int i = 0; i < w->n; ++i) t += w->runs[i]; return w->n ? t / w->n : 0; }
+static double Spread(const struct Row* w) {      // (largest - smallest) of the runs, as a share of the mean
+    double lo = w->runs[0], hi = w->runs[0];
+    for (int i = 1; i < w->n; ++i) { if (w->runs[i] < lo) lo = w->runs[i]; if (w->runs[i] > hi) hi = w->runs[i]; }
+    return Val(w) > 0 ? (hi - lo) / Val(w) : 0;
+}
 
 int main(int argc, char** argv) {
     char base[MAX_PATH];
@@ -491,18 +505,21 @@ int main(int argc, char** argv) {
         return ok ? 0 : 1;
     }
     bool quick = false, unattended = false, once = false;
+    double budget = 15;      // minutes the rounds may take
     for (int a = 1; a < argc; ++a) {
         if (!strcmp(argv[a], "--quick")) quick = true;
         if (!strcmp(argv[a], "--no-questions")) unattended = true;
         if (!strcmp(argv[a], "--once")) once = true;
+        if (!strcmp(argv[a], "--minutes") && a + 1 < argc) budget = atof(argv[++a]);
     }
+    if (budget < 1) budget = 1;
     SYSTEMTIME st;
     GetLocalTime(&st);
     char results[MAX_PATH], raw[MAX_PATH];
     snprintf(results, sizeof(results), "%sresults-%04d%02d%02d-%02d%02d%02d.txt", base, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
     snprintf(raw, sizeof(raw), "%sresults-raw.txt", base);
     DeleteFileA(raw);
-    printf("FSR 4.1.1 timing kit (%s). This takes a few minutes; please leave the PC alone and close games,\nbrowsers and video while it runs.\n\n", KIT_VERSION);
+    printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more\nrounds); please leave the PC alone and close games, browsers and video while it runs.\n\n", KIT_VERSION, once ? budget / 2 : budget);
 
     // the DLLs: AMD's shaders first (the reference), then the rest in name order
     char names[16][64];
@@ -519,15 +536,28 @@ int main(int argc, char** argv) {
         for (int j = i + 1; j < nd; ++j)
             if (strcmp(names[j], names[i]) < 0) { char t[64]; strcpy(t, names[i]); strcpy(names[i], names[j]); strcpy(names[j], t); }
     if (!nd) { printf("No folders in dlls\\ next to the program.\n"); return 1; }
-    // two rounds, the second in reverse order: a DLL's two runs then sit at mirrored places in the sequence, so a drift
-    // over the run (the card warming up, something starting in the background) shows as a difference between them
+    // Rounds, every other one in reverse order: a DLL's runs then sit at mirrored places in the sequence, so a drift over the
+    // run (the card warming up, something starting in the background) shows as a spread between them. After each round the
+    // next one starts only if it fits in the time given (the last round's length is the estimate); a second round also runs
+    // if the whole run then stays under 20 minutes. Slow cards get one or two rounds, fast ones up to MAXROUNDS.
     DeleteBlockRecords();      // none left over from a run that was cut short
-    for (int k = 0; k < (once ? nd : 2 * nd); ++k) {
-        const int i = k < nd ? k : 2 * nd - 1 - k;
+    const ULONGLONG t0 = GetTickCount64();
+    ULONGLONG tr = t0;
+    int rounds = 0;
+    for (int k = 0;; ++k) {
+        if (k == nd) {      // a round is complete: another one?
+            ++rounds; k = 0;
+            const double done = (double)(GetTickCount64() - t0) / 60000.0, last = (double)(GetTickCount64() - tr) / 60000.0;
+            tr = GetTickCount64();
+            const bool more = !once && rounds < MAXROUNDS && (done + last <= budget || (rounds == 1 && done + last <= 20.0));
+            printf("round %d took %.1f minutes (%.1f so far)%s\n", rounds, last, done, more ? "; one more round" : ""); fflush(stdout);
+            if (!more) break;
+        }
+        const int i = rounds % 2 ? nd - 1 - k : k;
         char src[MAX_PATH], cmd[1024];
         snprintf(src, sizeof(src), "dlls\\%s\\amd_fidelityfx_upscaler_dx12.dll", names[i]);
         if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", names[i]); continue; }
-        printf("%s (run %d of %d) ...\n", names[i], k < nd ? 1 : 2, once ? 1 : 2); fflush(stdout);
+        printf("%s (round %d, DLL %d of %d) ...\n", names[i], rounds + 1, k + 1, nd); fflush(stdout);
         snprintf(cmd, sizeof(cmd), "\"%sfsr4time.exe\" --run \"%s\" \"%s\"%s", base, names[i], raw, quick ? " quick" : "");
         STARTUPINFOA si = {.cb = sizeof(si)};
         PROCESS_INFORMATION pi;
@@ -542,7 +572,7 @@ int main(int argc, char** argv) {
     static struct Row rows[256];
     int nr = 0;
     char gpu[256] = "?", line[512];
-    static char summary[16384];
+    static char summary[65536];
     int sn = 0;
     FILE* r = fopen(raw, "r");
     static char fails[1024];
@@ -550,7 +580,7 @@ int main(int argc, char** argv) {
     while (r && fgets(line, sizeof(line), r)) {
         line[strcspn(line, "\r\n")] = 0;
         if (line[0] == 'G' && line[1] == '|') snprintf(gpu, sizeof(gpu), "%s", line + 2);
-        if (line[0] == 'D' && line[1] == '|') {      // how a DLL's second run differed from its first (see CompareBlocks)
+        if (line[0] == 'D' && line[1] == '|') {      // how a DLL's later run differed from its first (see CompareBlocks)
             char dn[64], dv[64], ds[16], dc[8]; unsigned nd, nb, x0, y0, x1, y1; double worst;
             if (sscanf(line, "D|%63[^|]|%63[^|]|%15[^|]|%7[^|]|%u|%u|%u|%u|%u|%u|%lf", dn, dv, ds, dc, &nd, &nb, &x0, &y0, &x1, &y1, &worst) == 11)
                 for (int j = 0; j < nr; ++j)
@@ -565,13 +595,16 @@ int main(int argc, char** argv) {
         double fastest;
         if (nr < 256 && sscanf(line, "R|%63[^|]|%63[^|]|%15[^|]|%15[^|]|%7[^|]|%lf|%lf|%lf|%lf|%lf|%19s", w->name, w->ver, w->size, render, w->scene, &w->mean, &w->med, &w->even,
                                &w->odd, &fastest, w->hash) == 11) {
-            struct Row* first = NULL;      // this DLL's first run at this size and scene, if this line is its second
+            struct Row* first = NULL;      // this DLL's first run at this size and scene, if this line is a later one
             for (int j = 0; j < nr && !first; ++j)
-                if (!strcmp(rows[j].name, w->name) && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene) && rows[j].n == 1) first = &rows[j];
+                if (!strcmp(rows[j].name, w->name) && !strcmp(rows[j].ver, w->ver) && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) first = &rows[j];
             if (first) {
-                first->n = 2; first->mean2 = w->mean; first->even = 0.5 * (first->even + w->even); first->odd = 0.5 * (first->odd + w->odd);
-                first->hashdiff = strcmp(first->hash, w->hash) != 0;
-            } else { w->n = 1; w->hashdiff = false; ++nr; }
+                if (first->n < MAXROUNDS) {
+                    first->even = (first->even * first->n + w->even) / (first->n + 1); first->odd = (first->odd * first->n + w->odd) / (first->n + 1);
+                    first->runs[first->n++] = w->mean;
+                }
+                if (strcmp(first->hash, w->hash)) first->hashdiff = true;
+            } else { w->n = 1; w->runs[0] = w->mean; w->hashdiff = false; ++nr; }
         }
     }
     if (r) fclose(r);
@@ -586,28 +619,33 @@ int main(int argc, char** argv) {
 #define ADD(...) sn += snprintf(summary + sn, sizeof(summary) - sn, __VA_ARGS__)
     ADD("kit %s\nGPU: %s\nsystem: Windows %lu.%lu build %lu%s; CPU: %s\n", KIT_VERSION, gpu, vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, wine ? " (Wine/Proton)" : "", cpu);
     ADD("upscaler time per frame, ms: mean (for a lossy DLL also: frame that runs the model / skipped frame); vs the first\n");
-    if (once) ADD("each DLL was timed once (--once)\n");
-    else ADD("each DLL is timed twice (all in order, then all in reverse order); the figure is the mean of the two, and both are\ngiven where they differ by more than 3%%\n");
+    ADD("rounds: %d (%.0f minutes; every other round in reverse order); each figure is the mean of a DLL's runs, and where they\nspread by more than 3%% the smallest and largest are given; \"UP\" = Ultra Performance (render size a third of the output)\n",
+        rounds, (double)(GetTickCount64() - t0) / 60000.0);
+    if (rounds < 2) ADD("only one round: %s\n", once ? "--once" : "one round took too long on this card for a second one");
     for (int i = 0; i < nr; ++i) {
         const struct Row* w = &rows[i];
         const struct Row* ref = NULL;
         for (int j = 0; j < nr; ++j)
             if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) { ref = &rows[j]; break; }
         if (i == 0 || strcmp(rows[i - 1].name, w->name)) ADD("%s [%s]\n", w->name, w->ver);
-        ADD("  %s %-6s %.3f", w->size, w->scene, Val(w));
+        ADD("  %-12s %-6s %.3f", w->size, w->scene, Val(w));
         if (w->even > 1.25 * w->odd || w->odd > 1.25 * w->even) ADD(" (%.3f / %.3f)", w->even > w->odd ? w->even : w->odd, w->even > w->odd ? w->odd : w->even);
         if (ref && ref != w) {
             ADD("  %+.0f%%", 100.0 * Val(w) / Val(ref) - 100.0);
         }
-        if (w->n == 2 && (w->mean > 1.03 * w->mean2 || w->mean2 > 1.03 * w->mean)) ADD("  [two runs: %.3f, %.3f]", w->mean, w->mean2);
-        if (w->n == 1 && !once) ADD("  [one run only]");
+        if (w->n > 1 && Spread(w) > 0.03) {
+            double lo = w->runs[0], hi = w->runs[0];
+            for (int q = 1; q < w->n; ++q) { if (w->runs[q] < lo) lo = w->runs[q]; if (w->runs[q] > hi) hi = w->runs[q]; }
+            ADD("  [%d runs: %.3f to %.3f]", w->n, lo, hi);
+        }
+        if (w->n < rounds) ADD("  [%d of %d runs]", w->n, rounds);
         {
             // the picture's fingerprint (the run's last frame), and the first DLL above that produced the same one
             const struct Row* same = NULL;
             for (int j = 0; j < i && !same; ++j)
                 if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene) && !strcmp(rows[j].hash, w->hash)) same = &rows[j];
             ADD("  picture %s", w->hash);
-            if (w->hashdiff) ADD(" (NOT the same picture in its two runs%s)", w->diff);
+            if (w->hashdiff) ADD(" (NOT the same picture in all its runs%s)", w->diff);
             if (same) ADD(" = %s", same->name);
             else if (ref && ref != w) ADD(" (differs from those above)");
         }
