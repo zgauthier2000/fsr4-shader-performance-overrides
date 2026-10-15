@@ -124,7 +124,8 @@ so on Linux and under Proton nothing is left to gain.
 
 If a driver runs AMD's INT8 model passes with 32-wide waves, the hybrid is 18-27% faster than AMD's pass 1. Passes 2
 and 12 have the same structure, so roughly 0.25-0.37 ms per 4K frame in this harness (an estimate from these
-numbers; passes 2 and 12 were not built).
+numbers; passes 2 and 12 were not built here. Built since, on [WMMA on every model pass](every-pass.md): with 32-wide
+waves requested per pipeline they take 0.362 and 0.364 ms against 0.458 ms for AMD's passes run 32-wide).
 
 **Whether AMD's Windows driver does that is not known.** This project measures DLLs only under Proton, where RADV
 picks the wave size. One reading points that way but does not show it: on a Windows RX 7800 XT, a tester measured
@@ -133,7 +134,14 @@ causes.
 
 If Windows does run these passes 32-wide, there is a simpler experiment than the hybrid: ask for 64-wide waves for
 AMD's own model passes (Shader Model 6.6's `WaveSize` attribute). In this harness that would be worth 0.16 ms per
-pass, more than the hybrid's 0.12 ms, and the output would stay AMD's byte for byte. It has not been tried.
+pass, more than the hybrid's 0.12 ms, and the output would stay AMD's byte for byte.
+
+**Tried since** (Windows timing kit 2026-10-15.2: DLLs that ask for 64-wide waves on every INT8 pass, and a 32-wide
+control). Under Proton the request reaches the driver: the 32-wide control takes 4.50 ms at 4K against 3.15 ms. On
+Windows, a tester's RX 6600 (RDNA2) gave the same times with the 32-wide control as without it, and up to 5% more with
+64-wide waves, so there the driver appears to run these passes 32-wide already; RDNA2 has no WMMA. A tester's RX 7800 XT
+saw no change with 64-wide waves; whether its 32-wide control was run is not known. So for RDNA3 on Windows the
+question stays open.
 
 ## The D3D12 test and port
 
@@ -178,9 +186,9 @@ the earlier results stand.
 
 - Windows, and any card but the RX 7800 XT. RX 6000 cards have no WMMA. RX 9000 cards use AMD's FP8 model, not
   these INT8 shaders.
-- Passes 2 and 12 as hybrids (same structure as pass 1).
+- ~~Passes 2 and 12 as hybrids~~: done since, with every other pass, on [WMMA on every model pass](every-pass.md).
 - A game. Nothing here was built into an override folder or a DLL.
-- AMD's own passes with 64-wide waves on Windows, the simpler experiment above.
+- ~~AMD's own passes with 64-wide waves on Windows~~: in the Windows timing kit since 2026-10-15.2 (above).
 
 ## Files
 

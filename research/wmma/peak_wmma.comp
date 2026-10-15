@@ -1,0 +1,25 @@
+#version 460
+// SPDX-License-Identifier: GPL-2.0-or-later
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_EXT_shader_explicit_arithmetic_types : require
+#extension GL_EXT_nonuniform_qualifier : require
+#extension GL_EXT_control_flow_attributes : require
+layout(local_size_x = WAVE) in;
+layout(push_constant) uniform R { uvec2 cbv; uint uav; uint srv; } reg;
+layout(set = 2, binding = 0) buffer B32 { uint d[]; } heap[];
+#define ACC coopmat<int32_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+void main() {
+    uint g = gl_WorkGroupID.y * 64u + gl_WorkGroupID.x;
+    coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA> a;
+    coopmat<int8_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB> b;
+    coopMatLoad(a, heap[reg.uav + 11u].d, (g & 1023u) * 64u, 4u, gl_CooperativeMatrixLayoutRowMajor);
+    coopMatLoad(b, heap[reg.uav + 11u].d, (g & 1023u) * 64u + 7u, 4u, gl_CooperativeMatrixLayoutColumnMajor);
+    ACC acc[NACC];
+    for (int k = 0; k < NACC; k++) acc[k] = ACC(k);
+    for (int it = 0; it < ITERS; it++) {
+        [[unroll]] for (int k = 0; k < NACC; k++) acc[k] = coopMatMulAdd(a, b, acc[k]);
+    }
+    for (int k = 1; k < NACC; k++) acc[0] = acc[0] + acc[k];
+    coopMatStore(acc[0], heap[reg.uav + 11u].d, (41616128u >> 2) + g * 256u, 16u, gl_CooperativeMatrixLayoutColumnMajor);
+}

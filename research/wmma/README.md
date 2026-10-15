@@ -13,6 +13,10 @@ repeat it. The sources are in this folder.
 bit-exact, also slower with the 64-wide waves RADV uses (0.331 against 0.292 ms), but faster than AMD's pass forced to
 32-wide waves (0.452 ms). That page also corrects how the bit-exact checks below were run.
 
+**Later still (2026-10-15): [WMMA on every model pass](every-pass.md).** Hybrids and all-WMMA versions of all 12 passes,
+exact and lossy: all bit-exact, none faster than AMD's passes with 64-wide waves. It also measures the peak rates behind
+that (WMMA at most about 13% above 64-wide dot products on this card) and builds the full deep passes ruled out below.
+
 ## Background
 
 FSR 4.1.1's INT8 model spends most of its time in 12 "model passes", compute shaders that run a
@@ -305,7 +309,8 @@ The deeper passes, the ones with the most matrix work per value, were tested as 
 ## Not tried
 
 - **A full WMMA version of a deeper pass.** Not needed: the lower-bound probe for pass 7 already
-  costs as much as AMD's complete pass.
+  costs as much as AMD's complete pass. (Built later anyway, with passes 8 and 9:
+  [2.5 to 4 times AMD's time](every-pass.md#the-deep-passes).)
 - **RDNA4.** Its matrix layout is different (no replication, and a transposing load), and AMD's
   own FSR 4 model for it uses FP8 WMMA. Nothing here was measured on it.
 - **Higher occupancy for the WMMA pass itself.** Only the probe was tested, and only downward.
@@ -322,7 +327,8 @@ The deeper passes, the ones with the most matrix work per value, were tested as 
 | `gen_hybrid.py` | Generates the hybrid version (WMMA for the 3x3 layer only); see [the hybrid split](hybrid.md) |
 | `pp.py` | Prints a dumped model pass as condensed pseudo-code |
 | `make_test_data.py` | The small-value data set |
-| `bench/mbench.c`, `bench/bench.c` | The benchmark (`mbench.c` includes `bench.c`); `WEIGHTS=` and `SCRATCH=` load the two buffers from files |
+| `bench/mbench.c`, `bench/bench.c` | The benchmark (`mbench.c` includes `bench.c`); `WEIGHTS=` and `SCRATCH=` load the two buffers from files; `x.spv@32` requires 32-wide waves |
+| `splice3x3.py`, `splice11.py`, `gen_full32.py`, `gen_down.py`, `gen_deep.py`, `peak_*.comp` | The versions of every pass and the peak-rate probes; see [WMMA on every model pass](every-pass.md#files) |
 | `bench/cmprops.c` | Lists the driver's cooperative matrix configurations |
 
 To reproduce, with a vkd3d-proton shader dump of a game running FSR 4.1.1 at 4K (pass 1 is

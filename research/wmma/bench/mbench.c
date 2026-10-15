@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Times FSR 4.1.1 INT8 model passes as dumped from vkd3d-proton and compares variants.
-//   ./mbench <level 1|2|3> <a.spv> [b.spv ...]     (4K output: level 1 = 1920x1080 tensors)
+//   ./mbench <level 1|2|3> <a.spv> [b.spv ...]     (4K output: level 1 = 1920x1080 tensors; "x.spv@32" requires 32-wide waves)
 // Each variant runs on the same pseudo-random scratch buffer and weights; the scratch buffer is
 // read back after one dispatch and compared with the first variant's, then the pass is timed.
 #define main postpass_bench_main
@@ -61,8 +61,10 @@ int main(int argc, char** argv) {
     for (VkDeviceSize i = 0; i < scratch_size + init_size; i++) { seed = seed * 1664525u + 1013904223u; map[i] = (uint8_t)(seed >> 24); }
     // SCRATCH=<file>: the tensor buffer from a file (e.g. make_test_data.py's small values) instead of random bytes
     FILE* sf0 = getenv("SCRATCH") ? fopen(getenv("SCRATCH"), "rb") : 0;
+    if (getenv("SCRATCH") && !sf0) { fprintf(stderr, "cannot open SCRATCH=%s\n", getenv("SCRATCH")); return 1; }
     if (sf0) { if (fread(map, 1, scratch_size, sf0) != scratch_size) { fprintf(stderr, "short scratch\n"); return 1; } fclose(sf0); }
     FILE* wf = getenv("WEIGHTS") ? fopen(getenv("WEIGHTS"), "rb") : 0;
+    if (getenv("WEIGHTS") && !wf) { fprintf(stderr, "cannot open WEIGHTS=%s\n", getenv("WEIGHTS")); return 1; }
     if (wf) { if (fread(map + scratch_size, 1, init_size, wf) != init_size) { fprintf(stderr, "short weights\n"); return 1; } fclose(wf); }
     uint32_t* sizes = (uint32_t*)(map + scratch_size + init_size);
     memset(sizes, 0, cbv_size);
@@ -163,7 +165,9 @@ int main(int argc, char** argv) {
         VkPipeline pipe = pipeline(argv[2 + v], pl);
         // Passes without a constant buffer have only the two heap offsets as root constants.
         {
-            FILE* sf = fopen(argv[2 + v], "rb");
+            char sp[4096]; snprintf(sp, sizeof sp, "%s", argv[2 + v]);       /* without a "@32" / "@64" suffix */
+            char* at = strrchr(sp, '@'); if (at && (!strcmp(at, "@32") || !strcmp(at, "@64"))) *at = 0;
+            FILE* sf = fopen(sp, "rb");
             static char text[1 << 20];
             size_t sn = fread(text, 1, sizeof(text), sf);
             fclose(sf);

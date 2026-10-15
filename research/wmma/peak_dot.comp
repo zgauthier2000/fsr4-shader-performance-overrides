@@ -1,0 +1,21 @@
+#version 460
+// SPDX-License-Identifier: GPL-2.0-or-later
+#extension GL_EXT_integer_dot_product : require
+#extension GL_EXT_nonuniform_qualifier : require
+#extension GL_EXT_control_flow_attributes : require
+layout(local_size_x = 64) in;
+layout(push_constant) uniform R { uvec2 cbv; uint uav; uint srv; } reg;
+layout(set = 2, binding = 0) buffer B32 { uint d[]; } heap[];
+void main() {
+    uint i = gl_GlobalInvocationID.y * 1920u + gl_GlobalInvocationID.x;
+    uint w[NW];
+    [[unroll]] for (int k = 0; k < NW; k++) w[k] = heap[reg.uav + 11u].d[(i + uint(k) * 977u) & 0xffffffu];
+    int acc[NA];
+    [[unroll]] for (int k = 0; k < NA; k++) acc[k] = int(k);
+    for (int it = 0; it < ITERS; it++) {
+        [[unroll]] for (int k = 0; k < NA; k++) acc[k] += dotPacked4x8EXT(int(w[k % NW]), int(w[(k + it) % NW]));
+    }
+    int s = 0;
+    [[unroll]] for (int k = 0; k < NA; k++) s ^= acc[k];
+    heap[reg.uav + 11u].d[(41616128u >> 2) + i] = uint(s);
+}

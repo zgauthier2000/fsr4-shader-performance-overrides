@@ -88,7 +88,14 @@ static void barrier(VkCommandBuffer cb) {
     vkCmdPipelineBarrier(cb, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 1, &b, 0, 0, 0, 0);
 }
 
-static VkPipeline pipeline(const char* path, VkPipelineLayout pl) {
+static VkPipeline pipeline(const char* path_in, VkPipelineLayout pl) {
+    /* "file.spv@32" / "file.spv@64" (or env WAVE=32|64 for all): require that subgroup size for this pipeline, as
+       vkd3d-proton does for a DXIL shader with WaveSize. Without either, the driver picks. NOFULL=1 leaves out
+       REQUIRE_FULL_SUBGROUPS (no difference seen). */
+    char path[4096]; snprintf(path, sizeof path, "%s", path_in);
+    uint32_t want = getenv("WAVE") ? atoi(getenv("WAVE")) : 0;
+    char* at = strrchr(path, '@');
+    if (at && (!strcmp(at, "@32") || !strcmp(at, "@64"))) { want = atoi(at + 1); *at = 0; }
     FILE* f = fopen(path, "rb");
     if (!f) { perror(path); exit(1); }
     static uint32_t code[1 << 21];
@@ -99,6 +106,8 @@ static VkPipeline pipeline(const char* path, VkPipelineLayout pl) {
     CHECK(vkCreateShaderModule(dev, &mi, 0, &mod));
     VkComputePipelineCreateInfo ci = {VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO, .layout = pl,
         .stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, .stage = VK_SHADER_STAGE_COMPUTE_BIT, .module = mod, .pName = "main"}};
+    VkPipelineShaderStageRequiredSubgroupSizeCreateInfo rs = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO, .requiredSubgroupSize = want};
+    if (want) { ci.stage.pNext = &rs; if (!getenv("NOFULL")) ci.stage.flags = VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT; }
     VkPipeline p;
     CHECK(vkCreateComputePipelines(dev, VK_NULL_HANDLE, 1, &ci, 0, &p));
     return p;
