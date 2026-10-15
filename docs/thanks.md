@@ -20,6 +20,12 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **Vinicius** (Radeon RX 6600, Windows)
 - **guyoum** (Radeon 890M, Windows)
 - **Ameisenstock** (Radeon RX 6600 XT, RX 6800 and RX 5700 XT, Windows)
+- **Burton92** (Intel Arc graphics of a Core Ultra 5 135H, Windows)
+- **lobuzprzemdesigner** (Radeon RX 6600 XT, Windows)
+- **cacdai3met** (GeForce GTX 1650, Windows)
+- **Dussim** (Radeon RX 7900 XT, Windows)
+- **AbidouXX18** (Radeon RX 6650 XT, Windows)
+- **Nabosaurus** (Radeon RX 6650 XT, Windows)
 
 ## How to be listed, or taken off
 
