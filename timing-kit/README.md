@@ -47,6 +47,9 @@ release's DLL also without that change.
   representative of the lossy DLL in other modes.** Instead of two fixed runs per DLL it times in rounds for about 15 minutes, so a
   fast card gives steadier figures. The four folders for older questions (split dot products, the 4.1.1b changes, postpass only,
   without postpass) are gone.
+- **Smaller downloads:** the Windows kit is about 8 MB instead of 235: its nine DLLs, which are variants of one file, come as one
+  compressed pack that `fsr4time.exe` unpacks into `dlls\` on its first start (under a second on a desktop PC; about 380 MB on disk).
+  The Linux kit is a `.tar.xz` of about 5 MB instead of a 10 MB `.tar.gz`; `tar xf` unpacks it the same way.
 - **Linux kit:** the pass 11 versions and the store probes, older questions, are gone; that time goes to repeat rounds of the
   per-pass timing while the run stays within about 15 minutes (on an RX 7800 XT one round takes ten minutes, so the repeat is at
   1080p only; the full run took 14.7 minutes).
@@ -82,14 +85,15 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15/fsr4-timing-kit-windows.zip) (about 235 MB, updated 2026-10-15) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15/fsr4-timing-kit-windows.zip) (about 8 MB, updated 2026-10-15; its first start unpacks the DLLs, about 380 MB on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
 
 **New in version 2026-10-15:** release `dll-2026-10-15`'s DLLs, each also without one of its two changes (see [above](#in-short));
 Ultra Performance sizes (marked "UP": figures for Ultra Performance only, not representative of other modes); rounds for about 15
-minutes instead of two runs per DLL; the four folders for older questions are gone. On an RX 7800 XT under Proton, 4K, moving, mean
+minutes instead of two runs per DLL; the four folders for older questions are gone. While it runs, a header at the top of the window thanks you and asks
+you not to use the graphics card or a web browser (with a rhyming joke about the upscaler that changes every 10 seconds); it stays in place while the lines below it scroll. On an RX 7800 XT under Proton, 4K, moving, mean
 of 6 rounds: AMD 5.00 ms, exact 3.16 (3.18 without shared taps), lossy 2.23 (2.23 without the register cut). **Ultra Performance
 only:** 4K AMD 4.64 ms, exact 3.07, lossy 2.50 (`dll-2026-10-14`'s lossy DLL, which did not skip frames there, 3.18).
 
@@ -311,7 +315,7 @@ with earlier versions of the kit. On the RX 6600 and the RX 6600M the readings a
 (image stores take far too long there under the kit). No report has come from a Radeon 780M, 890M
 or another current integrated GPU yet. If something looks wrong on your machine, please report it.
 
-Download: [`fsr4-timing-kit.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-14) (9 MB).
+Download: [`fsr4-timing-kit.tar.xz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-10-15) (about 5 MB; until kit 2026-10-14 a `.tar.gz` of 10 MB).
 
 Results received so far: [RESULTS.md](RESULTS.md).
 

@@ -134,7 +134,7 @@ More games and resolutions: [all results](docs/results.md).
 pictures it costs something there; the release page shows a typical frame and the lossy DLL against the exact DLL on every measure.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15/fsr4-timing-kit-windows.zip)** (experimental, about 235 MB, version 2026-10-15): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15/fsr4-timing-kit-windows.zip)** (experimental, about 8 MB, version 2026-10-15): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes (up to about 20 on a slow chip). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
 > that each DLL gives the same picture, and offers to send the result. Reports are in from eleven graphics chips so far;
 > every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).

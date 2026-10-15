@@ -19,8 +19,10 @@
 // two kinds of frame are also given apart. The summary gives a fingerprint of the picture each DLL produces from
 // the still scene and from the moving one (the run's last frame) and names the first DLL above it that produced the same picture, byte for byte.
 //
-// Build (llvm-mingw): x86_64-w64-mingw32-clang -std=c11 -O1 -I<FidelityFX>/api/include -I<FidelityFX>/upscalers/include
-//                     fsr4time.c -o fsr4time.exe -ld3d12 -ldxgi -ldxguid -lwinhttp -ladvapi32 -static
+// Build (llvm-mingw): x86_64-w64-mingw32-clang -std=c11 -O1 -DZSTD_DISABLE_ASM -I<FidelityFX>/api/include -I<FidelityFX>/upscalers/include
+//                     -Izstd/lib -Izstd/lib/common fsr4time.c zstd/lib/common/*.c zstd/lib/decompress/*.c -o fsr4time.exe
+//                     -ld3d12 -ldxgi -ldxguid -lwinhttp -ladvapi32 -static
+// The DLLs come as one pack, dlls.pack.zst (made by the project's mkpack.py and zstd -19 --long=27): the first start unpacks it into dlls\.
 // hook.inc is written by mkhook.py (the address results are sent to, scrambled; see ../submit.py).
 #define COBJMACROS
 #define WIDL_C_INLINE_WRAPPERS
@@ -38,6 +40,8 @@
 #include <string.h>
 
 #include "ffx_api.h"
+#define ZSTD_STATIC_LINKING_ONLY
+#include "zstd.h"      // zstd/: the decompression part of Zstandard 1.5.7, for the DLL pack
 #include "ffx_api_loader.h"
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
@@ -479,6 +483,267 @@ static bool Send(const char* text) {
     return ok;
 }
 
+// ---- the DLL pack: the kit's DLLs are nine variants of one file, and a zip compresses each on its own (235 MB). As one zstd stream with a
+// long match window they take about 8 MB. On the first start the program unpacks dlls.pack.zst into dlls\<folder>\ (each file checked against the
+// hash in the pack); later starts find the files in place (by size) and skip it. Folders a tester adds to dlls\ are left alone.
+// Pack layout (little endian, inside the zstd stream): "FSR4PK1\n", u32 count, per file: u16 path length, path ('/' separated, relative to dlls\),
+// u64 size, u64 FNV-1a 64 of the data; then the files' data in the same order.
+#define PACK_NAME "dlls.pack.zst"
+#define PACK_MAX 32
+struct PackFile { char path[260]; uint64_t size, hash; };
+struct PackIn { FILE* f; ZSTD_DCtx* dc; uint8_t* ib; ZSTD_inBuffer in; uint8_t* ob; size_t ob_len, ob_pos; bool end; };
+static bool PackFill(struct PackIn* p) {      // more decompressed bytes into ob (keeps what is left unread); false at the end of the stream
+    if (p->ob_pos > 0) { memmove(p->ob, p->ob + p->ob_pos, p->ob_len - p->ob_pos); p->ob_len -= p->ob_pos; p->ob_pos = 0; }
+    while (p->ob_len < (1u << 20)) {
+        if (p->in.pos == p->in.size) {
+            if (p->end) return p->ob_len > 0;
+            p->in.size = fread(p->ib, 1, 1u << 20, p->f); p->in.pos = 0;
+            if (!p->in.size) { p->end = true; continue; }
+        }
+        ZSTD_outBuffer o = {p->ob + p->ob_len, (2u << 20) - p->ob_len, 0};
+        const size_t r = ZSTD_decompressStream(p->dc, &o, &p->in);
+        if (ZSTD_isError(r)) { printf("The DLL pack is damaged (%s). Please download the kit again.\n", ZSTD_getErrorName(r)); return false; }
+        p->ob_len += o.pos;
+        if (o.pos == 0 && p->in.pos == p->in.size && p->end) break;
+    }
+    return p->ob_len > 0;
+}
+static bool PackRead(struct PackIn* p, void* dst, size_t n) {
+    uint8_t* d = (uint8_t*)dst;
+    while (n) {
+        if (p->ob_pos == p->ob_len && !PackFill(p)) return false;
+        size_t k = p->ob_len - p->ob_pos; if (k > n) k = n;
+        memcpy(d, p->ob + p->ob_pos, k); p->ob_pos += k; d += k; n -= k;
+    }
+    return true;
+}
+static bool UnpackDlls(void) {      // true when there is nothing to do or the DLLs are in place; false (with a message) when unpacking failed
+    FILE* f = fopen(PACK_NAME, "rb");
+    if (!f) return true;
+    struct PackIn p = {f, ZSTD_createDCtx(), malloc(1u << 20), {0}, malloc(2u << 20), 0, 0, false};
+    p.in.src = p.ib;
+    ZSTD_DCtx_setParameter(p.dc, ZSTD_d_windowLogMax, 27);
+    static struct PackFile pf[PACK_MAX];
+    char magic[8]; uint32_t n = 0; bool ok = PackRead(&p, magic, 8) && !memcmp(magic, "FSR4PK1\n", 8) && PackRead(&p, &n, 4) && n <= PACK_MAX;
+    for (uint32_t i = 0; ok && i < n; ++i) {
+        uint16_t len = 0;
+        ok = PackRead(&p, &len, 2) && len < sizeof(pf[i].path) && PackRead(&p, pf[i].path, len) && PackRead(&p, &pf[i].size, 8) && PackRead(&p, &pf[i].hash, 8);
+        if (ok) { pf[i].path[len] = 0; ok = !strstr(pf[i].path, "..") && !strchr(pf[i].path, ':') && pf[i].path[0] != '/'; }
+        for (char* c = pf[i].path; ok && *c; ++c) if (*c == '/') *c = '\\';
+    }
+    bool have = ok;      // every file already in place with its size: nothing to unpack
+    for (uint32_t i = 0; have && i < n; ++i) {
+        char t[300]; snprintf(t, sizeof(t), "dlls\\%s", pf[i].path);
+        WIN32_FILE_ATTRIBUTE_DATA a;
+        have = GetFileAttributesExA(t, GetFileExInfoStandard, &a) && (((uint64_t)a.nFileSizeHigh << 32) | a.nFileSizeLow) == pf[i].size;
+    }
+    if (ok && !have) {
+        uint64_t total = 0; for (uint32_t i = 0; i < n; ++i) total += pf[i].size;
+        const ULONGLONG t0 = GetTickCount64();
+        printf("Unpacking the DLLs into dlls\\ (only on the first start; %u MB on disk) ...\n", (unsigned)(total >> 20)); fflush(stdout);
+        CreateDirectoryA("dlls", NULL);
+        static uint8_t buf[1u << 20];
+        for (uint32_t i = 0; ok && i < n; ++i) {
+            char t[300], d[300]; snprintf(t, sizeof(t), "dlls\\%s", pf[i].path); snprintf(d, sizeof(d), "%s", t);
+            char* sl = strrchr(d, '\\'); if (sl) { *sl = 0; CreateDirectoryA(d, NULL); }
+            FILE* o = fopen(t, "wb");
+            uint64_t left = pf[i].size, h = 0xcbf29ce484222325ull;
+            while (ok && left) {
+                const size_t k = left > sizeof(buf) ? sizeof(buf) : (size_t)left;
+                ok = PackRead(&p, buf, k);
+                for (size_t j = 0; ok && j < k; ++j) { h ^= buf[j]; h *= 0x100000001b3ull; }
+                if (ok && o) ok = fwrite(buf, 1, k, o) == k;
+                left -= k;
+            }
+            if (o) fclose(o);
+            if (!o || !ok || h != pf[i].hash) { printf("Could not unpack %s%s. Please download the kit again.\n", t, o ? " (it does not check out)" : ""); DeleteFileA(t); ok = false; }
+        }
+        if (ok) printf("Unpacked %u DLLs in %.1f s.\n\n", n, (double)(GetTickCount64() - t0) / 1000.0);
+    } else if (!ok) printf("The DLL pack (%s) is not one this program can read. Please download the kit again.\n", PACK_NAME);
+    fclose(f); ZSTD_freeDCtx(p.dc); free(p.ib); free(p.ob);
+    return ok;
+}
+
+// ---- the header that stays on screen while the DLLs are timed: "CYBOMAN SAYS:" in letters made of characters, a thank-you and the request not
+// to use the graphics card or a web browser, and a rhyming joke that changes every 10 seconds (120 of them, about the upscaler and this project). The lines below it scroll on their own (a scroll region), so the header is never pushed
+// out of the window. Only in a console window that takes such sequences (Windows 10 and later) and is at least 76 x 20 characters; otherwise, and
+// when the output goes to a file, the plain request is printed as before (FSR4TIME_NOHEADER=1 forces that). Released (scroll region off) before the
+// summary, which then scrolls as usual.
+static const char* const CYBOMAN_ART[] = {
+    "  ___ __   __ ___   ___   __  __    _    _  _    ___    _   __   __ ___  _",
+    " / __|\\ \\ / /| _ ) / _ \\ |  \\/  |  /_\\  | \\| |  / __|  /_\\  \\ \\ / // __|(_)",
+    "| (__  \\ V / | _ \\| (_) || |\\/| | / _ \\ | .` |  \\__ \\ / _ \\  \\ V / \\__ \\ _",
+    " \\___|  |_|  |___/ \\___/ |_|  |_|/_/ \\_\\|_|\\_|  |___//_/ \\_\\  |_|  |___/(_)",
+};
+static const char* const JOKES[] = {
+    "Why did the frame take a nap? The lossy DLL said: skip that lap.",
+    "Why is the exact DLL a saint? Bit for bit, it has no taint.",
+    "What did the network say on the skip? Wake me when there's a trip.",
+    "Why did the upscaler grin so wide? It made 4K from a smaller side.",
+    "What does FSR 4 love to eat? Int8 numbers, small and neat.",
+    "Why did the postpass feel so fine? It wrote its pixels row by line.",
+    "Why did the shader feel so slick? Shared taps made its colors quick.",
+    "How does the lossy build save time? Every other frame, it skips the climb.",
+    "Why did the pixel show a ghost? Motion vectors missed the post.",
+    "Why did the history stay so true? The rest rule kept it calm for you.",
+    "What did the spark say to the night? A skipped frame still shows my light.",
+    "Why did the wire stop its flash? The guard now rests, no more clash.",
+    "Why did the leaf need frames of two? Grain alone won't get it through.",
+    "Why did the fade come late to play? Flat bright areas like to stay.",
+    "Why does the exact build never lie? Byte for byte, it's AMD's reply.",
+    "Why did the GPU sing with glee? Fourteen passes, all set free.",
+    "Why did pass eleven start to run? Its loops unrolled, the work was done.",
+    "Why did the stores line up in rows? That's how the faster postpass goes.",
+    "Why did the jitter go left and right? To catch each pixel in the light.",
+    "Why did Ultra Performance cheer? Frame skip finally lives here.",
+    "What does a skipped frame borrow? The model's last result, no sorrow.",
+    "Why did the motion vector smile? It moved the picture all the while.",
+    "Why did the railing start to shake? A pan made every bar awake.",
+    "Why did the dark band disappear? The guard looks at the screen edge here.",
+    "What did the history clamp declare? Only beside motion, take care.",
+    "Why did the film grain lose its seat? It never stayed two frames to repeat.",
+    "Why did the lone bright pixel fail? No bright neighbor told its tale.",
+    "Why did the rain not pass the test? A one-way line is not the rest.",
+    "Why does the lossy DLL warn? The picture changes, that's how it's born.",
+    "Why did the register cut feel right? Twelve waves on small chips tonight.",
+    "What did shared taps tell the screen? Sixteen colors, converted clean.",
+    "Why did the 7800 XT just shrug? It had registers to hug.",
+    "Why did the RX 6000 need a split? Its dot products had to fit.",
+    "Why does the igpu build stay lean? Pass eleven loops for a smaller screen.",
+    "Why did the weights get folded tight? A few small ones merged just right.",
+    "What does the dead band softly say? Tiny changes, stay away.",
+    "Why did the half-float make a fuss? Rounding toward zero bothered us.",
+    "Why did auto exposure stop its sway? Tiny wobbles were sent away.",
+    "What did the prepass do on a skip? It took a short and cheaper trip.",
+    "Why did the prepass split in two? One copy for the skipped crew.",
+    "Why do the passes check a mark? On a skip, they stay in the dark.",
+    "What keeps the model off on a skip? A two-word mark ends the trip.",
+    "Why did pass twelve carry the jitter? To hand it on, a careful sitter.",
+    "Why does the warp shift the old result? So moving scenes don't show a fault.",
+    "Why did the uncovered strip look thin? It had no history to begin.",
+    "Why did the plane track who was where? Hidden things need extra care.",
+    "What did the depth test try to find? Who was in front, a frame behind.",
+    "Why do frame times go long and short? Skip and run, the lossy sort.",
+    "Why do frame caps help the lossy kind? They leave the long frames behind.",
+    "Why did vkd3d keep the old shader? Its cache key was the same, not later.",
+    "Why does Linux get its files as SPV? Override, launch, and you're free.",
+    "What does the Windows DLL have inside? The rewritten shaders, side by side.",
+    "Why did the patcher add a section? The new shaders needed protection.",
+    "Why did OptiScaler show our name? The version string tells you the game.",
+    "Why did the watermark not slow down? Full speed with the text in town.",
+    "Why did the 4K output beam? The model ran a lighter scheme.",
+    "Why did 1080p not gain as much? The passes were too short to touch.",
+    "Why did the network keep a memory? Recurrent, as it's meant to be.",
+    "Why did the memory feel out of date? On a skip, it has to wait.",
+    "Why did Balanced stay the same? Ultra Performance got the fame.",
+    "Why does UP add frames that run? Thin lines need both halves, every one.",
+    "Why does UP skip just one in three? Extra runs keep the lines carefree.",
+    "Why did the UP picture cost a bit? Fewer samples, that's the hit.",
+    "Why did the sky dots twinkle more? In UP, gaps are hard to score.",
+    "Why did the thin wire fade in a pan? Samples missed it when it ran.",
+    "Why did the tiny spark seem faint? Skipped frames used a lighter paint.",
+    "Why does the guard now rest at rest? Nothing scrolls in, so it's best.",
+    "Why does the exact DLL match AMD? The very same picture, you'll see.",
+    "What does the lossy DLL trade away? A little picture, for frames per day.",
+    "Why did Tomb Raider cheer in UP? Nine percent more frames, wait and see.",
+    "Why did the upscaler love the frame? Fewer pixels, the same big game.",
+    "Why did the 5K run take its time? More pixels mean a longer climb.",
+    "Why did the color tap stop repeating? Shared taps ended all the cheating.",
+    "Why did the LDS shrink its size? One image at a time was wise.",
+    "Why did the waves double up at last? Less shared memory, running fast.",
+    "What did the postpass say to RDNA3? Scattered stores are slow for me.",
+    "Why did the model pass not care for waves? Compute-bound is how it behaves.",
+    "Why did the int8 math stay exact? AMD's arithmetic, kept intact.",
+    "Why did the lossy build fold so few? Pass one and ten, that's all it'd do.",
+    "Why did the clamp come first, not last? Same result, and it runs fast.",
+    "Why did the output scale turn integer? Floats made the math a bit bigger.",
+    "Why did the border clear its lines? Convolutions read past the signs.",
+    "Why did the tensor need an edge? Zeros guard the outer ledge.",
+    "Why did the skip rule check the sign? Positive jitter runs just fine.",
+    "Why did the reset frame not skip? A camera cut restarts the trip.",
+    "Why did the lossy DLL feel so light? Half the model work each night.",
+    "Why does the exact DLL stay so steady? The model runs, always ready.",
+    "Why did the history image hold a flag? Two-frame changes in the bag.",
+    "Why did the persistence flag move? It rode the picture's motion groove.",
+    "Why is the old weight squared on a skip? It took too much on the trip.",
+    "Why did the new frame get no say? At rest, the history wins the day.",
+    "Why did swaying leaves get a vote? The model's verdict struck the note.",
+    "Why did the fast leaves blur a bit? Two frames old, the memory's hit.",
+    "Why did the slow fade catch up now? The model's weight showed it how.",
+    "Why did the dark leaf pulse and fade? Skipped frames showed a lighter shade.",
+    "Why did the outline linger on? Old motion pointed to where it's gone.",
+    "Why did the fixed bars leave a trace? The scene slid past their place.",
+    "Why did the plate stay sharp and white? A tighter limit got it right.",
+    "Why did the exact build take the lead? The same picture, with extra speed.",
+    "Why did the upscaler skip with flair? Every other frame, if no one's there.",
+    "Why do motion vectors guide the skip? They show where pixels make the trip.",
+    "Why did the jitter get carried along? So skipped frames don't get it wrong.",
+    "Why did the network output stay? Skipped frames read it the next day.",
+    "Why cache the vectors in the buffer? So skipped frames don't have to suffer.",
+    "Why did the cleared diagonals hide? The motion grid stepped to the side.",
+    "Why does the prepass write a grid? So skipped frames know where pixels slid.",
+    "Why did the model wake on time? The mark was cleared, the frame was prime.",
+    "Why does lossy differ from the source? Skipped frames take another course.",
+    "Why did the DLL equal the Linux files? Byte for byte, across the miles.",
+    "Why did the tools rebuild the release? Defaults on, the bytes at peace.",
+    "Why did the options start out off? Old releases rebuild, no scoff.",
+    "Why did the DXIL keep its numbering? Renumbering sends it lumbering.",
+    "Why did half-floats break the twin? vkd3d's fast math snuck in.",
+    "Why did the DXIL twin agree? The DLL matched Linux, perfectly.",
+    "Why did the upscaler need the depth? To tell who's front at every step.",
+    "Why did FSR 4 bring a network? Twelve passes do the heavy work.",
+    "Why did the network run in int8? Smaller numbers, faster rate.",
+    "Why did the exact files win the race? Same picture, quicker pace.",
+    "Why did the lossy files go further still? Skips lighten up the bill.",
+    "Why trust frames, not the overlay? The menu's still; frames don't sway.",
+};
+#define NJOKES ((int)(sizeof(JOKES) / sizeof(JOKES[0])))
+#define HEADER_ROWS 11     // the 4 rows of letters, a blank row, the thanks and the request, a blank row, the joke, a blank row, a line
+static HANDLE hdr_thread, hdr_stop;
+static int hdr_joke;
+static void HeaderJoke(HANDLE h, int k) {      // the joke line, written into its cells directly (the cursor and the scrolling text below are not touched)
+    CONSOLE_SCREEN_BUFFER_INFO bi;
+    if (!GetConsoleScreenBufferInfo(h, &bi)) return;
+    const int w = bi.srWindow.Right - bi.srWindow.Left + 1;
+    char line[512];
+    int n = snprintf(line, sizeof(line), "  %s", JOKES[k % NJOKES]);
+    while (n < w - 1 && n < (int)sizeof(line) - 1) line[n++] = ' ';
+    DWORD done;
+    COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + 8)};      // row 9 of the window
+    WriteConsoleOutputCharacterA(h, line, (DWORD)n, at, &done);
+}
+static DWORD WINAPI HeaderTicker(LPVOID p) {
+    while (WaitForSingleObject(hdr_stop, 10000) == WAIT_TIMEOUT) HeaderJoke((HANDLE)p, ++hdr_joke);
+    return 0;
+}
+static bool HeaderStart(void) {
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode;
+    CONSOLE_SCREEN_BUFFER_INFO bi;
+    if (getenv("FSR4TIME_NOHEADER") || !GetConsoleMode(h, &mode) || !GetConsoleScreenBufferInfo(h, &bi)) return false;
+    const int w = bi.srWindow.Right - bi.srWindow.Left + 1, rows = bi.srWindow.Bottom - bi.srWindow.Top + 1;
+    if (w < 76 || rows < 20 || !SetConsoleMode(h, mode | ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING)) return false;
+    hdr_joke = (int)(GetTickCount() % NJOKES);
+    printf("\x1b[2J\x1b[H\x1b[93;1m");
+    for (int i = 0; i < 4; ++i) printf("%s\n", CYBOMAN_ART[i]);
+    printf("\x1b[0m\n\x1b[1mThank you for help with this project.\nPlease don't use your GPU or web browser while the test is running.\x1b[0m\n\n\n\n");      // a blank row, the joke's row, a blank row
+    for (int i = 0; i < w - 1; ++i) putchar('-');
+    printf("\n\x1b[%d;%dr\x1b[%d;1H", HEADER_ROWS + 1, rows, HEADER_ROWS + 1);      // the scroll region: everything below the header
+    fflush(stdout);
+    HeaderJoke(h, hdr_joke);
+    hdr_stop = CreateEventA(NULL, TRUE, FALSE, NULL);
+    hdr_thread = CreateThread(NULL, 0, HeaderTicker, h, 0, NULL);
+    return true;
+}
+static void HeaderEnd(void) {
+    if (!hdr_thread) return;
+    SetEvent(hdr_stop); WaitForSingleObject(hdr_thread, 3000); CloseHandle(hdr_thread); hdr_thread = NULL;
+    printf("\x1b[r");      // scroll region off: from here the window scrolls as a whole again, with its history
+    CONSOLE_SCREEN_BUFFER_INFO bi;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bi)) printf("\x1b[%d;1H", bi.srWindow.Bottom - bi.srWindow.Top + 1);
+    printf("\n"); fflush(stdout);
+}
+
 struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXROUNDS]; bool hashdiff; char diff[160]; };
 // the figure the summary gives: the mean of a DLL's runs (one per round; fewer if a run failed)
 static double Val(const struct Row* w) { double t = 0; for (int i = 0; i < w->n; ++i) t += w->runs[i]; return w->n ? t / w->n : 0; }
@@ -519,8 +784,11 @@ int main(int argc, char** argv) {
     snprintf(results, sizeof(results), "%sresults-%04d%02d%02d-%02d%02d%02d.txt", base, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
     snprintf(raw, sizeof(raw), "%sresults-raw.txt", base);
     DeleteFileA(raw);
-    printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more\nrounds); please leave the PC alone and close games, browsers and video while it runs.\n\n", KIT_VERSION, once ? budget / 2 : budget);
 
+    if (!UnpackDlls()) {
+        if (!unattended) { char in[8]; printf("\nPress Enter to close."); fflush(stdout); fgets(in, sizeof(in), stdin); }
+        return 1;
+    }
     // the DLLs: AMD's shaders first (the reference), then the rest in name order
     char names[16][64];
     int nd = 0;
@@ -536,6 +804,10 @@ int main(int argc, char** argv) {
         for (int j = i + 1; j < nd; ++j)
             if (strcmp(names[j], names[i]) < 0) { char t[64]; strcpy(t, names[i]); strcpy(names[i], names[j]); strcpy(names[j], t); }
     if (!nd) { printf("No folders in dlls\\ next to the program.\n"); return 1; }
+    if (HeaderStart())
+        printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more rounds).\n\n", KIT_VERSION, once ? budget / 2 : budget);
+    else
+        printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more\nrounds); please leave the PC alone and close games, browsers and video while it runs.\n\n", KIT_VERSION, once ? budget / 2 : budget);
     // Rounds, every other one in reverse order: a DLL's runs then sit at mirrored places in the sequence, so a drift over the
     // run (the card warming up, something starting in the background) shows as a spread between them. After each round the
     // next one starts only if it fits in the time given (the last round's length is the estimate); a second round also runs
@@ -567,6 +839,7 @@ int main(int argc, char** argv) {
     }
     DeleteFileA("amd_fidelityfx_upscaler_dx12.dll");
     DeleteBlockRecords();
+    HeaderEnd();
 
     // summary
     static struct Row rows[256];
