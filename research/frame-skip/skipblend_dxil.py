@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_GUARDREST, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS, SB_REST (as in skipblend.py);
-# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (the default since release dll-2026-10-15; SB_RANGEPRE=0 SB_RANGEAT=0 SB_ROWS=0 as before; with dupmix.py and, on Linux,
+# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (the "register cut", in release dll-2026-10-15 only; off by default again after it: with it, the lossy DLL
+# was 1-1.6% slower on every Windows card tested, RX 6000 included, and its picture changed under Windows' driver; with dupmix.py and, on Linux,
 # postpass_direct_lossy.py): same output, fewer registers. The nine samples' running min / max are worked out as each sample is (RANGEAT) and before the
 # skipped-frame branch (RANGEPRE), and the 3x3 history reads come in three rows in blocks of their own (ROWS). Lossy postpass on GPUs with the smaller
-# register file (RX 6000, RX 7600, integrated): 80 registers and 12 waves instead of 128 and 8; RX 7800 XT unchanged (96 / 16).
+# register file (RX 6000, RX 7600, integrated): 80 registers and 12 waves instead of 128 and 8 under RADV; RX 7800 XT unchanged (96 / 16).
 # SB_ALPHA (default 1, with MP_ALPHA=rules, the default) and SB_MEMSTILL (default 0.45; "off" for none), both since release dll-2026-10-13; SB_PERSIST (default 0.02
 # since release dll-2026-10-14)
 # The DXIL form of skipblend.py (see there): on a skipped frame the weight of the new frame is
@@ -12,7 +13,7 @@
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
 import os, re, sys
 # the changed-content tests of skipblend.py are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01'), ('SB_RANGEPRE', '1'), ('SB_RANGEAT', '1'), ('SB_ROWS', '1'), ('SB_RANGESET', 'minmax')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01'), ('SB_RANGEPRE', '0'), ('SB_RANGEAT', '0'), ('SB_ROWS', '0'), ('SB_RANGESET', 'minmax')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]

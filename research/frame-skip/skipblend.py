@@ -115,15 +115,16 @@
 # the new frame counts for very little where the model keeps history; "off" for none, as in release
 # dll-2026-10-06.4), SB_CAP (upper limit of the 2^ term,
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
-# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (the default since release dll-2026-10-15; SB_RANGEPRE=0 SB_RANGEAT=0 SB_ROWS=0 as before; with dupmix.py and, on Linux,
+# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (the "register cut", in release dll-2026-10-15 only; off by default again after it: with it, the lossy DLL
+# was 1-1.6% slower on every Windows card tested, RX 6000 included, and its picture changed under Windows' driver; with dupmix.py and, on Linux,
 # postpass_direct_lossy.py): same output, fewer registers. The nine samples' running min / max are worked out as each sample is (RANGEAT) and before the
 # skipped-frame branch (RANGEPRE), and the 3x3 history reads come in three rows in blocks of their own (ROWS). Lossy postpass on GPUs with the smaller
-# register file (RX 6000, RX 7600, integrated): 80 registers and 12 waves instead of 128 and 8; RX 7800 XT unchanged (96 / 16).
+# register file (RX 6000, RX 7600, integrated): 80 registers and 12 waves instead of 128 and 8 under RADV; RX 7800 XT unchanged (96 / 16).
 # SB_DAMP=<p> (default off): stronger damping on skipped frames, the correction factor raised to the power p. With SB_CONST=0 the new frame's
 # weight (1 - a)^2 becomes (1 - a)^(1 + p). Tried for Ultra Performance, where a render pixel spans three output pixels.
 import os, re, sys
 # the changed-content tests (below) are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01'), ('SB_RANGEPRE', '1'), ('SB_RANGEAT', '1'), ('SB_ROWS', '1'), ('SB_RANGESET', 'minmax')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01'), ('SB_RANGEPRE', '0'), ('SB_RANGEAT', '0'), ('SB_ROWS', '0'), ('SB_RANGESET', 'minmax')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
