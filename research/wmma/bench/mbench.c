@@ -59,6 +59,9 @@ int main(int argc, char** argv) {
     CHECK(vkMapMemory(dev, m_read, 0, VK_WHOLE_SIZE, 0, (void**)&read_map));
     uint32_t seed = 4242;
     for (VkDeviceSize i = 0; i < scratch_size + init_size; i++) { seed = seed * 1664525u + 1013904223u; map[i] = (uint8_t)(seed >> 24); }
+    // SCRATCH=<file>: the tensor buffer from a file (e.g. make_test_data.py's small values) instead of random bytes
+    FILE* sf0 = getenv("SCRATCH") ? fopen(getenv("SCRATCH"), "rb") : 0;
+    if (sf0) { if (fread(map, 1, scratch_size, sf0) != scratch_size) { fprintf(stderr, "short scratch\n"); return 1; } fclose(sf0); }
     FILE* wf = getenv("WEIGHTS") ? fopen(getenv("WEIGHTS"), "rb") : 0;
     if (wf) { if (fread(map + scratch_size, 1, init_size, wf) != init_size) { fprintf(stderr, "short weights\n"); return 1; } fclose(wf); }
     uint32_t* sizes = (uint32_t*)(map + scratch_size + init_size);

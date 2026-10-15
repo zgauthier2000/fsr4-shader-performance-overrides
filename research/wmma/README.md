@@ -9,6 +9,10 @@ AMD's complete pass.
 This is a record of what was tried, how it was measured and why it loses, so that nobody has to
 repeat it. The sources are in this folder.
 
+**Later (2026-10-15): [the hybrid split](hybrid.md).** WMMA for the 3x3 layer only, dot products for the rest: also
+bit-exact, also slower with the 64-wide waves RADV uses (0.331 against 0.292 ms), but faster than AMD's pass forced to
+32-wide waves (0.452 ms). That page also corrects how the bit-exact checks below were run.
+
 ## Background
 
 FSR 4.1.1's INT8 model spends most of its time in 12 "model passes", compute shaders that run a
@@ -56,7 +60,9 @@ pseudo-random bytes.
   reported. Dispatches are separated by barriers, as they are in the game.
 - **Two data sets.** Full-range random bytes saturate nearly every value, which would hide rounding
   mistakes. `make_test_data.py` makes a second set with small values and small biases so the
-  rounding paths are exercised. Both were used for the bit-exact checks.
+  rounding paths are exercised. Both were used for the bit-exact checks. (Correction: the published `mbench.c`
+  could only load the weights file of that set, not its tensor. The checks were repeated with AMD's real model data
+  on both inputs, and the results stand; see [the hybrid split](hybrid.md#how-it-was-checked).)
 
 Two lessons about the method, learned the hard way:
 
@@ -313,9 +319,10 @@ The deeper passes, the ones with the most matrix work per value, were tested as 
 | `probe7.comp` | Lower-bound probe for pass 7; `-DMODE=0..2`, `-DWAVE=32` or `64`; run with `mbench 3` |
 | `gen_pass1.py` | Generates the shared-memory WMMA version of pass 1, 2 or 12 from a dumped pass |
 | `gen_pass1b.py` | Generates the register-only version |
+| `gen_hybrid.py` | Generates the hybrid version (WMMA for the 3x3 layer only); see [the hybrid split](hybrid.md) |
 | `pp.py` | Prints a dumped model pass as condensed pseudo-code |
 | `make_test_data.py` | The small-value data set |
-| `bench/mbench.c`, `bench/bench.c` | The benchmark (`mbench.c` includes `bench.c`) |
+| `bench/mbench.c`, `bench/bench.c` | The benchmark (`mbench.c` includes `bench.c`); `WEIGHTS=` and `SCRATCH=` load the two buffers from files |
 | `bench/cmprops.c` | Lists the driver's cooperative matrix configurations |
 
 To reproduce, with a vkd3d-proton shader dump of a game running FSR 4.1.1 at 4K (pass 1 is

@@ -8,7 +8,7 @@ A summary of each is in [How it works, and what was tried](../docs/how-it-works.
 | Page | What it covers |
 |---|---|
 | [`postpass-and-prepass/`](postpass-and-prepass) | why AMD's stores are slow, memory-traffic probes for every pass, the prepass breakdown, occupancy on other GPUs |
-| [`wmma/`](wmma) | matrix-multiply instructions (WMMA) for the model passes: built, bit-exact, slower |
+| [`wmma/`](wmma) | matrix-multiply instructions (WMMA) for the model passes: built, bit-exact, slower; also [WMMA for the 3x3 layer only](wmma/hybrid.md) |
 | [`pruning/`](pruning) | removing weights from the model: time saved against image error (not bit-exact, not shipped); the still-image and motion test rigs |
 | [`community-lossy-set/`](community-lossy-set) | a community shader set for RDNA2 that removes weights for speed: timed pass by pass, image error at rest and in motion, and what would be needed to take it further |
 | [`frame-skip/`](frame-skip) | running the model on every other frame and reusing its last output in between: half of AMD's upscaler time at 4K with the lossy set; what it costs in motion and in frame pacing (changes the image; in the lossy test builds) |
