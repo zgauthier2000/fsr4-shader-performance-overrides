@@ -45,16 +45,16 @@ def desc(names, M):
 
 def bias_radar(t):
     lab = ("Three radar charts with the ten spokes of the upscaler comparison's chart and on its scale: on every spoke the best of the five upscalers compared "
-           "there reaches the outer ring. Left: this project's exact DLL, with the steady test as a dashed outline. Middle: the steady test, right: the community "
-           "bias DLL, each with the exact DLL as a dashed outline. The three shapes are nearly the same; the steady test reaches further at rest, the bias DLL "
+           "there reaches the outer ring. Left: this project's exact DLL. Middle: the steady test, right: the community "
+           "bias DLL, each with the exact DLL's shape as a dashed outline for comparison. The three shapes are nearly the same; the steady test reaches further at rest, the bias DLL "
            "is shorter on the wire and on speed. " + desc(B_NAMES, B_MEASURES))
     H = 430
-    o = frame(H, lab, 'The three on the upscaler comparison\'s scale', 'The ten spokes of that page\'s chart; the outer ring is the best of its five upscalers. Bigger is better.', t)
+    o = frame(H, lab, 'The three on the upscaler comparison\'s scale', 'The outer ring is the best of that page\'s five upscalers. Bigger is better. Dashed outline: the exact DLL.', t)
     short = [m[0] for m in B_MEASURES]
-    for cx, k, ref, title in ((128, 0, 1, B_NAMES[0]), (380, 1, 0, B_NAMES[1]), (632, 2, 0, B_NAMES[2])):
+    for cx, k, ref, title in ((128, 0, None, B_NAMES[0]), (380, 1, 0, B_NAMES[1]), (632, 2, 0, B_NAMES[2])):
         o.append(text(cx, 96, title, t, 12.5, 'ink', 'middle', 600))
         radar_panel(o, t, cx, 228, 64, k, short, 8.5, ref=ref, values=True, M=B_MEASURES, SC=B_SCORES, ours=k == 1)
-    o += [text(24, H - 42, 'Dashed: the exact DLL (left: the steady test). Old image: seven scenes; fixed bars: four pans; foliage: three sway speeds; speed: mean of 1080p, 1440p, 4K.', t, 10, 'muted'),
+    o += [text(24, H - 42, 'Dashed outline: the exact DLL\'s shape. Old image: seven scenes; fixed bars: four pans; foliage: three sway speeds; speed: mean of 1080p, 1440p, 4K.', t, 10, 'muted'),
           text(24, H - 28, "Speed: Windows timing kit under Proton, the three in one run. The bias DLL runs AMD's own shaders, so it has AMD's speed.", t, 10, 'muted'),
           text(24, H - 14, 'Test rig, 4K output from 2260x1272, Radeon RX 7800 XT, single runs, auto exposure off. Neither test build has been tried in a game.', t, 10, 'muted')]
     return o
@@ -79,12 +79,12 @@ D_SCORES = [score(m[3], m[4]) for m in D_MEASURES]
 
 def bias_differ(t):
     lab = ("Three radar charts with ten spokes each, on measures where the three builds differ; on every spoke the best of the three reaches the outer ring. "
-           "Left: the exact DLL (AMD's picture), middle: the steady test, right: the community bias DLL; the dashed outline is the exact DLL (left: the steady test). "
+           "Left: the exact DLL (AMD's picture), middle: the steady test, right: the community bias DLL; in the middle and right charts the dashed outline is the exact DLL's shape. "
            + desc(B_NAMES, D_MEASURES))
     H = 430
-    o = frame(H, lab, 'Where the three differ', 'On every spoke the best of the three reaches the outer ring (not the comparison page\'s scale). Bigger is better.', t)
+    o = frame(H, lab, 'Where the three differ', 'On every spoke the best of the three reaches the outer ring. Bigger is better. Dashed outline: the exact DLL.', t)
     short = [m[0] for m in D_MEASURES]
-    for cx, k, ref, title in ((128, 0, 1, B_NAMES[0]), (380, 1, 0, B_NAMES[1]), (632, 2, 0, B_NAMES[2])):
+    for cx, k, ref, title in ((128, 0, None, B_NAMES[0]), (380, 1, 0, B_NAMES[1]), (632, 2, 0, B_NAMES[2])):
         o.append(text(cx, 96, title, t, 12.5, 'ink', 'middle', 600))
         radar_panel(o, t, cx, 228, 64, k, short, 8.5, ref=ref, values=True, M=D_MEASURES, SC=D_SCORES, ours=k == 1)
     o += [text(24, H - 42, 'Flat at rest, Fade, Grain, Uncovered 1080p, Wire, Bright rain: the full check of each build. Background, Railing, Stripes: the comparison rig\'s moving scene.', t, 10, 'muted'),

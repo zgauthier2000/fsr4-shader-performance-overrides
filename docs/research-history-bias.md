@@ -42,7 +42,8 @@ in motion.
 
 The ten spokes of the [upscaler comparison](upscaler-comparison.md#in-short)'s chart, on its scale: on every spoke
 the best of the five upscalers compared there reaches the outer ring. On these measures the three are nearly the same
-shape. The steady test reaches further at rest; the bias DLL is shorter on the wire and on speed.
+shape. The steady test reaches further at rest; the bias DLL is shorter on the wire and on speed. In the middle and right charts
+the dashed outline is the exact DLL's shape, for comparison.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/bias-radar-dark.svg">
@@ -52,7 +53,7 @@ shape. The steady test reaches further at rest; the bias DLL is shorter on the w
 ## Where the three differ
 
 Ten measures where they do differ. Here the best of the three reaches the outer ring, so the shapes show the trade
-between them rather than their place among other upscalers.
+between them rather than their place among other upscalers. The dashed outline is again the exact DLL.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/bias-differ-dark.svg">
