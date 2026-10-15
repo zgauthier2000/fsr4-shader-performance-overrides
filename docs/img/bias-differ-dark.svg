@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-label="Three radar charts with ten spokes each, on measures where the three builds differ; on every spoke the best of the three reaches the outer ring. Left: the exact DLL (AMD's picture), middle: the steady test, right: the community bias DLL; the dashed outline is the exact DLL (left: the steady test). Bright flat areas at rest: change per frame (of 255): Exact DLL (AMD's picture) 0.078, Steady test (this project) 0.008, Community bias DLL (0.5) 0.068. The same with auto exposure on (of 255): Exact DLL (AMD's picture) 0.186, Steady test (this project) 0.051, Community bias DLL (0.5) 0.185. Moving background: change per frame (of 255): Exact DLL (AMD's picture) 0.079, Steady test (this project) 0.067, Community bias DLL (0.5) 0.068. Thin railing in motion: change per frame (of 255): Exact DLL (AMD's picture) 0.913, Steady test (this project) 0.906, Community bias DLL (0.5) 0.832. Fine stripes in motion: change per frame (of 255): Exact DLL (AMD's picture) 2.04, Steady test (this project) 2.01, Community bias DLL (0.5) 1.74. Just uncovered at 1080p output, moving: accuracy (dB): Exact DLL (AMD's picture) 32.61 dB, Steady test (this project) 32.67 dB, Community bias DLL (0.5) 32.85 dB. Thin wire under a slow pan: how close its brightness is to the true one (%): Exact DLL (AMD's picture) 90.5%, Steady test (this project) 90.9%, Community bias DLL (0.5) 85.3%. Bright rain without motion vectors: pixels more than 20 of 255 off (per frame): Exact DLL (AMD's picture) 1314, Steady test (this project) 403, Community bias DLL (0.5) 1810. A region dimming 1% per frame: frames behind, bright flat areas (frames): Exact DLL (AMD's picture) 0.62, Steady test (this project) 0.90, Community bias DLL (0.5) 0.68. Film grain of 10 of 255: change per frame (of 255): Exact DLL (AMD's picture) 1.72, Steady test (this project) 1.72, Community bias DLL (0.5) 1.66.">
+<rect x="0.0" y="0.0" width="760.0" height="430.0" rx="8" fill="#1a1a19"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">Where the three differ</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">On every spoke the best of the three reaches the outer ring (not the comparison page's scale). Bigger is better.</text>
+<text x="128.0" y="96.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="middle" fill="#ffffff">Exact DLL (AMD's picture)</text>
+<polygon points="128.0,212.0 137.4,215.1 143.2,223.1 143.2,232.9 137.4,240.9 128.0,244.0 118.6,240.9 112.8,232.9 112.8,223.1 118.6,215.1" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="128.0,196.0 146.8,202.1 158.4,218.1 158.4,237.9 146.8,253.9 128.0,260.0 109.2,253.9 97.6,237.9 97.6,218.1 109.2,202.1" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="128.0,180.0 156.2,189.2 173.7,213.2 173.7,242.8 156.2,266.8 128.0,276.0 99.8,266.8 82.3,242.8 82.3,213.2 99.8,189.2" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="128.0,164.0 165.6,176.2 188.9,208.2 188.9,247.8 165.6,279.8 128.0,292.0 90.4,279.8 67.1,247.8 67.1,208.2 90.4,176.2" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="128.0" y2="164.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="165.6" y2="176.2" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="188.9" y2="208.2" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="188.9" y2="247.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="165.6" y2="279.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="128.0" y2="292.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="90.4" y2="279.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="67.1" y2="247.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="67.1" y2="208.2" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="128.0" y1="228.0" x2="90.4" y2="176.2" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="128.0,221.4 138.3,213.8 179.6,211.2 183.5,246.0 160.1,272.1 128.0,290.3 90.5,279.5 109.3,234.1 67.1,208.2 91.8,178.1" fill="#6d6c66" fill-opacity="0.35" stroke="#6d6c66" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="128.0,164.0 165.6,176.2 188.9,208.2 183.9,246.2 160.5,272.7 128.0,290.7 90.4,279.8 67.1,247.8 86.1,214.4 91.6,177.9" fill="none" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="128.0" cy="221.4" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="138.3" cy="213.8" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="179.6" cy="211.2" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="183.5" cy="246.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="160.1" cy="272.1" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="128.0" cy="290.3" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="90.5" cy="279.5" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="109.3" cy="234.1" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="67.1" cy="208.2" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="91.8" cy="178.1" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<text x="128.0" y="141.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="middle" fill="#c3c2b7">Flat at rest</text>
+<text x="128.0" y="153.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="middle" fill="#898781">0.078</text>
+<text x="170.9" y="154.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Flat, AE</text>
+<text x="170.9" y="167.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">0.186</text>
+<text x="197.4" y="208.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Background</text>
+<text x="197.4" y="221.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">0.079</text>
+<text x="197.4" y="254.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Railing</text>
+<text x="197.4" y="266.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">0.913</text>
+<text x="170.9" y="296.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Stripes</text>
+<text x="170.9" y="308.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">2.04</text>
+<text x="128.0" y="310.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="middle" fill="#c3c2b7">Uncov. 1080p</text>
+<text x="128.0" y="322.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="middle" fill="#898781">32.61 dB</text>
+<text x="85.1" y="296.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Wire, pan</text>
+<text x="85.1" y="308.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">90.5%</text>
+<text x="58.6" y="254.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Bright rain</text>
+<text x="58.6" y="266.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">1314</text>
+<text x="58.6" y="208.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Fade</text>
+<text x="58.6" y="221.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">0.62</text>
+<text x="85.1" y="154.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Grain</text>
+<text x="85.1" y="167.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">1.72</text>
+<text x="380.0" y="96.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="middle" fill="#ffffff">Steady test (this project)</text>
+<polygon points="380.0,212.0 389.4,215.1 395.2,223.1 395.2,232.9 389.4,240.9 380.0,244.0 370.6,240.9 364.8,232.9 364.8,223.1 370.6,215.1" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="380.0,196.0 398.8,202.1 410.4,218.1 410.4,237.9 398.8,253.9 380.0,260.0 361.2,253.9 349.6,237.9 349.6,218.1 361.2,202.1" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="380.0,180.0 408.2,189.2 425.7,213.2 425.7,242.8 408.2,266.8 380.0,276.0 351.8,266.8 334.3,242.8 334.3,213.2 351.8,189.2" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="380.0,164.0 417.6,176.2 440.9,208.2 440.9,247.8 417.6,279.8 380.0,292.0 342.4,279.8 319.1,247.8 319.1,208.2 342.4,176.2" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="380.0" y2="164.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="417.6" y2="176.2" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="440.9" y2="208.2" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="440.9" y2="247.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="417.6" y2="279.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="380.0" y2="292.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="342.4" y2="279.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="319.1" y2="247.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="319.1" y2="208.2" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="380.0" y1="228.0" x2="342.4" y2="176.2" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="380.0,164.0 417.6,176.2 440.9,208.2 435.9,246.2 412.5,272.7 380.0,290.7 342.4,279.8 319.1,247.8 338.1,214.4 343.6,177.9" fill="#d95926" fill-opacity="0.35" stroke="#d95926" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="380.0,221.4 390.3,213.8 431.6,211.2 435.5,246.0 412.1,272.1 380.0,290.3 342.5,279.5 361.3,234.1 319.1,208.2 343.8,178.1" fill="none" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="380.0" cy="164.0" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="417.6" cy="176.2" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="440.9" cy="208.2" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="435.9" cy="246.2" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="412.5" cy="272.7" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="380.0" cy="290.7" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="342.4" cy="279.8" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="319.1" cy="247.8" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="338.1" cy="214.4" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="343.6" cy="177.9" r="2.5" fill="#d95926" stroke="#1a1a19" stroke-width="1"/>
+<text x="380.0" y="141.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="middle" fill="#c3c2b7">Flat at rest</text>
+<text x="380.0" y="153.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="middle" fill="#898781">0.008</text>
+<text x="422.9" y="154.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Flat, AE</text>
+<text x="422.9" y="167.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">0.051</text>
+<text x="449.4" y="208.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Background</text>
+<text x="449.4" y="221.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">0.067</text>
+<text x="449.4" y="254.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Railing</text>
+<text x="449.4" y="266.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">0.906</text>
+<text x="422.9" y="296.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Stripes</text>
+<text x="422.9" y="308.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">2.01</text>
+<text x="380.0" y="310.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="middle" fill="#c3c2b7">Uncov. 1080p</text>
+<text x="380.0" y="322.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="middle" fill="#898781">32.67 dB</text>
+<text x="337.1" y="296.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Wire, pan</text>
+<text x="337.1" y="308.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">90.9%</text>
+<text x="310.6" y="254.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Bright rain</text>
+<text x="310.6" y="266.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">403</text>
+<text x="310.6" y="208.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Fade</text>
+<text x="310.6" y="221.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">0.90</text>
+<text x="337.1" y="154.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Grain</text>
+<text x="337.1" y="167.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">1.72</text>
+<text x="632.0" y="96.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="middle" fill="#ffffff">Community bias DLL (0.5)</text>
+<polygon points="632.0,212.0 641.4,215.1 647.2,223.1 647.2,232.9 641.4,240.9 632.0,244.0 622.6,240.9 616.8,232.9 616.8,223.1 622.6,215.1" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="632.0,196.0 650.8,202.1 662.4,218.1 662.4,237.9 650.8,253.9 632.0,260.0 613.2,253.9 601.6,237.9 601.6,218.1 613.2,202.1" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="632.0,180.0 660.2,189.2 677.7,213.2 677.7,242.8 660.2,266.8 632.0,276.0 603.8,266.8 586.3,242.8 586.3,213.2 603.8,189.2" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="632.0,164.0 669.6,176.2 692.9,208.2 692.9,247.8 669.6,279.8 632.0,292.0 594.4,279.8 571.1,247.8 571.1,208.2 594.4,176.2" fill="none" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="632.0" y2="164.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="669.6" y2="176.2" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="692.9" y2="208.2" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="692.9" y2="247.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="669.6" y2="279.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="632.0" y2="292.0" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="594.4" y2="279.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="571.1" y2="247.8" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="571.1" y2="208.2" stroke="#2c2c2a" stroke-width="1"/>
+<line x1="632.0" y1="228.0" x2="594.4" y2="176.2" stroke="#2c2c2a" stroke-width="1"/>
+<polygon points="632.0,220.5 642.4,213.7 692.0,208.5 692.9,247.8 669.6,279.8 632.0,292.0 596.7,276.6 618.4,232.4 576.5,210.0 594.4,176.2" fill="#6d6c66" fill-opacity="0.35" stroke="#6d6c66" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="632.0,221.4 642.3,213.8 683.6,211.2 687.5,246.0 664.1,272.1 632.0,290.3 594.5,279.5 613.3,234.1 571.1,208.2 595.8,178.1" fill="none" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="632.0" cy="220.5" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="642.4" cy="213.7" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="692.0" cy="208.5" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="692.9" cy="247.8" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="669.6" cy="279.8" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="632.0" cy="292.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="596.7" cy="276.6" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="618.4" cy="232.4" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="576.5" cy="210.0" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<circle cx="594.4" cy="176.2" r="2.5" fill="#6d6c66" stroke="#1a1a19" stroke-width="1"/>
+<text x="632.0" y="141.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="middle" fill="#c3c2b7">Flat at rest</text>
+<text x="632.0" y="153.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="middle" fill="#898781">0.068</text>
+<text x="674.9" y="154.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Flat, AE</text>
+<text x="674.9" y="167.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">0.185</text>
+<text x="701.4" y="208.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Background</text>
+<text x="701.4" y="221.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">0.068</text>
+<text x="701.4" y="254.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Railing</text>
+<text x="701.4" y="266.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">0.832</text>
+<text x="674.9" y="296.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="start" fill="#c3c2b7">Stripes</text>
+<text x="674.9" y="308.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="start" fill="#898781">1.74</text>
+<text x="632.0" y="310.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="middle" fill="#c3c2b7">Uncov. 1080p</text>
+<text x="632.0" y="322.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="middle" fill="#898781">32.85 dB</text>
+<text x="589.1" y="296.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Wire, pan</text>
+<text x="589.1" y="308.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">85.3%</text>
+<text x="562.6" y="254.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Bright rain</text>
+<text x="562.6" y="266.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">1810</text>
+<text x="562.6" y="208.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Fade</text>
+<text x="562.6" y="221.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">0.68</text>
+<text x="589.1" y="154.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" text-anchor="end" fill="#c3c2b7">Grain</text>
+<text x="589.1" y="167.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8.5" text-anchor="end" fill="#898781">1.66</text>
+<text x="24.0" y="388.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Flat at rest, Fade, Grain, Uncovered 1080p, Wire, Bright rain: the full check of each build. Background, Railing, Stripes: the comparison rig's moving scene.</text>
+<text x="24.0" y="402.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">AE: the game's auto exposure flag on (the timing kit and many games set it). Everything else with it off.</text>
+<text x="24.0" y="416.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Test rig, 4K output from 2260x1272, Radeon RX 7800 XT, single runs.</text>
+</svg>

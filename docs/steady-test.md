@@ -124,5 +124,6 @@ the same scenes, the same settings, one run each.
 ## Where to read more
 
 - [Exact and lossy compared](exact-vs-lossy.md): the two builds that are released
+- [The steady test beside a community history-bias DLL](research-history-bias.md): a later steady test on release dll-2026-10-15, compared with a DLL that biases FSR 4.1.1 toward its history
 - [Why folding steadied the picture, and what replaced it](../research/frame-skip/README.md#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114): where the rule comes from
 - The pictures are made by [`img/make_steady_comparison.py`](img/make_steady_comparison.py)

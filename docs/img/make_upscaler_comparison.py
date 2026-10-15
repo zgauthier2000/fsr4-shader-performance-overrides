@@ -209,8 +209,9 @@ def steady_quality(t):
     return o
 
 
-for th, t in THEMES.items():
-    open(f'steady-quality-{th}.svg', 'w').write('\n'.join(steady_quality(t) + ['</svg>']) + '\n')
+if __name__ == '__main__':
+    for th, t in THEMES.items():
+        open(f'steady-quality-{th}.svg', 'w').write('\n'.join(steady_quality(t) + ['</svg>']) + '\n')
 
 
 # ---- release dll-2026-10-15's page: ULTRA PERFORMANCE ONLY, this release's lossy DLL against its exact DLL (the exact DLL gives AMD's picture byte for
@@ -257,145 +258,145 @@ def up_radar(t):
     return o
 
 
-for name, fn in (('cmp5-radar', radar), ('release-radar', release_radar), ('rel-2026-10-15-up-radar', up_radar)):
-    for th, t in THEMES.items():
-        open(f'{name}-{th}.svg', 'w').write('\n'.join(fn(t) + ['</svg>']) + '\n')
-if len(sys.argv) < 2:
-    sys.exit(0)
+if __name__ == '__main__':
+    for name, fn in (('cmp5-radar', radar), ('release-radar', release_radar), ('rel-2026-10-15-up-radar', up_radar)):
+        for th, t in THEMES.items():
+            open(f'{name}-{th}.svg', 'w').write('\n'.join(fn(t) + ['</svg>']) + '\n')
+if __name__ == '__main__' and len(sys.argv) >= 2:      # the pictures (imported, the file gives only its chart code)
 
-# ---- crops: the same piece of frame 37 from each upscaler, beside the true image
-import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+    # ---- crops: the same piece of frame 37 from each upscaler, beside the true image
+    import numpy as np
+    from PIL import Image, ImageDraw, ImageFont
 
-D = sys.argv[1]
-WW, HH = 3840, 2160
-BG, INK, MUTED = (26, 26, 25), (255, 255, 255), (195, 194, 183)
-
-
-def font(size):
-    for p in ('/usr/share/fonts/TTF/DejaVuSans.ttf', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'):
-        try:
-            return ImageFont.truetype(p, size)
-        except OSError:
-            pass
-    return ImageFont.load_default()
+    D = sys.argv[1]
+    WW, HH = 3840, 2160
+    BG, INK, MUTED = (26, 26, 25), (255, 255, 255), (195, 194, 183)
 
 
-def srgb(x):
-    x = np.clip(x.astype(np.float32), 0, 1)
-    return np.where(x <= 0.0031308, x * 12.92, 1.055 * x ** (1 / 2.4) - 0.055)
+    def font(size):
+        for p in ('/usr/share/fonts/TTF/DejaVuSans.ttf', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'):
+            try:
+                return ImageFont.truetype(p, size)
+            except OSError:
+                pass
+        return ImageFont.load_default()
 
 
-def box(a, kh, kw):
-    c = np.cumsum(np.cumsum(np.pad(a, ((1, 0), (1, 0))), 0), 1)
-    return (c[kh:, kw:] - c[:-kh, kw:] - c[kh:, :-kw] + c[:-kh, :-kw]) / kh / kw
+    def srgb(x):
+        x = np.clip(x.astype(np.float32), 0, 1)
+        return np.where(x <= 0.0031308, x * 12.92, 1.055 * x ** (1 / 2.4) - 0.055)
 
 
-def crops(scene, title, sub, kw, kh, z, area, gain=1.0, name=None, only_changed=False, frame=37, mask=None, shade=False):
-    """the kw x kh piece inside `area` (x0, y0, x1, y1) where the five differ most from each other, enlarged z times;
-    mask: a file <dir>/<mask>.npy (4K, boolean), only differences inside it count (the part of the picture a measure looks at);
-    the piece is then centered on that part, and with shade the rest of the piece is dimmed"""
-    tru = srgb(np.load(f'{D}/{scene}_truth.npy').astype(np.float32))
-    out = {k: srgb(np.fromfile(f'{D}/{scene}_{k}/output_3840x2160_f{frame:03d}.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3]) for k in KEYS}
-    spread = np.std(np.stack([out[k].mean(2) for k in KEYS]), 0)
-    if only_changed:      # only where this scene's true image differs from the still scene's: the particles, not the picture behind them
-        spread = spread * (np.abs(tru - srgb(np.load(f'{D}/still_truth.npy').astype(np.float32))).mean(2) > 0.02)
-    mk = np.load(f'{D}/{mask}.npy') if mask else None
-    if mask:
-        spread = spread * mk
-    x0, y0, x1, y1 = area
-    s = box(spread, kh, kw)[y0:y1 - kh, x0:x1 - kw]; y, x = np.unravel_index(np.argmax(s), s.shape); y += y0; x += x0
-    if mask:      # center the piece on the measured part inside it
-        ys, xs = np.nonzero(mk[y:y + kh, x:x + kw]); y = int(np.clip(y + ys.mean() - kh / 2, 0, HH - kh)); x = int(np.clip(x + xs.mean() - kw / 2, 0, WW - kw))
-    c = lambda a: a[y:y + kh, x:x + kw]
-    dim = np.where(c(mk), 1.0, 0.4)[:, :, None] if (mask and shade) else 1.0
-    pic = lambda a: (np.clip(np.repeat(np.repeat(c(a) * dim, z, 0), z, 1) * gain, 0, 1) * 255 + 0.5).astype(np.uint8)
-    err = lambda a: (np.abs(c(a) - c(tru)).mean(2)[c(mk)] if mask else np.abs(c(a) - c(tru))).mean() * 255      # with a mask: over the measured part of the piece
-    panels = [('true image', pic(tru))] + [(f'{n}: {err(out[k]):.1f}', pic(out[k])) for n, k in zip(NAMES, KEYS)]
-    print(name or scene, 'window', x, y, ' '.join(p[0] for p in panels[1:]))
-    pw, ph, gap, m = kw * z, kh * z, 14, 28
-    top = 112 + 28 * sub.count('\n')
-    im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
-    d.text((m, 22), title, font=font(30), fill=INK); d.multiline_text((m, 66), sub, font=font(20), fill=MUTED, spacing=8)
-    for i, (pl, a) in enumerate(panels):
-        px, py = m + (i % 3) * (pw + gap), top + (i // 3) * (ph + 44)
-        im.paste(Image.fromarray(a), (px, py)); d.text((px, py + ph + 6), pl, font=font(20), fill=INK if pl.startswith('Lossy') else MUTED)
-    im.save(name or f'cmp5-{scene}.png', optimize=True)
+    def box(a, kh, kw):
+        c = np.cumsum(np.cumsum(np.pad(a, ((1, 0), (1, 0))), 0), 1)
+        return (c[kh:, kw:] - c[:-kh, kw:] - c[kh:, :-kw] + c[:-kh, :-kw]) / kh / kw
 
 
-def restmap(kw=240, kh=150, z=2, gain=120):
-    """steadiness at rest: how much each pixel of the still picture changes from frame 36 to frame 37, as a map, at the piece where FSR 4.1.1 changes most"""
-    fr = lambda k, n: srgb(np.fromfile(f'{D}/rest_{k}/output_3840x2160_f{n:03d}.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3])
-    ch = {k: np.abs(fr(k, 37) - fr(k, 36)).mean(2) for k in KEYS}
-    spread = ch['fsr4']      # where FSR 4.1.1, the reference, changes most
-    s = box(spread, kh, kw)[200:HH - 200 - kh, 200:WW - 200 - kw]; y, x = np.unravel_index(np.argmax(s), s.shape); y += 200; x += 200
-    c = lambda a: a[y:y + kh, x:x + kw]
-    tru = srgb(np.load(f'{D}/rest_truth.npy').astype(np.float32))
-    pic = lambda a: (np.clip(np.repeat(np.repeat(a, z, 0), z, 1), 0, 1) * 255 + 0.5).astype(np.uint8)
-    mp = lambda a: np.repeat(pic(np.clip(c(a) * gain, 0, 1))[:, :, None], 3, 2)
-    panels = [('the picture (true image)', pic(c(tru)))] + [(f'{n}: {c(ch[k]).mean() * 255:.3f}', mp(ch[k])) for n, k in zip(NAMES, KEYS)]
-    print('rest window', x, y, ' '.join(p[0] for p in panels[1:]), '| whole frame:', ' '.join(f'{k} {ch[k].mean() * 255:.3f}' for k in KEYS))
-    title = 'Steadiness at rest: what changes from one frame to the next'
-    sub = ('A still picture, nothing moves. The piece where FSR 4.1.1 changes most, enlarged 2 times; the maps show the change of each pixel\n'
-           f'from one frame to the next, brightened {gain} times. Under each: mean change in this piece, of 255. Darker is steadier.')
-    pw, ph, gap, m = kw * z, kh * z, 14, 28
-    top = 112 + 28 * sub.count('\n')
-    im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
-    d.text((m, 22), title, font=font(30), fill=INK); d.multiline_text((m, 66), sub, font=font(20), fill=MUTED, spacing=8)
-    for i, (pl, a) in enumerate(panels):
-        px, py = m + (i % 3) * (pw + gap), top + (i // 3) * (ph + 44)
-        im.paste(Image.fromarray(a), (px, py)); d.text((px, py + ph + 6), pl, font=font(20), fill=INK if pl.startswith('Lossy') else MUTED)
-    im.save('cmp5-rest.png', optimize=True)
+    def crops(scene, title, sub, kw, kh, z, area, gain=1.0, name=None, only_changed=False, frame=37, mask=None, shade=False):
+        """the kw x kh piece inside `area` (x0, y0, x1, y1) where the five differ most from each other, enlarged z times;
+        mask: a file <dir>/<mask>.npy (4K, boolean), only differences inside it count (the part of the picture a measure looks at);
+        the piece is then centered on that part, and with shade the rest of the piece is dimmed"""
+        tru = srgb(np.load(f'{D}/{scene}_truth.npy').astype(np.float32))
+        out = {k: srgb(np.fromfile(f'{D}/{scene}_{k}/output_3840x2160_f{frame:03d}.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3]) for k in KEYS}
+        spread = np.std(np.stack([out[k].mean(2) for k in KEYS]), 0)
+        if only_changed:      # only where this scene's true image differs from the still scene's: the particles, not the picture behind them
+            spread = spread * (np.abs(tru - srgb(np.load(f'{D}/still_truth.npy').astype(np.float32))).mean(2) > 0.02)
+        mk = np.load(f'{D}/{mask}.npy') if mask else None
+        if mask:
+            spread = spread * mk
+        x0, y0, x1, y1 = area
+        s = box(spread, kh, kw)[y0:y1 - kh, x0:x1 - kw]; y, x = np.unravel_index(np.argmax(s), s.shape); y += y0; x += x0
+        if mask:      # center the piece on the measured part inside it
+            ys, xs = np.nonzero(mk[y:y + kh, x:x + kw]); y = int(np.clip(y + ys.mean() - kh / 2, 0, HH - kh)); x = int(np.clip(x + xs.mean() - kw / 2, 0, WW - kw))
+        c = lambda a: a[y:y + kh, x:x + kw]
+        dim = np.where(c(mk), 1.0, 0.4)[:, :, None] if (mask and shade) else 1.0
+        pic = lambda a: (np.clip(np.repeat(np.repeat(c(a) * dim, z, 0), z, 1) * gain, 0, 1) * 255 + 0.5).astype(np.uint8)
+        err = lambda a: (np.abs(c(a) - c(tru)).mean(2)[c(mk)] if mask else np.abs(c(a) - c(tru))).mean() * 255      # with a mask: over the measured part of the piece
+        panels = [('true image', pic(tru))] + [(f'{n}: {err(out[k]):.1f}', pic(out[k])) for n, k in zip(NAMES, KEYS)]
+        print(name or scene, 'window', x, y, ' '.join(p[0] for p in panels[1:]))
+        pw, ph, gap, m = kw * z, kh * z, 14, 28
+        top = 112 + 28 * sub.count('\n')
+        im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
+        d.text((m, 22), title, font=font(30), fill=INK); d.multiline_text((m, 66), sub, font=font(20), fill=MUTED, spacing=8)
+        for i, (pl, a) in enumerate(panels):
+            px, py = m + (i % 3) * (pw + gap), top + (i // 3) * (ph + 44)
+            im.paste(Image.fromarray(a), (px, py)); d.text((px, py + ph + 6), pl, font=font(20), fill=INK if pl.startswith('Lossy') else MUTED)
+        im.save(name or f'cmp5-{scene}.png', optimize=True)
 
 
-# One picture per picture spoke of the chart (and two for scenes that are in the tables only: large particles, rain).
-E = 'Under each: mean error against the true image in this piece, of 255.'
-EM = 'Under each: mean error against the true image in the measured part of this piece, of 255.'
-ES = 'The measured part is shown at full brightness, the rest dimmed. Under each: mean error against the true image in that part, of 255.'
-FULL = (200, 200, WW - 200, HH - 200)
-crops('still', 'Still picture: fine detail', f'A piece of the 4K output where the five upscalers differ most from each other, enlarged 4 times.\n{E}', 150, 90, 4, FULL)
-crops('motion', 'Moving scene: a thin railing', f'Camera panning, the railing moving the other way. The piece of the railing where the five differ most, enlarged 4 times.\n{EM}', 150, 90, 4, FULL, mask='motion_mask_rail')
-crops('motion', 'Just uncovered, camera panning', f'What a moving object has uncovered in the last four frames. The piece of it where the five differ most, enlarged 5 times.\n{ES}', 120, 72, 5, FULL, mask='motion_mask_uncovered', name='cmp5-uncovered.png', shade=True)
-crops('stillcam', 'Just uncovered, camera still', f'The camera is still and the objects move. The piece of what they have just uncovered where the five differ most,\nenlarged 5 times. {ES}', 120, 72, 5, FULL, mask='stillcam_mask', name='cmp5-uncovered-still.png', shade=True)
-crops('ghost10', 'Old image beside a moving object', f'Camera still, the object moving. Where its image of a frame ago would land if it were left behind: the piece where the five\ndiffer most, enlarged 5 times. {ES}', 120, 72, 5, FULL, mask='ghost10_mask', name='cmp5-ghost.png', shade=True)
-crops('plate', 'A still bright object over ground that moves fast', f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is, at the same depth.\nThe piece just below it where the five differ most, enlarged 2 times. {E}', 240, 160, 2, (2300, 800, 3100, 1000), frame=39)
-crops('bars', 'Thin bars fixed on screen in front of a moving background', f'The bars stay in place, the background pans by 12 pixels per frame. Between the bars, where their image of a frame ago\nwould land: the piece where the five differ most, enlarged 4 times and brightened 3 times. {EM}', 150, 90, 4, FULL, mask='bars_mask', gain=3)
-crops('sparks', 'Tiny fast sparks drawn without motion vectors', f'Camera still. Where the five differ most, enlarged 5 times. {E}', 120, 72, 5, (250, 250, 1950, 1900), only_changed=True)
-crops('foliage', 'Leaves swaying without motion vectors, camera still', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (300, 300, 1900, 1850))
-restmap()
-crops('wirepan', 'A wire far thinner than a rendered pixel, camera panning slowly', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (250, 250, 1950, 1900), name='cmp5-wires.png')
-crops('big', 'Large glowing particles drawn without motion vectors', f'Camera still. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (250, 250, 1950, 1900), only_changed=True)
-
-# ---- rain: thin fast streaks without motion vectors over a dark surface (research/pruning/rain.py), frame 39. There is no "true image" to score against
-# that would be fair to all (the streaks are in a different place every frame), so the first panel is the game's own frame and the figure under each
-# panel is how many pixels of the piece stand more than 20 of 255 above the surface.
-def rain_sheet(kw=200, kh=130, z=3):
-    RW, RH = 2260, 1272
-    px0, px1, py0, py1 = 1120 + 24, (1120 + 2720) // 2 - 24, 480 + 24, 1680 - 24      # the half of the panel with rain, clear of its edges
-    pan = srgb(np.load(f'{D}/rain_panel.npy').astype(np.float32))
-    out = {k: srgb(np.fromfile(f'{D}/rain_{k}/output_3840x2160_f039.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3]) for k in KEYS}
-    over = {k: ((v.mean(2) - pan.mean(2)) * 255 > 20) for k, v in out.items()}
-    spread = np.std(np.stack([out[k].mean(2) for k in KEYS]), 0)
-    s_ = box(spread, kh, kw)[py0:py1 - kh, px0:px1 - kw]; y, x = np.unravel_index(np.argmax(s_), s_.shape); y += py0; x += px0
-    c = lambda a_: a_[y:y + kh, x:x + kw]
-    pic = lambda a_: (np.clip(np.repeat(np.repeat(a_, z, 0), z, 1), 0, 1) * 255 + 0.5).astype(np.uint8)
-    inp = srgb(np.fromfile(f'{D}/rain_input_039.raw', dtype=np.float16).reshape(RH, RW, 4)[:, :, :3])
-    game = inp[(np.arange(y, y + kh) * RH // HH)][:, (np.arange(x, x + kw) * RW // WW)]
-    gcount = int(((game.mean(2) - c(pan).mean(2)) * 255 > 20).sum())
-    panels = [(f"the game's frame: {gcount}", pic(game))] + [(f'{n}: {int(c(over[k]).sum())}', pic(c(out[k]))) for n, k in zip(NAMES, KEYS)]
-    per = {k: over[k][py0:py1, px0:px1].mean() * 1e6 for k in KEYS}
-    print('rain window', x, y, ' | '.join(p_[0] for p_ in panels), '| rain area, per million:', ' '.join(f'{k} {per[k]:.0f}' for k in KEYS))
-    title = 'Rain drawn without motion vectors'
-    sub = ('Faint streaks one rendered pixel wide falling fast over a dark surface, camera still. The piece where the five differ most, enlarged 3 times.\n'
-           'Under each: pixels in this piece more than 20 of 255 brighter than the surface.')
-    pw, ph, gap, m = kw * z, kh * z, 14, 28
-    top = 112 + 28 * sub.count('\n')
-    im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
-    d.text((m, 22), title, font=font(30), fill=INK); d.multiline_text((m, 66), sub, font=font(20), fill=MUTED, spacing=8)
-    for i, (pl, a_) in enumerate(panels):
-        px, py = m + (i % 3) * (pw + gap), top + (i // 3) * (ph + 44)
-        im.paste(Image.fromarray(a_), (px, py)); d.text((px, py + ph + 6), pl, font=font(20), fill=INK if pl.startswith('Lossy') else MUTED)
-    im.save('cmp5-rain.png', optimize=True)
+    def restmap(kw=240, kh=150, z=2, gain=120):
+        """steadiness at rest: how much each pixel of the still picture changes from frame 36 to frame 37, as a map, at the piece where FSR 4.1.1 changes most"""
+        fr = lambda k, n: srgb(np.fromfile(f'{D}/rest_{k}/output_3840x2160_f{n:03d}.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3])
+        ch = {k: np.abs(fr(k, 37) - fr(k, 36)).mean(2) for k in KEYS}
+        spread = ch['fsr4']      # where FSR 4.1.1, the reference, changes most
+        s = box(spread, kh, kw)[200:HH - 200 - kh, 200:WW - 200 - kw]; y, x = np.unravel_index(np.argmax(s), s.shape); y += 200; x += 200
+        c = lambda a: a[y:y + kh, x:x + kw]
+        tru = srgb(np.load(f'{D}/rest_truth.npy').astype(np.float32))
+        pic = lambda a: (np.clip(np.repeat(np.repeat(a, z, 0), z, 1), 0, 1) * 255 + 0.5).astype(np.uint8)
+        mp = lambda a: np.repeat(pic(np.clip(c(a) * gain, 0, 1))[:, :, None], 3, 2)
+        panels = [('the picture (true image)', pic(c(tru)))] + [(f'{n}: {c(ch[k]).mean() * 255:.3f}', mp(ch[k])) for n, k in zip(NAMES, KEYS)]
+        print('rest window', x, y, ' '.join(p[0] for p in panels[1:]), '| whole frame:', ' '.join(f'{k} {ch[k].mean() * 255:.3f}' for k in KEYS))
+        title = 'Steadiness at rest: what changes from one frame to the next'
+        sub = ('A still picture, nothing moves. The piece where FSR 4.1.1 changes most, enlarged 2 times; the maps show the change of each pixel\n'
+               f'from one frame to the next, brightened {gain} times. Under each: mean change in this piece, of 255. Darker is steadier.')
+        pw, ph, gap, m = kw * z, kh * z, 14, 28
+        top = 112 + 28 * sub.count('\n')
+        im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
+        d.text((m, 22), title, font=font(30), fill=INK); d.multiline_text((m, 66), sub, font=font(20), fill=MUTED, spacing=8)
+        for i, (pl, a) in enumerate(panels):
+            px, py = m + (i % 3) * (pw + gap), top + (i // 3) * (ph + 44)
+            im.paste(Image.fromarray(a), (px, py)); d.text((px, py + ph + 6), pl, font=font(20), fill=INK if pl.startswith('Lossy') else MUTED)
+        im.save('cmp5-rest.png', optimize=True)
 
 
-rain_sheet()
+    # One picture per picture spoke of the chart (and two for scenes that are in the tables only: large particles, rain).
+    E = 'Under each: mean error against the true image in this piece, of 255.'
+    EM = 'Under each: mean error against the true image in the measured part of this piece, of 255.'
+    ES = 'The measured part is shown at full brightness, the rest dimmed. Under each: mean error against the true image in that part, of 255.'
+    FULL = (200, 200, WW - 200, HH - 200)
+    crops('still', 'Still picture: fine detail', f'A piece of the 4K output where the five upscalers differ most from each other, enlarged 4 times.\n{E}', 150, 90, 4, FULL)
+    crops('motion', 'Moving scene: a thin railing', f'Camera panning, the railing moving the other way. The piece of the railing where the five differ most, enlarged 4 times.\n{EM}', 150, 90, 4, FULL, mask='motion_mask_rail')
+    crops('motion', 'Just uncovered, camera panning', f'What a moving object has uncovered in the last four frames. The piece of it where the five differ most, enlarged 5 times.\n{ES}', 120, 72, 5, FULL, mask='motion_mask_uncovered', name='cmp5-uncovered.png', shade=True)
+    crops('stillcam', 'Just uncovered, camera still', f'The camera is still and the objects move. The piece of what they have just uncovered where the five differ most,\nenlarged 5 times. {ES}', 120, 72, 5, FULL, mask='stillcam_mask', name='cmp5-uncovered-still.png', shade=True)
+    crops('ghost10', 'Old image beside a moving object', f'Camera still, the object moving. Where its image of a frame ago would land if it were left behind: the piece where the five\ndiffer most, enlarged 5 times. {ES}', 120, 72, 5, FULL, mask='ghost10_mask', name='cmp5-ghost.png', shade=True)
+    crops('plate', 'A still bright object over ground that moves fast', f'The ground moves down by 100 pixels per frame; the white object (top) stays where it is, at the same depth.\nThe piece just below it where the five differ most, enlarged 2 times. {E}', 240, 160, 2, (2300, 800, 3100, 1000), frame=39)
+    crops('bars', 'Thin bars fixed on screen in front of a moving background', f'The bars stay in place, the background pans by 12 pixels per frame. Between the bars, where their image of a frame ago\nwould land: the piece where the five differ most, enlarged 4 times and brightened 3 times. {EM}', 150, 90, 4, FULL, mask='bars_mask', gain=3)
+    crops('sparks', 'Tiny fast sparks drawn without motion vectors', f'Camera still. Where the five differ most, enlarged 5 times. {E}', 120, 72, 5, (250, 250, 1950, 1900), only_changed=True)
+    crops('foliage', 'Leaves swaying without motion vectors, camera still', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (300, 300, 1900, 1850))
+    restmap()
+    crops('wirepan', 'A wire far thinner than a rendered pixel, camera panning slowly', f'Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (250, 250, 1950, 1900), name='cmp5-wires.png')
+    crops('big', 'Large glowing particles drawn without motion vectors', f'Camera still. Where the five differ most, enlarged 4 times. {E}', 150, 90, 4, (250, 250, 1950, 1900), only_changed=True)
+
+    # ---- rain: thin fast streaks without motion vectors over a dark surface (research/pruning/rain.py), frame 39. There is no "true image" to score against
+    # that would be fair to all (the streaks are in a different place every frame), so the first panel is the game's own frame and the figure under each
+    # panel is how many pixels of the piece stand more than 20 of 255 above the surface.
+    def rain_sheet(kw=200, kh=130, z=3):
+        RW, RH = 2260, 1272
+        px0, px1, py0, py1 = 1120 + 24, (1120 + 2720) // 2 - 24, 480 + 24, 1680 - 24      # the half of the panel with rain, clear of its edges
+        pan = srgb(np.load(f'{D}/rain_panel.npy').astype(np.float32))
+        out = {k: srgb(np.fromfile(f'{D}/rain_{k}/output_3840x2160_f039.raw', dtype=np.float16).reshape(HH, WW, 4)[:, :, :3]) for k in KEYS}
+        over = {k: ((v.mean(2) - pan.mean(2)) * 255 > 20) for k, v in out.items()}
+        spread = np.std(np.stack([out[k].mean(2) for k in KEYS]), 0)
+        s_ = box(spread, kh, kw)[py0:py1 - kh, px0:px1 - kw]; y, x = np.unravel_index(np.argmax(s_), s_.shape); y += py0; x += px0
+        c = lambda a_: a_[y:y + kh, x:x + kw]
+        pic = lambda a_: (np.clip(np.repeat(np.repeat(a_, z, 0), z, 1), 0, 1) * 255 + 0.5).astype(np.uint8)
+        inp = srgb(np.fromfile(f'{D}/rain_input_039.raw', dtype=np.float16).reshape(RH, RW, 4)[:, :, :3])
+        game = inp[(np.arange(y, y + kh) * RH // HH)][:, (np.arange(x, x + kw) * RW // WW)]
+        gcount = int(((game.mean(2) - c(pan).mean(2)) * 255 > 20).sum())
+        panels = [(f"the game's frame: {gcount}", pic(game))] + [(f'{n}: {int(c(over[k]).sum())}', pic(c(out[k]))) for n, k in zip(NAMES, KEYS)]
+        per = {k: over[k][py0:py1, px0:px1].mean() * 1e6 for k in KEYS}
+        print('rain window', x, y, ' | '.join(p_[0] for p_ in panels), '| rain area, per million:', ' '.join(f'{k} {per[k]:.0f}' for k in KEYS))
+        title = 'Rain drawn without motion vectors'
+        sub = ('Faint streaks one rendered pixel wide falling fast over a dark surface, camera still. The piece where the five differ most, enlarged 3 times.\n'
+               'Under each: pixels in this piece more than 20 of 255 brighter than the surface.')
+        pw, ph, gap, m = kw * z, kh * z, 14, 28
+        top = 112 + 28 * sub.count('\n')
+        im = Image.new('RGB', (2 * m + 3 * pw + 2 * gap, top + 2 * (ph + 44) + 8), BG); d = ImageDraw.Draw(im)
+        d.text((m, 22), title, font=font(30), fill=INK); d.multiline_text((m, 66), sub, font=font(20), fill=MUTED, spacing=8)
+        for i, (pl, a_) in enumerate(panels):
+            px, py = m + (i % 3) * (pw + gap), top + (i // 3) * (ph + 44)
+            im.paste(Image.fromarray(a_), (px, py)); d.text((px, py + ph + 6), pl, font=font(20), fill=INK if pl.startswith('Lossy') else MUTED)
+        im.save('cmp5-rain.png', optimize=True)
+
+
+    rain_sheet()
