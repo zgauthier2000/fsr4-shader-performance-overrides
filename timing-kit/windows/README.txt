@@ -10,8 +10,8 @@ https://github.com/zgauthier2000/fsr4-shader-performance-overrides
 
 How to run it
   1. Unpack the whole folder somewhere (not inside the zip viewer). The DLLs come packed in
-     dlls.pack.zst: the program unpacks them into dlls\ on its first start (a few seconds at most,
-     about 380 MB on disk).
+     dlls.pack.zst: the program takes out each one when it times it and replaces it with the next,
+     so only one DLL (about 40 MB) is on disk at a time, and none when it has finished.
   2. Close games, browsers and video players.
   3. Double-click fsr4time.exe. It takes about 15 minutes (a slow or integrated graphics chip up to about
      20). Leave the PC alone while it runs: the header at the top of the window says so the whole time.
@@ -55,12 +55,19 @@ What it does
                        registers, so that cards with a smaller register file (RX 6000, RX 7600,
                        integrated graphics) can run more of it at once. Whether that is faster on
                        those cards is what your result shows. Both give the same picture.
-  dlls\4-igpu-exact, 4w-igpu-exact-without-shared-taps, 5-igpu-lossy,
+  dlls\2v-exact-wave64 2-exact with every FSR 4 shader asking the driver for 64-wide waves
+                       (Shader Model 6.6's WaveSize); nothing else changed, AMD's picture.
+                       Linux's driver runs these shaders 64-wide, and there they are much faster
+                       than 32-wide. Whether Windows' driver already does is what this shows.
+  dlls\2x-exact-wave32-control
+                       2-exact asking for 32-wide waves: a control. If it takes about as long as
+                       2-exact, your driver was running them 32-wide; if it is much slower, 64-wide.
+  dlls\4-igpu-exact, 4w-igpu-exact-without-shared-taps, 4v-igpu-exact-wave64, 5-igpu-lossy,
   5w-igpu-lossy-without-register-cut
-                       the same four for integrated graphics and handhelds
+                       the same for integrated graphics and handhelds
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
-  these, make a folder for it in dlls\ (start the program once first, so that dlls\ exists) and put its amd_fidelityfx_upscaler_dx12.dll there. For
+  these, make a folder dlls\ next to fsr4time.exe, a folder for the DLL in it, and put its amd_fidelityfx_upscaler_dx12.dll there. For
   example, if you have the community's 4.1.1b file itself (the kit does not include it), put it
   in dlls\6-411b. The summary then has a line for it at every size, with its time and with
   which of the DLLs above, if any, gives the same picture.

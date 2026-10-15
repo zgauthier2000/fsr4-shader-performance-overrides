@@ -135,11 +135,13 @@ More games and resolutions: [all results](docs/results.md).
 pictures it costs something there; the release page shows a typical frame and the lossy DLL against the exact DLL on every measure.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15/fsr4-timing-kit-windows.zip)** (experimental, about 8 MB, version 2026-10-15): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15.2/fsr4-timing-kit-windows.zip)** (experimental, about 10 MB, version 2026-10-15.2): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes (up to about 20 on a slow chip). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
 > that each DLL gives the same picture, and offers to send the result. Reports are in from eleven graphics chips so far;
 > every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
 >
+> - New in the Windows kit (2026-10-15.2): a test of whether asking the driver for 64-wide waves speeds FSR 4 up on Windows,
+>   with a control that shows which width your driver uses. [Details](timing-kit/README.md#in-short)
 > - New in the kits (2026-10-15): this release's DLLs, each also without one of its two changes that may behave differently on RX
 >   6000 cards, the RX 7600 and integrated graphics than on the card the project is developed on; and Ultra Performance (its figures
 >   are for that mode only). Results from those chips are the ones most needed now. [What is new](timing-kit/README.md#in-short)

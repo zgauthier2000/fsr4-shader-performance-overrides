@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // fsr4time.exe: the Windows timing kit. Times FSR 4.1.1 as a game runs it, through AMD's FidelityFX API on
-// Direct3D 12, with each upscaler DLL found in the folders next to it (dlls\<name>\amd_fidelityfx_upscaler_dx12.dll),
+// Direct3D 12, with each upscaler DLL from the pack next to it (dlls.pack.zst) or from a folder dlls\<name>\ a tester adds,
 // on made-up frames. No game, no OptiScaler. Derived from research/pruning/fsr4img.c.
 //
-//   fsr4time.exe            runs every DLL in dlls\ at 1080p, 1440p and 4K output with the Balanced preset's render size and
+//   fsr4time.exe            runs every DLL (pack and dlls\) at 1080p, 1440p and 4K output with the Balanced preset's render size and
 //                           with Ultra Performance's (a third of the output), still and moving picture, in rounds (the DLLs in
 //                           name order, then in reverse order, and so on) for about 15 minutes, at least two rounds; prints a
 //                           summary, saves it as results-<time>.txt and offers to send it
@@ -22,7 +22,8 @@
 // Build (llvm-mingw): x86_64-w64-mingw32-clang -std=c11 -O1 -DZSTD_DISABLE_ASM -I<FidelityFX>/api/include -I<FidelityFX>/upscalers/include
 //                     -Izstd/lib -Izstd/lib/common fsr4time.c zstd/lib/common/*.c zstd/lib/decompress/*.c -o fsr4time.exe
 //                     -ld3d12 -ldxgi -ldxguid -lwinhttp -ladvapi32 -static
-// The DLLs come as one pack, dlls.pack.zst (made by the project's mkpack.py and zstd -19 --long=27): the first start unpacks it into dlls\.
+// The DLLs come as one pack, dlls.pack.zst (made by the project's mkpack.py and zstd -19 --long=27). Each run takes its DLL out of the pack next to the
+// program and the next run overwrites it, so one DLL at a time is on disk (none at the end); DLLs a tester adds are read from dlls\<name>\.
 // hook.inc is written by mkhook.py (the address results are sent to, scrambled; see ../submit.py).
 #define COBJMACROS
 #define WIDL_C_INLINE_WRAPPERS
@@ -46,7 +47,7 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-15, experimental"
+#define KIT_VERSION "windows 2026-10-15.2, experimental"
 #define WARM 40
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
@@ -424,7 +425,7 @@ static int RunOne(const char* name, bool quick) {
     return 0;
 }
 
-// ---- the first form: every DLL in dlls\, each in a process of its own (the loader takes the DLL next to the exe)
+// ---- the first form: every DLL, each in a process of its own (the loader takes the DLL next to the exe)
 #include "hook.inc"      // _hook_bytes[], _hook_key[]: where results are sent, stored scrambled (see mkhook.py)
 
 static void HookUrl(wchar_t* host, wchar_t* path) {
@@ -483,11 +484,11 @@ static bool Send(const char* text) {
     return ok;
 }
 
-// ---- the DLL pack: the kit's DLLs are nine variants of one file, and a zip compresses each on its own (235 MB). As one zstd stream with a
-// long match window they take about 8 MB. On the first start the program unpacks dlls.pack.zst into dlls\<folder>\ (each file checked against the
-// hash in the pack); later starts find the files in place (by size) and skip it. Folders a tester adds to dlls\ are left alone.
-// Pack layout (little endian, inside the zstd stream): "FSR4PK1\n", u32 count, per file: u16 path length, path ('/' separated, relative to dlls\),
-// u64 size, u64 FNV-1a 64 of the data; then the files' data in the same order.
+// ---- the DLL pack: the kit's DLLs are variants of one file, and a zip compresses each on its own (235 MB for nine). As one zstd stream with a
+// long match window they take about 10 MB. Nothing is unpacked in advance: for each run the DLL is taken out of the pack (decompressing the stream
+// up to it, about a second at most; the file is checked against the hash in the pack) straight into the place the loader reads it from.
+// Pack layout (little endian, inside the zstd stream): "FSR4PK1\n", u32 count, per file: u16 path length, path ('/' separated; its first part is the
+// DLL's name), u64 size, u64 FNV-1a 64 of the data; then the files' data in the same order.
 #define PACK_NAME "dlls.pack.zst"
 #define PACK_MAX 32
 struct PackFile { char path[260]; uint64_t size, hash; };
@@ -517,55 +518,66 @@ static bool PackRead(struct PackIn* p, void* dst, size_t n) {
     }
     return true;
 }
-static bool UnpackDlls(void) {      // true when there is nothing to do or the DLLs are in place; false (with a message) when unpacking failed
-    FILE* f = fopen(PACK_NAME, "rb");
-    if (!f) return true;
-    struct PackIn p = {f, ZSTD_createDCtx(), malloc(1u << 20), {0}, malloc(2u << 20), 0, 0, false};
-    p.in.src = p.ib;
-    ZSTD_DCtx_setParameter(p.dc, ZSTD_d_windowLogMax, 27);
-    static struct PackFile pf[PACK_MAX];
-    char magic[8]; uint32_t n = 0; bool ok = PackRead(&p, magic, 8) && !memcmp(magic, "FSR4PK1\n", 8) && PackRead(&p, &n, 4) && n <= PACK_MAX;
+static bool PackSkip(struct PackIn* p, uint64_t n) {
+    while (n) {
+        if (p->ob_pos == p->ob_len && !PackFill(p)) return false;
+        uint64_t k = p->ob_len - p->ob_pos; if (k > n) k = n;
+        p->ob_pos += (size_t)k; n -= k;
+    }
+    return true;
+}
+static struct PackFile pf[PACK_MAX];
+static uint32_t npf;
+static bool PackStart(struct PackIn* p, FILE* f) {      // opens the stream and reads the list of files into pf / npf
+    *p = (struct PackIn){f, ZSTD_createDCtx(), malloc(1u << 20), {0}, malloc(2u << 20), 0, 0, false};
+    p->in.src = p->ib;
+    ZSTD_DCtx_setParameter(p->dc, ZSTD_d_windowLogMax, 27);
+    char magic[8]; uint32_t n = 0;
+    bool ok = PackRead(p, magic, 8) && !memcmp(magic, "FSR4PK1\n", 8) && PackRead(p, &n, 4) && n <= PACK_MAX;
     for (uint32_t i = 0; ok && i < n; ++i) {
         uint16_t len = 0;
-        ok = PackRead(&p, &len, 2) && len < sizeof(pf[i].path) && PackRead(&p, pf[i].path, len) && PackRead(&p, &pf[i].size, 8) && PackRead(&p, &pf[i].hash, 8);
-        if (ok) { pf[i].path[len] = 0; ok = !strstr(pf[i].path, "..") && !strchr(pf[i].path, ':') && pf[i].path[0] != '/'; }
-        for (char* c = pf[i].path; ok && *c; ++c) if (*c == '/') *c = '\\';
+        ok = PackRead(p, &len, 2) && len < sizeof(pf[i].path) && PackRead(p, pf[i].path, len) && PackRead(p, &pf[i].size, 8) && PackRead(p, &pf[i].hash, 8);
+        if (ok) { pf[i].path[len] = 0; ok = !strstr(pf[i].path, "..") && !strchr(pf[i].path, ':') && pf[i].path[0] != '/' && strchr(pf[i].path, '/'); }
+        if (ok) *strchr(pf[i].path, '/') = 0;      // keep the DLL's name (the folder part)
     }
-    bool have = ok;      // every file already in place with its size: nothing to unpack
-    for (uint32_t i = 0; have && i < n; ++i) {
-        char t[300]; snprintf(t, sizeof(t), "dlls\\%s", pf[i].path);
-        WIN32_FILE_ATTRIBUTE_DATA a;
-        have = GetFileAttributesExA(t, GetFileExInfoStandard, &a) && (((uint64_t)a.nFileSizeHigh << 32) | a.nFileSizeLow) == pf[i].size;
-    }
-    if (ok && !have) {
-        uint64_t total = 0; for (uint32_t i = 0; i < n; ++i) total += pf[i].size;
-        const ULONGLONG t0 = GetTickCount64();
-        printf("Unpacking the DLLs into dlls\\ (only on the first start; %u MB on disk) ...\n", (unsigned)(total >> 20)); fflush(stdout);
-        CreateDirectoryA("dlls", NULL);
-        static uint8_t buf[1u << 20];
-        for (uint32_t i = 0; ok && i < n; ++i) {
-            char t[300], d[300]; snprintf(t, sizeof(t), "dlls\\%s", pf[i].path); snprintf(d, sizeof(d), "%s", t);
-            char* sl = strrchr(d, '\\'); if (sl) { *sl = 0; CreateDirectoryA(d, NULL); }
-            FILE* o = fopen(t, "wb");
-            uint64_t left = pf[i].size, h = 0xcbf29ce484222325ull;
-            while (ok && left) {
-                const size_t k = left > sizeof(buf) ? sizeof(buf) : (size_t)left;
-                ok = PackRead(&p, buf, k);
-                for (size_t j = 0; ok && j < k; ++j) { h ^= buf[j]; h *= 0x100000001b3ull; }
-                if (ok && o) ok = fwrite(buf, 1, k, o) == k;
-                left -= k;
-            }
-            if (o) fclose(o);
-            if (!o || !ok || h != pf[i].hash) { printf("Could not unpack %s%s. Please download the kit again.\n", t, o ? " (it does not check out)" : ""); DeleteFileA(t); ok = false; }
-        }
-        if (ok) printf("Unpacked %u DLLs in %.1f s.\n\n", n, (double)(GetTickCount64() - t0) / 1000.0);
-    } else if (!ok) printf("The DLL pack (%s) is not one this program can read. Please download the kit again.\n", PACK_NAME);
-    fclose(f); ZSTD_freeDCtx(p.dc); free(p.ib); free(p.ob);
+    npf = ok ? n : 0;
     return ok;
+}
+static void PackEnd(struct PackIn* p) { fclose(p->f); ZSTD_freeDCtx(p->dc); free(p->ib); free(p->ob); }
+static bool PackList(void) {      // true when there is no pack or its list could be read; false (with a message) when it is damaged
+    FILE* f = fopen(PACK_NAME, "rb");
+    if (!f) return true;
+    struct PackIn p;
+    const bool ok = PackStart(&p, f);
+    PackEnd(&p);
+    if (!ok) printf("The DLL pack (%s) is not one this program can read. Please download the kit again.\n", PACK_NAME);
+    return ok;
+}
+static bool PackExtract(uint32_t want, const char* dst) {      // the pack's file number want, checked, as dst
+    FILE* f = fopen(PACK_NAME, "rb");
+    if (!f) return false;
+    struct PackIn p;
+    bool ok = PackStart(&p, f) && want < npf;
+    for (uint32_t i = 0; ok && i < want; ++i) ok = PackSkip(&p, pf[i].size);
+    FILE* o = ok ? fopen(dst, "wb") : NULL;
+    static uint8_t buf[1u << 20];
+    uint64_t left = ok ? pf[want].size : 0, h = 0xcbf29ce484222325ull;
+    ok = ok && o;
+    while (ok && left) {
+        const size_t k = left > sizeof(buf) ? sizeof(buf) : (size_t)left;
+        ok = PackRead(&p, buf, k);
+        for (size_t j = 0; ok && j < k; ++j) { h ^= buf[j]; h *= 0x100000001b3ull; }
+        if (ok) ok = fwrite(buf, 1, k, o) == k;
+        left -= k;
+    }
+    if (o) fclose(o);
+    PackEnd(&p);
+    if (!ok || h != pf[want].hash) { DeleteFileA(dst); return false; }
+    return true;
 }
 
 // ---- the header that stays on screen while the DLLs are timed: "CYBOMAN SAYS:" in letters made of characters, a thank-you and the request not
-// to use the graphics card or a web browser, and a rhyming joke that changes every 10 seconds (120 of them, about the upscaler and this project). The lines below it scroll on their own (a scroll region), so the header is never pushed
+// to use the graphics card or a web browser, and a rhyming joke that changes every 10 seconds (120 of them, about the upscaler and this project). The lines below it scroll on their own (a scroll region; where that is ignored, see HeaderPaint), so the header is never pushed
 // out of the window. Only in a console window that takes such sequences (Windows 10 and later) and is at least 76 x 20 characters; otherwise, and
 // when the output goes to a file, the plain request is printed as before (FSR4TIME_NOHEADER=1 forces that). Released (scroll region off) before the
 // summary, which then scrolls as usual.
@@ -712,8 +724,44 @@ static void HeaderJoke(HANDLE h, int k) {      // the joke line, written into it
     COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + 8)};      // row 9 of the window
     WriteConsoleOutputCharacterA(h, line, (DWORD)n, at, &done);
 }
+// Wine's console (Proton) ignores the scroll region, so there the window scrolls as a whole and the header leaves the top. Four times a second
+// the ticker looks at the window's first row; when it no longer holds the header, the header is written again into the window's top rows,
+// over the oldest lines (cells only: the cursor and the text being printed are not touched). Where the scroll region works this never happens.
+static WORD hdr_attr;      // the console's colors when the header was drawn
+static void HeaderPaint(HANDLE h, int k) {
+    CONSOLE_SCREEN_BUFFER_INFO bi;
+    if (!GetConsoleScreenBufferInfo(h, &bi)) return;
+    const int w = bi.srWindow.Right - bi.srWindow.Left + 1;
+    const WORD yellow = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY, bold = (WORD)(hdr_attr | FOREGROUND_INTENSITY);
+    for (int r = 0; r < HEADER_ROWS; ++r) {
+        const char* t = r < 4 ? CYBOMAN_ART[r] : r == 5 ? "Thank you for help with this project." : r == 6 ? "Please don't use your GPU or web browser while the test is running." : "";
+        char line[512];
+        int n = snprintf(line, sizeof(line), "%s", t);
+        if (r == HEADER_ROWS - 1) n = 0;
+        while (n < w - 1 && n < (int)sizeof(line) - 1) line[n++] = r == HEADER_ROWS - 1 ? '-' : ' ';
+        DWORD done;
+        const COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + r)};
+        FillConsoleOutputAttribute(h, r < 4 ? yellow : r == 5 || r == 6 ? bold : hdr_attr, (DWORD)w, at, &done);
+        WriteConsoleOutputCharacterA(h, line, (DWORD)n, at, &done);
+    }
+    HeaderJoke(h, k);
+}
+static bool HeaderInPlace(HANDLE h) {
+    CONSOLE_SCREEN_BUFFER_INFO bi;
+    if (!GetConsoleScreenBufferInfo(h, &bi)) return true;
+    char row[256] = {0};
+    DWORD n = 0;
+    const COORD at = {bi.srWindow.Left, bi.srWindow.Top};
+    const DWORD len = (DWORD)strlen(CYBOMAN_ART[0]) < sizeof(row) - 1 ? (DWORD)strlen(CYBOMAN_ART[0]) : sizeof(row) - 1;
+    ReadConsoleOutputCharacterA(h, row, len, at, &n);
+    return n == len && !memcmp(row, CYBOMAN_ART[0], len);
+}
 static DWORD WINAPI HeaderTicker(LPVOID p) {
-    while (WaitForSingleObject(hdr_stop, 10000) == WAIT_TIMEOUT) HeaderJoke((HANDLE)p, ++hdr_joke);
+    for (int t = 1; WaitForSingleObject(hdr_stop, 250) == WAIT_TIMEOUT; ++t) {
+        if (t % 40 == 0) ++hdr_joke;
+        if (!HeaderInPlace((HANDLE)p)) HeaderPaint((HANDLE)p, hdr_joke);
+        else if (t % 40 == 0) HeaderJoke((HANDLE)p, hdr_joke);
+    }
     return 0;
 }
 static bool HeaderStart(void) {
@@ -724,6 +772,7 @@ static bool HeaderStart(void) {
     const int w = bi.srWindow.Right - bi.srWindow.Left + 1, rows = bi.srWindow.Bottom - bi.srWindow.Top + 1;
     if (w < 76 || rows < 20 || !SetConsoleMode(h, mode | ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING)) return false;
     hdr_joke = (int)(GetTickCount() % NJOKES);
+    hdr_attr = bi.wAttributes;
     printf("\x1b[2J\x1b[H\x1b[93;1m");
     for (int i = 0; i < 4; ++i) printf("%s\n", CYBOMAN_ART[i]);
     printf("\x1b[0m\n\x1b[1mThank you for help with this project.\nPlease don't use your GPU or web browser while the test is running.\x1b[0m\n\n\n\n");      // a blank row, the joke's row, a blank row
@@ -785,25 +834,33 @@ int main(int argc, char** argv) {
     snprintf(raw, sizeof(raw), "%sresults-raw.txt", base);
     DeleteFileA(raw);
 
-    if (!UnpackDlls()) {
+    if (!PackList()) {
         if (!unattended) { char in[8]; printf("\nPress Enter to close."); fflush(stdout); fgets(in, sizeof(in), stdin); }
         return 1;
     }
-    // the DLLs: AMD's shaders first (the reference), then the rest in name order
-    char names[16][64];
-    int nd = 0;
+    // the DLLs: the pack's, and folders a tester added to dlls\ (a pack DLL wins over a folder of the same name, such as one an earlier
+    // kit unpacked); AMD's shaders first (the reference), then the rest in name order. inpack[i]: the DLL's number in the pack, or -1.
+    char names[32][64];
+    int inpack[32], nd = 0;
+    for (uint32_t i = 0; i < npf && nd < 32; ++i) { snprintf(names[nd], 64, "%s", pf[i].path); inpack[nd++] = (int)i; }
     WIN32_FIND_DATAA fd;
     HANDLE f = FindFirstFileA("dlls\\*", &fd);
     if (f != INVALID_HANDLE_VALUE) {
         do {
-            if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && fd.cFileName[0] != '.' && nd < 16) snprintf(names[nd++], 64, "%s", fd.cFileName);
+            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) || fd.cFileName[0] == '.' || nd >= 32) continue;
+            bool dup = false;
+            for (int i = 0; i < nd; ++i) dup = dup || !strcmp(names[i], fd.cFileName);
+            if (!dup) { snprintf(names[nd], 64, "%s", fd.cFileName); inpack[nd++] = -1; }
         } while (FindNextFileA(f, &fd));
         FindClose(f);
     }
     for (int i = 0; i < nd; ++i)
         for (int j = i + 1; j < nd; ++j)
-            if (strcmp(names[j], names[i]) < 0) { char t[64]; strcpy(t, names[i]); strcpy(names[i], names[j]); strcpy(names[j], t); }
-    if (!nd) { printf("No folders in dlls\\ next to the program.\n"); return 1; }
+            if (strcmp(names[j], names[i]) < 0) {
+                char t[64]; strcpy(t, names[i]); strcpy(names[i], names[j]); strcpy(names[j], t);
+                const int q = inpack[i]; inpack[i] = inpack[j]; inpack[j] = q;
+            }
+    if (!nd) { printf("No DLL pack (%s) and no folders in dlls\\ next to the program.\n", PACK_NAME); return 1; }
     if (HeaderStart())
         printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more rounds).\n\n", KIT_VERSION, once ? budget / 2 : budget);
     else
@@ -828,7 +885,9 @@ int main(int argc, char** argv) {
         const int i = rounds % 2 ? nd - 1 - k : k;
         char src[MAX_PATH], cmd[1024];
         snprintf(src, sizeof(src), "dlls\\%s\\amd_fidelityfx_upscaler_dx12.dll", names[i]);
-        if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", names[i]); continue; }
+        if (inpack[i] >= 0) {
+            if (!PackExtract((uint32_t)inpack[i], "amd_fidelityfx_upscaler_dx12.dll")) { printf("%s: could not take it out of the DLL pack (please download the kit again), skipped\n", names[i]); continue; }
+        } else if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", names[i]); continue; }
         printf("%s (round %d, DLL %d of %d) ...\n", names[i], rounds + 1, k + 1, nd); fflush(stdout);
         snprintf(cmd, sizeof(cmd), "\"%sfsr4time.exe\" --run \"%s\" \"%s\"%s", base, names[i], raw, quick ? " quick" : "");
         STARTUPINFOA si = {.cb = sizeof(si)};
