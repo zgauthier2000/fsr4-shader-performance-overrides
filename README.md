@@ -120,7 +120,8 @@ More games and resolutions: [all results](docs/results.md).
 > - **Balanced and the other modes:** the lossy DLL's picture and speed are as before (every moving-scene check identical; a few
 >   at-rest rows move by a hair).
 > - **Exact DLL:** its last shader converts each color once instead of up to four times. Same picture as AMD's; at 4K about 0.02 ms
->   less per frame on an RX 7800 XT (in the game benchmark at 4K Balanced, 0.2% more frames).
+>   per frame faster than `dll-2026-10-14`'s exact DLL: 3.16 ms against 3.18 (AMD's shaders 5.00 ms; Windows timing kit, RX 7800 XT).
+>   In the game benchmark at 4K Balanced, 0.2% more frames than with `dll-2026-10-14`'s exact DLL.
 > - **For RX 6000 cards, the RX 7600 and integrated graphics:** the lossy DLL's last shader needs 80 registers instead of 128 there,
 >   which should help; the exact DLL's new form needs more, which might cost a little. Neither is measured on those chips yet: please
 >   run [the timing kit](timing-kit).
