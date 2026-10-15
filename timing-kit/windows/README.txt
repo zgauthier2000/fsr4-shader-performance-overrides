@@ -25,7 +25,8 @@ checksums are on the download page.
 What it does
   For every folder in dlls\ it loads that upscaler DLL through AMD's FidelityFX loader, feeds it
   made-up frames at 1080p, 1440p and 4K output, with two render sizes: the Balanced preset's, and
-  Ultra Performance's (a third of the output, marked "UP" in the summary). Each with the picture
+  Ultra Performance's (a third of the output, marked "UP" in the summary; the UP lines are for that
+  mode only and do not describe the lossy DLL in other modes). Each with the picture
   still and with the camera moving. It measures the graphics card's time for each upscale call:
   200 calls after 40 to warm up.
 
@@ -37,25 +38,24 @@ What it does
 
   dlls\1-amd-shaders   AMD's DLL with AMD's shaders (only its graphics-card check is lifted, so
                        that it runs on RX 6000 cards and integrated graphics too): the reference
-  dlls\2-exact         this project's exact DLL of release dll-2026-10-14, for desktop cards
-  dlls\2c-exact-shared-taps
-                       the same with one change that is not released yet: the last shader
-                       reads and converts the colors it needs once instead of up to four times.
-                       Faster on an RX 7800 XT; it needs more of the card's registers, and whether
-                       that makes it slower on RX 6000 cards, the RX 7600 or integrated graphics
-                       is what your result shows. Must give AMD's picture.
-  dlls\3-lossy         the lossy DLL of release dll-2026-10-14 (faster; the picture is NOT the
-                       same as AMD's)
-  dlls\3r-lossy-register-cut
-                       the same with one change that is not released yet: its last shader needs
-                       fewer registers, so that cards with a smaller register file (RX 6000, RX
-                       7600, integrated graphics) can run more of it at once. Must give 3-lossy's
-                       picture. Whether it is faster on those cards is what your result shows.
-  dlls\3n-lossy-next   the lossy DLL planned for the next release (not released): the register
-                       cut above, plus frame skipping in Ultra Performance too, which the released
-                       lossy DLL does not do there. Same picture as 3-lossy at the Balanced sizes.
-  dlls\4-igpu-exact, 4c-igpu-exact-shared-taps, 5-igpu-lossy, 5r-igpu-lossy-register-cut,
-  5n-igpu-lossy-next   the same five for integrated graphics and handhelds
+  dlls\2-exact         this project's exact DLL of release dll-2026-10-15, for desktop cards
+  dlls\2w-exact-without-shared-taps
+                       the same without one of its changes (the exact DLL of dll-2026-10-14): in
+                       2-exact the last shader reads and converts the colors it needs once instead
+                       of up to four times. Faster on an RX 7800 XT; it needs more of the card's
+                       registers, and whether that makes it slower on RX 6000 cards, the RX 7600
+                       or integrated graphics is what your result shows. Both give AMD's picture.
+  dlls\3-lossy         the lossy DLL of release dll-2026-10-15 (faster; the picture is NOT the
+                       same as AMD's). Since this release it also skips frames in Ultra
+                       Performance (the "UP" lines; figures for that mode only).
+  dlls\3w-lossy-without-register-cut
+                       the same without one of its changes: in 3-lossy the last shader needs fewer
+                       registers, so that cards with a smaller register file (RX 6000, RX 7600,
+                       integrated graphics) can run more of it at once. Whether that is faster on
+                       those cards is what your result shows. Both give the same picture.
+  dlls\4-igpu-exact, 4w-igpu-exact-without-shared-taps, 5-igpu-lossy,
+  5w-igpu-lossy-without-register-cut
+                       the same four for integrated graphics and handhelds
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
   these, make a folder for it in dlls\ and put its amd_fidelityfx_upscaler_dx12.dll there. For

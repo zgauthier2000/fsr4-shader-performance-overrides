@@ -210,10 +210,10 @@ for cand in sorted({k[0] for k in pvs}):
         elif v:
             parts.append(f'{size} incomplete')
     lines.append(f'postpass shipped/candidate {cand}, both orders: ' + '  '.join(parts))
-# the lossy postpass as released and with the register cut (since kit 2026-10-15), both orders, three kinds of frame
+# the lossy postpass without and with the register cut (since kit 2026-10-15; with it is the released form since dll-2026-10-15), both orders, three kinds of frame
 lr, size, kind, differs = {}, None, None, []
 for l in read('postpass.txt').split('\n'):
-    h = re.match(r'=== lossy postpass at (\d+x\d+): released against register cut \((\w+)\)', l)
+    h = re.match(r'=== lossy postpass at (\d+x\d+): without against with the register cut \((\w+)\)', l)
     if h:
         size, kind = SIZES.get(h[1], h[1]), h[2]; continue
     if l.startswith('==='):
@@ -231,7 +231,7 @@ if lr:
             parts.append(f'{size} {kind.replace("skipped_", "skip-")} {f(a)}/{f(b)} ({100 * b / a - 100:+.1f}%)')
         else:
             parts.append(f'{size} {kind} incomplete')
-    lines.append('lossy postpass released/register cut, both orders: ' + '  '.join(parts) + ('  OUTPUT DIFFERS: ' + ', '.join(differs) if differs else ''))
+    lines.append('lossy postpass without/with register cut (with = released), both orders: ' + '  '.join(parts) + ('  OUTPUT DIFFERS: ' + ', '.join(differs) if differs else ''))
 if suspect:
     lines.append('SUSPECT RUN: writes to memory are far slower than on other machines with this kind of GPU, and games on such\n  machines do not show it. Readings that involve stores (prepass, postpass, passes 1, 2, 9, 11, 12) may not reflect games. ' + '; '.join(suspect))
 df = {}

@@ -3,7 +3,7 @@
 # FSR 4.1.1 shader timings on this machine's GPU. Run from a terminal:   bash run.sh
 # With no option it runs the full set, in about 15 minutes (a slow chip somewhat longer): all 14 passes at 1080p, 1440p and 4K
 # (each alone, and the model's 12 in sequence), the lossy build's postpass and prepass on a skipped frame, the postpass comparison
-# with the candidates (the exact postpass with shared color taps; the lossy postpass with the register cut, both not released yet)
+# with the candidate (the previous exact postpass, without shared color taps), the lossy postpass without and with the register cut,
 # and compiler statistics; then more rounds of the per-pass timing while the run stays within about 15 minutes.
 # Options:  bash run.sh postpass  only the postpass comparison (a minute or two)
 #           bash run.sh quick     all 14 passes and the postpass comparison, one round (a few minutes)
@@ -147,13 +147,13 @@ postpass_section() {
             A="$f" B="$S/$1/exact/postpass.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
         done
     done
-    # The lossy postpass, as released and with the register cut (since kit 2026-10-15; not released yet: the same picture, but
-    # 80 registers and 12 waves instead of 128 and 8 on RX 6000 cards, the RX 7600 and integrated graphics), on a frame that
-    # runs the model and on a skipped frame at rest and moving (probes as above), in both orders.
+    # The lossy postpass without and with the register cut (with it since release dll-2026-10-15: the same picture, but 80 registers
+    # and 12 waves instead of 128 and 8 on RX 6000 cards, the RX 7600 and integrated graphics), on a frame that runs the model and
+    # on a skipped frame at rest and moving (probes as above), in both orders. Files: postpass_<kind>.spv without, _regcut with it.
     for c in "1080p 1920x1080 1280 720" "4k 3840x2160 2560 1440"; do set -- $c
         for k in network skipped_rest skipped_moving; do
             [ -e "$S/$1/lossy/postpass_${k}_regcut.spv" ] || continue
-            say "lossy postpass at $2: released against register cut ($k), both orders"
+            say "lossy postpass at $2: without against with the register cut ($k), both orders"
             A="$S/$1/lossy/postpass_$k.spv" B="$S/$1/lossy/postpass_${k}_regcut.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1|bytes differ|DIFFER|IDENTICAL' | sed "s#$S/##"
             A="$S/$1/lossy/postpass_${k}_regcut.spv" B="$S/$1/lossy/postpass_$k.spv" N_DISP=30 "$W/bench" ${2%x*} ${2#*x} $3 $4 2>&1 | grep -E 'round 1' | sed "s#$S/##"
         done

@@ -30,26 +30,26 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Version 2026-10-15 of both kits** (download again if you have an earlier one): they time the two changes planned for the next
-release that may behave differently on other graphics chips than on the one the project is developed on, and the new frame skip
-in Ultra Performance.
+**Version 2026-10-15 of both kits** (download again if you have an earlier one): they carry release `dll-2026-10-15`, and time each
+of its two changes that may behave differently on other graphics chips than on the one the project is developed on, by timing the
+release's DLL also without that change.
 
-- **Shared color taps (exact):** the last shader reads and converts the colors it needs once instead of up to four times. Same
-  picture as AMD's; on an RX 7800 XT the postpass is 4 to 6% faster. It needs more registers: on RX 6000 cards, the RX 7600 and
-  integrated graphics it runs half as many groups of threads at once (8 instead of 16), and results from those chips will show
-  whether that makes it slower there.
-- **Register cut (lossy):** the lossy build's last shader needs 80 registers instead of 128 on those same chips, so 12 groups of
-  threads run at once instead of 8. Same picture as the released lossy build; on an RX 7800 XT (which has the larger register
-  file) it changes nothing measurable. Results from the smaller chips will show whether it pays off there.
-- **Windows kit:** times Ultra Performance as well (render size a third of the output, with the 72 jitter steps FSR asks a game
-  for), where the lossy DLL planned for the next release skips frames too; the released one does not skip there. Instead of two
-  fixed runs per DLL it times in rounds for about 15 minutes, so a fast card gives steadier figures. The DLLs: AMD's, the
-  released exact and lossy ones, each of the two changes alone, and the planned lossy DLL, for desktop and integrated graphics;
-  the four folders for older questions (split dot products, the 4.1.1b changes, postpass only, without postpass) are gone.
-- **Linux kit:** times the lossy postpass as released and with the register cut, on a frame that runs the model and on a skipped
-  frame, in both orders, and lists both in the compiled-code line (registers and waves). The pass 11 versions and the store
-  probes, older questions, are gone; that time goes to repeat rounds of the per-pass timing while the run stays within about 15
-  minutes (on an RX 7800 XT one round takes ten minutes, so the repeat is at 1080p only; the full run took 14.7 minutes).
+- **Shared color taps (exact):** the last shader converts the colors it needs once instead of up to four times. Same picture as AMD's;
+  on an RX 7800 XT the last shader is 4 to 6% faster. It needs more registers: on RX 6000 cards, the RX 7600 and integrated graphics
+  it runs half as many groups of threads at once (8 instead of 16), and results from those chips will show whether that makes it
+  slower there. The Windows kit has the exact DLLs with and without it (`2w-`, `4w-...-without-shared-taps`: the exact DLLs of
+  `dll-2026-10-14`); the Linux kit times the shipped postpass against the previous one ("candidate previous").
+- **Register cut (lossy):** the lossy DLL's last shader needs 80 registers instead of 128 on those same chips, so 12 groups of
+  threads run at once instead of 8. Same picture; on an RX 7800 XT it changes nothing measurable. The Windows kit has the lossy DLLs
+  with and without it (`3w-`, `5w-...-without-register-cut`); the Linux kit times the lossy postpass both ways.
+- **Windows kit:** also times **Ultra Performance** (render size a third of the output, with the 72 jitter steps FSR asks a game for),
+  where this release's lossy DLL skips frames too. Those lines are marked "UP" and are **for Ultra Performance only, not
+  representative of the lossy DLL in other modes.** Instead of two fixed runs per DLL it times in rounds for about 15 minutes, so a
+  fast card gives steadier figures. The four folders for older questions (split dot products, the 4.1.1b changes, postpass only,
+  without postpass) are gone.
+- **Linux kit:** the pass 11 versions and the store probes, older questions, are gone; that time goes to repeat rounds of the
+  per-pass timing while the run stays within about 15 minutes (on an RX 7800 XT one round takes ten minutes, so the repeat is at
+  1080p only; the full run took 14.7 minutes).
 
 **Linux kit version 2026-10-14** (download again if you have an earlier one): its lossy shaders are those of release `dll-2026-10-14` (the probes of
 the prepass and the postpass on a skipped frame). Nothing else changed. Since version 2026-10-12.6 it times the lossy build's prepass on a skipped frame too (a probe that always takes the short copy
@@ -82,16 +82,16 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15/fsr4-timing-kit-windows.zip) (about 300 MB, updated 2026-10-15) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15/fsr4-timing-kit-windows.zip) (about 235 MB, updated 2026-10-15) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
 
-**New in version 2026-10-15:** Ultra Performance sizes; rounds for about 15 minutes instead of two runs per DLL; the DLLs of the two
-candidates for the next release (shared color taps, register cut) and the planned lossy DLL; the four folders for older questions
-are gone. See [above](#in-short) for what each candidate is about. On an RX 7800 XT under Proton, 4K, moving: AMD 5.00 ms, exact 3.18,
-with shared taps 3.16; lossy 2.23, planned lossy 2.23; Ultra Performance 4K: AMD 4.64, exact 3.10, lossy 3.18 (no frame skip there),
-planned lossy 2.50.
+**New in version 2026-10-15:** release `dll-2026-10-15`'s DLLs, each also without one of its two changes (see [above](#in-short));
+Ultra Performance sizes (marked "UP": figures for Ultra Performance only, not representative of other modes); rounds for about 15
+minutes instead of two runs per DLL; the four folders for older questions are gone. On an RX 7800 XT under Proton, 4K, moving, mean
+of 6 rounds: AMD 5.00 ms, exact 3.16 (3.18 without shared taps), lossy 2.23 (2.23 without the register cut). **Ultra Performance
+only:** 4K AMD 4.64 ms, exact 3.07, lossy 2.50 (`dll-2026-10-14`'s lossy DLL, which did not skip frames there, 3.18).
 
 **New in version 2026-10-14:** its lossy DLLs are those of release `dll-2026-10-14` (slow fades keep up better, small dark things are shown more fully with the camera still, less of an old image beside moving objects). Nothing else changed.
 
