@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# dupmix_dxil.py < skipblend_dxil.py output (SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1) > out (internal build, unreleased) : the DXIL form of dupmix.py (DM_END=last). For each of the four pixels the stretch
+# dupmix_dxil.py < skipblend_dxil.py output (SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1) > out (since release dll-2026-10-15) : the DXIL form of dupmix.py (DM_END=last). For each of the four pixels the stretch
 # from the first to the last running min / max of the nine samples runs twice: frames that run the network take the shader's own lines, skipped frames a copy
 # with the min / max; values used later meet in phis. Same output; network frames do not pay for the min / max.
 import re, sys

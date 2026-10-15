@@ -150,7 +150,9 @@ skip about 60% of FSR 4. That should show as lower GPU load at the same frame ra
 
 ## When frames do not alternate
 
-- **Ultra Performance:** frame skip is off there, so every frame runs the model.
+- **Ultra Performance (since `dll-2026-10-15`; Ultra Performance only):** frame skip works there too, but one in three of the
+  frames that would skip runs the model all the same, so about one frame in three is skipped instead of every other one.
+  A long frame can then follow another long frame. (Before `dll-2026-10-15` frame skip was off there.)
 - **Frames the game marks as a reset** (a camera cut) always run the model.
 - **Games with an unusual camera jitter sequence** may skip unevenly, because the build picks
   frames by the sign of the jitter. A game that passes no jitter never skips, and then the lossy

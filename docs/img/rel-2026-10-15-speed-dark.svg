@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="900" height="420" fill="#0d1117"/>
+<text x="60" y="32" font-size="20" font-weight="700" fill="#e6edf3">ULTRA PERFORMANCE ONLY: FSR 4 time per frame, ms (lower is better)</text>
+<text x="60" y="58" font-size="14" fill="#e6edf3">Not representative of other modes: at the Balanced preset's size this release's lossy DLL takes the same time as dll-2026-10-14.</text>
+<text x="60" y="80" font-size="12" fill="#9198a1">RX 7800 XT, Windows timing kit 2026-10-15 under Proton, moving picture, mean of 6 rounds; render size a third of the output.</text>
+<line x1="60" y1="350" x2="870" y2="350" stroke="#30363d"/>
+<rect x="87.0" y="307.5" width="68.0" height="42.5" fill="#8b949e"/>
+<text x="121.0" y="301.5" font-size="13" text-anchor="middle" fill="#e6edf3">0.94</text>
+<rect x="159.0" y="308.8" width="68.0" height="41.2" fill="#d4a72c"/>
+<text x="193.0" y="302.8" font-size="13" text-anchor="middle" fill="#e6edf3">0.92</text>
+<rect x="231.0" y="316.0" width="68.0" height="34.0" fill="#2f81f7"/>
+<text x="265.0" y="310.0" font-size="13" text-anchor="middle" fill="#e6edf3">0.76</text>
+<text x="195.0" y="372" font-size="15" text-anchor="middle" fill="#e6edf3">1080p output</text>
+<rect x="357.0" y="255.3" width="68.0" height="94.7" fill="#8b949e"/>
+<text x="391.0" y="249.3" font-size="13" text-anchor="middle" fill="#e6edf3">2.10</text>
+<rect x="429.0" y="284.5" width="68.0" height="65.5" fill="#d4a72c"/>
+<text x="463.0" y="278.5" font-size="13" text-anchor="middle" fill="#e6edf3">1.46</text>
+<rect x="501.0" y="297.2" width="68.0" height="52.8" fill="#2f81f7"/>
+<text x="535.0" y="291.2" font-size="13" text-anchor="middle" fill="#e6edf3">1.17</text>
+<text x="465.0" y="372" font-size="15" text-anchor="middle" fill="#e6edf3">1440p output</text>
+<rect x="627.0" y="141.3" width="68.0" height="208.7" fill="#8b949e"/>
+<text x="661.0" y="135.3" font-size="13" text-anchor="middle" fill="#e6edf3">4.64</text>
+<rect x="699.0" y="206.8" width="68.0" height="143.2" fill="#d4a72c"/>
+<text x="733.0" y="200.8" font-size="13" text-anchor="middle" fill="#e6edf3">3.18</text>
+<rect x="771.0" y="237.8" width="68.0" height="112.2" fill="#2f81f7"/>
+<text x="805.0" y="231.8" font-size="13" text-anchor="middle" fill="#e6edf3">2.50</text>
+<text x="735.0" y="372" font-size="15" text-anchor="middle" fill="#e6edf3">4K output</text>
+<rect x="60" y="394" width="12" height="12" fill="#8b949e"/><text x="78" y="404" font-size="13" fill="#e6edf3">AMD's shaders</text>
+<rect x="183.60000000000002" y="394" width="12" height="12" fill="#d4a72c"/><text x="201.60000000000002" y="404" font-size="13" fill="#e6edf3">lossy, dll-2026-10-14 (no frame skip in UP)</text>
+<rect x="523.2" y="394" width="12" height="12" fill="#2f81f7"/><text x="541.2" y="404" font-size="13" fill="#e6edf3">lossy, dll-2026-10-15</text>
+</svg>

@@ -38,7 +38,7 @@ of the picture where the five differ most from each other, picked by that script
 | Name here | What it is | Version | Settings |
 |---|---|---|---|
 | FSR 4.1.1 | AMD's FSR 4 (INT8 model) with AMD's own shaders. This project's exact DLL gives the same picture, byte for byte | 4.1.1 | defaults |
-| Lossy | this project's lossy DLL: FSR 4.1.1's network on every other frame | release `dll-2026-10-14` (auto exposure is off on this page) | defaults |
+| Lossy | this project's lossy DLL: FSR 4.1.1's network on every other frame | release `dll-2026-10-15`, at the Balanced preset's size (auto exposure is off on this page) | defaults |
 | FSR 3.1 | AMD's FSR 3.1 upscaler, from the same AMD file as FSR 4.1.1 | 3.1.5 | defaults |
 | HelixSR | a community upscaler that runs NVIDIA's DLSS "Model E" network as ordinary compute shaders behind FSR 3.1's interface | 1.2.0 | defaults (its main network, sharpening off) |
 | XeSS | Intel's XeSS, in the form that runs on any graphics card | 2.0.2 | defaults, no auto exposure |
@@ -195,8 +195,8 @@ How much the picture changes from one frame to the next where it should not, in 
 | The same wire under a slow pan | 7.2 | 5.2 | 8.2 | 5.6 | 10.1 |
 | The same wire under a slow pan: its brightness, of 255 (true: 111) | 100 | 77 | 121 | 135 | 90 |
 | ... how close that is to the true brightness (the chart's wire spoke; too bright counts like too dim) | 90.5% | 69.3% | 90.2% | 78.4% | 81.0% |
-| Still picture with grain of 6 of 255 | 0.785 | 0.325 | 0.162 | 0.213 | 0.182 |
-| Still picture with grain of 10 of 255 | 1.724 | 1.100 | 0.308 | 0.300 | 0.228 |
+| Still picture with grain of 6 of 255 | 0.785 | 0.321 | 0.162 | 0.213 | 0.182 |
+| Still picture with grain of 10 of 255 | 1.724 | 1.085 | 0.308 | 0.300 | 0.228 |
 
 - The lossy DLL has the steadiest moving background of the five.
 - **A thin wire under a slow pan was its weakest steadiness case up to release `dll-2026-10-13`** (10.2, level with XeSS as the least steady of the five). Since `dll-2026-10-13.2`
@@ -231,7 +231,9 @@ Graphics-card time for one upscale call, in milliseconds, at the same render rat
 - The lossy figure is an average over the two kinds of frame: at 4K, 3.21 ms when the network runs and 1.21 ms when it is skipped.
 - All six columns were timed again on 2026-10-13 with the DLLs of release `dll-2026-10-13.2`, on the still scene, one run each. Release `dll-2026-10-14`
   was not timed for this table; in the Windows timing kit it reads up to 0.02 ms more per frame than `dll-2026-10-13.2` (still scene, one quick run of
-  each: 0.68 / 1.07 / 2.24 ms against 0.67 / 1.03 / 2.21), from its rule for slow fades.
+  each: 0.68 / 1.07 / 2.24 ms against 0.67 / 1.03 / 2.21), from its rule for slow fades. Release `dll-2026-10-15` reads the same as `dll-2026-10-14` at
+  these sizes within 0.01 ms (kit 2026-10-15, moving, 6 rounds: 0.678 / 1.062 / 2.231 against 0.676 / 1.053 / 2.228). Its gain is in Ultra Performance
+  only, which this page does not cover; see [the release page](releases/dll-2026-10-15.md) (not representative of the other modes).
   The table before it, timed the same morning with `dll-2026-10-13`, had 0.65 / 1.03 / 2.22 for the lossy DLL; no column moved by more
   than 0.01 ms.
 - XeSS runs a different, slower network on cards that are not Intel's than on Intel Arc. These figures say nothing about XeSS on Arc.

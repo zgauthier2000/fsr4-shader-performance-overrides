@@ -26,7 +26,7 @@
 # motion from the fourth channel of the prepass's image (frameskip.py FS_ALPHA), one value per 2x2 cell, instead of the 4x4 block's entry.
 # Options (environment): SB_K (default 32), SB_AW (0, 1 or 2: power of a in the factor, default 1),
 # SB_REL (default 0.1), SB_THR (absolute floor of the guard's limit, default 0), SB_GUARD=0 (no guard),
-# SB_GUARDREST=0 (default 1 = as before): the guard does not fire where the rest rule holds. In Ultra Performance a wire far thinner than a render pixel is
+# SB_GUARDREST=0 (the default since release dll-2026-10-15; 1 = as before): the guard does not fire where the rest rule holds. In Ultra Performance a wire far thinner than a render pixel is
 # missing from the history wherever the frames that ran the model sampled beside it; a skipped frame whose samples hit it then tripped the guard (history
 # far darker in every channel) and showed the new frame alone: wires, sparks and sky through leaves flashed on skipped frames at rest.
 # SB_CLAMP (default 0 since release dll-2026-10-14, 0.5 before; "off" for none), SB_BRANCH=0 (the layout of releases dll-2026-10-06.2 and .3:
@@ -115,7 +115,7 @@
 # the new frame counts for very little where the model keeps history; "off" for none, as in release
 # dll-2026-10-06.4), SB_CAP (upper limit of the 2^ term,
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
-# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (default off; the internal build of 2026-10-15, unreleased, with dupmix.py and, on Linux,
+# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (the default since release dll-2026-10-15; SB_RANGEPRE=0 SB_RANGEAT=0 SB_ROWS=0 as before; with dupmix.py and, on Linux,
 # postpass_direct_lossy.py): same output, fewer registers. The nine samples' running min / max are worked out as each sample is (RANGEAT) and before the
 # skipped-frame branch (RANGEPRE), and the 3x3 history reads come in three rows in blocks of their own (ROWS). Lossy postpass on GPUs with the smaller
 # register file (RX 6000, RX 7600, integrated): 80 registers and 12 waves instead of 128 and 8; RX 7800 XT unchanged (96 / 16).
@@ -123,7 +123,7 @@
 # weight (1 - a)^2 becomes (1 - a)^(1 + p). Tried for Ultra Performance, where a render pixel spans three output pixels.
 import os, re, sys
 # the changed-content tests (below) are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01'), ('SB_RANGEPRE', '1'), ('SB_RANGEAT', '1'), ('SB_ROWS', '1'), ('SB_RANGESET', 'minmax')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
@@ -135,7 +135,7 @@ LEAN = os.environ.get('SB_LEAN', '1') == '1'      # same values, laid out to hol
 K = float(os.environ.get('SB_K', '32')); CONST = None if os.environ.get('SB_CONST') == 'off' else os.environ.get('SB_CONST', '0'); CAP = float(os.environ.get('SB_CAP', '1')); AW = int(os.environ.get('SB_AW', '1'))
 CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0'))      # 0 since release dll-2026-10-14 (0.5 before)
 GUARD = os.environ.get('SB_GUARD', '1') == '1'
-GUARDNR = os.environ.get('SB_GUARDREST', '1') == '0'      # the guard does not fire where the rest rule holds (see the head of the file)
+GUARDNR = os.environ.get('SB_GUARDREST', '0') == '0'      # the guard does not fire where the rest rule holds (see the head of the file)
 L = sys.stdin.read().split('\n')
 S = int(sys.argv[1]) if len(sys.argv) > 1 else next((x for x in (15392, 30752, 61472) if any(f'%uint_{x} = ' in l for l in L)), None) or sys.exit('skipblend: no known row size')
 defs = {m[1]: m[2] for l in L for m in [re.match(r'\s*(%\w+) = (.*)$', l)] if m}

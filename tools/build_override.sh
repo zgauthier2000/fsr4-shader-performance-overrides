@@ -11,7 +11,7 @@
 #                  the register count low enough for 16 waves on RDNA2); before that, its small network gets the model passes'
 #                  integer rounding and clamping (model_tail.py, model_clamp.py) and reads its
 #                  nine neighbor cells without branches (postpass_taps.py). POSTPASS=0 skips it.
-#                  SHARE=1 (off by default; unreleased): each thread converts its color taps once (postpass_sharetaps.py).
+#                  SHARE=1 (the default since release dll-2026-10-15; SHARE=0 as before): each thread converts its color taps once (postpass_sharetaps.py).
 #   prepass        each thread of a quad finishes one of the four words of the model's input:
 #                  12 exchanges between threads instead of 32 (prepass_route.py). PREPASS=0 skips it.
 #   model passes   every model pass: the int8 rounding-and-clamping between layers is done with the
@@ -121,8 +121,8 @@ while read -r kind hash; do
     fi
     spirv-as --target-env spv1.3 "$work/$hash.new.spvasm" -o "$work/$hash.spv"
     spirv-val --target-env vulkan1.3 "$work/$hash.spv"
-    if [[ $kind == postpass && ${SHARE:-0} == 1 ]]; then
-        # SHARE=1 (off by default; unreleased): each thread fetches and converts its color taps once (postpass_sharetaps.py, on the finished file)
+    if [[ $kind == postpass && ${SHARE:-1} == 1 ]]; then
+        # SHARE=1 (the default since release dll-2026-10-15; SHARE=0 as before): each thread fetches and converts its color taps once (postpass_sharetaps.py, on the finished file)
         spirv-dis "$work/$hash.spv" -o "$work/$hash.sh.spvasm"
         python3 "$here/postpass_sharetaps.py" "$work/$hash.sh.spvasm" "$work/$hash.sh2.spvasm" >/dev/null || { echo "FAILED $hash: shared taps"; exit 1; }
         spirv-as --target-env vulkan1.1 "$work/$hash.sh2.spvasm" -o "$work/$hash.spv"

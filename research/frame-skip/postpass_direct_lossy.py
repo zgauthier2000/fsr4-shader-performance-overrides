@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# postpass_direct_lossy.py: the store rewrite of the lossy build's postpass in the internal build (unreleased, 2026-10-15): tools/postpass_direct.py's
+# postpass_direct_lossy.py: the store rewrite of the lossy build's postpass since release dll-2026-10-15: tools/postpass_direct.py's
 # earlier form (v3, below) taught the lossy fourth channel (skipblend.py SB_PERSIST's flag). With skipblend.py's SB_RANGEPRE/SB_RANGEAT/SB_ROWS and
 # dupmix.py, the lossy postpass needs 80 registers and 12 waves on GPUs with the smaller register file (released: 128 and 8); same output.
 #

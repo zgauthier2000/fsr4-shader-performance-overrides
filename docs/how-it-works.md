@@ -15,6 +15,11 @@ the end of this section.)
   instead of 40 KB, so four times as many waves run at once. In a standalone benchmark at 4K the
   pass went from about 2.1 ms to 0.6 ms (0.83 ms with the first version, which moved all three
   images at once).
+- **Postpass color taps** (`postpass_sharetaps.py`, since release `dll-2026-10-15`). Each of a thread's four pixels reads
+  and converts the 3x3 colors around it; the four windows lie in one 4x4 window, so the thread now reads and converts those 16
+  colors once instead of 36 times, and each tap takes its converted value. Same output, byte for byte. About 6% faster on an
+  RX 7800 XT (0.65 to 0.61 ms at 4K); it needs more registers (16 to 12 waves there, 16 to 8 on GPUs with the smaller
+  register file), so on those it may cost instead; the timing kit measures it.
 - **Model pass 11** (`zconst.py`). The pass uses a coordinate that is always zero in its loop
   counts, which stops the driver from unrolling the loops. Replacing it with a constant takes the
   pass from 0.60 ms to 0.23 ms in a standalone benchmark. The same change does nothing for the

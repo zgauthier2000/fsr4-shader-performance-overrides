@@ -2136,6 +2136,62 @@ keeps a fourth value of its own. The lossy DLLs give the Linux files' output byt
 Switches: `SB_FADE=off FS_PERSISTRUN=0` rebuild the build without the fade rule; with `SB_PERSIST=off FS_PERSIST=0 SB_CLAMP=0.5` as well,
 `dll-2026-10-13.2`'s files and both DLLs' shader sets, byte for byte.
 
+## Frame skip in Ultra Performance (release `dll-2026-10-15`)
+
+> [!IMPORTANT]
+> Every figure in this section is for **Ultra Performance only** (a render size a third of the output) and is **not representative of
+> the lossy build in the other modes**, where this release changes almost nothing.
+
+Until `dll-2026-10-14` the prepass skipped nothing when the render size is under half the output size: the fear was that the border
+clearing after the prepass would reach into the model output the skipped frame keeps. Removing that test changed nothing that the checks
+could see (no band, no fixed damage at 1080p, 1440p, 4K and 5K, still and moving); why the clearing does no harm there was not worked out.
+Skipping every other frame then took 4K Ultra Performance from 3.16 to 2.14 ms on an RX 7800 XT, and showed three costs at rest: thin
+wires and fireflies flashing on skipped frames, thin vertical lines shimmering, and more isolated bright dots.
+
+**Wires and fireflies at rest: the guard.** A skipped frame takes the new frame alone where the old picture is far darker in every
+channel. In Ultra Performance the frames that run the model all have jitter x of one sign, so they sample only one half of each render
+pixel, three output pixels wide. A wire thinner than that is missing from the old picture wherever those frames sampled beside it, a
+skipped frame's sample hits it, the guard fires and the wire flashes; the model then asks for 15 to 60 times more of the new frame at
+rest. Switching every changed-content test off did not help; switching the guard off did. `SB_GUARDREST=0` keeps the guard out where
+the rest rule holds (nothing scrolls in there): wire at rest change per frame 8.70 to 3.10 (AMD 1.13), fireflies flicker counts 264, 157
+to 4, 0 (AMD's 4, 0). At the Balanced size it changes a few at-rest rows by a hair.
+
+**Thin vertical lines: an extra model run.** The same half-pixel sampling leaves thin vertical lines to the skipped frames alone. Skipping
+by the jitter's second binary digit instead of its sign covers both halves, but skips two frames in a row (wires at rest 15.8, a brightness
+step missed, particle trails): rejected. `FS_UP=-0.1666667` keeps the sign rule and runs the model on a would-be-skipped frame whose
+jitter y is below that value: with Halton base-3 jitter in y that is every third such frame, spread over the other half of the pixel, and
+never two skips in a row. Only below half the output size: at other sizes the skip is as before, byte for byte. With 72 jitter steps (what
+FSR asks a game for in Ultra Performance) about a third of the frames skip; with the rig's 16, 37.5%.
+
+| Ultra Performance only, auto exposure off | AMD | UP skip, guard only | + extra runs (this release) |
+|---|---|---|---|
+| Thin vertical lines at rest: change per frame | – (`dll-2026-10-14`: 0.199) | 0.467 | 0.234 |
+| Thin wire at rest: change per frame | 1.13 | 3.10 | 1.38 |
+| Tiny fast sparks shown, still / pan | 69 / 63% | 41 / 35% | 48 / 43% |
+| 30 FPS, just uncovered against AMD | | −4.0 dB | +1.0 dB |
+| 4K time per frame (kit, 16 jitter steps) | | 2.14 ms | 2.40 ms |
+
+The extra runs cost a quarter of the time gain, and with auto exposure on one ghost scene doubles its outline error on the frames that
+now run the model (the model's own ghost, which AMD's shaders show on their frames too).
+
+**Uncovered areas: found, not fixed.** On frames that run the model, areas just uncovered by a moving object are worse than with AMD's
+shaders (1440p 24 to 27 dB against 34 to 38), and at 5K the first frames of a scene are. At 5K the cause is the skipped frame's warp of
+the model's result (switching it off brings 5K to AMD's level), but switching it off costs more in motion everywhere else (trails behind
+tiny particles, wires fainter in a pan): rejected. At 1440p neither the motion grid's place in the buffer, its contents, the warp, nor
+withholding the stores of the skipped frame explains it; only writing the grid on half its rows does, at the skipped frames' expense. It
+stays a cost of this mode.
+
+**Also tried and rejected:** stronger damping of the skipped-frame correction (a trade, not a fix), a higher threshold for the sample
+test (fewer bright dots, fewer sparks shown: the same trade either way), and letting the sample test count only where the change lasted
+two frames (bright dots halved, but tiny fast sparks shown 41 to 19%).
+
+**Register cut** (same release, every mode, same output): the nine samples' running range is worked out as each is read and before the
+skipped-frame branch (`SB_RANGEPRE`, `SB_RANGEAT`), the 3 x 3 history reads come in three rows of their own (`SB_ROWS`), frames that
+run the model keep their own copy of that stretch (`dupmix.py`), and on Linux the first image goes straight to workgroup memory
+(`postpass_direct_lossy.py`). 128 to 80 registers and 8 to 12 groups of threads on GPUs with the smaller register file.
+
+The release page has the comparison with the exact DLL in Ultra Performance: [`dll-2026-10-15`](../../docs/releases/dll-2026-10-15.md).
+
 ## By frame rate
 
 The table in this section is for release 5 and earlier. Release 6's figures by frame rate are in
@@ -2222,9 +2278,11 @@ to, provided the prepass leaves it alone.
 
 **Which frames.** Those whose jitter x is negative. FSR's and DLSS's usual jitter, a Halton
 base-2 sequence minus one half, changes sign every frame and never gives two negative frames in
-a row. The prepass never skips a frame the game marks as a reset, or one whose render size is
-under half the output size (Ultra Performance): there the border clearing that follows the
-prepass would reach into the kept output.
+a row. The prepass never skips a frame the game marks as a reset. Up to `dll-2026-10-14` it never
+skipped one whose render size is under half the output size (Ultra Performance) either, for fear
+that the border clearing that follows the prepass would reach into the kept output; since
+`dll-2026-10-15` it does (`FS_UP`), and there one in three of those frames runs the model all the
+same (see [Frame skip in Ultra Performance](#frame-skip-in-ultra-performance-release-dll-2026-10-15)).
 
 **On a skipped frame**
 
@@ -2266,7 +2324,8 @@ border shaders erased it.)
 - **It depends on the game's jitter.** With the usual sequence, frames alternate strictly. A
   game with another sequence could skip two frames in a row now and then, or skip unevenly.
   A game that passes no jitter never skips.
-- **Not in Ultra Performance** or at any render size under half the output size.
+- **Ultra Performance (since `dll-2026-10-15`) costs more picture than the other modes** (the
+  figures in its section are for Ultra Performance only), and skips one frame in three, not two.
 - **Fine detail shimmers more,** at rest as well as in motion: about 30% more frame-to-frame
   change than AMD's with the correction, 55% without.
 - **Uneven frame times,** as above.

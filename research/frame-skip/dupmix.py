@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# dupmix.py < skipblend.py output (SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 SB_RANGESET=minmax) > out (internal build, unreleased; DM_END=last is the tested form) : for each of the four pixels, the stretch from the first running min / max of the
+# dupmix.py < skipblend.py output (SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 SB_RANGESET=minmax) > out (since release dll-2026-10-15; DM_END=last is the released form) : for each of the four pixels, the stretch from the first running min / max of the
 # nine samples up to the skipped-frame branch is split in two: frames that run the network take the shader's own lines (without the min / max), skipped
 # frames a copy with them. Values used later meet in phis. Output unchanged; network frames no longer pay for the min / max.
 # DM_HOIST=1: lines of the stretch that depend on nothing in it and are not arithmetic on samples (descriptor loads, image fetches) stay shared, before the split.
@@ -23,7 +23,7 @@ def undef(t):
 for k in '0123':
     b = next(i for i, l in enumerate(L) if l.strip() == f'OpSelectionMerge %sb_M{k} None')
     s = next(i for i, l in enumerate(L) if RNG.match(l) and RNG.match(l)[1] == k)
-    if os.environ.get('DM_END') == 'last':      # copy only up to the last min / max line; the rest of the stretch stays shared, after the paths meet
+    if os.environ.get('DM_END', 'last') == 'last':      # copy only up to the last min / max line; the rest of the stretch stays shared, after the paths meet
         b = max(i for i, l in enumerate(L) if i < b and RNG.match(l) and RNG.match(l)[1] == k) + 1
     if any(re.search(r'= OpLabel|^\s*Op(Branch|Return|Selection|Loop)', L[i]) for i in range(s, b)):
         sys.exit(f'dupmix: the stretch of pixel {k} is not one block')

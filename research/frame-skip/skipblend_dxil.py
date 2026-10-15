@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_GUARDREST, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS, SB_REST (as in skipblend.py);
-# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (default off; the internal build of 2026-10-15, unreleased, with dupmix.py and, on Linux,
+# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (the default since release dll-2026-10-15; SB_RANGEPRE=0 SB_RANGEAT=0 SB_ROWS=0 as before; with dupmix.py and, on Linux,
 # postpass_direct_lossy.py): same output, fewer registers. The nine samples' running min / max are worked out as each sample is (RANGEAT) and before the
 # skipped-frame branch (RANGEPRE), and the 3x3 history reads come in three rows in blocks of their own (ROWS). Lossy postpass on GPUs with the smaller
 # register file (RX 6000, RX 7600, integrated): 80 registers and 12 waves instead of 128 and 8; RX 7800 XT unchanged (96 / 16).
@@ -12,7 +12,7 @@
 # last ran for. Same arithmetic, so a DLL built with this and the Linux files give the same output.
 import os, re, sys
 # the changed-content tests of skipblend.py are on by default; "off" switches one off
-for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01')):
+for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01'), ('SB_RANGEPRE', '1'), ('SB_RANGEAT', '1'), ('SB_ROWS', '1'), ('SB_RANGESET', 'minmax')):
     os.environ.setdefault(_k, _v)
     if os.environ[_k] == 'off':
         del os.environ[_k]
@@ -28,7 +28,7 @@ _ps = None if os.environ.get('SB_PERSIST', '0.02') == 'off' else [0.0, 0.0, floa
 # green drift lies in the band t x history + floor < |d| < SB_FADEU x history.
 _fd = None if (os.environ.get('SB_FADE', '0.0015 0.0001') == 'off' or not _ps) else [float(x) for x in os.environ.get('SB_FADE', '0.0015 0.0001').split()]
 FU = float(os.environ.get('SB_FADEU', '0.01'))
-GUARD = os.environ.get('SB_GUARD', '1') == '1'; GUARDNR = os.environ.get('SB_GUARDREST', '1') == '0'; REL = float(os.environ.get('SB_REL', '0.1')); THR = float(os.environ.get('SB_THR', '0'))
+GUARD = os.environ.get('SB_GUARD', '1') == '1'; GUARDNR = os.environ.get('SB_GUARDREST', '0') == '0'; REL = float(os.environ.get('SB_REL', '0.1')); THR = float(os.environ.get('SB_THR', '0'))
 CONST = None if os.environ.get('SB_CONST') == 'off' else float(os.environ.get('SB_CONST', '0'))   # a further constant factor on skipped frames
 L = sys.stdin.read().split('\n')
 text = '\n'.join(L)

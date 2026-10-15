@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # make_upscaler_comparison.py [<dir>]: the figures of docs/upscaler-comparison.md.
-#   cmp5-radar-{light,dark}.svg (one shape per upscaler), release-radar-{light,dark}.svg (this release's lossy DLL over the previous one's, and FSR 4.1.1 under this release's, for the front page), steady-quality-{light,dark}.svg (for docs/steady-test.md): charts; the numbers in them are the
+#   cmp5-radar-{light,dark}.svg (one shape per upscaler), release-radar-{light,dark}.svg (this release's lossy DLL over the previous one's, and FSR 4.1.1 under this release's, for the front page), rel-2026-10-15-up-radar-{light,dark}.svg
+#   (release dll-2026-10-15's page: Ultra Performance only, the lossy DLL against the exact DLL), steady-quality-{light,dark}.svg (for docs/steady-test.md): charts; the numbers in them are the
 #       tables of that page (test rig, 4K output from 2260x1272, Radeon RX 7800 XT under Proton, single runs).
 #   With <dir>: one picture per picture spoke: cmp5-still.png, cmp5-motion.png (the railing), cmp5-uncovered.png, cmp5-uncovered-still.png, cmp5-ghost.png, cmp5-plate.png, cmp5-bars.png, cmp5-sparks.png, cmp5-foliage.png, cmp5-rest.png (a change map), cmp5-wires.png (under a slow pan), and for the tables cmp5-big.png (large particles) and cmp5-rain.png: the same piece of one frame from the
 #       five upscalers beside the true image. <dir> holds <scene>_<name>/output_3840x2160_f037.raw (RGBA16F) for scene in still,
@@ -212,7 +213,51 @@ for th, t in THEMES.items():
     open(f'steady-quality-{th}.svg', 'w').write('\n'.join(steady_quality(t) + ['</svg>']) + '\n')
 
 
-for name, fn in (('cmp5-radar', radar), ('release-radar', release_radar)):
+# ---- release dll-2026-10-15's page: ULTRA PERFORMANCE ONLY, this release's lossy DLL against its exact DLL (the exact DLL gives AMD's picture byte for
+# byte, so its picture figures are those of AMD's shaders). Test rig, 4K/1440p/5K output from a third of the size, auto exposure off, single runs
+# (the full check of the Ultra Performance build, shift_up/damp/y3u_0x0.txt). Speed: Windows timing kit 2026-10-15 under Proton, moving picture, mean of
+# 6 rounds, mean of 1080p, 1440p and 4K output in Ultra Performance (exact DLL with shared taps 0.890 / 1.416 / 3.074 ms, lossy 0.755 / 1.173 / 2.495).
+# The scale: the better of the two on each spoke reaches the outer ring (these figures are not on the comparison page's scale).
+U_NAMES = ["the exact DLL (AMD's picture)", 'the lossy DLL']
+U_MEASURES = [
+    ('Uncovered', 'Just uncovered, 1440p, moving: accuracy', 'dB', 'db', [36.23, 27.90], '{:.1f} dB'),
+    ('Uncovered 5K', 'Just uncovered, 5K, moving: accuracy', 'dB', 'db', [35.66, 31.72], '{:.1f} dB'),
+    ('Background', 'Moving background, 1440p: accuracy', 'dB', 'db', [43.29, 42.95], '{:.1f} dB'),
+    ('Railing', 'Railing, 1440p, moving: accuracy', 'dB', 'db', [34.20, 34.00], '{:.1f} dB'),
+    ('Old image', 'Old image beside moving objects, seven scenes, mean: error', 'of 255', 'down',
+     [round(sum(v) / 7, 2) for v in ((16.91, 6.12, 0.85, 1.42, 1.83, 2.96, 8.31), (8.56, 9.78, 0.86, 1.45, 1.93, 2.78, 6.55))], '{:.2f}'),
+    ('Sparks', 'Tiny fast sparks, camera still: share of their brightness shown', '%', 'up', [69.0, 48.3], '{:.0f}%'),
+    ('Wire at rest', 'Thin wire, camera still: change per frame', 'of 255', 'down', [1.13, 1.38], '{:.2f}'),
+    ('Wire, fast pan', 'Thin wire in a fast pan: brightness shown, share of the true one', '%', 'up', [round(96.7 / 110.9 * 100, 1), round(73.0 / 110.9 * 100, 1)], '{:.0f}%'),
+    ('Dots', 'Isolated bright dots (sky through leaves) per thousand dark pixels', '', 'down', [0.36, 2.12], '{:.2f}'),
+    ('Film grain', 'Still picture with grain of 6, 10 and 15 of 255, mean: change per frame', 'of 255', 'down',
+     [round((0.387 + 1.205 + 3.442) / 3, 2), round((0.656 + 1.691 + 3.521) / 3, 2)], '{:.2f}'),
+    ('Speed', 'Time per upscale call, mean of 1080p, 1440p and 4K output', 'ms', 'down',
+     [round((0.890 + 1.416 + 3.074) / 3, 2), round((0.755 + 1.173 + 2.495) / 3, 2)], '{:.2f} ms'),
+]
+U_SCORES = [score(m[3], m[4]) for m in U_MEASURES]
+
+
+def up_radar(t):
+    lab = ("ULTRA PERFORMANCE ONLY, not representative of the lossy DLL in other modes. Two radar charts with eleven spokes each, from release dll-2026-10-15 in "
+           "Ultra Performance. Left: the lossy DLL, with the exact DLL as a dashed outline. Right: the exact DLL (AMD's picture), with the lossy DLL as a dashed "
+           "outline. On every spoke the better of the two reaches the outer ring. "
+           + ' '.join(f'{m[1]} ({m[2]}): ' + ', '.join(f'{U_NAMES[k]} {m[5].format(m[4][k])}' for k in range(2)) + '.' for m in U_MEASURES))
+    H = 480
+    o = frame(H, lab, 'ULTRA PERFORMANCE ONLY: the lossy DLL against the exact DLL',
+              'Not representative of the lossy DLL in other modes. On every spoke the better of the two reaches the outer ring. Bigger is better.', t)
+    short = [m[0] for m in U_MEASURES]
+    for cx, k, ref, title in ((196, 1, 0, 'Lossy DLL, Ultra Performance'), (566, 0, 1, "Exact DLL (AMD's picture), Ultra Performance")):
+        o.append(text(cx, 92, title, t, 13, 'ink', 'middle', 600))
+        radar_panel(o, t, cx, 245, 100, k, short, 10, ref=ref, values=True, M=U_MEASURES, SC=U_SCORES, ours=k == 1)
+    o += [text(24, H - 56, 'Render size a third of the output (1280 x 720 for 4K). Uncovered, background, railing: the moving test scene; old image, sparks and wires: frames the', t, 10, 'muted'),
+          text(24, H - 42, 'lossy DLL skips the network for. Speed: Windows timing kit under Proton, mean of 1080p, 1440p and 4K output (the lossy DLL 18% less time).', t, 10, 'muted'),
+          text(24, H - 28, "The exact DLL's picture is AMD's byte for byte, so its picture figures are AMD's shaders'. Auto exposure off.", t, 10, 'muted'),
+          text(24, H - 14, 'Test rig, one card (Radeon RX 7800 XT), single runs.', t, 10, 'muted')]
+    return o
+
+
+for name, fn in (('cmp5-radar', radar), ('release-radar', release_radar), ('rel-2026-10-15-up-radar', up_radar)):
     for th, t in THEMES.items():
         open(f'{name}-{th}.svg', 'w').write('\n'.join(fn(t) + ['</svg>']) + '\n')
 if len(sys.argv) < 2:

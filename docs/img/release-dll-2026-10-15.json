@@ -1,0 +1,60 @@
+{
+ "tag": "dll-2026-10-15",
+ "sheets": [
+  {
+   "name": "up-uncovered",
+   "scene": "up4k",
+   "frame": 38,
+   "x": 2650,
+   "y": 400,
+   "w": 240,
+   "h": 140,
+   "zoom": 3,
+   "err": true,
+   "title": "ULTRA PERFORMANCE ONLY: a strip a moving object has just uncovered",
+   "sub": "Not representative of the lossy DLL in other modes (there this release changes almost nothing). 4K output from 1280 x 720; the camera pans, objects move the other way.\nFrame 38: the frame whose gap between this release and dll-2026-10-14 is closest to the mean gap. The 240 x 140 piece with the most just-uncovered pixels among those at most a tenth on the moving object, enlarged 3 times.\nUnder each picture: just-uncovered accuracy in this frame / over all 8 frames, dB against the true image (higher is better). dll-2026-10-14 did not skip frames in Ultra Performance.",
+   "cap": {
+    "truth": "true image",
+    "amd": "AMD's shaders: 41.0 / 36.9 dB",
+    "rel": "lossy, dll-2026-10-14: 40.4 / 34.6 dB",
+    "new": "lossy, dll-2026-10-15: 40.3 / 34.1 dB"
+   }
+  }
+ ],
+ "speed": {
+  "title": "ULTRA PERFORMANCE ONLY: FSR 4 time per frame, ms (lower is better)",
+  "sub": "Not representative of other modes: at the Balanced preset's size this release's lossy DLL takes the same time as dll-2026-10-14.",
+  "note": "RX 7800 XT, Windows timing kit 2026-10-15 under Proton, moving picture, mean of 6 rounds; render size a third of the output.",
+  "sizes": [
+   "1080p",
+   "1440p",
+   "4K"
+  ],
+  "series": [
+   [
+    "AMD's shaders",
+    [
+     0.944,
+     2.105,
+     4.639
+    ]
+   ],
+   [
+    "lossy, dll-2026-10-14 (no frame skip in UP)",
+    [
+     0.916,
+     1.455,
+     3.184
+    ]
+   ],
+   [
+    "lossy, dll-2026-10-15",
+    [
+     0.755,
+     1.173,
+     2.495
+    ]
+   ]
+  ]
+ }
+}

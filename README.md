@@ -99,40 +99,39 @@ More games and resolutions: [all results](docs/results.md).
 >   `MLSR-WATERMARK` environment variable) is not the debug view: with it on, every DLL keeps its full gain and frame
 >   skip works as usual (measured under Proton on an RX 7800 XT). It shows the DLL's version name, such as
 >   `4.1.1-CYBOMAN`, so it also tells you which build is running.
-> - **Ultra Performance mode.** The lossy DLL does not skip frames there, so it is no faster than the exact DLL. The
->   exact DLL's own gain still applies.
+> - **Ultra Performance mode (since `dll-2026-10-15`).** The lossy DLL skips frames there too, and runs the network
+>   all the same on one in three of the frames it would skip. **Ultra Performance only, not representative of other
+>   modes:** at 4K about 3.2 to 2.5 ms per frame on an RX 7800 XT, and its picture costs there are larger than in other
+>   modes ([details](docs/releases/dll-2026-10-15.md)).
 
 ## New in this release
 
-**[See what this release changes against the previous one, in pictures and figures →](docs/releases/dll-2026-10-14.md)**
+**[See what this release changes against the previous one, in pictures and figures →](docs/releases/dll-2026-10-15.md)**
 
 > [!TIP]
-> **The lossy DLL: slow fades keep up better, small dark things pulse less, and less of an old image is left beside moving objects.**
-> - **Slow fades** (a scene growing lighter or darker with nothing moving): bright flat areas followed them up to half a frame later than with
->   AMD's shaders. Now brightening is 0.64 frames behind where it was 0.87 (AMD's 0.46), darkening 0.68 where it was 0.82 (AMD's 0.62).
->   [Details on the release page](docs/releases/dll-2026-10-14.md).
-> - **Small dark things that move without motion vectors** (dark leaves falling in front of a dark sky): with the camera
->   still they are shown more fully on the frames that skip the network (75.5% to 77.5% of the leaf; AMD's shaders 79.1%), and the
->   trace they leave is a little shorter (8.4% to 7.9%; AMD's 5.4%). A change now counts where it lasts two frames, which film grain
->   rarely does. While the camera pans nothing changes.
-> - **Beside moving objects** the last shader keeps less of their old image: the outline of an object moving in front of a
->   still camera 1.30 to 1.15 (AMD's 1.07), a still object over fast ground 2.64 to 2.26 (1.62), thin bars fixed on screen in
->   front of a pan 0.91 to 0.86 (0.82).
-> - **The price:** flat areas at rest change about a third more per frame and a moving background about a fifth more (both still
->   steadier than with AMD's shaders); the railing of the panning test scene flickers up to 3% more and strong film grain is about 5% less
->   steady with auto exposure off.
-> - **Speed:** up to 0.02 ms more per frame at 4K (under 1%). The exact DLL is unchanged.
-> - **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced on a Radeon RX 7800 XT under Linux, one run: 18,891 frames and 122 FPS,
->   the overlay's average upscaler time 2.06 ms (`dll-2026-10-13.2`: 18,849 frames, 122 FPS, 2.01 ms), level within one run's scatter.
->   Also tested in the test rig (Linux files, and the DLLs under Proton) and the timing kit.
-> - **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md):** the same test scenes and the same
->   timing for all five, with one chart per upscaler and side-by-side crops. It shows where the
->   lossy DLL leads (accuracy close to FSR 4, areas a moving object has just uncovered, slowly swaying foliage, where it
->   is second only to FSR 4) and where it is weakest (fast-moving foliage, the brightness of a thin wire in a camera pan).
+> **The lossy DLL now skips frames in Ultra Performance too, and the exact DLL is a little faster with the same picture.**
+> - **Ultra Performance (figures for Ultra Performance only, not representative of the lossy DLL in other modes):** the lossy DLL
+>   skipped no frames there before, so it was about as fast as the exact DLL. Now 4K takes 2.50 ms per frame instead of 3.18 (Windows
+>   timing kit, RX 7800 XT), and Shadow of the Tomb Raider's benchmark at 4K Ultra Performance renders 9% more frames (21,699 to
+>   23,705; 140 to 154 FPS, one run each). **The price, in Ultra Performance only:** its picture is further from AMD's than with
+>   `dll-2026-10-14` there: areas a moving object has just uncovered are less sharp, isolated bright dots (sky seen through leaves)
+>   flicker more, tiny fast sparks are dimmer, and a thin wire in a fast pan is fainter. [The comparison with the exact DLL in Ultra
+>   Performance](docs/releases/dll-2026-10-15.md#change-1-frame-skip-in-ultra-performance-ultra-performance-only).
+> - **Balanced and the other modes:** the lossy DLL's picture and speed are as before (every moving-scene check identical; a few
+>   at-rest rows move by a hair).
+> - **Exact DLL:** its last shader converts each color once instead of up to four times. Same picture as AMD's; at 4K about 0.02 ms
+>   less per frame on an RX 7800 XT (in the game benchmark at 4K Balanced, 0.2% more frames).
+> - **For RX 6000 cards, the RX 7600 and integrated graphics:** the lossy DLL's last shader needs 80 registers instead of 128 there,
+>   which should help; the exact DLL's new form needs more, which might cost a little. Neither is measured on those chips yet: please
+>   run [the timing kit](timing-kit).
 
-<a href="docs/releases/dll-2026-10-14.md"><img src="docs/img/rel-2026-10-14-plate.png" width="100%" alt="A white object stays still at the same depth as ground that moves down by 100 pixels per frame; the piece of ground just below it, enlarged 3 times, in the true image, with AMD's shaders, with the lossy DLL of dll-2026-10-13.2 and with that of dll-2026-10-14, on frame 39, a frame the lossy DLL skips the network for. Below each picture, its error against the true image amplified 16 times. With dll-2026-10-13.2 two bright rectangles of leftover image show where the object's dark notches used to be (error 2.53 of 255 where the object's old image lands); with dll-2026-10-14 they are much fainter (1.91), close to AMD's shaders (1.87)."></a>
+<a href="docs/releases/dll-2026-10-15.md"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/rel-2026-10-15-speed-dark.svg">
+  <img src="docs/img/rel-2026-10-15-speed-light.svg" width="100%" alt="ULTRA PERFORMANCE ONLY. Bar chart of FSR 4's time per frame in Ultra Performance, lower is better, on a Radeon RX 7800 XT (Windows timing kit under Proton): 1080p output AMD's shaders 0.94 ms, the lossy DLL of dll-2026-10-14 0.92 ms (no frame skip in Ultra Performance), this release's lossy DLL 0.76 ms; 1440p 2.10, 1.46, 1.17 ms; 4K 4.64, 3.18, 2.50 ms. Not representative of other modes: at the Balanced preset's size this release's lossy DLL takes the same time as dll-2026-10-14.">
+</picture></a>
 
-The change in this release that shows most in a single picture: a still object over ground that moves fast. One frame (39) of a made-up test scene, single run; the error under each picture is measured where the object's old image lands, on this frame. Over the whole scene it goes from 2.64 to 2.26 (AMD's 1.62). The fades gain more in figures, but a lag does not show in a still picture: [the release page](docs/releases/dll-2026-10-14.md) has them as a chart, with every change, what got worse and what was not checked. [The upscaler comparison page](docs/upscaler-comparison.md) sets this release's lossy DLL beside FSR 3.1, HelixSR and XeSS, with the figures and the scenes it does worst in.
+**Ultra Performance only, not representative of other modes.** This release's gain is speed, and it is in Ultra Performance alone. In
+pictures it costs something there; the release page shows a typical frame and the lossy DLL against the exact DLL on every measure.
 
 > ### Help test it: the timing kit
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-14/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-14): unpack, double-click

@@ -31,8 +31,9 @@ and only one of them keeps AMD's picture.
 > **The lossy builds change the image.** They are opt-in experiments, not the same as the main
 > files and not the same as AMD's DLL.
 
-This page describes the builds of release `dll-2026-10-14`: every figure in the "Lossy" columns and every picture was made again with
-its lossy build. Up to release `dll-2026-10-07` the lossy
+This page describes the builds of release `dll-2026-10-15`: every figure in the "Lossy" columns and every picture was made again with
+its lossy build, at the Balanced preset's size. Ultra Performance, where this release's lossy build also skips frames, is on
+[the release page](releases/dll-2026-10-15.md) only: its figures there are not representative of the other modes, and those here not of Ultra Performance. Up to release `dll-2026-10-07` the lossy
 builds also simplified the model's arithmetic in several layers (weight folding). They no longer do,
 except for a light form of it in one layer, which keeps fine detail steady; flat areas are kept steady by a rule in the last step instead. The history of
 the skipped-frame handling is on the [frame-skip page](../research/frame-skip).
@@ -77,7 +78,7 @@ release `dll-2026-10-09` the test that lets sparks through also let grain throug
 changed more than twice as much as in the release before (0.550 of 255 per frame over the whole
 frame, against 0.249). This release reads 0.330. Release `dll-2026-10-12` had given up some steadiness so that skipped frames can follow slowly swaying leaves, which the network marks the way it marks some grain (0.460 there, 0.342 in `dll-2026-10-11.7`, 0.292 in `dll-2026-10-11.3`); a light fold in the last shader's own network layer wins it back since `dll-2026-10-12.2` ([the sweep](../research/frame-skip/README.md#a-prepass-in-two-copies-and-a-fold-in-the-last-shader-release-dll-2026-10-122)). The piece shown is the one where it gained most.
 The grain is synthetic and of moderate strength (6 of 255). Strong grain gets through more: at 10 of 255
-this release reads 1.10 against 0.94 for release `dll-2026-10-10`, 1.29 for `dll-2026-10-12` and 1.72 for AMD's shaders.
+this release reads 1.09 against 0.94 for release `dll-2026-10-10`, 1.29 for `dll-2026-10-12` and 1.72 for AMD's shaders.
 
 <img src="img/cmp-grain.png" width="760" alt="Grain in the picture: a 240 by 160 pixel piece of a dark flat area of the still scene with random grain in every input frame, and four maps of how much each pixel changes from frame to frame: the exact files (mean 2.146 of 255, a dense bright speckle), the lossy build of release dll-2026-10-07 (0.212, nearly black), of release dll-2026-10-09 (1.229, a dense speckle again) and of this release (0.450, a much thinner speckle).">
 
@@ -222,7 +223,7 @@ a game samples them, unsmoothed.
 - In the test scene (dense dark leaves swaying in front of a bright sky, hard-sampled inputs) single bright pixels in the
   leaves number 0.97 per thousand dark pixels on skipped frames, against 2.40 in `dll-2026-10-11.2` and 0.57 with AMD's
   shaders. While the camera pans: 0.34 against 0.70; AMD's 0.33.
-- With leaves that do not move the count is close to AMD's (1.71 against 1.72; it was 1.72 before release `dll-2026-10-12` and 1.79 in it).
+- With leaves that do not move the count is close to AMD's (1.70 against 1.72; it was 1.72 before release `dll-2026-10-12` and 1.79 in it).
 - **The cost:** fast sparks are shown about one point in a hundred dimmer, and large glowing particles under a pan are
   13% further from the true image. A stricter setting still would have removed the dots down to AMD's level and cost
   three times as much in particles ([the settings compared](../research/frame-skip/README.md#bright-dots-in-foliage-release-dll-2026-10-113)).
@@ -352,7 +353,12 @@ Five repairs keep the rest honest (the fifth is the one just described):
 
 ## What the lossy builds cost, measured
 
-> **Updated for release `dll-2026-10-14`.** Every figure in the "Lossy" columns and every picture was made again with this release's build. Against the build this page
+> **Updated for release `dll-2026-10-15`.** Every figure in the "Lossy" columns was made again with this release's build, at the Balanced
+> preset's size. Against `dll-2026-10-14` almost nothing changes here: every moving-scene figure is the same, strong film grain is up to 2% steadier,
+> and fireflies flicker a little more (13, 1 to 15, 1 counts; AMD's 4, 0). The release's changes are speed in Ultra Performance and the exact DLL;
+> **Ultra Performance figures, which are not representative of the other modes,** are on [the release page](releases/dll-2026-10-15.md).
+>
+> Before that, for release `dll-2026-10-14`: Every figure in the "Lossy" columns and every picture was made again with this release's build. Against the build this page
 > showed before (`dll-2026-10-13.2`): slow fades show in bright flat areas sooner (0.82 to 0.68 frames behind when darkening, 0.87 to 0.64 when brightening; AMD's 0.62
 > and 0.46), and less of an object's old image is left beside it (an object in front of a still camera 1.31 to 1.15, a still object over fast ground 2.64 to 2.26;
 > AMD's 1.07 and 1.62). Flat areas at rest change more per frame (worst piece 0.057 to 0.078; AMD's 0.126) and the moving background a little more; strong film grain is
@@ -409,7 +415,7 @@ Test scene at 4K Balanced. "Lossy" is the release build: frame skip on AMD's mod
 | Single bright pixels in swaying foliage against sky, camera still (per thousand dark pixels) | 0.57 | not measured | 1.01 | 1.8 times |
 | The same while the camera pans | 0.33 | not measured | 0.33 | level |
 | Rain, faint streaks one rendered pixel wide: output pixels more than 20 of 255 too bright, per million | 0 to 1 | 5 to 114 | 0 | level |
-| Single over-bright pixels in the game's frame: the same count | 25 | not measured | 13 | fewer |
+| Single over-bright pixels in the game's frame: the same count | 25 | not measured | 15 | fewer |
 | A region dimming by 1% per frame, nothing moving: frames behind, bright / dark flat areas | 0.6 / 3.0 | not measured | 0.68 / 2.7 | 0.1 more / 0.3 less |
 | Large particles without motion vectors, skipped frames: error | 0.66 | not measured | 1.21 | 1.8 times |
 | Slow embers / fast sparks shown on skipped frames | 81% / 83% | not measured / 16% | 81% / 74% | level / 9 points below |
@@ -496,7 +502,7 @@ with an early release that folded more weights; taking that folding out cost abo
 120 FPS up to `dll-2026-10-12`; 2.00 ms and 122 FPS since the first shader got a short copy for skipped frames in `dll-2026-10-12.2`. The Rise of the Tomb Raider exact figure is from before the
 prepass and postpass rewrites of release `dll-2026-10-07`.
 
-The Shadow of the Tomb Raider lossy run was made with release `dll-2026-10-14` on 2026-10-14 (18,891 frames); `dll-2026-10-13.2` read 2.01 ms, 122 FPS and 18,849 frames the day before. AMD's and the exact figure are from earlier runs.
+The Shadow of the Tomb Raider lossy run was made with release `dll-2026-10-14` on 2026-10-14 (18,891 frames); release `dll-2026-10-15` read 18,828 and 18,773 frames on 2026-10-15, `dll-2026-10-14` 18,798 the same day, all 121 FPS, 2.06 ms (level within the runs' scatter); `dll-2026-10-13.2` read 2.01 ms, 122 FPS and 18,849 frames on 2026-10-13. AMD's and the exact figure are from earlier runs.
 
 The lossy figures are from the Linux files. The Windows DLLs carry
 the same shaders (their output is byte-identical to the Linux files' in the test rig, under
@@ -509,8 +515,10 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
 - **Frame skip depends on the game's camera jitter.** With the usual sequence, frames alternate
   strictly. A game with an unusual sequence may skip unevenly, and a game that passes no jitter
   never skips.
-- **Frame skip is off in Ultra Performance** and on frames the game marks as a reset. In Ultra
-  Performance the lossy build is the exact build.
+- **Frame skip is off on frames the game marks as a reset.** Up to `dll-2026-10-14` it was off in Ultra
+  Performance too; since `dll-2026-10-15` it works there, and one in three of the frames that would skip runs the
+  model all the same. **Ultra Performance only, not representative of other modes:** its costs there are larger (see
+  [the release page](releases/dll-2026-10-15.md)); every other figure on this page is for the Balanced preset's size.
 - **Frame skip costs more at some real frame rates than others.** In the moving test scene at a
   fixed on-screen speed, just-uncovered areas are above AMD's at 60 and 120 FPS and about 1 dB
   below at 30 and 90, and thin structures 0.9 to 1.3 dB below at every rate
@@ -530,7 +538,7 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
 - **A very thin wire in a camera pan is about a quarter dimmer than with AMD's shaders,** and parts of a wire that lies almost level can still be missing
   (see the wire picture above). With the camera still it is at AMD's level.
 - **Strong film grain is passed on more than moderate grain.** At 6 of 255 the lossy build's picture changes 0.32 per
-  frame (AMD's 0.79); at 10 of 255, 1.10 (AMD's 1.72); at 15 of 255, 1.86 (AMD's 2.55). With auto exposure on: 0.32 (AMD's 0.55), 0.34 (AMD's 0.36) and 0.51 (AMD's 0.48).
+  frame (AMD's 0.79); at 10 of 255, 1.09 (AMD's 1.72); at 15 of 255, 1.83 (AMD's 2.55). With auto exposure on: 0.31 (AMD's 0.55), 0.34 (AMD's 0.36) and 0.51 (AMD's 0.48).
   Release `dll-2026-10-12` gave up some steadiness here for the foliage rule (0.46, 1.29, 2.12; before it 0.34, 1.06, 1.93),
   release `dll-2026-10-12.2` won it back with a light fold in the last shader (0.33, 1.03, 1.61), and release `dll-2026-10-13.2` gave up a little at 10 and 15
   for small dark things that move without motion vectors ([the test](../research/frame-skip/README.md#small-dark-things-without-motion-vectors-a-one-sided-test-sb_oneside)).

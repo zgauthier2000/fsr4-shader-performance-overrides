@@ -51,6 +51,7 @@ was found and measured.
 | 5 | ... a neighbor in both directions | Rain was shown as white dashes. [Write-up](../research/frame-skip/README.md#rain-and-other-thin-streaks-release-dll-2026-10-117) | `dll-2026-10-11.7` |
 | 6 | Just uncovered | The old image of a moving object stayed beside it for a frame. [Write-up](../research/frame-skip/README.md#following-the-pictures-motion-release-dll-2026-10-066), [the record of who was there](../research/frame-skip/README.md#who-was-here-a-frame-ago-release-dll-2026-10-07) | `dll-2026-10-06.6`, `dll-2026-10-07` |
 | 6 | Scrolled in | A dark band at the screen edge when the camera began to turn. [Write-up](../research/frame-skip/README.md#dark-bands-at-the-screen-edge-fixed-in-release-dll-2026-10-063) | `dll-2026-10-06.3` |
+| 6 | ... not where the picture is at rest | In Ultra Performance, thin wires and sparks at rest flashed on skipped frames (Ultra Performance only; elsewhere almost no change). [Write-up](../research/frame-skip/README.md#frame-skip-in-ultra-performance-release-dll-2026-10-15) | `dll-2026-10-15` |
 | 7 | Dead band | Flat areas at rest flickered by one step of the stored number format. [Write-up](../research/frame-skip/README.md#why-folding-steadied-the-picture-and-what-replaced-it-release-dll-2026-10-114) | `dll-2026-10-11.4` |
 
 ## What the chart leaves out

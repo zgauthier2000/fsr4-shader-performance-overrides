@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# postpass_sharetaps_dxil.py < postpass.ll > out.ll : DXIL twin of tools/postpass_sharetaps.py (build_dxil_overrides.sh SHARE=1, off by default) (postpass color taps converted once per thread).
+# postpass_sharetaps_dxil.py < postpass.ll > out.ll : DXIL twin of tools/postpass_sharetaps.py (build_dxil_overrides.sh SHARE=1, the default since release dll-2026-10-15) (postpass color taps converted once per thread).
 # Each thread writes a 2x2 block of output pixels; each pixel reads a 3x3 window of the color input (t3) around its rounded
 # center and converts every sample. At upscale ratio >= 1 the four windows lie inside one 4x4 window: its 16 samples are
 # loaded and converted once (the same instructions, copied under new names) and every tap's converted values are replaced,

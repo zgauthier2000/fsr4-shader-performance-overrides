@@ -16,25 +16,31 @@
 
 ## The current release
 
-Shadow of the Tomb Raider's built-in benchmark, 4K output, FSR 4.1.1 Balanced, Radeon RX 7800 XT, Linux (single runs):
+Shadow of the Tomb Raider's built-in benchmark, 4K output, FSR 4.1.1 Balanced, Radeon RX 7800 XT, Linux:
 
 | | FSR 4 time per frame | Frames rendered | Average FPS |
 |---|---|---|---|
 | AMD's shaders | 4.16 ms | | 97 |
-| Exact files | 2.99 ms (−28%) | 16947 | 109 (+12%) |
-| Lossy files | 2.06 ms (−50%) | 18891 | 122 (+26%) |
+| Exact files | 2.93 ms (−30%) | 16963 | 109 (+12%) |
+| Lossy files | 2.06 ms (−50%) | 18828 | 121 (+25%) |
 
-The lossy figure is one run of 2026-10-14 with release `dll-2026-10-14`; `dll-2026-10-13.2` read 2.01 ms, 18849 frames and 122 FPS the day before, and `dll-2026-10-13` 2.01 ms, 18916 frames and 122 FPS. The upscaler time is the overlay's reading on the still results screen; frames rendered and FPS are the figures that count for a build that skips frames. The AMD figure and the exact figure are from earlier runs of the same benchmark; the exact files of this release differ from
-those only in the last pass's store path (1 to 2% of that pass in a bench), and that 4K run was not repeated with them.
+Release `dll-2026-10-15`, runs of 2026-10-15: the exact files read 16963 and 16967 frames in two runs (`dll-2026-10-14`'s exact files 16924 the same day),
+the lossy files 18828 and 18773 (`dll-2026-10-14`'s 18798 the same day). AMD's figure is from 2026-10-07. The upscaler time is the overlay's reading on the
+still results screen; frames rendered and FPS are what counts for the lossy files.
 
-The same three, timed without a game by the [Windows timing kit](../timing-kit/README.md#windows-experimental) through the DLLs
-(under Proton on the same card; whole upscaler, made-up frames, mean of 200 calls; one run of 2026-10-13 with the DLLs of release `dll-2026-10-13.2`):
+**Ultra Performance only (not representative of the lossy files in other modes):** the same benchmark at 4K Ultra Performance, one run each on 2026-10-15:
+`dll-2026-10-14`'s lossy files (which did not skip frames there) 21699 frames and 140 FPS, this release's 23705 frames and 154 FPS (+9.2%). That run was
+only 83% limited by the graphics card.
 
-| Output (render size as in Balanced) | AMD's shaders | Exact DLL | Lossy DLL (frame that runs the model / skipped frame) |
+The same, timed without a game by the [Windows timing kit](../timing-kit/README.md#windows-experimental) 2026-10-15 through the DLLs (under Proton on the
+same card; whole upscaler, made-up frames, moving picture, mean of 6 rounds; release `dll-2026-10-15`):
+
+| Output | AMD's shaders | Exact DLL | Lossy DLL (frame that runs the model / skipped frame) |
 |---|---|---|---|
-| 1080p | 1.05 ms | 0.90 ms (−14%) | 0.64 ms (0.91 / 0.32), −39% |
-| 1440p | 2.20 ms | 1.44 ms (−34%) | 1.03 ms (1.48 / 0.55), −53% |
-| 4K | 4.81 ms | 3.16 ms (−34%) | 2.21 ms (3.21 / 1.21), −54% |
+| 1080p, Balanced size | 1.07 ms | 0.89 ms (−16%) | 0.68 ms (0.94 / 0.35), −36% |
+| 1440p, Balanced size | 2.21 ms | 1.45 ms (−34%) | 1.06 ms (1.49 / 0.58), −52% |
+| 4K, Balanced size | 5.00 ms | 3.16 ms (−37%) | 2.23 ms (3.20 / 1.25), −55% |
+| **Ultra Performance only:** 4K from 1280 x 720 | 4.64 ms | 3.07 ms (−34%) | 2.50 ms (3.14 / 1.18), −46% |
 
 - **The kit reads higher gains at low resolutions than a game shows.** In Shadow of the Tomb Raider at 1080p output the
   exact files measured 0.79 ms against AMD's 0.80 ms: no gain worth the name, where the kit says 15%. A game's numbers are

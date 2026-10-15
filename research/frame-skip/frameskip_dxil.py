@@ -12,7 +12,7 @@ import re
 import sys
 
 mode = sys.argv[1]
-UP = None if os.environ.get('FS_UP', 'off') == 'off' else float(os.environ['FS_UP'])      # FS_UP=<y> (prepass; default off): as frameskip.py; y must be negative
+UP = None if os.environ.get('FS_UP', '-0.1666667') == 'off' else float(os.environ.get('FS_UP', '-0.1666667'))      # FS_UP=<y> (prepass; -0.1666667 since release dll-2026-10-15; off as before): as frameskip.py; y must be negative
 if UP is not None:
     import struct
     assert UP < 0, 'FS_UP: only negative thresholds are supported here'

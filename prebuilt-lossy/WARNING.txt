@@ -6,7 +6,8 @@ It is NOT the same as the "exact" version of this project, and NOT the same as A
   If you want AMD's picture, use the exact version.
 
 What it does
-- It runs FSR 4's neural network only on every other frame. On the frames in between it
+- It runs FSR 4's neural network only on every other frame (in Ultra Performance on two
+  frames in three, see below). On the frames in between it
   reuses the network's last result, moved along with the picture's motion, and relies almost
   entirely on the previous picture. Where the picture is not moving, those frames take
   nothing from the new frame, so fine detail at rest shimmers no more than with AMD's file.
@@ -54,14 +55,25 @@ What it costs
   later than with AMD's file (up to half a frame before dll-2026-10-14). To follow it, flat
   areas at rest are allowed a little more change per frame than before; they are still
   steadier than with AMD's file.
+- In Ultra Performance (since dll-2026-10-15, which skips frames there too) the costs above
+  are larger, and the picture is further from AMD's than with dll-2026-10-14, which did not
+  skip there: areas a moving object has just uncovered are less sharp (a 1440p test scene:
+  28 to 32 dB against AMD's 36 to 38 and dll-2026-10-14's 33 to 38), isolated bright dots
+  (sky seen through leaves) flicker more, tiny fast sparks are shown less fully (about half
+  of their brightness on skipped frames, against two thirds with AMD's file), and fireflies
+  flicker a little more. Thin wires and lines at rest stay about as steady as with AMD's file.
+  These figures are for Ultra Performance only; they do not describe the other modes.
 - Frame times alternate: a skipped frame is about 2 ms shorter than a normal one on an
   RX 7800 XT at 4K. With a frame cap or normal V-Sync the average is what counts; with
   low-latency modes or unbuffered V-Sync the longer frames can miss.
   https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/docs/frame-pacing.md
 
 Good to know
-- Frame skip turns itself off in Ultra Performance (render size under half the output size)
-  and on frames the game marks as a reset. It picks frames from the game's camera jitter; a
+- Since dll-2026-10-15 frame skip also works in Ultra Performance (render size under half
+  the output size), where it saves the most (Ultra Performance only, 4K on an RX 7800 XT:
+  about 3.2 to 2.5 ms per frame; the other modes are as before). There one in three of the frames that would skip runs the network all the same, so
+  that thin lines are seen from both halves of a pixel. Frame skip still turns itself off on
+  frames the game marks as a reset. It picks frames from the game's camera jitter; a
   game with an unusual jitter pattern may skip unevenly.
 - Not tested at output sizes above 4K.
 - It is opt-in and experimental.

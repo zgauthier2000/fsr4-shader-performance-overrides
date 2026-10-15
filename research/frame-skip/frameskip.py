@@ -14,7 +14,7 @@
 # under half the output size (there the border clearing after the prepass would reach into the
 # kept output).
 #
-# FS_UP=<y> (prepass; default off = as released; the internal build uses -0.1666667): skip below half the output width too (Ultra Performance), but
+# FS_UP=<y> (prepass; -0.1666667 since release dll-2026-10-15; FS_UP=off as before): skip below half the output width too (Ultra Performance), but
 # there a frame with jitter x < 0 still runs the model when its jitter y < y. The frames that run the model otherwise all have jitter x >= 0 and
 # sample only one half of each render pixel; with Halton base-3 jitter in y, -1/6 picks every third frame with x < 0, so that half is seen now and
 # then, and two skips never follow each other. The border clearing feared above did no visible harm in the Ultra Performance checks (1080p to 5K).
@@ -45,7 +45,7 @@ import sys
 
 mode = sys.argv[1]
 import os
-UP = None if os.environ.get('FS_UP', 'off') == 'off' else os.environ['FS_UP']      # FS_UP=<y> (prepass): Ultra Performance, see the head of the file
+UP = None if os.environ.get('FS_UP', '-0.1666667') == 'off' else os.environ.get('FS_UP', '-0.1666667')      # FS_UP=<y> (prepass; default -0.1666667, off = as before): Ultra Performance, see the head of the file
 TEST = os.environ.get('FS_TEST', '')        # FS_TEST=same: the test rule described below
 L = sys.stdin.read().split('\n')
 defs = {}

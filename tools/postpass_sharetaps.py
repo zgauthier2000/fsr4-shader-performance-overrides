@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # postpass_sharetaps.py in.spvasm out.spvasm : postpass color taps computed once per thread. Bit-exact.
-# Used by build_override.sh with SHARE=1 (off by default; unreleased: kept for the next release, user 2026-10-14). On an RX 7800 XT the postpass
+# Used by build_override.sh (SHARE=1, the default since release dll-2026-10-15). On an RX 7800 XT the postpass
 # is about 6% faster (4K 0.632 -> 0.595 ms); it needs more registers (7800 XT 16 -> 12 waves, smaller register files 16 -> 8), and whether
 # that costs more than it saves on those GPUs is not measured yet: timing kits time it against the shipped postpass.
 # Each thread writes a 2x2 block of output pixels; each pixel reads a 3x3 window of the color input around

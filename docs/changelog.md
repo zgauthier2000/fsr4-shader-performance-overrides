@@ -2,8 +2,36 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-13.2` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-14` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-14 ([release `dll-2026-10-14`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-14))
+
+### The lossy DLL: slow fades keep up better, small dark things pulse less, and less of an old image is left beside moving objects
+
+[What this release changed, in pictures and figures](releases/dll-2026-10-14.md).
+
+- **Slow fades** (a scene growing lighter or darker with nothing moving): bright flat areas followed them up to half a frame later than with
+  AMD's shaders. Now brightening is 0.64 frames behind where it was 0.87 (AMD's 0.46), darkening 0.68 where it was 0.82 (AMD's 0.62).
+  [Details on the release page](releases/dll-2026-10-14.md).
+- **Small dark things that move without motion vectors** (dark leaves falling in front of a dark sky): with the camera
+  still they are shown more fully on the frames that skip the network (75.5% to 77.5% of the leaf; AMD's shaders 79.1%), and the
+  trace they leave is a little shorter (8.4% to 7.9%; AMD's 5.4%). A change now counts where it lasts two frames, which film grain
+  rarely does. While the camera pans nothing changes.
+- **Beside moving objects** the last shader keeps less of their old image: the outline of an object moving in front of a
+  still camera 1.30 to 1.15 (AMD's 1.07), a still object over fast ground 2.64 to 2.26 (1.62), thin bars fixed on screen in
+  front of a pan 0.91 to 0.86 (0.82).
+- **The price:** flat areas at rest change about a third more per frame and a moving background about a fifth more (both still
+  steadier than with AMD's shaders); the railing of the panning test scene flickers up to 3% more and strong film grain is about 5% less
+  steady with auto exposure off.
+- **Speed:** up to 0.02 ms more per frame at 4K (under 1%). The exact DLL is unchanged.
+- **In a game:** Shadow of the Tomb Raider's benchmark at 4K Balanced on a Radeon RX 7800 XT under Linux, one run: 18,891 frames and 122 FPS,
+  the overlay's average upscaler time 2.06 ms (`dll-2026-10-13.2`: 18,849 frames, 122 FPS, 2.01 ms), level within one run's scatter.
+  Also tested in the test rig (Linux files, and the DLLs under Proton) and the timing kit.
+- **[The lossy DLL beside FSR 3.1, HelixSR and XeSS](upscaler-comparison.md):** the same test scenes and the same
+  timing for all five, with one chart per upscaler and side-by-side crops. It shows where the
+  lossy DLL leads (accuracy close to FSR 4, areas a moving object has just uncovered, slowly swaying foliage, where it
+  is second only to FSR 4) and where it is weakest (fast-moving foliage, the brightness of a thin wire in a camera pan).
 
 ## 2026-10-13 ([release `dll-2026-10-13.2`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-13.2))
 

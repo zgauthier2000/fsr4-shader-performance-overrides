@@ -58,7 +58,7 @@ for f in "$src"/*.dxil; do
         [[ $script == model_tail_dxil.py || $script == prepass_route_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"
         continue                                   # a model pass without that code is left alone
     fi
-    if [[ ${SHARE:-0} == 1 && $name == *_postpass ]]; then      # SHARE=1 (off by default; unreleased): color taps converted once per thread
+    if [[ ${SHARE:-1} == 1 && $name == *_postpass ]]; then      # SHARE=1 (the default since release dll-2026-10-15; SHARE=0 as before): color taps converted once per thread
         python3 "$here/postpass_sharetaps_dxil.py" < "$work/out.ll" > "$work/out2.ll" || { echo "FAILED $(basename "$f"): shared taps"; failed=$((failed + 1)); continue; }
         mv "$work/out2.ll" "$work/out.ll"
     fi
