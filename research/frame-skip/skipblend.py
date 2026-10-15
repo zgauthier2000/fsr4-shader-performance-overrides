@@ -26,6 +26,9 @@
 # motion from the fourth channel of the prepass's image (frameskip.py FS_ALPHA), one value per 2x2 cell, instead of the 4x4 block's entry.
 # Options (environment): SB_K (default 32), SB_AW (0, 1 or 2: power of a in the factor, default 1),
 # SB_REL (default 0.1), SB_THR (absolute floor of the guard's limit, default 0), SB_GUARD=0 (no guard),
+# SB_GUARDREST=0 (default 1 = as before): the guard does not fire where the rest rule holds. In Ultra Performance a wire far thinner than a render pixel is
+# missing from the history wherever the frames that ran the model sampled beside it; a skipped frame whose samples hit it then tripped the guard (history
+# far darker in every channel) and showed the new frame alone: wires, sparks and sky through leaves flashed on skipped frames at rest.
 # SB_CLAMP (default 0 since release dll-2026-10-14, 0.5 before; "off" for none), SB_BRANCH=0 (the layout of releases dll-2026-10-06.2 and .3:
 # no branch, selects instead; with SB_CLAMP=off it rebuilds release .3's files),
 # SB_UNCOV (default "depth": a pixel whose content was hidden a frame ago behind a nearer surface that moves
@@ -112,6 +115,12 @@
 # the new frame counts for very little where the model keeps history; "off" for none, as in release
 # dll-2026-10-06.4), SB_CAP (upper limit of the 2^ term,
 # default 1; above 1 also raises the new frame's weight where a sample came closer: more flicker).
+# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (default off; the internal build of 2026-10-15, unreleased, with dupmix.py and, on Linux,
+# postpass_direct_lossy.py): same output, fewer registers. The nine samples' running min / max are worked out as each sample is (RANGEAT) and before the
+# skipped-frame branch (RANGEPRE), and the 3x3 history reads come in three rows in blocks of their own (ROWS). Lossy postpass on GPUs with the smaller
+# register file (RX 6000, RX 7600, integrated): 80 registers and 12 waves instead of 128 and 8; RX 7800 XT unchanged (96 / 16).
+# SB_DAMP=<p> (default off): stronger damping on skipped frames, the correction factor raised to the power p. With SB_CONST=0 the new frame's
+# weight (1 - a)^2 becomes (1 - a)^(1 + p). Tried for Ultra Performance, where a render pixel spans three output pixels.
 import os, re, sys
 # the changed-content tests (below) are on by default; "off" switches one off
 for _k, _v in (('SB_PART', '0.25'), ('SB_BRIGHT', '0.25'), ('SB_BRIGHTSYM', '1'), ('SB_SAMPLE', '2'), ('SB_SAMPLEFULL', '1'), ('SB_SAMPLEALL', '1'), ('SB_RESTW', '0.95 0.995'), ('SB_CLAMPW', 'edge'), ('SB_ONESIDE', '0.85 0.05 0.01')):
@@ -126,6 +135,7 @@ LEAN = os.environ.get('SB_LEAN', '1') == '1'      # same values, laid out to hol
 K = float(os.environ.get('SB_K', '32')); CONST = None if os.environ.get('SB_CONST') == 'off' else os.environ.get('SB_CONST', '0'); CAP = float(os.environ.get('SB_CAP', '1')); AW = int(os.environ.get('SB_AW', '1'))
 CLAMP = None if os.environ.get('SB_CLAMP') == 'off' else float(os.environ.get('SB_CLAMP', '0'))      # 0 since release dll-2026-10-14 (0.5 before)
 GUARD = os.environ.get('SB_GUARD', '1') == '1'
+GUARDNR = os.environ.get('SB_GUARDREST', '1') == '0'      # the guard does not fire where the rest rule holds (see the head of the file)
 L = sys.stdin.read().split('\n')
 S = int(sys.argv[1]) if len(sys.argv) > 1 else next((x for x in (15392, 30752, 61472) if any(f'%uint_{x} = ' in l for l in L)), None) or sys.exit('skipblend: no known row size')
 defs = {m[1]: m[2] for l in L for m in [re.match(r'\s*(%\w+) = (.*)$', l)] if m}
@@ -147,6 +157,13 @@ c = ([f'%db_rel = OpConstant %float {DEAD / 1024}'] if DEAD is not None else [])
      f'%sb_cap = OpConstant %float {CAP}', '%sb_c0 = OpConstant %uint 0', '%sb_zero = OpConstant %float 0', f"%sb_thr = OpConstant %float {float(os.environ.get('SB_THR', '0'))}", f"%sb_rel = OpConstant %float {float(os.environ.get('SB_REL', '0.1'))}"] + ([f"%sb_slack = OpConstant %float {CLAMP}"] if CLAMP is not None else []) + [f'%sb_w{k} = OpConstant %uint {WM + k}' for k in range(4)]
 if CONST:
     c.append(f'%sb_const = OpConstant %float {float(CONST)}')
+DAMP = None if os.environ.get('SB_DAMP', 'off') == 'off' else float(os.environ['SB_DAMP'])      # the correction factor to this power on skipped frames (see the head of the file)
+if DAMP is not None:
+    c.append(f'%sb_damp = OpConstant %float {DAMP}')
+def GW(k):
+    if DAMP is None:
+        return [f'%sb_gw{k} = OpFSub %float %sb_one %sb_ao{k}']
+    return [f'%sb_gv{k} = OpFSub %float %sb_one %sb_ao{k}', f'%sb_gz{k} = OpExtInst %float {GLSL} NMax %sb_gv{k} %sb_zero', f'%sb_gw{k} = OpExtInst %float {GLSL} Pow %sb_gz{k} %sb_damp']
 head = ['%sb_r1 = OpAccessChain %_ptr_PushConstant_uint %registers %uint_1', '%sb_r = OpLoad %uint %sb_r1', '%sb_bi = OpIAdd %uint %sb_r %uint_11',
         f'%sb_bp = OpAccessChain %_ptr_StorageBuffer_SSBO {SSBO} %sb_bi']
 for k in range(4):
@@ -212,8 +229,11 @@ def part_sample(k, h, curs):
     idx = PART_SITE[0]; PART_SITE[0] += 1
     img, cx, cy = HFETCH[idx % len(HFETCH)]; cimg = CIMG[(idx % len(HFETCH)) * (len(CIMG) // len(HFETCH))]
     code = []; mn = [None] * 3; mx = [None] * 3; fetch = []
+    cuts = []      # SB_ROWS: where each row of three history fetches starts, with the running min / max at that point
     for j, (dx, dy) in enumerate([(a, b) for b in (-1, 0, 1) for a in (-1, 0, 1)]):
         t = f'%ss_{k}_{j}'
+        if j in (3, 6):
+            cuts.append((len(fetch), list(mn), list(mx)))
         fetch += [f'{t}x0 = OpIAdd %uint {cx} {SU(dx)}', f'{t}y0 = OpIAdd %uint {cy} {SU(dy)}', f'{t}x = OpExtInst %uint {GLSL} SMax {t}x0 %sb_c0', f'{t}y = OpExtInst %uint {GLSL} SMax {t}y0 %sb_c0',
                  f'{t}c = OpCompositeConstruct %v2uint {t}x {t}y', f'{t}f = OpImageFetch %v4float {img} {t}c Lod %sb_c0']
         for c in range(3):
@@ -278,16 +298,43 @@ def part_sample(k, h, curs):
         # The driver's compiler moves the nine history fetches to the head of whatever block they are in, where the nine samples are still held: 27 values
         # more at the worst moment, which cost a quarter of the waves. In a block of their own (entered on the skipped-frame condition once more, which holds
         # here), they come after the samples have been let go.
+        last = f'%ss_T{k}'
+        if os.environ.get('SB_ROWS') == '1':
+            # each row of three history fetches in a block of its own (entered on the skipped-frame condition once more, which holds here): the
+            # driver's compiler moves all fetches of a block to its head, which held the nine fetched pixels (27 values) at once at the register peak
+            parts = []; prev = 0
+            for r, (at, mn0, mx0) in enumerate(cuts):
+                parts.append(fetch[prev:at]); prev = at
+            parts.append(fetch[prev:])
+            nf = parts[0]
+            for r, (at, mn0, mx0) in enumerate(cuts):
+                end = cuts[r + 1][1:] if r + 1 < len(cuts) else (mn, mx)
+                body = parts[r + 1]
+                nf += [f'%ss_R{r}c{k} = OpINotEqual %bool {cy} %sm_m1', f'OpSelectionMerge %ss_R{r}M{k} None', f'OpBranchConditional %ss_R{r}c{k} %ss_R{r}T{k} %ss_R{r}M{k}', f'%ss_R{r}T{k} = OpLabel'] + body + [f'OpBranch %ss_R{r}M{k}', f'%ss_R{r}M{k} = OpLabel']
+                # the running values after this row: renamed through phis (the other way in is never taken)
+                for c in range(3):
+                    for nm, a0, a1 in (('n', mn0[c], end[0][c]), ('m', mx0[c], end[1][c])):
+                        nf.append(f'{a1}_p = OpPhi %float {a1} %ss_R{r}T{k} {a0}{"_p" if r else ""} {last}')
+                last = f'%ss_R{r}M{k}'
+                # later rows and the tests use the phi names
+                ren = {end[0][c]: f'{end[0][c]}_p' for c in range(3)}; ren.update({end[1][c]: f'{end[1][c]}_p' for c in range(3)})
+                def rn(l, ren=ren):
+                    return re.sub(r'%\w+', lambda m: ren.get(m[0], m[0]), l)
+                for q in range(r + 1, len(parts)):
+                    parts[q] = [rn(l) for l in parts[q]]
+                restc = [[rn(l) for l in cc] for cc in restc]
+                fs = [rn(x) for x in fs]
+            fetch = nf
         inner = fetch + sum(restc, []) + [f'{t}gg01 = OpExtInst %float {GLSL} NMax {fs[0]} {fs[1]}', f'{t}gg = OpExtInst %float {GLSL} NMax {t}gg01 {fs[2]}']
         code = sum(selc, []) + [f'OpSelectionMerge %ss_M{k} None', f'OpBranchConditional %sb_skip %ss_T{k} %ss_M{k}', f'%ss_T{k} = OpLabel'] + inner + [
-            f'OpBranch %ss_M{k}', f'%ss_M{k} = OpLabel', f'{t}g = OpPhi %float {t}gg %ss_T{k} %sm_fz %sb_T{k}']
+            f'OpBranch %ss_M{k}', f'%ss_M{k} = OpLabel', f'{t}g = OpPhi %float {t}gg {last} %sm_fz %sb_T{k}']
         return code + [(f'%sb_pf{k} = OpFMul %float {t}g %sb_one' if os.environ.get('SB_SAMPLEALL') == '1' else f'%sb_pf{k} = OpSelect %float %sm_rest {t}g %sm_fz'),
                        f'{t}z = OpFOrdLessThanEqual %bool %sb_pf{k} %sm_fz', f'%sb_rq{k} = OpLogicalAnd %bool %sm_rest {t}z']
     code = fetch + sum([n + x + y for n, x, y in zip(nearc, selc, restc)], [])
     code += [f'{t}g01 = OpExtInst %float {GLSL} NMax {fs[0]} {fs[1]}', f'{t}g = OpExtInst %float {GLSL} NMax {t}g01 {fs[2]}', (f'%sb_pf{k} = OpFMul %float {t}g %sb_one' if os.environ.get('SB_SAMPLEALL') == '1' else f'%sb_pf{k} = OpSelect %float %sm_rest {t}g %sm_fz'),
              f'{t}z = OpFOrdLessThanEqual %bool %sb_pf{k} %sm_fz', f'%sb_rq{k} = OpLogicalAnd %bool %sm_rest {t}z']
     return code
-PART_SITE = [0]; NEAR_FIRST = {}
+PART_SITE = [0]; NEAR_FIRST = {}; MOVED = []; DEFIDX = {}
 SUC = {}
 def SU(v):
     SUC[v] = f'%ss_o{v & 0xffffffff}'; return SUC[v]
@@ -344,7 +391,12 @@ def part_old(k, curs, h):
         return [f'%sb_rq{k} = OpLogicalAnd %bool %sm_rest %sm_rest', f'%sb_pf{k} = OpFMul %float %sm_fz %sm_fz']
     code, outs = [], []
     for c in range(3):
-        tc = samples(curs[c]); mn, mx = tc[0], tc[0]
+        tc = samples(curs[c])
+        if os.environ.get('SB_RANGEAT') == '1':      # in the order the samples are worked out, so the running values can follow them (min / max: same result in any order)
+            if 'idx' not in DEFIDX:
+                DEFIDX['idx'] = {m[1]: i for i, l in enumerate(L) for m in [re.match(r'\s*(%\w+) = ', l)] if m}
+            tc = sorted(tc, key=lambda v: DEFIDX['idx'].get(v, 0))
+        mn, mx = tc[0], tc[0]
         for i, v in enumerate(tc[1:]):
             code += [f'%sb_qn{c}{k}_{i} = OpExtInst %float {GLSL} NMin {mn} {v}', f'%sb_qx{c}{k}_{i} = OpExtInst %float {GLSL} NMax {mx} {v}']
             if LEAN and LONE and not BLOB and SAMPLE is not None:      # the second largest of the nine, for the sample test (see part_sample), while each sample is at hand
@@ -654,7 +706,7 @@ if not BRANCH:
                          f'%sb_g{k} = OpExtInst %float {GLSL} Exp2 %sb_ex{k}', f'%sb_gc{k} = OpExtInst %float {GLSL} NMin %sb_g{k} %sb_cap',
                          f'%sb_gm{k} = OpFMul %float %sb_gc{k} ' + ('%sb_const' if CONST else '%sb_one'), f'%sb_om{k} = OpFSub %float %sb_one %sb_gm{k}'] + (
                          [f'%sb_ap{k} = OpFMul %float {a} {a}'] if AW == 2 else [f'%sb_ap{k} = OpFMul %float {a} %sb_one'] if AW == 1 else [f'%sb_ap{k} = OpFMul %float %sb_one %sb_one']) + [
-                         f'%sb_ao{k} = OpFMul %float %sb_ap{k} %sb_om{k}', f'%sb_gw{k} = OpFSub %float %sb_one %sb_ao{k}',
+                         f'%sb_ao{k} = OpFMul %float %sb_ap{k} %sb_om{k}', *GW(k),
                          f'%sb_cf{k} = OpSelect %float %sb_skip %sb_gw{k} %sb_one']
             # frames that ran the model keep the model's values bit for bit
             code += [f'%sb_wm{k} = OpFMul %float {w} %sb_cf{k}', f'%sb_wn{k} = OpExtInst %float {GLSL} NMin %sb_wm{k} %sb_one',
@@ -702,6 +754,38 @@ else:
                     curs = [cur for r, cur in pend['sum']]; sums = [r for r, cur in pend['sum']]
                     code = (_ps_pre(k, curs, h) if _ps else []) + ['OpSelectionMerge %sb_M' + str(k) + ' None', f'OpBranchConditional %sb_skip %sb_T{k} %sb_M{k}', f'%sb_T{k} = OpLabel']
                     pcode = part(k, curs, h) if REST else []      # (worked out here so that the lean layout can put its first part at the head of the branch)
+                    if os.environ.get('SB_RANGEPRE') == '1' and pcode:
+                        # the running minimum, maximum and second largest of the nine samples, worked out before the branch while the samples are
+                        # at hand from the shader's own mix: the branch then takes in these few values instead of the nine samples (27 values)
+                        pre_re = re.compile(rf'^(%sb_q[nx]\d{k}_\d+|%ss_{k}_su2\d(?:a)?_\d+|%ss_{k}_sb[hv]\d|%ss_{k}_su2\d_\d+|%ss_{k}_sv\d) = ' if os.environ.get('SB_RANGESET', 'all') == 'all' else
+                                            rf'^(%sb_q[nx]\d{k}_\d+) = ' if os.environ['SB_RANGESET'] == 'minmax' else rf'^(%sb_q[nx]\d{k}_\d+|%ss_{k}_su2\d(?:a)?_\d+) = ')
+                        defd = {re.match(r'(%\w+) = ', l)[1]: l for l in pcode if re.match(r'(%\w+) = ', l)}
+                        pre, keep, moved = [], [], set()
+                        for l in pcode:      # only lines whose operands are all defined before the branch (or moved there already)
+                            if pre_re.match(l) and all(x not in defd or x in moved for x in re.findall(r'%\w+', l.split(' = ', 1)[1])):
+                                pre.append(l); moved.add(l.split(' = ')[0])
+                            else:
+                                keep.append(l)
+                        pcode = keep
+                        MOVED.extend(l.split(' = ')[0] for l in pre)
+                        if os.environ.get('SB_RANGEAT') == '1':
+                            # each line right after the definition of the last of its operands, in the shader's own code: the samples then
+                            # die as the mix uses them instead of all nine being held to its end
+                            for l in pre:
+                                ops = re.findall(r'%\w+', l.split(' = ', 1)[1])
+                                at = -1
+                                for i in range(len(out) - 1, -1, -1):
+                                    mm = re.match(r'\s*(%\w+) = ', out[i])
+                                    if mm and mm[1] in ops:
+                                        at = i; break
+                                    if re.match(r'\s*%\w+ = OpLabel', out[i]):
+                                        break
+                                if at < 0:
+                                    code = code[:-3] + [l] + code[-3:]
+                                else:
+                                    out.insert(at + 1, l)
+                        else:
+                            code = code[:-3] + pre + code[-3:]
                     code += NEAR_FIRST.get(k, [])
                     # the weight of the new frame, corrected for where its samples fall now
                     for ax, pos, dj in (('x', pend['posx'], '%sb_djx'), ('y', pend['posy'], '%sb_djy')):
@@ -714,7 +798,7 @@ else:
                              f'%sb_g{k} = OpExtInst %float {GLSL} Exp2 %sb_ex{k}', f'%sb_gc{k} = OpExtInst %float {GLSL} NMin %sb_g{k} %sb_cap',
                              f'%sb_gm{k} = OpFMul %float %sb_gc{k} ' + ('%sb_const' if CONST else '%sb_one'), f'%sb_om{k} = OpFSub %float %sb_one %sb_gm{k}'] + (
                              [f'%sb_ap{k} = OpFMul %float {a} {a}'] if AW == 2 else [f'%sb_ap{k} = OpFMul %float {a} %sb_one'] if AW == 1 else [f'%sb_ap{k} = OpFMul %float %sb_one %sb_one']) + [
-                             f'%sb_ao{k} = OpFMul %float %sb_ap{k} %sb_om{k}', f'%sb_gw{k} = OpFSub %float %sb_one %sb_ao{k}',
+                             f'%sb_ao{k} = OpFMul %float %sb_ap{k} %sb_om{k}', *GW(k),
                              f'%sb_wm{k} = OpFMul %float {w} %sb_gw{k}'] + (
                              # where the picture does not move, a skipped frame takes nothing from the new frame
                              (pcode + ([f'%sr_a{k} = OpFSub %float {w} %sr_t0', f'%sr_q{k} = OpFDiv %float %sr_a{k} %sr_d', f'%sr_r{k} = OpExtInst %float {GLSL} NClamp %sr_q{k} %sm_fz %sb_one', f'%sr_w{k} = OpFMul %float %sb_wm{k} %sr_r{k}', f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sr_w{k} %sb_wm{k}'] if _rw else [f'%sb_wq{k} = OpSelect %float %sb_rq{k} %sm_fz %sb_wm{k}']) + ([f'%sb_wqq{k} = OpExtInst %float {GLSL} NMax %sb_wq{k} %sb_pf{k}'] if not _fd else
@@ -767,7 +851,10 @@ else:
                         # the screen when a pan started), the new frame alone: no dark band at the screen edge
                         code += [x for c in range(3) for x in (f'%sb_zm{c}{k} = OpFMul %float {curs[c]} %sb_rel', f'%sb_zt{c}{k} = OpExtInst %float {GLSL} NMax %sb_zm{c}{k} %sb_thr',
                                                               f'%sb_z{c}{k} = OpFOrdLessThanEqual %bool {h[c]} %sb_zt{c}{k}')] + [
-                            f'%sb_zz{k} = OpLogicalAnd %bool %sb_z0{k} %sb_z1{k}', f'%sb_gd{k}' + ('a' if UNCOV else '') + f' = OpLogicalAnd %bool %sb_zz{k} %sb_z2{k}'] + (
+                            f'%sb_zz{k} = OpLogicalAnd %bool %sb_z0{k} %sb_z1{k}'] + ([
+                            f'%sb_gd{k}' + ('a' if UNCOV else '') + f' = OpLogicalAnd %bool %sb_zz{k} %sb_z2{k}'] if not GUARDNR else [
+                            # SB_GUARDREST=0: not where the rest rule holds (nothing scrolls in from outside the screen there)
+                            f'%sb_gq{k} = OpLogicalAnd %bool %sb_zz{k} %sb_z2{k}', f'%sb_gn{k} = OpLogicalNot %bool %sm_rest', f'%sb_gd{k}' + ('a' if UNCOV else '') + f' = OpLogicalAnd %bool %sb_gq{k} %sb_gn{k}']) + (
                             [f'%sb_gd{k} = OpLogicalOr %bool %sb_gd{k}a %sm_flag'] if UNCOV else []) + [
                             f'%sb_rg_{c}{k} = OpSelect %float %sb_gd{k} {curs[c]} {mix[c]}' for c in range(3)]
                         mix = [f'%sb_rg_{c}{k}' for c in range(3)]
@@ -866,4 +953,8 @@ if _ps:      # every frame (both kinds) stores the flag for the next frame in th
     if k != 4: sys.exit(f'skipblend: {k} stores of image 1 rewritten, expected 4')
     text = '\n'.join(o2)
 from frameskip_layout import holes_spv_module      # step past the cleared diagonals
-sys.stdout.write('\n'.join(holes_spv_module(text.split('\n'), 'sm', S, 0)))
+_t = holes_spv_module(text.split('\n'), 'sm', S, 0)
+if os.environ.get('SB_RANGEEXACT') == '1' and MOVED:      # exact: the driver's compiler must not regroup the running min / max (it put the last samples first)
+    _i = max(i for i, l in enumerate(_t) if re.match(r'\s*OpDecorate ', l))
+    _t = _t[:_i + 1] + [f'OpDecorate {x} NoContraction' for x in MOVED] + _t[_i + 1:]
+sys.stdout.write('\n'.join(_t))

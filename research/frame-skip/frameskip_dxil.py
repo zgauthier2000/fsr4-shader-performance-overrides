@@ -12,6 +12,11 @@ import re
 import sys
 
 mode = sys.argv[1]
+UP = None if os.environ.get('FS_UP', 'off') == 'off' else float(os.environ['FS_UP'])      # FS_UP=<y> (prepass; default off): as frameskip.py; y must be negative
+if UP is not None:
+    import struct
+    assert UP < 0, 'FS_UP: only negative thresholds are supported here'
+    UPB = struct.unpack('<I', struct.pack('<f', -UP))[0]      # y < UP  <=>  sign set and |y| > |UP| (as float32 bits)
 L = sys.stdin.read().split('\n')
 
 
@@ -103,7 +108,10 @@ else:
         f'  %fs.c1 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle {C}, i32 1)',
         '  %fs.jb = extractvalue %dx.types.CBufRet.i32 %fs.c1, 2',
         '  %fs.jm = and i32 %fs.jb, 2147483647', '  %fs.jnz = icmp ne i32 %fs.jm, 0', '  %fs.js = icmp slt i32 %fs.jb, 0',
-        '  %fs.neg = and i1 %fs.js, %fs.jnz', '  %fs.k1 = and i1 %fs.neg, %fs.big', '  %fs.skip = and i1 %fs.k1, %fs.nr',
+        '  %fs.neg = and i1 %fs.js, %fs.jnz', *(['  %fs.k1 = and i1 %fs.neg, %fs.big'] if UP is None else [      # FS_UP (as frameskip.py): jitter y >= FS_UP, compared on the float's bits
+            '  %fs.upj = extractvalue %dx.types.CBufRet.i32 %fs.c1, 3', '  %fs.ups = icmp slt i32 %fs.upj, 0', '  %fs.upm = and i32 %fs.upj, 2147483647',
+            f'  %fs.upg = icmp ugt i32 %fs.upm, {UPB}', '  %fs.uplt = and i1 %fs.ups, %fs.upg', '  %fs.upok = xor i1 %fs.uplt, true',
+            '  %fs.upor = or i1 %fs.big, %fs.upok', '  %fs.k1 = and i1 %fs.neg, %fs.upor']), '  %fs.skip = and i1 %fs.k1, %fs.nr',
         '  %fs.g0 = call i32 @dx.op.groupId.i32(i32 94, i32 0)', '  %fs.g1 = call i32 @dx.op.groupId.i32(i32 94, i32 1)',
         '  %fs.t0 = call i32 @dx.op.threadIdInGroup.i32(i32 95, i32 0)',
         '  %fs.o1 = or i32 %fs.g0, %fs.g1', '  %fs.o2 = or i32 %fs.o1, %fs.t0', '  %fs.first = icmp eq i32 %fs.o2, 0',

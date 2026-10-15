@@ -14,6 +14,10 @@
 # under half the output size (there the border clearing after the prepass would reach into the
 # kept output).
 #
+# FS_UP=<y> (prepass; default off = as released; the internal build uses -0.1666667): skip below half the output width too (Ultra Performance), but
+# there a frame with jitter x < 0 still runs the model when its jitter y < y. The frames that run the model otherwise all have jitter x >= 0 and
+# sample only one half of each render pixel; with Halton base-3 jitter in y, -1/6 picks every third frame with x < 0, so that half is seen now and
+# then, and two skips never follow each other. The border clearing feared above did no visible harm in the Ultra Performance checks (1080p to 5K).
 # For the postpass's correction on skipped frames (skipblend.py) the jitter of the last frame that
 # ran the model is carried over: prepass -> pass 11 -> pass 12 -> two words next to the mark.
 # FS_TEST=same (prepass): test rule, skip a frame whose jitter equals that of the last frame that
@@ -41,6 +45,7 @@ import sys
 
 mode = sys.argv[1]
 import os
+UP = None if os.environ.get('FS_UP', 'off') == 'off' else os.environ['FS_UP']      # FS_UP=<y> (prepass): Ultra Performance, see the head of the file
 TEST = os.environ.get('FS_TEST', '')        # FS_TEST=same: the test rule described below
 L = sys.stdin.read().split('\n')
 defs = {}
@@ -168,7 +173,9 @@ else:
             '%fs_e1 = OpLoad %v4uint %fs_e1p Aligned 16', '%fs_jbits = OpCompositeExtract %uint %fs_e1 2',
             '%fs_jmag = OpBitwiseAnd %uint %fs_jbits %fs_absmask', '%fs_jnz = OpINotEqual %bool %fs_jmag %fs_u0',
             '%fs_jsign = OpUGreaterThan %bool %fs_jbits %fs_absmask', '%fs_neg = OpLogicalAnd %bool %fs_jsign %fs_jnz',
-            '%fs_k1 = OpLogicalAnd %bool %fs_neg ' + '%fs_big',
+            *(['%fs_k1 = OpLogicalAnd %bool %fs_neg ' + '%fs_big'] if UP is None else [      # FS_UP: below half the output width too, but there jitter y < FS_UP runs the model
+                '%fs_upj = OpCompositeExtract %uint %fs_e1 3', '%fs_upf = OpBitcast %float %fs_upj', '%fs_upok = OpFOrdGreaterThanEqual %bool %fs_upf %fs_upthr',
+                '%fs_upor = OpLogicalOr %bool %fs_big %fs_upok', '%fs_k1 = OpLogicalAnd %bool %fs_neg %fs_upor']),
             '%fs_skipn = OpLogicalAnd %bool %fs_k1 ' + '%fs_noreset',
             '%fs_jyy = OpCompositeExtract %uint %fs_e1 3'] + word_ptr('%fs_t', '%fs_t1') + word_ptr('%fs_u', '%fs_t2') + [
             '%fs_tv = OpLoad %uint %fs_tw', '%fs_uv = OpLoad %uint %fs_uw', '%fs_sx = OpIEqual %bool %fs_tv %fs_jbits',
@@ -187,6 +194,8 @@ else:
     consts += [f'%fs_r1 = OpConstant %uint {W_RELAY}', f'%fs_r2 = OpConstant %uint {W_RELAY + 1}']
     consts += [f'%fs_t1 = OpConstant %uint {W_SAVE}', f'%fs_t2 = OpConstant %uint {W_SAVE + 1}']
     consts.append('%fs_absmask = OpConstant %uint 2147483647')
+    if UP is not None:
+        consts.append(f'%fs_upthr = OpConstant %float {UP}')
     for need in ('%v4uint', '%_ptr_PhysicalStorageBuffer_v4uint', '%uint_4', '%uint_1', '%uint_0', '%bool'):
         if need not in defs:
             die(f'{need} is not defined')

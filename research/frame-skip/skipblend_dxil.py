@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS, SB_REST (as in skipblend.py);
+# skipblend_dxil.py < postpass.ll > out.ll      env SB_K, SB_CONST, SB_REL, SB_THR, SB_GUARD, SB_GUARDREST, SB_CLAMP, SB_BRANCH, SB_UNCOV, SB_UNCOV_OFFS, SB_REST (as in skipblend.py);
+# SB_RANGEPRE=1 SB_RANGEAT=1 SB_ROWS=1 [SB_RANGESET=minmax] (default off; the internal build of 2026-10-15, unreleased, with dupmix.py and, on Linux,
+# postpass_direct_lossy.py): same output, fewer registers. The nine samples' running min / max are worked out as each sample is (RANGEAT) and before the
+# skipped-frame branch (RANGEPRE), and the 3x3 history reads come in three rows in blocks of their own (ROWS). Lossy postpass on GPUs with the smaller
+# register file (RX 6000, RX 7600, integrated): 80 registers and 12 waves instead of 128 and 8; RX 7800 XT unchanged (96 / 16).
 # SB_ALPHA (default 1, with MP_ALPHA=rules, the default) and SB_MEMSTILL (default 0.45; "off" for none), both since release dll-2026-10-13; SB_PERSIST (default 0.02
 # since release dll-2026-10-14)
 # The DXIL form of skipblend.py (see there): on a skipped frame the weight of the new frame is
@@ -24,7 +28,7 @@ _ps = None if os.environ.get('SB_PERSIST', '0.02') == 'off' else [0.0, 0.0, floa
 # green drift lies in the band t x history + floor < |d| < SB_FADEU x history.
 _fd = None if (os.environ.get('SB_FADE', '0.0015 0.0001') == 'off' or not _ps) else [float(x) for x in os.environ.get('SB_FADE', '0.0015 0.0001').split()]
 FU = float(os.environ.get('SB_FADEU', '0.01'))
-GUARD = os.environ.get('SB_GUARD', '1') == '1'; REL = float(os.environ.get('SB_REL', '0.1')); THR = float(os.environ.get('SB_THR', '0'))
+GUARD = os.environ.get('SB_GUARD', '1') == '1'; GUARDNR = os.environ.get('SB_GUARDREST', '1') == '0'; REL = float(os.environ.get('SB_REL', '0.1')); THR = float(os.environ.get('SB_THR', '0'))
 CONST = None if os.environ.get('SB_CONST') == 'off' else float(os.environ.get('SB_CONST', '0'))   # a further constant factor on skipped frames
 L = sys.stdin.read().split('\n')
 text = '\n'.join(L)
@@ -189,6 +193,7 @@ NOCLAMPREST = os.environ.get('SB_CLAMPREST', '0') != '1'
 LONE = os.environ.get('SB_LONE', '1') == '1'      # as in skipblend.py
 LEAN = os.environ.get('SB_LEAN', '1') == '1'      # as in skipblend.py
 BLOB = LONE and os.environ.get('SB_BLOB', '1') == '1'      # as in skipblend.py
+DEFIDX = {}
 FMIN = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 36, float {a}, float {b})'
 FMAX = lambda r, a, b: f'  {r} = call float @dx.op.binary.f32(i32 35, float {a}, float {b})'
 
@@ -230,7 +235,12 @@ def part(k, curs, h, at):
     c_, outs = [], []
     if PART is not None or BRIGHT is not None:
         for c in range(3):
-            tc = samples(curs[c]); mn, mx = tc[0], tc[0]
+            tc = samples(curs[c])
+            if os.environ.get('SB_RANGEAT') == '1':      # in the order the samples are worked out (as in skipblend.py; min / max: same result in any order)
+                if 'idx' not in DEFIDX:
+                    DEFIDX['idx'] = {m[1]: i for i, l in enumerate(L) for m in [re.match(r'\s*(%[\w.]+) = ', l)] if m}
+                tc = sorted(tc, key=lambda v: DEFIDX['idx'].get(v, 0))
+            mn, mx = tc[0], tc[0]
             for i, v in enumerate(tc[1:]):
                 c_ += [FMIN(f'%sb.qn{c}{k}.{i}', mn, v), FMAX(f'%sb.qx{c}{k}.{i}', mx, v)]
                 if LEAN and LONE and not BLOB and SAMPLE is not None:      # the second largest of the nine, for the sample test, while each sample is at hand (as in skipblend.py)
@@ -287,9 +297,11 @@ def part(k, curs, h, at):
     ld = next((m_ for n_ in range(at, 0, -1) for m_ in [re.match(r'\s*%[\w.]+ = call %dx\.types\.ResRet\.f16 @dx\.op\.textureLoad\.f16\(i32 66, %dx\.types\.Handle (%[\w.]+), i32 0, i32 (%[\w.]+), i32 (%[\w.]+),', L[n_])] if m_), None) \
         or sys.exit('skipblend_dxil: the history load of a pixel was not found')
     img, cx, cy = ld[1], ld[2], ld[3]
-    mn = [None] * 3; mx = [None] * 3; ft = []
+    mn = [None] * 3; mx = [None] * 3; ft = []; cuts = []
     for j, (dx, dy) in enumerate([(a_, b_) for b_ in (-1, 0, 1) for a_ in (-1, 0, 1)]):
         t = f'%ss.{k}.{j}'
+        if j in (3, 6):
+            cuts.append((len(ft), list(mn), list(mx)))
         ft += [f'  {t}x0 = add i32 {cx}, {dx}', f'  {t}y0 = add i32 {cy}, {dy}', f'  {t}x = call i32 @dx.op.binary.i32(i32 37, i32 {t}x0, i32 0)', f'  {t}y = call i32 @dx.op.binary.i32(i32 37, i32 {t}y0, i32 0)',
                f'  {t}f = call %dx.types.ResRet.f16 @dx.op.textureLoad.f16(i32 66, %dx.types.Handle {img}, i32 0, i32 {t}x, i32 {t}y, i32 undef, i32 undef, i32 undef, i32 undef)']
         for c in range(3):
@@ -338,11 +350,32 @@ def part(k, curs, h, at):
                FMAX(f'{t}u{c}', f'{t}q{c}', '0.000000e+00'), FMIN(f'{t}g{c}', f'{t}u{c}', '1.000000e+00')]
         fs.append(f'{t}g{c}'); rest.append(c_)
     c_ = keep
+    last = f'%ss.T{k}'
+    if LEAN and os.environ.get('SB_ROWS') == '1':
+        # each row of three history fetches in a block of its own (as in the Linux candidate): entered where the row's coordinate is not -1, which always holds
+        parts = []; prev = 0
+        for at_, mn0, mx0 in cuts:
+            parts.append(ft[prev:at_]); prev = at_
+        parts.append(ft[prev:])
+        nf = parts[0]; ren = {}
+        for r, (at_, mn0, mx0) in enumerate(cuts):
+            end = cuts[r + 1][1:] if r + 1 < len(cuts) else (mn, mx)
+            nf += [f'  %ss.R{r}c{k} = icmp ne i32 {cy}, -1', f'  br i1 %ss.R{r}c{k}, label %ss.R{r}T{k}, label %ss.R{r}M{k}', '', f'ss.R{r}T{k}:'] + parts[r + 1] + [f'  br label %ss.R{r}M{k}', '', f'ss.R{r}M{k}:']
+            nren = {}
+            for c in range(3):
+                for a0, a1 in ((mn0[c], end[0][c]), (mx0[c], end[1][c])):
+                    nf.append(f'  {a1}.p = phi float [ {a1}, %ss.R{r}T{k} ], [ {ren.get(a0, a0)}, {last} ]'); nren[a1] = f'{a1}.p'
+            ren.update(nren); last = f'%ss.R{r}M{k}'
+            rn = lambda l, m=nren: re.sub(r'%[\w.]+', lambda q: m.get(q[0], q[0]), l)
+            for q in range(r + 2, len(parts)):
+                parts[q] = [rn(l) for l in parts[q]]
+            rest = [[rn(l) for l in cc] for cc in rest]
+        ft = nf
     if LEAN:
         # as in skipblend.py: the history fetches and what follows them in a block of their own, entered on the skipped-frame condition once more, so that a
         # compiler that moves the fetches to the head of their block does not put them beside the nine samples
         c_ += sum(pre, []) + [f'  br i1 %sb.skip, label %ss.T{k}, label %ss.M{k}', '', f'ss.T{k}:'] + ft + sum(rest, []) + [
-            FMAX(f'{t}gm', fs[0], fs[1]), FMAX(f'{t}gg', f'{t}gm', fs[2]), f'  br label %ss.M{k}', '', f'ss.M{k}:', f'  {t}g = phi float [ {t}gg, %ss.T{k} ], [ 0.000000e+00, %sb.T{k} ]']
+            FMAX(f'{t}gm', fs[0], fs[1]), FMAX(f'{t}gg', f'{t}gm', fs[2]), f'  br label %ss.M{k}', '', f'ss.M{k}:', f'  {t}g = phi float [ {t}gg, {last} ], [ 0.000000e+00, %sb.T{k} ]']
     else:
         c_ += ft + sum([x + y for x, y in zip(pre, rest)], []) + [FMAX(f'{t}gm', fs[0], fs[1]), FMAX(f'{t}g', f'{t}gm', fs[2])]
     c_ += [(f'  %sb.pf{k} = fmul fast float {t}g, 1.000000e+00' if os.environ.get('SB_SAMPLEALL') == '1' else f'  %sb.pf{k} = select i1 %sm.rest, float {t}g, float 0.000000e+00'),
@@ -572,7 +605,11 @@ else:
                             c_ += [f'  %sb.zm{c}{k} = fmul fast float {curs[c]}, {fl(REL)}',
                                    f'  %sb.zt{c}{k} = call float @dx.op.binary.f32(i32 35, float %sb.zm{c}{k}, float {fl(THR)})',
                                    f'  %sb.z{c}{k} = fcmp fast ole float {h[c]}, %sb.zt{c}{k}']
-                        c_ += [f'  %sb.zz{k} = and i1 %sb.z0{k}, %sb.z1{k}'] + ([f'  %sb.gda{k} = and i1 %sb.zz{k}, %sb.z2{k}', f'  %sb.gd{k} = or i1 %sb.gda{k}, %sm.flag'] if UNCOV else [f'  %sb.gd{k} = and i1 %sb.zz{k}, %sb.z2{k}']) + [
+                        gd_ = f'%sb.gda{k}' if UNCOV else f'%sb.gd{k}'
+                        c_ += [f'  %sb.zz{k} = and i1 %sb.z0{k}, %sb.z1{k}'] + ([f'  {gd_} = and i1 %sb.zz{k}, %sb.z2{k}'] if not GUARDNR else [
+                               # SB_GUARDREST=0: not where the rest rule holds, as in skipblend.py
+                               f'  %sb.gq{k} = and i1 %sb.zz{k}, %sb.z2{k}', f'  %sb.gn{k} = xor i1 %sm.rest, true', f'  {gd_} = and i1 %sb.gq{k}, %sb.gn{k}']) + (
+                               [f'  %sb.gd{k} = or i1 %sb.gda{k}, %sm.flag'] if UNCOV else []) + [
                                f'  %sb.rg.{c}{k} = select i1 %sb.gd{k}, float {curs[c]}, float {mix[c]}' for c in range(3)]
                         mix = [f'%sb.rg.{c}{k}' for c in range(3)]
                     tlab = f'%ss.M{k}' if (LEAN and REST and SAMPLE is not None) else f'%sb.T{k}'      # the block the branch ends in
@@ -593,6 +630,29 @@ else:
                                    f'  %fr.nu{k} = fcmp ogt float %fd.v{k}, 2.000000e+00', f'  %fr.nd{k} = fcmp olt float %fd.v{k}, -2.000000e+00',
                                    f'  %fr.cu{k} = and i1 %fr.nu{k}, %fr.pu{k}', f'  %fr.cd{k} = and i1 %fr.nd{k}, %fr.pd{k}', f'  %fr.c{k} = or i1 %fr.cu{k}, %fr.cd{k}', f'  %fd.nk{k} = xor i1 %fr.c{k}, true']
                         c_ += [f'  %db.p{k} = and i1 %db.l0{k}, %db.l1{k}'] + ([f'  %db.qa{k} = and i1 %db.p{k}, %db.l2{k}', f'  %db.q{k} = and i1 %db.qa{k}, %fd.nk{k}'] if _fd else [f'  %db.q{k} = and i1 %db.p{k}, %db.l2{k}']) + [f'  %sb.r{c}{k} = select i1 %db.q{k}, float {h[c]}, float %sb.rp{c}{k}' for c in range(3)]
+                    if os.environ.get('SB_RANGEPRE') == '1':
+                        pre_re = re.compile(rf'^\s*(%sb\.q[nx]\d{k}\.\d+) = ')
+                        dc = {re.match(r'\s*(%[\w.]+) = ', l)[1] for l in c_ if re.match(r'\s*(%[\w.]+) = ', l)}
+                        moved = set(); keep_ = []; pre_ = []
+                        for l in c_:
+                            m_ = pre_re.match(l)
+                            if m_ and all(x not in dc or x in moved for x in re.findall(r'%[\w.]+', l.split(' = ', 1)[1])):
+                                pre_.append(l); moved.add(m_[1])
+                            else:
+                                keep_.append(l)
+                        c_ = keep_
+                        for l in pre_:
+                            ops = re.findall(r'%[\w.]+', l.split(' = ', 1)[1]); at_ = -1
+                            for i_ in range(len(out) - 1, -1, -1):
+                                mm = re.match(r'\s*(%[\w.]+) = ', out[i_])
+                                if mm and mm[1] in ops:
+                                    at_ = i_; break
+                                if re.match(r'([\w.]+):\s*$|; <label>:', out[i_]):
+                                    break
+                            if at_ < 0:
+                                out.append(l)
+                            else:
+                                out.insert(at_ + 1, l)
                     out += c_
                     for c in range(3):
                         ren[sums[c]] = f'%sb.r{c}{k}'
