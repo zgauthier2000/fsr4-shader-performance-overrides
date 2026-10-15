@@ -136,7 +136,7 @@ The change in this release that shows most in a single picture: a still object o
 
 > ### Help test it: the timing kit
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-14/fsr4-timing-kit-windows.zip)** (experimental, 190 MB, version 2026-10-14): unpack, double-click
-> `fsr4time.exe`, wait 15 to 20 minutes. It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
+> `fsr4time.exe`, wait a few minutes (2 on an RX 7800 XT; people report about 5 under Windows; slower chips take longer). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
 > that each DLL gives the same picture, and offers to send the result. Reports are in from eleven graphics chips so far;
 > every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
 >

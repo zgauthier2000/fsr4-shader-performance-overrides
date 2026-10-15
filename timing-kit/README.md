@@ -17,7 +17,7 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   and with this project's, without a game. It installs nothing and changes nothing.
 - **Why it exists:** the project is developed on one graphics card. What it does on every other chip is only known from
   what people measure and send in.
-- **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait about 15 to 20 minutes.
+- **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait a few minutes (2 on an RX 7800 XT; people report about 5 under Windows).
   On Linux or a Steam Deck in desktop mode, the Linux kit described below: one command, about 16 minutes, or half a minute
   for the short run.
 - **The output check of the model passes now means something (kit 2026-10-10.1).** Earlier kits filled the small buffer that
@@ -61,7 +61,8 @@ on the same inputs on every machine, so results from different GPUs can be compa
 ## Windows (experimental)
 
 [`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-14/fsr4-timing-kit-windows.zip) (190 MB, updated 2026-10-14) is a different program for the same purpose. Unpack it, close games and
-browsers, and double-click `fsr4time.exe`; it takes about 15 to 20 minutes.
+browsers, and double-click `fsr4time.exe`. It takes a few minutes: 2 on an RX 7800 XT under Proton (measured 2026-10-15), about 5 under
+Windows as people report it, longer on slower chips. (Its own README.txt still says 15 to 20 minutes; that estimate was wrong.)
 
 **New in version 2026-10-14:** its lossy DLLs are those of release `dll-2026-10-14` (slow fades keep up better, small dark things are shown more fully with the camera still, less of an old image beside moving objects). Nothing else changed.
 
@@ -87,7 +88,7 @@ browsers, and double-click `fsr4time.exe`; it takes about 15 to 20 minutes.
 - **A DLL that offers more than one FSR 4 version is timed with each of them,** and the DLL no longer has to be 4.1.1.
   AMD's 4.1.1 DLL offers one, so nothing changes for the DLLs in the kit; this is for other and later DLLs put into a new
   folder under `dlls`. Tested here only by listing the one version twice.
-- The run is longer for it: the 15 to 20 minutes are an estimate from the number of runs (the kit before took about seven minutes with seven DLLs timed once); it has not been timed under Windows yet.
+- The run is longer for it: the 15 to 20 minutes given then were an estimate from the number of runs, and too high: measured since, 2 minutes on an RX 7800 XT under Proton, and people report about 5 under Windows.
 
 - **What it times:** whole upscale calls, as a game makes them, through AMD's FidelityFX API on Direct3D 12, with each DLL in
   its `dlls` folder: AMD's shaders (the reference), this project's exact and lossy DLLs, and the two for integrated graphics.
@@ -129,7 +130,7 @@ Unpack the archive, open a terminal in the folder and type:
 
     bash run.sh
 
-That runs the full set (kit 2026-10-12.1: about 16 minutes on an RX 7800 XT; earlier kits about 20 minutes):
+That runs the full set (kit 2026-10-14: 16.5 minutes on an RX 7800 XT, measured 2026-10-15; earlier kits about 20 minutes):
 
 - every pass (prepass, model passes 1 to 12, postpass) at 1080p, 1440p and 4K output, AMD's
   against the rewrites;
