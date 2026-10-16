@@ -30,6 +30,14 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
+**Windows kit version 2026-10-15.3** adds a postpass tuned for drivers that run it 32-wide (`2p-exact-postpass-for-32-wide`,
+`4p-igpu-exact-postpass-for-32-wide`): the exact DLLs with the last shader writing its three output images AMD's way, keeping only
+the shared color taps. The exact DLLs' postpass writes them through the card's shared memory, which pays off 64-wide but not
+32-wide. Measured on Linux on an RX 7800 XT, with the driver made to run the postpass alone 32-wide: AMD's 0.87 ms, the exact
+DLLs' 0.81, this one 0.80. Run 64-wide, as the Linux driver does by default, it takes 1.88 ms against the exact DLLs' 0.61, so
+under Proton the whole DLL is slower than the exact one (4K: 4.41 ms against 3.15; AMD's 4.90). Whether Windows' driver runs the
+postpass 32-wide, and so whether this helps there, is what Windows results show. It gives AMD's picture.
+
 **Windows kit version 2026-10-15.2** adds a wave-size test: the exact DLLs with every FSR 4 shader asking the driver for
 64-wide waves (`2v-exact-wave64`, `4v-igpu-exact-wave64`), and a control asking for 32-wide ones (`2x-exact-wave32-control`). All
 three give AMD's picture. On Linux the driver runs these shaders 64-wide, and forced to 32-wide the exact DLL takes 4.50 ms instead of
@@ -91,10 +99,13 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15.2/fsr4-timing-kit-windows.zip) (about 10 MB, version 2026-10-15.2; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15.3/fsr4-timing-kit-windows.zip) (about 11 MB, version 2026-10-15.3; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
+
+**New in version 2026-10-15.3:** a postpass tuned for 32-wide drivers (`2p-exact-postpass-for-32-wide`,
+`4p-igpu-exact-postpass-for-32-wide`; see [above](#in-short)), fourteen DLLs in all.
 
 **New in version 2026-10-15.2:** a wave-size test (`2v-exact-wave64`, `4v-igpu-exact-wave64`, `2x-exact-wave32-control`; see
 [above](#in-short)). The DLLs are no longer unpacked on the first start (520 MB on disk with these twelve): each is taken out of the

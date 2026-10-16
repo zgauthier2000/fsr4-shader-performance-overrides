@@ -62,8 +62,15 @@ What it does
   dlls\2x-exact-wave32-control
                        2-exact asking for 32-wide waves: a control. If it takes about as long as
                        2-exact, your driver was running them 32-wide; if it is much slower, 64-wide.
-  dlls\4-igpu-exact, 4w-igpu-exact-without-shared-taps, 4v-igpu-exact-wave64, 5-igpu-lossy,
-  5w-igpu-lossy-without-register-cut
+  dlls\2p-exact-postpass-for-32-wide
+                       2-exact with its last shader (the postpass) tuned for drivers that run it
+                       32-wide: it keeps AMD's way of writing the three output images and only has
+                       the shared color taps. 2-exact writes them through the card's shared memory,
+                       which pays off 64-wide but gains nothing 32-wide. On Linux, where the driver
+                       runs it 64-wide, this DLL is much slower than 2-exact; whether it is faster
+                       on Windows is what your result shows. AMD's picture.
+  dlls\4-igpu-exact, 4w-igpu-exact-without-shared-taps, 4v-igpu-exact-wave64,
+  4p-igpu-exact-postpass-for-32-wide, 5-igpu-lossy, 5w-igpu-lossy-without-register-cut
                        the same for integrated graphics and handhelds
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of

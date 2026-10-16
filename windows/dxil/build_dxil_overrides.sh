@@ -12,7 +12,9 @@
 # products as product + add, for RDNA2), TAPS=0 (keep the branches around the postpass's
 # neighborhood reads), PREPASS=0 / MODEL=0 (leave the prepass / the integer output scaling alone),
 # POSTPASS_SMALL=amd (keep AMD's postpass code in the versions used at 1080p output and below,
-# where the rewrite is slower on RDNA2; DOT4 and TAPS still apply to them).
+# where the rewrite is slower on RDNA2; DOT4 and TAPS still apply to them), POSTPASS_STORES=amd (the same
+# at every output size: AMD's image stores, no workgroup-memory rewrite; tuned for drivers that run the
+# postpass 32-wide, where the rewrite gains nothing).
 # Needs DXC (dxc and libdxcompiler.so; set DXC_DIR to the unpacked Linux release) and g++.
 set -euo pipefail
 here=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -51,7 +53,8 @@ for f in "$src"/*.dxil; do
         python3 "$here/postpass_taps_dxil.py" < "$work/in.ll" > "$work/in2.ll" && mv "$work/in2.ll" "$work/in.ll"
     fi
     # POSTPASS_SMALL=amd: the small output-size class (tensor rows of 962 pixels, 15392 bytes) keeps AMD's postpass.
-    if [[ ${POSTPASS_SMALL:-} == amd && $name == *_postpass ]] && grep -q 'i32 15392' "$work/in.ll"; then
+    # POSTPASS_STORES=amd: every size class keeps AMD's stores.
+    if [[ $name == *_postpass ]] && { [[ ${POSTPASS_STORES:-} == amd ]] || { [[ ${POSTPASS_SMALL:-} == amd ]] && grep -q 'i32 15392' "$work/in.ll"; }; }; then
         [[ ${DOT4:-} == split || ${TAPS:-1} == 1 || ${MODEL:-1} == 1 ]] || continue          # nothing to change: leave AMD's shader in place
         cp "$work/in.ll" "$work/out.ll"
     elif ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
