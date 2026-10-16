@@ -69,9 +69,11 @@ for n, l in enumerate(L):
             if base is None:
                 ok = False; break
         mx = re.match(rf'OpExtInst %uint {re.escape(glsl)} SMax (%\S+) %uint_0$', rhs(base))
-        # the ReLU can be skipped only if nothing else reads its result
-        others = sum(len(re.findall(rf'{re.escape(base)}(?!\w)', l2)) for l2 in L) - 1 - (2 if even else 1)
-        vals.append((sh[1], base, mx[1] if mx and others == 0 else None, even))
+        # The rounding reads the sum before the ReLU, and the clamp's lower bound does the ReLU's work: a negative sum
+        # rounds to at most the bound, so it gives 0 as before. If anything else reads the ReLU's result (AMD also stores
+        # it into a local array, which nothing reads again), the ReLU stays for that, and the compiler removes it when
+        # that use is dead. Until 2026-10-15 such ReLUs were left in place, 28 of the 32 in pass 1's second layer.
+        vals.append((sh[1], base, mx[1] if mx else None, even))
     if not ok:
         continue
     ind, res = m[1], m[2]
