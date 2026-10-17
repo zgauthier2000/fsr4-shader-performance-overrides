@@ -57,18 +57,23 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   DLL's gain depends on the card: some keep most of it (an RX 7900 XT 30% at 1440p, an RX 6600 XT 24% at 1080p),
   others show little or nothing (the RX 7800 XT and an RX 7900 XTX at 1080p). The lossy DLL helps at every size,
   because it skips work instead of only doing the same work faster.
-- **It depends on your graphics chip, too.** FSR 4 time saved at 4K, from testers' timing-kit runs and game reports
-  so far:
+- **It depends on your graphics chip, too.** FSR 4 time saved at 4K on Windows, from testers' Windows timing-kit
+  runs up to October 17, 2026:
 
-  | Graphics chip | Exact DLL | Lossy DLL |
-  |---|---|---|
-  | Radeon RX 7000 | 15 to 35% in most reports; about 2% in two RX 7800 XT reports | 29 to 49% |
-  | Radeon RX 6000 | from nothing to about 30% | 23 to 48% |
-  | Integrated graphics and handhelds | from a few percent slower to 6% faster | 23 to 35% |
-  | Intel Arc B580 (one report) | 6 to 8% | 31% |
-  | GeForce RTX 3060 Ti (one report) | none | 34% |
+  | Graphics chip | Exact DLL | Lossy DLL | Reports |
+  |---|---|---|---|
+  | Radeon RX 7600, RX 7900 XT, RX 7900 XTX | 17 to 29% | 33 to 49% | 13 |
+  | Radeon RX 7800 XT | 2 to 4% (one report 14%) | 29 to 41% | 20 |
+  | Radeon RX 6600 XT, RX 6650 XT, RX 6900 XT | 10 to 20% | 30 to 41% | 17 |
+  | Radeon RX 6600, RX 6700, RX 6700 XT, RX 6750 XT, RX 6800 | 0 to 6% | 15 to 45% | about 45 |
+  | Integrated graphics and handhelds (Steam Deck, Radeon 890M) | from 8% faster to 4% slower | 23 to 32% | 18 |
+  | Intel Arc (B580; integrated Arc in one report) | 6 to 10% | 30 to 33% | 4 |
+  | GeForce (GTX 1650, RTX 3060 Ti, 3090, 5070), Radeon RX 5700 XT and RX Vega | none | 24 to 42% | 12 |
 
-  We do not yet know what decides where a card falls in its range. Most rows rest on a handful of single runs.
+  On RX 6000 cards the exact DLL is compared with AMD's shaders with the ghosting fix (the same picture), so the table
+  shows only the speed difference. Under Linux the exact DLL saves far more on RX 7000 cards (an RX 7800 XT 28 to 35%:
+  the example below). One RX 6700 report with impossible readings is left out. We do not yet know what decides where
+  a card falls in its range.
   [Results by graphics chip](docs/results.md#by-gpu-type), [timing kit results](timing-kit/RESULTS.md).
 - **It only shows when the graphics card is the limit.** If the processor limits your frame rate,
   the frame rate does not change.
