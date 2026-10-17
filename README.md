@@ -50,7 +50,7 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
-  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.06 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers.">
+  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced, tested on Linux (Proton). AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.06 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions, other cards and Windows give other numbers.">
 </picture>
 
 - **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact

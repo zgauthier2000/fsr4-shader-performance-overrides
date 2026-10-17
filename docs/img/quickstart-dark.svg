@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="318" viewBox="0 0 760 318" role="img" aria-label="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second, the reference. Exact DLL: 2.99 milliseconds of upscaling per frame, 109 frames per second, same picture, byte for byte. Lossy DLL: 2.06 milliseconds of upscaling per frame, 122 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers.">
-<rect width="760" height="318" rx="8" fill="#1a1a19"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="334" viewBox="0 0 760 334" role="img" aria-label="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced, tested on Linux (Proton). AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second, the reference. Exact DLL: 2.99 milliseconds of upscaling per frame, 109 frames per second, same picture, byte for byte. Lossy DLL: 2.06 milliseconds of upscaling per frame, 122 frames per second, very close picture, opt-in. Other resolutions, other cards and Windows give other numbers.">
+<rect width="760" height="334" rx="8" fill="#1a1a19"/>
 <text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">What to expect at 4K</text>
 <text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Time FSR 4.1.1 takes per frame (shorter is better), and the frame rate that goes with it</text>
 <text x="736.0" y="84.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="end" fill="#898781">frame rate</text>
@@ -28,5 +28,6 @@
 <path d="M232,210 H396.5 Q400.5,210 400.5,214 V242 Q400.5,246 396.5,246 H232 Z" fill="#d95926"/>
 <text x="408.5" y="233.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">2.06 ms</text>
 <text x="736.0" y="233.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="end" fill="#ffffff">122 FPS</text>
-<text x="24.0" y="304.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Shadow of the Tomb Raider benchmark, 4K output, Balanced, Radeon RX 7800 XT. Other resolutions and cards give other numbers.</text>
+<text x="24.0" y="304.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Shadow of the Tomb Raider benchmark, 4K output, Balanced, Radeon RX 7800 XT, tested on Linux (Proton).</text>
+<text x="24.0" y="320.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Other resolutions, other cards and Windows give other numbers.</text>
 </svg>
