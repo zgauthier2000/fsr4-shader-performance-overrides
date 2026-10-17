@@ -48,7 +48,10 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 ## What to expect
 
-<img src="docs/img/quickstart-light.svg#gh-light-mode-only" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.06 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers."><img src="docs/img/quickstart-dark.svg#gh-dark-mode-only" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.06 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
+  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced. AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.06 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions and other cards give other numbers.">
+</picture>
 
 - **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
   DLL's gain depends on the card: some keep most of it (an RX 7900 XT 30% at 1440p, an RX 6600 XT 24% at 1080p),
@@ -132,7 +135,10 @@ More games and resolutions: [all results](docs/results.md).
 >   DLL's new form is not slower there but about 1% faster than without it (RX 6000, 14 reports; RX 7600 1.5%; a Radeon 890M 2 to 4%,
 >   one report).
 
-<a href="docs/releases/dll-2026-10-15.md"><img src="docs/img/rel-2026-10-15-speed-light.svg#gh-light-mode-only" width="100%" alt="ULTRA PERFORMANCE ONLY. Bar chart of FSR 4's time per frame in Ultra Performance, lower is better, on a Radeon RX 7800 XT (Windows timing kit under Proton): 1080p output AMD's shaders 0.94 ms, the lossy DLL of dll-2026-10-14 0.92 ms (no frame skip in Ultra Performance), this release's lossy DLL 0.76 ms; 1440p 2.10, 1.46, 1.17 ms; 4K 4.64, 3.18, 2.50 ms. Not representative of other modes: at the Balanced preset's size this release's lossy DLL takes the same time as dll-2026-10-14."><img src="docs/img/rel-2026-10-15-speed-dark.svg#gh-dark-mode-only" width="100%" alt="ULTRA PERFORMANCE ONLY. Bar chart of FSR 4's time per frame in Ultra Performance, lower is better, on a Radeon RX 7800 XT (Windows timing kit under Proton): 1080p output AMD's shaders 0.94 ms, the lossy DLL of dll-2026-10-14 0.92 ms (no frame skip in Ultra Performance), this release's lossy DLL 0.76 ms; 1440p 2.10, 1.46, 1.17 ms; 4K 4.64, 3.18, 2.50 ms. Not representative of other modes: at the Balanced preset's size this release's lossy DLL takes the same time as dll-2026-10-14."></a>
+<a href="docs/releases/dll-2026-10-15.md"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/rel-2026-10-15-speed-dark.svg">
+  <img src="docs/img/rel-2026-10-15-speed-light.svg" width="100%" alt="ULTRA PERFORMANCE ONLY. Bar chart of FSR 4's time per frame in Ultra Performance, lower is better, on a Radeon RX 7800 XT (Windows timing kit under Proton): 1080p output AMD's shaders 0.94 ms, the lossy DLL of dll-2026-10-14 0.92 ms (no frame skip in Ultra Performance), this release's lossy DLL 0.76 ms; 1440p 2.10, 1.46, 1.17 ms; 4K 4.64, 3.18, 2.50 ms. Not representative of other modes: at the Balanced preset's size this release's lossy DLL takes the same time as dll-2026-10-14.">
+</picture></a>
 
 **Ultra Performance only, not representative of other modes.** This release's gain is speed, and it is in Ultra Performance alone. In
 pictures it costs something there; the release page shows a typical frame and the lossy DLL against the exact DLL on every measure.

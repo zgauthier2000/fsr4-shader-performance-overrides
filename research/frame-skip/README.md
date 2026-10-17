@@ -7,7 +7,10 @@
 
 ## In short
 
-<img src="../../docs/img/explain-skip-light.svg#gh-light-mode-only" width="760" alt="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and reuses the last result on the frames in between: about 2.9 ms on a frame that runs the network and about 1.1 ms on one that skips it, at 4K on a Radeon RX 7800 XT."><img src="../../docs/img/explain-skip-dark.svg#gh-dark-mode-only" width="760" alt="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and reuses the last result on the frames in between: about 2.9 ms on a frame that runs the network and about 1.1 ms on one that skips it, at 4K on a Radeon RX 7800 XT.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../docs/img/explain-skip-dark.svg">
+  <img src="../../docs/img/explain-skip-light.svg" width="760" alt="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and reuses the last result on the frames in between: about 2.9 ms on a frame that runs the network and about 1.1 ms on one that skips it, at 4K on a Radeon RX 7800 XT.">
+</picture>
 
 - **What it is:** FSR 4 uses a small neural network to decide, for every pixel, how much of the new frame to mix into the
   picture it has built up. That network is more than half of FSR 4's work. The lossy DLL runs it on every other frame only.
@@ -589,7 +592,10 @@ run is part of the checks now.
 
 ## Content without motion vectors: particles, sparks, embers (release `dll-2026-10-09`)
 
-<img src="../../docs/img/explain-particles-light.svg#gh-light-mode-only" width="760" alt="A spark drawn without motion information, over four frames. As it should look, it moves a step every frame. In the previous lossy release it stayed where it was on every other frame. In this release it moves every frame again. Measured on tiny fast sparks: 16 percent of their brightness shown on skipped frames before, 77 percent now, 83 percent with AMD's shaders."><img src="../../docs/img/explain-particles-dark.svg#gh-dark-mode-only" width="760" alt="A spark drawn without motion information, over four frames. As it should look, it moves a step every frame. In the previous lossy release it stayed where it was on every other frame. In this release it moves every frame again. Measured on tiny fast sparks: 16 percent of their brightness shown on skipped frames before, 77 percent now, 83 percent with AMD's shaders.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../docs/img/explain-particles-dark.svg">
+  <img src="../../docs/img/explain-particles-light.svg" width="760" alt="A spark drawn without motion information, over four frames. As it should look, it moves a step every frame. In the previous lossy release it stayed where it was on every other frame. In this release it moves every frame again. Measured on tiny fast sparks: 16 percent of their brightness shown on skipped frames before, 77 percent now, 83 percent with AMD's shaders.">
+</picture>
 
 **In plain words:** a game tells FSR how the picture moves, but not for everything. Sparks, embers and similar effects are
 drawn straight into the picture. On the frames where the network is skipped, the old lossy DLL saw "nothing moved here" and

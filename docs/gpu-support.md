@@ -4,7 +4,10 @@
 
 ## In short
 
-<img src="img/explain-downloads-light.svg#gh-light-mode-only" width="760" alt="Four builds became two downloads. The builds for RX 7000 and RX 6000 are now fsr4.1.1-cyboman.zip. The compact RX 6000 build and the integrated-graphics build are now fsr4.1.1-igpu-cyboman.zip. Each holds an exact DLL with AMD's picture and a faster lossy DLL. Neither is for Radeon RX 9000 cards."><img src="img/explain-downloads-dark.svg#gh-dark-mode-only" width="760" alt="Four builds became two downloads. The builds for RX 7000 and RX 6000 are now fsr4.1.1-cyboman.zip. The compact RX 6000 build and the integrated-graphics build are now fsr4.1.1-igpu-cyboman.zip. Each holds an exact DLL with AMD's picture and a faster lossy DLL. Neither is for Radeon RX 9000 cards.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/explain-downloads-dark.svg">
+  <img src="img/explain-downloads-light.svg" width="760" alt="Four builds became two downloads. The builds for RX 7000 and RX 6000 are now fsr4.1.1-cyboman.zip. The compact RX 6000 build and the integrated-graphics build are now fsr4.1.1-igpu-cyboman.zip. Each holds an exact DLL with AMD's picture and a faster lossy DLL. Neither is for Radeon RX 9000 cards.">
+</picture>
 
 | Your graphics chip | Download | Status |
 |---|---|---|

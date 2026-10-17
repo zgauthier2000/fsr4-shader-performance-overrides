@@ -14,7 +14,10 @@ charts below use the 1.7 ms measured earlier and were not redone.
 
 ## In short
 
-<img src="img/explain-skip-light.svg#gh-light-mode-only" width="760" alt="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and reuses the last result on the frames in between: about 2.9 ms on a frame that runs the network and about 1.1 ms on one that skips it, at 4K on a Radeon RX 7800 XT."><img src="img/explain-skip-dark.svg#gh-dark-mode-only" width="760" alt="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and reuses the last result on the frames in between: about 2.9 ms on a frame that runs the network and about 1.1 ms on one that skips it, at 4K on a Radeon RX 7800 XT.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/explain-skip-dark.svg">
+  <img src="img/explain-skip-light.svg" width="760" alt="How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame and reuses the last result on the frames in between: about 2.9 ms on a frame that runs the network and about 1.1 ms on one that skips it, at 4K on a Radeon RX 7800 XT.">
+</picture>
 
 **In plain words:** with the lossy DLL every second frame is cheaper than the one before it. If your frame rate is free to
 vary, you simply get the average, and it is higher. If something forces every frame to fit a fixed slot (V-Sync without a
@@ -45,7 +48,10 @@ The rest of a frame (everything that is not FSR 4) is about 6.15 ms in this benc
 builds. So a lossy frame is about 9.05 ms when the model runs and 7.35 ms when it is skipped:
 **1.7 ms apart, 8.2 ms on average.** Those two per-frame figures are derived, not captured.
 
-<img src="img/frame-pacing-light.svg#gh-light-mode-only" width="760" alt="Frame time of eight consecutive frames against a 120 Hz refresh interval of 8.33 ms. Exact files: every frame takes 9.14 ms, above the interval. Lossy build: frames alternate between 9.05 ms when the model runs and 7.35 ms when it is skipped; the average, 8.20 ms, is below the interval, but every other frame is above it. Derived from averages in Shadow of the Tomb Raider at 4K Balanced on a Radeon RX 7800 XT."><img src="img/frame-pacing-dark.svg#gh-dark-mode-only" width="760" alt="Frame time of eight consecutive frames against a 120 Hz refresh interval of 8.33 ms. Exact files: every frame takes 9.14 ms, above the interval. Lossy build: frames alternate between 9.05 ms when the model runs and 7.35 ms when it is skipped; the average, 8.20 ms, is below the interval, but every other frame is above it. Derived from averages in Shadow of the Tomb Raider at 4K Balanced on a Radeon RX 7800 XT.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/frame-pacing-dark.svg">
+  <img src="img/frame-pacing-light.svg" width="760" alt="Frame time of eight consecutive frames against a 120 Hz refresh interval of 8.33 ms. Exact files: every frame takes 9.14 ms, above the interval. Lossy build: frames alternate between 9.05 ms when the model runs and 7.35 ms when it is skipped; the average, 8.20 ms, is below the interval, but every other frame is above it. Derived from averages in Shadow of the Tomb Raider at 4K Balanced on a Radeon RX 7800 XT.">
+</picture>
 
 The figure is made by [`img/make_frame_pacing.py`](img/make_frame_pacing.py).
 

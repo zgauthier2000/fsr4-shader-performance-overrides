@@ -24,7 +24,10 @@
   an opt-in extra, but that needs the set's source and per-pass tuning against the motion test;
   see [what would help](#what-would-help-to-take-this-further).
 
-<img src="img/what-is-replaced-light.svg#gh-light-mode-only" width="760" alt="Diagram of FSR 4.1.1's fourteen main passes (prepass, model passes 1 to 12, postpass) for two shader sets. This repository rewrites model pass 11 and the postpass with unchanged output and leaves the rest as AMD's. The community set replaces all fourteen: passes 3 and 6 with unchanged output; passes 7, 8, 9 and 11 with a changed rounding rule; passes 1, 2, 4, 5, 10, 12 and the postpass with weights removed; the prepass was not measured."><img src="img/what-is-replaced-dark.svg#gh-dark-mode-only" width="760" alt="Diagram of FSR 4.1.1's fourteen main passes (prepass, model passes 1 to 12, postpass) for two shader sets. This repository rewrites model pass 11 and the postpass with unchanged output and leaves the rest as AMD's. The community set replaces all fourteen: passes 3 and 6 with unchanged output; passes 7, 8, 9 and 11 with a changed rounding rule; passes 1, 2, 4, 5, 10, 12 and the postpass with weights removed; the prepass was not measured.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/what-is-replaced-dark.svg">
+  <img src="img/what-is-replaced-light.svg" width="760" alt="Diagram of FSR 4.1.1's fourteen main passes (prepass, model passes 1 to 12, postpass) for two shader sets. This repository rewrites model pass 11 and the postpass with unchanged output and leaves the rest as AMD's. The community set replaces all fourteen: passes 3 and 6 with unchanged output; passes 7, 8, 9 and 11 with a changed rounding rule; passes 1, 2, 4, 5, 10, 12 and the postpass with weights removed; the prepass was not measured.">
+</picture>
 
 For the community set's postpass, the diagram shows the version that writes exposure, which has
 weights removed; its other postpass file only removes branches and gives unchanged output.
@@ -70,7 +73,10 @@ is, not how large.
 | 12 | 0.293 ms | 0.174 ms | differs (96%) |
 | All twelve | 2.42 ms | 2.03 ms | |
 
-<img src="img/model-pass-time-light.svg#gh-light-mode-only" width="760" alt="Bar chart of the time of the twelve model passes at 4K on a Radeon RX 7800 XT: AMD's shaders 2.42 ms; this repository 2.04 ms with unchanged output; community set 2.03 ms with changed output; community set with this repository's pass 11 1.70 ms with changed output."><img src="img/model-pass-time-dark.svg#gh-dark-mode-only" width="760" alt="Bar chart of the time of the twelve model passes at 4K on a Radeon RX 7800 XT: AMD's shaders 2.42 ms; this repository 2.04 ms with unchanged output; community set 2.03 ms with changed output; community set with this repository's pass 11 1.70 ms with changed output.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/model-pass-time-dark.svg">
+  <img src="img/model-pass-time-light.svg" width="760" alt="Bar chart of the time of the twelve model passes at 4K on a Radeon RX 7800 XT: AMD's shaders 2.42 ms; this repository 2.04 ms with unchanged output; community set 2.03 ms with changed output; community set with this repository's pass 11 1.70 ms with changed output.">
+</picture>
 
 - Only passes 3 and 6 are bit-exact, and together they save 0.004 ms on this card.
 - The small differences (passes 7, 8, 9, 11) are the rounding change; the large ones are the
@@ -148,7 +154,10 @@ stable, and more means shimmer.
 | Only the pruned postpass | 50.2 dB | 0.201 | 1.028 | 1.94 |
 | Only the passes with the rounding change | 55.9 dB | 0.080 | 0.915 | 2.04 |
 
-<img src="img/motion-stability-light.svg#gh-light-mode-only" width="760" alt="Bar chart of frame-to-frame change in the moving test scene with the community set, relative to AMD's shaders at 100%: background 175% (0.079 to 0.138), railing bars 125% (0.913 to 1.14), fine stripes 121% (2.04 to 2.47). This repository's shaders equal AMD's."><img src="img/motion-stability-dark.svg#gh-dark-mode-only" width="760" alt="Bar chart of frame-to-frame change in the moving test scene with the community set, relative to AMD's shaders at 100%: background 175% (0.079 to 0.138), railing bars 125% (0.913 to 1.14), fine stripes 121% (2.04 to 2.47). This repository's shaders equal AMD's.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/motion-stability-dark.svg">
+  <img src="img/motion-stability-light.svg" width="760" alt="Bar chart of frame-to-frame change in the moving test scene with the community set, relative to AMD's shaders at 100%: background 175% (0.079 to 0.138), railing bars 125% (0.913 to 1.14), fine stripes 121% (2.04 to 2.47). This repository's shaders equal AMD's.">
+</picture>
 
 - In motion the set is much further from AMD's output than at rest (45 dB against 56 dB).
 - It is less stable: about 75% more frame-to-frame change on the background and 20 to 25% more on

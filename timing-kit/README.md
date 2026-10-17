@@ -8,7 +8,10 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 
 ## In short
 
-<img src="../docs/img/explain-kits-light.svg#gh-light-mode-only" width="760" alt="What the two timing kits measure. The Linux kit times each of FSR 4's fourteen passes on its own. The Windows kit times the whole upscaler in one piece, as a game runs it, with each DLL, and checks that the exact DLL's picture is AMD's."><img src="../docs/img/explain-kits-dark.svg#gh-dark-mode-only" width="760" alt="What the two timing kits measure. The Linux kit times each of FSR 4's fourteen passes on its own. The Windows kit times the whole upscaler in one piece, as a game runs it, with each DLL, and checks that the exact DLL's picture is AMD's.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../docs/img/explain-kits-dark.svg">
+  <img src="../docs/img/explain-kits-light.svg" width="760" alt="What the two timing kits measure. The Linux kit times each of FSR 4's fourteen passes on its own. The Windows kit times the whole upscaler in one piece, as a game runs it, with each DLL, and checks that the exact DLL's picture is AMD's.">
+</picture>
 
 - **What a timing kit is:** a small download that measures how long FSR 4 takes on your graphics chip, with AMD's shaders
   and with this project's, without a game. It installs nothing and changes nothing.
