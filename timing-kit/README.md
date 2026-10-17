@@ -47,11 +47,12 @@ release's DLL also without that change.
 
 - **Shared color taps (exact):** the last shader converts the colors it needs once instead of up to four times. Same picture as AMD's;
   on an RX 7800 XT the last shader is 4 to 6% faster. It needs more registers: on RX 6000 cards, the RX 7600 and integrated graphics
-  it runs half as many groups of threads at once (8 instead of 16), and results from those chips will show whether that makes it
-  slower there. The Windows kit has the exact DLLs with and without it (`2w-`, `4w-...-without-shared-taps`: the exact DLLs of
+  it runs half as many groups of threads at once (8 instead of 16). Results from those chips since: it is not slower there but about
+  1% faster (RX 6000 cards, 14 reports; RX 7600 1.5%; a Radeon 890M 2 to 4%, one report). The Windows kit has the exact DLLs with and without it (`2w-`, `4w-...-without-shared-taps`: the exact DLLs of
   `dll-2026-10-14`); the Linux kit times the shipped postpass against the previous one ("candidate previous").
 - **Register cut (lossy):** the lossy DLL's last shader needs 80 registers instead of 128 on those same chips, so 12 groups of
-  threads run at once instead of 8. Same picture; on an RX 7800 XT it changes nothing measurable. The Windows kit has the lossy DLLs
+  threads run at once instead of 8. Same picture; on an RX 7800 XT it changes nothing measurable. Results from those chips since: it
+  makes the lossy DLL 1 to 2% slower there, not faster, so the next release takes it out. The Windows kit has the lossy DLLs
   with and without it (`3w-`, `5w-...-without-register-cut`); the Linux kit times the lossy postpass both ways.
 - **Windows kit:** also times **Ultra Performance** (render size a third of the output, with the 72 jitter steps FSR asks a game for),
   where this release's lossy DLL skips frames too. Those lines are marked "UP" and are **for Ultra Performance only, not

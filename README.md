@@ -128,9 +128,10 @@ More games and resolutions: [all results](docs/results.md).
 > - **Exact DLL:** its last shader converts each color once instead of up to four times. Same picture as AMD's; at 4K about 0.02 ms
 >   per frame faster than `dll-2026-10-14`'s exact DLL: 3.16 ms against 3.18 (AMD's shaders 5.00 ms; Windows timing kit, RX 7800 XT).
 >   In the game benchmark at 4K Balanced, 0.2% more frames than with `dll-2026-10-14`'s exact DLL.
-> - **For RX 6000 cards, the RX 7600 and integrated graphics:** the lossy DLL's last shader needs 80 registers instead of 128 there,
->   which should help; the exact DLL's new form needs more, which might cost a little. Neither is measured on those chips yet: please
->   run [the timing kit](timing-kit).
+> - **For RX 6000 cards, the RX 7600 and integrated graphics** (measured since with [the timing kit](timing-kit), Windows): the exact
+>   DLL's new form is not slower there but about 1% faster than without it (RX 6000, 14 reports; RX 7600 1.5%; a Radeon 890M 2 to 4%,
+>   one report). The lossy DLL's register change, meant to help these chips, makes it 1 to 2% slower instead; the next release takes it
+>   out of both lossy DLLs.
 
 <a href="docs/releases/dll-2026-10-15.md"><img src="docs/img/rel-2026-10-15-speed-light.svg#gh-light-mode-only" width="100%" alt="ULTRA PERFORMANCE ONLY. Bar chart of FSR 4's time per frame in Ultra Performance, lower is better, on a Radeon RX 7800 XT (Windows timing kit under Proton): 1080p output AMD's shaders 0.94 ms, the lossy DLL of dll-2026-10-14 0.92 ms (no frame skip in Ultra Performance), this release's lossy DLL 0.76 ms; 1440p 2.10, 1.46, 1.17 ms; 4K 4.64, 3.18, 2.50 ms. Not representative of other modes: at the Balanced preset's size this release's lossy DLL takes the same time as dll-2026-10-14."><img src="docs/img/rel-2026-10-15-speed-dark.svg#gh-dark-mode-only" width="100%" alt="ULTRA PERFORMANCE ONLY. Bar chart of FSR 4's time per frame in Ultra Performance, lower is better, on a Radeon RX 7800 XT (Windows timing kit under Proton): 1080p output AMD's shaders 0.94 ms, the lossy DLL of dll-2026-10-14 0.92 ms (no frame skip in Ultra Performance), this release's lossy DLL 0.76 ms; 1440p 2.10, 1.46, 1.17 ms; 4K 4.64, 3.18, 2.50 ms. Not representative of other modes: at the Balanced preset's size this release's lossy DLL takes the same time as dll-2026-10-14."></a>
 
