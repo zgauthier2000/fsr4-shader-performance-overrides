@@ -721,10 +721,7 @@ The same with grain in every frame, in the piece where this release gained most:
 
 *Written for `dll-2026-10-09`: "this release" below means that one. The particle picture is redrawn with each release and now shows the current lossy build, whose large particles have stronger seams.*
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="img/lossy-improved-dark.svg">
-  <img src="img/lossy-improved-light.svg" width="760" alt="What changed in the lossy DLL, measured in the test rig at 4K. Share of a particle drawn without motion vectors that is shown where it truly is, on the frames that skip the model: tiny fast sparks, 16 percent in the previous release, 77 percent now, 83 percent with AMD's shaders; tiny slow embers, 67, 77 and 81 percent; larger particles, 70, 98 and 98 percent. How far a still picture is from AMD's: 0.71 dB in the previous release, 0.25 dB now.">
-</picture>
+<img src="img/lossy-improved-light.svg#gh-light-mode-only" width="760" alt="What changed in the lossy DLL, measured in the test rig at 4K. Share of a particle drawn without motion vectors that is shown where it truly is, on the frames that skip the model: tiny fast sparks, 16 percent in the previous release, 77 percent now, 83 percent with AMD's shaders; tiny slow embers, 67, 77 and 81 percent; larger particles, 70, 98 and 98 percent. How far a still picture is from AMD's: 0.71 dB in the previous release, 0.25 dB now."><img src="img/lossy-improved-dark.svg#gh-dark-mode-only" width="760" alt="What changed in the lossy DLL, measured in the test rig at 4K. Share of a particle drawn without motion vectors that is shown where it truly is, on the frames that skip the model: tiny fast sparks, 16 percent in the previous release, 77 percent now, 83 percent with AMD's shaders; tiny slow embers, 67, 77 and 81 percent; larger particles, 70, 98 and 98 percent. How far a still picture is from AMD's: 0.71 dB in the previous release, 0.25 dB now.">
 
 - **Particles, sparks and embers no longer flicker or move at half the frame rate.** Games draw
   them without telling FSR that they move, and the previous lossy DLL kept them where they had
@@ -1164,10 +1161,7 @@ Three changes today. The image is still byte-for-byte the same.
 Together with the "phased" postpass from 2026-10-03, FSR 4 now reads about 30% less memory per
 frame than with AMD's shaders.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="img/memory-traffic-dark.svg">
-  <img src="img/memory-traffic-light.svg" width="760" alt="Bar chart: memory read by FSR 4 per frame at 4K, AMD's shaders against this release. Postpass 2,291 to 732 MB, model pass 11 984 to 233 MB, prepass 1,715 to 1,707 MB, the other eleven model passes 2,649 to 2,645 MB, all passes 7,639 to 5,317 MB.">
-</picture>
+<img src="img/memory-traffic-light.svg#gh-light-mode-only" width="760" alt="Bar chart: memory read by FSR 4 per frame at 4K, AMD's shaders against this release. Postpass 2,291 to 732 MB, model pass 11 984 to 233 MB, prepass 1,715 to 1,707 MB, the other eleven model passes 2,649 to 2,645 MB, all passes 7,639 to 5,317 MB."><img src="img/memory-traffic-dark.svg#gh-dark-mode-only" width="760" alt="Bar chart: memory read by FSR 4 per frame at 4K, AMD's shaders against this release. Postpass 2,291 to 732 MB, model pass 11 984 to 233 MB, prepass 1,715 to 1,707 MB, the other eleven model passes 2,649 to 2,645 MB, all passes 7,639 to 5,317 MB.">
 
 Measured again on 2026-10-05 with everything the repository now ships (the prepass and the other
 model-pass rewrites included). Those later rewrites save time by doing less arithmetic, and the

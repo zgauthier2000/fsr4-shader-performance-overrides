@@ -142,8 +142,8 @@ for name, th in THEMES.items():
 md = [f'# Downloads of the release files', '', f'**Total downloads: {total:,}**', '',
       f'Updated {now} UTC; counted since {since} UTC. Files that were replaced before then are not in it.'
       + (f' Since counting began: {days[-1][2] - days[0][2]:,} downloads in {span / 24:.1f} days, {per24:,.0f} per 24 hours on average.' if per24 is not None else ''), '',
-      '<picture>', '  <source media="(prefers-color-scheme: dark)" srcset="downloads-dark.svg">',
-      '  <img src="downloads-light.svg" width="760" alt="Two charts: the total downloads of the release files at each day\'s reading, and the downloads added per day. The figures are in the table below.">', '</picture>', '',
+      # two images marked for GitHub's light and dark themes (a <picture> with prefers-color-scheme follows the browser, not GitHub's theme)
+      *[f'<img src="downloads-{t}.svg#gh-{t}-mode-only" width="760" alt="Two charts: the total downloads of the release files at each day\'s reading, and the downloads added per day. The figures are in the table below.">' for t in ('light', 'dark')], '',
       '## Per day', '',
       'One line per day (UTC), from that day\'s last reading. "Added" is what came in since the last reading of the day before; the readings are not exactly 24 hours apart, so the hours each one covers are given.', '',
       '| Day | Read at | Total | Added | Hours covered | Added: DLLs, desktop | Added: DLLs, integrated | Added: Windows kit | Added: Linux kit |', '|---|---|---|---|---|---|---|---|---|']

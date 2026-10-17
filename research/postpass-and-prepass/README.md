@@ -500,10 +500,7 @@ pass trivially, so the 28 comparisons above were all run with the cache off.
 
 ## The Windows DLL's last pass, and code left in the files (release `dll-2026-10-09`)
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../../docs/img/explain-rows-dark.svg">
-  <img src="../../docs/img/explain-rows-light.svg" width="760" alt="Two changes inside the Windows DLLs. AMD's shader writes its output pixels in a scattered order; the rewrite writes them row after row. The previous DLL carried 45 exchanges between threads in one shader file where 13 are used; this release keeps only the 13. Measured so far on one Linux machine: the last pass alone is faster, the whole upscaler is the same; Windows is not measured yet.">
-</picture>
+<img src="../../docs/img/explain-rows-light.svg#gh-light-mode-only" width="760" alt="Two changes inside the Windows DLLs. AMD's shader writes its output pixels in a scattered order; the rewrite writes them row after row. The previous DLL carried 45 exchanges between threads in one shader file where 13 are used; this release keeps only the 13. Measured so far on one Linux machine: the last pass alone is faster, the whole upscaler is the same; Windows is not measured yet."><img src="../../docs/img/explain-rows-dark.svg#gh-dark-mode-only" width="760" alt="Two changes inside the Windows DLLs. AMD's shader writes its output pixels in a scattered order; the rewrite writes them row after row. The previous DLL carried 45 exchanges between threads in one shader file where 13 are used; this release keeps only the 13. Measured so far on one Linux machine: the last pass alone is faster, the whole upscaler is the same; Windows is not measured yet.">
 
 **In plain words:** the Windows DLL already wrote two of the last pass's three images row by row; now it does so for all
 three. And the DLL used to contain both our new code and the old code it replaced, trusting the graphics driver to notice

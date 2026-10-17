@@ -85,10 +85,7 @@ Each links to the full numbers and the results screenshots.
 
 ## By GPU type
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="img/gpu-gain-dark.svg">
-  <img src="img/gpu-gain-light.svg" width="760" alt="Bar chart of the average reduction in FSR 4's time per frame. Desktop RX 7000: 29 percent at 4K output, 14 percent at 1440p. Desktop RX 6000: 30 percent at 4K, 5 percent at 1440p, 2 percent at 1080p. Integrated Radeon 780M: 2 percent at 1080p.">
-</picture>
+<img src="img/gpu-gain-light.svg#gh-light-mode-only" width="760" alt="Bar chart of the average reduction in FSR 4's time per frame. Desktop RX 7000: 29 percent at 4K output, 14 percent at 1440p. Desktop RX 6000: 30 percent at 4K, 5 percent at 1440p, 2 percent at 1080p. Integrated Radeon 780M: 2 percent at 1080p."><img src="img/gpu-gain-dark.svg#gh-dark-mode-only" width="760" alt="Bar chart of the average reduction in FSR 4's time per frame. Desktop RX 7000: 29 percent at 4K output, 14 percent at 1440p. Desktop RX 6000: 30 percent at 4K, 5 percent at 1440p, 2 percent at 1080p. Integrated Radeon 780M: 2 percent at 1080p.">
 
 The chart averages the reports below. The RX 7800 XT rows are this repository's own measurements
 on Linux; the others are single readings from testers' screenshots. All of them are for the exact
