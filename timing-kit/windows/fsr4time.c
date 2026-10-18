@@ -13,6 +13,10 @@
 //   fsr4time.exe --minutes N   the time the rounds may take (default 15)
 //   fsr4time.exe --no-questions   asks nothing at the end and sends nothing
 //   fsr4time.exe --send-test   sends one message that says it is a test (to check that sending works)
+//   FSR4TIME_CRASHTEST=<name>  (for testing) the run of the DLL <name> reads address 0x18C, as a crash inside a driver would
+//   FSR4TIME_HANGTEST=<name>   (for testing) the run of the DLL <name> never ends, as a hung driver call would
+//   FSR4TIME_LIMIT=<seconds>   (for testing) the time limit of one DLL's run (default RUN_LIMIT_MIN minutes)
+//   FSR4TIME_DRYSEND=<file>    (for testing) what would be sent is written to <file> instead
 //
 // What is timed: the GPU time of one upscale call (prepass, 12 model passes, postpass and the small shaders around
 // them), from a timestamp before to one after, 200 calls back to back after 40 to warm up. For a lossy DLL the
@@ -21,7 +25,7 @@
 //
 // Build (llvm-mingw): x86_64-w64-mingw32-clang -std=c11 -O1 -DZSTD_DISABLE_ASM -I<FidelityFX>/api/include -I<FidelityFX>/upscalers/include
 //                     -Izstd/lib -Izstd/lib/common fsr4time.c zstd/lib/common/*.c zstd/lib/decompress/*.c -o fsr4time.exe
-//                     -ld3d12 -ldxgi -ldxguid -lwinhttp -ladvapi32 -static
+//                     -ld3d12 -ldxgi -ldxguid -lwinhttp -ladvapi32 -lversion -static
 // The DLLs come as one pack, dlls.pack.zst (made by the project's mkpack.py and zstd -19 --long=27). Each run takes its DLL out of the pack next to the
 // program and the next run overwrites it, so one DLL at a time is on disk (none at the end); DLLs a tester adds are read from dlls\<name>\.
 // hook.inc is written by mkhook.py (the address results are sent to, scrambled; see ../submit.py).
@@ -30,6 +34,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define _WINDOWS
 #include <windows.h>
+#include <winver.h>
 #include <winhttp.h>
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -47,11 +52,13 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-15.3, experimental"
+#define KIT_VERSION "windows 2026-10-18"
 #define WARM 40
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
 #define MAXROUNDS 8
+#define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
+#define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL
 
 static FILE* out;      // the results file of this run
 static void Say(const char* fmt, ...) {
@@ -59,6 +66,41 @@ static void Say(const char* fmt, ...) {
     va_start(a, fmt); vprintf(fmt, a); va_end(a);
     if (out) { va_start(a, fmt); vfprintf(out, fmt, a); va_end(a); fflush(out); }
     fflush(stdout);
+}
+
+// A run that crashes (inside the loader, the upscaler DLL or the driver) used to stop on Windows' "Application Error" box, once per
+// DLL, and the tester got no summary (issue #34). Now the run writes what crashed and where into the results as a FAILED line (the
+// summary's failure list, which is also sent) and ends; the parent goes on with the next DLL. Exit code 3 = crash recorded by the run.
+static const char* run_name = "?";
+static void FileVersion(const char* path, char* v, size_t n) {
+    v[0] = 0;
+    DWORD h = 0, sz = GetFileVersionInfoSizeA(path, &h);
+    if (!sz || sz > 1 << 20) return;
+    void* buf = malloc(sz);
+    VS_FIXEDFILEINFO* fi = NULL;
+    UINT len = 0;
+    if (buf && GetFileVersionInfoA(path, 0, sz, buf) && VerQueryValueA(buf, "\\", (void**)&fi, &len) && fi && len >= sizeof(*fi))
+        snprintf(v, n, " %u.%u.%u.%u", (unsigned)HIWORD(fi->dwFileVersionMS), (unsigned)LOWORD(fi->dwFileVersionMS), (unsigned)HIWORD(fi->dwFileVersionLS), (unsigned)LOWORD(fi->dwFileVersionLS));
+    free(buf);
+}
+static LONG WINAPI Crashed(EXCEPTION_POINTERS* e) {
+    const EXCEPTION_RECORD* r = e->ExceptionRecord;
+    const char* at = (const char*)r->ExceptionAddress;
+    HMODULE m = NULL;
+    char mod[MAX_PATH] = "unknown module", ver[48] = "", extra[96] = "";
+    if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, at, &m) && m) {
+        GetModuleFileNameA(m, mod, sizeof(mod));
+        FileVersion(mod, ver, sizeof(ver));
+    }
+    const char* b = strrchr(mod, '\\');
+    b = b ? b + 1 : mod;
+    if (r->ExceptionCode == EXCEPTION_ACCESS_VIOLATION && r->NumberParameters >= 2)
+        snprintf(extra, sizeof(extra), ", %s address 0x%llx", r->ExceptionInformation[0] == 1 ? "writing" : r->ExceptionInformation[0] == 8 ? "running code at" : "reading",
+                 (unsigned long long)r->ExceptionInformation[1]);
+    Say("R|%s|FAILED|crashed: exception 0x%08lx in %s%s at +0x%llx%s\n", run_name, (unsigned long)r->ExceptionCode, b, ver,
+        (unsigned long long)(m ? (uintptr_t)(at - (const char*)m) : (uintptr_t)at), extra);
+    TerminateProcess(GetCurrentProcess(), 3);
+    return EXCEPTION_EXECUTE_HANDLER;
 }
 
 #define CHECK(x)                                                                                              \
@@ -442,23 +484,46 @@ static void HookUrl(wchar_t* host, wchar_t* path) {
     path[i] = 0;
 }
 
-static bool SendOne(const char* text, int len) {
-    static char body[8192];
-    int n = snprintf(body, sizeof(body), "{\"allowed_mentions\":{\"parse\":[]},\"content\":\"");
-    for (int i = 0; i < len; ++i) {
-        const char c = text[i];
-        if (c == '"' || c == '\\') { body[n++] = '\\'; body[n++] = c; }
-        else if (c == '\n') { body[n++] = '\\'; body[n++] = 'n'; }
-        else if ((unsigned char)c >= 32) body[n++] = c;
+// The results go to the project's channel as one message: a short line (the report ID, the card, how the run went) with the whole summary
+// attached as a file. (Kits before 2026-10-18 pasted the summary in pieces of up to 1,800 characters, the channel's limit being 2,000, and
+// the pieces of one report could end up apart.)
+#define BOUNDARY "fsr4kit-7c3e9a1b5d2f8e60"
+static void JsonText(char* d, size_t cap, const char* s) {      // s as the inside of a JSON string (printable ASCII and line ends only)
+    size_t n = 0;
+    for (; *s && n + 3 < cap; ++s) {
+        const unsigned char c = (unsigned char)*s;
+        if (c == '"' || c == '\\') { d[n++] = '\\'; d[n++] = (char)c; }
+        else if (c == '\n') { d[n++] = '\\'; d[n++] = 'n'; }
+        else if (c >= 32 && c < 127) d[n++] = (char)c;
     }
-    n += snprintf(body + n, sizeof(body) - n, "\"}");
+    d[n] = 0;
+}
+static bool Send(const char* message, const char* filename, const char* file) {
+    static char body[200000];
+    char msg[2048];
+    JsonText(msg, sizeof(msg), message);
+    int n = snprintf(body, sizeof(body),
+                     "--" BOUNDARY "\r\nContent-Disposition: form-data; name=\"payload_json\"\r\nContent-Type: application/json\r\n\r\n"
+                     "{\"allowed_mentions\":{\"parse\":[]},\"content\":\"%s\",\"attachments\":[{\"id\":0,\"filename\":\"%s\"}]}\r\n"
+                     "--" BOUNDARY "\r\nContent-Disposition: form-data; name=\"files[0]\"; filename=\"%s\"\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n",
+                     msg, filename, filename);
+    const int len = (int)strlen(file);
+    if (n < 0 || n + len + 64 > (int)sizeof(body)) return false;
+    memcpy(body + n, file, (size_t)len); n += len;
+    n += snprintf(body + n, sizeof(body) - n, "\r\n--" BOUNDARY "--\r\n");
+    if (getenv("FSR4TIME_DRYSEND")) {      // for testing: the request's body goes to this file instead
+        FILE* t = fopen(getenv("FSR4TIME_DRYSEND"), "wb");
+        if (t) { fwrite(body, 1, (size_t)n, t); fclose(t); }
+        printf("Test: written to %s, nothing sent.\n", getenv("FSR4TIME_DRYSEND"));
+        return t != NULL;
+    }
     wchar_t host[128], path[256];
     HookUrl(host, path);
     bool ok = false;
     HINTERNET s = WinHttpOpen(L"fsr4-timing-kit", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
     HINTERNET c = s ? WinHttpConnect(s, host, INTERNET_DEFAULT_HTTPS_PORT, 0) : NULL;
     HINTERNET r = c ? WinHttpOpenRequest(c, L"POST", path, NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE) : NULL;
-    if (r && WinHttpSendRequest(r, L"Content-Type: application/json\r\n", (DWORD)-1, body, (DWORD)n, (DWORD)n, 0) && WinHttpReceiveResponse(r, NULL)) {
+    if (r && WinHttpSendRequest(r, L"Content-Type: multipart/form-data; boundary=" BOUNDARY "\r\n", (DWORD)-1, body, (DWORD)n, (DWORD)n, 0) && WinHttpReceiveResponse(r, NULL)) {
         DWORD code = 0, len2 = sizeof(code);
         WinHttpQueryHeaders(r, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, NULL, &code, &len2, NULL);
         ok = code >= 200 && code < 300;
@@ -466,21 +531,6 @@ static bool SendOne(const char* text, int len) {
     if (r) WinHttpCloseHandle(r);
     if (c) WinHttpCloseHandle(c);
     if (s) WinHttpCloseHandle(s);
-    return ok;
-}
-
-// The channel takes 2000 characters a message: the summary goes in pieces that end at a line end.
-static bool Send(const char* text) {
-    const int total = (int)strlen(text);
-    bool ok = true;
-    for (int at = 0; at < total && ok;) {
-        int len = total - at > 1800 ? 1800 : total - at;
-        if (at + len < total)
-            while (len > 1 && text[at + len - 1] != '\n') --len;
-        ok = SendOne(text + at, len);
-        at += len;
-        Sleep(600);
-    }
     return ok;
 }
 
@@ -793,13 +843,110 @@ static void HeaderEnd(void) {
     printf("\n"); fflush(stdout);
 }
 
-struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXROUNDS]; bool hashdiff; char diff[160]; };
+struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXRUNS]; bool hashdiff; char diff[160]; };
 // the figure the summary gives: the mean of a DLL's runs (one per round; fewer if a run failed)
 static double Val(const struct Row* w) { double t = 0; for (int i = 0; i < w->n; ++i) t += w->runs[i]; return w->n ? t / w->n : 0; }
 static double Spread(const struct Row* w) {      // (largest - smallest) of the runs, as a share of the mean
     double lo = w->runs[0], hi = w->runs[0];
     for (int i = 1; i < w->n; ++i) { if (w->runs[i] < lo) lo = w->runs[i]; if (w->runs[i] > hi) hi = w->runs[i]; }
     return Val(w) > 0 ? (hi - lo) / Val(w) : 0;
+}
+// The results file of the runs so far (results-raw.txt) as rows: one per DLL, size and scene, with each run's figure. gpu and fails (may be
+// NULL) receive the card's line and the lines of runs that failed. Used for the re-timing and for the summary.
+static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t gl, char* fails, size_t fsz) {
+    int nr = 0, fl = 0;
+    char line[512];
+    if (fails && fsz) fails[0] = 0;
+    FILE* r = fopen(raw, "r");
+    while (r && fgets(line, sizeof(line), r)) {
+        line[strcspn(line, "\r\n")] = 0;
+        if (line[0] == 'G' && line[1] == '|' && gpu) snprintf(gpu, gl, "%s", line + 2);
+        if (line[0] == 'D' && line[1] == '|') {      // how a DLL's later run differed from its first (see CompareBlocks)
+            char dn[64], dv[64], ds[16], dc[8]; unsigned nd, nb, x0, y0, x1, y1; double worst;
+            if (sscanf(line, "D|%63[^|]|%63[^|]|%15[^|]|%7[^|]|%u|%u|%u|%u|%u|%u|%lf", dn, dv, ds, dc, &nd, &nb, &x0, &y0, &x1, &y1, &worst) == 11)
+                for (int j = 0; j < nr; ++j)
+                    if (!strcmp(rows[j].name, dn) && !strcmp(rows[j].ver, dv) && !strcmp(rows[j].size, ds) && !strcmp(rows[j].scene, dc))
+                        snprintf(rows[j].diff, sizeof(rows[j].diff), ": %u of %u blocks of %dx%d pixels differ, within x %u..%u y %u..%u, largest shift of a block's mean %.6f of full scale", nd, nb, BLK, BLK, x0, x1, y0, y1, worst);
+            continue;
+        }
+        if (line[0] != 'R' || line[1] != '|') continue;
+        if (strstr(line, "|FAILED|")) { if (fails && fl < (int)fsz) fl += snprintf(fails + fl, fsz - fl, "%s\n", line + 2); continue; }
+        if (nr >= max) continue;
+        struct Row* w = &rows[nr];
+        char render[16];
+        double fastest;
+        if (sscanf(line, "R|%63[^|]|%63[^|]|%15[^|]|%15[^|]|%7[^|]|%lf|%lf|%lf|%lf|%lf|%19s", w->name, w->ver, w->size, render, w->scene, &w->mean, &w->med, &w->even,
+                   &w->odd, &fastest, w->hash) == 11) {
+            struct Row* first = NULL;      // this DLL's first run at this size and scene, if this line is a later one
+            for (int j = 0; j < nr && !first; ++j)
+                if (!strcmp(rows[j].name, w->name) && !strcmp(rows[j].ver, w->ver) && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) first = &rows[j];
+            if (first) {
+                if (first->n < MAXRUNS) {
+                    first->even = (first->even * first->n + w->even) / (first->n + 1); first->odd = (first->odd * first->n + w->odd) / (first->n + 1);
+                    first->runs[first->n++] = w->mean;
+                }
+                if (strcmp(first->hash, w->hash)) first->hashdiff = true;
+            } else { w->n = 1; w->runs[0] = w->mean; w->hashdiff = false; w->diff[0] = 0; ++nr; }
+        }
+    }
+    if (r) fclose(r);
+    return nr;
+}
+static bool RowOf(const struct Row* w, const char* dll) {      // the row is of that DLL (a DLL with several variants has "<name>, variant k of n")
+    const size_t k = strlen(dll);
+    return !strncmp(w->name, dll, k) && (w->name[k] == 0 || w->name[k] == ',');
+}
+
+// One DLL's run, in a process of its own, with a time limit: a driver call that never returns (seen on GeForce GTX 16 cards with one of the
+// earlier kits' DLLs) used to stop the whole kit there. A run that takes longer than the limit is stopped, noted in the summary's list of
+// failures, and the kit goes on with the next DLL. what: the progress text after the DLL's name.
+static bool stopped_holds;      // a stopped run may still hold the DLL file for a while (its process does not always end at once)
+static void RunDll(const char* name, int inpack, const char* base, const char* raw, bool quick, const char* what) {
+    char src[MAX_PATH], cmd[1024];
+    snprintf(src, sizeof(src), "dlls\\%s\\amd_fidelityfx_upscaler_dx12.dll", name);
+    if (inpack >= 0) {
+        if (!PackExtract((uint32_t)inpack, "amd_fidelityfx_upscaler_dx12.dll")) {
+            printf(stopped_holds ? "%s: could not be put in place (a stopped run still holds the file), skipped\n" : "%s: could not take it out of the DLL pack (please download the kit again), skipped\n", name);
+            return;
+        }
+    } else if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", name); return; }
+    printf("%s %s ...\n", name, what); fflush(stdout);
+    snprintf(cmd, sizeof(cmd), "\"%sfsr4time.exe\" --run \"%s\" \"%s\"%s", base, name, raw, quick ? " quick" : "");
+    STARTUPINFOA si = {.cb = sizeof(si)};
+    PROCESS_INFORMATION pi;
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) { printf("could not start a run for %s\n", name); return; }
+    const char* lim = getenv("FSR4TIME_LIMIT");
+    const DWORD limit = lim && atoi(lim) > 0 ? (DWORD)atoi(lim) * 1000u : RUN_LIMIT_MIN * 60000u;
+    if (WaitForSingleObject(pi.hProcess, limit) == WAIT_TIMEOUT) {
+        TerminateProcess(pi.hProcess, 4);
+        stopped_holds = WaitForSingleObject(pi.hProcess, 15000) == WAIT_TIMEOUT;
+        char t[32];
+        if (limit % 60000u) snprintf(t, sizeof(t), "%u seconds", (unsigned)(limit / 1000u)); else snprintf(t, sizeof(t), "%u minutes", (unsigned)(limit / 60000u));
+        printf("%s: did not finish within %s, stopped; it is in the summary's list of failures\n", name, t);
+        FILE* rf = fopen(raw, "a");
+        if (rf) { fprintf(rf, "R|%s|FAILED|did not finish within %s (time limit), stopped\n", name, t); fclose(rf); }
+    } else {
+        DWORD code = 0;
+        GetExitCodeProcess(pi.hProcess, &code);
+        if (code == 3) printf("%s: the run crashed; what crashed and where is in the summary's list of failures\n", name);
+        else if (code >= 0xC0000000u) {      // ended by an exception the run could not report itself
+            printf("%s: the run ended with exception 0x%08lx\n", name, (unsigned long)code);
+            FILE* rf = fopen(raw, "a");
+            if (rf) { fprintf(rf, "R|%s|FAILED|the run ended with exception 0x%08lx\n", name, (unsigned long)code); fclose(rf); }
+        }
+    }
+    CloseHandle(pi.hProcess); CloseHandle(pi.hThread);
+    fflush(stdout);
+}
+// A report ID: names one report in the channel, the results file and anything the tester writes about it (8 hex digits, from the clock,
+// the process and the card's line; not a secret and not tied to the PC)
+static void ReportId(char* id, size_t n, const char* gpu) {
+    LARGE_INTEGER q;
+    QueryPerformanceCounter(&q);
+    uint64_t h = 1469598103934665603ull ^ (uint64_t)q.QuadPart ^ ((uint64_t)GetCurrentProcessId() << 32) ^ GetTickCount64();
+    for (const char* c = gpu; *c; ++c) { h ^= (uint8_t)*c; h *= 1099511628211ull; }
+    h ^= h >> 31; h *= 0xbf58476d1ce4e5b9ull; h ^= h >> 29;
+    snprintf(id, n, "%08llX", (unsigned long long)(h & 0xffffffffull));
 }
 
 int main(int argc, char** argv) {
@@ -809,10 +956,16 @@ int main(int argc, char** argv) {
     SetCurrentDirectoryA(base);
     if (argc >= 4 && !strcmp(argv[1], "--run")) {
         out = fopen(argv[3], "a");
+        run_name = argv[2];
+        SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);      // no Windows error box: Crashed() reports instead
+        SetUnhandledExceptionFilter(Crashed);
+        if (getenv("FSR4TIME_CRASHTEST") && !strcmp(getenv("FSR4TIME_CRASHTEST"), argv[2])) printf("%d\n", *(volatile int*)(uintptr_t)0x18C);      // test of the above
+        if (getenv("FSR4TIME_HANGTEST") && !strcmp(getenv("FSR4TIME_HANGTEST"), argv[2])) Sleep(INFINITE);      // test of the time limit (RunDll)
         return RunOne(argv[2], argc > 4 && !strcmp(argv[4], "quick"));
     }
     if (argc > 1 && !strcmp(argv[1], "--send-test")) {      // for the project: checks that sending works, with a message that says what it is
-        const bool ok = Send("Test message from the timing kit's Windows program (kit " KIT_VERSION "), sent by the project while setting it up.\nNot a result: please ignore.");
+        const bool ok = Send("Test message from the timing kit's Windows program (kit " KIT_VERSION "), sent by the project while setting it up. Not a result: please ignore.",
+                             "send-test.txt", "Test file from the timing kit's Windows program (kit " KIT_VERSION "). Not a result.\n");
         FILE* t = fopen("send-test.txt", "w");
         if (t) { fprintf(t, "%s\n", ok ? "sent" : "failed"); fclose(t); }
         printf("%s\n", ok ? "sent" : "failed");
@@ -883,18 +1036,39 @@ int main(int argc, char** argv) {
             if (!more) break;
         }
         const int i = rounds % 2 ? nd - 1 - k : k;
-        char src[MAX_PATH], cmd[1024];
-        snprintf(src, sizeof(src), "dlls\\%s\\amd_fidelityfx_upscaler_dx12.dll", names[i]);
-        if (inpack[i] >= 0) {
-            if (!PackExtract((uint32_t)inpack[i], "amd_fidelityfx_upscaler_dx12.dll")) { printf("%s: could not take it out of the DLL pack (please download the kit again), skipped\n", names[i]); continue; }
-        } else if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", names[i]); continue; }
-        printf("%s (round %d, DLL %d of %d) ...\n", names[i], rounds + 1, k + 1, nd); fflush(stdout);
-        snprintf(cmd, sizeof(cmd), "\"%sfsr4time.exe\" --run \"%s\" \"%s\"%s", base, names[i], raw, quick ? " quick" : "");
-        STARTUPINFOA si = {.cb = sizeof(si)};
-        PROCESS_INFORMATION pi;
-        if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) { printf("could not start a run for %s\n", names[i]); continue; }
-        WaitForSingleObject(pi.hProcess, INFINITE);
-        CloseHandle(pi.hProcess); CloseHandle(pi.hThread);
+        char what[64];
+        snprintf(what, sizeof(what), "(round %d, DLL %d of %d)", rounds + 1, k + 1, nd);
+        RunDll(names[i], inpack[i], base, raw, quick, what);
+    }
+    // Re-timing: the time left after the rounds goes to DLLs whose runs disagreed by more than 3% at some size (in the reports of kit 2026-10-15.3,
+    // repeats disagreed by a median of 5%, a tenth of them by over 50%): one more run each, the most unsteady first, while a run still fits in the
+    // time given (a run's length estimated from the rounds); up to MAXRUNS runs per DLL.
+    int retimed = 0;
+    if (!once && rounds >= 2) {
+        const double per = (double)(GetTickCount64() - t0) / 60000.0 / (rounds * nd);
+        bool room = true;
+        for (int pass = 0; room && pass < MAXRUNS - MAXROUNDS; ++pass) {
+            static struct Row rr[256];
+            const int n = Collect(raw, rr, 256, NULL, 0, NULL, 0);
+            double sp[32]; int fewest[32], order[32], no = 0;
+            for (int i = 0; i < nd; ++i) {
+                sp[i] = 0; fewest[i] = MAXRUNS;
+                for (int j = 0; j < n; ++j)
+                    if (RowOf(&rr[j], names[i])) { if (Spread(&rr[j]) > sp[i]) sp[i] = Spread(&rr[j]); if (rr[j].n < fewest[i]) fewest[i] = rr[j].n; }
+                if (sp[i] > 0.03 && fewest[i] < MAXRUNS) order[no++] = i;
+            }
+            for (int a = 0; a < no; ++a)
+                for (int b = a + 1; b < no; ++b)
+                    if (sp[order[b]] > sp[order[a]]) { const int t = order[a]; order[a] = order[b]; order[b] = t; }
+            if (!no) break;
+            for (int q = 0; q < no; ++q) {
+                if ((double)(GetTickCount64() - t0) / 60000.0 + per * 1.2 > budget) { room = false; break; }
+                char what[96];
+                snprintf(what, sizeof(what), "(timed again: its runs differed by up to %.0f%%)", 100.0 * sp[order[q]]);
+                RunDll(names[order[q]], inpack[order[q]], base, raw, quick, what);
+                ++retimed;
+            }
+        }
     }
     DeleteFileA("amd_fidelityfx_upscaler_dx12.dll");
     DeleteBlockRecords();
@@ -902,44 +1076,21 @@ int main(int argc, char** argv) {
 
     // summary
     static struct Row rows[256];
-    int nr = 0;
-    char gpu[256] = "?", line[512];
-    static char summary[65536];
+    char gpu[256] = "?";
+    static char summary[65536], fails[4096];
     int sn = 0;
-    FILE* r = fopen(raw, "r");
-    static char fails[1024];
-    int fl = 0;
-    while (r && fgets(line, sizeof(line), r)) {
-        line[strcspn(line, "\r\n")] = 0;
-        if (line[0] == 'G' && line[1] == '|') snprintf(gpu, sizeof(gpu), "%s", line + 2);
-        if (line[0] == 'D' && line[1] == '|') {      // how a DLL's later run differed from its first (see CompareBlocks)
-            char dn[64], dv[64], ds[16], dc[8]; unsigned nd, nb, x0, y0, x1, y1; double worst;
-            if (sscanf(line, "D|%63[^|]|%63[^|]|%15[^|]|%7[^|]|%u|%u|%u|%u|%u|%u|%lf", dn, dv, ds, dc, &nd, &nb, &x0, &y0, &x1, &y1, &worst) == 11)
-                for (int j = 0; j < nr; ++j)
-                    if (!strcmp(rows[j].name, dn) && !strcmp(rows[j].ver, dv) && !strcmp(rows[j].size, ds) && !strcmp(rows[j].scene, dc))
-                        snprintf(rows[j].diff, sizeof(rows[j].diff), ": %u of %u blocks of %dx%d pixels differ, within x %u..%u y %u..%u, largest shift of a block's mean %.6f of full scale", nd, nb, BLK, BLK, x0, x1, y0, y1, worst);
-            continue;
-        }
-        if (line[0] != 'R' || line[1] != '|') continue;
-        if (strstr(line, "|FAILED|")) { fl += snprintf(fails + fl, sizeof(fails) - fl, "%s\n", line + 2); continue; }
-        struct Row* w = &rows[nr];
-        char render[16];
-        double fastest;
-        if (nr < 256 && sscanf(line, "R|%63[^|]|%63[^|]|%15[^|]|%15[^|]|%7[^|]|%lf|%lf|%lf|%lf|%lf|%19s", w->name, w->ver, w->size, render, w->scene, &w->mean, &w->med, &w->even,
-                               &w->odd, &fastest, w->hash) == 11) {
-            struct Row* first = NULL;      // this DLL's first run at this size and scene, if this line is a later one
-            for (int j = 0; j < nr && !first; ++j)
-                if (!strcmp(rows[j].name, w->name) && !strcmp(rows[j].ver, w->ver) && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) first = &rows[j];
-            if (first) {
-                if (first->n < MAXROUNDS) {
-                    first->even = (first->even * first->n + w->even) / (first->n + 1); first->odd = (first->odd * first->n + w->odd) / (first->n + 1);
-                    first->runs[first->n++] = w->mean;
-                }
-                if (strcmp(first->hash, w->hash)) first->hashdiff = true;
-            } else { w->n = 1; w->runs[0] = w->mean; w->hashdiff = false; ++nr; }
-        }
-    }
-    if (r) fclose(r);
+    const int nr = Collect(raw, rows, 256, gpu, sizeof(gpu), fails, sizeof(fails));
+    const int fl = (int)strlen(fails);
+    char id[16];
+    ReportId(id, sizeof(id), gpu);
+    // RX 6000 cards (Navi 21 to 24): the percentages are against 1b (AMD's shaders with the dot products split), not AMD's own: under Windows
+    // these cards show ghosting with AMD's original form, so 1b is the picture and the speed to compare with there
+    unsigned ven = 0, dev = 0;
+    const char* pc = strstr(gpu, "(PCI ");
+    if (pc) sscanf(pc, "(PCI %x:%x", &ven, &dev);
+    const bool rx6000 = ven == 0x1002 && dev >= 0x73A0 && dev <= 0x743F;
+    const char* refname = NULL;
+    for (int j = 0; j < nr && rx6000 && !refname; ++j) if (!strncmp(rows[j].name, "1b-", 3)) refname = rows[j].name;
     OSVERSIONINFOEXW vi = {.dwOSVersionInfoSize = sizeof(vi)};
     typedef LONG(WINAPI * RtlGetVersionFn)(OSVERSIONINFOEXW*);
     RtlGetVersionFn rgv = (RtlGetVersionFn)(void*)GetProcAddress(GetModuleHandleA("ntdll.dll"), "RtlGetVersion");
@@ -949,16 +1100,20 @@ int main(int argc, char** argv) {
     RegGetValueA(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", "ProcessorNameString", RRF_RT_REG_SZ, NULL, cpu, &cl);
     const bool wine = GetProcAddress(GetModuleHandleA("ntdll.dll"), "wine_get_version") != NULL;
 #define ADD(...) sn += snprintf(summary + sn, sizeof(summary) - sn, __VA_ARGS__)
-    ADD("kit %s\nGPU: %s\nsystem: Windows %lu.%lu build %lu%s; CPU: %s\n", KIT_VERSION, gpu, vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, wine ? " (Wine/Proton)" : "", cpu);
-    ADD("upscaler time per frame, ms: mean (for a lossy DLL also: frame that runs the model / skipped frame); vs the first\n");
+    ADD("report %s, kit %s\nGPU: %s\nsystem: Windows %lu.%lu build %lu%s; CPU: %s\n", id, KIT_VERSION, gpu, vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, wine ? " (Wine/Proton)" : "", cpu);
+    ADD("upscaler time per frame, ms: mean (for a lossy DLL also: frame that runs the model / skipped frame); %% vs %s\n",
+        refname ? "1b (an RX 6000 card: AMD's shaders with the dot products split are the ones to compare with)" : "the first");
     ADD("rounds: %d (%.0f minutes; every other round in reverse order); each figure is the mean of a DLL's runs, and where they\nspread by more than 3%% the smallest and largest are given; \"UP\" = Ultra Performance (render size a third of the output)\n",
         rounds, (double)(GetTickCount64() - t0) / 60000.0);
     if (rounds < 2) ADD("only one round: %s\n", once ? "--once" : "one round took too long on this card for a second one");
+    if (retimed) ADD("timed again after the rounds: %d runs of DLLs whose runs differed by more than 3%%\n", retimed);
     for (int i = 0; i < nr; ++i) {
         const struct Row* w = &rows[i];
         const struct Row* ref = NULL;
-        for (int j = 0; j < nr; ++j)
-            if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) { ref = &rows[j]; break; }
+        for (int j = 0; j < nr && !ref; ++j)
+            if (refname && !strcmp(rows[j].name, refname) && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) ref = &rows[j];
+        for (int j = 0; j < nr && !ref; ++j)
+            if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) ref = &rows[j];
         if (i == 0 || strcmp(rows[i - 1].name, w->name)) ADD("%s [%s]\n", w->name, w->ver);
         ADD("  %-12s %-6s %.3f", w->size, w->scene, Val(w));
         if (w->even > 1.25 * w->odd || w->odd > 1.25 * w->even) ADD(" (%.3f / %.3f)", w->even > w->odd ? w->even : w->odd, w->even > w->odd ? w->odd : w->even);
@@ -993,7 +1148,7 @@ int main(int argc, char** argv) {
     }
     FILE* o = fopen(results, "w");
     if (o) { fputs(summary, o); fclose(o); }
-    printf("\nSaved as %s\n", results);
+    printf("\nSaved as %s\nReport ID: %s (also in the file; please mention it if you write about this run)\n", results, id);
     if (!unattended) {
         char in[16];
         printf("\nSend this summary (and nothing else) to the project's results channel? [Y/n] ");
@@ -1009,8 +1164,16 @@ int main(int argc, char** argv) {
             while (k > 0 && clean[k - 1] == ' ') --k;
             clean[k] = 0;
             if (k) ADD("thank-you list (the tester asked to be named): %s\n", clean);
-            if (getenv("FSR4TIME_DRYSEND")) { FILE* t = fopen(getenv("FSR4TIME_DRYSEND"), "w"); if (t) { fputs(summary, t); fclose(t); } printf("Test: written to %s, nothing sent.\n", getenv("FSR4TIME_DRYSEND")); }      // for testing: the text that would be sent goes to this file instead
-            else printf(Send(summary) ? "Sent. Thank you: your help is a valued part of this project.\n" : "Could not send it. Please post the results file on the project's GitHub page or Discord instead.\n");
+            // the message: one short line; the summary is the attached file. A run without any timings says so ("run stopped").
+            char gpuname[128], message[512], fname[64];
+            snprintf(gpuname, sizeof(gpuname), "%s", gpu);
+            gpuname[strcspn(gpuname, "(")] = 0;
+            while (gpuname[0] && gpuname[strlen(gpuname) - 1] == ' ') gpuname[strlen(gpuname) - 1] = 0;
+            if (nr) snprintf(message, sizeof(message), "Timing kit report %s: %s, kit %s, %d round%s%s. The summary is attached.", id, gpuname, KIT_VERSION, rounds, rounds == 1 ? "" : "s",
+                             fl ? "; some runs failed (listed at the end of the file)" : "");
+            else snprintf(message, sizeof(message), "Timing kit report %s: run stopped, no DLL gave timings on %s (kit %s). The reasons are in the attached file.", id, gpuname, KIT_VERSION);
+            snprintf(fname, sizeof(fname), "results-%s.txt", id);
+            printf(Send(message, fname, summary) ? "Sent. Thank you: your help is a valued part of this project.\n" : "Could not send it. Please post the results file on the project's GitHub page or Discord instead.\n");
         }
         printf("\nPress Enter to close.");
         fflush(stdout);

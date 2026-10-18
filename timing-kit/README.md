@@ -30,6 +30,22 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
+**Windows kit version 2026-10-18** (download again if you have an earlier one): seven DLLs instead of fourteen, so each gets more
+rounds in the same 15 minutes. They are AMD's shaders; AMD's shaders with the dot products split (`1b-amd-shaders-dots-split`, back
+from the kits up to 2026-10-14); the exact and lossy DLLs of release `dll-2026-10-15` for both flavors; and `6-experiment`, an
+experimental DLL whose speed the project is measuring. The test DLLs of versions 2026-10-15.2 and 2026-10-15.3 are gone. Also new:
+
+- **RX 6000 cards:** the summary's percentages are against `1b-amd-shaders-dots-split`, since under Windows these cards show ghosting
+  with AMD's original form of the last shader, and that DLL is the one to compare with there.
+- **A time limit per DLL:** each DLL runs in a program of its own, and one that does not finish within 10 minutes (a driver call that
+  never returns, as on a GeForce GTX 1660 with version 2026-10-15.3) is stopped and noted in the summary, and the run goes on with the
+  next DLL. A crash is noted the same way, with the module it happened in.
+- **Re-timing:** time left after the rounds goes to the DLLs whose runs disagreed by more than 3%: they are timed again.
+- **One message per report:** a short line with the summary attached as a file, and a report ID (in the file too). A run in which no
+  DLL gave timings says so.
+
+The Linux kit is unchanged.
+
 **Windows kit version 2026-10-15.3** adds a postpass tuned for drivers that run it 32-wide (`2p-exact-postpass-for-32-wide`,
 `4p-igpu-exact-postpass-for-32-wide`): the exact DLLs with the last shader writing its three output images AMD's way, keeping only
 the shared color taps. The exact DLLs' postpass writes them through the card's shared memory, which pays off 64-wide but not
@@ -99,10 +115,13 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-15.3/fsr4-timing-kit-windows.zip) (about 11 MB, version 2026-10-15.3; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-10-18.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-18/fsr4-timing-kit-windows-2026-10-18.zip) (about 9 MB, version 2026-10-18; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
+
+**New in version 2026-10-18:** seven DLLs, percentages against `1b-amd-shaders-dots-split` on RX 6000 cards, a time limit per DLL,
+re-timing of unsteady readings, and one message per report with the summary attached (see [above](#in-short)).
 
 **New in version 2026-10-15.3:** a postpass tuned for 32-wide drivers (`2p-exact-postpass-for-32-wide`,
 `4p-igpu-exact-postpass-for-32-wide`; see [above](#in-short)), fourteen DLLs in all.
