@@ -31,7 +31,22 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Windows kit version 2026-10-18** (download again if you have an earlier one): seven DLLs instead of fourteen, so each gets more
+**Windows kit version 2026-10-18.2** (download again if you have an earlier one): the DLLs of version 2026-10-18 plus four more test
+DLLs whose speed the project is measuring (`6a-durandal-test-deep`, `6b-durandal-test-outer`, `6c-durandal-test-fused`). Also new:
+
+- **All presets, if you like:** `fsr4time.exe --all-presets` also times the Quality and Performance presets' render sizes (lines marked
+  `Q` and `P`), about 30 minutes instead of 15. The normal run is unchanged.
+- **RDNA2 graphics built into processors** (Steam Deck, Radeon 680M, 660M, 610M, Ryzen 7000 and 9000 desktop processors) are compared
+  with `1b-amd-shaders-dots-split` too: they show the same ghosting as RX 6000 cards under Windows with AMD's original last shader.
+- **Windows 10:** the kit offers to fetch Microsoft's newer DirectX 12 runtime (the Agility SDK's `D3D12Core.dll`, from Microsoft's
+  package on nuget.org, checked against its checksum) into a `D3D12` folder and use it, as games do with their own copy: Windows 10's
+  own runtime is older, and the kit crashed inside it on one Windows 10 PC. The file is Microsoft's and is not part of the kit. Every
+  summary now also names the runtime used and the highest shader model the card offers.
+- **An RDNA2 study edition,** a separate download for RX 6000 and the built-in RDNA2 chips: the same program with fourteen exact DLLs,
+  each of the exact DLL's six changes added on its own and left out on its own, to find which changes help on RDNA2 and which only help
+  together. It takes about 30 minutes (an hour with `--all-presets`); see `STUDY.txt` inside.
+
+**Windows kit version 2026-10-18:** seven DLLs instead of fourteen, so each gets more
 rounds in the same 15 minutes. They are AMD's shaders; AMD's shaders with the dot products split (`1b-amd-shaders-dots-split`, back
 from the kits up to 2026-10-14); the exact and lossy DLLs of release `dll-2026-10-15` for both flavors; and `6-durandal-test`, a
 test DLL whose speed the project is measuring. The test DLLs of versions 2026-10-15.2 and 2026-10-15.3 are gone. Also new:
@@ -116,10 +131,22 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-10-18.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-18/fsr4-timing-kit-windows-2026-10-18.zip) (about 9 MB, version 2026-10-18; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-10-18.2.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-18.2/fsr4-timing-kit-windows-2026-10-18.2.zip) (about 11 MB, version 2026-10-18.2; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
+
+**On Linux, the Windows kit runs under Proton too,** and it times some DLLs the Linux kit does not have (the test DLLs, such as
+`6-durandal-test`). Through Steam: unpack the zip; in Steam choose *Games → Add a Non-Steam Game to My Library*, *Browse* to
+`fsr4time.exe` in the unpacked folder and add it; in its *Properties → Compatibility* tick *Force the use of a specific Steam Play
+compatibility tool* and pick a Proton (Proton Experimental works); then press *Play*. A console window opens: answer its questions there.
+The summary and `results-raw.txt` are saved in the unpacked folder. It runs the same as on Windows and sends the same report; the summary
+shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
+
+For RDNA2 owners with time for a longer run: [`fsr4-timing-kit-windows-rdna2-study-2026-10-18.2.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-18.2/fsr4-timing-kit-windows-rdna2-study-2026-10-18.2.zip), the study edition (about 8 MB; see `STUDY.txt` inside).
+
+**New in version 2026-10-18.2:** four more test DLLs, `--all-presets` (Quality and Performance sizes too), RDNA2 chips built into
+processors compared with `1b-amd-shaders-dots-split`, and the RDNA2 study edition (see [above](#in-short)).
 
 **New in version 2026-10-18:** seven DLLs, percentages against `1b-amd-shaders-dots-split` on RX 6000 cards, a time limit per DLL,
 re-timing of unsteady readings, and one message per report with the summary and the per-run figures attached (see [above](#in-short)).

@@ -9,6 +9,7 @@
 //                           summary, saves it as results-<time>.txt and offers to send it
 //   fsr4time.exe --run <name> <results file>     (used by the first form: one DLL, in a process of its own)
 //   fsr4time.exe --quick    1080p and 4K only
+//   fsr4time.exe --all-presets   also the Quality and Performance render sizes (twice the sizes; the rounds get 30 minutes unless --minutes)
 //   fsr4time.exe --once     one round only
 //   fsr4time.exe --minutes N   the time the rounds may take (default 15)
 //   fsr4time.exe --no-questions   asks nothing at the end and sends nothing
@@ -17,15 +18,17 @@
 //   FSR4TIME_HANGTEST=<name>   (for testing) the run of the DLL <name> never ends, as a hung driver call would
 //   FSR4TIME_LIMIT=<seconds>   (for testing) the time limit of one DLL's run (default RUN_LIMIT_MIN minutes)
 //   FSR4TIME_DRYSEND=<file>    (for testing) what would be sent is written to <file> instead
+//   FSR4TIME_AGILITYONLY=1     (for testing) only the Windows 10 runtime offer (GetAgility), then end
 //
 // What is timed: the GPU time of one upscale call (prepass, 12 model passes, postpass and the small shaders around
 // them), from a timestamp before to one after, 200 calls back to back after 40 to warm up. For a lossy DLL the
 // two kinds of frame are also given apart. The summary gives a fingerprint of the picture each DLL produces from
 // the still scene and from the moving one (the run's last frame) and names the first DLL above it that produced the same picture, byte for byte.
 //
-// Build (llvm-mingw): x86_64-w64-mingw32-clang -std=c11 -O1 -DZSTD_DISABLE_ASM -I<FidelityFX>/api/include -I<FidelityFX>/upscalers/include
-//                     -Izstd/lib -Izstd/lib/common fsr4time.c zstd/lib/common/*.c zstd/lib/decompress/*.c -o fsr4time.exe
-//                     -ld3d12 -ldxgi -ldxguid -lwinhttp -ladvapi32 -lversion -static
+// Build (llvm-mingw): x86_64-w64-mingw32-clang -std=c11 -O1 -DZSTD_DISABLE_ASM -DMINIZ_NO_ZLIB_COMPATIBLE_NAMES -DMINIZ_NO_ARCHIVE_WRITING_APIS
+//                     -DMINIZ_NO_TIME -I<FidelityFX>/api/include -I<FidelityFX>/upscalers/include -Izstd/lib -Izstd/lib/common -Iminiz
+//                     fsr4time.c miniz/miniz.c zstd/lib/common/*.c zstd/lib/decompress/*.c -o fsr4time.exe
+//                     -ld3d12 -ldxgi -ldxguid -lwinhttp -ladvapi32 -lversion -lbcrypt -static
 // The DLLs come as one pack, dlls.pack.zst (made by the project's mkpack.py and zstd -19 --long=27). Each run takes its DLL out of the pack next to the
 // program and the next run overwrites it, so one DLL at a time is on disk (none at the end); DLLs a tester adds are read from dlls\<name>\.
 // hook.inc is written by mkhook.py (the address results are sent to, scrambled; see ../submit.py).
@@ -48,11 +51,13 @@
 #include "ffx_api.h"
 #define ZSTD_STATIC_LINKING_ONLY
 #include "zstd.h"      // zstd/: the decompression part of Zstandard 1.5.7, for the DLL pack
+#include "miniz.h"     // miniz/: miniz 3.0.2 (MIT), to take D3D12Core.dll out of Microsoft's Agility SDK package (Windows 10, see GetAgility)
+#include <bcrypt.h>
 #include "ffx_api_loader.h"
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-18"
+#define KIT_VERSION "windows 2026-10-18.2"
 #define WARM 40
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
@@ -300,6 +305,11 @@ static void Message(uint32_t type, const wchar_t* message) { Say("  FFX %s: %ls\
 static int CmpD(const void* a, const void* b) { double x = *(const double*)a, y = *(const double*)b; return x < y ? -1 : x > y; }
 static double Median(double* v, int n) { qsort(v, n, sizeof(double), CmpD); return n ? v[n / 2] : 0; }
 
+// The DirectX 12 Agility SDK (since kit 2026-10-18.2): Windows uses D3D12\D3D12Core.dll next to the program when that folder is there, as games
+// do with their own copy, instead of the runtime built into Windows (Windows 10's is older; a GTX 1660 SUPER on Windows 10 crashed inside it in
+// every run, 2026-10-18). Without the folder Windows uses its own runtime, as before. The version must match the D3D12Core.dll shipped.
+__declspec(dllexport) const UINT D3D12SDKVersion = 615;
+__declspec(dllexport) const char* D3D12SDKPath = ".\\D3D12\\";
 static void CreateDevice(char* gpu, size_t gpu_len) {
     IDXGIFactory6* f6 = NULL;
     IDXGIAdapter1* ad = NULL;
@@ -315,6 +325,21 @@ static void CreateDevice(char* gpu, size_t gpu_len) {
         snprintf(gpu, gpu_len, "%ls (PCI %04x:%04x, %u MB), driver %u.%u.%u.%u", d.Description, d.VendorId, d.DeviceId, (unsigned)(d.DedicatedVideoMemory >> 20),
                  (unsigned)(umd.QuadPart >> 48) & 0xffff, (unsigned)(umd.QuadPart >> 32) & 0xffff, (unsigned)(umd.QuadPart >> 16) & 0xffff, (unsigned)umd.QuadPart & 0xffff);
     }
+    // what the Direct3D 12 runtime in use offers (since kit 2026-10-18.2): its version, whether it is the kit's copy or Windows' own, and
+    // the highest shader model the device reports (FSR 4's INT8 shaders need 6.6)
+    char rv[64] = " unknown", where[16] = "";
+    HMODULE core = GetModuleHandleA("D3D12Core.dll");
+    if (core) {
+        char path[MAX_PATH];
+        if (GetModuleFileNameA(core, path, sizeof(path))) { FileVersion(path, rv, sizeof(rv)); snprintf(where, sizeof(where), "%s", strstr(path, "\\D3D12\\") ? " from the kit" : " built in"); }
+    }
+    int smv = 0;
+    for (int m = 0x69; m >= 0x51 && !smv; --m) {
+        D3D12_FEATURE_DATA_SHADER_MODEL sm = {(D3D_SHADER_MODEL)m};
+        if (SUCCEEDED(ID3D12Device_CheckFeatureSupport(device, D3D12_FEATURE_SHADER_MODEL, &sm, sizeof(sm)))) smv = (int)sm.HighestShaderModel;
+    }
+    const size_t gl = strlen(gpu);
+    snprintf(gpu + gl, gpu_len - gl, ", D3D12 runtime%s%s, shader model %d.%d", rv[0] ? rv : " unknown", where, smv >> 4, smv & 15);
     D3D12_COMMAND_QUEUE_DESC qd = {.Type = D3D12_COMMAND_LIST_TYPE_DIRECT};
     CHECK(ID3D12Device_CreateCommandQueue(device, &qd, &IID_ID3D12CommandQueue, (void**)&queue));
     CHECK(ID3D12Device_CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, &IID_ID3D12CommandAllocator, (void**)&allocator));
@@ -324,6 +349,21 @@ static void CreateDevice(char* gpu, size_t gpu_len) {
 }
 
 // One DLL (the one next to the exe), every size and scene. Lines "R|..." are what the summary is made from.
+static bool all_presets = false;      // --all-presets: Quality and Performance sizes too (passed on to each DLL's run as "all")
+// Quality / Performance render size and jitter steps for an output, as AMD's loader reports them (the query FSR offers a game); if the
+// query fails, FSR's own formula (output / ratio, rounded down; 8 x ratio^2 steps)
+static void PresetSize(ffxFunctions* fx, uint32_t ow, uint32_t oh, uint32_t mode, double ratio, UINT* rw, UINT* rh, int* phases) {
+    uint32_t w = 0, h = 0; int32_t n = 0;
+    struct ffxQueryDescUpscaleGetRenderResolutionFromQualityMode q = {0};
+    q.header.type = FFX_API_QUERY_DESC_TYPE_UPSCALE_GETRENDERRESOLUTIONFROMQUALITYMODE; q.displayWidth = ow; q.displayHeight = oh; q.qualityMode = mode;
+    q.pOutRenderWidth = &w; q.pOutRenderHeight = &h;
+    if (fx->Query(NULL, &q.header) != FFX_API_RETURN_OK || !w || !h) { w = (uint32_t)(ow / ratio); h = (uint32_t)(oh / ratio); }
+    struct ffxQueryDescUpscaleGetJitterPhaseCount j = {0};
+    j.header.type = FFX_API_QUERY_DESC_TYPE_UPSCALE_GETJITTERPHASECOUNT; j.renderWidth = w; j.displayWidth = ow; j.pOutPhaseCount = &n;
+    if (fx->Query(NULL, &j.header) != FFX_API_RETURN_OK || n <= 0) n = (int32_t)(8.0 * ((double)ow / w) * ((double)ow / w));
+    if (n > PHASES) n = PHASES;
+    *rw = w; *rh = h; *phases = n;
+}
 static int RunOne(const char* name, bool quick) {
     char gpu[256];
     CreateDevice(gpu, sizeof(gpu));
@@ -352,9 +392,20 @@ static int RunOne(const char* name, bool quick) {
     Say("G|%s\n", gpu);
 
     // the Balanced preset's render size (16 jitter steps, as in every kit before) and Ultra Performance's (72 steps, as FSR asks a game for)
-    static const struct { UINT ow, oh, rw, rh; int phases; const char* tag; } sizes[] = {
+    // with --all-presets also Quality (" Q") and Performance (" P") at each output, sized by PresetSize (after the six above, so their order
+    // and figures stay those of every kit before)
+    struct { UINT ow, oh, rw, rh; int phases; const char* tag; } sizes[12] = {
         {1920, 1080, 1130, 636, 16, ""}, {2560, 1440, 1506, 848, 16, ""}, {3840, 2160, 2260, 1272, 16, ""},
         {1920, 1080, 640, 360, 72, " UP"}, {2560, 1440, 853, 480, 72, " UP"}, {3840, 2160, 1280, 720, 72, " UP"}};
+    int nsizes = 6;
+    if (all_presets)
+        for (int m = 0; m < 2; ++m)
+            for (int o = 0; o < 3; ++o) {
+                sizes[nsizes].ow = sizes[o].ow; sizes[nsizes].oh = sizes[o].oh; sizes[nsizes].tag = m ? " P" : " Q";
+                PresetSize(&ffx, sizes[o].ow, sizes[o].oh, m ? FFX_UPSCALE_QUALITY_MODE_PERFORMANCE : FFX_UPSCALE_QUALITY_MODE_QUALITY, m ? 2.0 : 1.5,
+                           &sizes[nsizes].rw, &sizes[nsizes].rh, &sizes[nsizes].phases);
+                ++nsizes;
+            }
     ID3D12QueryHeap* qh;
     D3D12_QUERY_HEAP_DESC qhd = {.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP, .Count = 2};
     CHECK(ID3D12Device_CreateQueryHeap(device, &qhd, &IID_ID3D12QueryHeap, (void**)&qh));
@@ -368,11 +419,11 @@ static int RunOne(const char* name, bool quick) {
         char label[64], idtext[40] = "";      // with one variant the lines carry the folder's name alone, as before
         if (nv == 1) snprintf(label, sizeof(label), "%s", name);
         else { snprintf(label, sizeof(label), "%.40s, variant %d of %d", name, vi + 1, nv); snprintf(idtext, sizeof(idtext), ", id %llx", (unsigned long long)chosen); }
-        for (int si = 0; si < 6; ++si) {
-            if (quick && (si == 1 || si == 4)) continue;
+        for (int si = 0; si < nsizes; ++si) {
+            if (quick && sizes[si].ow == 2560) continue;
             const UINT ow = sizes[si].ow, oh = sizes[si].oh, rw = sizes[si].rw, rh = sizes[si].rh;
             const int phases = sizes[si].phases;
-            char sz[24];      // the size as the summary names it: the output, and " UP" for Ultra Performance
+            char sz[24];      // the size as the summary names it: the output, and " UP" / " Q" / " P" for the presets other than Balanced
             snprintf(sz, sizeof(sz), "%ux%u%s", ow, oh, sizes[si].tag);
             struct ffxCreateBackendDX12Desc backend = {0};
             backend.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12; backend.device = device;
@@ -549,6 +600,87 @@ static bool Send(const char* message, const char* filename, const char* file, co
     if (c) WinHttpCloseHandle(c);
     if (s) WinHttpCloseHandle(s);
     return ok;
+}
+
+// ---- Windows 10 and the DirectX 12 Agility SDK (since kit 2026-10-18.2; user, 2026-10-18). Windows 10's own Direct3D 12 runtime is older than
+// the one games bring with them (Microsoft's Agility SDK, a D3D12Core.dll in the game's folder); a GTX 1660 SUPER on Windows 10 crashed inside
+// it in every run while FSR 4 worked in games there. On Windows 10 the kit offers to fetch Microsoft's runtime from Microsoft's own package on
+// nuget.org (Microsoft.Direct3D.D3D12 1.615.1), checks both the package and the file against their SHA-256, and puts D3D12Core.dll in
+// D3D12\ here, which this program asks Windows to use (D3D12SDKVersion / D3D12SDKPath above). The kit itself does not carry Microsoft's file:
+// the tester fetches it from Microsoft, under Microsoft's license. Only after a yes; never with --no-questions.
+#define AGILITY_HOST L"api.nuget.org"
+#define AGILITY_PATH L"/v3-flatcontainer/microsoft.direct3d.d3d12/1.615.1/microsoft.direct3d.d3d12.1.615.1.nupkg"
+#define AGILITY_PKG_SHA "20b67ae94eda93b9e1712362647d4c7b7d3b2d9150fded15950294d81611f17d"
+#define AGILITY_DLL_SHA "07d286c306f8117321422affd9e6388c12d0fb4be1c7fc689d9e899324feeb24"
+#define AGILITY_LICENSE "https://www.nuget.org/packages/Microsoft.Direct3D.D3D12/1.615.1/license"
+static DWORD WindowsBuild(void) {      // the real build number (GetVersionEx reports what the manifest asks for)
+    typedef LONG (WINAPI *RtlGetVersionFn)(OSVERSIONINFOW*);
+    RtlGetVersionFn f = (RtlGetVersionFn)(void*)GetProcAddress(GetModuleHandleA("ntdll.dll"), "RtlGetVersion");
+    OSVERSIONINFOW v = {.dwOSVersionInfoSize = sizeof(v)};
+    return f && f(&v) == 0 ? v.dwBuildNumber : 0;
+}
+static bool Sha256Hex(const void* data, size_t n, char out[65]) {
+    BCRYPT_ALG_HANDLE alg = NULL; BCRYPT_HASH_HANDLE h = NULL; UCHAR d[32]; bool ok = false;
+    if (BCryptOpenAlgorithmProvider(&alg, BCRYPT_SHA256_ALGORITHM, NULL, 0) == 0 && BCryptCreateHash(alg, &h, NULL, 0, NULL, 0, 0) == 0 &&
+        BCryptHashData(h, (PUCHAR)data, (ULONG)n, 0) == 0 && BCryptFinishHash(h, d, sizeof(d), 0) == 0) {
+        for (int i = 0; i < 32; ++i) snprintf(out + 2 * i, 3, "%02x", d[i]);
+        ok = true;
+    }
+    if (h) BCryptDestroyHash(h);
+    if (alg) BCryptCloseAlgorithmProvider(alg, 0);
+    return ok;
+}
+static uint8_t* Download(const wchar_t* host, const wchar_t* path, size_t* n) {      // HTTPS GET into memory (at most 64 MB); NULL on any failure
+    uint8_t* buf = NULL; size_t len = 0, cap = 0; bool ok = false;
+    HINTERNET s = WinHttpOpen(L"fsr4-timing-kit", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+    HINTERNET c = s ? WinHttpConnect(s, host, INTERNET_DEFAULT_HTTPS_PORT, 0) : NULL;
+    HINTERNET r = c ? WinHttpOpenRequest(c, L"GET", path, NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE) : NULL;
+    if (r && WinHttpSendRequest(r, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0) && WinHttpReceiveResponse(r, NULL)) {
+        DWORD code = 0, cl = sizeof(code);
+        WinHttpQueryHeaders(r, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, NULL, &code, &cl, NULL);
+        ok = code == 200;
+        for (DWORD avail = 0; ok && WinHttpQueryDataAvailable(r, &avail) && avail; ) {
+            if (len + avail > (64u << 20)) { ok = false; break; }
+            if (len + avail > cap) { cap = (len + avail) * 2; uint8_t* nb = realloc(buf, cap); if (!nb) { ok = false; break; } buf = nb; }
+            DWORD got = 0;
+            if (!WinHttpReadData(r, buf + len, avail, &got)) { ok = false; break; }
+            len += got;
+        }
+    }
+    if (r) WinHttpCloseHandle(r);
+    if (c) WinHttpCloseHandle(c);
+    if (s) WinHttpCloseHandle(s);
+    if (!ok || !len) { free(buf); return NULL; }
+    *n = len; return buf;
+}
+static void GetAgility(const char* base, bool unattended) {
+    const DWORD build = WindowsBuild();
+    char dll[MAX_PATH], dir[MAX_PATH];
+    snprintf(dir, sizeof(dir), "%sD3D12", base); snprintf(dll, sizeof(dll), "%s\\D3D12Core.dll", dir);
+    if (!build || build >= 22000 || GetFileAttributesA(dll) != INVALID_FILE_ATTRIBUTES) return;      // not Windows 10, or already there
+    printf("This is Windows 10 (build %lu). Its own DirectX 12 runtime is older than the one games bring with them, and on at least one\n"
+           "Windows 10 PC the kit crashed inside it. The kit can fetch Microsoft's newer runtime (D3D12Core.dll, from Microsoft's\n"
+           "DirectX 12 Agility SDK 1.615.1, a 22 MB download from nuget.org) into the folder D3D12 here, and use it for this run.\n"
+           "It is Microsoft's file, under Microsoft's license: %s\n", (unsigned long)build, AGILITY_LICENSE);
+    if (unattended) { printf("(--no-questions: not fetched; the README says how to get it by hand)\n\n"); return; }
+    char in[16];
+    printf("Fetch it? [Y/n] "); fflush(stdout);
+    if (!fgets(in, sizeof(in), stdin) || in[0] == 'n' || in[0] == 'N') { printf("Not fetched; the run uses Windows' own runtime.\n\n"); return; }
+    printf("Fetching ...\n"); fflush(stdout);
+    size_t n = 0; char hex[65];
+    uint8_t* pkg = Download(AGILITY_HOST, AGILITY_PATH, &n);
+    if (!pkg) { printf("Could not download it; the run uses Windows' own runtime.\n\n"); return; }
+    if (!Sha256Hex(pkg, n, hex) || strcmp(hex, AGILITY_PKG_SHA)) { printf("The download is not the expected file (checksum); not used.\n\n"); free(pkg); return; }
+    mz_zip_archive z; memset(&z, 0, sizeof(z)); size_t dn = 0; void* d = NULL;
+    if (mz_zip_reader_init_mem(&z, pkg, n, 0)) { d = mz_zip_reader_extract_file_to_heap(&z, "build/native/bin/x64/D3D12Core.dll", &dn, 0); mz_zip_reader_end(&z); }
+    free(pkg);
+    if (!d || !Sha256Hex(d, dn, hex) || strcmp(hex, AGILITY_DLL_SHA)) { printf("Could not take the runtime out of the package; not used.\n\n"); if (d) mz_free(d); return; }
+    CreateDirectoryA(dir, NULL);
+    FILE* f = fopen(dll, "wb"); bool ok = f && fwrite(d, 1, dn, f) == dn;
+    if (f) fclose(f);
+    mz_free(d);
+    if (!ok) { DeleteFileA(dll); printf("Could not write %s; the run uses Windows' own runtime.\n\n", dll); return; }
+    printf("Done: D3D12\\D3D12Core.dll (checked). The summary's GPU line says which runtime each run used.\n\n");
 }
 
 // ---- the DLL pack: the kit's DLLs are variants of one file, and a zip compresses each on its own (235 MB for nine). As one zstd stream with a
@@ -887,7 +1019,11 @@ static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t
             continue;
         }
         if (line[0] != 'R' || line[1] != '|') continue;
-        if (strstr(line, "|FAILED|")) { if (fails && fl < (int)fsz) fl += snprintf(fails + fl, fsz - fl, "%s\n", line + 2); continue; }
+        if (strstr(line, "|FAILED|")) {      // each failure once (a DLL that fails every round gave one line per round: a GTX 1660 SUPER report of
+                                             // 2026-10-18 filled the list and cut its last line), and only whole lines
+            if (fails && !strstr(fails, line + 2) && fl + strlen(line + 2) + 2 < fsz) fl += snprintf(fails + fl, fsz - fl, "%s\n", line + 2);
+            continue;
+        }
         if (nr >= max) continue;
         struct Row* w = &rows[nr];
         char render[16];
@@ -928,7 +1064,7 @@ static void RunDll(const char* name, int inpack, const char* base, const char* r
         }
     } else if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", name); return; }
     printf("%s %s ...\n", name, what); fflush(stdout);
-    snprintf(cmd, sizeof(cmd), "\"%sfsr4time.exe\" --run \"%s\" \"%s\"%s", base, name, raw, quick ? " quick" : "");
+    snprintf(cmd, sizeof(cmd), "\"%sfsr4time.exe\" --run \"%s\" \"%s\"%s%s", base, name, raw, quick ? " quick" : " full", all_presets ? " all" : "");
     STARTUPINFOA si = {.cb = sizeof(si)};
     PROCESS_INFORMATION pi;
     if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) { printf("could not start a run for %s\n", name); return; }
@@ -978,6 +1114,7 @@ int main(int argc, char** argv) {
         SetUnhandledExceptionFilter(Crashed);
         if (getenv("FSR4TIME_CRASHTEST") && !strcmp(getenv("FSR4TIME_CRASHTEST"), argv[2])) printf("%d\n", *(volatile int*)(uintptr_t)0x18C);      // test of the above
         if (getenv("FSR4TIME_HANGTEST") && !strcmp(getenv("FSR4TIME_HANGTEST"), argv[2])) Sleep(INFINITE);      // test of the time limit (RunDll)
+        all_presets = argc > 5 && !strcmp(argv[5], "all");
         return RunOne(argv[2], argc > 4 && !strcmp(argv[4], "quick"));
     }
     if (argc > 1 && !strcmp(argv[1], "--send-test")) {      // for the project: checks that sending works, with a message that says what it is
@@ -991,12 +1128,15 @@ int main(int argc, char** argv) {
     }
     bool quick = false, unattended = false, once = false;
     double budget = 15;      // minutes the rounds may take
+    bool budget_set = false;
     for (int a = 1; a < argc; ++a) {
         if (!strcmp(argv[a], "--quick")) quick = true;
+        if (!strcmp(argv[a], "--all-presets")) all_presets = true;
         if (!strcmp(argv[a], "--no-questions")) unattended = true;
         if (!strcmp(argv[a], "--once")) once = true;
-        if (!strcmp(argv[a], "--minutes") && a + 1 < argc) budget = atof(argv[++a]);
+        if (!strcmp(argv[a], "--minutes") && a + 1 < argc) { budget = atof(argv[++a]); budget_set = true; }
     }
+    if (all_presets && !budget_set) budget = 30;      // twice the sizes: twice the time for the same number of rounds
     if (budget < 1) budget = 1;
     SYSTEMTIME st;
     GetLocalTime(&st);
@@ -1009,6 +1149,8 @@ int main(int argc, char** argv) {
         if (!unattended) { char in[8]; printf("\nPress Enter to close."); fflush(stdout); fgets(in, sizeof(in), stdin); }
         return 1;
     }
+    GetAgility(base, unattended);      // Windows 10 only: offer Microsoft's newer DirectX 12 runtime
+    if (getenv("FSR4TIME_AGILITYONLY")) return 0;      // for testing GetAgility alone (no DLL runs)
     // the DLLs: the pack's, and folders a tester added to dlls\ (a pack DLL wins over a folder of the same name, such as one an earlier
     // kit unpacked); AMD's shaders first (the reference), then the rest in name order. inpack[i]: the DLL's number in the pack, or -1.
     char names[32][64];
@@ -1044,16 +1186,28 @@ int main(int argc, char** argv) {
     const ULONGLONG t0 = GetTickCount64();
     ULONGLONG tr = t0;
     int rounds = 0;
+    static bool failed[PACK_MAX + 64];      // DLLs that failed in the first round: not run again (since 2026-10-18.2)
+    int nfailed = 0;
     for (int k = 0;; ++k) {
         if (k == nd) {      // a round is complete: another one?
             ++rounds; k = 0;
+            if (rounds == 1) {
+                FILE* rf = fopen(raw, "r"); char ln[512], key[300];
+                for (int j = 0; j < nd && rf; ++j) {
+                    snprintf(key, sizeof(key), "R|%s|FAILED|", names[j]); rewind(rf);
+                    while (fgets(ln, sizeof(ln), rf)) if (!strncmp(ln, key, strlen(key))) { failed[j] = true; ++nfailed; break; }
+                }
+                if (rf) fclose(rf);
+                if (nfailed) { printf("%d of %d DLLs failed in the first round; they are not run again\n", nfailed, nd); fflush(stdout); }
+            }
             const double done = (double)(GetTickCount64() - t0) / 60000.0, last = (double)(GetTickCount64() - tr) / 60000.0;
             tr = GetTickCount64();
-            const bool more = !once && rounds < MAXROUNDS && (done + last <= budget || (rounds == 1 && done + last <= 20.0));
+            const bool more = !once && nfailed < nd && rounds < MAXROUNDS && (done + last <= budget || (rounds == 1 && done + last <= 20.0));
             printf("round %d took %.1f minutes (%.1f so far)%s\n", rounds, last, done, more ? "; one more round" : ""); fflush(stdout);
             if (!more) break;
         }
         const int i = rounds % 2 ? nd - 1 - k : k;
+        if (failed[i]) continue;
         char what[64];
         snprintf(what, sizeof(what), "(round %d, DLL %d of %d)", rounds + 1, k + 1, nd);
         RunDll(names[i], inpack[i], base, raw, quick, what);
@@ -1106,7 +1260,11 @@ int main(int argc, char** argv) {
     unsigned ven = 0, dev = 0;
     const char* pc = strstr(gpu, "(PCI ");
     if (pc) sscanf(pc, "(PCI %x:%x", &ven, &dev);
-    const bool rx6000 = ven == 0x1002 && dev >= 0x73A0 && dev <= 0x743F;
+    // since kit 2026-10-18.2 also the RDNA2 chips built into processors, which show the same ghosting (the Steam Deck's Windows reports: 1b
+    // differs from AMD's shaders, every exact DLL equals 1b): Van Gogh 163F (Steam Deck LCD), Sephiroth 1435 (Steam Deck OLED), Rembrandt 1681
+    // (Radeon 680M / 660M), Mendocino 1506 (610M), Raphael 164E (Ryzen 7000 desktop, 7045 laptops), Granite Ridge 13C0 (Ryzen 9000 desktop)
+    const bool rx6000 = ven == 0x1002 && ((dev >= 0x73A0 && dev <= 0x743F) || dev == 0x163F || dev == 0x1435 || dev == 0x1681 || dev == 0x1506 ||
+                                          dev == 0x164E || dev == 0x13C0);
     const char* refname = NULL;
     for (int j = 0; j < nr && rx6000 && !refname; ++j) if (!strncmp(rows[j].name, "1b-", 3)) refname = rows[j].name;
     OSVERSIONINFOEXW vi = {.dwOSVersionInfoSize = sizeof(vi)};
@@ -1120,9 +1278,10 @@ int main(int argc, char** argv) {
 #define ADD(...) sn += snprintf(summary + sn, sizeof(summary) - sn, __VA_ARGS__)
     ADD("report %s, kit %s\nGPU: %s\nsystem: Windows %lu.%lu build %lu%s; CPU: %s\n", id, KIT_VERSION, gpu, vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, wine ? " (Wine/Proton)" : "", cpu);
     ADD("upscaler time per frame, ms: mean (for a lossy DLL also: frame that runs the model / skipped frame); %% vs %s\n",
-        refname ? "1b (an RX 6000 card: AMD's shaders with the dot products split are the ones to compare with)" : "the first");
+        refname ? "1b (an RDNA2 chip: AMD's shaders with the dot products split are the ones to compare with)" : "the first");
     ADD("rounds: %d (%.0f minutes; every other round in reverse order); each figure is the mean of a DLL's runs, and where they\nspread by more than 3%% the smallest and largest are given; \"UP\" = Ultra Performance (render size a third of the output)\n",
         rounds, (double)(GetTickCount64() - t0) / 60000.0);
+    if (all_presets) ADD("all presets (--all-presets): \"Q\" = Quality (render size two thirds of the output), \"P\" = Performance (half of it); no tag = Balanced\n");
     if (rounds < 2) ADD("only one round: %s\n", once ? "--once" : "one round took too long on this card for a second one");
     if (retimed) ADD("timed again after the rounds: %d runs of DLLs whose runs differed by more than 3%%\n", retimed);
     for (int i = 0; i < nr; ++i) {

@@ -50,15 +50,18 @@ What it does
                        that it runs on RX 6000 cards and integrated graphics too): the reference
   dlls\1b-amd-shaders-dots-split
                        the same, with one change to the last shader: its dot products are split
-                       into two steps. The result is the same number, but RX 6000 cards under
-                       Windows are known to show ghosting with AMD's original form. On those cards
-                       this is the DLL to compare with, and the summary's percentages are against it.
+                       into two steps. The result is the same number, but RX 6000 cards and the
+                       RDNA2 graphics built into some processors (Steam Deck, Radeon 680M, 660M,
+                       610M, the graphics of Ryzen 7000 and 9000 desktop processors) are known to
+                       show ghosting under Windows with AMD's original form. On those chips this is
+                       the DLL to compare with, and the summary's percentages are against it.
   dlls\2-exact         this project's exact DLL of release dll-2026-10-15, for desktop cards
   dlls\3-lossy         its lossy DLL (faster; the picture is NOT the same as AMD's). It also skips
                        frames in Ultra Performance (the "UP" lines; figures for that mode only).
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
   dlls\5-igpu-lossy    and its lossy one
-  dlls\6-durandal-test a test DLL whose speed the project is measuring
+  dlls\6-durandal-test a test DLL whose speed the project is measuring, and three variants of it
+  dlls\6a-durandal-test-deep, 6b-durandal-test-outer, 6c-durandal-test-fused
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
   these, make a folder dlls\ next to fsr4time.exe, a folder for the DLL in it, and put its amd_fidelityfx_upscaler_dx12.dll there. For
@@ -74,13 +77,13 @@ Reading the summary
   The numbers are milliseconds of graphics-card time per upscaled frame; lower is better. Each
   is the mean of that DLL's runs (one per round, and any run it got when timed again), and where
   they spread by more than 3% the smallest and largest are given in square brackets: treat such a
-  line with caution. The percentage compares with the first DLL, or on an RX 6000 card with
-  1b-amd-shaders-dots-split. For a lossy DLL the two numbers in brackets are a frame that runs
+  line with caution. The percentage compares with the first DLL, or on an RDNA2 chip (RX 6000 or
+  the built-in ones listed above) with 1b-amd-shaders-dots-split. For a lossy DLL the two numbers in brackets are a frame that runs
   FSR 4's model and a frame that skips it.
 
   After each run comes the picture's fingerprint. "= 1-amd-shaders" after it means the
   output was the same as that DLL's, byte for byte; "(differs from those above)" means no DLL
-  before it gave that picture. A lossy DLL always differs, as it should. On an RX 6000 card under
+  before it gave that picture. A lossy DLL always differs, as it should. On an RDNA2 chip under
   Windows the exact DLLs may differ from 1-amd-shaders (earlier kits found that); that is worth
   sending too.
 
@@ -94,6 +97,9 @@ Reading the summary
 
 Options (from a command prompt in this folder)
   fsr4time.exe --quick           1080p and 4K only
+  fsr4time.exe --all-presets     also the Quality and Performance presets' render sizes: twelve sizes
+                                 instead of six, so the rounds get about 30 minutes (lines marked "Q"
+                                 and "P"; no mark = Balanced)
   fsr4time.exe --once            one round only (a few minutes)
   fsr4time.exe --minutes 8       let the rounds take about 8 minutes instead of 15
   fsr4time.exe --no-questions    no questions at the end, nothing is sent
@@ -104,6 +110,21 @@ Other graphics cards
   graphics, or an older Radeon, please run it too:
   these DLLs were made for Radeon chips, nobody has measured them elsewhere yet, and your result
   shows whether they help there and whether the exact DLL still gives AMD's picture.
+
+Windows 10
+  Windows 10's own DirectX 12 runtime is older than the one games bring with them (Microsoft's
+  DirectX 12 Agility SDK), and on at least one Windows 10 PC the kit crashed inside it. On Windows 10
+  the kit therefore offers, before it starts, to fetch Microsoft's newer runtime: D3D12Core.dll from
+  Microsoft's package Microsoft.Direct3D.D3D12 1.615.1 on nuget.org (a 22 MB download). It checks the
+  download against its known checksum and puts the file in a folder D3D12 next to fsr4time.exe, which
+  the program then uses. It is Microsoft's file, under Microsoft's license (linked when the kit asks);
+  the kit does not include it. Answer n and the run uses Windows' own runtime, as before. With
+  --no-questions nothing is fetched.
+  By hand: download https://www.nuget.org/packages/Microsoft.Direct3D.D3D12/1.615.1 ("Download
+  package"), open the .nupkg file as a zip, and copy build\native\bin\x64\D3D12Core.dll into a
+  folder D3D12 next to fsr4time.exe.
+  The summary's GPU line says which runtime was used ("built in" or "from the kit") and the highest
+  shader model the card offers (FSR 4 needs 6.6).
 
 Not for Radeon RX 9000 cards: they run a different FSR 4.
 

@@ -1,0 +1,30 @@
+FSR 4.1.1 timing kit, RDNA2 study edition (EXPERIMENTAL)
+=========================================================
+
+The same program as the timing kit (see README.txt: how to run it and what the summary means), with a
+different set of DLLs. It is for owners of RDNA2 graphics (RX 6000 cards, and the RDNA2 graphics built
+into Steam Deck, Radeon 680M / 660M / 610M and Ryzen 7000 / 9000 desktop processors) who are happy to
+run a long test: it times each change in this project's exact DLL on its own, to find which changes
+help on RDNA2, which do not, and which help only together.
+
+Every DLL here is exact: its picture should be AMD's, byte for byte, which the summary's fingerprints
+show (on RDNA2 under Windows: the same as 1b-amd-shaders-dots-split).
+
+  dlls\1-amd-shaders                AMD's shaders (the reference elsewhere)
+  dlls\1b-amd-shaders-dots-split    AMD's shaders with the last shader's dot products split: on RDNA2
+                                    the reference, and the starting point of every DLL below
+  dlls\2-exact                      this project's exact DLL of release dll-2026-10-15: all six changes
+  dlls\s01-base                     1b rebuilt by the project's tools (the same file as 1b)
+  dlls\s02 to s07, add-...          the base with ONE change added
+  dlls\s08 to s13, without-...      the exact DLL with ONE change left out
+
+The six changes:
+  prepass   the prepass (the first shader) reads its inputs in a different order
+  tails     the last layer of several shaders scales its output with integers instead of floats
+  taps      the last shader reads its nine neighbors without branches
+  share     the last shader converts the colors it reads once instead of per use
+  stores    the last shader collects its output in shared memory and writes it in larger pieces
+  pass11    the second-to-last network shader is unrolled and writes each row together
+
+Run it like the normal kit. --all-presets times the Quality and Performance sizes too (about an hour
+in all); without it about 30 minutes is a good choice: fsr4time.exe --minutes 30

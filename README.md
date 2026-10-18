@@ -144,12 +144,15 @@ More games and resolutions: [all results](docs/results.md).
 pictures it costs something there; [the release page](docs/releases/dll-2026-10-15.md) shows a typical frame and the lossy DLL against the exact DLL on every measure.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-18/fsr4-timing-kit-windows-2026-10-18.zip)** (experimental, about 9 MB, version 2026-10-18): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-18.2/fsr4-timing-kit-windows-2026-10-18.2.zip)** (experimental, about 11 MB, version 2026-10-18.2): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes (up to about 20 on a slow chip). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
 > that each DLL gives the same picture, and offers to send the result. Reports are in from more than twenty graphics chips so far;
 > every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
 >
-> - New in the Windows kit (2026-10-18): seven DLLs instead of fourteen, so each gets more rounds in the same 15 minutes; on RX
+> - New in the Windows kit (2026-10-18.2): `--all-presets` also times the Quality and Performance sizes; the RDNA2 graphics built into
+>   processors (Steam Deck, Radeon 680M and others) are compared like RX 6000 cards; four more test DLLs; and an
+>   [RDNA2 study edition](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-18.2/fsr4-timing-kit-windows-rdna2-study-2026-10-18.2.zip) that times each change of the exact DLL on its own. [Details](timing-kit/README.md#in-short)
+> - Earlier (2026-10-18): seven DLLs instead of fourteen, so each gets more rounds in the same 15 minutes; on RX
 >   6000 cards the percentages are against AMD's shaders with the dot products split; a DLL that hangs or crashes no longer stops the
 >   run; leftover time re-times unsteady readings; one message per report, with the summary and the per-run figures attached. [Details](timing-kit/README.md#in-short)
 > - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
