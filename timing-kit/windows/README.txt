@@ -112,19 +112,12 @@ Other graphics cards
   shows whether they help there and whether the exact DLL still gives AMD's picture.
 
 Windows 10
-  Windows 10's own DirectX 12 runtime is older than the one games bring with them (Microsoft's
-  DirectX 12 Agility SDK), and on at least one Windows 10 PC the kit crashed inside it. On Windows 10
-  the kit therefore offers, before it starts, to fetch Microsoft's newer runtime: D3D12Core.dll from
-  Microsoft's package Microsoft.Direct3D.D3D12 1.615.1 on nuget.org (a 22 MB download). It checks the
-  download against its known checksum and puts the file in a folder D3D12 next to fsr4time.exe, which
-  the program then uses. It is Microsoft's file, under Microsoft's license (linked when the kit asks);
-  the kit does not include it. Answer n and the run uses Windows' own runtime, as before. With
-  --no-questions nothing is fetched.
-  By hand: download https://www.nuget.org/packages/Microsoft.Direct3D.D3D12/1.615.1 ("Download
-  package"), open the .nupkg file as a zip, and copy build\native\bin\x64\D3D12Core.dll into a
-  folder D3D12 next to fsr4time.exe.
-  The summary's GPU line says which runtime was used ("built in" or "from the kit") and the highest
-  shader model the card offers (FSR 4 needs 6.6).
+  On at least one Windows 10 PC every DLL crashed inside Windows' own DirectX 12 runtime. Version
+  2026-10-18.2 offered to fetch Microsoft's newer runtime for Windows 10, but that change stopped the kit
+  on some Windows 11 PCs (version 23H2), so this version does not do it; another way is planned. Reports
+  from Windows 10 are welcome, crashes included.
+  The summary's GPU line says which DirectX 12 runtime was used and the highest shader model the card
+  offers (FSR 4 needs 6.6).
 
 Not for Radeon RX 9000 cards: they run a different FSR 4.
 

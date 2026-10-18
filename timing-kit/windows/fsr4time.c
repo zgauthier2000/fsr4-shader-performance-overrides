@@ -57,7 +57,7 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-18.2"
+#define KIT_VERSION "windows 2026-10-18.3"
 #define WARM 40
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
@@ -308,8 +308,13 @@ static double Median(double* v, int n) { qsort(v, n, sizeof(double), CmpD); retu
 // The DirectX 12 Agility SDK (since kit 2026-10-18.2): Windows uses D3D12\D3D12Core.dll next to the program when that folder is there, as games
 // do with their own copy, instead of the runtime built into Windows (Windows 10's is older; a GTX 1660 SUPER on Windows 10 crashed inside it in
 // every run, 2026-10-18). Without the folder Windows uses its own runtime, as before. The version must match the D3D12Core.dll shipped.
+// OFF since kit 2026-10-18.3 (build with -DKIT_AGILITY to bring it back): on Windows 11 23H2 (build 22631) every device creation then failed
+// with 0x887E0003 (D3D12_ERROR_INVALID_REDIST) although no D3D12\ folder was there (report 013B3D90, 2026-10-18); 24H2 (26100) ran. Planned
+// instead: the exports in a second program, started only when D3D12\ holds the runtime.
+#ifdef KIT_AGILITY
 __declspec(dllexport) const UINT D3D12SDKVersion = 615;
 __declspec(dllexport) const char* D3D12SDKPath = ".\\D3D12\\";
+#endif
 static void CreateDevice(char* gpu, size_t gpu_len) {
     IDXGIFactory6* f6 = NULL;
     IDXGIAdapter1* ad = NULL;
@@ -602,6 +607,7 @@ static bool Send(const char* message, const char* filename, const char* file, co
     return ok;
 }
 
+#ifdef KIT_AGILITY      // off since kit 2026-10-18.3 (see D3D12SDKVersion above)
 // ---- Windows 10 and the DirectX 12 Agility SDK (since kit 2026-10-18.2; user, 2026-10-18). Windows 10's own Direct3D 12 runtime is older than
 // the one games bring with them (Microsoft's Agility SDK, a D3D12Core.dll in the game's folder); a GTX 1660 SUPER on Windows 10 crashed inside
 // it in every run while FSR 4 worked in games there. On Windows 10 the kit offers to fetch Microsoft's runtime from Microsoft's own package on
@@ -682,6 +688,7 @@ static void GetAgility(const char* base, bool unattended) {
     if (!ok) { DeleteFileA(dll); printf("Could not write %s; the run uses Windows' own runtime.\n\n", dll); return; }
     printf("Done: D3D12\\D3D12Core.dll (checked). The summary's GPU line says which runtime each run used.\n\n");
 }
+#endif
 
 // ---- the DLL pack: the kit's DLLs are variants of one file, and a zip compresses each on its own (235 MB for nine). As one zstd stream with a
 // long match window they take about 10 MB. Nothing is unpacked in advance: for each run the DLL is taken out of the pack (decompressing the stream
@@ -1149,8 +1156,10 @@ int main(int argc, char** argv) {
         if (!unattended) { char in[8]; printf("\nPress Enter to close."); fflush(stdout); fgets(in, sizeof(in), stdin); }
         return 1;
     }
+#ifdef KIT_AGILITY
     GetAgility(base, unattended);      // Windows 10 only: offer Microsoft's newer DirectX 12 runtime
     if (getenv("FSR4TIME_AGILITYONLY")) return 0;      // for testing GetAgility alone (no DLL runs)
+#endif
     // the DLLs: the pack's, and folders a tester added to dlls\ (a pack DLL wins over a folder of the same name, such as one an earlier
     // kit unpacked); AMD's shaders first (the reference), then the rest in name order. inpack[i]: the DLL's number in the pack, or -1.
     char names[32][64];
