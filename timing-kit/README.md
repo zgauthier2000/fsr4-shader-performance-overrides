@@ -32,8 +32,8 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 
 **Windows kit version 2026-10-18** (download again if you have an earlier one): seven DLLs instead of fourteen, so each gets more
 rounds in the same 15 minutes. They are AMD's shaders; AMD's shaders with the dot products split (`1b-amd-shaders-dots-split`, back
-from the kits up to 2026-10-14); the exact and lossy DLLs of release `dll-2026-10-15` for both flavors; and `6-experiment`, an
-experimental DLL whose speed the project is measuring. The test DLLs of versions 2026-10-15.2 and 2026-10-15.3 are gone. Also new:
+from the kits up to 2026-10-14); the exact and lossy DLLs of release `dll-2026-10-15` for both flavors; and `6-durandal-test`, a
+test DLL whose speed the project is measuring. The test DLLs of versions 2026-10-15.2 and 2026-10-15.3 are gone. Also new:
 
 - **RX 6000 cards:** the summary's percentages are against `1b-amd-shaders-dots-split`, since under Windows these cards show ghosting
   with AMD's original form of the last shader, and that DLL is the one to compare with there.

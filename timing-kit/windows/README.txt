@@ -57,7 +57,7 @@ What it does
                        frames in Ultra Performance (the "UP" lines; figures for that mode only).
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
   dlls\5-igpu-lossy    and its lossy one
-  dlls\6-experiment    an experimental DLL whose speed the project is measuring
+  dlls\6-durandal-test a test DLL whose speed the project is measuring
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
   these, make a folder dlls\ next to fsr4time.exe, a folder for the DLL in it, and put its amd_fidelityfx_upscaler_dx12.dll there. For
