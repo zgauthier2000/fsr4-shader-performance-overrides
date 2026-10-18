@@ -151,7 +151,7 @@ pictures it costs something there; [the release page](docs/releases/dll-2026-10-
 >
 > - New in the Windows kit (2026-10-18): seven DLLs instead of fourteen, so each gets more rounds in the same 15 minutes; on RX
 >   6000 cards the percentages are against AMD's shaders with the dot products split; a DLL that hangs or crashes no longer stops the
->   run; leftover time re-times unsteady readings; one message per report, with the summary attached. [Details](timing-kit/README.md#in-short)
+>   run; leftover time re-times unsteady readings; one message per report, with the summary and the per-run figures attached. [Details](timing-kit/README.md#in-short)
 > - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
 >
 > [What the kits do](timing-kit/README.md#windows-experimental)

@@ -26,7 +26,8 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   different arithmetic still wrote the same bytes and was reported as identical. The kit now carries that buffer as FSR 4 fills
   it (`shaders/model_data.bin`, 128 KB), and the summary says whether the lossy build's folded pass, which must differ, was told apart.
   The prepass and postpass checks were not affected. The exact model passes still match AMD's with the real buffer.
-- **What happens to the result:** you see a short summary and are asked whether to send it. Only that summary is sent.
+- **What happens to the result:** you see a short summary and are asked whether to send it. Only that summary is sent (the
+  Windows kit, since version 2026-10-18, also sends `results-raw.txt`, the per-run figures the summary is made from, saved beside it).
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
@@ -41,8 +42,8 @@ test DLL whose speed the project is measuring. The test DLLs of versions 2026-10
   never returns, as on a GeForce GTX 1660 with version 2026-10-15.3) is stopped and noted in the summary, and the run goes on with the
   next DLL. A crash is noted the same way, with the module it happened in.
 - **Re-timing:** time left after the rounds goes to the DLLs whose runs disagreed by more than 3%: they are timed again.
-- **One message per report:** a short line with the summary attached as a file, and a report ID (in the file too). A run in which no
-  DLL gave timings says so.
+- **One message per report:** a short line with two attached files, the summary and `results-raw.txt` (every run's time, which shows
+  how steady the card is), and a report ID (in the summary too). A run in which no DLL gave timings says so.
 
 The Linux kit is unchanged.
 
@@ -121,7 +122,7 @@ rounds in 14.6 minutes). A chip that needs more than ten minutes for one round s
 ten does two, up to about 20 minutes.
 
 **New in version 2026-10-18:** seven DLLs, percentages against `1b-amd-shaders-dots-split` on RX 6000 cards, a time limit per DLL,
-re-timing of unsteady readings, and one message per report with the summary attached (see [above](#in-short)).
+re-timing of unsteady readings, and one message per report with the summary and the per-run figures attached (see [above](#in-short)).
 
 **New in version 2026-10-15.3:** a postpass tuned for 32-wide drivers (`2p-exact-postpass-for-32-wide`,
 `4p-igpu-exact-postpass-for-32-wide`; see [above](#in-short)), fourteen DLLs in all.

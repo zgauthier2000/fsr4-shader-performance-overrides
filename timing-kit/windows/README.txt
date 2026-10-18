@@ -16,11 +16,12 @@ How to run it
   3. Double-click fsr4time.exe. It takes about 15 minutes (a slow or integrated graphics chip up to about
      20). Leave the PC alone while it runs: the header at the top of the window says so the whole time.
   4. At the end it shows a summary, saves it as results-<time>.txt in this folder, and asks
-     whether to send it to the project. Only the summary you see is sent: one short message
-     with the summary attached as a file. If you send it, you can also type a name or nickname
-     for the project's thank-you page; that is optional, and it is published there only if you
-     type one. Each summary has a report ID (eight letters and digits); if you write to the
-     project about a run, please mention it.
+     whether to send it to the project. Only two files are sent, in one short message: the summary
+     you see, and results-raw.txt (in the same folder, so you can read it first): each run's time
+     and picture fingerprint, from which the summary is made. If you send it, you can also type
+     a name or nickname for the project's thank-you page; that is optional, and it is published
+     there only if you type one. Each summary has a report ID (eight letters and digits); if you
+     write to the project about a run, please mention it.
 
 Windows will warn about an unknown program, because the file is not signed. The source is in
 the project's repository (timing-kit/windows/fsr4time.c) with the command that builds it, and the

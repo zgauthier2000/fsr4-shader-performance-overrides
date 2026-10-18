@@ -498,19 +498,36 @@ static void JsonText(char* d, size_t cap, const char* s) {      // s as the insi
     }
     d[n] = 0;
 }
-static bool Send(const char* message, const char* filename, const char* file) {
-    static char body[200000];
+// A whole text file as a string (malloc'd; NULL if missing, empty or over 1.5 MB)
+static char* ReadText(const char* path) {
+    FILE* f = fopen(path, "rb");
+    if (!f) return NULL;
+    char* b = (char*)malloc(1536 * 1024 + 1); size_t n = b ? fread(b, 1, 1536 * 1024 + 1, f) : 0;
+    fclose(f);
+    if (!b || n == 0 || n > 1536 * 1024) { free(b); return NULL; }
+    b[n] = 0; return b;
+}
+// The message with one or two attached text files (filename2/file2 NULL: one). Since kit 2026-10-18 a report attaches the summary and the
+// per-run file results-raw.txt.
+static bool Send(const char* message, const char* filename, const char* file, const char* filename2, const char* file2) {
+    static char body[1 << 21];
     char msg[2048];
     JsonText(msg, sizeof(msg), message);
+    const int two = filename2 && file2;
     int n = snprintf(body, sizeof(body),
                      "--" BOUNDARY "\r\nContent-Disposition: form-data; name=\"payload_json\"\r\nContent-Type: application/json\r\n\r\n"
-                     "{\"allowed_mentions\":{\"parse\":[]},\"content\":\"%s\",\"attachments\":[{\"id\":0,\"filename\":\"%s\"}]}\r\n"
-                     "--" BOUNDARY "\r\nContent-Disposition: form-data; name=\"files[0]\"; filename=\"%s\"\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n",
-                     msg, filename, filename);
-    const int len = (int)strlen(file);
-    if (n < 0 || n + len + 64 > (int)sizeof(body)) return false;
-    memcpy(body + n, file, (size_t)len); n += len;
-    n += snprintf(body + n, sizeof(body) - n, "\r\n--" BOUNDARY "--\r\n");
+                     "{\"allowed_mentions\":{\"parse\":[]},\"content\":\"%s\",\"attachments\":[{\"id\":0,\"filename\":\"%s\"}%s%s%s]}\r\n",
+                     msg, filename, two ? ",{\"id\":1,\"filename\":\"" : "", two ? filename2 : "", two ? "\"}" : "");
+    for (int k = 0; k <= two && n >= 0; ++k) {
+        const char* fn = k ? filename2 : filename; const char* f = k ? file2 : file;
+        const int len = (int)strlen(f);
+        int h = snprintf(body + n, sizeof(body) - n, "--" BOUNDARY "\r\nContent-Disposition: form-data; name=\"files[%d]\"; filename=\"%s\"\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n", k, fn);
+        if (h < 0 || n + h + len + 64 > (int)sizeof(body)) return false;
+        n += h; memcpy(body + n, f, (size_t)len); n += len;
+        n += snprintf(body + n, sizeof(body) - n, "\r\n");
+    }
+    if (n < 0) return false;
+    n += snprintf(body + n, sizeof(body) - n, "--" BOUNDARY "--\r\n");
     if (getenv("FSR4TIME_DRYSEND")) {      // for testing: the request's body goes to this file instead
         FILE* t = fopen(getenv("FSR4TIME_DRYSEND"), "wb");
         if (t) { fwrite(body, 1, (size_t)n, t); fclose(t); }
@@ -965,7 +982,8 @@ int main(int argc, char** argv) {
     }
     if (argc > 1 && !strcmp(argv[1], "--send-test")) {      // for the project: checks that sending works, with a message that says what it is
         const bool ok = Send("Test message from the timing kit's Windows program (kit " KIT_VERSION "), sent by the project while setting it up. Not a result: please ignore.",
-                             "send-test.txt", "Test file from the timing kit's Windows program (kit " KIT_VERSION "). Not a result.\n");
+                             "send-test.txt", "Test file from the timing kit's Windows program (kit " KIT_VERSION "). Not a result.\n",
+                             "send-test-raw.txt", "Second test file (in a report: the per-run figures, results-raw.txt). Not a result.\n");
         FILE* t = fopen("send-test.txt", "w");
         if (t) { fprintf(t, "%s\n", ok ? "sent" : "failed"); fclose(t); }
         printf("%s\n", ok ? "sent" : "failed");
@@ -1151,12 +1169,12 @@ int main(int argc, char** argv) {
     printf("\nSaved as %s\nReport ID: %s (also in the file; please mention it if you write about this run)\n", results, id);
     if (!unattended) {
         char in[16];
-        printf("\nSend this summary (and nothing else) to the project's results channel? [Y/n] ");
+        printf("\nSend this summary and the per-run figures (results-raw.txt in this folder), and nothing else, to the project's results channel? [Y/n] ");
         fflush(stdout);
         if (fgets(in, sizeof(in), stdin) && in[0] != 'n' && in[0] != 'N') {
             // optional: a name for the project's thank-you list; sent with the summary only if one is typed
             char name[128], clean[48]; int k = 0;
-            printf("\nThank you for testing. Your help is a valued part of this project.\nIf you would like to be named on the project's thank-you page, type a name or nickname. It would be published there.\n(Optional. Enter to skip, and nothing but the summary is sent) > ");
+            printf("\nThank you for testing. Your help is a valued part of this project.\nIf you would like to be named on the project's thank-you page, type a name or nickname. It would be published there.\n(Optional. Enter to skip: then no name is sent) > ");
             fflush(stdout);
             if (fgets(name, sizeof(name), stdin))
                 for (const char* c = name; *c && *c != '\r' && *c != '\n' && k < 40; ++c)
@@ -1164,16 +1182,19 @@ int main(int argc, char** argv) {
             while (k > 0 && clean[k - 1] == ' ') --k;
             clean[k] = 0;
             if (k) ADD("thank-you list (the tester asked to be named): %s\n", clean);
-            // the message: one short line; the summary is the attached file. A run without any timings says so ("run stopped").
-            char gpuname[128], message[512], fname[64];
+            // the message: one short line; the summary and results-raw.txt are the attached files. A run without any timings says so ("run stopped").
+            char gpuname[128], message[512], fname[64], rname[64];
             snprintf(gpuname, sizeof(gpuname), "%s", gpu);
             gpuname[strcspn(gpuname, "(")] = 0;
             while (gpuname[0] && gpuname[strlen(gpuname) - 1] == ' ') gpuname[strlen(gpuname) - 1] = 0;
-            if (nr) snprintf(message, sizeof(message), "Timing kit report %s: %s, kit %s, %d round%s%s. The summary is attached.", id, gpuname, KIT_VERSION, rounds, rounds == 1 ? "" : "s",
+            if (nr) snprintf(message, sizeof(message), "Timing kit report %s: %s, kit %s, %d round%s%s. The summary and the per-run figures are attached.", id, gpuname, KIT_VERSION, rounds, rounds == 1 ? "" : "s",
                              fl ? "; some runs failed (listed at the end of the file)" : "");
             else snprintf(message, sizeof(message), "Timing kit report %s: run stopped, no DLL gave timings on %s (kit %s). The reasons are in the attached file.", id, gpuname, KIT_VERSION);
-            snprintf(fname, sizeof(fname), "results-%s.txt", id);
-            printf(Send(message, fname, summary) ? "Sent. Thank you: your help is a valued part of this project.\n" : "Could not send it. Please post the results file on the project's GitHub page or Discord instead.\n");
+            snprintf(fname, sizeof(fname), "results-%s.txt", id); snprintf(rname, sizeof(rname), "results-raw-%s.txt", id);
+            char* rawtext = ReadText(raw);      // missing (no DLL ran) or too large: the summary alone
+            const bool sent = Send(message, fname, summary, rawtext ? rname : NULL, rawtext);
+            free(rawtext);
+            printf(sent ? "Sent. Thank you: your help is a valued part of this project.\n" : "Could not send it. Please post the results file on the project's GitHub page or Discord instead.\n");
         }
         printf("\nPress Enter to close.");
         fflush(stdout);
