@@ -7,11 +7,14 @@ alike.
 
 ## Download it
 
-Two zips are attached to the [latest release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest), each with an exact and a
-lossy DLL, AMD's notice and SHA-256 checksums: [`fsr4.1.1-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-cyboman.zip) for RX 7000 and RX 6000 cards and
-[`fsr4.1.1-igpu-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-igpu-cyboman.zip) for integrated graphics and handhelds. The exact DLLs were made by this script from AMD's original (SHA-256
+Two archives are attached to each release (the newest: [latest release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest)), each with an exact, a lossy and a lossy2
+DLL, AMD's notice and SHA-256 checksums, and each as a `.zip` and a much smaller `.7z` with the same files. In `dll-2026-10-19`:
+[`fsr4.1.1-cyboman-2026-10-19.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-cyboman-2026-10-19.7z) ([.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-cyboman-2026-10-19.zip)) for RX 7000 and RX 6000 cards and
+[`fsr4.1.1-igpu-cyboman-2026-10-19.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-igpu-cyboman-2026-10-19.7z) ([.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-igpu-cyboman-2026-10-19.zip)) for integrated graphics and handhelds. The exact DLLs were made by this script from AMD's original (SHA-256
 `d0dcccc74a43c44ba435b7a369b456e0970d8a4464e4bd683119b374f2c9fb46`) and the shader sets `../windows/dxil/build_dxil_overrides.sh` builds with `DOT4=split`
-(plus `PASS11=rows` for the second zip), with `--any-gpu --name 4.1.1-cyboman` (`4.1.1-igpu-cyboman`). Install as the [front page](../README.md#quick-start) describes.
+(plus `PASS11=rows` for the second zip), with `--any-gpu --name 4.1.1-cyboman` (`4.1.1-igpu-cyboman`). The lossy2 DLLs are the lossy
+DLLs with 18 shaders swapped: [`research/lossy2`](../research/lossy2/README.md) rebuilds them byte for byte, reading the lossy DLL's
+shader set back with `recover_set.py` (the patcher only takes AMD's own DLL). Install as the [front page](../README.md#quick-start) describes.
 
 ## Make the DLL
 
@@ -35,7 +38,7 @@ Not for RDNA4. **All released DLLs are built with it** since release `dll-2026-1
 `--name <text>` changes the version name the DLL reports ("4.1.1" in AMD's), which is what
 OptiScaler displays, so that a patched DLL can be told from AMD's and the builds from each other.
 The released DLLs use `4.1.1-cyboman` (RX 7000 and RX 6000 cards) and `4.1.1-igpu-cyboman` (integrated graphics and
-handhelds), and `4.1.1-lossy-cyboman` and `4.1.1-igpu-lossy-cyboman` for the opt-in versions that change the image
+handhelds), and `4.1.1-lossy-cyboman`, `4.1.1-lossy2-cyboman`, `4.1.1-igpu-lossy-cyboman` and `4.1.1-igpu-lossy2-cyboman` for the opt-in versions that change the image
 ([exact and lossy compared](../docs/exact-vs-lossy.md)). Up to release `dll-2026-10-07` there were four flavors with
 the names `4.1.1-r3-`, `-r2-`, `-r2c-` and `-ig-cyboman` ([earlier releases](../docs/changelog.md)).
 

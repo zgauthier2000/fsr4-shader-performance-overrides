@@ -1,0 +1,129 @@
+{
+ "tag": "dll-2026-10-19",
+ "sheets": [
+  {
+   "name": "foliage",
+   "scene": "foliage",
+   "frame": 39,
+   "x": 1040,
+   "y": 1550,
+   "w": 160,
+   "h": 100,
+   "zoom": 4,
+   "err": true,
+   "title": "Swaying foliage, camera still",
+   "sub": "Frame 39, a frame the lossy DLLs skip the network for. A 160 x 100 pixel piece, enlarged 4 times; the second row shows each\nversion's difference from the true image, amplified 16 times (darker is closer). The figures are the piece's mean error, in steps of 255.",
+   "cap": {
+    "truth": "true image",
+    "amd": "AMD's shaders: 12.7",
+    "rel": "lossy: 20.3",
+    "new": "lossy2: 13.8"
+   }
+  }
+ ],
+ "fades": {
+  "frames": [
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39
+  ],
+  "kinds": [
+   "r",
+   "s",
+   "r",
+   "s",
+   "r",
+   "s",
+   "r",
+   "s"
+  ],
+  "range": [
+   0.3,
+   1.9
+  ],
+  "ticks": [
+   0.4,
+   0.8,
+   1.2,
+   1.6
+  ],
+  "labels": {
+   "amd": "AMD's shaders",
+   "rel": "lossy",
+   "new": "lossy2"
+  },
+  "charts": [
+   {
+    "title": "Brightening, bright area: frames behind",
+    "amd": [
+     0.7,
+     0.64,
+     0.58,
+     0.53,
+     0.49,
+     0.47,
+     0.45,
+     0.45
+    ],
+    "rel": [
+     0.92,
+     0.93,
+     0.78,
+     0.81,
+     0.66,
+     0.7,
+     0.57,
+     0.63
+    ],
+    "new": [
+     1.75,
+     1.75,
+     1.68,
+     1.7,
+     1.58,
+     1.58,
+     1.49,
+     1.53
+    ]
+   },
+   {
+    "title": "Darkening, mid-gray area: frames behind",
+    "amd": [
+     1.03,
+     1.0,
+     0.97,
+     0.95,
+     0.93,
+     0.92,
+     0.9,
+     0.89
+    ],
+    "rel": [
+     0.86,
+     0.92,
+     0.8,
+     0.88,
+     0.75,
+     0.84,
+     0.71,
+     0.81
+    ],
+    "new": [
+     0.96,
+     1.01,
+     0.91,
+     0.95,
+     0.88,
+     0.93,
+     0.84,
+     0.88
+    ]
+   }
+  ]
+ }
+}

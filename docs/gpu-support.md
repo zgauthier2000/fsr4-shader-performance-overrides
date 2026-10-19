@@ -11,11 +11,11 @@
 
 | Your graphics chip | Download | Status |
 |---|---|---|
-| Radeon RX 7900, 7800, 7700, 7600 | `fsr4.1.1-cyboman.zip` | measured on an RX 7800 XT (Linux): faster; testers report large gains on Windows |
-| Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.1-cyboman.zip` | runs, with the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact files range from a few percent to about 30%, and we do not yet know what decides it; a few percent below 4K (tester reports) |
-| Graphics built into the processor: Radeon 780M, 890M and the like, Steam Deck | `fsr4.1.1-igpu-cyboman.zip` | experimental: few reports, small gains |
+| Radeon RX 7900, 7800, 7700, 7600 | `fsr4.1.1-cyboman-<version>` | measured on an RX 7800 XT (Linux): faster; testers report large gains on Windows |
+| Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.1-cyboman-<version>` | runs, with the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact files range from a few percent to about 30%, and we do not yet know what decides it; a few percent below 4K (tester reports) |
+| Graphics built into the processor: Radeon 780M, 890M and the like, Steam Deck | `fsr4.1.1-igpu-cyboman-<version>` | experimental: few reports, small gains |
 | Radeon RX 9000 | none | not covered: it runs a different FSR 4; see [RDNA4](rdna4.md) |
-| Any other chip with DirectX 12 and Shader Model 6.6: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-cyboman.zip`; `fsr4.1.1-igpu-cyboman.zip` for a chip built into the processor | should run (reported on a GeForce laptop and an Arc A770); nothing measured, and "same picture" is verified on Radeon only |
+| Any other chip with DirectX 12 and Shader Model 6.6: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-cyboman-<version>`; `fsr4.1.1-igpu-cyboman-<version>` for a chip built into the processor | should run (reported on a GeForce laptop and an Arc A770); nothing measured, and "same picture" is verified on Radeon only |
 
 - **Why two downloads:** the two differ in one shader, which is built large and fast for RX cards and small for the
   chips built into processors, where the large one is slower.
@@ -34,8 +34,8 @@ Since release `dll-2026-10-09` there are two downloads instead of a file per GPU
 
 | Download | Version name shown | For | What differs |
 |---|---|---|---|
-| [`fsr4.1.1-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-cyboman.zip) | `4.1.1-cyboman`, `4.1.1-lossy-cyboman` | RX 7000 and RX 6000 graphics cards, including gaming laptops with their own RX chip (RX 7700S, RX 6700M and the like) | pass 11 unrolled (fastest on these cards) |
-| [`fsr4.1.1-igpu-cyboman.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest/download/fsr4.1.1-igpu-cyboman.zip) | `4.1.1-igpu-cyboman`, `4.1.1-igpu-lossy-cyboman` | graphics built into the processor (most laptops, mini PCs, handhelds: Radeon 780M, 890M, Steam Deck), and small RX 6000 chips if the first is slow there | pass 11 with its loops kept (small code) |
+| [`fsr4.1.1-cyboman-2026-10-19.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-cyboman-2026-10-19.7z) ([.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-cyboman-2026-10-19.zip)) | `4.1.1-cyboman`, `4.1.1-lossy-cyboman`, `4.1.1-lossy2-cyboman` | RX 7000 and RX 6000 graphics cards, including gaming laptops with their own RX chip (RX 7700S, RX 6700M and the like) | pass 11 unrolled (fastest on these cards) |
+| [`fsr4.1.1-igpu-cyboman-2026-10-19.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-igpu-cyboman-2026-10-19.7z) ([.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-igpu-cyboman-2026-10-19.zip)) | `4.1.1-igpu-cyboman`, `4.1.1-igpu-lossy-cyboman`, `4.1.1-igpu-lossy2-cyboman` | graphics built into the processor (most laptops, mini PCs, handhelds: Radeon 780M, 890M, Steam Deck), and small RX 6000 chips if the first is slow there | pass 11 with its loops kept (small code) |
 
 Both carry what used to be the separate RX 6000 change: the postpass's dot products in the split form
 ([below](#rdna2-needs-one-more-change-the-dot-products)). On an RX 7800 XT under Proton the split form times the same as AMD's

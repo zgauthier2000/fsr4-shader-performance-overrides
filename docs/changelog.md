@@ -2,8 +2,38 @@
 
 [Back to the front page](../README.md)
 
-What each release up to `dll-2026-10-14` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
+What each release up to `dll-2026-10-15` changed, newest first, as it was written at the time. The file names and build names in these entries are those of that release;
 the current downloads are on the front page.
+
+## 2026-10-15 ([release `dll-2026-10-15`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-15))
+
+[What this release changed, in pictures and figures](releases/dll-2026-10-15.md).
+
+> [!TIP]
+> **The lossy DLL now skips frames in Ultra Performance too, and the exact DLL is a little faster with the same picture.**
+> - **Ultra Performance (figures for Ultra Performance only, not representative of the lossy DLL in other modes):** the lossy DLL
+>   skipped no frames there before, so it was about as fast as the exact DLL. Now 4K takes 2.50 ms per frame instead of 3.18 (Windows
+>   timing kit, RX 7800 XT), and Shadow of the Tomb Raider's benchmark at 4K Ultra Performance renders 9% more frames (21,699 to
+>   23,705; 140 to 154 FPS, one run each). **The price, in Ultra Performance only:** its picture is further from AMD's than with
+>   `dll-2026-10-14` there: areas a moving object has just uncovered are less sharp, isolated bright dots (sky seen through leaves)
+>   flicker more, tiny fast sparks are dimmer, and a thin wire in a fast pan is fainter. [The comparison with the exact DLL in Ultra
+>   Performance](releases/dll-2026-10-15.md#change-1-frame-skip-in-ultra-performance-ultra-performance-only).
+> - **Balanced and the other modes:** the lossy DLL's picture and speed are as before (every moving-scene check identical; a few
+>   at-rest rows move by a hair).
+> - **Exact DLL:** its last shader converts each color once instead of up to four times. Same picture as AMD's; at 4K about 0.02 ms
+>   per frame faster than `dll-2026-10-14`'s exact DLL: 3.16 ms against 3.18 (AMD's shaders 5.00 ms; Windows timing kit, RX 7800 XT).
+>   In the game benchmark at 4K Balanced, 0.2% more frames than with `dll-2026-10-14`'s exact DLL.
+> - **For RX 6000 cards, the RX 7600 and integrated graphics** (measured since with [the timing kit](../timing-kit), Windows): the exact
+>   DLL's new form is not slower there but about 1% faster than without it (RX 6000, 14 reports; RX 7600 1.5%; a Radeon 890M 2 to 4%,
+>   one report).
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/rel-2026-10-15-speed-dark.svg">
+  <img src="img/rel-2026-10-15-speed-light.svg" width="100%" alt="ULTRA PERFORMANCE ONLY. Bar chart of FSR 4's time per frame in Ultra Performance, lower is better, on a Radeon RX 7800 XT (Windows timing kit under Proton): 1080p output AMD's shaders 0.94 ms, the lossy DLL of dll-2026-10-14 0.92 ms (no frame skip in Ultra Performance), this release's lossy DLL 0.76 ms; 1440p 2.10, 1.46, 1.17 ms; 4K 4.64, 3.18, 2.50 ms. Not representative of other modes: at the Balanced preset's size this release's lossy DLL takes the same time as dll-2026-10-14.">
+</picture>
+
+**Ultra Performance only, not representative of other modes.** This release's gain is speed, and it is in Ultra Performance alone. In
+pictures it costs something there; [the release page](releases/dll-2026-10-15.md) shows a typical frame and the lossy DLL against the exact DLL on every measure.
 
 ## 2026-10-14 ([release `dll-2026-10-14`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-14))
 
