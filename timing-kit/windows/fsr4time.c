@@ -18,7 +18,10 @@
 //   FSR4TIME_HANGTEST=<name>   (for testing) the run of the DLL <name> never ends, as a hung driver call would
 //   FSR4TIME_LIMIT=<seconds>   (for testing) the time limit of one DLL's run (default RUN_LIMIT_MIN minutes)
 //   FSR4TIME_DRYSEND=<file>    (for testing) what would be sent is written to <file> instead
-//   FSR4TIME_AGILITYONLY=1     (for testing) only the Windows 10 runtime offer (GetAgility), then end
+//   FSR4TIME_AGILITYONLY=1     (for testing) only the runtime choice (SetupRuntime: offer, check, probe), then end
+//   FSR4TIME_FORCE_D3D12=1     (for testing) treat Windows' own runtime as too old (below shader model 6.6), as on Windows 10;
+//                              =2 also accept any probe that made a device (Proton does not load D3D12\'s runtime, so its probe never says "from the kit")
+//   fsr4time-d3d12.exe --probe (used by SetupRuntime) prints the GPU line of a device made with Microsoft's runtime from D3D12\
 //
 // What is timed: the GPU time of one upscale call (prepass, 12 model passes, postpass and the small shaders around
 // them), from a timestamp before to one after, 200 calls back to back after 40 to warm up. For a lossy DLL the
@@ -62,7 +65,7 @@
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
 #define MAXROUNDS 8
-#define MAXDLLS 48     // DLLs in one run (pack + tester folders); a study run has 19 (RDNA2) or 21 (RDNA3)
+#define MAXDLLS 48     // DLLs in one run (pack + tester folders); a study run has 16 (RDNA2) or 18 (RDNA3)
 #define MAXROWS 1024   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
 #define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
 #define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL
@@ -310,10 +313,11 @@ static double Median(double* v, int n) { qsort(v, n, sizeof(double), CmpD); retu
 // The DirectX 12 Agility SDK (since kit 2026-10-18.2): Windows uses D3D12\D3D12Core.dll next to the program when that folder is there, as games
 // do with their own copy, instead of the runtime built into Windows (Windows 10's is older; a GTX 1660 SUPER on Windows 10 crashed inside it in
 // every run, 2026-10-18). Without the folder Windows uses its own runtime, as before. The version must match the D3D12Core.dll shipped.
-// OFF since kit 2026-10-18.3 (build with -DKIT_AGILITY to bring it back): on Windows 11 23H2 (build 22631) every device creation then failed
-// with 0x887E0003 (D3D12_ERROR_INVALID_REDIST) although no D3D12\ folder was there (report 013B3D90, 2026-10-18); 24H2 (26100) ran. Planned
-// instead: the exports in a second program, started only when D3D12\ holds the runtime.
-#ifdef KIT_AGILITY
+// OFF in fsr4time.exe since kit 2026-10-18.3: on Windows 11 23H2 (build 22631) every device creation then failed with 0x887E0003
+// (D3D12_ERROR_INVALID_REDIST) although no D3D12\ folder was there (report 013B3D90, 2026-10-18); 24H2 (26100) ran. Since kit 2026-10-19 the
+// exports are in a second program, fsr4time-d3d12.exe (the same source built with -DKIT_D3D12_EXPORTS), which runs the DLLs only on a PC whose
+// own runtime offers less than shader model 6.6 and only once D3D12\ holds Microsoft's checked runtime (SetupRuntime below).
+#ifdef KIT_D3D12_EXPORTS
 __declspec(dllexport) const UINT D3D12SDKVersion = 615;
 __declspec(dllexport) const char* D3D12SDKPath = ".\\D3D12\\";
 #endif
@@ -340,12 +344,12 @@ static bool GpuIds(unsigned* ven, unsigned* dev, char* name, size_t n) {      //
     if (f6) IDXGIFactory6_Release(f6);
     return ok;
 }
-// which pack DLLs a run takes: the normal run every DLL but the study sets; a study run AMD's two references, the exact DLL, the Durandal test
-// DLLs (6-...: user, 2026-10-19, "i also want the rdna study modes to test durandal") and its own set
+// which pack DLLs a run takes: the normal run every DLL but the study sets; a study run AMD's two references, the exact DLL and its own set
+// (the Durandal test DLLs were in study runs for a while on 2026-10-19; the user reversed that the same day)
 static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
     if (!study) return !s2 && !s3;
-    return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || !strncmp(name, "6", 1) || (study == 2 ? s2 : s3);
+    return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || (study == 2 ? s2 : s3);
 }
 static void CreateDevice(char* gpu, size_t gpu_len) {
     IDXGIFactory6* f6 = NULL;
@@ -639,7 +643,6 @@ static bool Send(const char* message, const char* filename, const char* file, co
     return ok;
 }
 
-#ifdef KIT_AGILITY      // off since kit 2026-10-18.3 (see D3D12SDKVersion above)
 // ---- Windows 10 and the DirectX 12 Agility SDK (since kit 2026-10-18.2; user, 2026-10-18). Windows 10's own Direct3D 12 runtime is older than
 // the one games bring with them (Microsoft's Agility SDK, a D3D12Core.dll in the game's folder); a GTX 1660 SUPER on Windows 10 crashed inside
 // it in every run while FSR 4 worked in games there. On Windows 10 the kit offers to fetch Microsoft's runtime from Microsoft's own package on
@@ -695,9 +698,9 @@ static void GetAgility(const char* base, bool unattended) {
     const DWORD build = WindowsBuild();
     char dll[MAX_PATH], dir[MAX_PATH];
     snprintf(dir, sizeof(dir), "%sD3D12", base); snprintf(dll, sizeof(dll), "%s\\D3D12Core.dll", dir);
-    if (!build || build >= 22000 || GetFileAttributesA(dll) != INVALID_FILE_ATTRIBUTES) return;      // not Windows 10, or already there
-    printf("This is Windows 10 (build %lu). Its own DirectX 12 runtime is older than the one games bring with them, and on at least one\n"
-           "Windows 10 PC the kit crashed inside it. The kit can fetch Microsoft's newer runtime (D3D12Core.dll, from Microsoft's\n"
+    if (GetFileAttributesA(dll) != INVALID_FILE_ATTRIBUTES) return;      // already there (SetupRuntime checks it)
+    printf("Windows' own DirectX 12 runtime here (build %lu) is older than the one games bring with them: FSR 4 needs shader model 6.6,\n"
+           "and on such PCs every DLL crashed inside the runtime. The kit can fetch Microsoft's newer runtime (D3D12Core.dll, from Microsoft's\n"
            "DirectX 12 Agility SDK 1.615.1, a 22 MB download from nuget.org) into the folder D3D12 here, and use it for this run.\n"
            "It is Microsoft's file, under Microsoft's license: %s\n", (unsigned long)build, AGILITY_LICENSE);
     if (unattended) { printf("(--no-questions: not fetched; the README says how to get it by hand)\n\n"); return; }
@@ -720,7 +723,63 @@ static void GetAgility(const char* base, bool unattended) {
     if (!ok) { DeleteFileA(dll); printf("Could not write %s; the run uses Windows' own runtime.\n\n", dll); return; }
     printf("Done: D3D12\\D3D12Core.dll (checked). The summary's GPU line says which runtime each run used.\n\n");
 }
-#endif
+
+// The runtime the DLL runs use (since kit 2026-10-19). Windows' own is used unless it offers less than shader model 6.6 (Windows 10's stops at
+// 6.5: issue #34, RX 7900 XT on 21H2, every DLL crashed inside it; a GTX 1660 SUPER before). Then the kit offers Microsoft's runtime
+// (GetAgility), checks the file in D3D12\ against its SHA-256, and asks fsr4time-d3d12.exe --probe whether a device made with it offers 6.6+.
+// Only if all of that holds do the DLL runs start as fsr4time-d3d12.exe; otherwise they stay with fsr4time.exe and Windows' runtime, as before.
+static const char* child_exe = "fsr4time.exe";      // the program each DLL's run is started as
+static char runtime_note[256];                       // a line for the summary when the kit's runtime was used or offered
+static int BuiltinShaderModel(void) {      // highest shader model of a device on the runs' adapter, with this program's runtime (Windows' own here); 0 = none
+    IDXGIFactory6* f6 = NULL; IDXGIAdapter1* ad = NULL; ID3D12Device* d = NULL; int smv = 0;
+    if (SUCCEEDED(CreateDXGIFactory1(&IID_IDXGIFactory6, (void**)&f6)))
+        IDXGIFactory6_EnumAdapterByGpuPreference(f6, 0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, &IID_IDXGIAdapter1, (void**)&ad);
+    if (SUCCEEDED(D3D12CreateDevice((IUnknown*)ad, D3D_FEATURE_LEVEL_12_0, &IID_ID3D12Device, (void**)&d))) {
+        for (int m = 0x69; m >= 0x51 && !smv; --m) {
+            D3D12_FEATURE_DATA_SHADER_MODEL sm = {(D3D_SHADER_MODEL)m};
+            if (SUCCEEDED(ID3D12Device_CheckFeatureSupport(d, D3D12_FEATURE_SHADER_MODEL, &sm, sizeof(sm)))) smv = (int)sm.HighestShaderModel;
+        }
+        ID3D12Device_Release(d);
+    }
+    if (ad) IDXGIAdapter1_Release(ad);
+    if (f6) IDXGIFactory6_Release(f6);
+    return smv;
+}
+static void SetupRuntime(const char* base, bool unattended) {
+    const int own = BuiltinShaderModel();
+    const bool force = getenv("FSR4TIME_FORCE_D3D12") != NULL;      // for testing on a PC whose runtime is new enough (Proton)
+    if (own >= 0x66 && !force) return;
+    printf("Windows' own DirectX 12 runtime offers shader model %d.%d here%s.\n", own >> 4, own & 15, force ? " (FSR4TIME_FORCE_D3D12: treated as too old)" : "");
+    GetAgility(base, unattended);
+    char dll[MAX_PATH], hex[65] = "";
+    snprintf(dll, sizeof(dll), "%sD3D12\\D3D12Core.dll", base);
+    FILE* f = fopen(dll, "rb");
+    if (!f) { snprintf(runtime_note, sizeof(runtime_note), "runtime: Windows' own (shader model %d.%d); Microsoft's newer runtime was not fetched", own >> 4, own & 15); return; }
+    fseek(f, 0, SEEK_END); long n = ftell(f); fseek(f, 0, SEEK_SET);
+    uint8_t* d = n > 0 ? malloc((size_t)n) : NULL; const bool rd = d && fread(d, 1, (size_t)n, f) == (size_t)n;
+    fclose(f);
+    const bool same = rd && Sha256Hex(d, (size_t)n, hex) && !strcmp(hex, AGILITY_DLL_SHA);
+    free(d);
+    if (!same) { printf("D3D12\\D3D12Core.dll is not Microsoft's file the kit expects (checksum); not used.\n\n");
+                 snprintf(runtime_note, sizeof(runtime_note), "runtime: Windows' own; D3D12\\D3D12Core.dll did not match the expected checksum"); return; }
+    char cmd[MAX_PATH + 64], line[1024], probe[1024] = "";
+    snprintf(cmd, sizeof(cmd), "\"\"%sfsr4time-d3d12.exe\" --probe\"", base);
+    FILE* pp = _popen(cmd, "r");
+    while (pp && fgets(line, sizeof(line), pp)) if (!strncmp(line, "PROBE|", 6)) { snprintf(probe, sizeof(probe), "%s", line + 6); probe[strcspn(probe, "\r\n")] = 0; }
+    if (pp) _pclose(pp);
+    const char* smp = strstr(probe, "shader model ");
+    int a = 0, b = 0;
+    if (smp) sscanf(smp, "shader model %d.%d", &a, &b);
+    const bool accept_any = force && !strcmp(getenv("FSR4TIME_FORCE_D3D12"), "2") && probe[0];      // for testing the switch under Proton
+    if ((strstr(probe, "from the kit") && (a > 6 || (a == 6 && b >= 6))) || accept_any) {
+        child_exe = "fsr4time-d3d12.exe";
+        printf("The DLL runs use Microsoft's runtime from D3D12\\ (shader model %d.%d).\n\n", a, b);
+        snprintf(runtime_note, sizeof(runtime_note), "runtime: Microsoft's DirectX 12 runtime from D3D12\\ (fsr4time-d3d12.exe); Windows' own offers shader model %d.%d", own >> 4, own & 15);
+    } else {
+        printf("A test with Microsoft's runtime did not give shader model 6.6 (%s); the DLL runs use Windows' own runtime.\n\n", probe[0] ? probe : "no device");
+        snprintf(runtime_note, sizeof(runtime_note), "runtime: Windows' own (shader model %d.%d); the test with Microsoft's runtime failed: %.120s", own >> 4, own & 15, probe[0] ? probe : "no device");
+    }
+}
 
 // ---- the DLL pack: the kit's DLLs are variants of one file, and a zip compresses each on its own (235 MB for nine). As one zstd stream with a
 // long match window they take about 10 MB. Nothing is unpacked in advance: for each run the DLL is taken out of the pack (decompressing the stream
@@ -1103,7 +1162,7 @@ static void RunDll(const char* name, int inpack, const char* base, const char* r
         }
     } else if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", name); return; }
     printf("%s %s ...\n", name, what); fflush(stdout);
-    snprintf(cmd, sizeof(cmd), "\"%sfsr4time.exe\" --run \"%s\" \"%s\"%s%s", base, name, raw, quick ? " quick" : " full", all_presets ? " all" : "");
+    snprintf(cmd, sizeof(cmd), "\"%s%s\" --run \"%s\" \"%s\"%s%s", base, child_exe, name, raw, quick ? " quick" : " full", all_presets ? " all" : "");
     STARTUPINFOA si = {.cb = sizeof(si)};
     PROCESS_INFORMATION pi;
     if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) { printf("could not start a run for %s\n", name); return; }
@@ -1156,6 +1215,10 @@ int main(int argc, char** argv) {
         all_presets = argc > 5 && !strcmp(argv[5], "all");
         return RunOne(argv[2], argc > 4 && !strcmp(argv[4], "quick"));
     }
+    if (argc > 1 && !strcmp(argv[1], "--probe")) {      // (fsr4time-d3d12.exe, from SetupRuntime) a device with this program's runtime: its GPU line
+        SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+        char g[512]; CreateDevice(g, sizeof(g)); printf("PROBE|%s\n", g); return 0;
+    }
     if (argc > 1 && !strcmp(argv[1], "--send-test")) {      // for the project: checks that sending works, with a message that says what it is
         const bool ok = Send("Test message from the timing kit's Windows program (kit " KIT_VERSION "), sent by the project while setting it up. Not a result: please ignore.",
                              "send-test.txt", "Test file from the timing kit's Windows program (kit " KIT_VERSION "). Not a result.\n",
@@ -1176,7 +1239,7 @@ int main(int argc, char** argv) {
         if (!strcmp(argv[a], "--study")) study = 1;
         if (!strcmp(argv[a], "--minutes") && a + 1 < argc) { budget = atof(argv[++a]); budget_set = true; }
     }
-    if (study && !budget_set) budget = 40;      // 19 or 21 DLLs, about twice a normal run's
+    if (study && !budget_set) budget = 30;      // 16 or 18 DLLs, about twice a normal run's
     if (all_presets && !budget_set) budget *= 2;      // twice the sizes: twice the time for the same number of rounds
     if (budget < 1) budget = 1;
     SYSTEMTIME st;
@@ -1203,10 +1266,8 @@ int main(int argc, char** argv) {
         }
         printf("Study mode: the RDNA%d study set (%s).\n\n", study, gn);
     }
-#ifdef KIT_AGILITY
-    GetAgility(base, unattended);      // Windows 10 only: offer Microsoft's newer DirectX 12 runtime
-    if (getenv("FSR4TIME_AGILITYONLY")) return 0;      // for testing GetAgility alone (no DLL runs)
-#endif
+    SetupRuntime(base, unattended);      // Windows' own runtime unless it offers less than shader model 6.6 (Windows 10); see there
+    if (getenv("FSR4TIME_AGILITYONLY")) return 0;      // for testing the runtime choice alone (no DLL runs)
     // the DLLs: the pack's, and folders a tester added to dlls\ (a pack DLL wins over a folder of the same name, such as one an earlier
     // kit unpacked); AMD's shaders first (the reference), then the rest in name order. inpack[i]: the DLL's number in the pack, or -1.
     char names[MAXDLLS][64];
@@ -1332,6 +1393,7 @@ int main(int argc, char** argv) {
     const bool wine = GetProcAddress(GetModuleHandleA("ntdll.dll"), "wine_get_version") != NULL;
 #define ADD(...) sn += snprintf(summary + sn, sizeof(summary) - sn, __VA_ARGS__)
     ADD("report %s, kit %s\nGPU: %s\nsystem: Windows %lu.%lu build %lu%s; CPU: %s\n", id, KIT_VERSION, gpu, vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, wine ? " (Wine/Proton)" : "", cpu);
+    if (runtime_note[0]) ADD("%s\n", runtime_note);
     if (study) ADD("study: the RDNA%d study set (run-study.cmd / --study): each change of the exact DLL added alone and left out alone\n", study);
     ADD("upscaler time per frame, ms: mean (for a lossy DLL also: frame that runs the model / skipped frame); %% vs %s\n",
         refname ? "1b (an RDNA2 chip: AMD's shaders with the dot products split are the ones to compare with)" : "the first");

@@ -23,7 +23,7 @@ How to run it
      there only if you type one. Each summary has a report ID (eight letters and digits); if you
      write to the project about a run, please mention it.
 
-The study run (RDNA2 and RDNA3 graphics only, about 40 minutes)
+The study run (RDNA2 and RDNA3 graphics only, about 30 minutes)
   run-study.cmd starts a longer test that times each change in the exact DLL on its own, to find
   which help on your kind of chip. The DLLs for it are in the same pack; the normal test above does
   not use them. See STUDY.txt.
@@ -118,12 +118,19 @@ Other graphics cards
   shows whether they help there and whether the exact DLL still gives AMD's picture.
 
 Windows 10
-  On at least one Windows 10 PC every DLL crashed inside Windows' own DirectX 12 runtime. Version
-  2026-10-18.2 offered to fetch Microsoft's newer runtime for Windows 10, but that change stopped the kit
-  on some Windows 11 PCs (version 23H2), so this version does not do it; another way is planned. Reports
-  from Windows 10 are welcome, crashes included.
-  The summary's GPU line says which DirectX 12 runtime was used and the highest shader model the card
-  offers (FSR 4 needs 6.6).
+  Windows 10's own DirectX 12 runtime offers shader model 6.5, and FSR 4 needs 6.6: on such PCs every
+  DLL, AMD's own included, crashed inside the runtime. Games bring a newer runtime of their own
+  (Microsoft's DirectX 12 Agility SDK); the kit can do the same:
+  - when Windows' runtime offers less than shader model 6.6, the kit offers to fetch Microsoft's
+    runtime (D3D12Core.dll, a 22 MB download from Microsoft's package on nuget.org) into the folder
+    D3D12 here. It checks the file, then runs the DLLs with fsr4time-d3d12.exe, the same program set up
+    to use that runtime. It is Microsoft's file, under Microsoft's license; the kit does not carry it.
+  - by hand: from Microsoft.Direct3D.D3D12 version 1.615.1 on nuget.org, the file
+    build/native/bin/x64/D3D12Core.dll goes into a folder D3D12 next to fsr4time.exe.
+  - fsr4time-d3d12.exe is only used on such PCs: where Windows' runtime offers 6.6 or more (Windows 11),
+    nothing changes.
+  The summary's GPU line says which DirectX 12 runtime was used ("from the kit" or "built in") and the
+  highest shader model the card offers. Reports from Windows 10 are welcome, crashes included.
 
 Not for Radeon RX 9000 cards: they run a different FSR 4.
 
