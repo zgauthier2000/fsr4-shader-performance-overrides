@@ -31,7 +31,25 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Windows kit version 2026-10-18.3** (download again if you have an earlier one): a fix. Version 2026-10-18.2 did not start on Windows 11
+**Windows kit version 2026-10-19** (download again if you have an earlier one): one download for everything.
+
+- **The study run is in the main kit now,** for RDNA2 and, new, RDNA3 graphics: double-click `run-study.cmd` (or `fsr4time.exe
+  --study`). It times each change in the exact DLL on its own, to find which help on your kind of chip and which help only together:
+  six changes on RDNA2 (RX 6000 and the RDNA2 chips built into processors), seven on RDNA3 (RX 7000 and the Radeon 780M, 890M and other
+  RDNA3 chips built into processors), where splitting the last shader's dot products is studied too. About 30 minutes; on other
+  graphics it says so and stops. The separate RDNA2 study download is gone. See `STUDY.txt` inside.
+- **Windows 10:** Windows 10's own DirectX 12 runtime offers shader model 6.5, and FSR 4 needs 6.6, so every DLL failed there. Where
+  the card offers less than 6.6, the kit now asks whether to fetch Microsoft's newer runtime (`D3D12Core.dll`, 22 MB, from
+  Microsoft's package on nuget.org; the kit checks the file), tests it with a small helper program (`win10-helper.exe`, which only
+  shows a message if opened by hand) and runs the DLLs with it only if the test reaches 6.6. Windows 11 is not asked and runs as before:
+  this is not the 2026-10-18.2 change that stopped the kit on Windows 11 23H2. Tested here only under Proton, by making the kit treat
+  Proton's runtime as too old; not yet on Windows 10 itself. You can also put the file there by hand (see `README.txt`).
+- **Test DLLs:** `6-durandal-test` stays; `6a`, `6b` and `6c` are replaced by `6d-durandal-test-wideloads` and
+  `6e-durandal-test-unrolled`, other forms of the same test DLL.
+- The kit still times the exact and lossy DLLs of release `dll-2026-10-15`. The exact DLL is also release `dll-2026-10-19`'s; that
+  release's lossy DLLs (and lossy2) are not in this kit.
+
+**Windows kit version 2026-10-18.3:** a fix. Version 2026-10-18.2 did not start on Windows 11
 23H2 (build 22631): every attempt to open the graphics card failed with `0x887E0003`. The cause was its Windows 10 change, which asked
 Windows to use a newer DirectX 12 runtime when one is in a `D3D12` folder; 2026-10-18.3 leaves that out, so it starts the way 2026-10-18
 did. Windows 10 PCs are back to Windows' own runtime (a different way is planned). Everything else is as in 2026-10-18.2.
@@ -134,7 +152,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-10-18.3.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-18.3/fsr4-timing-kit-windows-2026-10-18.3.zip) (about 11 MB, version 2026-10-18.3; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-10-19.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-19/fsr4-timing-kit-windows-2026-10-19.zip) (about 20 MB, version 2026-10-19; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
@@ -146,7 +164,10 @@ compatibility tool* and pick a Proton (Proton Experimental works); then press *P
 The summary and `results-raw.txt` are saved in the unpacked folder. It runs the same as on Windows and sends the same report; the summary
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
-For RDNA2 owners with time for a longer run: [`fsr4-timing-kit-windows-rdna2-study-2026-10-18.3.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-18.3/fsr4-timing-kit-windows-rdna2-study-2026-10-18.3.zip), the study edition (about 8 MB; see `STUDY.txt` inside).
+For RDNA2 and RDNA3 owners with time for a longer run: `run-study.cmd` in the same folder starts the study run (about 30 minutes; see `STUDY.txt` inside).
+
+**New in version 2026-10-19:** the study run in the main kit, for RDNA2 and RDNA3; a way for Windows 10 PCs; test DLLs 6d and 6e instead of
+6a to 6c (see [above](#in-short)).
 
 **New in version 2026-10-18.3:** starts on Windows 11 23H2 again (see [above](#in-short)).
 
