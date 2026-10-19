@@ -55,7 +55,7 @@ for f in "$src"/*.dxil; do
     # POSTPASS_SMALL=amd: the small output-size class (tensor rows of 962 pixels, 15392 bytes) keeps AMD's postpass.
     # POSTPASS_STORES=amd: every size class keeps AMD's stores.
     if [[ $name == *_postpass ]] && { [[ ${POSTPASS_STORES:-} == amd ]] || { [[ ${POSTPASS_SMALL:-} == amd ]] && grep -q 'i32 15392' "$work/in.ll"; }; }; then
-        [[ ${DOT4:-} == split || ${TAPS:-1} == 1 || ${MODEL:-1} == 1 ]] || continue          # nothing to change: leave AMD's shader in place
+        [[ ${DOT4:-} == split || ${TAPS:-1} == 1 || ${MODEL:-1} == 1 || ${SHARE:-1} == 1 ]] || continue          # nothing to change: leave AMD's shader in place
         cp "$work/in.ll" "$work/out.ll"
     elif ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
         [[ $script == model_tail_dxil.py || $script == prepass_route_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"

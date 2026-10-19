@@ -57,11 +57,13 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-18.3"
+#define KIT_VERSION "windows 2026-10-19"
 #define WARM 40
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
 #define MAXROUNDS 8
+#define MAXDLLS 48     // DLLs in one run (pack + tester folders); a study run has 18
+#define MAXROWS 1024   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
 #define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
 #define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL
 
@@ -315,6 +317,35 @@ static double Median(double* v, int n) { qsort(v, n, sizeof(double), CmpD); retu
 __declspec(dllexport) const UINT D3D12SDKVersion = 615;
 __declspec(dllexport) const char* D3D12SDKPath = ".\\D3D12\\";
 #endif
+static int study = 0;      // --study (run-study.cmd, since kit 2026-10-19): 2 or 3 = the RDNA2 / RDNA3 study set of the pack instead of the normal DLLs
+// RDNA2: RX 6000 cards (Navi 21 to 24, 73A0-743F) and, since kit 2026-10-18.2, the RDNA2 chips built into processors: Van Gogh 163F (Steam Deck
+// LCD), Sephiroth 1435 (Steam Deck OLED), Rembrandt 1681 (Radeon 680M / 660M), Mendocino 1506 (610M), Raphael 164E (Ryzen 7000 desktop, 7045
+// laptops), Granite Ridge 13C0 (Ryzen 9000 desktop). RDNA3 (for the study, since kit 2026-10-19): RX 7000 cards (Navi 31 to 33, 7440-749F;
+// seen in reports: 744C, 747E, 7480) and the RDNA3 / 3.5 chips built into processors: Phoenix 15BF (780M / 760M, seen), Phoenix 2 15C8,
+// Strix Point 150E (890M / 880M, seen), Krackan 1114, Strix Halo 1586.
+static bool IsRdna2(unsigned ven, unsigned dev) {
+    return ven == 0x1002 && ((dev >= 0x73A0 && dev <= 0x743F) || dev == 0x163F || dev == 0x1435 || dev == 0x1681 || dev == 0x1506 || dev == 0x164E || dev == 0x13C0);
+}
+static bool IsRdna3(unsigned ven, unsigned dev) {
+    return ven == 0x1002 && ((dev >= 0x7440 && dev <= 0x749F) || dev == 0x15BF || dev == 0x15C8 || dev == 0x150E || dev == 0x1114 || dev == 0x1586);
+}
+static bool GpuIds(unsigned* ven, unsigned* dev, char* name, size_t n) {      // the adapter the runs use (high performance), without a device
+    IDXGIFactory6* f6 = NULL; IDXGIAdapter1* ad = NULL; bool ok = false;
+    if (SUCCEEDED(CreateDXGIFactory1(&IID_IDXGIFactory6, (void**)&f6)) &&
+        SUCCEEDED(IDXGIFactory6_EnumAdapterByGpuPreference(f6, 0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, &IID_IDXGIAdapter1, (void**)&ad))) {
+        DXGI_ADAPTER_DESC1 d;
+        if (SUCCEEDED(IDXGIAdapter1_GetDesc1(ad, &d))) { *ven = d.VendorId; *dev = d.DeviceId; snprintf(name, n, "%ls", d.Description); ok = true; }
+        IDXGIAdapter1_Release(ad);
+    }
+    if (f6) IDXGIFactory6_Release(f6);
+    return ok;
+}
+// which pack DLLs a run takes: the normal run every DLL but the study sets; a study run AMD's two references, the exact DLL and its own set
+static bool Wanted(const char* name) {
+    const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
+    if (!study) return !s2 && !s3;
+    return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || (study == 2 ? s2 : s3);
+}
 static void CreateDevice(char* gpu, size_t gpu_len) {
     IDXGIFactory6* f6 = NULL;
     IDXGIAdapter1* ad = NULL;
@@ -696,7 +727,7 @@ static void GetAgility(const char* base, bool unattended) {
 // Pack layout (little endian, inside the zstd stream): "FSR4PK1\n", u32 count, per file: u16 path length, path ('/' separated; its first part is the
 // DLL's name), u64 size, u64 FNV-1a 64 of the data; then the files' data in the same order.
 #define PACK_NAME "dlls.pack.zst"
-#define PACK_MAX 32
+#define PACK_MAX 64      // since kit 2026-10-19 the pack also holds both study sets (about 40 DLLs)
 struct PackFile { char path[260]; uint64_t size, hash; };
 struct PackIn { FILE* f; ZSTD_DCtx* dc; uint8_t* ib; ZSTD_inBuffer in; uint8_t* ob; size_t ob_len, ob_pos; bool end; };
 static bool PackFill(struct PackIn* p) {      // more decompressed bytes into ob (keeps what is left unread); false at the end of the stream
@@ -1141,9 +1172,11 @@ int main(int argc, char** argv) {
         if (!strcmp(argv[a], "--all-presets")) all_presets = true;
         if (!strcmp(argv[a], "--no-questions")) unattended = true;
         if (!strcmp(argv[a], "--once")) once = true;
+        if (!strcmp(argv[a], "--study")) study = 1;
         if (!strcmp(argv[a], "--minutes") && a + 1 < argc) { budget = atof(argv[++a]); budget_set = true; }
     }
-    if (all_presets && !budget_set) budget = 30;      // twice the sizes: twice the time for the same number of rounds
+    if (study && !budget_set) budget = 30;      // about twice the DLLs of a normal run
+    if (all_presets && !budget_set) budget *= 2;      // twice the sizes: twice the time for the same number of rounds
     if (budget < 1) budget = 1;
     SYSTEMTIME st;
     GetLocalTime(&st);
@@ -1156,20 +1189,33 @@ int main(int argc, char** argv) {
         if (!unattended) { char in[8]; printf("\nPress Enter to close."); fflush(stdout); fgets(in, sizeof(in), stdin); }
         return 1;
     }
+    if (study) {      // the study set for this chip's generation
+        unsigned ven = 0, dev = 0; char gn[128] = "?";
+        GpuIds(&ven, &dev, gn, sizeof(gn));
+        if (getenv("FSR4TIME_STUDYGPU")) sscanf(getenv("FSR4TIME_STUDYGPU"), "%x:%x", &ven, &dev);      // for testing the choice (e.g. 1002:73ff = RDNA2)
+        study = IsRdna2(ven, dev) ? 2 : IsRdna3(ven, dev) ? 3 : 0;
+        if (!study) {
+            printf("The study is for RDNA2 and RDNA3 graphics (Radeon RX 6000 and RX 7000, and the graphics built into some processors);\n"
+                   "this one (%s, PCI %04x:%04x) is neither. Please run fsr4time.exe itself instead (double-click it): that is the normal test.\n", gn, ven, dev);
+            if (!unattended) { char in[8]; printf("\nPress Enter to close."); fflush(stdout); fgets(in, sizeof(in), stdin); }
+            return 1;
+        }
+        printf("Study mode: the RDNA%d study set (%s).\n\n", study, gn);
+    }
 #ifdef KIT_AGILITY
     GetAgility(base, unattended);      // Windows 10 only: offer Microsoft's newer DirectX 12 runtime
     if (getenv("FSR4TIME_AGILITYONLY")) return 0;      // for testing GetAgility alone (no DLL runs)
 #endif
     // the DLLs: the pack's, and folders a tester added to dlls\ (a pack DLL wins over a folder of the same name, such as one an earlier
     // kit unpacked); AMD's shaders first (the reference), then the rest in name order. inpack[i]: the DLL's number in the pack, or -1.
-    char names[32][64];
-    int inpack[32], nd = 0;
-    for (uint32_t i = 0; i < npf && nd < 32; ++i) { snprintf(names[nd], 64, "%s", pf[i].path); inpack[nd++] = (int)i; }
+    char names[MAXDLLS][64];
+    int inpack[MAXDLLS], nd = 0;
+    for (uint32_t i = 0; i < npf && nd < MAXDLLS; ++i) if (Wanted(pf[i].path)) { snprintf(names[nd], 64, "%s", pf[i].path); inpack[nd++] = (int)i; }
     WIN32_FIND_DATAA fd;
     HANDLE f = FindFirstFileA("dlls\\*", &fd);
     if (f != INVALID_HANDLE_VALUE) {
         do {
-            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) || fd.cFileName[0] == '.' || nd >= 32) continue;
+            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) || fd.cFileName[0] == '.' || nd >= MAXDLLS) continue;
             bool dup = false;
             for (int i = 0; i < nd; ++i) dup = dup || !strcmp(names[i], fd.cFileName);
             if (!dup) { snprintf(names[nd], 64, "%s", fd.cFileName); inpack[nd++] = -1; }
@@ -1229,9 +1275,9 @@ int main(int argc, char** argv) {
         const double per = (double)(GetTickCount64() - t0) / 60000.0 / (rounds * nd);
         bool room = true;
         for (int pass = 0; room && pass < MAXRUNS - MAXROUNDS; ++pass) {
-            static struct Row rr[256];
-            const int n = Collect(raw, rr, 256, NULL, 0, NULL, 0);
-            double sp[32]; int fewest[32], order[32], no = 0;
+            static struct Row rr[MAXROWS];
+            const int n = Collect(raw, rr, MAXROWS, NULL, 0, NULL, 0);
+            double sp[MAXDLLS]; int fewest[MAXDLLS], order[MAXDLLS], no = 0;
             for (int i = 0; i < nd; ++i) {
                 sp[i] = 0; fewest[i] = MAXRUNS;
                 for (int j = 0; j < n; ++j)
@@ -1256,11 +1302,11 @@ int main(int argc, char** argv) {
     HeaderEnd();
 
     // summary
-    static struct Row rows[256];
+    static struct Row rows[MAXROWS];
     char gpu[256] = "?";
-    static char summary[65536], fails[4096];
+    static char summary[1 << 18], fails[4096];
     int sn = 0;
-    const int nr = Collect(raw, rows, 256, gpu, sizeof(gpu), fails, sizeof(fails));
+    const int nr = Collect(raw, rows, MAXROWS, gpu, sizeof(gpu), fails, sizeof(fails));
     const int fl = (int)strlen(fails);
     char id[16];
     ReportId(id, sizeof(id), gpu);
@@ -1272,8 +1318,7 @@ int main(int argc, char** argv) {
     // since kit 2026-10-18.2 also the RDNA2 chips built into processors, which show the same ghosting (the Steam Deck's Windows reports: 1b
     // differs from AMD's shaders, every exact DLL equals 1b): Van Gogh 163F (Steam Deck LCD), Sephiroth 1435 (Steam Deck OLED), Rembrandt 1681
     // (Radeon 680M / 660M), Mendocino 1506 (610M), Raphael 164E (Ryzen 7000 desktop, 7045 laptops), Granite Ridge 13C0 (Ryzen 9000 desktop)
-    const bool rx6000 = ven == 0x1002 && ((dev >= 0x73A0 && dev <= 0x743F) || dev == 0x163F || dev == 0x1435 || dev == 0x1681 || dev == 0x1506 ||
-                                          dev == 0x164E || dev == 0x13C0);
+    const bool rx6000 = IsRdna2(ven, dev);
     const char* refname = NULL;
     for (int j = 0; j < nr && rx6000 && !refname; ++j) if (!strncmp(rows[j].name, "1b-", 3)) refname = rows[j].name;
     OSVERSIONINFOEXW vi = {.dwOSVersionInfoSize = sizeof(vi)};
@@ -1286,6 +1331,7 @@ int main(int argc, char** argv) {
     const bool wine = GetProcAddress(GetModuleHandleA("ntdll.dll"), "wine_get_version") != NULL;
 #define ADD(...) sn += snprintf(summary + sn, sizeof(summary) - sn, __VA_ARGS__)
     ADD("report %s, kit %s\nGPU: %s\nsystem: Windows %lu.%lu build %lu%s; CPU: %s\n", id, KIT_VERSION, gpu, vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, wine ? " (Wine/Proton)" : "", cpu);
+    if (study) ADD("study: the RDNA%d study set (run-study.cmd / --study): each change of the exact DLL added alone and left out alone\n", study);
     ADD("upscaler time per frame, ms: mean (for a lossy DLL also: frame that runs the model / skipped frame); %% vs %s\n",
         refname ? "1b (an RDNA2 chip: AMD's shaders with the dot products split are the ones to compare with)" : "the first");
     ADD("rounds: %d (%.0f minutes; every other round in reverse order); each figure is the mean of a DLL's runs, and where they\nspread by more than 3%% the smallest and largest are given; \"UP\" = Ultra Performance (render size a third of the output)\n",
@@ -1355,7 +1401,7 @@ int main(int argc, char** argv) {
             snprintf(gpuname, sizeof(gpuname), "%s", gpu);
             gpuname[strcspn(gpuname, "(")] = 0;
             while (gpuname[0] && gpuname[strlen(gpuname) - 1] == ' ') gpuname[strlen(gpuname) - 1] = 0;
-            if (nr) snprintf(message, sizeof(message), "Timing kit report %s: %s, kit %s, %d round%s%s. The summary and the per-run figures are attached.", id, gpuname, KIT_VERSION, rounds, rounds == 1 ? "" : "s",
+            if (nr) snprintf(message, sizeof(message), "Timing kit report %s: %s, kit %s%s, %d round%s%s. The summary and the per-run figures are attached.", id, gpuname, KIT_VERSION, study == 2 ? ", RDNA2 study" : study == 3 ? ", RDNA3 study" : "", rounds, rounds == 1 ? "" : "s",
                              fl ? "; some runs failed (listed at the end of the file)" : "");
             else snprintf(message, sizeof(message), "Timing kit report %s: run stopped, no DLL gave timings on %s (kit %s). The reasons are in the attached file.", id, gpuname, KIT_VERSION);
             snprintf(fname, sizeof(fname), "results-%s.txt", id); snprintf(rname, sizeof(rname), "results-raw-%s.txt", id);

@@ -23,6 +23,11 @@ How to run it
      there only if you type one. Each summary has a report ID (eight letters and digits); if you
      write to the project about a run, please mention it.
 
+The study run (RDNA2 and RDNA3 graphics only, about 30 minutes)
+  run-study.cmd starts a longer test that times each change in the exact DLL on its own, to find
+  which help on your kind of chip. The DLLs for it are in the same pack; the normal test above does
+  not use them. See STUDY.txt.
+
 Windows will warn about an unknown program, because the file is not signed. The source is in
 the project's repository (timing-kit/windows/fsr4time.c) with the command that builds it, and the
 checksums are on the download page.
@@ -103,6 +108,7 @@ Options (from a command prompt in this folder)
   fsr4time.exe --once            one round only (a few minutes)
   fsr4time.exe --minutes 8       let the rounds take about 8 minutes instead of 15
   fsr4time.exe --no-questions    no questions at the end, nothing is sent
+  fsr4time.exe --study           the study run (what run-study.cmd starts; see STUDY.txt)
 
 Other graphics cards
   The kit is not limited to Radeon. FSR 4.1.1 should run on any graphics chip whose driver supports

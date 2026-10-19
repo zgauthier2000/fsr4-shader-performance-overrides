@@ -6,7 +6,8 @@
 import sys, os, struct
 src, out = sys.argv[1], sys.argv[2]
 names = sorted(d for d in os.listdir(src) if os.path.isfile(os.path.join(src, d, 'amd_fidelityfx_upscaler_dx12.dll')))
-order = sorted(names, key=lambda n: (0 if n.startswith('1') else 1 if 'exact' in n else 2, 'igpu' in n, n))      # AMD's, the exact ones, the lossy ones
+order = sorted(names, key=lambda n: (3 if n.startswith('rdna') else 0 if n.startswith('1') else 1 if 'exact' in n else 2, 'igpu' in n, n))      # AMD's, the exact ones, the lossy ones, the study sets
+assert len(order) <= 64, 'fsr4time.exe reads at most 64 DLLs from a pack (PACK_MAX)'
 def fnv(b):
     h = 0xcbf29ce484222325
     for i in range(0, len(b), 1 << 20):

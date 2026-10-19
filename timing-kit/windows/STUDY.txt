@@ -1,30 +1,50 @@
-FSR 4.1.1 timing kit, RDNA2 study edition (EXPERIMENTAL)
-=========================================================
+FSR 4.1.1 timing kit: the study run (EXPERIMENTAL)
+===================================================
 
-The same program as the timing kit (see README.txt: how to run it and what the summary means), with a
-different set of DLLs. It is for owners of RDNA2 graphics (RX 6000 cards, and the RDNA2 graphics built
-into Steam Deck, Radeon 680M / 660M / 610M and Ryzen 7000 / 9000 desktop processors) who are happy to
-run a long test: it times each change in this project's exact DLL on its own, to find which changes
-help on RDNA2, which do not, and which help only together.
+For owners of RDNA2 or RDNA3 graphics who are happy to run a longer test. It times each change in this
+project's exact DLL on its own, to find which changes help on your kind of chip, which do not, and
+which help only together. It uses the same program as the normal test (see README.txt: what the
+summary means) with a different set of DLLs, which come in the same DLL pack.
+
+  RDNA2: Radeon RX 6000 cards, and the RDNA2 graphics built into Steam Deck, Radeon 680M / 660M / 610M
+         and Ryzen 7000 / 9000 desktop processors
+  RDNA3: Radeon RX 7000 cards, and the RDNA3 graphics built into processors (Radeon 780M / 760M /
+         740M, 890M / 880M, 860M, 8060S)
+
+How to run it
+  Double-click run-study.cmd (in this folder). The program sees which kind of chip you have and times
+  that set; on other graphics it says so and stops (the normal test, fsr4time.exe, works on any
+  card). It takes about 30 minutes. Leave the PC alone while it runs, as for the normal test. At the
+  end it asks whether to send the results, as the normal test does.
+  From a command prompt: fsr4time.exe --study (the other options work too, e.g. --all-presets for
+  the Quality and Performance sizes as well: about an hour).
 
 Every DLL here is exact: its picture should be AMD's, byte for byte, which the summary's fingerprints
 show (on RDNA2 under Windows: the same as 1b-amd-shaders-dots-split).
 
-  dlls\1-amd-shaders                AMD's shaders (the reference elsewhere)
-  dlls\1b-amd-shaders-dots-split    AMD's shaders with the last shader's dot products split: on RDNA2
+The DLLs of the RDNA2 set
+  1-amd-shaders                     AMD's shaders
+  1b-amd-shaders-dots-split         AMD's shaders with the last shader's dot products split: on RDNA2
                                     the reference, and the starting point of every DLL below
-  dlls\2-exact                      this project's exact DLL of release dll-2026-10-15: all six changes
-  dlls\s01-base                     1b rebuilt by the project's tools (the same file as 1b)
-  dlls\s02 to s07, add-...          the base with ONE change added
-  dlls\s08 to s13, without-...      the exact DLL with ONE change left out
+  2-exact                           this project's exact DLL of release dll-2026-10-15: all six changes
+  rdna2-s01-base                    1b rebuilt by the project's tools (the same shaders as 1b)
+  rdna2-s02 to s07, add-...         the base with ONE change added
+  rdna2-s08 to s13, without-...     the exact DLL with ONE change left out
 
-The six changes:
+The DLLs of the RDNA3 set
+  1-amd-shaders                     AMD's shaders: on RDNA3 the reference, and the starting point
+  1b-amd-shaders-dots-split         AMD's shaders with the last shader's dot products split
+  2-exact                           this project's exact DLL of release dll-2026-10-15: all seven changes
+  rdna3-s01-base                    AMD's shaders, packed by the project's tools (the same shaders as 1)
+  rdna3-s02 to s08, add-...         the base with ONE change added
+  rdna3-s09 to s15, without-...     the exact DLL with ONE change left out
+
+The changes:
+  dots      the last shader's dot products are split into two steps (RDNA2 needs it for its picture
+            under Windows, so on RDNA2 it is part of every DLL; on RDNA3 it is studied like the rest)
   prepass   the prepass (the first shader) reads its inputs in a different order
   tails     the last layer of several shaders scales its output with integers instead of floats
   taps      the last shader reads its nine neighbors without branches
   share     the last shader converts the colors it reads once instead of per use
   stores    the last shader collects its output in shared memory and writes it in larger pieces
   pass11    the second-to-last network shader is unrolled and writes each row together
-
-Run it like the normal kit. --all-presets times the Quality and Performance sizes too (about an hour
-in all); without it about 30 minutes is a good choice: fsr4time.exe --minutes 30
