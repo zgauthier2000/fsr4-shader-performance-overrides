@@ -41,8 +41,10 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 - **Windows 10:** Windows 10's own DirectX 12 runtime offers shader model 6.5, and FSR 4 needs 6.6, so every DLL failed there. Where
   the card offers less than 6.6, the kit now asks whether to fetch Microsoft's newer runtime (`D3D12Core.dll`, 22 MB, from
   Microsoft's package on nuget.org; the kit checks the file), tests it with a small helper program (`win10-helper.exe`, which only
-  shows a message if opened by hand) and runs the DLLs with it only if the test reaches 6.6. Windows 11 is not asked and runs as before:
-  this is not the 2026-10-18.2 change that stopped the kit on Windows 11 23H2. Tested here only under Proton, by making the kit treat
+  shows a message if opened by hand) and runs the DLLs with it only if the test reaches 6.6. Where Windows' own runtime offers 6.6 or
+  more (Windows 11 with a recent graphics driver), nothing is asked and the kit runs as before: this is not the 2026-10-18.2 change that
+  stopped the kit on Windows 11 23H2. An older graphics chip whose driver offers less than 6.6 is asked too, on Windows 11 as well; the
+  newer runtime most likely cannot raise what its driver offers, and the DLLs then fail as before. Tested here only under Proton, by making the kit treat
   Proton's runtime as too old; not yet on Windows 10 itself. You can also put the file there by hand (see `README.txt`).
 - **Test DLLs:** `6-durandal-test` stays; `6a`, `6b` and `6c` are replaced by `6d-durandal-test-wideloads` and
   `6e-durandal-test-unrolled`, other forms of the same test DLL.
