@@ -1,0 +1,39 @@
+WARNING: THIS VERSION CHANGES THE PICTURE, MORE THAN THE LOSSY VERSION DOES.
+
+It is NOT the same as the "exact" version of this project, NOT the same as AMD's file, and NOT the same as
+the "lossy" version beside it.
+
+- The exact version produces exactly AMD's picture, byte for byte. This one does not.
+  If you want AMD's picture, use the exact version.
+- lossy2 is an experiment next to lossy, not its replacement. If you are happy with lossy, you can keep it.
+
+What it is
+- Everything the lossy version does (the network runs on every other frame, the frames in between reuse
+  its last result moved along with the picture's motion; see lossy's WARNING.txt), plus: six of the network's
+  twelve layers carry new weights. They were trained on this machine to match AMD's picture through the whole
+  lossy frame loop, starting from lossy's own weights. The other six layers are AMD's.
+- The new weights are used in the Quality, Balanced and Performance modes at every output size.
+  In Ultra Performance it behaves exactly like the lossy version.
+- It is as fast as the lossy version: only weight values inside the same shaders change.
+
+What it does better than lossy (test scenes, 4K Balanced, unless noted)
+- Swaying foliage: much closer to AMD's picture (error 12.2 against lossy's 17.9; AMD's own file 12.1).
+- Strips that a moving object has just uncovered: about 1 dB more accurate (also at 1080p and 5K).
+- Fewer fireflies (single over-bright pixels): about 15 to 30% fewer than lossy.
+- Thin wires and fine stripes in motion: a little steadier.
+
+What it costs
+- Brightening is slower: when a part of the picture gets brighter (a light switching on, stepping from shade
+  into sun), lossy2 takes about twice as many frames as lossy to catch up (1.5 frames against 0.6).
+- A still picture is about 0.3 to 0.4 dB less accurate than lossy's (about 0.4 dB below AMD's), at 1080p, 4K and 5K.
+- Heavy film grain with the game's auto exposure on changes more from frame to frame than with lossy
+  (about 2.7 times as much in the test scene, and more than with AMD's file). With auto exposure off the
+  difference is small.
+- When a large area changes brightness in one step, the first frame after the step misses a little more of it
+  than lossy does.
+- Fading out is a little slower than with lossy.
+- The weights were trained on 4K Balanced material only; other sizes and modes were checked at 1080p and 5K
+  (Balanced), not in every combination.
+
+These figures come from synthetic test scenes on Linux (Proton), not from games. One trained copy is shipped;
+training the same way again gave copies that differ (one of three grew bright specks in rain, so it was not used).
