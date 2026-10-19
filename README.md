@@ -30,7 +30,7 @@ laptop with two, the RX one is the one games use.
 |---|---|---|
 | `exact` | faster than AMD's | **the same as AMD's, byte for byte** |
 | `lossy` | faster again | very close to AMD's, but not the same. Read `WARNING.txt` in that folder first |
-| `lossy2` (new, experimental) | as `lossy` | `lossy` with trained weights: closer to AMD's on swaying foliage and fireflies, slower to follow brightening. Read `WARNING.txt` in that folder first |
+| `lossy2` (new; to replace `lossy` later) | as `lossy` | `lossy` with trained weights: closer to AMD's on swaying foliage and fireflies, slower to follow brightening. Read `WARNING.txt` in that folder first |
 
 If you are not sure, take `exact`.
 
@@ -124,7 +124,8 @@ More games and resolutions: [all results](docs/results.md).
 
 > [!TIP]
 > **New: lossy2, a third DLL in each archive, next to exact and lossy.** It is the lossy DLL with new weights in six of the network's
-> twelve layers, trained to match AMD's picture through lossy's whole frame loop. An experiment beside lossy, not its replacement.
+> twelve layers, trained to match AMD's picture through lossy's whole frame loop. It is meant to replace lossy once it has been trained
+> further; until then both are included.
 > - **Better than lossy:** swaying foliage much closer to AMD's picture (error 12.2 against 17.9; AMD's own file 12.1), areas a moving
 >   object has just uncovered about 1 dB better, 16 to 30% fewer fireflies, steadier thin wires in a pan (test rig, 4K Balanced).
 > - **Worse than lossy:** it follows brightening 2 to 2.5 times as slowly (1.5 frames behind against 0.6 on a bright area), a still

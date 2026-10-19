@@ -5,7 +5,7 @@ the "lossy" version beside it.
 
 - The exact version produces exactly AMD's picture, byte for byte. This one does not.
   If you want AMD's picture, use the exact version.
-- lossy2 is an experiment next to lossy, not its replacement. If you are happy with lossy, you can keep it.
+- lossy2 is meant to replace lossy once it has been trained further. Until then both are included, so you can compare them.
 
 What it is
 - Everything the lossy version does (the network runs on every other frame, the frames in between reuse
