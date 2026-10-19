@@ -37,7 +37,8 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **H3R0** (Radeon RX 6900 XT, Windows)
 - **Koffiato** (Radeon RX 6700 XT, Linux)
 - **Wirk** (Radeon RX 6950 XT, Windows)
-- **Nabosaurus** (Radeon RX 6650 XT, Windows)
+- **fzdhst** (Radeon RX 7600, Windows)
+- **Kode** (Radeon RX 6700 XT, Windows)
 
 ## How to be listed, or taken off
 
