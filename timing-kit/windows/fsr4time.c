@@ -19,9 +19,10 @@
 //   FSR4TIME_LIMIT=<seconds>   (for testing) the time limit of one DLL's run (default RUN_LIMIT_MIN minutes)
 //   FSR4TIME_DRYSEND=<file>    (for testing) what would be sent is written to <file> instead
 //   FSR4TIME_AGILITYONLY=1     (for testing) only the runtime choice (SetupRuntime: offer, check, probe), then end
+//   FSR4TIME_NOWAIT=1          (for testing) win10-helper.exe opened by hand does not wait for Enter
 //   FSR4TIME_FORCE_D3D12=1     (for testing) treat Windows' own runtime as too old (below shader model 6.6), as on Windows 10;
 //                              =2 also accept any probe that made a device (Proton does not load D3D12\'s runtime, so its probe never says "from the kit")
-//   fsr4time-d3d12.exe --probe (used by SetupRuntime) prints the GPU line of a device made with Microsoft's runtime from D3D12\
+//   win10-helper.exe --probe (used by SetupRuntime) prints the GPU line of a device made with Microsoft's runtime from D3D12\
 //
 // What is timed: the GPU time of one upscale call (prepass, 12 model passes, postpass and the small shaders around
 // them), from a timestamp before to one after, 200 calls back to back after 40 to warm up. For a lossy DLL the
@@ -315,7 +316,7 @@ static double Median(double* v, int n) { qsort(v, n, sizeof(double), CmpD); retu
 // every run, 2026-10-18). Without the folder Windows uses its own runtime, as before. The version must match the D3D12Core.dll shipped.
 // OFF in fsr4time.exe since kit 2026-10-18.3: on Windows 11 23H2 (build 22631) every device creation then failed with 0x887E0003
 // (D3D12_ERROR_INVALID_REDIST) although no D3D12\ folder was there (report 013B3D90, 2026-10-18); 24H2 (26100) ran. Since kit 2026-10-19 the
-// exports are in a second program, fsr4time-d3d12.exe (the same source built with -DKIT_D3D12_EXPORTS), which runs the DLLs only on a PC whose
+// exports are in a second program, win10-helper.exe (the same source built with -DKIT_D3D12_EXPORTS), which runs the DLLs only on a PC whose
 // own runtime offers less than shader model 6.6 and only once D3D12\ holds Microsoft's checked runtime (SetupRuntime below).
 #ifdef KIT_D3D12_EXPORTS
 __declspec(dllexport) const UINT D3D12SDKVersion = 615;
@@ -726,8 +727,8 @@ static void GetAgility(const char* base, bool unattended) {
 
 // The runtime the DLL runs use (since kit 2026-10-19). Windows' own is used unless it offers less than shader model 6.6 (Windows 10's stops at
 // 6.5: issue #34, RX 7900 XT on 21H2, every DLL crashed inside it; a GTX 1660 SUPER before). Then the kit offers Microsoft's runtime
-// (GetAgility), checks the file in D3D12\ against its SHA-256, and asks fsr4time-d3d12.exe --probe whether a device made with it offers 6.6+.
-// Only if all of that holds do the DLL runs start as fsr4time-d3d12.exe; otherwise they stay with fsr4time.exe and Windows' runtime, as before.
+// (GetAgility), checks the file in D3D12\ against its SHA-256, and asks win10-helper.exe --probe whether a device made with it offers 6.6+.
+// Only if all of that holds do the DLL runs start as win10-helper.exe; otherwise they stay with fsr4time.exe and Windows' runtime, as before.
 static const char* child_exe = "fsr4time.exe";      // the program each DLL's run is started as
 static char runtime_note[256];                       // a line for the summary when the kit's runtime was used or offered
 static int BuiltinShaderModel(void) {      // highest shader model of a device on the runs' adapter, with this program's runtime (Windows' own here); 0 = none
@@ -763,7 +764,7 @@ static void SetupRuntime(const char* base, bool unattended) {
     if (!same) { printf("D3D12\\D3D12Core.dll is not Microsoft's file the kit expects (checksum); not used.\n\n");
                  snprintf(runtime_note, sizeof(runtime_note), "runtime: Windows' own; D3D12\\D3D12Core.dll did not match the expected checksum"); return; }
     char cmd[MAX_PATH + 64], line[1024], probe[1024] = "";
-    snprintf(cmd, sizeof(cmd), "\"\"%sfsr4time-d3d12.exe\" --probe\"", base);
+    snprintf(cmd, sizeof(cmd), "\"\"%swin10-helper.exe\" --probe\"", base);
     FILE* pp = _popen(cmd, "r");
     while (pp && fgets(line, sizeof(line), pp)) if (!strncmp(line, "PROBE|", 6)) { snprintf(probe, sizeof(probe), "%s", line + 6); probe[strcspn(probe, "\r\n")] = 0; }
     if (pp) _pclose(pp);
@@ -772,9 +773,9 @@ static void SetupRuntime(const char* base, bool unattended) {
     if (smp) sscanf(smp, "shader model %d.%d", &a, &b);
     const bool accept_any = force && !strcmp(getenv("FSR4TIME_FORCE_D3D12"), "2") && probe[0];      // for testing the switch under Proton
     if ((strstr(probe, "from the kit") && (a > 6 || (a == 6 && b >= 6))) || accept_any) {
-        child_exe = "fsr4time-d3d12.exe";
+        child_exe = "win10-helper.exe";
         printf("The DLL runs use Microsoft's runtime from D3D12\\ (shader model %d.%d).\n\n", a, b);
-        snprintf(runtime_note, sizeof(runtime_note), "runtime: Microsoft's DirectX 12 runtime from D3D12\\ (fsr4time-d3d12.exe); Windows' own offers shader model %d.%d", own >> 4, own & 15);
+        snprintf(runtime_note, sizeof(runtime_note), "runtime: Microsoft's DirectX 12 runtime from D3D12\\ (win10-helper.exe); Windows' own offers shader model %d.%d", own >> 4, own & 15);
     } else {
         printf("A test with Microsoft's runtime did not give shader model 6.6 (%s); the DLL runs use Windows' own runtime.\n\n", probe[0] ? probe : "no device");
         snprintf(runtime_note, sizeof(runtime_note), "runtime: Windows' own (shader model %d.%d); the test with Microsoft's runtime failed: %.120s", own >> 4, own & 15, probe[0] ? probe : "no device");
@@ -1205,6 +1206,18 @@ int main(int argc, char** argv) {
     GetModuleFileNameA(NULL, base, MAX_PATH);
     *(strrchr(base, '\\') + 1) = 0;
     SetCurrentDirectoryA(base);
+#ifdef KIT_D3D12_EXPORTS
+    // win10-helper.exe is started by fsr4time.exe only (--run, --probe). Opened by hand (user, 2026-10-19: "i want to make sure users dont try to
+    // open the wrong one") it says so and does nothing else: no Direct3D 12 call, so its exports never reach the runtime (on Windows 11 23H2 they
+    // made every device creation fail when no D3D12\ was there, kit 2026-10-18.2). It waits for Enter only in a console of its own (double-click).
+    if (!(argc >= 2 && (!strcmp(argv[1], "--run") || !strcmp(argv[1], "--probe")))) {
+        printf("This is a helper of the FSR 4.1.1 timing kit, used only on PCs whose DirectX 12 runtime is too old (Windows 10).\n"
+               "Please start fsr4time.exe instead (or run-study.cmd for the study run); it uses this program by itself when needed.\n");
+        DWORD pl[4];
+        if (GetConsoleProcessList(pl, 4) == 1 && !getenv("FSR4TIME_NOWAIT")) { char in[8]; printf("\nPress Enter to close."); fflush(stdout); fgets(in, sizeof(in), stdin); }
+        return 2;
+    }
+#endif
     if (argc >= 4 && !strcmp(argv[1], "--run")) {
         out = fopen(argv[3], "a");
         run_name = argv[2];
@@ -1215,7 +1228,7 @@ int main(int argc, char** argv) {
         all_presets = argc > 5 && !strcmp(argv[5], "all");
         return RunOne(argv[2], argc > 4 && !strcmp(argv[4], "quick"));
     }
-    if (argc > 1 && !strcmp(argv[1], "--probe")) {      // (fsr4time-d3d12.exe, from SetupRuntime) a device with this program's runtime: its GPU line
+    if (argc > 1 && !strcmp(argv[1], "--probe")) {      // (win10-helper.exe, from SetupRuntime) a device with this program's runtime: its GPU line
         SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
         char g[512]; CreateDevice(g, sizeof(g)); printf("PROBE|%s\n", g); return 0;
     }

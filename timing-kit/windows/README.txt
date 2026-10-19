@@ -123,11 +123,13 @@ Windows 10
   (Microsoft's DirectX 12 Agility SDK); the kit can do the same:
   - when Windows' runtime offers less than shader model 6.6, the kit offers to fetch Microsoft's
     runtime (D3D12Core.dll, a 22 MB download from Microsoft's package on nuget.org) into the folder
-    D3D12 here. It checks the file, then runs the DLLs with fsr4time-d3d12.exe, the same program set up
-    to use that runtime. It is Microsoft's file, under Microsoft's license; the kit does not carry it.
+    D3D12 here. The runtime is Microsoft's file, under Microsoft's license; the kit does not carry it.
+    The kit checks the file, then runs the DLLs with win10-helper.exe, the same program set up to use
+    that runtime.
   - by hand: from Microsoft.Direct3D.D3D12 version 1.615.1 on nuget.org, the file
     build/native/bin/x64/D3D12Core.dll goes into a folder D3D12 next to fsr4time.exe.
-  - fsr4time-d3d12.exe is only used on such PCs: where Windows' runtime offers 6.6 or more (Windows 11),
+  - win10-helper.exe is the kit's helper for this: do not start it yourself (opened by hand it only
+    says so). It is used only on such PCs; where Windows' runtime offers 6.6 or more (Windows 11),
     nothing changes.
   The summary's GPU line says which DirectX 12 runtime was used ("from the kit" or "built in") and the
   highest shader model the card offers. Reports from Windows 10 are welcome, crashes included.
