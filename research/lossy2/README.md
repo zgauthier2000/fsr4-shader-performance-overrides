@@ -5,7 +5,8 @@ The weights were trained to match AMD's picture through the whole lossy frame lo
 Everything else, including frame skip, the other six layers and Ultra Performance, is lossy's.
 What it changes in the picture is in [`WARNING.txt`](WARNING.txt).
 
-This folder rebuilds lossy2 from its integer weights. The training tools are not part of the repository.
+This folder rebuilds lossy2 from its integer weights. The training tools, those of Durandal (the project's unreleased work on a
+smaller network that runs on every frame), are not part of the repository; lossy2 is one step on that longer path.
 
 | File | What it is |
 |---|---|

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="506" viewBox="0 0 760 506" role="img" aria-label="How lossy2 differs from the lossy DLL inside. Both run the same steps: the prepass, FSR 4's neural network of twelve layers, and the last shader, with the same frame skip: the network runs on every other frame, and on the frames in between the last shader moves its last result along with the picture. In lossy the network's layers carry AMD's weights, with layers 1 and 10 lightly folded. In lossy2 layers 1, 2, 4, 5, 10 and 12 carry new weights, trained from lossy's weights so that lossy's whole frame loop, skipped frames included, comes closer to AMD's picture; the other six layers, the prepass, the last shader and Ultra Performance are lossy's. Same shapes and sizes, so the same speed. The training tools are those of Durandal, the project's unreleased smaller network.">
+<rect x="0.0" y="0.0" width="760.0" height="506.0" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">What lossy2 changes inside the lossy DLL</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">The same steps and the same frame skip. Only the numbers in six of the network's twelve layers differ.</text>
+<line x1="204.0" y1="84.0" x2="608.0" y2="84.0" stroke="#898781" stroke-width="1"/>
+<line x1="204.0" y1="84.0" x2="204.0" y2="90.0" stroke="#898781" stroke-width="1"/>
+<line x1="608.0" y1="84.0" x2="608.0" y2="90.0" stroke="#898781" stroke-width="1"/>
+<text x="406.0" y="78.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">FSR 4's neural network: twelve layers (shader passes 1 to 12)</text>
+<text x="24.0" y="115.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">lossy</text>
+<text x="24.0" y="131.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">AMD's weights</text>
+<rect x="112.0" y="98.0" width="74.0" height="40.0" rx="4" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="149.0" y="122.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">prepass</text>
+<line x1="188.0" y1="118.0" x2="198.0" y2="118.0" stroke="#898781" stroke-width="1.5"/><polygon points="202.0,118.0 195.7,121.0 195.7,115.0" fill="#898781"/>
+<rect x="204.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98" stroke="#eb6834" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="219.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="238.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="253.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="272.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="287.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">3</text>
+<rect x="306.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="321.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">4</text>
+<rect x="340.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="355.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">5</text>
+<rect x="374.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="389.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">6</text>
+<rect x="408.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="423.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">7</text>
+<rect x="442.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="457.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">8</text>
+<rect x="476.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="491.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">9</text>
+<rect x="510.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98" stroke="#eb6834" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="525.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">10</text>
+<rect x="544.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="559.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">11</text>
+<rect x="578.0" y="98.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="593.0" y="123.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">12</text>
+<line x1="610.0" y1="118.0" x2="620.0" y2="118.0" stroke="#898781" stroke-width="1.5"/><polygon points="624.0,118.0 617.7,121.0 617.7,115.0" fill="#898781"/>
+<rect x="626.0" y="98.0" width="86.0" height="40.0" rx="4" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="669.0" y="122.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">last shader</text>
+<text x="24.0" y="173.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">lossy2</text>
+<text x="24.0" y="189.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">6 layers trained</text>
+<rect x="112.0" y="156.0" width="74.0" height="40.0" rx="4" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="149.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">prepass</text>
+<line x1="188.0" y1="176.0" x2="198.0" y2="176.0" stroke="#898781" stroke-width="1.5"/><polygon points="202.0,176.0 195.7,179.0 195.7,173.0" fill="#898781"/>
+<rect x="204.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#eb6834"/>
+<text x="219.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="238.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#eb6834"/>
+<text x="253.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="272.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="287.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">3</text>
+<rect x="306.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#eb6834"/>
+<text x="321.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">4</text>
+<rect x="340.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#eb6834"/>
+<text x="355.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">5</text>
+<rect x="374.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="389.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">6</text>
+<rect x="408.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="423.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">7</text>
+<rect x="442.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="457.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">8</text>
+<rect x="476.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="491.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">9</text>
+<rect x="510.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#eb6834"/>
+<text x="525.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">10</text>
+<rect x="544.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#a09f98"/>
+<text x="559.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">11</text>
+<rect x="578.0" y="156.0" width="30.0" height="40.0" rx="4" fill="#eb6834"/>
+<text x="593.0" y="181.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">12</text>
+<line x1="610.0" y1="176.0" x2="620.0" y2="176.0" stroke="#898781" stroke-width="1.5"/><polygon points="624.0,176.0 617.7,179.0 617.7,173.0" fill="#898781"/>
+<rect x="626.0" y="156.0" width="86.0" height="40.0" rx="4" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="669.0" y="180.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">last shader</text>
+<rect x="112.0" y="220.0" width="14.0" height="14.0" rx="2" fill="#a09f98"/>
+<text x="132.0" y="231.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">AMD's weights</text>
+<rect x="234.0" y="220.0" width="14.0" height="14.0" rx="2" fill="#a09f98" stroke="#eb6834" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="254.0" y="231.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">AMD's, lightly folded</text>
+<rect x="404.0" y="220.0" width="14.0" height="14.0" rx="2" fill="#eb6834"/>
+<text x="424.0" y="231.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">trained for lossy2</text>
+<rect x="556.0" y="220.0" width="14.0" height="14.0" rx="2" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="576.0" y="231.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">lossy's own shader</text>
+<line x1="24.0" y1="252.0" x2="736.0" y2="252.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="24.0" y="280.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Both: the same frame skip</text>
+<text x="24.0" y="298.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#52514e">The network runs on every other frame; on the frames between, the last shader moves its last result along with the picture.</text>
+<rect x="24.0" y="310.0" width="83.0" height="26.0" rx="3" fill="#a09f98"/>
+<text x="65.5" y="327.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#ffffff">network runs</text>
+<rect x="113.0" y="310.0" width="83.0" height="26.0" rx="3" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="154.5" y="327.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">skipped</text>
+<rect x="202.0" y="310.0" width="83.0" height="26.0" rx="3" fill="#a09f98"/>
+<text x="243.5" y="327.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#ffffff">network runs</text>
+<rect x="291.0" y="310.0" width="83.0" height="26.0" rx="3" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="332.5" y="327.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">skipped</text>
+<rect x="380.0" y="310.0" width="83.0" height="26.0" rx="3" fill="#a09f98"/>
+<text x="421.5" y="327.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#ffffff">network runs</text>
+<rect x="469.0" y="310.0" width="83.0" height="26.0" rx="3" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="510.5" y="327.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">skipped</text>
+<rect x="558.0" y="310.0" width="83.0" height="26.0" rx="3" fill="#a09f98"/>
+<text x="599.5" y="327.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#ffffff">network runs</text>
+<rect x="647.0" y="310.0" width="83.0" height="26.0" rx="3" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="688.5" y="327.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">skipped</text>
+<line x1="24.0" y1="352.0" x2="736.0" y2="352.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="24.0" y="380.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">How lossy2's six layers were trained</text>
+<rect x="24.0" y="392.0" width="150.0" height="42.0" rx="4" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="99.0" y="409.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">start from</text>
+<text x="99.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">lossy's weights</text>
+<line x1="176.0" y1="413.0" x2="186.0" y2="413.0" stroke="#898781" stroke-width="1.5"/><polygon points="190.0,413.0 183.7,416.0 183.7,410.0" fill="#898781"/>
+<rect x="192.0" y="392.0" width="236.0" height="42.0" rx="4" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="310.0" y="409.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">run lossy's whole frame loop on</text>
+<text x="310.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">test scenes, skipped frames too</text>
+<line x1="430.0" y1="413.0" x2="440.0" y2="413.0" stroke="#898781" stroke-width="1.5"/><polygon points="444.0,413.0 437.7,416.0 437.7,410.0" fill="#898781"/>
+<rect x="446.0" y="392.0" width="140.0" height="42.0" rx="4" fill="#efeee8" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="516.0" y="409.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">compare with</text>
+<text x="516.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">AMD's picture</text>
+<line x1="588.0" y1="413.0" x2="598.0" y2="413.0" stroke="#898781" stroke-width="1.5"/><polygon points="602.0,413.0 595.7,416.0 595.7,410.0" fill="#898781"/>
+<rect x="604.0" y="392.0" width="130.0" height="42.0" rx="4" fill="#efeee8" stroke="#eb6834" stroke-width="1.5"/>
+<text x="669.0" y="409.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">adjust the</text>
+<text x="669.0" y="424.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#52514e">six layers</text>
+<text x="24.0" y="456.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Some scenes start fresh, as after a cut in a game, so that rain and fireflies do not turn into lasting specks.</text>
+<text x="24.0" y="472.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">In Ultra Performance lossy2 runs lossy's layers. The training tools are those of Durandal, the project's unreleased</text>
+<text x="24.0" y="488.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">smaller network: lossy2 is a step on that longer path.</text>
+</svg>

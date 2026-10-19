@@ -125,7 +125,8 @@ More games and resolutions: [all results](docs/results.md).
 > [!TIP]
 > **New: lossy2, a third DLL in each archive, next to exact and lossy.** It is the lossy DLL with new weights in six of the network's
 > twelve layers, trained to match AMD's picture through lossy's whole frame loop. It is meant to replace lossy once it has been trained
-> further; until then both are included.
+> further; until then both are included. It was made with the tools of Durandal, the project's unreleased work on a smaller
+> network that runs on every frame, and is one step on that longer path.
 > - **Better than lossy:** swaying foliage much closer to AMD's picture (error 12.2 against 17.9; AMD's own file 12.1), areas a moving
 >   object has just uncovered about 1 dB better, 16 to 30% fewer fireflies, steadier thin wires in a pan (test rig, 4K Balanced).
 > - **Worse than lossy:** it follows brightening 2 to 2.5 times as slowly (1.5 frames behind against 0.6 on a bright area), a still
