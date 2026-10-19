@@ -138,10 +138,10 @@ More games and resolutions: [all results](docs/results.md).
 >   the other cards measured (4K). **Exact DLL:** unchanged.
 > - **Downloads:** each archive also comes as a `.7z`, 5.6 MB instead of 82 MB.
 
-<img src="docs/img/rel-2026-10-19-foliage.png" width="100%" alt="Swaying foliage, camera still, frame 39 (a frame the lossy DLLs skip the network for), a 160 by 100 pixel piece enlarged 4 times. True image; AMD's shaders, mean error 12.7; lossy, 20.3, visibly softer leaves; lossy2, 13.8, close to AMD's. The second row shows each version's difference from the true image amplified 16 times: lossy's has the most white.">
+<img src="docs/img/rel-2026-10-19-foliage-loop.gif" width="100%" alt="Swaying foliage with bright dots of sky between the leaves, camera still, frames 32 to 39 looping, a 160 by 100 pixel piece enlarged 4 times: true image, AMD's shaders, lossy, lossy2. Lossy's leaves are softer and shimmer from frame to frame; lossy2's look like AMD's. Mean error against the true image over these frames: AMD's shaders 12.8, lossy 18.3, lossy2 13.9.">
 
-The largest visible change against `dll-2026-10-15`: swaying foliage with lossy2 (test rig, 4K Balanced, a frame that skips the
-network). [The release page](docs/releases/dll-2026-10-19.md) has every measure, including the ones where lossy2 is worse.
+The largest visible change against `dll-2026-10-15`: swaying foliage with bright dots of sky, lossy2, eight frames looping (test rig, 4K Balanced;
+the lossy DLLs skip the network on every other frame). [The release page](docs/releases/dll-2026-10-19.md) has every measure, including the ones where lossy2 is worse.
 
 > ### Help test it: the timing kit
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-19/fsr4-timing-kit-windows-2026-10-19.zip)** (experimental, about 20 MB, version 2026-10-19): unpack, double-click

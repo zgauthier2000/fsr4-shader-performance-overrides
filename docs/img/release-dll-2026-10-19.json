@@ -19,6 +19,44 @@
     "rel": "lossy: 20.3",
     "new": "lossy2: 13.8"
    }
+  },
+  {
+   "name": "foliage-loop",
+   "scene": "dots",
+   "frames": [
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+   ],
+   "kinds": [
+    "r",
+    "s",
+    "r",
+    "s",
+    "r",
+    "s",
+    "r",
+    "s"
+   ],
+   "x": 580,
+   "y": 1300,
+   "w": 160,
+   "h": 100,
+   "zoom": 4,
+   "ms": 250,
+   "title": "Foliage with bright dots of sky between the leaves, camera still: frames 32 to 39, looping",
+   "sub": "A 160 x 100 pixel piece, enlarged 4 times, picked where lossy's error against the true image exceeds lossy2's the most\n(with lossy2 within 1.25 times AMD's error). Test rig, 4K Balanced.",
+   "cap": {
+    "truth": "true image",
+    "amd": "AMD's shaders",
+    "rel": "lossy",
+    "new": "lossy2"
+   }
   }
  ],
  "fades": {

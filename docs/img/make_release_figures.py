@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# make_release_figures.py <dir> <settings.json> : the pictures of a release's page in docs/releases (the first sheet is also the front page's example).
+# make_release_figures.py <dir> <settings.json> [name ...] : the pictures of a release's page in docs/releases (the first sheet is also the front page's example).
 # <dir> holds test-rig output (4K, RGBA16F) of each scene in <scene>_amd/, <scene>_rel/ (the previous release's lossy build) and <scene>_new/
 # (this release's), output_3840x2160_f<frame>.raw, and the true image <scene>_truth_<frame>.npy (linear RGB).
 # settings.json (docs/img/release-<tag>.json): "tag", "sheets" and "fades".
@@ -8,11 +8,15 @@
 #   picture (truth, amd, rel, new; figures as the rig's metric measured them), and "err": true for a second row with each build's error
 #   against the true image, amplified 16 times. The script prints each crop's own mean error for reference.
 #   "fades" -> rel-<date>-fades-light.svg / -dark.svg: frames behind per frame for AMD, the previous release and this one, one chart per fade.
+#   A sheet with "frames": [n, ...] (and no "frame") -> rel-<date>-<name>.gif instead: truth | AMD | previous | this release, the frames
+#   looping ("ms" per frame), each labeled with its number and whether it runs the network ("kinds": r/s per frame); one palette for all
+#   frames and no dithering, so nothing flickers that the frames themselves do not. Captions as for a still sheet.
+# [name ...]: make only those sheets ("fades" for the charts); the others' frames need not be in <dir>.
 import json, sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-D = sys.argv[1]; J = json.load(open(sys.argv[2])); STEM = 'rel-' + J['tag'].removeprefix('dll-')
+D = sys.argv[1]; J = json.load(open(sys.argv[2])); ONLY = set(sys.argv[3:]); STEM = 'rel-' + J['tag'].removeprefix('dll-')
 W, H = 3840, 2160
 BG, INK, MUTED = (26, 26, 25), (255, 255, 255), (195, 194, 183)
 
@@ -60,6 +64,34 @@ def sheet(S):
     f = f"{STEM}-{S['name']}.png"; im.save(f, optimize=True); print(f, im.size)
 
 
+def anim(S):
+    s, x, y, w, h, z = S['scene'], S['x'], S['y'], S['w'], S['h'], S['zoom']
+    cut = lambda a: a[y:y + h, x:x + w]
+    up = lambda a: np.repeat(np.repeat(a, z, 0), z, 1)
+    rgb8 = lambda a: (np.clip(a, 0, 1) * 255 + 0.5).astype(np.uint8)
+    pw, ph = w * z, h * z; gap, m = 16, 32
+    top = 118 + 30 * S['sub'].count('\n')
+    frames = []
+    for n, kind in zip(S['frames'], S['kinds']):
+        truth = srgb(np.load(f'{D}/{s}_truth_{n:03d}.npy')[:, :, :3])
+        out = {k: srgb(np.fromfile(f'{D}/{s}_{k}/output_3840x2160_f{n:03d}.raw', dtype=np.float16).reshape(H, W, 4)[:, :, :3]) for k in ('amd', 'rel', 'new')}
+        print(' ', S['name'], n, ' '.join('%s %.2f' % (k, np.abs(cut(out[k]) - cut(truth)).mean() * 255) for k in ('amd', 'rel', 'new')))
+        im = Image.new('RGB', (2 * m + 4 * pw + 3 * gap, top + ph + 78), BG); d = ImageDraw.Draw(im)
+        d.text((m, 24), S['title'], font=font(32), fill=INK); d.multiline_text((m, 70), S['sub'], font=font(22), fill=MUTED, spacing=8)
+        for i, (k, a) in enumerate([('truth', truth)] + [(k, out[k]) for k in ('amd', 'rel', 'new')]):
+            xx = m + i * (pw + gap); im.paste(Image.fromarray(rgb8(up(cut(a)))), (xx, top))
+            d.text((xx, top + ph + 6), S['cap'][k], font=font(20), fill=INK if i == 3 else MUTED)
+        d.text((m, top + ph + 38), f"frame {n}: " + ('runs the network' if kind == 'r' else 'the lossy DLLs skip the network'), font=font(20), fill=INK)
+        frames.append(im)
+    strip = Image.new('RGB', (frames[0].width, frames[0].height * len(frames)))
+    for i, f_ in enumerate(frames):
+        strip.paste(f_, (0, i * f_.height))
+    pal = strip.quantize(colors=256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+    q = [f_.quantize(palette=pal, dither=Image.Dither.NONE) for f_ in frames]
+    f = f"{STEM}-{S['name']}.gif"; q[0].save(f, save_all=True, append_images=q[1:], duration=S.get('ms', 250), loop=0, optimize=True)
+    print(f, frames[0].size)
+
+
 def fades(F, dark):
     c = dict(bg='#1c1f22', ink='#e8e8e4', muted='#a2a8ab', rule='#33383c', amd='#7cb6d4', rel='#9aa2ad', new='#f0a050') if dark else \
         dict(bg='#ffffff', ink='#1d2124', muted='#5d6468', rule='#dcdcd6', amd='#2f6f8f', rel='#6b7280', new='#b45309')
@@ -90,6 +122,7 @@ def fades(F, dark):
 
 
 for S in J['sheets']:
-    sheet(S)
-if 'fades' in J:
+    if not ONLY or S['name'] in ONLY:
+        (anim if 'frames' in S else sheet)(S)
+if 'fades' in J and (not ONLY or 'fades' in ONLY):
     fades(J['fades'], False); fades(J['fades'], True)
