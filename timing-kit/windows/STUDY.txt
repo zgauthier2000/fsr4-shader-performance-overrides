@@ -14,19 +14,21 @@ summary means) with a different set of DLLs, which come in the same DLL pack.
 How to run it
   Double-click run-study.cmd (in this folder). The program sees which kind of chip you have and times
   that set; on other graphics it says so and stops (the normal test, fsr4time.exe, works on any
-  card). It takes about 30 minutes. Leave the PC alone while it runs, as for the normal test. At the
+  card). It takes about 40 minutes. Leave the PC alone while it runs, as for the normal test. At the
   end it asks whether to send the results, as the normal test does.
   From a command prompt: fsr4time.exe --study (the other options work too, e.g. --all-presets for
-  the Quality and Performance sizes as well: about an hour).
+  the Quality and Performance sizes as well: about 80 minutes).
 
-Every DLL here is exact: its picture should be AMD's, byte for byte, which the summary's fingerprints
-show (on RDNA2 under Windows: the same as 1b-amd-shaders-dots-split).
+Every DLL here except the 6-durandal-test ones is exact: its picture should be AMD's, byte for byte,
+which the summary's fingerprints show (on RDNA2 under Windows: the same as 1b-amd-shaders-dots-split).
+The 6-durandal-test DLLs are timed for their speed only; their picture differs, as in the normal test.
 
 The DLLs of the RDNA2 set
   1-amd-shaders                     AMD's shaders
   1b-amd-shaders-dots-split         AMD's shaders with the last shader's dot products split: on RDNA2
                                     the reference, and the starting point of every DLL below
   2-exact                           this project's exact DLL of release dll-2026-10-15: all six changes
+  6-durandal-test, 6d, 6e           the normal test's test DLLs (their speed only)
   rdna2-s01-base                    1b rebuilt by the project's tools (the same shaders as 1b)
   rdna2-s02 to s07, add-...         the base with ONE change added
   rdna2-s08 to s13, without-...     the exact DLL with ONE change left out
@@ -35,6 +37,7 @@ The DLLs of the RDNA3 set
   1-amd-shaders                     AMD's shaders: on RDNA3 the reference, and the starting point
   1b-amd-shaders-dots-split         AMD's shaders with the last shader's dot products split
   2-exact                           this project's exact DLL of release dll-2026-10-15: all seven changes
+  6-durandal-test, 6d, 6e           the normal test's test DLLs (their speed only)
   rdna3-s01-base                    AMD's shaders, packed by the project's tools (the same shaders as 1)
   rdna3-s02 to s08, add-...         the base with ONE change added
   rdna3-s09 to s15, without-...     the exact DLL with ONE change left out

@@ -23,7 +23,7 @@ How to run it
      there only if you type one. Each summary has a report ID (eight letters and digits); if you
      write to the project about a run, please mention it.
 
-The study run (RDNA2 and RDNA3 graphics only, about 30 minutes)
+The study run (RDNA2 and RDNA3 graphics only, about 40 minutes)
   run-study.cmd starts a longer test that times each change in the exact DLL on its own, to find
   which help on your kind of chip. The DLLs for it are in the same pack; the normal test above does
   not use them. See STUDY.txt.
@@ -65,8 +65,8 @@ What it does
                        frames in Ultra Performance (the "UP" lines; figures for that mode only).
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
   dlls\5-igpu-lossy    and its lossy one
-  dlls\6-durandal-test a test DLL whose speed the project is measuring, and three variants of it
-  dlls\6a-durandal-test-deep, 6b-durandal-test-outer, 6c-durandal-test-fused
+  dlls\6-durandal-test a test DLL whose speed the project is measuring, and two variants of it
+  dlls\6d-durandal-test-wideloads, 6e-durandal-test-unrolled
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
   these, make a folder dlls\ next to fsr4time.exe, a folder for the DLL in it, and put its amd_fidelityfx_upscaler_dx12.dll there. For

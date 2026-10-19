@@ -62,7 +62,7 @@
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
 #define MAXROUNDS 8
-#define MAXDLLS 48     // DLLs in one run (pack + tester folders); a study run has 18
+#define MAXDLLS 48     // DLLs in one run (pack + tester folders); a study run has 19 (RDNA2) or 21 (RDNA3)
 #define MAXROWS 1024   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
 #define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
 #define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL
@@ -340,11 +340,12 @@ static bool GpuIds(unsigned* ven, unsigned* dev, char* name, size_t n) {      //
     if (f6) IDXGIFactory6_Release(f6);
     return ok;
 }
-// which pack DLLs a run takes: the normal run every DLL but the study sets; a study run AMD's two references, the exact DLL and its own set
+// which pack DLLs a run takes: the normal run every DLL but the study sets; a study run AMD's two references, the exact DLL, the Durandal test
+// DLLs (6-...: user, 2026-10-19, "i also want the rdna study modes to test durandal") and its own set
 static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
     if (!study) return !s2 && !s3;
-    return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || (study == 2 ? s2 : s3);
+    return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || !strncmp(name, "6", 1) || (study == 2 ? s2 : s3);
 }
 static void CreateDevice(char* gpu, size_t gpu_len) {
     IDXGIFactory6* f6 = NULL;
@@ -1175,7 +1176,7 @@ int main(int argc, char** argv) {
         if (!strcmp(argv[a], "--study")) study = 1;
         if (!strcmp(argv[a], "--minutes") && a + 1 < argc) { budget = atof(argv[++a]); budget_set = true; }
     }
-    if (study && !budget_set) budget = 30;      // about twice the DLLs of a normal run
+    if (study && !budget_set) budget = 40;      // 19 or 21 DLLs, about twice a normal run's
     if (all_presets && !budget_set) budget *= 2;      // twice the sizes: twice the time for the same number of rounds
     if (budget < 1) budget = 1;
     SYSTEMTIME st;
