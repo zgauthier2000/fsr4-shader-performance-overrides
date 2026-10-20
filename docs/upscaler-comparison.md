@@ -2,6 +2,12 @@
 
 [Back to the front page](../README.md) · [Exact and lossy compared](exact-vs-lossy.md)
 
+> [!WARNING]
+> **These are synthetic benchmarks on one machine.** Every figure and picture on this page comes from made-up test scenes, each built to
+> isolate one thing, run once on a single Radeon RX 7800 XT under Linux (Proton). They are not game footage, not other graphics cards and
+> not repeated runs. A game, another card or Windows can come out differently, and the order of the upscalers on a measure can change.
+> FSR 4.1.2 Lite was run in this project's own test harness, not through AMD's driver.
+
 People compare this project's DLLs with other upscalers they can run on the same card. This page puts six of them through
 the same test scenes and the same timing, for comparison only. It is not a ranking, and it is not a review of the other
 projects. This version (2026-10-20) adds AMD's new FSR 4.1.2 "Lite" model and HelixSR 2.0.0, and shows this project's
