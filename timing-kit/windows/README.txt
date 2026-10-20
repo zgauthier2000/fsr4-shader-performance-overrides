@@ -65,11 +65,15 @@ What it does
                        610M, the graphics of Ryzen 7000 and 9000 desktop processors) are known to
                        show ghosting under Windows with AMD's original form. On those chips this is
                        the DLL to compare with, and the summary's percentages are against it.
-  dlls\2-exact         this project's exact DLL of release dll-2026-10-15, for desktop cards
+  dlls\2-exact         this project's exact DLL of release dll-2026-10-19, for desktop cards
   dlls\3-lossy         its lossy DLL (faster; the picture is NOT the same as AMD's). It also skips
                        frames in Ultra Performance (the "UP" lines; figures for that mode only).
   dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
+  dlls\3b-lossy2       the release's lossy2 DLL (lossy with trained weights; the picture is NOT the same as
+                       AMD's either). It does not support Ultra Performance yet: its "UP" lines run
+                       lossy's network and should match 3-lossy.
   dlls\5-igpu-lossy    and its lossy one
+  dlls\5b-igpu-lossy2  and its lossy2 one
   dlls\6-durandal-test a test DLL whose speed the project is measuring, and two variants of it
   dlls\6d-durandal-test-wideloads, 6e-durandal-test-unrolled
 

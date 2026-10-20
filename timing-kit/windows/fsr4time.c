@@ -420,7 +420,10 @@ static bool GpuIds(unsigned* ven, unsigned* dev, char* name, size_t n) {      //
 static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
     if (!study) return !s2 && !s3;
-    return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || (study == 2 ? s2 : s3);
+    // since the next kit: also the released lossy and lossy2 DLLs, which the study set's family lossy DLLs (rdna2-f2/f3, rdna3-f2/f3) are
+    // compared with; the family DLLs are named rdna2-f* / rdna3-f*, so they come with their generation's study set and stay out of normal runs
+    return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || !strcmp(name, "3-lossy") || !strcmp(name, "3b-lossy2")
+        || (study == 2 ? s2 : s3);
 }
 static void CreateDevice(char* gpu, size_t gpu_len) {
     IDXGIFactory6* f6 = NULL;
