@@ -78,8 +78,8 @@ than a tenth of the smallest step a monitor shows.
 ## Among the other upscalers
 
 The same nine measures for the steady test build, AMD's FSR 4.1.1 (whose picture the exact files give), this project's
-lossy DLL, FSR 3.1, HelixSR and XeSS. The other five columns are those of [the upscaler comparison](upscaler-comparison.md):
-the same scenes, the same settings, one run each.
+lossy DLL, FSR 3.1, HelixSR and XeSS. The other five columns are those of the upscaler comparison as it stood when this page was written (with HelixSR 1.2.0 and an earlier lossy DLL;
+[the comparison now](upscaler-comparison.md) has newer versions): the same scenes, the same settings, one run each.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/steady-quality-dark.svg">
