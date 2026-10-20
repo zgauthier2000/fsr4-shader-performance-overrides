@@ -74,6 +74,9 @@ What it does
                        lossy's network and should match 3-lossy.
   dlls\5-igpu-lossy    and its lossy one
   dlls\5b-igpu-lossy2  and its lossy2 one
+  dlls\3c-lossy2-transplant, 5c-igpu-lossy2-transplant
+                       test DLLs: lossy2 built differently (its trained numbers in AMD's own shader code instead of
+                       the project's generated code). The picture is the same as 3b / 5b; only the speed may differ.
   dlls\6-durandal-test a test DLL whose speed the project is measuring, and two variants of it
   dlls\6d-durandal-test-wideloads, 6e-durandal-test-unrolled
 

@@ -62,7 +62,9 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-19"
+#ifndef KIT_VERSION      // the builder passes -DKIT_VERSION="\"windows <version>\"" (since the next kit: kit 2026-10-20 was first built still
+#define KIT_VERSION "windows 2026-10-20"      // saying 2026-10-19, because this line was not changed)
+#endif
 #define WARM 40
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
