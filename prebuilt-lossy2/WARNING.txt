@@ -38,5 +38,4 @@ What it costs
 - The weights were trained on 4K Balanced material only; other sizes and modes were checked at 1080p and 5K
   (Balanced), not in every combination.
 
-These figures come from synthetic test scenes on Linux (Proton), not from games. One trained copy is shipped;
-training the same way again gave copies that differ (one of three grew bright specks in rain, so it was not used).
+These figures come from synthetic test scenes on Linux (Proton), not from games.
