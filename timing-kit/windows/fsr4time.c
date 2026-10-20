@@ -45,6 +45,7 @@
 #include <winhttp.h>
 #include <d3d12.h>
 #include <dxgi1_6.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -282,7 +283,75 @@ static void DeleteBlockRecords(void) {      // the records the first runs leave 
     if (fh != INVALID_HANDLE_VALUE) { do DeleteFileA(fd.cFileName); while (FindNextFileA(fh, &fd)); FindClose(fh); }
 }
 
-static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh, const char* key) {
+// How far a picture is from AMD's (since kit 2026-10-20; a fingerprint only says "the same" or "not"; report 16243817, an RX 7900 XT on Windows
+// 10 with Microsoft's newer runtime, gave a different fingerprint for every DLL, AMD's own forms included). The reference DLLs (1-amd-shaders, and
+// 1b-amd-shaders-dots-split, the reference on RDNA2) leave their last frame per output size, render size and scene in a file, as 8-bit display
+// values (the color clamped to 0..1, a 2.2 gamma, 0..255: what a screen would show, so rounding that no screen shows comes out identical).
+// Every other DLL compares its own last frame with each file there and reports: dB (PSNR, 255 = full scale), the share of values more than one
+// display level apart, and the largest difference in levels. The files (up to about 25 MB each at 4K) are deleted when the run ends.
+static const char* REFS[] = {"1-amd-shaders", "1b-amd-shaders-dots-split"};
+static uint8_t* DisplayLut(void) {      // half-float bits -> 8-bit display level
+    static uint8_t* lut = NULL;
+    if (!lut) {
+        lut = (uint8_t*)malloc(65536);
+        for (int i = 0; i < 65536; ++i) {
+            float v = HalfToFloat((uint16_t)i); if (!(v > 0)) v = 0; if (v > 1) v = 1;
+            lut[i] = (uint8_t)(255.0 * pow(v, 1.0 / 2.2) + 0.5);
+        }
+    }
+    return lut;
+}
+static uint64_t KeyHash(const char* a, const char* b) {
+    uint64_t kh = 1469598103934665603ull;
+    for (const char* q = a; *q; ++q) { kh ^= (uint8_t)*q; kh *= 1099511628211ull; }
+    kh ^= '|'; kh *= 1099511628211ull;
+    for (const char* q = b; *q; ++q) { kh ^= (uint8_t)*q; kh *= 1099511628211ull; }
+    return kh;
+}
+static void ComparePicture(const uint8_t* data, UINT pitch, UINT ow, UINT oh, const char* label, const char* key, const char* pkey) {
+    const uint8_t* lut = DisplayLut();
+    const size_t n = (size_t)ow * oh * 3;
+    uint8_t* now = (uint8_t*)malloc(n);
+    for (UINT y = 0; y < oh; ++y) {
+        const uint16_t* row = (const uint16_t*)(data + (size_t)y * pitch);
+        for (UINT x = 0; x < ow; ++x) for (int c = 0; c < 3; ++c) now[((size_t)y * ow + x) * 3 + c] = lut[row[x * 4 + c]];
+    }
+    if (getenv("FSR4TIME_POKEPIC") && strcmp(label, REFS[0]) && strcmp(label, REFS[1])) now[n / 2] ^= 8;      // test switch: one value of every other DLL off by 8 levels
+    char file[96];
+    for (int r = 0; r < 2; ++r) {
+        snprintf(file, sizeof(file), "pic-%016llx.tmp", (unsigned long long)KeyHash(REFS[r], pkey));
+        if (!strcmp(label, REFS[r])) {      // a reference: leave its picture (once)
+            FILE* f = fopen(file, "rb");
+            if (f) fclose(f);
+            else if ((f = fopen(file, "wb"))) { fwrite(now, 1, n, f); fclose(f); }
+            continue;
+        }
+        FILE* f = fopen(file, "rb");
+        if (!f) continue;
+        uint8_t* ref = (uint8_t*)malloc(n);
+        const size_t got = fread(ref, 1, n, f);
+        fclose(f);
+        if (got == n) {
+            double sse = 0; size_t over = 0; int worst = 0;
+            for (size_t i = 0; i < n; ++i) {
+                const int d = (int)now[i] - (int)ref[i], a = d < 0 ? -d : d;
+                sse += (double)d * d; if (a > 1) ++over; if (a > worst) worst = a;
+            }
+            const double db = sse > 0 ? 10.0 * log10(255.0 * 255.0 / (sse / (double)n)) : -1;      // -1: identical at display precision
+            // key | reference DLL | dB (-1 = identical on screen) | share of values more than 1 level off | largest difference in levels
+            Say("P|%s|%s|%.2f|%.6f|%d\n", key, REFS[r], db, (double)over / (double)n, worst);
+        }
+        free(ref);
+    }
+    free(now);
+}
+static void DeletePictureRecords(void) {
+    WIN32_FIND_DATAA fd;
+    HANDLE fh = FindFirstFileA("pic-*.tmp", &fd);
+    if (fh != INVALID_HANDLE_VALUE) { do DeleteFileA(fd.cFileName); while (FindNextFileA(fh, &fd)); FindClose(fh); }
+}
+
+static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh, const char* key, const char* label, const char* pkey) {
     const UINT pitch = (ow * 8 + 255) & ~255u;
     ID3D12Resource* rb = Buffer(D3D12_HEAP_TYPE_READBACK, (UINT64)pitch * oh);
     D3D12_TEXTURE_COPY_LOCATION src = {.pResource = output, .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX};
@@ -302,6 +371,7 @@ static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh, const char*
     for (UINT y = 0; y < oh; ++y)
         for (UINT x = 0; x < ow * 8; ++x) { h ^= data[(size_t)y * pitch + x]; h *= 1099511628211ull; }
     if (key) CompareBlocks(data, pitch, ow, oh, key, &h);
+    if (key && label && pkey) ComparePicture(data, pitch, ow, oh, label, key, pkey);
     ID3D12Resource_Unmap(rb, 0, NULL);
     ID3D12Resource_Release(rb);
     return h;
@@ -545,7 +615,9 @@ static int RunOne(const char* name, bool quick) {
                 const double med = Median(ms, TIMED), me = Median(even, ne), mo = Median(odd, no);
                 char key[256];      // names this DLL, version, size and scene: the same in its two runs
                 snprintf(key, sizeof(key), "%s|%s%s|%s|%s", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, scene ? "moving" : "still");
-                const uint64_t h = HashOutput(output, ow, oh, key);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
+                char pkey[64];      // size, render size and scene, without the DLL: the reference pictures' key
+                snprintf(pkey, sizeof(pkey), "%s|%ux%u|%s", sz, rw, rh, scene ? "moving" : "still");
+                const uint64_t h = HashOutput(output, ow, oh, key, label, pkey);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
                 // name | version name the DLL reports | output | render | scene | mean | median | median where jitter x >= 0 | where < 0 | fastest | picture hash
                 Say("R|%s|%s%s|%s|%ux%u|%s|%.4f|%.4f|%.4f|%.4f|%.4f|%016llx\n", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, rw, rh,
                     scene ? "moving" : "still", sum / TIMED, med, me, mo, fastest, (unsigned long long)h);
@@ -1091,7 +1163,8 @@ static void HeaderEnd(void) {
     printf("\n"); fflush(stdout);
 }
 
-struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXRUNS]; bool hashdiff; char diff[160]; };
+struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXRUNS]; bool hashdiff; char diff[160];
+             char pic[2][112]; };      // pic: how far the picture is from REFS[0] / REFS[1] (P lines, see ComparePicture), "" if not measured
 // the figure the summary gives: the mean of a DLL's runs (one per round; fewer if a run failed)
 static double Val(const struct Row* w) { double t = 0; for (int i = 0; i < w->n; ++i) t += w->runs[i]; return w->n ? t / w->n : 0; }
 static double Spread(const struct Row* w) {      // (largest - smallest) of the runs, as a share of the mean
@@ -1104,6 +1177,7 @@ static double Spread(const struct Row* w) {      // (largest - smallest) of the 
 static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t gl, char* fails, size_t fsz) {
     int nr = 0, fl = 0;
     char line[512];
+    static char plines[4096][200]; int np = 0;      // P lines come before their run's R line: kept and matched after reading
     if (fails && fsz) fails[0] = 0;
     FILE* r = fopen(raw, "r");
     while (r && fgets(line, sizeof(line), r)) {
@@ -1117,6 +1191,7 @@ static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t
                         snprintf(rows[j].diff, sizeof(rows[j].diff), ": %u of %u blocks of %dx%d pixels differ, within x %u..%u y %u..%u, largest shift of a block's mean %.6f of full scale", nd, nb, BLK, BLK, x0, x1, y0, y1, worst);
             continue;
         }
+        if (line[0] == 'P' && line[1] == '|') { if (np < 4096) snprintf(plines[np++], sizeof(plines[0]), "%s", line); continue; }
         if (line[0] != 'R' || line[1] != '|') continue;
         if (strstr(line, "|FAILED|")) {      // each failure once (a DLL that fails every round gave one line per round: a GTX 1660 SUPER report of
                                              // 2026-10-18 filled the list and cut its last line), and only whole lines
@@ -1138,10 +1213,20 @@ static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t
                     first->runs[first->n++] = w->mean;
                 }
                 if (strcmp(first->hash, w->hash)) first->hashdiff = true;
-            } else { w->n = 1; w->runs[0] = w->mean; w->hashdiff = false; w->diff[0] = 0; ++nr; }
+            } else { w->n = 1; w->runs[0] = w->mean; w->hashdiff = false; w->diff[0] = 0; w->pic[0][0] = w->pic[1][0] = 0; ++nr; }
         }
     }
     if (r) fclose(r);
+    for (int k = 0; k < np; ++k) {      // P|name|version|size|scene|reference|dB|share more than 1 level off|largest difference: the first run's
+        char dn[64], dv[64], ds[16], dc[8], rf[64]; double db, share; int worst;
+        if (sscanf(plines[k], "P|%63[^|]|%63[^|]|%15[^|]|%7[^|]|%63[^|]|%lf|%lf|%d", dn, dv, ds, dc, rf, &db, &share, &worst) != 8) continue;
+        const int ri = !strcmp(rf, REFS[1]);
+        for (int j = 0; j < nr; ++j)
+            if (!strcmp(rows[j].name, dn) && !strcmp(rows[j].ver, dv) && !strcmp(rows[j].size, ds) && !strcmp(rows[j].scene, dc) && !rows[j].pic[ri][0]) {
+                if (db < 0) snprintf(rows[j].pic[ri], sizeof(rows[j].pic[ri]), "identical on screen (8-bit) to %s", rf);
+                else snprintf(rows[j].pic[ri], sizeof(rows[j].pic[ri]), "%.1f dB from %s, %.2f%% of values more than 1 of 255 off, largest %d", db, rf, 100.0 * share, worst);
+            }
+    }
     return nr;
 }
 static bool RowOf(const struct Row* w, const char* dll) {      // the row is of that DLL (a DLL with several variants has "<name>, variant k of n")
@@ -1312,7 +1397,7 @@ int main(int argc, char** argv) {
     // run (the card warming up, something starting in the background) shows as a spread between them. After each round the
     // next one starts only if it fits in the time given (the last round's length is the estimate); a second round also runs
     // if the whole run then stays under 20 minutes. Slow cards get one or two rounds, fast ones up to MAXROUNDS.
-    DeleteBlockRecords();      // none left over from a run that was cut short
+    DeleteBlockRecords(); DeletePictureRecords();      // none left over from a run that was cut short
     const ULONGLONG t0 = GetTickCount64();
     ULONGLONG tr = t0;
     int rounds = 0;
@@ -1373,7 +1458,7 @@ int main(int argc, char** argv) {
         }
     }
     DeleteFileA("amd_fidelityfx_upscaler_dx12.dll");
-    DeleteBlockRecords();
+    DeleteBlockRecords(); DeletePictureRecords();
     HeaderEnd();
 
     // summary
@@ -1443,6 +1528,10 @@ int main(int argc, char** argv) {
             if (w->hashdiff) ADD(" (NOT the same picture in all its runs%s)", w->diff);
             if (same) ADD(" = %s", same->name);
             else if (ref && ref != w) ADD(" (differs from those above)");
+            if (ref && ref != w && strcmp(w->hash, ref->hash)) {      // how far from the reference (since kit 2026-10-20)
+                const int ri = !strncmp(ref->name, REFS[1], strlen(REFS[1]));
+                if (w->pic[ri][0]) ADD(" [%s]", w->pic[ri]); else if (w->pic[0][0]) ADD(" [%s]", w->pic[0]);
+            }
         }
         ADD("\n");
     }

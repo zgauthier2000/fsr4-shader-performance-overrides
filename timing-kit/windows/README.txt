@@ -47,6 +47,11 @@ What it does
   rounds goes to the DLLs whose runs disagreed by more than 3%: they are timed again. It also
   takes a fingerprint of the picture each DLL produces (its last frame), to show which DLLs give
   the same picture.
+  Where a DLL's picture is not the same as AMD's, the summary also says how far it is from it:
+  in dB (higher is closer), the share of values more than one step of 255 off on screen, and
+  the largest difference. "identical on screen" means the difference is only in rounding that a
+  screen does not show. While it runs, the kit keeps AMD's last pictures in pic-*.tmp files here
+  (up to a few hundred MB) and deletes them at the end.
 
   Each DLL runs in a program of its own. If one crashes, or does not finish within 10 minutes (a
   driver that stops responding), the kit notes it in the summary and goes on with the next one.
