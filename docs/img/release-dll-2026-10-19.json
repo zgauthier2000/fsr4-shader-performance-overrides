@@ -57,6 +57,44 @@
     "rel": "lossy",
     "new": "lossy2"
    }
+  },
+  {
+   "name": "wires-loop",
+   "scene": "wires",
+   "frames": [
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+   ],
+   "kinds": [
+    "r",
+    "s",
+    "r",
+    "s",
+    "r",
+    "s",
+    "r",
+    "s"
+   ],
+   "x": 760,
+   "y": 1720,
+   "w": 160,
+   "h": 100,
+   "zoom": 4,
+   "ms": 250,
+   "title": "Thin wires, camera panning slowly: frames 32 to 39, looping",
+   "sub": "A 160 x 100 pixel piece, enlarged 4 times, picked where lossy's error against the true image exceeds lossy2's the most\n(with lossy2 within 1.25 times AMD's error). Test rig, 4K Balanced.",
+   "cap": {
+    "truth": "true image",
+    "amd": "AMD's shaders",
+    "rel": "lossy",
+    "new": "lossy2"
+   }
   }
  ],
  "fades": {
