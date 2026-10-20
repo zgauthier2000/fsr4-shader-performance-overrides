@@ -30,7 +30,7 @@ laptop with two, the RX one is the one games use.
 |---|---|---|
 | `exact` | faster than AMD's | **the same as AMD's, byte for byte** |
 | `lossy` | faster again | very close to AMD's, but not the same. Read `WARNING.txt` in that folder first |
-| `lossy2` (new; to replace `lossy` later) | as `lossy` | `lossy` with trained weights: closer to AMD's on swaying foliage and fireflies, slower to follow brightening. Read `WARNING.txt` in that folder first |
+| `lossy2` (new; to replace `lossy` later) | as `lossy` | `lossy` with trained weights: closer to AMD's on swaying foliage and fireflies, slower to follow brightening. **Not for Ultra Performance yet** (there it is the same as `lossy`). Read `WARNING.txt` in that folder first |
 
 If you are not sure, take `exact`.
 
@@ -114,7 +114,8 @@ More games and resolutions: [all results](docs/results.md).
 >   skip works as usual (measured under Proton on an RX 7800 XT). It shows the DLL's version name, such as
 >   `4.1.1-CYBOMAN`, so it also tells you which build is running.
 > - **Ultra Performance mode (since `dll-2026-10-15`).** The lossy DLL skips frames there too, and runs the network
->   all the same on one in three of the frames it would skip. **Ultra Performance only, not representative of other
+>   all the same on one in three of the frames it would skip (lossy2 too: it does not support Ultra Performance yet and runs lossy's
+>   network there). **Ultra Performance only, not representative of other
 >   modes:** at 4K about 3.2 to 2.5 ms per frame on an RX 7800 XT, and its picture costs there are larger than in other
 >   modes ([details](docs/releases/dll-2026-10-15.md)).
 
@@ -132,6 +133,8 @@ More games and resolutions: [all results](docs/results.md).
 > - **Worse than lossy:** it follows brightening 2 to 2.5 times as slowly (1.5 frames behind against 0.6 on a bright area), a still
 >   picture is 0.3 to 0.4 dB less accurate, and heavy film grain is less steady when the game uses FSR's auto exposure.
 >   It was trained on 4K Balanced and checked at 1080p, 1440p and 5K; Quality and Performance are not checked.
+> - **Not for Ultra Performance yet:** lossy2 has no trained weights for that mode; there it runs lossy's network unchanged and
+>   looks and performs exactly like lossy.
 > - **Speed:** as lossy. Shadow of the Tomb Raider's benchmark at 4K Balanced on an RX 7800 XT under Linux: 18,784 frames, 121 FPS (one run).
 > - **Lossy DLL:** the register cut of `dll-2026-10-15` is removed. The Windows timing kit has shown that this should lower the lossy
 >   DLL's upscaler time against `dll-2026-10-15` by about 1.3 to 1.8% on RX 6000 cards, about 3% on the RX 7600 and 0.5 to 1% on

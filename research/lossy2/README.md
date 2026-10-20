@@ -3,6 +3,7 @@
 lossy2 is the lossy version with new weights in six of the network's twelve layers (passes 1, 2, 4, 5, 10 and 12).
 The weights were trained to match AMD's picture through the whole lossy frame loop, starting from lossy's own weights.
 Everything else, including frame skip, the other six layers and Ultra Performance, is lossy's.
+**lossy2 does not support Ultra Performance yet:** that mode has no trained weights and runs lossy's network unchanged.
 What it changes in the picture is in [`WARNING.txt`](WARNING.txt).
 
 This folder rebuilds lossy2 from its integer weights. The training tools, those of Durandal (the project's unreleased work on a
