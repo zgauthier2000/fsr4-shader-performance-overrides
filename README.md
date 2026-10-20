@@ -235,6 +235,9 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 
 - **Nothing else changes.** No game files are edited, and the output was compared byte for byte
   with AMD's at 4K, 1440p and 1080p.
+- **If a game crashes with the `exact` DLL** from the RX 7000 / RX 6000 archive, try the `exact` DLL from the
+  `fsr4.1.1-igpu-cyboman` archive instead: the same picture, byte for byte, with one shader built differently. In timing-kit
+  reports on Windows it is about 1 to 1.5% slower on RX 6000 cards and no slower on RX 7000 cards (medians).
 - **Game and OptiScaler updates** can put the original DLL back; the launch option keeps working.
 - **Never in online games or games with anti-cheat.** This changes the shaders the game renders with, and anti-cheat
   software can treat that as tampering. Single-player games only.
