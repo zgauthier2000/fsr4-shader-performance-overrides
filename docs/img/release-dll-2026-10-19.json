@@ -2,25 +2,6 @@
  "tag": "dll-2026-10-19",
  "sheets": [
   {
-   "name": "foliage",
-   "scene": "foliage",
-   "frame": 39,
-   "x": 1040,
-   "y": 1550,
-   "w": 160,
-   "h": 100,
-   "zoom": 4,
-   "err": true,
-   "title": "Swaying foliage, camera still",
-   "sub": "Frame 39, a frame the lossy DLLs skip the network for. A 160 x 100 pixel piece, enlarged 4 times; the second row shows each\nversion's difference from the true image, amplified 16 times (darker is closer). The figures are the piece's mean error, in steps of 255.",
-   "cap": {
-    "truth": "true image",
-    "amd": "AMD's shaders: 12.7",
-    "rel": "lossy: 20.3",
-    "new": "lossy2: 13.8"
-   }
-  },
-  {
    "name": "foliage-loop",
    "scene": "dots",
    "frames": [
