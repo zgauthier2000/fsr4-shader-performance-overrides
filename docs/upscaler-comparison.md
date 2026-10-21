@@ -10,10 +10,9 @@
 
 > [!NOTE]
 > **The FSR 4.1.1 column also stands for FSR 4.1.2 on desktop cards, as far as measured.** AMD's FSR 4.1.2 (graphics driver 26.10.1)
-> adds Lite for integrated graphics; for desktop RX 7000 and RX 6000 cards it keeps FSR 4.1.1's network with the same weights. Run in this
-> project's local test harness, FSR 4.1.2's network for each of the two kinds of desktop card gave FSR 4.1.1's picture byte for byte in every
-> test: 30 each, at 1080p and 4K output, still and moving, with fades, film grain, foliage, fireflies and rain, auto exposure off and on, and
-> HDR. Not checked: Ultra Performance, output above 4K, FSR 4.1.2's own steps before and after the network, and AMD's own runtime.
+> adds Lite for integrated graphics. For desktop RX 7000 and RX 6000 cards, FSR 4.1.2 gave FSR 4.1.1's picture byte for byte in every test
+> in this project's local test harness: 30 each, at 1080p and 4K output, still and moving, with fades, film grain, foliage, fireflies and
+> rain, auto exposure off and on, and HDR. Not checked: Ultra Performance, output above 4K, and FSR 4.1.2 as a whole outside this harness.
 
 People compare this project's DLLs with other upscalers they can run on the same card. This page puts six of them through
 the same test scenes and the same timing, for comparison only. It is not a ranking, and it is not a review of the other
