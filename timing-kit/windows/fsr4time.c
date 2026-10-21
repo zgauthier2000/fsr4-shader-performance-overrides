@@ -16,7 +16,7 @@
 //   fsr4time.exe --send-test   sends one message that says it is a test (to check that sending works)
 //   FSR4TIME_CRASHTEST=<name>  (for testing) the run of the DLL <name> reads address 0x18C, as a crash inside a driver would
 //   FSR4TIME_HANGTEST=<name>   (for testing) the run of the DLL <name> never ends, as a hung driver call would
-//   FSR4TIME_LIMIT=<seconds>   (for testing) the time limit of one DLL's run (default RUN_LIMIT_MIN minutes)
+//   FSR4TIME_LIMIT=<seconds>   (for testing) the time limit of one DLL's run (default: see RunLimit)
 //   FSR4TIME_DRYSEND=<file>    (for testing) what would be sent is written to <file> instead
 //   FSR4TIME_AGILITYONLY=1     (for testing) only the runtime choice (SetupRuntime: offer, check, probe), then end
 //   FSR4TIME_NOWAIT=1          (for testing) win10-helper.exe opened by hand does not wait for Enter
@@ -72,7 +72,12 @@
 #define MAXDLLS 48     // DLLs in one run (pack + tester folders); a study run has 16 (RDNA2) or 18 (RDNA3)
 #define MAXROWS 1024   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
 #define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
-#define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL
+#define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL:
+                              // the limit until a first run has finished on this PC; after that RUN_LIMIT_TIMES x the longest finished run,
+                              // at least RUN_LIMIT_FLOOR minutes and at most RUN_LIMIT_MIN, in whole minutes (kit 2026-10-21: a hung run cost
+                              // 10 minutes on every card, while finished runs take about 0.5 to 2 minutes)
+#define RUN_LIMIT_TIMES 3
+#define RUN_LIMIT_FLOOR 2
 
 static FILE* out;      // the results file of this run
 static void Say(const char* fmt, ...) {
@@ -1247,6 +1252,14 @@ static bool RowOf(const struct Row* w, const char* dll) {      // the row is of 
 // earlier kits' DLLs) used to stop the whole kit there. A run that takes longer than the limit is stopped, noted in the summary's list of
 // failures, and the kit goes on with the next DLL. what: the progress text after the DLL's name.
 static bool stopped_holds;      // a stopped run may still hold the DLL file for a while (its process does not always end at once)
+static ULONGLONG longest_run;      // ms of the longest run that finished normally on this PC so far (0: none yet)
+static DWORD RunLimit(void) {      // the time limit of the next run, ms (see RUN_LIMIT_MIN)
+    if (!longest_run) return RUN_LIMIT_MIN * 60000u;
+    ULONGLONG m = (longest_run * RUN_LIMIT_TIMES + 59999u) / 60000u;
+    if (m < RUN_LIMIT_FLOOR) m = RUN_LIMIT_FLOOR;
+    if (m > RUN_LIMIT_MIN) m = RUN_LIMIT_MIN;
+    return (DWORD)m * 60000u;
+}
 static void RunDll(const char* name, int inpack, const char* base, const char* raw, bool quick, const char* what) {
     char src[MAX_PATH], cmd[1024];
     snprintf(src, sizeof(src), "dlls\\%s\\amd_fidelityfx_upscaler_dx12.dll", name);
@@ -1262,7 +1275,8 @@ static void RunDll(const char* name, int inpack, const char* base, const char* r
     PROCESS_INFORMATION pi;
     if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) { printf("could not start a run for %s\n", name); return; }
     const char* lim = getenv("FSR4TIME_LIMIT");
-    const DWORD limit = lim && atoi(lim) > 0 ? (DWORD)atoi(lim) * 1000u : RUN_LIMIT_MIN * 60000u;
+    const DWORD limit = lim && atoi(lim) > 0 ? (DWORD)atoi(lim) * 1000u : RunLimit();
+    const ULONGLONG started = GetTickCount64();
     if (WaitForSingleObject(pi.hProcess, limit) == WAIT_TIMEOUT) {
         TerminateProcess(pi.hProcess, 4);
         stopped_holds = WaitForSingleObject(pi.hProcess, 15000) == WAIT_TIMEOUT;
@@ -1274,6 +1288,7 @@ static void RunDll(const char* name, int inpack, const char* base, const char* r
     } else {
         DWORD code = 0;
         GetExitCodeProcess(pi.hProcess, &code);
+        if (code == 0 && GetTickCount64() - started > longest_run) longest_run = GetTickCount64() - started;
         if (code == 3) printf("%s: the run crashed; what crashed and where is in the summary's list of failures\n", name);
         else if (code >= 0xC0000000u) {      // ended by an exception the run could not report itself
             printf("%s: the run ended with exception 0x%08lx\n", name, (unsigned long)code);

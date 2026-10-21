@@ -54,8 +54,10 @@ What it does
   screen does not show. While it runs, the kit keeps AMD's last pictures in pic-*.tmp files here
   (up to a few hundred MB) and deletes them at the end.
 
-  Each DLL runs in a program of its own. If one crashes, or does not finish within 10 minutes (a
-  driver that stops responding), the kit notes it in the summary and goes on with the next one.
+  Each DLL runs in a program of its own. If one crashes, or does not finish in time (a driver
+  that stops responding), the kit notes it in the summary and goes on with the next one. The time
+  limit is three times the longest DLL run that finished on your PC, at least 2 and at most 10
+  minutes, so a stuck DLL usually costs only a few minutes.
 
   dlls\1-amd-shaders   AMD's DLL with AMD's shaders (only its graphics-card check is lifted, so
                        that it runs on RX 6000 cards and integrated graphics too): the reference

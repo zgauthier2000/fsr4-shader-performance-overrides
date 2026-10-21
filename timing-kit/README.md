@@ -76,9 +76,11 @@ test DLL whose speed the project is measuring. The test DLLs of versions 2026-10
 
 - **RX 6000 cards:** the summary's percentages are against `1b-amd-shaders-dots-split`, since under Windows these cards show ghosting
   with AMD's original form of the last shader, and that DLL is the one to compare with there.
-- **A time limit per DLL:** each DLL runs in a program of its own, and one that does not finish within 10 minutes (a driver call that
+- **A time limit per DLL:** each DLL runs in a program of its own, and one that does not finish in time (a driver call that
   never returns, as on a GeForce GTX 1660 with version 2026-10-15.3) is stopped and noted in the summary, and the run goes on with the
   next DLL. A crash is noted the same way, with the module it happened in.
+  Since version 2026-10-21 the limit is three times the longest run that finished on that PC, rounded up to whole minutes
+  (at least 2, at most 10; 10 until a first run has finished): a stuck DLL costs a few minutes instead of 10.
 - **Re-timing:** time left after the rounds goes to the DLLs whose runs disagreed by more than 3%: they are timed again.
 - **One message per report:** a short line with two attached files, the summary and `results-raw.txt` (every run's time, which shows
   how steady the card is), and a report ID (in the summary too). A run in which no DLL gave timings says so.
