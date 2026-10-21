@@ -3,6 +3,13 @@
 Makes AMD FSR 4.1.1 upscaling faster on Radeon graphics cards, on Windows and Linux, by replacing
 FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the game changes.
 
+> [!TIP]
+> **How does lossy2 compare with AMD's new FSR 4.1.2 Lite?** See the **[upscaler comparison](docs/upscaler-comparison.md)**: six
+> upscalers (FSR 4.1.1, lossy2, FSR 4.1.2 Lite, FSR 3.1, HelixSR 2.0 and XeSS) on the same test scenes and timing. In short, lossy2 and
+> Lite are level on still-picture accuracy (43.9 dB each; FSR 4.1.1 44.3) and within about 0.2 ms of each other in speed. Lite is ahead
+> on swaying leaves; lossy2 on areas a moving object has just uncovered, on old image beside moving things and on steadiness in motion.
+> One Radeon RX 7800 XT, made-up test scenes, single runs. FSR 4.1.2 Lite is not offered by this project.
+
 ## Quick start
 
 > [!WARNING]
