@@ -8,6 +8,13 @@
 > not repeated runs. A game, another card or Windows can come out differently, and the order of the upscalers on a measure can change.
 > FSR 4.1.2 Lite was run in this project's own test harness, not through AMD's driver.
 
+> [!NOTE]
+> **The FSR 4.1.1 column also stands for FSR 4.1.2 on desktop cards, as far as measured.** AMD's FSR 4.1.2 (graphics driver 26.10.1)
+> adds Lite for integrated graphics; for desktop RX 7000 and RX 6000 cards it keeps FSR 4.1.1's network with the same weights. Run in this
+> project's local test harness, FSR 4.1.2's network for each of the two kinds of desktop card gave FSR 4.1.1's picture byte for byte in every
+> test: 30 each, at 1080p and 4K output, still and moving, with fades, film grain, foliage, fireflies and rain, auto exposure off and on, and
+> HDR. Not checked: Ultra Performance, output above 4K, FSR 4.1.2's own steps before and after the network, and AMD's own runtime.
+
 People compare this project's DLLs with other upscalers they can run on the same card. This page puts six of them through
 the same test scenes and the same timing, for comparison only. It is not a ranking, and it is not a review of the other
 projects. This version (2026-10-20) adds AMD's new FSR 4.1.2 "Lite" model and HelixSR 2.0.0, and shows this project's
