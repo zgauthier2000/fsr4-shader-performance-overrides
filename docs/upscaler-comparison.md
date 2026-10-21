@@ -106,7 +106,7 @@ screen (a faint copy of them is left behind), and areas a moving object has just
 |---|---|---|---|
 | FSR 4.1.1 | AMD's FSR 4 (INT8 model) with AMD's own shaders. This project's exact DLL gives the same picture, byte for byte | 4.1.1 | defaults |
 | Lossy2 | this project's lossy2 DLL: FSR 4.1.1's network on every other frame, with trained weights; meant to replace the lossy DLL once it is trained further | release `dll-2026-10-19`, at the Balanced preset's size (auto exposure is off on this page) | defaults |
-| FSR 4.1.2 Lite | AMD's small FSR 4 model ("Lite": three network passes where FSR 4.1.1 has twelve), which AMD's graphics driver 26.10.1 brings for integrated graphics. Not available from this project: run here in a local test harness, not AMD's own runtime (see the note below) | 4.1.2 (driver 26.10.1) | its normal weight set (the one for every preset but Ultra Performance) |
+| FSR 4.1.2 Lite | AMD's small FSR 4 model ("Lite": three network passes where FSR 4.1.1 has twelve), which AMD's graphics driver 26.10.1 brings for integrated graphics. Not available from this project: run here in a local test harness (see the note below) | 4.1.2 (driver 26.10.1) | its normal weight set (the one for every preset but Ultra Performance) |
 | FSR 3.1 | AMD's FSR 3.1 upscaler, from the same AMD file as FSR 4.1.1 | 3.1.5 | defaults |
 | HelixSR 2.0 | a community upscaler that runs NVIDIA's DLSS "Model E" network as ordinary compute shaders behind FSR 3.1's interface | 2.0.0 | defaults (INT8 network and 32-wide waves on this card, sharpening off); its frame generation off |
 | XeSS | Intel's XeSS, in the form that runs on any graphics card | 2.0.2 | defaults, no auto exposure |
@@ -121,7 +121,7 @@ screen (a faint copy of them is left behind), and areas a moving object has just
 - **Checked before measuring:** that each upscaler receives the inputs the way it expects. For XeSS the sign of the jitter and
   of the motion vectors was tested both ways and the better one used, which is also what Intel's guide describes. FSR 3.1
   and HelixSR take the same interface as FSR 4.
-- **FSR 4.1.2 Lite, the harness:** Lite was run in this project's local test harness, not AMD's own runtime. Two faults of the harness (data cleared, or
+- **FSR 4.1.2 Lite, the harness:** Lite was run in this project's local test harness. Two faults of the harness (data cleared, or
   left uncleared, where Lite keeps its intermediate results) were corrected for the picture measurements; uncorrected, the picture differs slightly from run
   to run and scores up to 0.3 dB lower against FSR 4.1.1 on the moving test scene. The speed figures were taken without the corrections (they are a few very
   small steps).
@@ -296,7 +296,7 @@ Graphics-card time for one upscale call, in milliseconds, at the same render rat
   predicting how a particular game will look.
 - **Other cards and systems.** HelixSR's author develops on different hardware; XeSS and FSR 3.1 behave differently across
   vendors. One RX 7800 XT on Linux is one data point.
-- **AMD's own FSR 4.1.2 Lite runtime.** Lite was run in this project's harness, not through AMD's driver; AMD's runtime may differ.
+- **FSR 4.1.2 Lite through AMD's driver.** Lite was run in this project's local test harness, not through AMD's driver; there it may differ.
 - **Other settings.** Each upscaler was run at its defaults. HelixSR can use another network output size and optional sharpening; XeSS has
   auto exposure, which raised its still-picture score here from 42.1 to 42.7 dB when tried; none of that was explored.
 - **Other render ratios.** Only the 1.7 ratio was measured.

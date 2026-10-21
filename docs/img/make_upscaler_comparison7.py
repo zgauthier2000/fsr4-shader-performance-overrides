@@ -65,7 +65,7 @@ def radar(t):
         o += [text(x, y, a, t, 10, 'ink2', weight=600), text(x, y + 12, b, t, 10, 'muted')]
     o += [text(24, H - 42, 'A spoke at half length: twice the error (or the change per frame, or the time) of the best of the six; for sparks, half as much shown.', t, 10, 'muted'),
           text(24, H - 28, "Orange: this project's lossy2 DLL (release dll-2026-10-19; frame skipping, it changes the picture). FSR 4.1.2 Lite: AMD's small model,", t, 10, 'muted'),
-          text(24, H - 14, "run in this project's test harness (not AMD's runtime). Test rig, 4K output, one card, single runs.", t, 10, 'muted')]
+          text(24, H - 14, "run in this project's local test harness. Test rig, 4K output, one card, single runs.", t, 10, 'muted')]
     return o
 
 
@@ -142,7 +142,7 @@ def lite_vs_fsr4(t):
     o += [f'<rect x="24" y="{H - 52}" width="12" height="12" rx="3" fill="{better}"/>', text(42, H - 42, 'Lite better than FSR 4.1.1', t, 10.5, 'ink2'),
           f'<rect x="212" y="{H - 52}" width="12" height="12" rx="3" fill="{worse}"/>', text(230, H - 42, 'Lite worse than FSR 4.1.1', t, 10.5, 'ink2'),
           text(24, H - 24, 'Accuracy rows compare the size of the error (from the dB figures); sparks compare the share shown. Test rig, 4K output, one card, single runs.', t, 10, 'muted'),
-          text(24, H - 10, "Lite run in this project's test harness, not AMD's runtime.", t, 10, 'muted')]
+          text(24, H - 10, "Lite run in this project's local test harness.", t, 10, 'muted')]
     return o
 
 # ---- speed: time per upscale call at three output sizes, one panel per size on ONE shared ms scale (so the growth with size shows), rows in the
