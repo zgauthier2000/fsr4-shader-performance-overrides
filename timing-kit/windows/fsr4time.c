@@ -419,9 +419,13 @@ static bool GpuIds(unsigned* ven, unsigned* dev, char* name, size_t n) {      //
 }
 // which pack DLLs a run takes: the normal run every DLL but the study sets; a study run AMD's two references, the exact DLL and its own set
 // (the Durandal test DLLs were in study runs for a while on 2026-10-19; the user reversed that the same day)
+static int normgen = 0;      // a normal run on RDNA2 / RDNA3 graphics (2 / 3): it also takes its generation's pass 11 tests (since the next kit)
+static bool Pass11Test(const char* name) {      // <g>-f1-exact (the build the tests are compared with), <g>-t1-tiled-pass11, <g>-t2-amd-cut-pass11
+    return !strncmp(name + 6, "f1-", 3) || !strncmp(name + 6, "t1-", 3) || !strncmp(name + 6, "t2-", 3);
+}
 static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
-    if (!study) return !s2 && !s3;
+    if (!study) return (!s2 && !s3) || (normgen == 2 && s2 && Pass11Test(name)) || (normgen == 3 && s3 && Pass11Test(name));
     // since the next kit: also the released lossy and lossy2 DLLs, which the study set's family lossy DLLs (rdna2-f2/f3, rdna3-f2/f3) are
     // compared with; the family DLLs are named rdna2-f* / rdna3-f*, so they come with their generation's study set and stay out of normal runs
     return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || !strcmp(name, "3-lossy") || !strcmp(name, "3b-lossy2")
@@ -1368,6 +1372,13 @@ int main(int argc, char** argv) {
             return 1;
         }
         printf("Study mode: the RDNA%d study set (%s).\n\n", study, gn);
+    }
+    if (!study) {      // the pass 11 tests of this chip's generation join the normal run (next kit); the rounds get the time of 3 more DLLs
+        unsigned ven = 0, dev = 0; char gn[128] = "?";
+        GpuIds(&ven, &dev, gn, sizeof(gn));
+        if (getenv("FSR4TIME_STUDYGPU")) sscanf(getenv("FSR4TIME_STUDYGPU"), "%x:%x", &ven, &dev);      // for testing the choice (e.g. 1002:73ff = RDNA2)
+        normgen = IsRdna2(ven, dev) ? 2 : IsRdna3(ven, dev) ? 3 : 0;
+        if (normgen && !budget_set) budget = budget * 23.0 / 20.0;      // 20 normal DLLs + 3: the same rounds per DLL as without them
     }
     SetupRuntime(base, unattended);      // Windows' own runtime unless it offers less than shader model 6.6 (Windows 10); see there
     if (getenv("FSR4TIME_AGILITYONLY")) return 0;      // for testing the runtime choice alone (no DLL runs)

@@ -13,8 +13,9 @@ How to run it
      dlls.pack.zst: the program takes out each one when it times it and replaces it with the next,
      so only one DLL (about 40 MB) is on disk at a time, and none when it has finished.
   2. Close games, browsers and video players.
-  3. Double-click fsr4time.exe. It takes about 15 minutes (a slow or integrated graphics chip up to about
-     20). Leave the PC alone while it runs: the header at the top of the window says so the whole time.
+  3. Double-click fsr4time.exe. It takes about 15 minutes, 17 on Radeon RX 6000 and RX 7000 cards and on RDNA2
+     and RDNA3 integrated graphics, which also time the three pass 11 test DLLs below (a slow or integrated
+     graphics chip up to about 20-25). Leave the PC alone while it runs: the header at the top of the window says so the whole time.
   4. At the end it shows a summary, saves it as results-<time>.txt in this folder, and asks
      whether to send it to the project. Only two files are sent, in one short message: the summary
      you see, and results-raw.txt (in the same folder, so you can read it first): each run's time
@@ -25,8 +26,8 @@ How to run it
 
 The study run (RDNA2 and RDNA3 graphics only, about 30 minutes)
   run-study.cmd starts a longer test that times each change in the exact DLL on its own, to find
-  which help on your kind of chip. The DLLs for it are in the same pack; the normal test above does
-  not use them. See STUDY.txt.
+  which help on your kind of chip. The DLLs for it are in the same pack; of them, the normal test
+  above times only the three pass 11 test DLLs of your kind of card. See STUDY.txt.
 
 Windows will warn about an unknown program, because the file is not signed. The source is in
 the project's repository (timing-kit/windows/fsr4time.c) with the command that builds it, and the
@@ -41,7 +42,7 @@ What it does
   200 calls after 40 to warm up.
 
   It does this in rounds: all DLLs in name order, then all in reverse order, and so on, for about
-  15 minutes. A fast card gets up to eight rounds, a slow one two (one, if a single round takes
+  15 minutes (17 with the pass 11 tests). A fast card gets up to eight rounds, a slow one two (one, if a single round takes
   more than ten minutes). More rounds make the figures steadier, and a reading disturbed by
   something else on the PC shows up as a spread between a DLL's runs. Time left over after the
   rounds goes to the DLLs whose runs disagreed by more than 3%: they are timed again. It also
@@ -83,6 +84,12 @@ What it does
                        Arc cards, compared with 4s / 5s / 5sb.
   dlls\3sb-lossy2-ref, 4s-igpu-exact-ref, 5s-igpu-lossy-ref, 5sb-igpu-lossy2-ref
                        reference builds for the test DLLs above to be compared with
+  dlls\rdna2-f1-exact, rdna2-t1-tiled-pass11, rdna2-t2-amd-cut-pass11 (RX 6000 and RDNA2 integrated graphics only)
+  dlls\rdna3-f1-exact, rdna3-t1-tiled-pass11, rdna3-t2-amd-cut-pass11 (RX 7000 and RDNA3 integrated graphics only)
+                       test DLLs for the second-to-last network shader: f1 is a test build of the next release's
+                       exact DLL for that kind of card; t1 is f1 with that shader working on small square tiles
+                       of the picture instead of rows, t2 the same shader cut into tiles the way AMD's newer
+                       RX 6000 driver shaders do it. Only the speed may differ between the three.
   The test DLLs and reference builds are timed for their speed and compared with each other, not
   with AMD's picture: a large difference from AMD's picture on their lines is expected.
   dlls\6-durandal-test a test DLL whose speed the project is measuring, and two variants of it
