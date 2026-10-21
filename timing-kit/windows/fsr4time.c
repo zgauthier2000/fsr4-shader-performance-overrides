@@ -865,7 +865,7 @@ static void SetupRuntime(const char* base, bool unattended) {
 // Pack layout (little endian, inside the zstd stream): "FSR4PK1\n", u32 count, per file: u16 path length, path ('/' separated; its first part is the
 // DLL's name), u64 size, u64 FNV-1a 64 of the data; then the files' data in the same order.
 #define PACK_NAME "dlls.pack.zst"
-#define PACK_MAX 64      // since kit 2026-10-19 the pack also holds both study sets (about 40 DLLs)
+#define PACK_MAX 128     // since kit 2026-10-19 the pack also holds both study sets (about 40 DLLs); 128 since the next kit (71 DLLs)
 struct PackFile { char path[260]; uint64_t size, hash; };
 struct PackIn { FILE* f; ZSTD_DCtx* dc; uint8_t* ib; ZSTD_inBuffer in; uint8_t* ob; size_t ob_len, ob_pos; bool end; };
 static bool PackFill(struct PackIn* p) {      // more decompressed bytes into ob (keeps what is left unread); false at the end of the stream
