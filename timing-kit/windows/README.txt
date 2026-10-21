@@ -76,7 +76,15 @@ What it does
   dlls\5b-igpu-lossy2  and its lossy2 one
   dlls\3c-lossy2-transplant, 5c-igpu-lossy2-transplant
                        test DLLs: lossy2 built differently (its trained numbers in AMD's own shader code instead of
-                       the project's generated code). The picture is the same as 3b / 5b; only the speed may differ.
+                       the project's generated code), compared with 3sb / 5sb; only the speed may differ.
+  dlls\4r-igpu-rdna3-exact, 5r-igpu-rdna3-lossy, 5rb-igpu-rdna3-lossy2
+                       test DLLs for the next release: 4, 5 and 5b without the split dot products, meant
+                       for RDNA 3 integrated graphics (Radeon 780M, 890M and others) and for GeForce and
+                       Arc cards, compared with 4s / 5s / 5sb.
+  dlls\3sb-lossy2-ref, 4s-igpu-exact-ref, 5s-igpu-lossy-ref, 5sb-igpu-lossy2-ref
+                       reference builds for the test DLLs above to be compared with
+  The test DLLs and reference builds are timed for their speed and compared with each other, not
+  with AMD's picture: a large difference from AMD's picture on their lines is expected.
   dlls\6-durandal-test a test DLL whose speed the project is measuring, and two variants of it
   dlls\6d-durandal-test-wideloads, 6e-durandal-test-unrolled
 
