@@ -133,19 +133,26 @@ More games and resolutions: [all results](docs/results.md).
 **[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-10-22.md)**
 
 > [!TIP]
-> **Four builds, one for each kind of graphics: up to about 3% more speed than the previous release, the same pictures.** Each archive
-> now carries only the changes that help its kind of chip. Every exact DLL still gives AMD's picture byte for byte, and lossy and
-> lossy2 give the same pictures as in the previous release.
-> - **Largest gains** (exact DLL, Windows timing-kit reports, 4K Balanced, moving; percent faster than AMD's shaders, previous release
->   then this one): RX 7800 XT 5.0% then 8.2% (two reports), RX 7600 22.0% then 24.8%, RX 7900 XTX 26.3% then 28.5%, RX 6650 XT 12.7%
->   then 14.6%. Radeon 890M: 3 to 5% better performance than with the previous builds; Intel Arc: 0.4 to 3%.
-> - **Other cards improve less:** the RX 6600, 6800, 6800 XT and 6900 XT by up to about 1 point, and the Steam
->   Deck / Radeon 680M build is the previous integrated-graphics build under a new name. GeForce cards now take the archive for newer
->   built-in graphics, which has not been timed on a GeForce yet. On the bigger RX 6000 cards some readings of the
->   new build are up to 0.7% slower than the previous one, within the spread between runs.
-> - **Version names** now say which build runs: `4.1.1-exact-r3-cyboman`, `4.1.1-lossy2-igpu-r2-cyboman` and so on.
-> - These figures come from test builds made the same way as the release DLLs, one report per card except the RX 7800 XT. The new
->   timing kit times the release DLLs themselves. Linux: unchanged.
+> **Four builds, one per kind of graphics: up to about 3% faster than the previous release, same pictures.**
+>
+> | Card | Exact DLL, faster than AMD's shaders at 4K: before → now |
+> |---|---|
+> | RX 7800 XT | 5.0% → **8.2%** |
+> | RX 7600 | 22.0% → **24.8%** |
+> | RX 7900 XTX | 26.3% → **28.5%** |
+> | RX 6650 XT | 12.7% → **14.6%** |
+> | Radeon 890M | 3 to 5% better than with the previous builds |
+> | Intel Arc | 0.4 to 3% better than with the previous builds |
+>
+> - **Other cards gain less:** RX 6600, 6800, 6800 XT and 6900 XT up to about 1 point (some readings up to 0.7% slower, within the spread between runs).
+> - **Steam Deck / Radeon 680M:** the same build as before, under a new name.
+> - **GeForce:** now uses the archive for newer built-in graphics; not timed there yet.
+> - **Pictures:** unchanged. Exact gives AMD's picture byte for byte; lossy and lossy2 look as in the previous release.
+> - **Version names** show the build: `4.1.1-exact-r3-cyboman`, `4.1.1-lossy2-igpu-r2-cyboman` and so on.
+> - **Linux:** unchanged.
+>
+> Windows timing-kit reports, 4K Balanced, moving; test builds made the same way as the release DLLs, one report per card (two for
+> the RX 7800 XT). The new timing kit times the release DLLs themselves.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/rel-2026-10-22-gain-dark.svg">
