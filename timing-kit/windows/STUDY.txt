@@ -14,30 +14,60 @@ summary means) with a different set of DLLs, which come in the same DLL pack.
 How to run it
   Double-click run-study.cmd (in this folder). The program sees which kind of chip you have and times
   that set; on other graphics it says so and stops (the normal test, fsr4time.exe, works on any
-  card). It takes about 30 minutes. Leave the PC alone while it runs, as for the normal test. At the
-  end it asks whether to send the results, as the normal test does.
+  card). It takes about 40 minutes (RDNA2: about 50). Leave the PC alone while it runs, as for the
+  normal test. At the end it asks whether to send the results, as the normal test does.
   From a command prompt: fsr4time.exe --study (the other options work too, e.g. --all-presets for
   the Quality and Performance sizes as well: about an hour).
 
-Every DLL here is exact: its picture should be AMD's, byte for byte, which the summary's fingerprints
-show (on RDNA2 under Windows: the same as 1b-amd-shaders-dots-split).
+The s01 to s15 DLLs are exact: their picture should be AMD's, byte for byte, which the summary's
+fingerprints show (on RDNA2 under Windows: the same as 1b-amd-shaders-dots-split). The test DLLs
+(the f, p and t ones) are timed for their speed and compared with each other, not with AMD's
+picture: a large difference from AMD's picture on their lines is expected.
 
 The DLLs of the RDNA2 set
   1-amd-shaders                     AMD's shaders
   1b-amd-shaders-dots-split         AMD's shaders with the last shader's dot products split: on RDNA2
                                     the reference, and the starting point of every DLL below
-  2-exact                           this project's exact DLL of release dll-2026-10-15: all six changes
+  2-exact                           (study run only) this project's exact DLL of release dll-2026-10-19: all six changes
   rdna2-s01-base                    1b rebuilt by the project's tools (the same shaders as 1b)
   rdna2-s02 to s07, add-...         the base with ONE change added
   rdna2-s08 to s13, without-...     the exact DLL with ONE change left out
+  3-lossy, 3b-lossy2                the release's lossy and lossy2 DLLs
+  rdna2-f0 to f0c-...-ref           reference builds of AMD's shaders, 2-exact, 3-lossy and 3b-lossy2 for
+                                    the test DLLs below to be compared with
+  rdna2-f1-exact, f2-lossy,         test builds for RX 6000 cards: exact, lossy and lossy2 without the
+  f3-lossy2                         prepass change (on RDNA2 it costs about 1% in the exact DLL)
+  rdna2-p1 to p5                    the packing test: which way of writing the last shader gives the
+                                    RDNA2 picture under Windows its difference from AMD's (compared
+                                    with rdna2-p1)
+                                    (the normal test times these five too on RDNA2 graphics)
+    p1-amd-shaders                  AMD's shaders (the test's reference)
+    p2-dots-split                   AMD's shaders with the last shader's dot products split
+    p3-handpack                     AMD's shaders with the last shader's 8-bit packing written out by
+                                    hand, as AMD's own RX 6000 shaders in its newer driver do
+    p4-exact-handpack               the RX 6000 exact DLL with hand packing instead of split dots
+    p5-exact                        the RX 6000 exact DLL (split dots)
+  rdna2-t1-tiled-pass11             rdna2-f1 with the second-to-last network shader working on small
+                                    square tiles of the picture instead of rows
+  rdna2-t2-amd-cut-pass11           the same shader cut into tiles the way AMD's newer RX 6000 driver
+                                    shaders do it
 
 The DLLs of the RDNA3 set
   1-amd-shaders                     AMD's shaders: on RDNA3 the reference, and the starting point
   1b-amd-shaders-dots-split         AMD's shaders with the last shader's dot products split
-  2-exact                           this project's exact DLL of release dll-2026-10-15: all seven changes
+  2-exact                           (study run only) this project's exact DLL of release dll-2026-10-19: all seven changes
   rdna3-s01-base                    AMD's shaders, packed by the project's tools (the same shaders as 1)
   rdna3-s02 to s08, add-...         the base with ONE change added
   rdna3-s09 to s15, without-...     the exact DLL with ONE change left out
+  3-lossy, 3b-lossy2                the release's lossy and lossy2 DLLs
+  rdna3-f0 to f0c-...-ref           reference builds of AMD's shaders, 2-exact, 3-lossy and 3b-lossy2 for
+                                    the test DLLs below to be compared with
+  rdna3-f1-exact, f2-lossy,         test builds for RX 7000 cards: exact, lossy and lossy2 without the
+  f3-lossy2                         split dot products (RX 6000 cards need them; on RDNA3 they cost 1-2%)
+  rdna3-t1-tiled-pass11             rdna3-f1 with the second-to-last network shader working on small
+                                    square tiles of the picture instead of rows
+  rdna3-t2-amd-cut-pass11           the same shader cut into tiles the way AMD's newer RX 6000 driver
+                                    shaders do it
 
 The changes:
   dots      the last shader's dot products are split into two steps (RDNA2 needs it for its picture

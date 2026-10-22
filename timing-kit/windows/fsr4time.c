@@ -16,7 +16,7 @@
 //   fsr4time.exe --send-test   sends one message that says it is a test (to check that sending works)
 //   FSR4TIME_CRASHTEST=<name>  (for testing) the run of the DLL <name> reads address 0x18C, as a crash inside a driver would
 //   FSR4TIME_HANGTEST=<name>   (for testing) the run of the DLL <name> never ends, as a hung driver call would
-//   FSR4TIME_LIMIT=<seconds>   (for testing) the time limit of one DLL's run (default RUN_LIMIT_MIN minutes)
+//   FSR4TIME_LIMIT=<seconds>   (for testing) the time limit of one DLL's run (default: see RunLimit)
 //   FSR4TIME_DRYSEND=<file>    (for testing) what would be sent is written to <file> instead
 //   FSR4TIME_AGILITYONLY=1     (for testing) only the runtime choice (SetupRuntime: offer, check, probe), then end
 //   FSR4TIME_NOWAIT=1          (for testing) win10-helper.exe opened by hand does not wait for Enter
@@ -45,6 +45,7 @@
 #include <winhttp.h>
 #include <d3d12.h>
 #include <dxgi1_6.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -61,7 +62,9 @@
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
 
-#define KIT_VERSION "windows 2026-10-19"
+#ifndef KIT_VERSION      // the builder passes -DKIT_VERSION="\"windows <version>\"" (since the next kit: kit 2026-10-20 was first built still
+#define KIT_VERSION "windows 2026-10-20"      // saying 2026-10-19, because this line was not changed)
+#endif
 #define WARM 40
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
@@ -69,7 +72,12 @@
 #define MAXDLLS 48     // DLLs in one run (pack + tester folders); a study run has 16 (RDNA2) or 18 (RDNA3)
 #define MAXROWS 1024   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
 #define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
-#define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL
+#define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL:
+                              // the limit until a first run has finished on this PC; after that RUN_LIMIT_TIMES x the longest finished run,
+                              // at least RUN_LIMIT_FLOOR minutes and at most RUN_LIMIT_MIN, in whole minutes (kit 2026-10-21: a hung run cost
+                              // 10 minutes on every card, while finished runs take about 0.5 to 2 minutes)
+#define RUN_LIMIT_TIMES 3
+#define RUN_LIMIT_FLOOR 2
 
 static FILE* out;      // the results file of this run
 static void Say(const char* fmt, ...) {
@@ -282,7 +290,75 @@ static void DeleteBlockRecords(void) {      // the records the first runs leave 
     if (fh != INVALID_HANDLE_VALUE) { do DeleteFileA(fd.cFileName); while (FindNextFileA(fh, &fd)); FindClose(fh); }
 }
 
-static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh, const char* key) {
+// How far a picture is from AMD's (since kit 2026-10-20; a fingerprint only says "the same" or "not"; report 16243817, an RX 7900 XT on Windows
+// 10 with Microsoft's newer runtime, gave a different fingerprint for every DLL, AMD's own forms included). The reference DLLs (1-amd-shaders, and
+// 1b-amd-shaders-dots-split, the reference on RDNA2) leave their last frame per output size, render size and scene in a file, as 8-bit display
+// values (the color clamped to 0..1, a 2.2 gamma, 0..255: what a screen would show, so rounding that no screen shows comes out identical).
+// Every other DLL compares its own last frame with each file there and reports: dB (PSNR, 255 = full scale), the share of values more than one
+// display level apart, and the largest difference in levels. The files (up to about 25 MB each at 4K) are deleted when the run ends.
+static const char* REFS[] = {"1-amd-shaders", "1b-amd-shaders-dots-split"};
+static uint8_t* DisplayLut(void) {      // half-float bits -> 8-bit display level
+    static uint8_t* lut = NULL;
+    if (!lut) {
+        lut = (uint8_t*)malloc(65536);
+        for (int i = 0; i < 65536; ++i) {
+            float v = HalfToFloat((uint16_t)i); if (!(v > 0)) v = 0; if (v > 1) v = 1;
+            lut[i] = (uint8_t)(255.0 * pow(v, 1.0 / 2.2) + 0.5);
+        }
+    }
+    return lut;
+}
+static uint64_t KeyHash(const char* a, const char* b) {
+    uint64_t kh = 1469598103934665603ull;
+    for (const char* q = a; *q; ++q) { kh ^= (uint8_t)*q; kh *= 1099511628211ull; }
+    kh ^= '|'; kh *= 1099511628211ull;
+    for (const char* q = b; *q; ++q) { kh ^= (uint8_t)*q; kh *= 1099511628211ull; }
+    return kh;
+}
+static void ComparePicture(const uint8_t* data, UINT pitch, UINT ow, UINT oh, const char* label, const char* key, const char* pkey) {
+    const uint8_t* lut = DisplayLut();
+    const size_t n = (size_t)ow * oh * 3;
+    uint8_t* now = (uint8_t*)malloc(n);
+    for (UINT y = 0; y < oh; ++y) {
+        const uint16_t* row = (const uint16_t*)(data + (size_t)y * pitch);
+        for (UINT x = 0; x < ow; ++x) for (int c = 0; c < 3; ++c) now[((size_t)y * ow + x) * 3 + c] = lut[row[x * 4 + c]];
+    }
+    if (getenv("FSR4TIME_POKEPIC") && strcmp(label, REFS[0]) && strcmp(label, REFS[1])) now[n / 2] ^= 8;      // test switch: one value of every other DLL off by 8 levels
+    char file[96];
+    for (int r = 0; r < 2; ++r) {
+        snprintf(file, sizeof(file), "pic-%016llx.tmp", (unsigned long long)KeyHash(REFS[r], pkey));
+        if (!strcmp(label, REFS[r])) {      // a reference: leave its picture (once)
+            FILE* f = fopen(file, "rb");
+            if (f) fclose(f);
+            else if ((f = fopen(file, "wb"))) { fwrite(now, 1, n, f); fclose(f); }
+            continue;
+        }
+        FILE* f = fopen(file, "rb");
+        if (!f) continue;
+        uint8_t* ref = (uint8_t*)malloc(n);
+        const size_t got = fread(ref, 1, n, f);
+        fclose(f);
+        if (got == n) {
+            double sse = 0; size_t over = 0; int worst = 0;
+            for (size_t i = 0; i < n; ++i) {
+                const int d = (int)now[i] - (int)ref[i], a = d < 0 ? -d : d;
+                sse += (double)d * d; if (a > 1) ++over; if (a > worst) worst = a;
+            }
+            const double db = sse > 0 ? 10.0 * log10(255.0 * 255.0 / (sse / (double)n)) : -1;      // -1: identical at display precision
+            // key | reference DLL | dB (-1 = identical on screen) | share of values more than 1 level off | largest difference in levels
+            Say("P|%s|%s|%.2f|%.6f|%d\n", key, REFS[r], db, (double)over / (double)n, worst);
+        }
+        free(ref);
+    }
+    free(now);
+}
+static void DeletePictureRecords(void) {
+    WIN32_FIND_DATAA fd;
+    HANDLE fh = FindFirstFileA("pic-*.tmp", &fd);
+    if (fh != INVALID_HANDLE_VALUE) { do DeleteFileA(fd.cFileName); while (FindNextFileA(fh, &fd)); FindClose(fh); }
+}
+
+static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh, const char* key, const char* label, const char* pkey) {
     const UINT pitch = (ow * 8 + 255) & ~255u;
     ID3D12Resource* rb = Buffer(D3D12_HEAP_TYPE_READBACK, (UINT64)pitch * oh);
     D3D12_TEXTURE_COPY_LOCATION src = {.pResource = output, .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX};
@@ -302,6 +378,7 @@ static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh, const char*
     for (UINT y = 0; y < oh; ++y)
         for (UINT x = 0; x < ow * 8; ++x) { h ^= data[(size_t)y * pitch + x]; h *= 1099511628211ull; }
     if (key) CompareBlocks(data, pitch, ow, oh, key, &h);
+    if (key && label && pkey) ComparePicture(data, pitch, ow, oh, label, key, pkey);
     ID3D12Resource_Unmap(rb, 0, NULL);
     ID3D12Resource_Release(rb);
     return h;
@@ -347,10 +424,23 @@ static bool GpuIds(unsigned* ven, unsigned* dev, char* name, size_t n) {      //
 }
 // which pack DLLs a run takes: the normal run every DLL but the study sets; a study run AMD's two references, the exact DLL and its own set
 // (the Durandal test DLLs were in study runs for a while on 2026-10-19; the user reversed that the same day)
+static int normgen = 0;      // a normal run on RDNA2 / RDNA3 graphics (2 / 3): it also takes its generation's pass 11 tests (since the next kit)
+static bool Pass11Test(const char* name) {      // <g>-f1-exact (the build the tests are compared with), <g>-t1-tiled-pass11, <g>-t2-amd-cut-pass11
+    return !strncmp(name + 6, "f1-", 3) || !strncmp(name + 6, "t1-", 3) || !strncmp(name + 6, "t2-", 3);
+}
+static bool PackingTest(const char* name) {      // rdna2-p1..p5: the RX 6000 packing test (since kit 2026-10-22 also in RDNA2 normal runs)
+    return !strncmp(name, "rdna2-p", 7) && name[7] >= '1' && name[7] <= '9';
+}
+static bool StudyOnly(const char* name) {      // since kit 2026-10-22: release dll-2026-10-19's DLLs stay in the pack as the study sets' baselines only
+    return !strcmp(name, "2-exact") || !strcmp(name, "3-lossy") || !strcmp(name, "3b-lossy2");
+}
 static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
-    if (!study) return !s2 && !s3;
-    return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || (study == 2 ? s2 : s3);
+    if (!study) return (!s2 && !s3 && !StudyOnly(name)) || (normgen == 2 && s2 && (Pass11Test(name) || PackingTest(name))) || (normgen == 3 && s3 && Pass11Test(name));
+    // since the next kit: also the released lossy and lossy2 DLLs, which the study set's family lossy DLLs (rdna2-f2/f3, rdna3-f2/f3) are
+    // compared with; the family DLLs are named rdna2-f* / rdna3-f*, so they come with their generation's study set and stay out of normal runs
+    return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || !strcmp(name, "3-lossy") || !strcmp(name, "3b-lossy2")
+        || (study == 2 ? s2 : s3);
 }
 static void CreateDevice(char* gpu, size_t gpu_len) {
     IDXGIFactory6* f6 = NULL;
@@ -428,7 +518,8 @@ static int RunOne(const char* name, bool quick) {
     const char* vname[8];
     int nv = 0;
     for (uint64_t i = 0; i < count; ++i)
-        if (nv < 8 && !strncmp(names[i], "4.", 2)) { vid[nv] = ids[i]; vname[nv++] = names[i]; }
+        if (nv < 8 && (!strncmp(names[i], "4.", 2) || !strncmp(names[i], "fsr4", 4))) { vid[nv] = ids[i]; vname[nv++] = names[i]; }      // AMD's "4.1.1", this project's
+        // "4.1.1-...-cyboman" and, since release dll-2026-10-22, "fsr4-<variant>-<flavor>-cyboman" names (an FSR 3 provider says "3.x")
     if (getenv("FSR4TIME_TWICE") && nv == 1) { vid[1] = vid[0]; vname[1] = vname[0]; nv = 2; }      // for testing the lines of a DLL with two variants: the one version, listed twice
     if (!nv) { Say("R|%s|FAILED|this DLL offers no FSR 4 on this GPU (%llu versions listed)\n", name, (unsigned long long)count); return 1; }
     Say("G|%s\n", gpu);
@@ -545,7 +636,9 @@ static int RunOne(const char* name, bool quick) {
                 const double med = Median(ms, TIMED), me = Median(even, ne), mo = Median(odd, no);
                 char key[256];      // names this DLL, version, size and scene: the same in its two runs
                 snprintf(key, sizeof(key), "%s|%s%s|%s|%s", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, scene ? "moving" : "still");
-                const uint64_t h = HashOutput(output, ow, oh, key);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
+                char pkey[64];      // size, render size and scene, without the DLL: the reference pictures' key
+                snprintf(pkey, sizeof(pkey), "%s|%ux%u|%s", sz, rw, rh, scene ? "moving" : "still");
+                const uint64_t h = HashOutput(output, ow, oh, key, label, pkey);      // the last frame of the run: the still scene's picture, or the moving scene's after the same 240 frames
                 // name | version name the DLL reports | output | render | scene | mean | median | median where jitter x >= 0 | where < 0 | fastest | picture hash
                 Say("R|%s|%s%s|%s|%ux%u|%s|%.4f|%.4f|%.4f|%.4f|%.4f|%016llx\n", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, rw, rh,
                     scene ? "moving" : "still", sum / TIMED, med, me, mo, fastest, (unsigned long long)h);
@@ -788,7 +881,7 @@ static void SetupRuntime(const char* base, bool unattended) {
 // Pack layout (little endian, inside the zstd stream): "FSR4PK1\n", u32 count, per file: u16 path length, path ('/' separated; its first part is the
 // DLL's name), u64 size, u64 FNV-1a 64 of the data; then the files' data in the same order.
 #define PACK_NAME "dlls.pack.zst"
-#define PACK_MAX 64      // since kit 2026-10-19 the pack also holds both study sets (about 40 DLLs)
+#define PACK_MAX 128     // since kit 2026-10-19 the pack also holds both study sets (about 40 DLLs); 128 since the next kit (71 DLLs)
 struct PackFile { char path[260]; uint64_t size, hash; };
 struct PackIn { FILE* f; ZSTD_DCtx* dc; uint8_t* ib; ZSTD_inBuffer in; uint8_t* ob; size_t ob_len, ob_pos; bool end; };
 static bool PackFill(struct PackIn* p) {      // more decompressed bytes into ob (keeps what is left unread); false at the end of the stream
@@ -1091,7 +1184,8 @@ static void HeaderEnd(void) {
     printf("\n"); fflush(stdout);
 }
 
-struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXRUNS]; bool hashdiff; char diff[160]; };
+struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXRUNS]; bool hashdiff; char diff[160];
+             char pic[2][112]; };      // pic: how far the picture is from REFS[0] / REFS[1] (P lines, see ComparePicture), "" if not measured
 // the figure the summary gives: the mean of a DLL's runs (one per round; fewer if a run failed)
 static double Val(const struct Row* w) { double t = 0; for (int i = 0; i < w->n; ++i) t += w->runs[i]; return w->n ? t / w->n : 0; }
 static double Spread(const struct Row* w) {      // (largest - smallest) of the runs, as a share of the mean
@@ -1104,6 +1198,7 @@ static double Spread(const struct Row* w) {      // (largest - smallest) of the 
 static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t gl, char* fails, size_t fsz) {
     int nr = 0, fl = 0;
     char line[512];
+    static char plines[4096][200]; int np = 0;      // P lines come before their run's R line: kept and matched after reading
     if (fails && fsz) fails[0] = 0;
     FILE* r = fopen(raw, "r");
     while (r && fgets(line, sizeof(line), r)) {
@@ -1117,6 +1212,7 @@ static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t
                         snprintf(rows[j].diff, sizeof(rows[j].diff), ": %u of %u blocks of %dx%d pixels differ, within x %u..%u y %u..%u, largest shift of a block's mean %.6f of full scale", nd, nb, BLK, BLK, x0, x1, y0, y1, worst);
             continue;
         }
+        if (line[0] == 'P' && line[1] == '|') { if (np < 4096) snprintf(plines[np++], sizeof(plines[0]), "%s", line); continue; }
         if (line[0] != 'R' || line[1] != '|') continue;
         if (strstr(line, "|FAILED|")) {      // each failure once (a DLL that fails every round gave one line per round: a GTX 1660 SUPER report of
                                              // 2026-10-18 filled the list and cut its last line), and only whole lines
@@ -1138,10 +1234,20 @@ static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t
                     first->runs[first->n++] = w->mean;
                 }
                 if (strcmp(first->hash, w->hash)) first->hashdiff = true;
-            } else { w->n = 1; w->runs[0] = w->mean; w->hashdiff = false; w->diff[0] = 0; ++nr; }
+            } else { w->n = 1; w->runs[0] = w->mean; w->hashdiff = false; w->diff[0] = 0; w->pic[0][0] = w->pic[1][0] = 0; ++nr; }
         }
     }
     if (r) fclose(r);
+    for (int k = 0; k < np; ++k) {      // P|name|version|size|scene|reference|dB|share more than 1 level off|largest difference: the first run's
+        char dn[64], dv[64], ds[16], dc[8], rf[64]; double db, share; int worst;
+        if (sscanf(plines[k], "P|%63[^|]|%63[^|]|%15[^|]|%7[^|]|%63[^|]|%lf|%lf|%d", dn, dv, ds, dc, rf, &db, &share, &worst) != 8) continue;
+        const int ri = !strcmp(rf, REFS[1]);
+        for (int j = 0; j < nr; ++j)
+            if (!strcmp(rows[j].name, dn) && !strcmp(rows[j].ver, dv) && !strcmp(rows[j].size, ds) && !strcmp(rows[j].scene, dc) && !rows[j].pic[ri][0]) {
+                if (db < 0) snprintf(rows[j].pic[ri], sizeof(rows[j].pic[ri]), "identical on screen (8-bit) to %s", rf);
+                else snprintf(rows[j].pic[ri], sizeof(rows[j].pic[ri]), "%.1f dB from %s, %.2f%% of values more than 1 of 255 off, largest %d", db, rf, 100.0 * share, worst);
+            }
+    }
     return nr;
 }
 static bool RowOf(const struct Row* w, const char* dll) {      // the row is of that DLL (a DLL with several variants has "<name>, variant k of n")
@@ -1153,6 +1259,14 @@ static bool RowOf(const struct Row* w, const char* dll) {      // the row is of 
 // earlier kits' DLLs) used to stop the whole kit there. A run that takes longer than the limit is stopped, noted in the summary's list of
 // failures, and the kit goes on with the next DLL. what: the progress text after the DLL's name.
 static bool stopped_holds;      // a stopped run may still hold the DLL file for a while (its process does not always end at once)
+static ULONGLONG longest_run;      // ms of the longest run that finished normally on this PC so far (0: none yet)
+static DWORD RunLimit(void) {      // the time limit of the next run, ms (see RUN_LIMIT_MIN)
+    if (!longest_run) return RUN_LIMIT_MIN * 60000u;
+    ULONGLONG m = (longest_run * RUN_LIMIT_TIMES + 59999u) / 60000u;
+    if (m < RUN_LIMIT_FLOOR) m = RUN_LIMIT_FLOOR;
+    if (m > RUN_LIMIT_MIN) m = RUN_LIMIT_MIN;
+    return (DWORD)m * 60000u;
+}
 static void RunDll(const char* name, int inpack, const char* base, const char* raw, bool quick, const char* what) {
     char src[MAX_PATH], cmd[1024];
     snprintf(src, sizeof(src), "dlls\\%s\\amd_fidelityfx_upscaler_dx12.dll", name);
@@ -1168,7 +1282,8 @@ static void RunDll(const char* name, int inpack, const char* base, const char* r
     PROCESS_INFORMATION pi;
     if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) { printf("could not start a run for %s\n", name); return; }
     const char* lim = getenv("FSR4TIME_LIMIT");
-    const DWORD limit = lim && atoi(lim) > 0 ? (DWORD)atoi(lim) * 1000u : RUN_LIMIT_MIN * 60000u;
+    const DWORD limit = lim && atoi(lim) > 0 ? (DWORD)atoi(lim) * 1000u : RunLimit();
+    const ULONGLONG started = GetTickCount64();
     if (WaitForSingleObject(pi.hProcess, limit) == WAIT_TIMEOUT) {
         TerminateProcess(pi.hProcess, 4);
         stopped_holds = WaitForSingleObject(pi.hProcess, 15000) == WAIT_TIMEOUT;
@@ -1180,6 +1295,7 @@ static void RunDll(const char* name, int inpack, const char* base, const char* r
     } else {
         DWORD code = 0;
         GetExitCodeProcess(pi.hProcess, &code);
+        if (code == 0 && GetTickCount64() - started > longest_run) longest_run = GetTickCount64() - started;
         if (code == 3) printf("%s: the run crashed; what crashed and where is in the summary's list of failures\n", name);
         else if (code >= 0xC0000000u) {      // ended by an exception the run could not report itself
             printf("%s: the run ended with exception 0x%08lx\n", name, (unsigned long)code);
@@ -1279,6 +1395,12 @@ int main(int argc, char** argv) {
         }
         printf("Study mode: the RDNA%d study set (%s).\n\n", study, gn);
     }
+    if (!study) {      // the pass 11 tests of this chip's generation join the normal run (next kit), on RDNA2 also the packing test; the budget grows below
+        unsigned ven = 0, dev = 0; char gn[128] = "?";
+        GpuIds(&ven, &dev, gn, sizeof(gn));
+        if (getenv("FSR4TIME_STUDYGPU")) sscanf(getenv("FSR4TIME_STUDYGPU"), "%x:%x", &ven, &dev);      // for testing the choice (e.g. 1002:73ff = RDNA2)
+        normgen = IsRdna2(ven, dev) ? 2 : IsRdna3(ven, dev) ? 3 : 0;
+    }
     SetupRuntime(base, unattended);      // Windows' own runtime unless it offers less than shader model 6.6 (Windows 10); see there
     if (getenv("FSR4TIME_AGILITYONLY")) return 0;      // for testing the runtime choice alone (no DLL runs)
     // the DLLs: the pack's, and folders a tester added to dlls\ (a pack DLL wins over a folder of the same name, such as one an earlier
@@ -1304,6 +1426,11 @@ int main(int argc, char** argv) {
                 const int q = inpack[i]; inpack[i] = inpack[j]; inpack[j] = q;
             }
     if (!nd) { printf("No DLL pack (%s) and no folders in dlls\\ next to the program.\n", PACK_NAME); return 1; }
+    if (!study && normgen && !budget_set) {      // the generation's extra test DLLs get their own time: the same rounds per DLL as without them
+        int extra = 0;
+        for (int i = 0; i < nd; ++i) extra += !strncmp(names[i], "rdna2-", 6) || !strncmp(names[i], "rdna3-", 6);
+        if (extra && nd > extra) budget = budget * nd / (double)(nd - extra);
+    }
     if (HeaderStart())
         printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more rounds).\n\n", KIT_VERSION, once ? budget / 2 : budget);
     else
@@ -1312,7 +1439,7 @@ int main(int argc, char** argv) {
     // run (the card warming up, something starting in the background) shows as a spread between them. After each round the
     // next one starts only if it fits in the time given (the last round's length is the estimate); a second round also runs
     // if the whole run then stays under 20 minutes. Slow cards get one or two rounds, fast ones up to MAXROUNDS.
-    DeleteBlockRecords();      // none left over from a run that was cut short
+    DeleteBlockRecords(); DeletePictureRecords();      // none left over from a run that was cut short
     const ULONGLONG t0 = GetTickCount64();
     ULONGLONG tr = t0;
     int rounds = 0;
@@ -1373,7 +1500,7 @@ int main(int argc, char** argv) {
         }
     }
     DeleteFileA("amd_fidelityfx_upscaler_dx12.dll");
-    DeleteBlockRecords();
+    DeleteBlockRecords(); DeletePictureRecords();
     HeaderEnd();
 
     // summary
@@ -1443,6 +1570,10 @@ int main(int argc, char** argv) {
             if (w->hashdiff) ADD(" (NOT the same picture in all its runs%s)", w->diff);
             if (same) ADD(" = %s", same->name);
             else if (ref && ref != w) ADD(" (differs from those above)");
+            if (ref && ref != w && strcmp(w->hash, ref->hash)) {      // how far from the reference (since kit 2026-10-20)
+                const int ri = !strncmp(ref->name, REFS[1], strlen(REFS[1]));
+                if (w->pic[ri][0]) ADD(" [%s]", w->pic[ri]); else if (w->pic[0][0]) ADD(" [%s]", w->pic[0]);
+            }
         }
         ADD("\n");
     }

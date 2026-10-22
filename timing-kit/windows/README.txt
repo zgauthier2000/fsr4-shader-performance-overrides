@@ -13,8 +13,10 @@ How to run it
      dlls.pack.zst: the program takes out each one when it times it and replaces it with the next,
      so only one DLL (about 40 MB) is on disk at a time, and none when it has finished.
   2. Close games, browsers and video players.
-  3. Double-click fsr4time.exe. It takes about 15 minutes (a slow or integrated graphics chip up to about
-     20). Leave the PC alone while it runs: the header at the top of the window says so the whole time.
+  3. Double-click fsr4time.exe. It takes about 15 minutes, 17 on Radeon RX 7000 cards and RDNA3 integrated
+     graphics, which also time the three pass 11 test DLLs below, and about 21 on Radeon RX 6000 cards and RDNA2
+     integrated graphics, which also time those and the five packing test DLLs (a slow or integrated graphics
+     chip up to about 25-30). Leave the PC alone while it runs: the header at the top of the window says so the whole time.
   4. At the end it shows a summary, saves it as results-<time>.txt in this folder, and asks
      whether to send it to the project. Only two files are sent, in one short message: the summary
      you see, and results-raw.txt (in the same folder, so you can read it first): each run's time
@@ -25,8 +27,9 @@ How to run it
 
 The study run (RDNA2 and RDNA3 graphics only, about 30 minutes)
   run-study.cmd starts a longer test that times each change in the exact DLL on its own, to find
-  which help on your kind of chip. The DLLs for it are in the same pack; the normal test above does
-  not use them. See STUDY.txt.
+  which help on your kind of chip. The DLLs for it are in the same pack; of them, the normal test
+  above times only the three pass 11 test DLLs of your kind of card and, on RX 6000 and RDNA2
+  integrated graphics, the five packing test DLLs. See STUDY.txt.
 
 Windows will warn about an unknown program, because the file is not signed. The source is in
 the project's repository (timing-kit/windows/fsr4time.c) with the command that builds it, and the
@@ -41,15 +44,22 @@ What it does
   200 calls after 40 to warm up.
 
   It does this in rounds: all DLLs in name order, then all in reverse order, and so on, for about
-  15 minutes. A fast card gets up to eight rounds, a slow one two (one, if a single round takes
+  15 minutes (more with the test DLLs of your kind of card, so each DLL gets as many rounds). A fast card gets up to eight rounds, a slow one two (one, if a single round takes
   more than ten minutes). More rounds make the figures steadier, and a reading disturbed by
   something else on the PC shows up as a spread between a DLL's runs. Time left over after the
   rounds goes to the DLLs whose runs disagreed by more than 3%: they are timed again. It also
   takes a fingerprint of the picture each DLL produces (its last frame), to show which DLLs give
   the same picture.
+  Where a DLL's picture is not the same as AMD's, the summary also says how far it is from it:
+  in dB (higher is closer), the share of values more than one step of 255 off on screen, and
+  the largest difference. "identical on screen" means the difference is only in rounding that a
+  screen does not show. While it runs, the kit keeps AMD's last pictures in pic-*.tmp files here
+  (up to a few hundred MB) and deletes them at the end.
 
-  Each DLL runs in a program of its own. If one crashes, or does not finish within 10 minutes (a
-  driver that stops responding), the kit notes it in the summary and goes on with the next one.
+  Each DLL runs in a program of its own. If one crashes, or does not finish in time (a driver
+  that stops responding), the kit notes it in the summary and goes on with the next one. The time
+  limit is three times the longest DLL run that finished on your PC, at least 2 and at most 10
+  minutes, so a stuck DLL usually costs only a few minutes.
 
   dlls\1-amd-shaders   AMD's DLL with AMD's shaders (only its graphics-card check is lifted, so
                        that it runs on RX 6000 cards and integrated graphics too): the reference
@@ -60,13 +70,32 @@ What it does
                        610M, the graphics of Ryzen 7000 and 9000 desktop processors) are known to
                        show ghosting under Windows with AMD's original form. On those chips this is
                        the DLL to compare with, and the summary's percentages are against it.
-  dlls\2-exact         this project's exact DLL of release dll-2026-10-15, for desktop cards
-  dlls\3-lossy         its lossy DLL (faster; the picture is NOT the same as AMD's). It also skips
-                       frames in Ultra Performance (the "UP" lines; figures for that mode only).
-  dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
-  dlls\5-igpu-lossy    and its lossy one
-  dlls\6-durandal-test a test DLL whose speed the project is measuring, and two variants of it
-  dlls\6d-durandal-test-wideloads, 6e-durandal-test-unrolled
+  dlls\exact-r3, lossy-r3, lossy2-r3
+                       this project's release dll-2026-10-22 for Radeon RX 7000 cards: the exact DLL (the
+                       same picture as AMD's), the lossy one (faster; the picture is NOT the same as AMD's;
+                       it also skips frames in Ultra Performance, the "UP" lines, figures for that mode only)
+                       and lossy2 (lossy with trained weights; the picture is NOT the same as AMD's either;
+                       its "UP" lines run lossy's network and should match lossy's)
+  dlls\exact-r2, lossy-r2, lossy2-r2
+                       the same three for Radeon RX 6000 cards
+  dlls\exact-igpu-r3, lossy-igpu-r3, lossy2-igpu-r3
+                       the same three for RDNA 3 integrated graphics (Radeon 780M, 890M and others) and for
+                       GeForce, Arc and other cards
+  dlls\exact-igpu-r2, lossy-igpu-r2, lossy2-igpu-r2
+                       the same three for the Steam Deck, Radeon 680M and older integrated graphics
+  Every PC times all twelve, so the summary shows how each kind of build does on your card.
+  dlls\rdna2-f1-exact, rdna2-t1-tiled-pass11, rdna2-t2-amd-cut-pass11 (RX 6000 and RDNA2 integrated graphics only)
+  dlls\rdna3-f1-exact, rdna3-t1-tiled-pass11, rdna3-t2-amd-cut-pass11 (RX 7000 and RDNA3 integrated graphics only)
+                       test DLLs for the second-to-last network shader: f1 is a test build of the next release's
+                       exact DLL for that kind of card; t1 is f1 with that shader working on small square tiles
+                       of the picture instead of rows, t2 the same shader cut into tiles the way AMD's newer
+                       RX 6000 driver shaders do it. Only the speed may differ between the three.
+  dlls\rdna2-p1-amd-shaders, rdna2-p2-dots-split, rdna2-p3-handpack, rdna2-p4-exact-handpack, rdna2-p5-exact
+                       (RX 6000 and RDNA2 integrated graphics only) the packing test: which way of writing the
+                       last shader gives the RX 6000 picture under Windows its difference from AMD's; compared
+                       with rdna2-p1 (details in STUDY.txt).
+  The test DLLs and reference builds are timed for their speed and compared with each other, not
+  with AMD's picture: a large difference from AMD's picture on their lines is expected.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
   these, make a folder dlls\ next to fsr4time.exe, a folder for the DLL in it, and put its amd_fidelityfx_upscaler_dx12.dll there. For
