@@ -53,7 +53,7 @@ with open(out + '/runs.csv', 'a', newline='') as f:
 def kind(r):
     if r['tag'].startswith('timing-kit'):
         return 'Timing kit: Windows' if 'windows' in r['file'] else 'Timing kit: Linux' if r['file'].endswith('.tar.gz') else None
-    if not r['file'].endswith(('.zip', '.dll')):
+    if not r['file'].endswith(('.zip', '.7z', '.dll')):      # .7z twins since dll-2026-10-19 (they were left out of the kinds until 2026-10-22)
         return None
     return 'DLLs: integrated graphics' if 'igpu' in r['file'] else 'DLLs: desktop cards and other'
 kinds = {}; tags = {}
@@ -157,6 +157,11 @@ md += ['', 'The four columns on the right do not add up to "Added": checksum fil
        '## By kind and by release', '',
        '| Kind of download | Downloads | Of these, in files since replaced |', '|---|---|---|']
 md += [f'| {k} | {v[0]:,} | {v[0] - v[1]:,} |' for k, v in sorted(kinds.items())]
+FLAVORS = [('RX 7000 (rx7000)', 'rx7000'), ('RX 6000 (rx6000)', 'rx6000'), ('Integrated RDNA 3, GeForce, Arc, others (igpu rdna3)', 'igpu-cyboman-rdna3'),
+           ('Steam Deck, 680M, older integrated (igpu rdna2)', 'igpu-cyboman-rdna2')]      # the four archives per release since dll-2026-10-22
+fl = {n: sum(int(r['downloads']) for r in last.values() if not r['tag'].startswith('timing-kit') and w in r['file']) for n, w in FLAVORS}
+if any(fl.values()):
+    md += ['', '| Archive, by graphics (since `dll-2026-10-22`, .zip and .7z together) | Downloads |', '|---|---|'] + [f'| {n} | {fl[n]:,} |' for n, _ in FLAVORS]
 md += ['', '| Release | Downloads | Of these, in files since replaced |', '|---|---|---|'] + [f'| `{t}` | {tags[t][0]:,} | {tags[t][0] - tags[t][1]:,} |' for t in order if t in tags]
 md += ['', f'All files: {total:,}. `downloads.csv` has a line for every day a file\'s count changed; `runs.csv` has the totals of every run.', '']
 open(out + '/summary.md', 'w').write('\n'.join(md))
