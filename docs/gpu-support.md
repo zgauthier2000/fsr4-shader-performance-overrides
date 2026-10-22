@@ -11,14 +11,17 @@
 
 | Your graphics chip | Download | Status |
 |---|---|---|
-| Radeon RX 7900, 7800, 7700, 7600 | `fsr4.1.1-cyboman-<version>` | measured on an RX 7800 XT (Linux): faster; testers report large gains on Windows |
-| Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.1-cyboman-<version>` | runs, with the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact files range from a few percent to about 30%, and we do not yet know what decides it; a few percent below 4K (tester reports) |
-| Graphics built into the processor: Radeon 780M, 890M and the like, Steam Deck | `fsr4.1.1-igpu-cyboman-<version>` | experimental: few reports, small gains |
+| Radeon RX 7900, 7800, 7700, 7600 | `fsr4.1.1-cyboman-rx7000-<version>` | measured on an RX 7800 XT (Linux): faster; testers report large gains on Windows |
+| Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.1-cyboman-rx6000-<version>` | runs, with the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact files range from a few percent to about 30%, and we do not yet know what decides it; a few percent below 4K (tester reports) |
+| Graphics built into the processor, RDNA 3 / 3.5: Radeon 780M, 760M, 880M, 890M and the like | `fsr4.1.1-igpu-cyboman-rdna3-<version>` | experimental: few reports, small gains |
+| Steam Deck, Radeon 680M, 660M, 610M and other RDNA2 graphics built into the processor | `fsr4.1.1-igpu-cyboman-rdna2-<version>` | experimental: few reports, small gains |
 | Radeon RX 9000 | none | not covered: it runs a different FSR 4; see [RDNA4](rdna4.md) |
-| Any other chip with DirectX 12 and Shader Model 6.6: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-cyboman-<version>`; `fsr4.1.1-igpu-cyboman-<version>` for a chip built into the processor | should run (reported on a GeForce laptop and an Arc A770); nothing measured, and "same picture" is verified on Radeon only |
+| Any other chip with DirectX 12 and Shader Model 6.6: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-igpu-cyboman-rdna3-<version>` | runs; timing-kit reports from GeForce and Intel Arc cards ([front page](../README.md#what-to-expect)); the integrated RDNA 3 build has not been timed on a GeForce yet |
 
-- **Why two downloads:** the two differ in one shader, which is built large and fast for RX cards and small for the
-  chips built into processors, where the large one is slower.
+- **Why four downloads (since `dll-2026-10-22`):** they differ in how three shaders are built. Pass 11 is built large and fast for RX
+  cards and small for chips built into processors; the last shader's dot products are split only for RDNA2 chips (RX 6000, Steam
+  Deck, 680M), which need it under Windows; RX 6000 cards also leave out the prepass change, which cost them up to about 2%.
+  [Which download](#which-download-dll-2026-10-22-and-later).
 - **Why AMD's own file refuses most of these chips:** AMD offers this FSR 4 on desktop RX 7000 cards only. The DLLs here
   have that check lifted, which is also why they must not go on an RX 9000 card.
 - **What a chip needs to run it at all:** the shaders are compute shaders for DirectX 12's Shader Model 6.6. They use 8-bit
@@ -26,11 +29,24 @@
   Any driver that offers Shader Model 6.6 runs them, whether the chip has a special instruction for the dot products or
   not; how fast is another matter, and outside Radeon nothing is measured.
 - **The rest of this page** is the history: how each kind of chip was first supported, what testers measured, and the
-  builds that existed before the two downloads.
+  builds that existed before the four downloads.
 
-## Which download (dll-2026-10-09 and later)
+## Which download (dll-2026-10-22 and later)
 
-Since release `dll-2026-10-09` there are two downloads instead of a file per GPU family:
+Since release `dll-2026-10-22` there are four downloads, one for each kind of graphics:
+
+| Download | Version names shown | For | What differs |
+|---|---|---|---|
+| [`fsr4.1.1-cyboman-rx7000-2026-10-22.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx7000-2026-10-22.7z) ([.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx7000-2026-10-22.zip)) | `4.1.1-exact-r3-cyboman`, `4.1.1-lossy-r3-cyboman`, `4.1.1-lossy2-r3-cyboman` | RX 7000 cards, including laptops with their own RX 7000 chip | pass 11 unrolled; dot products not split |
+| [`fsr4.1.1-cyboman-rx6000-2026-10-22.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx6000-2026-10-22.7z) ([.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx6000-2026-10-22.zip)) | `4.1.1-exact-r2-cyboman`, ... `-r2-` | RX 6000 cards, including laptops with their own RX 6000 chip | pass 11 unrolled; dot products split; AMD's prepass |
+| [`fsr4.1.1-igpu-cyboman-rdna3-2026-10-22.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna3-2026-10-22.7z) ([.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna3-2026-10-22.zip)) | `4.1.1-exact-igpu-r3-cyboman`, ... `-igpu-r3-` | RDNA 3 / 3.5 graphics built into the processor (780M, 890M and the like); GeForce, Intel Arc and other cards | pass 11 small; dot products not split |
+| [`fsr4.1.1-igpu-cyboman-rdna2-2026-10-22.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna2-2026-10-22.7z) ([.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna2-2026-10-22.zip)) | `4.1.1-exact-igpu-r2-cyboman`, ... `-igpu-r2-` | Steam Deck, Radeon 680M and other RDNA2 graphics built into the processor | pass 11 small; dot products split (the previous integrated build) |
+
+Every exact DLL gives AMD's picture byte for byte. What each change gains, per card: [release `dll-2026-10-22`](releases/dll-2026-10-22.md).
+
+## Which download (dll-2026-10-09 to dll-2026-10-19)
+
+From release `dll-2026-10-09` to `dll-2026-10-19` there were two downloads instead of a file per GPU family:
 
 | Download | Version name shown | For | What differs |
 |---|---|---|---|
@@ -154,8 +170,7 @@ The [fsr4xyz](https://github.com/the3rdparty1917/fsr4xyz) project, which fixes t
 FSR 4 for RDNA2 on Windows, found that the postpass ghosts on RDNA2 unless its int8 dot products
 are written differently: AMD's shader adds each product onto a running total inside the
 instruction, and their version computes each product alone and adds it afterwards. The result is
-the same number, so the difference can only matter to the driver, which evidently mishandles the
-accumulating form on RDNA2. Their DLL also lifts the same GPU check, which confirms that lifting
+the same number, so the difference can only matter to the driver. Their DLL also lifts the same GPU check, which confirms that lifting
 it is what RDNA2 needs.
 
 The postpass rewrite in this repository keeps AMD's accumulating form, so the plain `--any-gpu`
@@ -165,8 +180,16 @@ implementation on AMD's shaders, with no code from that project. On an RX 7800 X
 byte-identical to AMD's in all 48 shader combinations and the pass is as fast as without it.
 
 **Result on RDNA2 (2026-10-04):** the build with this change, `test-rdna2.zip`, fixes the
-shimmering in motion. So the accumulating dot product is the cause, and the rewritten postpass
-and pass 11 work on RDNA2 once it is gone. 
+shimmering in motion, and the rewritten postpass and pass 11 work on RDNA2 with it.
+
+> [!NOTE]
+> **The cause is not settled (2026-10-22).** AMD's own RX 6000 shaders in its 26.10.1 driver keep the accumulating dot products and
+> instead write the shaders' 8-bit packing out by hand, without the `pack4x8` / `unpack4x8` instructions (found here and
+> [in issue #39](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/39)). So the fault may lie in those
+> instructions on RX 6000 drivers, and splitting the dot products may only avoid it. The timing kit (2026-10-22) tests this on RX 6000
+> cards: AMD's shaders, with the dots split, and with hand-written packing. Until the reports show which form is right, the RX 6000
+> build keeps the split dot products, which give AMD's picture everywhere else.
+
 **Speed reports from testers (2026-10-04 and 2026-10-05)**, OptiScaler's upscaler time, sorted by
 output size. "Before" is the DLL named in brackets; the patched DLL in every row is
 `test-rdna2.zip` (`4.1.1-r2-cyboman`), not the compact test build.

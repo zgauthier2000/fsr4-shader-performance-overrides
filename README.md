@@ -21,15 +21,17 @@ FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the 
 
 | Your graphics card | Download |
 |---|---|
-| A Radeon **RX 7000 or RX 6000** graphics card: the name has "RX" and a four-digit number, such as RX 7800 XT or RX 6700 XT. This includes gaming laptops with their own RX chip (RX 7700S, RX 6700M and the like) | **[fsr4.1.1-cyboman-2026-10-19.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-cyboman-2026-10-19.7z)** (5.6 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-cyboman-2026-10-19.zip) (82 MB) |
-| **Graphics built into the processor:** most laptops, mini PCs and handhelds. The name is "Radeon Graphics" or "Radeon" with a three-digit number, such as Radeon 780M or 890M; also the Steam Deck | **[fsr4.1.1-igpu-cyboman-2026-10-19.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-igpu-cyboman-2026-10-19.7z)** (5.6 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-19/fsr4.1.1-igpu-cyboman-2026-10-19.zip) (82 MB) |
+| A Radeon **RX 7000** graphics card: "RX 7" and three more digits, such as RX 7800 XT or RX 7600, including laptops with their own RX 7000 chip (RX 7700S, RX 7600M and the like) | **[fsr4.1.1-cyboman-rx7000-2026-10-22.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx7000-2026-10-22.7z)** (5.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx7000-2026-10-22.zip) (78.9 MB) |
+| A Radeon **RX 6000** graphics card: "RX 6" and three more digits, such as RX 6700 XT or RX 6600, including laptops with their own RX 6000 chip (RX 6700M and the like) | **[fsr4.1.1-cyboman-rx6000-2026-10-22.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx6000-2026-10-22.7z)** (5.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx6000-2026-10-22.zip) (77.0 MB) |
+| **Newer graphics built into the processor** (Radeon 780M, 760M, 880M, 890M and other RDNA 3 and 3.5 chips), and **any other card**: Nvidia GeForce, Intel Arc, older Radeon | **[fsr4.1.1-igpu-cyboman-rdna3-2026-10-22.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna3-2026-10-22.7z)** (5.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna3-2026-10-22.zip) (78.9 MB) |
+| **Steam Deck** and **older graphics built into the processor** (Radeon 680M, 660M, 610M, the graphics of Ryzen 7000 and 9000 desktop processors) | **[fsr4.1.1-igpu-cyboman-rdna2-2026-10-22.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna2-2026-10-22.7z)** (5.6 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna2-2026-10-22.zip) (81.4 MB) |
 | Radeon RX 9000 | not for these cards: they run a different FSR 4. Do not install it there. |
 
 The `.7z` and the `.zip` hold the same files. Windows 11 (version 23H2 or later) opens a `.7z` itself; on Windows 10 use
 [7-Zip](https://www.7-zip.org/) or take the `.zip`.
 
 Not sure which you have? In Windows, open Task Manager, go to Performance and look at the GPU's name; on a
-laptop with two, the RX one is the one games use.
+laptop with two, the RX one is the one games use. Every archive works on every card; the one for your card is the fastest there.
 
 **2. Choose a version.** Each archive holds three folders with one file each:
 
@@ -51,9 +53,9 @@ If you are not sure, take `exact`.
 This works on Windows and, under Proton, on Linux. Linux users can instead use
 [one launch option](#linux-a-launch-option-instead-of-the-dll) and leave the DLL alone.
 
-**4. Check that it worked.** Open OptiScaler's overlay in the game. The FSR version reads
-`4.1.1-cyboman` (or `4.1.1-lossy-cyboman`, `4.1.1-lossy2-cyboman`; with the other archive `4.1.1-igpu-cyboman`,
-`4.1.1-igpu-lossy-cyboman` or `4.1.1-igpu-lossy2-cyboman`), and the upscaler time is lower than before.
+**4. Check that it worked.** Open OptiScaler's overlay in the game. The FSR version reads `4.1.1-exact-r3-cyboman`
+(or `4.1.1-lossy-r3-cyboman`, `4.1.1-lossy2-r3-cyboman`; `r3` is the RX 7000 archive, `r2` the RX 6000 one, `igpu-r3` and
+`igpu-r2` the two built-in graphics archives), and the upscaler time is lower than before.
 
 **To undo it,** delete the file and rename the `.orig` file back.
 
@@ -128,50 +130,47 @@ More games and resolutions: [all results](docs/results.md).
 
 ## New in this release
 
-**[See what this release changes against the previous one, in pictures and figures →](docs/releases/dll-2026-10-19.md)**
+**[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-10-22.md)**
 
 > [!TIP]
-> **New: lossy2, a third DLL in each archive, next to exact and lossy.** It is the lossy DLL with new weights in six of the network's
-> twelve layers, trained to match AMD's picture through lossy's whole frame loop. It is meant to replace lossy once it has been trained
-> further; until then both are included. It was made with the tools of Durandal, the project's unreleased work on a smaller
-> network that runs on every frame, and is one step on that longer path.
-> - **Better than lossy:** swaying foliage much closer to AMD's picture (error 12.2 against 17.9; AMD's own file 12.1), areas a moving
->   object has just uncovered about 1 dB better, 16 to 30% fewer fireflies, steadier thin wires in a pan (test rig, 4K Balanced).
-> - **Worse than lossy:** it follows brightening 2 to 2.5 times as slowly (1.5 frames behind against 0.6 on a bright area), a still
->   picture is 0.3 to 0.4 dB less accurate, and heavy film grain is less steady when the game uses FSR's auto exposure.
->   It was trained on 4K Balanced and checked at 1080p, 1440p and 5K; Quality and Performance are not checked.
-> - **Not for Ultra Performance yet:** lossy2 has no trained weights for that mode; there it runs lossy's network unchanged and
->   looks and performs exactly like lossy.
-> - **Speed:** as lossy. Shadow of the Tomb Raider's benchmark at 4K Balanced on an RX 7800 XT under Linux: 18,784 frames, 121 FPS (one run).
-> - **Lossy DLL:** the register cut of `dll-2026-10-15` is removed. The Windows timing kit has shown that this should lower the lossy
->   DLL's upscaler time against `dll-2026-10-15` by about 1.3 to 1.8% on RX 6000 cards, about 3% on the RX 7600 and 0.5 to 1% on
->   the other cards measured (4K). **Exact DLL:** unchanged.
-> - **Downloads:** each archive also comes as a `.7z`, 5.6 MB instead of 82 MB.
+> **Four builds, one for each kind of graphics: up to about 3% more speed than the previous release, the same pictures.** Each archive
+> now carries only the changes that help its kind of chip. Every exact DLL still gives AMD's picture byte for byte, and lossy and
+> lossy2 give the same pictures as in the previous release.
+> - **Largest gains** (exact DLL, Windows timing-kit reports, 4K Balanced, moving; percent faster than AMD's shaders, previous release
+>   then this one): RX 7800 XT 5.0% then 8.2% (two reports), RX 7600 22.0% then 24.8%, RX 7900 XTX 26.3% then 28.5%, RX 6650 XT 12.7%
+>   then 14.6%. Radeon 890M and Intel Arc: their new build leaves out a change (the split dot products) that cost them 3 to 5% (890M)
+>   and 0.4 to 3% (Arc) in the timing kit's study runs.
+> - **Other cards improve less:** the RX 6600, 6800, 6800 XT and 6900 XT by up to about 1 point, and the Steam
+>   Deck / Radeon 680M build is the previous integrated-graphics build under a new name. GeForce cards now take the archive for newer
+>   built-in graphics, which has not been timed on a GeForce yet. On the bigger RX 6000 cards some readings of the
+>   new build are up to 0.7% slower than the previous one, within the spread between runs.
+> - **Version names** now say which build runs: `4.1.1-exact-r3-cyboman`, `4.1.1-lossy2-igpu-r2-cyboman` and so on.
+> - These figures come from test builds made the same way as the release DLLs, one report per card except the RX 7800 XT. The new
+>   timing kit times the release DLLs themselves. Linux: unchanged.
 
-<img src="docs/img/rel-2026-10-19-foliage-loop.gif" width="100%" alt="Swaying foliage with bright dots of sky between the leaves, camera still, frames 32 to 39 looping, a 160 by 100 pixel piece enlarged 4 times: true image, AMD's shaders, lossy, lossy2. Lossy's leaves are softer and shimmer from frame to frame; lossy2's look like AMD's. Mean error against the true image over these frames: AMD's shaders 12.8, lossy 18.3, lossy2 13.9.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/rel-2026-10-22-gain-dark.svg">
+  <img src="docs/img/rel-2026-10-22-gain-light.svg" width="760" alt="How much faster than AMD's shaders the exact DLL is at 4K, previous release against this release, Windows timing-kit reports, 4K Balanced, moving: RX 7800 XT 5.0 to 8.2 percent (two reports), RX 7600 22.0 to 24.8, RX 7900 XTX 26.3 to 28.5, RX 6650 XT 12.7 to 14.6, RX 6600 3.3 to 4.2, RX 6800 3.7 to 4.4, RX 6900 XT 13.3 to 14.0, RX 6800 XT 13.1 to 13.3. One report per card except the RX 7800 XT; RX 6000 against AMD's shaders with the dot products split; same picture in every build.">
+</picture>
 
-The largest visible changes against `dll-2026-10-15`, eight frames looping each (test rig, 4K Balanced; the lossy DLLs skip the network
-on every other frame). Above: swaying foliage with bright dots of sky, where lossy's leaves are softer and shimmer. Below: thin wires in a
-slow pan, which lossy breaks into fragments and lossy2 keeps whole.
-
-<img src="docs/img/rel-2026-10-19-wires-loop.gif" width="100%" alt="Two thin wires in front of a dark background, camera panning slowly, frames 32 to 39 looping, a 160 by 100 pixel piece enlarged 4 times: true image, AMD's shaders, lossy, lossy2. Lossy breaks the wires into dotted fragments that change from frame to frame; lossy2 keeps them continuous, close to AMD's.">
-
-[The release page](docs/releases/dll-2026-10-19.md) has every measure, including the ones where lossy2 is worse.
+**Earlier: [`dll-2026-10-19`](docs/releases/dll-2026-10-19.md)** added lossy2, the lossy DLL with trained weights in six of the
+network's twelve layers (closer to AMD's picture on swaying foliage and fireflies, slower to follow brightening, not for Ultra
+Performance yet), removed the register cut from the lossy DLLs, and added `.7z` downloads.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-19/fsr4-timing-kit-windows-2026-10-19.zip)** (experimental, about 20 MB, version 2026-10-19): unpack, double-click
-> `fsr4time.exe`, wait about 15 minutes (up to about 20 on a slow chip). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-22/fsr4-timing-kit-windows-2026-10-22.zip)** (experimental, about 37 MB, version 2026-10-22): unpack, double-click
+> `fsr4time.exe`, wait about 15 minutes (17 on RX 7000 and RDNA 3 built-in graphics, about 21 on RX 6000, the Steam Deck and other
+> RDNA2 graphics; up to about 25-30 on a slow chip). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
 > that each DLL gives the same picture, and offers to send the result. Reports are in from more than twenty graphics chips so far;
 > every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
 >
-> - New in the Windows kit (2026-10-19): a study run for RDNA2 and RDNA3 graphics in the same download (`run-study.cmd`, about 30
->   minutes: each change of the exact DLL timed on its own); Windows 10 PCs can fetch Microsoft's newer DirectX 12 runtime, which FSR 4
->   needs (not yet tried on Windows 10 itself). [Details](timing-kit/README.md#in-short)
-> - Earlier (2026-10-18.3): it starts on Windows 11 23H2 again (2026-10-18.2 did not). (2026-10-18.2): `--all-presets` also times the
->   Quality and Performance sizes; the RDNA2 graphics built into processors are compared like RX 6000 cards. [Details](timing-kit/README.md#in-short)
-> - Earlier (2026-10-18): seven DLLs instead of fourteen, so each gets more rounds in the same 15 minutes; on RX
->   6000 cards the percentages are against AMD's shaders with the dot products split; a DLL that hangs or crashes no longer stops the
->   run; leftover time re-times unsteady readings; one message per report, with the summary and the per-run figures attached. [Details](timing-kit/README.md#in-short)
+> - New in the Windows kit (2026-10-22): it times all twelve DLLs of this release on every PC, so each report shows how each build
+>   does on that card; on RX 6000 and RDNA2 graphics it also times test DLLs for the RX 6000 picture difference and for network pass 11;
+>   a DLL that stops responding is given up after three times the longest finished run on that PC (2 to 10 minutes) instead of 10
+>   minutes. [Details](timing-kit/README.md#in-short)
+> - Earlier (2026-10-19): a study run for RDNA2 and RDNA3 graphics (`run-study.cmd`, about 30 minutes: each change of the exact DLL
+>   timed on its own); Windows 10 PCs can fetch Microsoft's newer DirectX 12 runtime. (2026-10-18.3) it starts on Windows 11 23H2
+>   again. [Details](timing-kit/README.md#in-short)
 > - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
 >
 > [What the kits do](timing-kit/README.md#windows-experimental)
@@ -180,22 +179,23 @@ slow pan, which lossy breaks into fragments and lossy2 keeps whole.
 
 | Graphics card | Which archive | Status |
 |---|---|---|
-| RX 7900, 7800, 7700, 7600 (desktop RDNA3) | `fsr4.1.1-cyboman-<version>` | measured here on an RX 7800 XT; testers report large gains on Windows |
-| RX 6000 (RDNA2) | `fsr4.1.1-cyboman-<version>` | runs, and includes the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact DLL range from a few percent to about 30%, and we do not yet know what decides it; a few percent at 1440p and below (tester reports) |
-| Radeon 780M, 890M and other integrated graphics, Steam Deck | `fsr4.1.1-igpu-cyboman-<version>` | experimental: few reports, small gains |
+| RX 7900, 7800, 7700, 7600 (desktop RDNA3) | `fsr4.1.1-cyboman-rx7000-<version>` | measured here on an RX 7800 XT; testers report large gains on Windows |
+| RX 6000 (RDNA2) | `fsr4.1.1-cyboman-rx6000-<version>` | runs, and includes the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact DLL range from a few percent to about 30%, and we do not yet know what decides it; a few percent at 1440p and below (tester reports) |
+| Radeon 780M, 760M, 880M, 890M and other RDNA 3 / 3.5 graphics built into the processor | `fsr4.1.1-igpu-cyboman-rdna3-<version>` | experimental: few reports, small gains |
+| Steam Deck, Radeon 680M, 660M, 610M and other RDNA2 graphics built into the processor | `fsr4.1.1-igpu-cyboman-rdna2-<version>` | experimental: few reports, small gains |
 | RX 9000 (RDNA4) | none | no: a different FSR 4 runs there ([open for someone to pick up](docs/rdna4.md)) |
-| Any other graphics chip: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-cyboman-<version>`; for a chip built into the processor try `fsr4.1.1-igpu-cyboman-<version>` first | **should run, untested.** FSR 4.1.1's shaders are ordinary DirectX 12 compute shaders: they need Shader Model 6.6 with 8-bit integer dot products, 16-bit types and wave operations, which current drivers from all three makers provide. Users report the DLLs running on a GeForce laptop and on an Arc A770. Nothing has been measured there: the rewrites were made for Radeon chips, so they may or may not be faster than AMD's shaders, and "same picture" has only been verified on Radeon. A [timing-kit](timing-kit/README.md#windows-experimental) result tells both |
+| Any other graphics chip: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-igpu-cyboman-rdna3-<version>` | **runs; few reports.** FSR 4.1.1's shaders are ordinary DirectX 12 compute shaders: they need Shader Model 6.6 with 8-bit integer dot products, 16-bit types and wave operations, which current drivers from all three makers provide. Timing-kit reports from GeForce cards (GTX 1650, RTX 3060 Ti, 3090, 5070) and Intel Arc (B580, 140V) show the exact DLL from no gain (GeForce) to 6 to 10% (Arc), and the lossy DLL 24 to 37% faster (see the table above). The rewrites were made for Radeon chips; a [timing-kit](timing-kit/README.md#windows-experimental) report from your card tells you what it gains |
 
 You also need a DirectX 12 game in which FSR 4.1.1 already runs, with
 `amd_fidelityfx_upscaler_dx12.dll` version 4.1.1.2740.
 
-Both DLLs have AMD's graphics-card check lifted (AMD's own file offers this FSR 4 only on desktop
+Every DLL has AMD's graphics-card check lifted (AMD's own file offers this FSR 4 only on desktop
 RX 7000 cards), so they start on any card whose driver can run the shaders: DirectX 12 with Shader
 Model 6.6. That is also why they must not go on an RX 9000 card, where a different FSR 4 would
 then start as well.
 
-If the first zip is slower than AMD's file on a small RX 6000 card, try the second one: it differs
-only in one shader that is built smaller. Details: [GPU support](docs/gpu-support.md).
+If the archive for your card is slower than AMD's file, or a game crashes with it, try another archive: they differ only in how
+a few shaders are built (the integrated-graphics ones build network pass 11 smaller). Details: [GPU support](docs/gpu-support.md).
 
 ## Linux: a launch option instead of the DLL
 
