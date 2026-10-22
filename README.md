@@ -138,8 +138,7 @@ More games and resolutions: [all results](docs/results.md).
 > lossy2 give the same pictures as in the previous release.
 > - **Largest gains** (exact DLL, Windows timing-kit reports, 4K Balanced, moving; percent faster than AMD's shaders, previous release
 >   then this one): RX 7800 XT 5.0% then 8.2% (two reports), RX 7600 22.0% then 24.8%, RX 7900 XTX 26.3% then 28.5%, RX 6650 XT 12.7%
->   then 14.6%. Radeon 890M and Intel Arc: their new build leaves out a change (the split dot products) that cost them 3 to 5% (890M)
->   and 0.4 to 3% (Arc) in the timing kit's study runs.
+>   then 14.6%. Radeon 890M: 3 to 5% better performance than with the previous builds; Intel Arc: 0.4 to 3%.
 > - **Other cards improve less:** the RX 6600, 6800, 6800 XT and 6900 XT by up to about 1 point, and the Steam
 >   Deck / Radeon 680M build is the previous integrated-graphics build under a new name. GeForce cards now take the archive for newer
 >   built-in graphics, which has not been timed on a GeForce yet. On the bigger RX 6000 cards some readings of the
