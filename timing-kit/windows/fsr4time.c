@@ -428,9 +428,12 @@ static int normgen = 0;      // a normal run on RDNA2 / RDNA3 graphics (2 / 3): 
 static bool Pass11Test(const char* name) {      // <g>-f1-exact (the build the tests are compared with), <g>-t1-tiled-pass11, <g>-t2-amd-cut-pass11
     return !strncmp(name + 6, "f1-", 3) || !strncmp(name + 6, "t1-", 3) || !strncmp(name + 6, "t2-", 3);
 }
+static bool PackingTest(const char* name) {      // rdna2-p1..p5: the RX 6000 packing test (since kit 2026-10-22 also in RDNA2 normal runs)
+    return !strncmp(name, "rdna2-p", 7) && name[7] >= '1' && name[7] <= '9';
+}
 static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
-    if (!study) return (!s2 && !s3) || (normgen == 2 && s2 && Pass11Test(name)) || (normgen == 3 && s3 && Pass11Test(name));
+    if (!study) return (!s2 && !s3) || (normgen == 2 && s2 && (Pass11Test(name) || PackingTest(name))) || (normgen == 3 && s3 && Pass11Test(name));
     // since the next kit: also the released lossy and lossy2 DLLs, which the study set's family lossy DLLs (rdna2-f2/f3, rdna3-f2/f3) are
     // compared with; the family DLLs are named rdna2-f* / rdna3-f*, so they come with their generation's study set and stay out of normal runs
     return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || !strcmp(name, "3-lossy") || !strcmp(name, "3b-lossy2")
@@ -1388,12 +1391,11 @@ int main(int argc, char** argv) {
         }
         printf("Study mode: the RDNA%d study set (%s).\n\n", study, gn);
     }
-    if (!study) {      // the pass 11 tests of this chip's generation join the normal run (next kit); the rounds get the time of 3 more DLLs
+    if (!study) {      // the pass 11 tests of this chip's generation join the normal run (next kit), on RDNA2 also the packing test; the budget grows below
         unsigned ven = 0, dev = 0; char gn[128] = "?";
         GpuIds(&ven, &dev, gn, sizeof(gn));
         if (getenv("FSR4TIME_STUDYGPU")) sscanf(getenv("FSR4TIME_STUDYGPU"), "%x:%x", &ven, &dev);      // for testing the choice (e.g. 1002:73ff = RDNA2)
         normgen = IsRdna2(ven, dev) ? 2 : IsRdna3(ven, dev) ? 3 : 0;
-        if (normgen && !budget_set) budget = budget * 23.0 / 20.0;      // 20 normal DLLs + 3: the same rounds per DLL as without them
     }
     SetupRuntime(base, unattended);      // Windows' own runtime unless it offers less than shader model 6.6 (Windows 10); see there
     if (getenv("FSR4TIME_AGILITYONLY")) return 0;      // for testing the runtime choice alone (no DLL runs)
@@ -1420,6 +1422,11 @@ int main(int argc, char** argv) {
                 const int q = inpack[i]; inpack[i] = inpack[j]; inpack[j] = q;
             }
     if (!nd) { printf("No DLL pack (%s) and no folders in dlls\\ next to the program.\n", PACK_NAME); return 1; }
+    if (!study && normgen && !budget_set) {      // the generation's extra test DLLs get their own time: the same rounds per DLL as without them
+        int extra = 0;
+        for (int i = 0; i < nd; ++i) extra += !strncmp(names[i], "rdna2-", 6) || !strncmp(names[i], "rdna3-", 6);
+        if (extra && nd > extra) budget = budget * nd / (double)(nd - extra);
+    }
     if (HeaderStart())
         printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more rounds).\n\n", KIT_VERSION, once ? budget / 2 : budget);
     else

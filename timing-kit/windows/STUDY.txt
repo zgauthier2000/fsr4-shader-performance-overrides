@@ -40,6 +40,7 @@ The DLLs of the RDNA2 set
   rdna2-p1 to p5                    the packing test: which way of writing the last shader gives the
                                     RDNA2 picture under Windows its difference from AMD's (compared
                                     with rdna2-p1)
+                                    (the normal test times these five too on RDNA2 graphics)
     p1-amd-shaders                  AMD's shaders (the test's reference)
     p2-dots-split                   AMD's shaders with the last shader's dot products split
     p3-handpack                     AMD's shaders with the last shader's 8-bit packing written out by
