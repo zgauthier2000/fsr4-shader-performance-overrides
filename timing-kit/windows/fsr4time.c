@@ -518,7 +518,8 @@ static int RunOne(const char* name, bool quick) {
     const char* vname[8];
     int nv = 0;
     for (uint64_t i = 0; i < count; ++i)
-        if (nv < 8 && !strncmp(names[i], "4.", 2)) { vid[nv] = ids[i]; vname[nv++] = names[i]; }
+        if (nv < 8 && (!strncmp(names[i], "4.", 2) || !strncmp(names[i], "fsr4", 4))) { vid[nv] = ids[i]; vname[nv++] = names[i]; }      // AMD's "4.1.1", this project's
+        // "4.1.1-...-cyboman" and, since release dll-2026-10-22, "fsr4-<variant>-<flavor>-cyboman" names (an FSR 3 provider says "3.x")
     if (getenv("FSR4TIME_TWICE") && nv == 1) { vid[1] = vid[0]; vname[1] = vname[0]; nv = 2; }      // for testing the lines of a DLL with two variants: the one version, listed twice
     if (!nv) { Say("R|%s|FAILED|this DLL offers no FSR 4 on this GPU (%llu versions listed)\n", name, (unsigned long long)count); return 1; }
     Say("G|%s\n", gpu);
