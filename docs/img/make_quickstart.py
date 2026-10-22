@@ -3,7 +3,8 @@
 # Writes quickstart-light.svg and quickstart-dark.svg, the figure in the front page's quick start: what FSR 4.1.1 costs
 # per frame with AMD's shaders, with the exact DLL and with the lossy DLL, and the frame rate that goes with each.
 # Measured: Shadow of the Tomb Raider's built-in benchmark, 4K output, FSR 4.1.1 Balanced, Radeon RX 7800 XT
-# on Linux under Proton (AMD's and the exact files under Proton with the Linux files; the lossy figure with the Linux lossy files).
+# on Linux under Proton (AMD's figure under Proton with the Linux files; the exact figure since 2026-10-22 the RX 7000 exact DLL of release
+# dll-2026-10-22, 4.1.1-exact-r3-cyboman: 2.96 ms, 109 FPS, 16,972 frames, one run, before 2.99 ms with the Linux files; the lossy figure with the Linux lossy files).
 THEMES = {
     'light': dict(surface='#fcfcfb', ink='#0b0b0b', ink2='#52514e', muted='#898781', grid='#e1e0d9', amd='#a09f98', exact='#2a78d6', lossy='#eb6834'),
     'dark': dict(surface='#1a1a19', ink='#ffffff', ink2='#c3c2b7', muted='#898781', grid='#2c2c2a', amd='#6d6c66', exact='#3987e5', lossy='#d95926'),
@@ -12,7 +13,7 @@ FONT = "font-family=\"-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif\""
 W, H = 760, 334
 ROWS = [  # label, what happens to the picture, ms per frame, FPS, color
     ("AMD's shaders", 'the reference', 4.16, 97, 'amd'),
-    ('Exact DLL', 'same picture, byte for byte', 2.99, 109, 'exact'),
+    ('Exact DLL', 'same picture, byte for byte', 2.96, 109, 'exact'),
     ('Lossy DLL', 'very close picture, opt-in', 2.06, 122, 'lossy'),
 ]
 X0, XMAX, MS_MAX = 232, 600, 4.5

@@ -63,7 +63,7 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
-  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced, tested on Linux (Proton). AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.99 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.06 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions, other cards and Windows give other numbers.">
+  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced, tested on Linux (Proton). AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.96 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.06 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions, other cards and Windows give other numbers.">
 </picture>
 
 - **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
@@ -108,7 +108,7 @@ output, FSR 4.1.1 Balanced. Your card and your game will give other numbers:
 | | FSR 4 time per frame | Frame rate | Picture |
 |---|---|---|---|
 | AMD's shaders | 4.16 ms | 97 FPS | the reference |
-| Exact | 2.99 ms (−28%) | 109 FPS (+12%) | identical |
+| Exact | 2.96 ms (−29%) | 109 FPS (+12%) | identical (RX 7000 build, one run, `dll-2026-10-22`) |
 | Lossy | 2.06 ms (−50%) | 122 FPS (+26%) | still picture within 0.2 dB of AMD's |
 | Lossy2 | 2.09 ms (−50%) | 121 FPS (+25%) | still picture within 0.5 dB of AMD's (one run, `dll-2026-10-19`) |
 
