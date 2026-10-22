@@ -18,7 +18,7 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 - **Why it exists:** the project is developed on one graphics card. What it does on every other chip is only known from
   what people measure and send in.
 - **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait about 15 minutes
-  (it uses the time for repeat rounds; a slow or integrated chip may take up to about 20).
+  (17 on RDNA3, about 21 on RDNA2 graphics; it uses the time for repeat rounds; a slow or integrated chip may take up to about 25-30).
   On Linux or a Steam Deck in desktop mode, the Linux kit described below: one command, about 15 minutes on an RX 7800 XT, or a
   minute or two for the short run.
 - **The output check of the model passes now means something (kit 2026-10-10.1).** Earlier kits filled the small buffer that
@@ -31,7 +31,24 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Windows kit version 2026-10-19** (download again if you have an earlier one): one download for everything.
+**Windows kit version 2026-10-22** (download again if you have an earlier one):
+
+- **The twelve DLLs of release `dll-2026-10-22`,** timed on every PC: the exact, lossy and lossy2 DLLs of each of its four builds
+  (`exact-r3`, `lossy-r3`, `lossy2-r3` for RX 7000; `-r2` for RX 6000; `-igpu-r3` for RDNA 3 built-in graphics and other cards;
+  `-igpu-r2` for the Steam Deck and RDNA2 built-in graphics). Every report shows how each build does on that card, not only the one
+  meant for it. The previous release's DLLs and the earlier test DLLs (`6-durandal-test` and its variants, the lossy2 transplant
+  builds) are gone from the normal run.
+- **On RX 6000 cards and RDNA2 built-in graphics** the normal run also times the packing test (`rdna2-p1` to `p5`), which looks for
+  the cause of the picture difference these chips show with AMD's file under Windows, and three builds of network pass 11
+  (`rdna2-f1-exact`, `-t1`, `-t2`). On RX 7000 and RDNA 3 built-in graphics it times that generation's three pass 11 builds. These test
+  DLLs are timed for their speed and compared with each other, not with AMD's picture. The run is about 21 minutes on RDNA2 graphics
+  and 17 on RDNA3, so that every DLL keeps its rounds.
+- **A DLL that stops responding** is given up after three times the longest run that finished on that PC (whole minutes, at least 2,
+  at most 10) instead of after 10 minutes.
+- **Version names** of FSR 4 builds are recognized whether they start with `4.` or `fsr4`.
+- The study run (`run-study.cmd`) is unchanged; it still compares with the previous release's exact, lossy and lossy2 DLLs.
+
+**Windows kit version 2026-10-19:** one download for everything.
 
 - **The study run is in the main kit now,** for RDNA2 and, new, RDNA3 graphics: double-click `run-study.cmd` (or `fsr4time.exe
   --study`). It times each change in the exact DLL on its own, to find which help on your kind of chip and which help only together:
@@ -156,7 +173,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-10-19.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-19/fsr4-timing-kit-windows-2026-10-19.zip) (about 20 MB, version 2026-10-19; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-10-22.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-22/fsr4-timing-kit-windows-2026-10-22.zip) (about 37 MB, version 2026-10-22; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
@@ -169,6 +186,8 @@ The summary and `results-raw.txt` are saved in the unpacked folder. It runs the 
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
 For RDNA2 and RDNA3 owners with time for a longer run: `run-study.cmd` in the same folder starts the study run (about 30 minutes; see `STUDY.txt` inside).
+
+**New in version 2026-10-22:** the twelve DLLs of release `dll-2026-10-22`; on RDNA2 graphics the packing test and the pass 11 builds in the normal run; a shorter wait for a DLL that stops responding (see [above](#in-short)).
 
 **New in version 2026-10-19:** the study run in the main kit, for RDNA2 and RDNA3; a way for Windows 10 PCs; test DLLs 6d and 6e instead of
 6a to 6c (see [above](#in-short)).
