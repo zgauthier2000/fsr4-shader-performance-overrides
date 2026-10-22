@@ -133,7 +133,7 @@ More games and resolutions: [all results](docs/results.md).
 **[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-10-22.md)**
 
 > [!TIP]
-> **Four builds, one per kind of graphics: up to about 3% faster than the previous release, same pictures.**
+> **Four builds, one per kind of graphics card: up to about 3% faster than the previous release, same pictures.**
 >
 > | Card | Exact DLL, faster than AMD's shaders at 4K: before → now |
 > |---|---|
