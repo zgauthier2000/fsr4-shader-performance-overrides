@@ -431,9 +431,12 @@ static bool Pass11Test(const char* name) {      // <g>-f1-exact (the build the t
 static bool PackingTest(const char* name) {      // rdna2-p1..p5: the RX 6000 packing test (since kit 2026-10-22 also in RDNA2 normal runs)
     return !strncmp(name, "rdna2-p", 7) && name[7] >= '1' && name[7] <= '9';
 }
+static bool StudyOnly(const char* name) {      // since kit 2026-10-22: release dll-2026-10-19's DLLs stay in the pack as the study sets' baselines only
+    return !strcmp(name, "2-exact") || !strcmp(name, "3-lossy") || !strcmp(name, "3b-lossy2");
+}
 static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
-    if (!study) return (!s2 && !s3) || (normgen == 2 && s2 && (Pass11Test(name) || PackingTest(name))) || (normgen == 3 && s3 && Pass11Test(name));
+    if (!study) return (!s2 && !s3 && !StudyOnly(name)) || (normgen == 2 && s2 && (Pass11Test(name) || PackingTest(name))) || (normgen == 3 && s3 && Pass11Test(name));
     // since the next kit: also the released lossy and lossy2 DLLs, which the study set's family lossy DLLs (rdna2-f2/f3, rdna3-f2/f3) are
     // compared with; the family DLLs are named rdna2-f* / rdna3-f*, so they come with their generation's study set and stay out of normal runs
     return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || !strcmp(name, "3-lossy") || !strcmp(name, "3b-lossy2")

@@ -70,24 +70,20 @@ What it does
                        610M, the graphics of Ryzen 7000 and 9000 desktop processors) are known to
                        show ghosting under Windows with AMD's original form. On those chips this is
                        the DLL to compare with, and the summary's percentages are against it.
-  dlls\2-exact         this project's exact DLL of release dll-2026-10-19, for desktop cards
-  dlls\3-lossy         its lossy DLL (faster; the picture is NOT the same as AMD's). It also skips
-                       frames in Ultra Performance (the "UP" lines; figures for that mode only).
-  dlls\4-igpu-exact    the exact DLL for integrated graphics and handhelds
-  dlls\3b-lossy2       the release's lossy2 DLL (lossy with trained weights; the picture is NOT the same as
-                       AMD's either). It does not support Ultra Performance yet: its "UP" lines run
-                       lossy's network and should match 3-lossy.
-  dlls\5-igpu-lossy    and its lossy one
-  dlls\5b-igpu-lossy2  and its lossy2 one
-  dlls\3c-lossy2-transplant, 5c-igpu-lossy2-transplant
-                       test DLLs: lossy2 built differently (its trained numbers in AMD's own shader code instead of
-                       the project's generated code), compared with 3sb / 5sb; only the speed may differ.
-  dlls\4r-igpu-rdna3-exact, 5r-igpu-rdna3-lossy, 5rb-igpu-rdna3-lossy2
-                       test DLLs for the next release: 4, 5 and 5b without the split dot products, meant
-                       for RDNA 3 integrated graphics (Radeon 780M, 890M and others) and for GeForce and
-                       Arc cards, compared with 4s / 5s / 5sb.
-  dlls\3sb-lossy2-ref, 4s-igpu-exact-ref, 5s-igpu-lossy-ref, 5sb-igpu-lossy2-ref
-                       reference builds for the test DLLs above to be compared with
+  dlls\exact-r3, lossy-r3, lossy2-r3
+                       this project's release dll-2026-10-22 for Radeon RX 7000 cards: the exact DLL (the
+                       same picture as AMD's), the lossy one (faster; the picture is NOT the same as AMD's;
+                       it also skips frames in Ultra Performance, the "UP" lines, figures for that mode only)
+                       and lossy2 (lossy with trained weights; the picture is NOT the same as AMD's either;
+                       its "UP" lines run lossy's network and should match lossy's)
+  dlls\exact-r2, lossy-r2, lossy2-r2
+                       the same three for Radeon RX 6000 cards
+  dlls\exact-igpu-r3, lossy-igpu-r3, lossy2-igpu-r3
+                       the same three for RDNA 3 integrated graphics (Radeon 780M, 890M and others) and for
+                       GeForce, Arc and other cards
+  dlls\exact-igpu-r2, lossy-igpu-r2, lossy2-igpu-r2
+                       the same three for the Steam Deck, Radeon 680M and older integrated graphics
+  Every PC times all twelve, so the summary shows how each kind of build does on your card.
   dlls\rdna2-f1-exact, rdna2-t1-tiled-pass11, rdna2-t2-amd-cut-pass11 (RX 6000 and RDNA2 integrated graphics only)
   dlls\rdna3-f1-exact, rdna3-t1-tiled-pass11, rdna3-t2-amd-cut-pass11 (RX 7000 and RDNA3 integrated graphics only)
                        test DLLs for the second-to-last network shader: f1 is a test build of the next release's
@@ -100,8 +96,6 @@ What it does
                        with rdna2-p1 (details in STUDY.txt).
   The test DLLs and reference builds are timed for their speed and compared with each other, not
   with AMD's picture: a large difference from AMD's picture on their lines is expected.
-  dlls\6-durandal-test a test DLL whose speed the project is measuring, and two variants of it
-  dlls\6d-durandal-test-wideloads, 6e-durandal-test-unrolled
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
   these, make a folder dlls\ next to fsr4time.exe, a folder for the DLL in it, and put its amd_fidelityfx_upscaler_dx12.dll there. For
