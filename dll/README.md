@@ -8,11 +8,11 @@ alike.
 ## Download it
 
 Four archives are attached to each release since `dll-2026-10-22` (the newest: [latest release](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/latest)), one per kind of graphics,
-each with an exact, a lossy and a lossy2 DLL, AMD's notice and SHA-256 checksums, and each as a `.zip` and a much smaller `.7z` with the same
-files. In `dll-2026-10-22`: [`fsr4.1.1-cyboman-rx7000-2026-10-22.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx7000-2026-10-22.7z) for RX 7000 cards,
-[`fsr4.1.1-cyboman-rx6000-2026-10-22.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-cyboman-rx6000-2026-10-22.7z) for RX 6000 cards,
-[`fsr4.1.1-igpu-cyboman-rdna3-2026-10-22.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna3-2026-10-22.7z) for RDNA 3 / 3.5 graphics built into the processor
-and for other makers' cards, and [`fsr4.1.1-igpu-cyboman-rdna2-2026-10-22.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-22/fsr4.1.1-igpu-cyboman-rdna2-2026-10-22.7z) for the Steam Deck and
+each with an exact, a lossy and a lossy2 DLL (since `dll-NEXTVER` also the two Lite builds, `4.1.2l-exact` and `4.1.2l-lossy`: [the Lite builds](../docs/lite-builds.md)), AMD's notice and SHA-256 checksums, and each as a `.zip` and a much smaller `.7z` with the same
+files. In `dll-NEXTVER`: [`fsr4.1.1-cyboman-rx7000-NEXTVER.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx7000-NEXTVER.7z) for RX 7000 cards,
+[`fsr4.1.1-cyboman-rx6000-NEXTVER.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx6000-NEXTVER.7z) for RX 6000 cards,
+[`fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.7z) for RDNA 3 / 3.5 graphics built into the processor
+and for other makers' cards, and [`fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.7z`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.7z) for the Steam Deck and
 other RDNA2 built-in graphics (each also as a `.zip`; [which one](../docs/gpu-support.md#which-download-dll-2026-10-22-and-later)).
 The exact DLLs were made by this script from AMD's original (SHA-256
 `d0dcccc74a43c44ba435b7a369b456e0970d8a4464e4bd683119b374f2c9fb46`) and the shader sets `../windows/dxil/build_dxil_overrides.sh` builds with
@@ -45,7 +45,7 @@ Not for RDNA4. **All released DLLs are built with it** since release `dll-2026-1
 `--name <text>` changes the version name the DLL reports ("4.1.1" in AMD's), which is what
 OptiScaler displays, so that a patched DLL can be told from AMD's and the builds from each other.
 Since release `dll-2026-10-22` the released DLLs use `4.1.1-<exact|lossy|lossy2>-<r3|r2|igpu-r3|igpu-r2>-cyboman`, for example
-`4.1.1-exact-r3-cyboman` (RX 7000) or `4.1.1-lossy2-igpu-r2-cyboman` (Steam Deck and other RDNA2 built-in graphics); lossy and lossy2 change the image
+`4.1.1-exact-r3-cyboman` (RX 7000) or `4.1.1-lossy2-igpu-r2-cyboman` (Steam Deck and other RDNA2 built-in graphics); since `dll-NEXTVER` the Lite builds add `4.1.2l-exact-<flavor>-cyboman` and `4.1.2l-lossy-<flavor>-cyboman`; lossy, lossy2 and 4.1.2l-lossy change the image
 ([exact and lossy compared](../docs/exact-vs-lossy.md)). From `dll-2026-10-09` to `dll-2026-10-19` they were `4.1.1-cyboman`, `4.1.1-igpu-cyboman` and their `-lossy-` / `-lossy2-` forms; up to
 release `dll-2026-10-07` there were four flavors with the names `4.1.1-r3-`, `-r2-`, `-r2c-` and `-ig-cyboman` ([earlier releases](../docs/changelog.md)).
 

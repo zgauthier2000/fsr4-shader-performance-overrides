@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="360" viewBox="0 0 760 360" role="img" aria-label="Shimmer of thin wires while the camera pans, mean change per frame, lower is steadier, auto exposure off then on: FSR 4.1.2 Lite (AMD) 9.75 and 7.81; 4.1.2l-lossy (new) 5.88 and 3.83; FSR 4.1.1 (AMD) 7.16 and 6.79; lossy2 4.56 and 4.36.">
+<rect width="760" height="360" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">Thin wires in a camera pan: 4.1.2l-lossy shimmers 40 to 50% less than Lite</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Mean change per frame on thin wires while the camera pans; lower is steadier. Test rig, 4K Balanced.</text>
+<rect x="24" y="66" width="12" height="12" rx="3" fill="#2a78d6"/>
+<text x="42.0" y="76.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">game auto exposure off</text>
+<rect x="244" y="66" width="12" height="12" rx="3" fill="#d9711c"/>
+<text x="262.0" y="76.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">game auto exposure on</text>
+<line x1="200.0" y1="96" x2="200.0" y2="272" stroke="#c3c2b7" stroke-width="1"/>
+<text x="200.0" y="290.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">0</text>
+<line x1="288.0" y1="96" x2="288.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
+<text x="288.0" y="290.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">2</text>
+<line x1="376.0" y1="96" x2="376.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
+<text x="376.0" y="290.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">4</text>
+<line x1="464.0" y1="96" x2="464.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
+<text x="464.0" y="290.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">6</text>
+<line x1="552.0" y1="96" x2="552.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
+<text x="552.0" y="290.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">8</text>
+<line x1="640.0" y1="96" x2="640.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
+<text x="640.0" y="290.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">10</text>
+<text x="188.0" y="121.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#0b0b0b">FSR 4.1.2 Lite (AMD)</text>
+<path d="M200,102.0 H625.0 Q629.0,102.0 629.0,106.0 V113.0 Q629.0,117.0 625.0,117.0 H200 Z" fill="#2a78d6"/>
+<text x="637.0" y="114.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">9.75</text>
+<path d="M200,119.0 H539.6 Q543.6,119.0 543.6,123.0 V130.0 Q543.6,134.0 539.6,134.0 H200 Z" fill="#d9711c"/>
+<text x="551.6" y="131.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">7.81</text>
+<text x="188.0" y="165.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="end" fill="#0b0b0b">4.1.2l-lossy (new)</text>
+<path d="M200,146.0 H454.7 Q458.7,146.0 458.7,150.0 V157.0 Q458.7,161.0 454.7,161.0 H200 Z" fill="#2a78d6"/>
+<text x="466.7" y="158.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#0b0b0b">5.88</text>
+<path d="M200,163.0 H364.5 Q368.5,163.0 368.5,167.0 V174.0 Q368.5,178.0 364.5,178.0 H200 Z" fill="#d9711c"/>
+<text x="376.5" y="175.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#0b0b0b">3.83</text>
+<text x="188.0" y="209.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#0b0b0b">FSR 4.1.1 (AMD)</text>
+<path d="M200,190.0 H511.0 Q515.0,190.0 515.0,194.0 V201.0 Q515.0,205.0 511.0,205.0 H200 Z" fill="#2a78d6"/>
+<text x="523.0" y="202.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">7.16</text>
+<path d="M200,207.0 H494.8 Q498.8,207.0 498.8,211.0 V218.0 Q498.8,222.0 494.8,222.0 H200 Z" fill="#d9711c"/>
+<text x="506.8" y="219.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">6.79</text>
+<text x="188.0" y="253.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" text-anchor="end" fill="#0b0b0b">lossy2</text>
+<path d="M200,234.0 H396.6 Q400.6,234.0 400.6,238.0 V245.0 Q400.6,249.0 396.6,249.0 H200 Z" fill="#2a78d6"/>
+<text x="408.6" y="246.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">4.56</text>
+<path d="M200,251.0 H387.8 Q391.8,251.0 391.8,255.0 V262.0 Q391.8,266.0 387.8,266.0 H200 Z" fill="#d9711c"/>
+<text x="399.8" y="263.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">4.36</text>
+<text x="24.0" y="314.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">One synthetic scene type, not used in training; one run each, Linux (Proton), Radeon RX 7800 XT. AMD’s Lite and</text>
+<text x="24.0" y="330.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">FSR 4.1.1 measured in this project’s local test harness. With the camera still, 4.1.2l-lossy and Lite are level (2.60 and 2.64).</text>
+</svg>
