@@ -98,9 +98,30 @@ harness, not in AMD's own runtime.
 - With auto exposure on: brightening catches up more slowly (1.13 frames against 0.86), and heavy film grain changes more from frame to
   frame (0.82 against 0.41).
 
+## Ultra Performance and above 4K
+
+**Ultra Performance only: not representative of the other modes.** 4.1.2l-lossy skips frames in Ultra Performance too. It uses AMD's own
+Lite weights for that mode there (the retrained weights are for the other modes). Test rig, 4K output, auto exposure off / on; speed under Linux
+(Proton) on one Radeon RX 7800 XT, two runs:
+
+| | FSR 4.1.2 Lite (AMD) | 4.1.2l-lossy |
+|---|---|---|
+| FSR 4 time per frame: 1080p / 1440p / 4K | 0.666 / 1.017 / 1.944 ms | 0.585 / 0.873 / 1.678 ms (−12 / −14 / −14%) |
+| Thin wires, camera pan: change per frame | 12.6 / 12.8 | 9.4 / 8.7 |
+| Bright rain specks | 4,740 / 5,449 | 4,055 / 3,614 |
+| Rain specks brighter than 20 levels | 686 / 1,364 | 1,437 / 1,700 |
+| Dim, dense fireflies | 1,195 / 1,449 | 1,584 / 1,212 |
+| Heavy film grain: change per frame | 0.33 / 0.42 | 0.45 / 1.38 |
+| Swaying foliage: error | 17.9 / 17.9 | 19.9 / 20.1 |
+| Large particles: error | 1.65 / 1.59 | 2.14 / 2.12 |
+| Still picture accuracy, dB (higher is better) | 41.4 / 41.4 | 41.2 / 41.1 |
+
+Above 4K output 4.1.2l-lossy runs the network on every frame with Lite's weights: close to Lite's picture (speed not measured there).
+4.1.2l-exact gives Lite's picture byte for byte in every mode and at every size, including Ultra Performance and 5K, and with the flags games set
+(inverted depth, display-size motion vectors, jitter cancellation).
+
 ## Not checked yet
 
-- Ultra Performance mode, and output sizes above 4K.
 - Windows: the DLLs only ran under Proton on Linux. Speed on other cards.
 - Games: the figures come from synthetic test scenes, not from games.
 - Training is not fully repeatable: the same training with other random seeds gave copies that differ somewhat; the best of three is

@@ -17,10 +17,10 @@
 
 | Archive | For | Download |
 |---|---|---|
-| RX 7000 | Radeon RX 7000 cards, including laptops with their own RX 7000 chip | [fsr4.1.1-cyboman-rx7000-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx7000-NEXTVER.7z) (6.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx7000-NEXTVER.zip) (113 MB) |
-| RX 6000 | Radeon RX 6000 cards, including laptops with their own RX 6000 chip | [fsr4.1.1-cyboman-rx6000-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx6000-NEXTVER.7z) (6.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx6000-NEXTVER.zip) (111 MB) |
-| Integrated RDNA 3 | Radeon 780M, 760M, 880M, 890M and other RDNA 3 / 3.5 graphics built into the processor; GeForce, Intel Arc and any other card | [fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.7z) (6.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.zip) (113 MB) |
-| Integrated RDNA2 | Steam Deck, Radeon 680M, 660M, 610M and the graphics of Ryzen 7000 and 9000 desktop processors | [fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.7z) (6.6 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.zip) (116 MB) |
+| RX 7000 | Radeon RX 7000 cards, including laptops with their own RX 7000 chip | [fsr4.1.1-cyboman-rx7000-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx7000-NEXTVER.7z) (8.5 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx7000-NEXTVER.zip) (122 MB) |
+| RX 6000 | Radeon RX 6000 cards, including laptops with their own RX 6000 chip | [fsr4.1.1-cyboman-rx6000-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx6000-NEXTVER.7z) (8.5 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx6000-NEXTVER.zip) (120 MB) |
+| Integrated RDNA 3 | Radeon 780M, 760M, 880M, 890M and other RDNA 3 / 3.5 graphics built into the processor; GeForce, Intel Arc and any other card | [fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.7z) (8.5 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.zip) (122 MB) |
+| Integrated RDNA2 | Steam Deck, Radeon 680M, 660M, 610M and the graphics of Ryzen 7000 and 9000 desktop processors | [fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.7z) (8.7 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.zip) (124 MB) |
 
 All files and checksums: [release `dll-NEXTVER`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-NEXTVER).
 The previous release, `dll-2026-10-22`, stays available: [its page](dll-2026-10-22.md).
@@ -71,7 +71,7 @@ one run each; FSR 4.1.1 and Lite measured in this project's local test harness, 
 
 ## Not checked
 
-Ultra Performance mode and output sizes above 4K with the Lite builds; Windows (the DLLs ran under Proton only); games.
+Windows (the DLLs ran under Proton only); other cards; games. Ultra Performance and above 4K: [the Lite builds](../lite-builds.md#ultra-performance-and-above-4k).
 
 ## How it was checked
 
