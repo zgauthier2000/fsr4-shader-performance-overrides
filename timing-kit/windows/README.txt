@@ -90,10 +90,11 @@ What it does
                        exact DLL for that kind of card; t1 is f1 with that shader working on small square tiles
                        of the picture instead of rows, t2 the same shader cut into tiles the way AMD's newer
                        RX 6000 driver shaders do it. Only the speed may differ between the three.
-  dlls\rdna2-p1-amd-shaders, rdna2-p2-dots-split, rdna2-p3-handpack, rdna2-p4-exact-handpack, rdna2-p5-exact
+  dlls\rdna2-p1-amd-shaders, rdna2-p2-dots-split, rdna2-p5-exact, rdna2-p6-swap, rdna2-p7-swap-handpack,
+  rdna2-p8-exact-swap, rdna2-p9-alt-shaders
                        (RX 6000 and RDNA2 integrated graphics only) the packing test: which way of writing the
-                       last shader gives the RX 6000 picture under Windows its difference from AMD's; compared
-                       with rdna2-p1 (details in STUDY.txt).
+                       last shader gives the RX 6000 picture under Windows its difference from AMD's; p6 and p7
+                       are compared with p2, p8 with p5, p9 with p1 (details in STUDY.txt).
   The test DLLs and reference builds are timed for their speed and compared with each other, not
   with AMD's picture: a large difference from AMD's picture on their lines is expected.
 

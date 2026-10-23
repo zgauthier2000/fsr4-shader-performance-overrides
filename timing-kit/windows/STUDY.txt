@@ -37,16 +37,21 @@ The DLLs of the RDNA2 set
                                     the test DLLs below to be compared with
   rdna2-f1-exact, f2-lossy,         test builds for RX 6000 cards: exact, lossy and lossy2 without the
   f3-lossy2                         prepass change (on RDNA2 it costs about 1% in the exact DLL)
-  rdna2-p1 to p5                    the packing test: which way of writing the last shader gives the
-                                    RDNA2 picture under Windows its difference from AMD's (compared
-                                    with rdna2-p1)
-                                    (the normal test times these five too on RDNA2 graphics)
+  rdna2-p1 to p9                    the packing test: which way of writing the last shader gives the
+                                    RDNA2 picture under Windows its difference from AMD's
+                                    (the normal test times these too on RDNA2 graphics)
     p1-amd-shaders                  AMD's shaders (the test's reference)
     p2-dots-split                   AMD's shaders with the last shader's dot products split
-    p3-handpack                     AMD's shaders with the last shader's 8-bit packing written out by
-                                    hand, as AMD's own RX 6000 shaders in its newer driver do
-    p4-exact-handpack               the RX 6000 exact DLL with hand packing instead of split dots
     p5-exact                        the RX 6000 exact DLL (split dots)
+    p6-swap                         AMD's shaders with the two inputs of some of the last shader's dot
+                                    products in the other order, as AMD's newer driver shaders write
+                                    them (dots not split; compared with p2)
+    p7-swap-handpack                p6 with the last shader's 8-bit packing also written out by hand,
+                                    as AMD's own RX 6000 shaders in its newer driver do (compared with p2)
+    p8-exact-swap                   the RX 6000 exact DLL with the swapped order instead of split dots
+                                    (compared with p5)
+    p9-alt-shaders                  a test build with every shader written another way; its picture
+                                    differs a little from p1 by design (compared with p1 for speed)
   rdna2-t1-tiled-pass11             rdna2-f1 with the second-to-last network shader working on small
                                     square tiles of the picture instead of rows
   rdna2-t2-amd-cut-pass11           the same shader cut into tiles the way AMD's newer RX 6000 driver
