@@ -9,7 +9,8 @@
 # the hash in the original container's header (the name the add-on looks for).
 # The input can be a vkd3d-proton shader dump (VKD3D_SHADER_DUMP_PATH writes the DXIL too).
 # Options (environment): PASS11=rows (compact pass 11, for integrated GPUs), DOT4=split (dot
-# products as product + add, for RDNA2), TAPS=0 (keep the branches around the postpass's
+# products as product + add, for RDNA2), DOT4=swap (the same RDNA2 fix by putting the constant operand
+# second instead, as FSR 4.1.2 does; faster than split), TAPS=0 (keep the branches around the postpass's
 # neighborhood reads), PREPASS=0 / MODEL=0 (leave the prepass / the integer output scaling alone),
 # POSTPASS_SMALL=amd (keep AMD's postpass code in the versions used at 1080p output and below,
 # where the rewrite is slower on RDNA2; DOT4 and TAPS still apply to them), POSTPASS_STORES=amd (the same
@@ -55,7 +56,7 @@ for f in "$src"/*.dxil; do
     # POSTPASS_SMALL=amd: the small output-size class (tensor rows of 962 pixels, 15392 bytes) keeps AMD's postpass.
     # POSTPASS_STORES=amd: every size class keeps AMD's stores.
     if [[ $name == *_postpass ]] && { [[ ${POSTPASS_STORES:-} == amd ]] || { [[ ${POSTPASS_SMALL:-} == amd ]] && grep -q 'i32 15392' "$work/in.ll"; }; }; then
-        [[ ${DOT4:-} == split || ${TAPS:-1} == 1 || ${MODEL:-1} == 1 || ${SHARE:-1} == 1 ]] || continue          # nothing to change: leave AMD's shader in place
+        [[ ${DOT4:-} == split || ${DOT4:-} == swap || ${TAPS:-1} == 1 || ${MODEL:-1} == 1 || ${SHARE:-1} == 1 ]] || continue          # nothing to change: leave AMD's shader in place
         cp "$work/in.ll" "$work/out.ll"
     elif ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
         [[ $script == model_tail_dxil.py || $script == prepass_route_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"
@@ -75,6 +76,10 @@ for f in "$src"/*.dxil; do
     # DOT4=split: the postpass's accumulating int8 dot products become dot + add (for RDNA2).
     if [[ ${DOT4:-} == split && $name == *_postpass ]]; then
         python3 "$here/dot4_split_dxil.py" < "$work/out.ll" > "$work/out2.ll" 2>/dev/null && mv "$work/out2.ll" "$work/out.ll"
+    fi
+    # DOT4=swap: constant operand second in every postpass dot product (bit-exact; RDNA2's Windows driver ghosts on the constant-first form).
+    if [[ ${DOT4:-} == swap && $name == *_postpass ]]; then
+        python3 "$here/dotswap_dxil.py" < "$work/out.ll" > "$work/out2.ll" 2>/dev/null && mv "$work/out2.ll" "$work/out.ll"
     fi
     # last: take out the code the rewrites replaced but left in place, so the driver need not (DCE=0 leaves it in)
     if [[ ${DCE:-1} == 1 ]]; then
