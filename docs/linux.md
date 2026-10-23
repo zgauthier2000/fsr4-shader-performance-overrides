@@ -114,8 +114,8 @@ when it uses a shader there is no file for. Since 2026-10-04 `prebuilt/` has a f
 normal version in AMD's DLL 4.1.1.2740, so that should only happen with:
 
 - a different FSR DLL version;
-- a modified DLL: a DLL from this repository (it shows as `4.1.1-cyboman`, `4.1.1-lossy-cyboman` or the `igpu` forms in
-  OptiScaler; earlier releases used names with `r3`, `r2`, `r2c` and `ig`), fsr4xyz's `4.1.1b` or any other. Their shaders are not AMD's, so no file matches
+- a modified DLL: a DLL from this repository (it shows as `4.1.2-exact-r3-cyboman`, `4.1.2-lossy-r2-cyboman`, `4.1.2l-...` and the like in
+  OptiScaler; earlier releases used `4.1.1-...` names), fsr4xyz's `4.1.1b` or any other. Their shaders are not AMD's, so no file matches
   and the launch option does nothing; the DLL's own shaders run. Put AMD's original DLL back to
   use the launch option. Checked with release `dll-2026-10-04.5`: none of its shaders match;
 - FSR's debug view (its versions of the postpass are not covered);

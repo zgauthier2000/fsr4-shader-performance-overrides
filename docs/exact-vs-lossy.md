@@ -2,6 +2,11 @@
 
 [Back to the README](../README.md)
 
+> [!NOTE]
+> **Since `dll-NEXTVER`, the DLLs' `lossy` folder holds the trained build this project used to call `lossy2`.** The figures and crops
+> on this page describe the older, untrained lossy build (last included in `dll-2026-10-22`). How the trained build differs from it:
+> its `WARNING.txt` and [the lossy2 notes](../research/lossy2/README.md).
+
 ## In short
 
 - **Exact:** the same picture as AMD's, byte for byte, in less time. Nothing to weigh up; it is the default.
@@ -586,7 +591,7 @@ Frame skip has not been timed on RDNA2 or on integrated graphics.
 
 ## Where to read more
 
-- [The lossy2 DLL beside FSR 4.1.2 Lite, FSR 3.1, HelixSR and XeSS](upscaler-comparison.md): the same scenes and timing for six upscalers
+- [The lossy2 DLL (today's lossy) beside FSR 4.1.2 Lite, FSR 3.1, HelixSR and XeSS](upscaler-comparison.md): the same scenes and timing for six upscalers
 - [How the exact rewrites work](how-it-works.md) and [all results](results.md)
 - [The lossy track](../research/lossy): folding, rounding, what was tried and rejected
 - [The exact files beside a "steady" test build](steady-test.md): an unreleased test of the dead band on the exact files, without frame skip

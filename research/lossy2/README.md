@@ -1,5 +1,9 @@
 # lossy2: how it is built
 
+> [!NOTE]
+> **Since `dll-NEXTVER`, the DLLs' `lossy` folder holds the trained build described here.** This page keeps the name
+> lossy2 for it, as the file and tool names do.
+
 lossy2 is the lossy version with new weights in six of the network's twelve layers (passes 1, 2, 4, 5, 10 and 12).
 The weights were trained to match AMD's picture through the whole lossy frame loop, starting from lossy's own weights.
 Everything else, including frame skip, the other six layers and Ultra Performance, is lossy's.

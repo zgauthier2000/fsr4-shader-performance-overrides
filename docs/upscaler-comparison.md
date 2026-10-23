@@ -2,6 +2,10 @@
 
 [Back to the front page](../README.md) · [Exact and lossy compared](exact-vs-lossy.md)
 
+> [!NOTE]
+> **Since `dll-NEXTVER`, the DLLs' `lossy` folder holds the trained build this project used to call `lossy2`.** This page calls it lossy2;
+> the figures are unchanged.
+
 > [!WARNING]
 > **These are synthetic benchmarks on one machine.** Every figure and picture on this page comes from made-up test scenes, each built to
 > isolate one thing, run once on a single Radeon RX 7800 XT under Linux (Proton). They are not game footage, not other graphics cards and

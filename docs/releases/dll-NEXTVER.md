@@ -9,23 +9,32 @@
 - **What got worse:** 4.1.2l-lossy draws small, slowly moving bright details (sparks, distant lights) less accurately than Lite (error
   3.2 against 2.7), large particles a little less accurately (0.92 against 0.71) and swaying foliage a little less (11.7 against 10.4);
   with auto exposure off it shows more bright rain specks than Lite (256 against 78). Details: [the Lite builds](../lite-builds.md).
-- **The 4.1.1 builds are unchanged:** `exact`, `lossy` and `lossy2` are the files of `dll-2026-10-22`, byte for byte.
-- **New in every archive:** `WHICH-SHOULD-I-CHOOSE.txt`, a short guide to the five folders.
+- **`lossy` is now the trained build** that earlier releases called `lossy2` (on RX 7000 and RDNA 3 built-in graphics the same file as in
+  `dll-2026-10-22`, new name). The older,
+  untrained lossy build is no longer included; it stays available in [`dll-2026-10-22`](dll-2026-10-22.md).
+- **RX 6000 and Steam Deck / older built-in graphics (`r2` builds):** the fix for the picture difference RX 6000 cards show with AMD's file
+  under Windows now puts the constant operand of the last shader's dot products second, as AMD's FSR 4.1.2 does, instead of splitting them.
+  Same picture; on one Windows RX 6700 timing-kit report the exact DLL built this way was about 2% faster than the previous RX 6000 exact DLL
+  (4K 6.18 against 6.31 ms; 1440p 2.82 against 2.89; 1080p 1.65 against 1.69). Other cards: the same exact and lossy files as before.
+- **Version names start with 4.1.2:** `4.1.2-exact-r3-cyboman`, `4.1.2-lossy-r2-cyboman` and so on (they were `4.1.1-...`). The file is still
+  AMD's 4.1.1 game DLL with this project's shaders; the exact builds give the same picture as AMD's FSR 4.1.2 on desktop graphics, which uses
+  4.1.1's network and weights.
+- **New in every archive:** `WHICH-SHOULD-I-CHOOSE.txt`, a short guide to the four folders.
 - **Linux:** the launch-option files are unchanged; the Lite builds are DLLs only (they run under Proton).
 
 ## Downloads
 
 | Archive | For | Download |
 |---|---|---|
-| RX 7000 | Radeon RX 7000 cards, including laptops with their own RX 7000 chip | [fsr4.1.1-cyboman-rx7000-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx7000-NEXTVER.7z) (8.5 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx7000-NEXTVER.zip) (122 MB) |
-| RX 6000 | Radeon RX 6000 cards, including laptops with their own RX 6000 chip | [fsr4.1.1-cyboman-rx6000-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx6000-NEXTVER.7z) (8.5 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-cyboman-rx6000-NEXTVER.zip) (120 MB) |
-| Integrated RDNA 3 | Radeon 780M, 760M, 880M, 890M and other RDNA 3 / 3.5 graphics built into the processor; GeForce, Intel Arc and any other card | [fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.7z) (8.5 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna3-NEXTVER.zip) (122 MB) |
-| Integrated RDNA2 | Steam Deck, Radeon 680M, 660M, 610M and the graphics of Ryzen 7000 and 9000 desktop processors | [fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.7z) (8.7 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.1-igpu-cyboman-rdna2-NEXTVER.zip) (124 MB) |
+| RX 7000 | Radeon RX 7000 cards, including laptops with their own RX 7000 chip | [fsr4.1.2-cyboman-rx7000-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.2-cyboman-rx7000-NEXTVER.7z) (8.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.2-cyboman-rx7000-NEXTVER.zip) (93 MB) |
+| RX 6000 | Radeon RX 6000 cards, including laptops with their own RX 6000 chip | [fsr4.1.2-cyboman-rx6000-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.2-cyboman-rx6000-NEXTVER.7z) (8.2 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.2-cyboman-rx6000-NEXTVER.zip) (90 MB) |
+| Integrated RDNA 3 | Radeon 780M, 760M, 880M, 890M and other RDNA 3 / 3.5 graphics built into the processor; GeForce, Intel Arc and any other card | [fsr4.1.2-igpu-cyboman-rdna3-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.2-igpu-cyboman-rdna3-NEXTVER.7z) (8.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.2-igpu-cyboman-rdna3-NEXTVER.zip) (93 MB) |
+| Integrated RDNA2 | Steam Deck, Radeon 680M, 660M, 610M and the graphics of Ryzen 7000 and 9000 desktop processors | [fsr4.1.2-igpu-cyboman-rdna2-NEXTVER.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.2-igpu-cyboman-rdna2-NEXTVER.7z) (8.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-NEXTVER/fsr4.1.2-igpu-cyboman-rdna2-NEXTVER.zip) (93 MB) |
 
 All files and checksums: [release `dll-NEXTVER`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-NEXTVER).
 The previous release, `dll-2026-10-22`, stays available: [its page](dll-2026-10-22.md).
 
-Each archive now holds five folders: `exact`, `lossy`, `lossy2` (as before), `4.1.2l-exact` and `4.1.2l-lossy` (new). The two Lite
+Each archive now holds four folders: `exact`, `lossy` (the former `lossy2`), `4.1.2l-exact` and `4.1.2l-lossy` (new). The two Lite
 builds are the same in all four archives. The `.7z` and the `.zip` hold the same files; Windows 11 (23H2 or later) opens a `.7z`
 itself, on Windows 10 use [7-Zip](https://www.7-zip.org/) or take the `.zip`. Never use any of them in online games or games with
 anti-cheat. Not for Radeon RX 9000 cards.
@@ -41,13 +50,14 @@ figures are not in yet.
 | 1440p | 1.036 | 1.005 (−2.9%) | 0.846 (−18.3%) |
 | 4K | 2.016 | 1.988 (−1.4%) | 1.655 (−17.9%) |
 
-The 4.1.1 builds' speed is unchanged from `dll-2026-10-22`.
+The `exact` and `lossy` builds' speed is unchanged from `dll-2026-10-22` except on RX 6000 cards and RDNA2 built-in graphics (the
+operand swap above; timing-kit reports for those builds will follow).
 
 ## Picture
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../img/rel-lite-wires-dark.svg">
-  <img src="../img/rel-lite-wires-light.svg" width="760" alt="Shimmer of thin wires while the camera pans, mean change per frame, lower is steadier, auto exposure off then on: FSR 4.1.2 Lite 9.75 and 7.81; 4.1.2l-lossy 5.88 and 3.83; FSR 4.1.1 7.16 and 6.79; lossy2 4.56 and 4.36.">
+  <img src="../img/rel-lite-wires-light.svg" width="760" alt="Shimmer of thin wires while the camera pans, mean change per frame, lower is steadier, auto exposure off then on: FSR 4.1.2 Lite 9.75 and 7.81; 4.1.2l-lossy 5.88 and 3.83; FSR 4.1.1 7.16 and 6.79; lossy (former lossy2) 4.56 and 4.36.">
 </picture>
 
 4.1.2l-lossy against AMD's Lite, test rig, 4K Balanced, auto exposure off / on (lower is better):
@@ -77,4 +87,6 @@ Windows (the DLLs ran under Proton only); other cards; games. Ultra Performance 
 
 - 4.1.2l-lossy's DLL gives the frames of the Linux build the full check measured, byte for byte; 4.1.2l-exact's DLL gives the Lite
   network's frames byte for byte (1080p and 4K, auto exposure off and on, a still scene and a particle scene).
-- The `exact`, `lossy` and `lossy2` DLLs are those of `dll-2026-10-22` (same checksums).
+- RX 7000 and RDNA 3 built-in graphics: the `exact` and `lossy` DLLs are `dll-2026-10-22`'s `exact` and `lossy2` under their new names (only the
+  name differs). RX 6000 and RDNA2 built-in graphics: rebuilt with the operand swap; every one gives AMD's picture (exact) or the Linux
+  files' frames (lossy) byte for byte on the test rig, 48 of 48 comparisons each.

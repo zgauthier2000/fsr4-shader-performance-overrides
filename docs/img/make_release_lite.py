@@ -6,7 +6,7 @@
 # synthetic scene, one run each. Lite and FSR 4.1.1 measured in this project's local test harness.
 ROWS = [  # build, auto exposure off, on, highlighted
     ('FSR 4.1.2 Lite (AMD)', 9.75, 7.81, False), ('4.1.2l-lossy (new)', 5.88, 3.83, True),
-    ('FSR 4.1.1 (AMD)', 7.16, 6.79, False), ('lossy2', 4.56, 4.36, False),
+    ('FSR 4.1.1 (AMD)', 7.16, 6.79, False), ('lossy (former lossy2)', 4.56, 4.36, False),
 ]
 THEMES = {
     'light': dict(surface='#fcfcfb', ink='#0b0b0b', ink2='#52514e', muted='#898781', grid='#e1e0d9', axis='#c3c2b7', off='#2a78d6', on='#d9711c'),

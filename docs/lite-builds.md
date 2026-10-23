@@ -19,9 +19,9 @@ the name differs.
 
 - **Lite or full FSR 4?** Lite is a smaller network: a little less accurate on a still picture than full FSR 4.1.1 (43.9 against
   44.3 dB on the test scenes), better on some motion (swaying foliage, thin detail), worse on others (old image beside moving objects,
-  fades). How it compares with full FSR 4.1.1, lossy2 and other upscalers: [upscaler comparison](upscaler-comparison.md).
+  fades). How it compares with full FSR 4.1.1, lossy (called lossy2 there) and other upscalers: [upscaler comparison](upscaler-comparison.md).
 - **4.1.2l-exact** gives Lite's picture unchanged and saves a little time.
-- **4.1.2l-lossy** is the faster of the two. It runs the network on every other frame, like lossy and lossy2, with weights retrained
+- **4.1.2l-lossy** is the faster of the two. It runs the network on every other frame, like `lossy`, with weights retrained
   for that frame loop.
 
 ## Speed
@@ -52,10 +52,10 @@ harness, not in AMD's own runtime.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/rel-lite-wires-dark.svg">
-  <img src="img/rel-lite-wires-light.svg" width="760" alt="Shimmer of thin wires while the camera pans, mean change per frame, lower is steadier, auto exposure off then on: FSR 4.1.2 Lite 9.75 and 7.81; 4.1.2l-lossy 5.88 and 3.83; FSR 4.1.1 7.16 and 6.79; lossy2 4.56 and 4.36.">
+  <img src="img/rel-lite-wires-light.svg" width="760" alt="Shimmer of thin wires while the camera pans, mean change per frame, lower is steadier, auto exposure off then on: FSR 4.1.2 Lite 9.75 and 7.81; 4.1.2l-lossy 5.88 and 3.83; FSR 4.1.1 7.16 and 6.79; lossy (former lossy2) 4.56 and 4.36.">
 </picture>
 
-| Test (4K Balanced; lower is better unless noted) | FSR 4.1.1 (AMD) | FSR 4.1.2 Lite (AMD) | **4.1.2l-lossy** | lossy2 |
+| Test (4K Balanced; lower is better unless noted) | FSR 4.1.1 (AMD) | FSR 4.1.2 Lite (AMD) | **4.1.2l-lossy** | lossy (former lossy2) |
 |---|---|---|---|---|
 | Flat areas at rest: change per frame * | 0.126 / 0.213 | 0.11 / 0.207 | **0.079 / 0.128** | 0.074 / 0.109 |
 | Fine detail at rest: change per frame * | 0.11 / 0.125 | 0.094 / 0.117 | **0.092 / 0.107** | 0.089 / 0.1 |
