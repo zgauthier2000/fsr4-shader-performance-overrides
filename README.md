@@ -124,8 +124,7 @@ More games and resolutions: [all results](docs/results.md).
 
 > [!NOTE]
 > **Ultra Performance mode (since `dll-2026-10-15`).** The lossy DLL skips frames there too, and runs the network
-> all the same on one in three of the frames it would skip (lossy2 too: it does not support Ultra Performance yet and runs lossy's
-> network there). **Ultra Performance only, not representative of other
+> all the same on one in three of the frames it would skip. **Ultra Performance only, not representative of other
 > modes:** at 4K about 3.2 to 2.5 ms per frame on an RX 7800 XT, and its picture costs there are larger than in other
 > modes ([details](docs/releases/dll-2026-10-15.md)).
 
