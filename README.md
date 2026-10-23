@@ -115,18 +115,19 @@ output, FSR 4.1.1 Balanced. Your card and your game will give other numbers:
 More games and resolutions: [all results](docs/results.md).
 
 > [!NOTE]
-> **Two settings where you will see little or no gain:**
-> - **FSR's debug view (the debug panels FSR can draw over the picture).** The faster shaders do not cover the
->   debug versions of FSR's last pass, so AMD's own slow one runs and most of the gain is gone. Switch the debug view off
->   to measure or to play. FSR's version watermark (the white text in the top left corner, switched on with the
->   `MLSR-WATERMARK` environment variable) is not the debug view: with it on, every DLL keeps its full gain and frame
->   skip works as usual (measured under Proton on an RX 7800 XT). It shows the DLL's version name, such as
->   `4.1.1-CYBOMAN`, so it also tells you which build is running.
-> - **Ultra Performance mode (since `dll-2026-10-15`).** The lossy DLL skips frames there too, and runs the network
->   all the same on one in three of the frames it would skip (lossy2 too: it does not support Ultra Performance yet and runs lossy's
->   network there). **Ultra Performance only, not representative of other
->   modes:** at 4K about 3.2 to 2.5 ms per frame on an RX 7800 XT, and its picture costs there are larger than in other
->   modes ([details](docs/releases/dll-2026-10-15.md)).
+> **One setting where you will see little or no gain: FSR's debug view (the debug panels FSR can draw over the
+> picture).** The faster shaders do not cover the debug versions of FSR's last pass, so AMD's own slow one runs and most
+> of the gain is gone. Switch the debug view off to measure or to play. FSR's version watermark (the white text in the
+> top left corner, switched on with the `MLSR-WATERMARK` environment variable) is not the debug view: with it on, every
+> DLL keeps its full gain and frame skip works as usual (measured under Proton on an RX 7800 XT). It shows the DLL's
+> version name, such as `4.1.1-CYBOMAN`, so it also tells you which build is running.
+
+> [!NOTE]
+> **Ultra Performance mode (since `dll-2026-10-15`).** The lossy DLL skips frames there too, and runs the network
+> all the same on one in three of the frames it would skip (lossy2 too: it does not support Ultra Performance yet and runs lossy's
+> network there). **Ultra Performance only, not representative of other
+> modes:** at 4K about 3.2 to 2.5 ms per frame on an RX 7800 XT, and its picture costs there are larger than in other
+> modes ([details](docs/releases/dll-2026-10-15.md)).
 
 ## New in this release
 
