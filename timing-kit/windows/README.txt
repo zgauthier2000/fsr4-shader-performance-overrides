@@ -84,6 +84,11 @@ What it does
   dlls\exact-igpu-r2, lossy-igpu-r2, lossy2-igpu-r2
                        the same three for the Steam Deck, Radeon 680M and older integrated graphics
   Every PC times all twelve, so the summary shows how each kind of build does on your card.
+  dlls\lt1-reference, lt2-test, lt3-test
+                       a reference build and two test builds of a smaller FSR 4 network, timed on every PC:
+                       lt2 should give lt1's picture exactly (the summary names lt1 beside it), lt3 is a
+                       faster form whose picture differs from lt1's by design. They are compared with each
+                       other, not with AMD's picture.
   dlls\rdna2-f1-exact, rdna2-t1-tiled-pass11, rdna2-t2-amd-cut-pass11 (RX 6000 and RDNA2 integrated graphics only)
   dlls\rdna3-f1-exact, rdna3-t1-tiled-pass11, rdna3-t2-amd-cut-pass11 (RX 7000 and RDNA3 integrated graphics only)
                        test DLLs for the second-to-last network shader: f1 is a test build of the next release's
