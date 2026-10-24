@@ -70,14 +70,14 @@ What it does
                        610M, the graphics of Ryzen 7000 and 9000 desktop processors) are known to
                        show ghosting under Windows with AMD's original form. On those chips this is
                        the DLL to compare with, and the summary's percentages are against it.
-  dlls\n0-reference, n-exact-r3, n-exact-r2, n-exact-igpu-r3, n-exact-igpu-r2,
+  dlls\n-0-reference, n-exact-r3, n-exact-r2, n-exact-igpu-r3, n-exact-igpu-r2,
   n-lossy-r3, n-lossy-r2, n-lossy-igpu-r3, n-lossy-igpu-r2
                        unreleased test builds of this project's exact and lossy DLLs and a reference
                        build: r3 is for Radeon RX 7000 cards, r2 for RX 6000 cards, igpu-r3 for RDNA 3 integrated graphics (Radeon
                        780M, 890M and others) and for GeForce, Arc and other cards, igpu-r2 for the Steam
-                       Deck, Radeon 680M and older integrated graphics. Each n-exact should give n0's
+                       Deck, Radeon 680M and older integrated graphics. Each n-exact should give n-0's
                        picture exactly; the n-lossy ones give one picture between them, different from
-                       n0's by design. They are compared with each other, not with AMD's picture.
+                       n-0's by design. They are compared with each other, not with AMD's picture.
                        Every PC times all nine, so the summary shows how each kind of build does on your card.
   dlls\lt1-reference, lt2-test, lt3-test, lt4-test, lt5-test
                        a reference build and four test builds of a smaller FSR 4 network, timed on every PC:
