@@ -10,7 +10,8 @@ get the same display mapping, x / (1 + x) then gamma 1/2.2, so they compare fair
 --crop cuts the same region from every picture: keep sets small (a 1280x720 crop is ~1-3 MB per picture); full 4K pictures make the
 repository large. --a / --b: which pictures (1-based) start on the left / right.
 
-Only put pictures in the repository that may be published: synthetic test scenes are fine; game frames and other people's files are not.
+Only put pictures in the repository that may be published: synthetic test scenes and upscaled game pictures are fine (say which game, which settings,
+and that the display mapping is not the game's); raw game captures (input dumps) and other people's files are not.
 """
 import sys, os, re, glob, json, numpy as np
 from PIL import Image
