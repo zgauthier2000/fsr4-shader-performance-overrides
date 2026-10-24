@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upscaler Slider</title>
+<meta name="description" content="Compare two upscalers' pictures of the same frame with a sliding divider.">
+<!-- Upscaler slider: compares two pictures of the same frame with a sliding divider. A picture set is a folder sets/<name>/ with set.json
+     ({"title", "note", "images": [[label, file], ...], "a", "b"}, made by tools/mkcompare.py) and its image files; sets/index.json lists the sets.
+     Open as index.html?set=<name>&a=<n>&b=<n> (1-based). It needs a web server (GitHub Pages, or `python3 -m http.server` in this folder): browsers
+     do not let a page opened from disk read set.json. Pictures you add with "Add images" stay in your browser; nothing is uploaded. -->
+<style>
+:root { --bg: #f6f7f9; --panel: #ffffff; --line: #d5d9df; --ink: #1d2128; --muted: #5d6673; --accent: #8a5a00; --tagbg: rgba(255,255,255,.88); --divider: rgba(20,20,20,.85); --lock: #b07500; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #111317; --panel: #1b1e24; --line: #2c313a; --ink: #e6e8eb; --muted: #9aa1ab; --accent: #f2c94c; --tagbg: rgba(0,0,0,.72); --divider: rgba(255,255,255,.85); --lock: #f2c94c; } }
+:root[data-theme="dark"] { --bg: #111317; --panel: #1b1e24; --line: #2c313a; --ink: #e6e8eb; --muted: #9aa1ab; --accent: #f2c94c; --tagbg: rgba(0,0,0,.72); --divider: rgba(255,255,255,.85); --lock: #f2c94c; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, sans-serif; }
+body { display: flex; flex-direction: column; }
+header { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+header h1 { font-size: 15px; margin: 0 6px 0 0; font-weight: 600; }
+label { color: var(--muted); }
+select, button { background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font: inherit; max-width: 100%; }
+button:hover, select:hover { border-color: var(--muted); }
+#note { flex-basis: 100%; color: var(--muted); font-size: 13px; margin: 0; }
+#note:empty { display: none; }
+#help { color: var(--muted); font-size: 12px; }
+#info { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+#stage { position: relative; flex: 1; min-height: 240px; overflow: hidden; cursor: col-resize; touch-action: none; }
+#stage.panning { cursor: grabbing; }
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tag { position: absolute; top: 10px; padding: 3px 8px; background: var(--tagbg); color: var(--accent); border-radius: 4px; font-weight: 600; pointer-events: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#tagA { left: 10px; } #tagB { right: 10px; }
+#msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--muted); padding: 16px; }
+#msg strong { color: var(--ink); }
+@media (max-width: 640px) { #help { display: none; } header { padding: 8px 16px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">Upscaler slider</h1>
+  <label id="setwrap" hidden>Set <select id="selSet"></select></label>
+  <label>Left <select id="selA"></select></label>
+  <button id="swap" title="Swap sides (S)">⇄</button>
+  <label>Right <select id="selB"></select></label>
+  <button id="open" title="Compare your own pictures (they stay in your browser)">Add images…</button>
+  <input id="file" type="file" accept="image/*" multiple hidden>
+  <span id="help">move: slide · click: lock · wheel: zoom · drag: pan · double-click: fit · S swap · Space flip · 1–9 right · Shift+1–9 left</span>
+  <span id="info"></span>
+  <p id="note"></p>
+</header>
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <div class="tag" id="tagA"></div><div class="tag" id="tagB"></div>
+  <div id="msg"><div><strong>Loading…</strong></div></div>
+</div>
+<script>
+const IMGS = [];                       // {name, img}, in the set's order
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d'), stage = $('stage'), selA = $('selA'), selB = $('selB');
+const Q = new URLSearchParams(location.search);
+let a = 0, b = 1, split = 0.5, locked = false, flip = false;
+let zoom = 1, ox = 0, oy = 0, fitted = false, fitZoom = 1;     // image px -> screen: x * zoom + ox; never zoomed out past fitZoom
+let drag = null;
+
+const loadImg = src => new Promise(res => { const img = new Image(); img.onload = () => res(img); img.onerror = () => res(null); img.src = src; });
+function message(html) { $('msg').innerHTML = `<div>${html}</div>`; $('msg').style.display = html ? 'flex' : 'none'; }
+function syncURL() { if (!Q.get('set')) return; Q.set('a', a + 1); Q.set('b', b + 1); history.replaceState(null, '', '?' + Q.toString()); }
+function refresh() {
+  for (const s of [selA, selB]) s.innerHTML = IMGS.map((m, i) => `<option value="${i}">${i + 1}. ${m.name.replace(/</g, '&lt;')}</option>`).join('');
+  a = Math.min(a, IMGS.length - 1); b = Math.min(b, IMGS.length - 1);
+  if (IMGS.length > 1 && b === a) b = (a + 1) % IMGS.length;
+  selA.value = a; selB.value = b; syncURL();
+  if (IMGS.length) message('');
+  if (IMGS.length && !fitted) fit();
+  draw();
+}
+function base() { return IMGS[a] && IMGS[a].img; }
+function fit() {
+  const im = base(); if (!im) return; const r = stage.getBoundingClientRect();
+  fitZoom = zoom = Math.min(r.width / im.naturalWidth, r.height / im.naturalHeight); fitted = true; clampView(); draw();
+}
+function clampView() {      // centered where the image is smaller than the window, else no empty margin beyond its edges
+  const im = base(); if (!im) return; const r = stage.getBoundingClientRect(), w = im.naturalWidth * zoom, h = im.naturalHeight * zoom;
+  ox = w <= r.width ? (r.width - w) / 2 : Math.min(0, Math.max(r.width - w, ox));
+  oy = h <= r.height ? (r.height - h) / 2 : Math.min(0, Math.max(r.height - h, oy));
+}
+function draw() {
+  const r = stage.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, r.width, r.height);
+  const im = base(); if (!im) return;
+  const W = im.naturalWidth, H = im.naturalHeight, sx = split * r.width; ctx.imageSmoothingEnabled = zoom < 1;
+  const left = flip ? IMGS[b] : IMGS[a], right = flip ? IMGS[a] : IMGS[b], two = IMGS.length > 1;
+  if (left) ctx.drawImage(left.img, ox, oy, W * zoom, H * zoom);
+  if (right && two) { ctx.save(); ctx.beginPath(); ctx.rect(sx, 0, r.width - sx, r.height); ctx.clip(); ctx.drawImage(right.img, ox, oy, W * zoom, H * zoom); ctx.restore();
+    const cs = getComputedStyle(document.documentElement); ctx.fillStyle = cs.getPropertyValue(locked ? '--lock' : '--divider'); ctx.fillRect(Math.round(sx) - 1, 0, 2, r.height); }
+  $('tagA').textContent = left ? left.name : ''; $('tagB').textContent = right && two ? right.name : '';
+  $('info').textContent = `${W}×${H} · ${Math.round(zoom * 100)}%${locked ? ' · locked' : ''}${flip ? ' · flipped' : ''}`;
+}
+function setSplit(e) { const r = stage.getBoundingClientRect(), im = base(); let x = e.clientX - r.left;      // the divider stays on the image
+  if (im) x = Math.min(ox + im.naturalWidth * zoom, Math.max(ox, x)); split = Math.min(1, Math.max(0, x / r.width)); draw(); }
+stage.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, ox, oy, moved: false }; stage.setPointerCapture(e.pointerId); });
+stage.addEventListener('pointermove', e => {
+  if (drag) { const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 3) { drag.moved = true; stage.classList.add('panning'); }
+    if (drag.moved) { ox = drag.ox + dx; oy = drag.oy + dy; clampView(); draw(); return; } }
+  if (!locked) setSplit(e);
+});
+stage.addEventListener('pointerup', e => { if (drag && !drag.moved) { locked = !locked; setSplit(e); } drag = null; stage.classList.remove('panning'); });
+stage.addEventListener('dblclick', () => fit());
+stage.addEventListener('wheel', e => { e.preventDefault(); const r = stage.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+  const z = Math.min(64, Math.max(fitZoom, zoom * Math.exp(-e.deltaY * 0.0015))); ox = mx - (mx - ox) * z / zoom; oy = my - (my - oy) * z / zoom; zoom = z; clampView(); draw(); }, { passive: false });
+selA.onchange = () => { a = +selA.value; syncURL(); draw(); }; selB.onchange = () => { b = +selB.value; syncURL(); draw(); };
+$('swap').onclick = () => { [a, b] = [b, a]; refresh(); };
+$('open').onclick = () => $('file').click();
+$('file').onchange = e => addFiles(e.target.files);
+async function addFiles(files) {
+  for (const f of [...files].filter(f => f.type.startsWith('image/')).sort((x, y) => x.name.localeCompare(y.name))) {
+    const img = await loadImg(URL.createObjectURL(f)); if (img) IMGS.push({ name: f.name.replace(/\.[^.]+$/, ''), img }); }
+  refresh();
+}
+stage.addEventListener('dragover', e => e.preventDefault()); stage.addEventListener('drop', e => { e.preventDefault(); addFiles(e.dataTransfer.files); });
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'SELECT') return;
+  const n = parseInt(e.code.replace('Digit', ''), 10);
+  if (n >= 1 && n <= 9 && n <= IMGS.length) { if (e.shiftKey) a = n - 1; else b = n - 1; refresh(); }
+  else if (e.key === 's' || e.key === 'S') { [a, b] = [b, a]; refresh(); }
+  else if (e.key === ' ') { e.preventDefault(); flip = !flip; draw(); }
+  else if (e.key === 'l' || e.key === 'L') { locked = !locked; draw(); }
+  else if (e.key === '0') fit();
+});
+window.addEventListener('resize', () => { const was = zoom <= fitZoom * 1.0001, im = base(); if (im) { const r = stage.getBoundingClientRect(); fitZoom = Math.min(r.width / im.naturalWidth, r.height / im.naturalHeight); if (was || zoom < fitZoom) zoom = fitZoom; } clampView(); draw(); });
+
+async function loadSet(name) {
+  let s; try { const r = await fetch(`sets/${encodeURIComponent(name)}/set.json`); if (!r.ok) throw r.status; s = await r.json(); }
+  catch (err) { message(`<strong>Picture set “${name.replace(/</g, '&lt;')}” not found.</strong><br>Pick one from the Set list, or add your own pictures.`); return; }
+  document.title = s.title || 'Upscaler slider'; $('title').textContent = s.title || 'Upscaler slider'; $('note').textContent = s.note || '';
+  message('<strong>Loading pictures…</strong>');
+  const imgs = await Promise.all(s.images.map(([, f]) => loadImg(`sets/${encodeURIComponent(name)}/${f}`)));
+  s.images.forEach(([label], i) => { if (imgs[i]) IMGS.push({ name: label, img: imgs[i] }); });
+  a = (+Q.get('a') || s.a || 1) - 1; b = (+Q.get('b') || s.b || 2) - 1; refresh();
+}
+(async () => {
+  let sets = []; try { const r = await fetch('sets/index.json'); if (r.ok) sets = await r.json(); } catch (e) {}
+  if (sets.length) { $('selSet').innerHTML = sets.map(s => `<option value="${s.name}">${s.title.replace(/</g, '&lt;')}</option>`).join(''); $('setwrap').hidden = false;
+    $('selSet').onchange = () => { location.search = '?set=' + encodeURIComponent($('selSet').value); }; }
+  const name = Q.get('set') || (sets[0] && sets[0].name);
+  if (name) { $('selSet').value = name; if (!Q.get('set')) Q.set('set', name); await loadSet(name); }
+  else message('<strong>Drop two or more pictures here</strong><br>or use “Add images…”. They stay in your browser.');
+})();
+</script>
+</body>
+</html>

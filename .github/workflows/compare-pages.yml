@@ -1,0 +1,29 @@
+# Publishes docs/compare (the upscaler slider page and its picture sets) to GitHub Pages, and nothing else from the repository.
+# Needs Settings -> Pages -> Source: "GitHub Actions". The page is then at https://<owner>.github.io/<repo>/?set=<name>.
+name: compare-pages
+on:
+  push:
+    branches: [main]
+    paths: ['docs/compare/**', '.github/workflows/compare-pages.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/compare
+      - id: deployment
+        uses: actions/deploy-pages@v4

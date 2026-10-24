@@ -1,0 +1,36 @@
+{
+ "title": "Moving bars, 4K Balanced (synthetic test scene)",
+ "note": "Last frame of a moving test scene, 4K output from 2260x1272. Same inputs for every upscaler; display mapping x/(1+x), gamma 1/2.2. Crop of 1280x720 output pixels.",
+ "images": [
+  [
+   "True picture",
+   "01.webp"
+  ],
+  [
+   "FSR 4.1.1",
+   "02.webp"
+  ],
+  [
+   "lossy2",
+   "03.webp"
+  ],
+  [
+   "FSR 4.1.2 Lite",
+   "04.webp"
+  ],
+  [
+   "XeSS",
+   "05.webp"
+  ],
+  [
+   "FSR 3.1",
+   "06.webp"
+  ],
+  [
+   "HelixSR 2.0",
+   "07.webp"
+  ]
+ ],
+ "a": 2,
+ "b": 1
+}
