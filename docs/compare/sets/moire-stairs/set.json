@@ -1,0 +1,54 @@
+{
+ "title": "Far stairs in motion (synthetic test scene)",
+ "note": "Four consecutive frames of a slow camera pan over horizontal lines finer than the render resolution can show, 4K Balanced. Watch for bands that crawl or flash: the true picture's lines are too fine to resolve, so a smooth gray is the best possible result. Display mapping x/(1+x), gamma 1/2.2.",
+ "images": [
+  [
+   "True picture",
+   [
+    "01_01.webp",
+    "01_02.webp",
+    "01_03.webp",
+    "01_04.webp"
+   ]
+  ],
+  [
+   "FSR 4.1.1",
+   [
+    "02_01.webp",
+    "02_02.webp",
+    "02_03.webp",
+    "02_04.webp"
+   ]
+  ],
+  [
+   "FSR 4.1.2 Lite",
+   [
+    "03_01.webp",
+    "03_02.webp",
+    "03_03.webp",
+    "03_04.webp"
+   ]
+  ],
+  [
+   "lossy2",
+   [
+    "04_01.webp",
+    "04_02.webp",
+    "04_03.webp",
+    "04_04.webp"
+   ]
+  ],
+  [
+   "old lossy",
+   [
+    "05_01.webp",
+    "05_02.webp",
+    "05_03.webp",
+    "05_04.webp"
+   ]
+  ]
+ ],
+ "a": 2,
+ "b": 4,
+ "fps": 4
+}

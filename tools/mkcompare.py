@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""mkcompare.py <set name> "Label=path" "Label=path" ... [--title T] [--note N] [--crop x,y,w,h] [--a N] [--b N] [--png] [--out DIR]
+"""mkcompare.py <set name> "Label=path" "Label=path" ... [--title T] [--note N] [--crop x,y,w,h] [--a N] [--b N] [--frames N] [--fps F] [--png] [--out DIR]
 
 Makes a picture set for the slider page docs/compare/index.html: DIR/sets/<set name>/ (default DIR = docs/compare next to this
 script's repo) with one lossless WebP (or PNG with --png) per picture and set.json, and adds the set to DIR/sets/index.json.
 
-A path may be a test-harness output frame named output_<W>x<H>_fNNN.raw (float16 RGBA, linear light), a folder of them (its last frame),
+A path may be a test-harness output frame named output_<W>x<H>_fNNN.raw (float16 RGBA, linear light), a folder of them (its last frame, or with
+--frames N its last N frames, which the page plays in step on both sides; a folder of truth_NNN.npy works the same), several files joined by commas (one
+frame each),
 a .npy array (float16 / float32 RGB, linear light: a true picture), or an ordinary .png / .jpg / .webp (used as it is). Linear pictures
 get the same display mapping, x / (1 + x) then gamma 1/2.2, so they compare fairly with each other; it is not any game's tone mapping.
---crop cuts the same region from every picture: keep sets small (a 1280x720 crop is ~1-3 MB per picture); full 4K pictures make the
+--fps sets the playing speed the page opens with (default 8). --crop cuts the same region from every picture and frame: keep sets small (a 1280x720 crop is ~1-3 MB per picture); full 4K pictures make the
 repository large. --a / --b: which pictures (1-based) start on the left / right.
 
 Only put pictures in the repository that may be published: synthetic test scenes and upscaled game pictures are fine (say which game, which settings,
@@ -21,10 +23,6 @@ def disp(x):
 
 def load(p):
     p = os.path.expanduser(p)
-    if os.path.isdir(p):
-        fs = sorted(glob.glob(f'{p}/output_*x*_f*.raw'))
-        if not fs: sys.exit(f'mkcompare: no output_<W>x<H>_fNNN.raw in {p}')
-        p = fs[-1]
     if p.endswith('.raw'):
         m = re.search(r'_(\d+)x(\d+)_', os.path.basename(p))
         if not m: sys.exit(f'mkcompare: cannot read the size from {p} (expects output_<W>x<H>_fNNN.raw)')
@@ -33,9 +31,19 @@ def load(p):
         a = np.load(p); return a[..., :3] if a.dtype == np.uint8 else disp(a[..., :3])
     return np.asarray(Image.open(p).convert('RGB'))
 
+def sources(p, n):
+    """the files one picture is made of: the n last frames of a folder, a comma-separated list, or the one file"""
+    if ',' in p: return [os.path.expanduser(x) for x in p.split(',')]
+    p = os.path.expanduser(p)
+    if os.path.isdir(p):
+        fs = sorted(glob.glob(f'{p}/output_*x*_f*.raw')) or sorted(glob.glob(f'{p}/truth_*.npy'))
+        if not fs: sys.exit(f'mkcompare: no output_<W>x<H>_fNNN.raw or truth_NNN.npy in {p}')
+        return fs[-n:]
+    return [p]
+
 def main():
     args = sys.argv[1:]; opt = {}
-    for k in ('--title', '--note', '--crop', '--a', '--b', '--out'):
+    for k in ('--title', '--note', '--crop', '--a', '--b', '--out', '--frames', '--fps'):
         if k in args: i = args.index(k); opt[k] = args[i + 1]; del args[i:i + 2]
     png = '--png' in args; args = [x for x in args if x != '--png']
     if len(args) < 3: sys.exit(__doc__)
@@ -45,18 +53,21 @@ def main():
     out = os.path.join(root, 'sets', name); os.makedirs(out, exist_ok=True)
     crop = tuple(map(int, opt['--crop'].split(','))) if '--crop' in opt else None
     L, total, shape = [], 0, None
+    nf = int(opt.get('--frames', 1))
     for n, it in enumerate(items):
         label, _, path = it.partition('=')
         if not path: sys.exit(f'mkcompare: "{it}" is not Label=path')
-        a = load(path)
-        if crop: x, y, w, h = crop; a = a[y:y + h, x:x + w]
-        if shape and a.shape != shape: print(f'note: {label} is {a.shape[1]}x{a.shape[0]}, the first picture {shape[1]}x{shape[0]}: the page scales it to fit')
-        shape = shape or a.shape
-        f = f'{n + 1:02d}.{"png" if png else "webp"}'
-        im = Image.fromarray(np.ascontiguousarray(a))
-        im.save(f'{out}/{f}', **({'optimize': True} if png else {'lossless': True, 'method': 6}))
-        sz = os.path.getsize(f'{out}/{f}'); total += sz; L.append([label, f]); print(f'{label}: {a.shape[1]}x{a.shape[0]} -> {f} ({sz / 1e6:.2f} MB)')
-    s = {'title': opt.get('--title', name), 'note': opt.get('--note', ''), 'images': L, 'a': int(opt.get('--a', 1)), 'b': int(opt.get('--b', 2))}
+        files = []
+        for k, src in enumerate(sources(path, nf)):
+            a = load(src)
+            if crop: x, y, w, h = crop; a = a[y:y + h, x:x + w]
+            if shape and a.shape != shape: print(f'note: {label} is {a.shape[1]}x{a.shape[0]}, the first picture {shape[1]}x{shape[0]}: the page scales it to fit')
+            shape = shape or a.shape
+            f = f'{n + 1:02d}' + (f'_{k + 1:02d}' if nf > 1 or ',' in path else '') + ('.png' if png else '.webp')
+            Image.fromarray(np.ascontiguousarray(a)).save(f'{out}/{f}', **({'optimize': True} if png else {'lossless': True, 'method': 6}))
+            total += os.path.getsize(f'{out}/{f}'); files.append(f)
+        L.append([label, files if len(files) > 1 else files[0]]); print(f'{label}: {a.shape[1]}x{a.shape[0]}, {len(files)} frame(s)')
+    s = {'title': opt.get('--title', name), 'note': opt.get('--note', ''), 'images': L, 'a': int(opt.get('--a', 1)), 'b': int(opt.get('--b', 2)), 'fps': int(opt.get('--fps', 8))}
     json.dump(s, open(f'{out}/set.json', 'w'), indent=1)
     ix = os.path.join(root, 'sets', 'index.json'); sets = json.load(open(ix)) if os.path.exists(ix) else []
     sets = [x for x in sets if x['name'] != name] + [{'name': name, 'title': s['title']}]

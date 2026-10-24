@@ -2,5 +2,9 @@
  {
   "name": "bars",
   "title": "Moving bars, 4K Balanced (synthetic test scene)"
+ },
+ {
+  "name": "moire-stairs",
+  "title": "Far stairs in motion (synthetic test scene)"
  }
 ]
