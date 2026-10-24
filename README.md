@@ -164,16 +164,16 @@ network's twelve layers (closer to AMD's picture on swaying foliage and fireflie
 Performance yet), removed the register cut from the lossy DLLs, and added `.7z` downloads.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-22/fsr4-timing-kit-windows-2026-10-22.zip)** (experimental, about 37 MB, version 2026-10-22): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-24/fsr4-timing-kit-windows-2026-10-24.zip)** (experimental, about 45 MB, version 2026-10-24): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes (17 on RX 7000 and RDNA 3 built-in graphics, about 21 on RX 6000, the Steam Deck and other
 > RDNA2 graphics; up to about 25-30 on a slow chip). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
 > that each DLL gives the same picture, and offers to send the result. Reports are in from more than twenty graphics chips so far;
 > every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
 >
-> - New in the Windows kit (2026-10-22): it times all twelve DLLs of this release on every PC, so each report shows how each build
->   does on that card; on RX 6000 and RDNA2 graphics it also times test DLLs for the RX 6000 picture difference and for network pass 11;
->   a DLL that stops responding is given up after three times the longest finished run on that PC (2 to 10 minutes) instead of 10
->   minutes. [Details](timing-kit/README.md#in-short)
+> - New in the Windows kit (2026-10-24): unreleased test builds of the exact and lossy DLLs for all four kinds of graphics, five
+>   builds of a smaller FSR 4 network (on every graphics chip, RX 6000 and RDNA2 built-in graphics included), and four more test
+>   DLLs for the RX 6000 picture difference. The twelve DLLs of release `dll-2026-10-22` are no longer in the normal run.
+>   [Details](timing-kit/README.md#in-short)
 > - Earlier (2026-10-19): a study run for RDNA2 and RDNA3 graphics (`run-study.cmd`, about 30 minutes: each change of the exact DLL
 >   timed on its own); Windows 10 PCs can fetch Microsoft's newer DirectX 12 runtime. (2026-10-18.3) it starts on Windows 11 23H2
 >   again. [Details](timing-kit/README.md#in-short)

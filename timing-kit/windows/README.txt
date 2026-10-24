@@ -70,25 +70,20 @@ What it does
                        610M, the graphics of Ryzen 7000 and 9000 desktop processors) are known to
                        show ghosting under Windows with AMD's original form. On those chips this is
                        the DLL to compare with, and the summary's percentages are against it.
-  dlls\exact-r3, lossy-r3, lossy2-r3
-                       this project's release dll-2026-10-22 for Radeon RX 7000 cards: the exact DLL (the
-                       same picture as AMD's), the lossy one (faster; the picture is NOT the same as AMD's;
-                       it also skips frames in Ultra Performance, the "UP" lines, figures for that mode only)
-                       and lossy2 (lossy with trained weights; the picture is NOT the same as AMD's either;
-                       its "UP" lines run lossy's network and should match lossy's)
-  dlls\exact-r2, lossy-r2, lossy2-r2
-                       the same three for Radeon RX 6000 cards
-  dlls\exact-igpu-r3, lossy-igpu-r3, lossy2-igpu-r3
-                       the same three for RDNA 3 integrated graphics (Radeon 780M, 890M and others) and for
-                       GeForce, Arc and other cards
-  dlls\exact-igpu-r2, lossy-igpu-r2, lossy2-igpu-r2
-                       the same three for the Steam Deck, Radeon 680M and older integrated graphics
-  Every PC times all twelve, so the summary shows how each kind of build does on your card.
-  dlls\lt1-reference, lt2-test, lt3-test
-                       a reference build and two test builds of a smaller FSR 4 network, timed on every PC:
+  dlls\n0-reference, n-exact-r3, n-exact-r2, n-exact-igpu-r3, n-exact-igpu-r2,
+  n-lossy-r3, n-lossy-r2, n-lossy-igpu-r3, n-lossy-igpu-r2
+                       unreleased test builds of this project's exact and lossy DLLs and a reference
+                       build: r3 is for Radeon RX 7000 cards, r2 for RX 6000 cards, igpu-r3 for RDNA 3 integrated graphics (Radeon
+                       780M, 890M and others) and for GeForce, Arc and other cards, igpu-r2 for the Steam
+                       Deck, Radeon 680M and older integrated graphics. Each n-exact should give n0's
+                       picture exactly; the n-lossy ones give one picture between them, different from
+                       n0's by design. They are compared with each other, not with AMD's picture.
+                       Every PC times all nine, so the summary shows how each kind of build does on your card.
+  dlls\lt1-reference, lt2-test, lt3-test, lt4-test, lt5-test
+                       a reference build and four test builds of a smaller FSR 4 network, timed on every PC:
                        lt2 should give lt1's picture exactly (the summary names lt1 beside it), lt3 is a
-                       faster form whose picture differs from lt1's by design. They are compared with each
-                       other, not with AMD's picture.
+                       faster form whose picture differs from lt1's by design, and lt4 and lt5 are lt3 with
+                       one small change each. They are compared with each other, not with AMD's picture.
   dlls\rdna2-f1-exact, rdna2-t1-tiled-pass11, rdna2-t2-amd-cut-pass11 (RX 6000 and RDNA2 integrated graphics only)
   dlls\rdna3-f1-exact, rdna3-t1-tiled-pass11, rdna3-t2-amd-cut-pass11 (RX 7000 and RDNA3 integrated graphics only)
                        test DLLs for the second-to-last network shader: f1 is a test build of the next release's
