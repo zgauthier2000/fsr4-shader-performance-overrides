@@ -171,8 +171,8 @@ Performance yet), removed the register cut from the lossy DLLs, and added `.7z` 
 > every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
 >
 > - New in the Windows kit (2026-10-24): unreleased test builds of the exact and lossy DLLs for all four kinds of graphics, five
->   builds of a smaller FSR 4 network (on every graphics chip, RX 6000 and RDNA2 built-in graphics included), and four more test
->   DLLs for the RX 6000 picture difference. The twelve DLLs of release `dll-2026-10-22` are no longer in the normal run.
+>   builds of a smaller FSR 4 network (on every graphics chip, RX 6000 and RDNA2 built-in graphics included), and new test DLLs
+>   for the RX 6000 picture difference. The twelve DLLs of release `dll-2026-10-22` are no longer in the normal run.
 >   [Details](timing-kit/README.md#in-short)
 > - Earlier (2026-10-19): a study run for RDNA2 and RDNA3 graphics (`run-study.cmd`, about 30 minutes: each change of the exact DLL
 >   timed on its own); Windows 10 PCs can fetch Microsoft's newer DirectX 12 runtime. (2026-10-18.3) it starts on Windows 11 23H2

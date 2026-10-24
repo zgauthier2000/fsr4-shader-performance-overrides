@@ -40,8 +40,8 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 - **Five builds of a smaller FSR 4 network** (`lt1-reference` to `lt5-test`), timed on every PC, RX 6000 cards and RDNA2 built-in
   graphics included: `lt2` must give `lt1`'s picture, `lt3` is a faster form with a different picture by design, `lt4` and `lt5`
   are `lt3` with one small change each. Compared with each other, not with AMD's picture.
-- **On RX 6000 cards and RDNA2 built-in graphics,** four more packing test DLLs (`rdna2-p6` to `p9`): the same shaders with the
-  operands of their dot products in a different order.
+- **On RX 6000 cards and RDNA2 built-in graphics,** the packing test has `rdna2-p6` to `p9` in place of `p3` and `p4`: the same
+  shaders with the inputs of some dot products in the other order (`p6` to `p8`), and a build with every shader written another way (`p9`).
 - New lines for the console header.
 
 **Windows kit version 2026-10-22:**
@@ -200,7 +200,7 @@ shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers
 
 For RDNA2 and RDNA3 owners with time for a longer run: `run-study.cmd` in the same folder starts the study run (about 30 minutes; see `STUDY.txt` inside).
 
-**New in version 2026-10-24:** unreleased test builds of the exact and lossy DLLs (`n-*`, against `n-0-reference`) instead of release `dll-2026-10-22`'s twelve; five builds of a smaller network (`lt1` to `lt5`) on every chip; packing test DLLs `rdna2-p6` to `p9` (see [above](#in-short)).
+**New in version 2026-10-24:** unreleased test builds of the exact and lossy DLLs (`n-*`, against `n-0-reference`) instead of release `dll-2026-10-22`'s twelve; five builds of a smaller network (`lt1` to `lt5`) on every chip; packing test DLLs `rdna2-p6` to `p9` instead of `p3` and `p4` (see [above](#in-short)).
 
 **New in version 2026-10-22:** the twelve DLLs of release `dll-2026-10-22`; on RDNA2 graphics the packing test and the pass 11 builds in the normal run; a shorter wait for a DLL that stops responding (see [above](#in-short)).
 
