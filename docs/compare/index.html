@@ -6,7 +6,8 @@
 <title>Upscaler Slider</title>
 <meta name="description" content="Compare two upscalers' pictures of the same frame with a sliding divider.">
 <!-- Upscaler slider: compares two pictures of the same frame with a sliding divider. A picture set is a folder sets/<name>/ with set.json
-     ({"title", "note", "images": [[label, file or [frame files]], ...], "a", "b", "fps"}, made by tools/mkcompare.py; frame sequences play in step on both sides) and its image files; sets/index.json lists the sets.
+     ({"title", "note", "intro", "about", "images": [[label, file or [frame files], optional note], ...], "a", "b", "fps"}; "intro" and "about" are HTML: a line under the header and a
+     collapsible "About these pictures" panel; an image's note, e.g. its timing, shows with its name, made by tools/mkcompare.py; frame sequences play in step on both sides) and its image files; sets/index.json lists the sets.
      Open as index.html?set=<name>&a=<n>&b=<n> (1-based). It needs a web server (GitHub Pages, or `python3 -m http.server` in this folder): browsers
      do not let a page opened from disk read set.json. Pictures you add with "Add images" stay in your browser; nothing is uploaded. -->
 <style>
@@ -24,7 +25,12 @@ button:hover, select:hover { border-color: var(--muted); }
 #note { flex-basis: 100%; color: var(--muted); font-size: 13px; margin: 0; }
 #note:empty { display: none; }
 #help { color: var(--muted); font-size: 12px; }
+#intro { padding: 6px 16px; background: var(--panel); border-bottom: 1px solid var(--line); font-size: 13px; }
+#about { padding: 4px 16px 8px; background: var(--panel); border-bottom: 1px solid var(--line); font-size: 13px; max-height: 38vh; overflow: auto; }
+#about summary { cursor: pointer; color: var(--accent); font-weight: 600; padding: 2px 0; }
+#about h2 { font-size: 13px; margin: 10px 0 2px; } #about p { margin: 2px 0 6px; color: var(--muted); max-width: 70em; }
 .anim[hidden] { display: none !important; } .anim { display: inline-flex; gap: 6px; align-items: center; } #fr { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 7.5em; }
+#load { color: var(--accent); font-variant-numeric: tabular-nums; } #load:empty { display: none; }
 #info { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
 #stage { position: relative; flex: 1; min-height: 240px; overflow: hidden; cursor: col-resize; touch-action: none; }
 #stage.panning { cursor: grabbing; }
@@ -53,16 +59,19 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   <button id="open" title="Compare your own pictures (they stay in your browser)">Add images…</button>
   <input id="file" type="file" accept="image/*" multiple hidden>
   <span id="help">move: slide · click: lock · wheel: zoom · drag: pan · double-click: fit · S swap · F flip · Space play · , . frames · 1–9 right · Shift+1–9 left</span>
+  <span id="load"></span>
   <span id="info"></span>
   <p id="note"></p>
 </header>
+<div id="intro" hidden></div>
+<details id="about" open hidden><summary>About these pictures</summary><div id="aboutBody"></div></details>
 <div id="stage">
   <canvas id="cv"></canvas>
   <div class="tag" id="tagA"></div><div class="tag" id="tagB"></div>
   <div id="msg"><div><strong>Loading…</strong></div></div>
 </div>
 <script>
-const IMGS = [];                       // {name, frames: [img, ...]}, in the set's order
+const IMGS = [];                       // {name, note, frames: [img, ...]}, in the set's order
 const $ = id => document.getElementById(id);
 const cv = $('cv'), ctx = cv.getContext('2d'), stage = $('stage'), selA = $('selA'), selB = $('selB');
 const Q = new URLSearchParams(location.search);
@@ -74,7 +83,7 @@ const loadImg = src => new Promise(res => { const img = new Image(); img.onload 
 function message(html) { $('msg').innerHTML = `<div>${html}</div>`; $('msg').style.display = html ? 'flex' : 'none'; }
 function syncURL() { if (!Q.get('set')) return; Q.set('a', a + 1); Q.set('b', b + 1); history.replaceState(null, '', '?' + Q.toString()); }
 function refresh() {
-  for (const s of [selA, selB]) s.innerHTML = IMGS.map((m, i) => `<option value="${i}">${i + 1}. ${m.name.replace(/</g, '&lt;')}</option>`).join('');
+  for (const s of [selA, selB]) s.innerHTML = IMGS.map((m, i) => `<option value="${i}">${i + 1}. ${(m.name + (m.note ? ` (${m.note})` : '')).replace(/</g, '&lt;')}</option>`).join('');
   a = Math.min(a, IMGS.length - 1); b = Math.min(b, IMGS.length - 1);
   if (IMGS.length > 1 && b === a) b = (a + 1) % IMGS.length;
   selA.value = a; selB.value = b; syncURL();
@@ -105,7 +114,7 @@ function draw() {
   if (left) ctx.drawImage(frameOf(left), ox, oy, W * zoom, H * zoom);
   if (right && two) { ctx.save(); ctx.beginPath(); ctx.rect(sx, 0, r.width - sx, r.height); ctx.clip(); ctx.drawImage(frameOf(right), ox, oy, W * zoom, H * zoom); ctx.restore();
     const cs = getComputedStyle(document.documentElement); ctx.fillStyle = cs.getPropertyValue(locked ? '--lock' : '--divider'); ctx.fillRect(Math.round(sx) - 1, 0, 2, r.height); }
-  $('tagA').textContent = left ? left.name : ''; $('tagB').textContent = right && two ? right.name : '';
+  const tag = m => m.name + (m.note ? ` · ${m.note}` : ''); $('tagA').textContent = left ? tag(left) : ''; $('tagB').textContent = right && two ? tag(right) : '';
   $('fr').textContent = `frame ${fi + 1} / ${nFrames()}`;
   $('info').textContent = `${W}×${H} · ${Math.round(zoom * 100)}%${locked ? ' · locked' : ''}${flip ? ' · flipped' : ''}`;
 }
@@ -153,12 +162,25 @@ async function loadSet(name) {
   let s; try { const r = await fetch(`sets/${encodeURIComponent(name)}/set.json`); if (!r.ok) throw r.status; s = await r.json(); }
   catch (err) { message(`<strong>Picture set “${name.replace(/</g, '&lt;')}” not found.</strong><br>Pick one from the Set list, or add your own pictures.`); return; }
   document.title = s.title || 'Upscaler slider'; $('title').textContent = s.title || 'Upscaler slider'; $('note').textContent = s.note || '';
+  if (s.intro) { $('intro').innerHTML = s.intro; $('intro').hidden = false; }
+  if (s.about) { $('aboutBody').innerHTML = s.about; $('about').hidden = false; $('about').addEventListener('toggle', () => window.dispatchEvent(new Event('resize'))); }
   message('<strong>Loading pictures…</strong>');
   const url = f => `sets/${encodeURIComponent(name)}/${f}`;      // an entry is [label, file] or [label, [frame files]]
-  const seqs = await Promise.all(s.images.map(([, f]) => Promise.all((Array.isArray(f) ? f : [f]).map(x => loadImg(url(x))))));
-  s.images.forEach(([label], i) => { const fr = seqs[i].filter(Boolean); if (fr.length) IMGS.push({ name: label, frames: fr }); });
+  // Progressive (2026-10-25: a set can be ~200 MB): the first frame of every picture first, shown as stills; then the two pictures on screen, then the rest;
+  // the animation starts once every frame is in (until then both sides show frame 1, so they never show different moments).
+  const lists = s.images.map(([, f]) => Array.isArray(f) ? f : [f]);
+  const firsts = await Promise.all(lists.map(l => loadImg(url(l[0]))));
+  s.images.forEach(([label, , note], i) => { if (firsts[i]) IMGS.push({ name: label, note: note || '', frames: [firsts[i]], files: lists[i] }); });
   if (s.fps) $('fps').value = String(s.fps);
-  a = (+Q.get('a') || s.a || 1) - 1; b = (+Q.get('b') || s.b || 2) - 1; refresh(); if (nFrames() > 1) play(true);
+  a = (+Q.get('a') || s.a || 1) - 1; b = (+Q.get('b') || s.b || 2) - 1; refresh();
+  const total = new Set(IMGS.flatMap(m => m.files.slice(1))).size; let done = 0;
+  if (!total) return;
+  const status = () => { $('load').textContent = `loading frames ${done} / ${total}`; }; status();
+  const cache = new Map();      // entries that show the same files (an exact build = AMD's picture) share one download
+  const get = f => { if (!cache.has(f)) cache.set(f, loadImg(url(f)).then(r => { done++; status(); return r; })); return cache.get(f); };
+  const order = [a, b, ...IMGS.keys()].filter((v, i, arr) => v >= 0 && v < IMGS.length && arr.indexOf(v) === i);
+  for (const i of order) { const m = IMGS[i]; m.full = [m.frames[0], ...(await Promise.all(m.files.slice(1).map(get))).filter(Boolean)]; }
+  IMGS.forEach(m => { m.frames = m.full; }); $('load').textContent = ''; refresh(); if (nFrames() > 1) play(true);
 }
 (async () => {
   let sets = []; try { const r = await fetch('sets/index.json'); if (r.ok) sets = await r.json(); } catch (e) {}
