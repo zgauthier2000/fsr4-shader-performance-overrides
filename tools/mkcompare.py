@@ -14,7 +14,7 @@ get the same display mapping, x / (1 + x) then gamma 1/2.2, so they compare fair
 repository large. --a / --b: which pictures (1-based) start on the left / right.
 --label-note "Label=text": a short note shown with that picture's name (its timing, for example). --same "NewLabel=Label": one more entry, right after Label, that
 shows Label's own files (a build that makes the same picture byte for byte; no second copy). --intro: a line of HTML under the header; --about: a file of HTML for the
-collapsible "About these pictures" panel (open when the page opens).
+collapsible "About these pictures" panel (closed when the page opens).
 
 Only put pictures in the repository that may be published: synthetic test scenes and upscaled game pictures are fine (say which game, which settings,
 and that the display mapping is not the game's); raw game captures (input dumps) and other people's files are not.

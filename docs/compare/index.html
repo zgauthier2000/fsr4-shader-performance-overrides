@@ -7,7 +7,7 @@
 <meta name="description" content="Compare two upscalers' pictures of the same frame with a sliding divider.">
 <!-- Upscaler slider: compares two pictures of the same frame with a sliding divider. A picture set is a folder sets/<name>/ with set.json
      ({"title", "note", "intro", "about", "images": [[label, file or [frame files], optional note], ...], "a", "b", "fps"}; "intro" and "about" are HTML: a line under the header and a
-     collapsible "About these pictures" panel; an image's note, e.g. its timing, shows with its name, made by tools/mkcompare.py; frame sequences play in step on both sides) and its image files; sets/index.json lists the sets.
+     collapsible "About these pictures" panel (closed at first); an image's note, e.g. its timing, shows with its name, made by tools/mkcompare.py; frame sequences play in step on both sides) and its image files; sets/index.json lists the sets.
      Open as index.html?set=<name>&a=<n>&b=<n> (1-based). It needs a web server (GitHub Pages, or `python3 -m http.server` in this folder): browsers
      do not let a page opened from disk read set.json. Pictures you add with "Add images" stay in your browser; nothing is uploaded. -->
 <style>
@@ -65,7 +65,7 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   <p id="note"></p>
 </header>
 <div id="intro" hidden></div>
-<details id="about" open hidden><summary>About these pictures</summary><div id="aboutBody"></div></details>
+<details id="about" hidden><summary>About these pictures</summary><div id="aboutBody"></div></details>
 <div id="stage">
   <canvas id="cv"></canvas>
   <div class="tag" id="tagA"></div><div class="tag" id="tagB"></div>
