@@ -16,7 +16,8 @@
 | Graphics built into the processor, RDNA 3 / 3.5: Radeon 780M, 760M, 880M, 890M and the like | `fsr4.1.1-igpu-cyboman-rdna3-<version>` | experimental: few reports, small gains |
 | Steam Deck, Radeon 680M, 660M, 610M and other RDNA2 graphics built into the processor | `fsr4.1.1-igpu-cyboman-rdna2-<version>` | experimental: few reports, small gains |
 | Radeon RX 9000 | none | not covered: it runs a different FSR 4; see [RDNA4](rdna4.md) |
-| Any other chip with DirectX 12 and Shader Model 6.6: Nvidia GeForce, Intel Arc and Intel integrated graphics, older Radeon | `fsr4.1.1-igpu-cyboman-rdna3-<version>` | runs; timing-kit reports from GeForce and Intel Arc cards ([front page](../README.md#what-to-expect)); the integrated RDNA 3 build has not been timed on a GeForce yet |
+| Radeon RX 5000 (RDNA 1) and RX Vega, under Windows | none | does not work: FSR 4 shows a black picture, with AMD's file and with these DLLs (timing-kit reports; [issue #43](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/43)) |
+| Any other chip with DirectX 12 and Shader Model 6.6: Nvidia GeForce, Intel Arc and Intel integrated graphics | `fsr4.1.1-igpu-cyboman-rdna3-<version>` | runs; timing-kit reports from GeForce and Intel Arc cards ([front page](../README.md#what-to-expect)); the integrated RDNA 3 build has not been timed on a GeForce yet |
 
 - **Why four downloads (since `dll-2026-10-22`):** they differ in how three shaders are built. Pass 11 is built large and fast for RX
   cards and small for chips built into processors; the last shader's dot products are split only for RDNA2 chips (RX 6000, Steam
@@ -26,8 +27,9 @@
   have that check lifted, which is also why they must not go on an RX 9000 card.
 - **What a chip needs to run it at all:** the shaders are compute shaders for DirectX 12's Shader Model 6.6. They use 8-bit
   integer dot products (`dot4AddI8Packed`), packing and unpacking of four 8-bit values, 16-bit types and wave operations.
-  Any driver that offers Shader Model 6.6 runs them, whether the chip has a special instruction for the dot products or
-  not; how fast is another matter, and outside Radeon nothing is measured.
+  A driver that offers Shader Model 6.6 normally runs them, whether the chip has a special instruction for the dot products or
+  not; how fast is another matter, and outside Radeon nothing is measured. The exception found so far: Radeon RX 5000 (RDNA 1)
+  and RX Vega cards under Windows run them but give only a black picture.
 - **The rest of this page** is the history: how each kind of chip was first supported, what testers measured, and the
   builds that existed before the four downloads.
 
