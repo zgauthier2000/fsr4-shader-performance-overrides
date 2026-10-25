@@ -116,9 +116,15 @@ function refresh() {
 const nFrames = () => Math.max(1, ...[IMGS[a], IMGS[b]].filter(m => m && m.frames).map(m => m.frames.length));
 const frameOf = m => m && m.frames ? m.frames[Math.min(fi, m.frames.length - 1)] : null;      // shorter sequences hold their last frame
 function base() { return IMGS[a] && frameOf(IMGS[a]); }
+// Default view (2026-10-25, user: on phones in portrait the pictures should "zoom to a crop that fills the available space"): narrow screens open filling the
+// picture area (centered crop); wider ones show the whole picture. Zooming out still stops at the whole picture (fitZoom). Until the user zooms or pans,
+// a resize or rotation recomputes the default view.
+let atFit = false;
+const phone = () => window.matchMedia('(max-width: 640px)').matches;
 function fit() {
-  const im = base(); if (!im) return; const r = stage.getBoundingClientRect();
-  fitZoom = zoom = Math.min(r.width / im.naturalWidth, r.height / im.naturalHeight); fitted = true; clampView(); draw();
+  const im = base(); if (!im) return; const r = stage.getBoundingClientRect(), W = im.naturalWidth, H = im.naturalHeight;
+  fitZoom = Math.min(r.width / W, r.height / H); zoom = phone() ? Math.max(r.width / W, r.height / H) : fitZoom;
+  ox = (r.width - W * zoom) / 2; oy = (r.height - H * zoom) / 2; fitted = atFit = true; clampView(); draw();
 }
 function clampView() {      // centered where the image is smaller than the window, else no empty margin beyond its edges
   const im = base(); if (!im) return; const r = stage.getBoundingClientRect(), w = im.naturalWidth * zoom, h = im.naturalHeight * zoom;
@@ -151,7 +157,7 @@ function pinchStart() { const [p, q] = [...touches.values()]; pinch = { d: Math.
 function pinchMove() {
   const [p, q] = [...touches.values()], r = stage.getBoundingClientRect(), d = Math.hypot(p.x - q.x, p.y - q.y) || 1, mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2;
   const z = Math.min(64, Math.max(fitZoom, pinch.zoom * d / pinch.d)), ix = (pinch.mx - r.left - pinch.ox) / pinch.zoom, iy = (pinch.my - r.top - pinch.oy) / pinch.zoom;
-  zoom = z; ox = mx - r.left - ix * z; oy = my - r.top - iy * z; clampView(); draw();
+  zoom = z; atFit = false; ox = mx - r.left - ix * z; oy = my - r.top - iy * z; clampView(); draw();
 }
 stage.addEventListener('pointerdown', e => {
   if (e.pointerType === 'touch') { stage.setPointerCapture(e.pointerId); touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -163,7 +169,7 @@ stage.addEventListener('pointermove', e => {
   if (e.pointerType === 'touch') { if (!touches.has(e.pointerId)) return; touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (touches.size >= 2 && pinch) pinchMove(); else if (!holdSplit) setSplit(e); return; }
   if (drag) { const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 3) { drag.moved = true; stage.classList.add('panning'); }
-    if (drag.moved) { ox = drag.ox + dx; oy = drag.oy + dy; clampView(); draw(); return; } }
+    if (drag.moved) { atFit = false; ox = drag.ox + dx; oy = drag.oy + dy; clampView(); draw(); return; } }
   if (!locked) setSplit(e);
 });
 const touchEnd = e => { if (e.pointerType !== 'touch') return false; touches.delete(e.pointerId); if (touches.size < 2) pinch = null; return true; };      // after a pinch the divider stays put until every finger is up
@@ -171,7 +177,7 @@ stage.addEventListener('pointercancel', e => { touchEnd(e); drag = null; });
 stage.addEventListener('pointerup', e => { if (touchEnd(e)) return; if (drag && !drag.moved) { locked = !locked; setSplit(e); } drag = null; stage.classList.remove('panning'); });
 stage.addEventListener('dblclick', () => fit());
 stage.addEventListener('wheel', e => { e.preventDefault(); const r = stage.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
-  const z = Math.min(64, Math.max(fitZoom, zoom * Math.exp(-e.deltaY * 0.0015))); ox = mx - (mx - ox) * z / zoom; oy = my - (my - oy) * z / zoom; zoom = z; clampView(); draw(); }, { passive: false });
+  const z = Math.min(64, Math.max(fitZoom, zoom * Math.exp(-e.deltaY * 0.0015))); ox = mx - (mx - ox) * z / zoom; oy = my - (my - oy) * z / zoom; zoom = z; atFit = false; clampView(); draw(); }, { passive: false });
 // Loading on demand (2026-10-25, user: "only load the frames needed for the two currently selected upscalers ... show a loading bar as it loads those frames"): a picture's
 // frames are fetched when it is first chosen; until they are in, the screen keeps the previous pair and a bar shows the progress. Files shared by two entries load once.
 let setName = '', want = 0, pending = [];
@@ -216,7 +222,7 @@ window.addEventListener('keydown', e => {
   else if (e.key === 'l' || e.key === 'L') { locked = !locked; draw(); }
   else if (e.key === '0') fit();
 });
-window.addEventListener('resize', () => { const was = zoom <= fitZoom * 1.0001, im = base(); if (im) { const r = stage.getBoundingClientRect(); fitZoom = Math.min(r.width / im.naturalWidth, r.height / im.naturalHeight); if (was || zoom < fitZoom) zoom = fitZoom; } clampView(); draw(); });
+window.addEventListener('resize', () => { if (atFit) { fit(); return; } const was = zoom <= fitZoom * 1.0001, im = base(); if (im) { const r = stage.getBoundingClientRect(); fitZoom = Math.min(r.width / im.naturalWidth, r.height / im.naturalHeight); if (was || zoom < fitZoom) zoom = fitZoom; } clampView(); draw(); });
 
 async function loadSet(name) {
   let s; try { const r = await fetch(`sets/${encodeURIComponent(name)}/set.json`); if (!r.ok) throw r.status; s = await r.json(); }
