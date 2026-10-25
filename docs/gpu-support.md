@@ -16,7 +16,8 @@
 | Graphics built into the processor, RDNA 3 / 3.5: Radeon 780M, 760M, 880M, 890M and the like | `fsr4.1.1-igpu-cyboman-rdna3-<version>` | experimental: few reports, small gains |
 | Steam Deck, Radeon 680M, 660M, 610M and other RDNA2 graphics built into the processor | `fsr4.1.1-igpu-cyboman-rdna2-<version>` | experimental: few reports, small gains |
 | Radeon RX 9000 | none | not covered: it runs a different FSR 4; see [RDNA4](rdna4.md) |
-| Radeon RX 5000 (RDNA 1) and RX Vega, under Windows | none | does not work: FSR 4 shows a black picture, with AMD's file and with these DLLs (timing-kit reports; [issue #43](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/43)) |
+| Radeon RX 5000 (RDNA 1), any system | none | not supported: none of these DLLs work on RDNA 1 |
+| RX Vega, under Windows | none | does not work: FSR 4 shows a black picture, with AMD's file and with these DLLs (timing-kit reports; [issue #43](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/43)) |
 | Any other chip with DirectX 12 and Shader Model 6.6: Nvidia GeForce, Intel Arc and Intel integrated graphics | `fsr4.1.1-igpu-cyboman-rdna3-<version>` | runs; timing-kit reports from GeForce and Intel Arc cards ([front page](../README.md#what-to-expect)); the integrated RDNA 3 build has not been timed on a GeForce yet |
 
 - **Why four downloads (since `dll-2026-10-22`):** they differ in how three shaders are built. Pass 11 is built large and fast for RX
@@ -28,8 +29,8 @@
 - **What a chip needs to run it at all:** the shaders are compute shaders for DirectX 12's Shader Model 6.6. They use 8-bit
   integer dot products (`dot4AddI8Packed`), packing and unpacking of four 8-bit values, 16-bit types and wave operations.
   A driver that offers Shader Model 6.6 normally runs them, whether the chip has a special instruction for the dot products or
-  not; how fast is another matter, and outside Radeon nothing is measured. The exception found so far: Radeon RX 5000 (RDNA 1)
-  and RX Vega cards under Windows run them but give only a black picture.
+  not; how fast is another matter, and outside Radeon nothing is measured. The exceptions found so far: Radeon RX 5000 (RDNA 1)
+  cards are not supported at all (FSR 4 gives only a black picture there), and RX Vega cards under Windows give only a black picture.
 - **The rest of this page** is the history: how each kind of chip was first supported, what testers measured, and the
   builds that existed before the four downloads.
 

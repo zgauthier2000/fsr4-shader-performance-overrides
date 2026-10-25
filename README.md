@@ -84,12 +84,14 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   | Integrated graphics and handhelds (Steam Deck, Radeon 890M) | from 8% faster to 4% slower | 5% (Steam Deck) | 23 to 32% | about 29 to 36% |
   | Intel Arc (B580; integrated Arc in one report) | 6 to 10% | not measured | 30 to 33% | not measured |
   | GeForce (GTX 1650, RTX 3060 Ti, 3090, 5070) | none | not measured | 24 to 37% | not measured |
-  | Radeon RX 5000 (RX 5700 XT), RX Vega, Radeon Pro VII | does not work: no picture (RX 5700 XT, RX Vega) | 6% (Pro VII, shaders only) | does not work: no picture | about 35% (Pro VII, shaders only) |
+  | Radeon RX 5000 (RDNA 1, e.g. RX 5700 XT) | not supported: does not work | not supported | not supported: does not work | not supported |
+  | RX Vega, Radeon Pro VII | does not work: no picture (RX Vega) | 6% (Pro VII, shaders only) | does not work: no picture (RX Vega) | about 35% (Pro VII, shaders only) |
 
-  Under Windows, FSR 4 gives only a black picture on Radeon RX 5000 (RDNA 1) and RX Vega cards, with AMD's own shaders and with
-  these DLLs alike ([issue #43](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/43)). The timing kit's reports from
-  those cards show the same picture for every build, the lossy ones included, which a working FSR 4 cannot do, so the figures this
-  table used to show for them timed no real upscaling. The Linux figures for the Radeon Pro VII come from the Linux kit, which times
+  **None of this project's DLLs work on Radeon RX 5000 (RDNA 1) cards,** on Windows or Linux: FSR 4 gives only a black picture there
+  ([issue #43](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/43)). On RX Vega cards under Windows it is the same.
+  The timing kit's reports from those cards show the same picture for every build, the lossy ones included, which a working FSR 4
+  cannot do, so the figures this table used to show for them timed no real upscaling. The Linux figures for the Radeon Pro VII
+  come from the Linux kit, which times
   the shaders alone; whether games show a picture on it is not known.
   Most Linux cells rest on one or two runs per card. The Linux lossy figures are derived: the Linux kit times a frame
   that runs the network and a frame that skips it, and the lossy DLL alternates them, so the table gives their average.
