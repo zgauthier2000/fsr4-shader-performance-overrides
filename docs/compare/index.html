@@ -30,7 +30,9 @@ button:hover, select:hover { border-color: var(--muted); }
 #about summary { cursor: pointer; color: var(--accent); font-weight: 600; padding: 2px 0; }
 #about h2 { font-size: 13px; margin: 10px 0 2px; } #about p { margin: 2px 0 6px; color: var(--muted); max-width: 70em; }
 .anim[hidden] { display: none !important; } .anim { display: inline-flex; gap: 6px; align-items: center; } #fr { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 7.5em; }
-#load { color: var(--accent); font-variant-numeric: tabular-nums; } #load:empty { display: none; }
+#bar { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); width: min(420px, calc(100% - 32px)); padding: 8px 12px; background: var(--tagbg); border-radius: 6px; pointer-events: none; }
+#bar[hidden] { display: none; } #barText { color: var(--ink); font-size: 13px; margin-bottom: 6px; font-variant-numeric: tabular-nums; }
+#barTrack { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; } #barFill { height: 100%; width: 0; background: var(--accent); transition: width .15s; }
 #info { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
 #stage { position: relative; flex: 1; min-height: 240px; overflow: hidden; cursor: col-resize; touch-action: none; }
 #stage.panning { cursor: grabbing; }
@@ -59,7 +61,6 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   <button id="open" title="Compare your own pictures (they stay in your browser)">Add images…</button>
   <input id="file" type="file" accept="image/*" multiple hidden>
   <span id="help">move: slide · click: lock · wheel: zoom · drag: pan · double-click: fit · S swap · F flip · Space play · , . frames · 1–9 right · Shift+1–9 left</span>
-  <span id="load"></span>
   <span id="info"></span>
   <p id="note"></p>
 </header>
@@ -68,10 +69,11 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 <div id="stage">
   <canvas id="cv"></canvas>
   <div class="tag" id="tagA"></div><div class="tag" id="tagB"></div>
+  <div id="bar" hidden><div id="barText"></div><div id="barTrack"><div id="barFill"></div></div></div>
   <div id="msg"><div><strong>Loading…</strong></div></div>
 </div>
 <script>
-const IMGS = [];                       // {name, note, frames: [img, ...]}, in the set's order
+const IMGS = [];                       // {name, note, files, frames: [img, ...] or null until loaded}, in the set's order; only the two pictures on screen get loaded
 const $ = id => document.getElementById(id);
 const cv = $('cv'), ctx = cv.getContext('2d'), stage = $('stage'), selA = $('selA'), selB = $('selB');
 const Q = new URLSearchParams(location.search);
@@ -92,8 +94,8 @@ function refresh() {
   if (IMGS.length && !fitted) fit();
   draw();
 }
-const nFrames = () => Math.max(1, ...IMGS.map(m => m.frames.length));
-const frameOf = m => m.frames[Math.min(fi, m.frames.length - 1)];      // shorter sequences hold their last frame
+const nFrames = () => Math.max(1, ...[IMGS[a], IMGS[b]].filter(m => m && m.frames).map(m => m.frames.length));
+const frameOf = m => m && m.frames ? m.frames[Math.min(fi, m.frames.length - 1)] : null;      // shorter sequences hold their last frame
 function base() { return IMGS[a] && frameOf(IMGS[a]); }
 function fit() {
   const im = base(); if (!im) return; const r = stage.getBoundingClientRect();
@@ -134,8 +136,30 @@ stage.addEventListener('pointerup', e => { if (drag && !drag.moved) { locked = !
 stage.addEventListener('dblclick', () => fit());
 stage.addEventListener('wheel', e => { e.preventDefault(); const r = stage.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
   const z = Math.min(64, Math.max(fitZoom, zoom * Math.exp(-e.deltaY * 0.0015))); ox = mx - (mx - ox) * z / zoom; oy = my - (my - oy) * z / zoom; zoom = z; clampView(); draw(); }, { passive: false });
-selA.onchange = () => { a = +selA.value; syncURL(); draw(); }; selB.onchange = () => { b = +selB.value; syncURL(); draw(); };
-$('swap').onclick = () => { [a, b] = [b, a]; refresh(); };
+// Loading on demand (2026-10-25, user: "only load the frames needed for the two currently selected upscalers ... show a loading bar as it loads those frames"): a picture's
+// frames are fetched when it is first chosen; until they are in, the screen keeps the previous pair and a bar shows the progress. Files shared by two entries load once.
+let setName = '', want = 0, pending = [];
+const cache = new Map();
+function getImg(f) { if (!cache.has(f)) cache.set(f, loadImg(`sets/${encodeURIComponent(setName)}/${f}`)); return cache.get(f); }
+function bar() {
+  const L = pending.map(i => IMGS[i]).filter(m => !m.frames); if (!L.length) { $('bar').hidden = true; return; }
+  const got = L.reduce((n, m) => n + (m.got || 0), 0), tot = L.reduce((n, m) => n + m.files.length, 0);
+  $('barText').textContent = `Loading ${L.map(m => m.name).join(' and ')}: ${got} / ${tot} frames`; $('barFill').style.width = `${100 * got / tot}%`; $('bar').hidden = false;
+}
+function ensure(i) {
+  const m = IMGS[i]; if (m.frames) return Promise.resolve();
+  if (!m.loading) { m.got = 0; m.loading = Promise.all(m.files.map(f => getImg(f).then(r => { m.got++; bar(); return r; }))).then(fr => { m.frames = fr.filter(Boolean); bar(); }); }
+  return m.loading;
+}
+async function choose(na, nb) {      // show pictures na (left) and nb (right) once their frames are in
+  if (IMGS.length > 1 && na === nb) nb = (na + 1) % IMGS.length;
+  const tok = ++want; selA.value = na; selB.value = nb; pending = [na, nb]; bar();
+  await Promise.all([ensure(na), ensure(nb)]); if (tok !== want) return;      // a newer choice replaced this one
+  a = na; b = nb; refresh(); if (autoplay) { autoplay = false; if (nFrames() > 1) play(true); }      // plays on its own once, at the start; after that only the user starts it
+}
+let autoplay = true;
+selA.onchange = () => choose(+selA.value, +selB.value); selB.onchange = () => choose(+selA.value, +selB.value);
+$('swap').onclick = () => choose(b, a);
 $('open').onclick = () => $('file').click();
 $('file').onchange = e => addFiles(e.target.files);
 async function addFiles(files) {
@@ -147,8 +171,8 @@ stage.addEventListener('dragover', e => e.preventDefault()); stage.addEventListe
 window.addEventListener('keydown', e => {
   if (e.target.tagName === 'SELECT') return;
   const n = parseInt(e.code.replace('Digit', ''), 10);
-  if (n >= 1 && n <= 9 && n <= IMGS.length) { if (e.shiftKey) a = n - 1; else b = n - 1; refresh(); }
-  else if (e.key === 's' || e.key === 'S') { [a, b] = [b, a]; refresh(); }
+  if (n >= 1 && n <= 9 && n <= IMGS.length) { if (e.shiftKey) choose(n - 1, b); else choose(a, n - 1); }
+  else if (e.key === 's' || e.key === 'S') choose(b, a);
   else if (e.key === 'f' || e.key === 'F') { flip = !flip; draw(); }
   else if (e.key === ' ') { e.preventDefault(); if (nFrames() > 1) play(!timer); else { flip = !flip; draw(); } }
   else if (e.key === ',') { play(false); setFrame(fi - 1); }
@@ -165,22 +189,13 @@ async function loadSet(name) {
   if (s.intro) { $('intro').innerHTML = s.intro; $('intro').hidden = false; }
   if (s.about) { $('aboutBody').innerHTML = s.about; $('about').hidden = false; $('about').addEventListener('toggle', () => window.dispatchEvent(new Event('resize'))); }
   message('<strong>Loading pictures…</strong>');
-  const url = f => `sets/${encodeURIComponent(name)}/${f}`;      // an entry is [label, file] or [label, [frame files]]
-  // Progressive (2026-10-25: a set can be ~200 MB): the first frame of every picture first, shown as stills; then the two pictures on screen, then the rest;
-  // the animation starts once every frame is in (until then both sides show frame 1, so they never show different moments).
+  setName = name;
   const lists = s.images.map(([, f]) => Array.isArray(f) ? f : [f]);
-  const firsts = await Promise.all(lists.map(l => loadImg(url(l[0]))));
-  s.images.forEach(([label, , note], i) => { if (firsts[i]) IMGS.push({ name: label, note: note || '', frames: [firsts[i]], files: lists[i] }); });
+  s.images.forEach(([label, , note], i) => IMGS.push({ name: label, note: note || '', files: lists[i], frames: null }));
   if (s.fps) $('fps').value = String(s.fps);
-  a = (+Q.get('a') || s.a || 1) - 1; b = (+Q.get('b') || s.b || 2) - 1; refresh();
-  const total = new Set(IMGS.flatMap(m => m.files.slice(1))).size; let done = 0;
-  if (!total) return;
-  const status = () => { $('load').textContent = `loading frames ${done} / ${total}`; }; status();
-  const cache = new Map();      // entries that show the same files (an exact build = AMD's picture) share one download
-  const get = f => { if (!cache.has(f)) cache.set(f, loadImg(url(f)).then(r => { done++; status(); return r; })); return cache.get(f); };
-  const order = [a, b, ...IMGS.keys()].filter((v, i, arr) => v >= 0 && v < IMGS.length && arr.indexOf(v) === i);
-  for (const i of order) { const m = IMGS[i]; m.full = [m.frames[0], ...(await Promise.all(m.files.slice(1).map(get))).filter(Boolean)]; }
-  IMGS.forEach(m => { m.frames = m.full; }); $('load').textContent = ''; refresh(); if (nFrames() > 1) play(true);
+  const n = IMGS.length, na = Math.min(n - 1, Math.max(0, (+Q.get('a') || s.a || 1) - 1)), nb = Math.min(n - 1, Math.max(0, (+Q.get('b') || s.b || 2) - 1));
+  for (const s_ of [selA, selB]) s_.innerHTML = IMGS.map((m, i) => `<option value="${i}">${i + 1}. ${(m.name + (m.note ? ` (${m.note})` : '')).replace(/</g, '&lt;')}</option>`).join('');
+  message(''); await choose(na, nb);
 }
 (async () => {
   let sets = []; try { const r = await fetch('sets/index.json'); if (r.ok) sets = await r.json(); } catch (e) {}
