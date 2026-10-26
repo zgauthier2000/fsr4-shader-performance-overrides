@@ -86,6 +86,12 @@ What it does
                        written in a different way; timed on every PC and compared with that build (the
                        summary names it beside it). The alt2 builds should give their n-exact build's picture
                        exactly. They are compared with each other, not with AMD's picture.
+  dlls\n-exact-r3-p11, n-exact-r2-p11, n-exact-igpu-r3-p11, n-exact-igpu-r2-p11,
+  n-exact-r3-p11pk, n-exact-r2-p11pk, n-exact-igpu-r3-p11pk, n-exact-igpu-r2-p11pk
+                       the n-exact build of the same flavor with one model shader (p11) or several (p11pk)
+                       written in a different way; p11 is timed against its n-exact build, p11pk against
+                       p11 (the summary names the build beside it). All should give their n-exact build's
+                       picture exactly. They are compared with each other, not with AMD's picture.
   dlls\lt1-reference, lt2-test, lt3-test, lt6-test, lt7-test, lt8-test, lt9-test, lt10-test,
   lt11-test, lt12-test, lt13-test
                        a reference build and ten test builds of a smaller FSR 4 network, timed on every PC:
