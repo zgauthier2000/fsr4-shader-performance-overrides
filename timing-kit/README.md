@@ -31,7 +31,12 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Windows kit version 2026-10-25.2** (download again if you have an earlier one):
+**Windows kit version 2026-10-26** (download again if you have an earlier one):
+
+- **One more test build of the smaller FSR 4 network** (`lt13`), timed on every PC against `lt1`; its picture differs from `lt1`'s by design.
+- `lt4` and `lt5` are no longer in the kit.
+
+**Windows kit version 2026-10-25.2:**
 
 - **Three more test builds of the smaller FSR 4 network** (`lt10` to `lt12`), timed on every PC; each should give the picture of the
   build the summary names beside it.
@@ -203,6 +208,8 @@ The summary and `results-raw.txt` are saved in the unpacked folder. It runs the 
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
 For RDNA2 and RDNA3 owners with time for a longer run: `run-study.cmd` in the same folder starts the study run (about 30 minutes; see `STUDY.txt` inside).
+
+**New in version 2026-10-26:** test build `lt13` on every PC; `lt4` and `lt5` removed (see [above](#in-short)).
 
 **New in version 2026-10-25.2:** test builds `lt10` to `lt12` on every PC (see [above](#in-short)).
 

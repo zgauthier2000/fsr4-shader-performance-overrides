@@ -86,19 +86,19 @@ What it does
                        written in a different way; timed on every PC and compared with that build (the
                        summary names it beside it). The alt2 builds should give their n-exact build's picture
                        exactly. They are compared with each other, not with AMD's picture.
-  dlls\lt1-reference, lt2-test, lt3-test, lt4-test, lt5-test, lt6-test, lt7-test, lt8-test,
-  lt9-test, lt10-test, lt11-test, lt12-test
-                       a reference build and eleven test builds of a smaller FSR 4 network, timed on every PC:
-                       lt2 should give lt1's picture exactly (the summary names lt1 beside it), lt3 is a
-                       faster form whose picture differs from lt1's by design, and lt4 and lt5 are lt3 with
-                       one small change each. lt6 is lt2 with its first shader written in a different way and
-                       should give lt2's picture exactly; lt7 is lt3 with lt4's and lt5's changes, two of them
-                       written more compactly, and the same first shader as lt6; lt8 is lt7 without those two
-                       rewrites and should give lt7's picture exactly (both differ from lt3's); lt9 is a lighter
-                       form of lt7 (lt3 with lt6's first shader), timed against lt7; its picture differs from lt7's.
-                       lt10 is lt3 without the two shader changes lt2 makes and should give lt3's picture
-                       exactly; lt11 and lt12 are lt1 with one of those two changes each and should give lt1's
-                       picture exactly.
+  dlls\lt1-reference, lt2-test, lt3-test, lt6-test, lt7-test, lt8-test, lt9-test, lt10-test,
+  lt11-test, lt12-test, lt13-test
+                       a reference build and ten test builds of a smaller FSR 4 network, timed on every PC:
+                       lt2 should give lt1's picture exactly (the summary names lt1 beside it), and lt3 is a
+                       faster form whose picture differs from lt1's by design. lt6 is lt2 with its first shader
+                       written in a different way and should give lt2's picture exactly; lt7 is lt3 with two
+                       small changes, both written compactly, and the same first shader as lt6; lt8 is lt7
+                       without those two rewrites and should give lt7's picture exactly (both differ from lt3's);
+                       lt9 is a lighter form of lt7 (lt3 with lt6's first shader), timed against lt7; its picture
+                       differs from lt7's. lt10 is lt3 without the two shader changes lt2 makes and should give
+                       lt3's picture exactly; lt11 and lt12 are lt1 with one of those two changes each and should
+                       give lt1's picture exactly. lt13 is lt7 with one of its two changes left out and one other
+                       small change, timed against lt1; its picture differs from lt1's by design.
                        They are compared with each other, not with AMD's picture.
   dlls\rdna2-f1-exact, rdna2-t1-tiled-pass11, rdna2-t2-amd-cut-pass11 (RX 6000 and RDNA2 integrated graphics only)
   dlls\rdna3-f1-exact, rdna3-t1-tiled-pass11, rdna3-t2-amd-cut-pass11 (RX 7000 and RDNA3 integrated graphics only)
