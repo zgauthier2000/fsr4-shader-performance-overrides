@@ -46,6 +46,13 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **InnocentOne** (Radeon RX 7900 XTX, Windows)
 - **larfy** (Radeon RX 7900 XTX, Windows)
 - **s4n** (GeForce GTX 1060, Windows)
+- **Valarck** (Radeon RX 580, Windows)
+- **Vacated9831** (Windows)
+- **dominj97** (Radeon RX 6600 XT, Windows)
+- **AllegedHoister** (Radeon RX 6750 XT, Windows)
+- **R3nd3r** (Radeon RX 6600, Windows)
+- **Hassan** (Radeon RX 6800, Windows)
+- **Jumpoff** (Windows)
 
 ## How to be listed, or taken off
 
