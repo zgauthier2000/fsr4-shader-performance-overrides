@@ -13,10 +13,9 @@ How to run it
      dlls.pack.zst: the program takes out each one when it times it and replaces it with the next,
      so only one DLL (about 40 MB) is on disk at a time, and none when it has finished.
   2. Close games, browsers and video players.
-  3. Double-click fsr4time.exe. It takes about 15 minutes, 17 on Radeon RX 7000 cards and RDNA3 integrated
-     graphics, which also time the three pass 11 test DLLs below, and about 21 on Radeon RX 6000 cards and RDNA2
-     integrated graphics, which also time those and the five packing test DLLs (a slow or integrated graphics
-     chip up to about 25-30). Leave the PC alone while it runs: the header at the top of the window says so the whole time.
+  3. Double-click fsr4time.exe. It takes about 15 minutes (a slow or integrated graphics chip up to
+     about 25). It times only the builds made for your kind of graphics, so each gets more rounds.
+     Leave the PC alone while it runs: the header at the top of the window says so the whole time.
   4. At the end it shows a summary, saves it as results-<time>.txt in this folder, and asks
      whether to send it to the project. Only two files are sent, in one short message: the summary
      you see, and results-raw.txt (in the same folder, so you can read it first): each run's time
@@ -24,12 +23,6 @@ How to run it
      a name or nickname for the project's thank-you page; that is optional, and it is published
      there only if you type one. Each summary has a report ID (eight letters and digits); if you
      write to the project about a run, please mention it.
-
-The study run (RDNA2 and RDNA3 graphics only, about 30 minutes)
-  run-study.cmd starts a longer test that times each change in the exact DLL on its own, to find
-  which help on your kind of chip. The DLLs for it are in the same pack; of them, the normal test
-  above times only the three pass 11 test DLLs of your kind of card and, on RX 6000 and RDNA2
-  integrated graphics, the five packing test DLLs. See STUDY.txt.
 
 Windows will warn about an unknown program, because the file is not signed. The source is in
 the project's repository (timing-kit/windows/fsr4time.c) with the command that builds it, and the
@@ -44,7 +37,7 @@ What it does
   200 calls after 40 to warm up.
 
   It does this in rounds: all DLLs in name order, then all in reverse order, and so on, for about
-  15 minutes (more with the test DLLs of your kind of card, so each DLL gets as many rounds). A fast card gets up to eight rounds, a slow one two (one, if a single round takes
+  15 minutes. A fast card gets up to eight rounds, a slow one two (one, if a single round takes
   more than ten minutes). More rounds make the figures steadier, and a reading disturbed by
   something else on the PC shows up as a spread between a DLL's runs. Time left over after the
   rounds goes to the DLLs whose runs disagreed by more than 3%: they are timed again. It also
@@ -63,60 +56,29 @@ What it does
 
   dlls\1-amd-shaders   AMD's DLL with AMD's shaders (only its graphics-card check is lifted, so
                        that it runs on RX 6000 cards and integrated graphics too): the reference
-  dlls\1b-amd-shaders-dots-split
-                       the same, with one change to the last shader: its dot products are split
-                       into two steps. The result is the same number, but RX 6000 cards and the
-                       RDNA2 graphics built into some processors (Steam Deck, Radeon 680M, 660M,
-                       610M, the graphics of Ryzen 7000 and 9000 desktop processors) are known to
-                       show ghosting under Windows with AMD's original form. On those chips this is
-                       the DLL to compare with, and the summary's percentages are against it.
-  dlls\n-0-reference, n-exact-r3, n-exact-r2, n-exact-igpu-r3, n-exact-igpu-r2,
-  n-lossy-r3, n-lossy-r2, n-lossy-igpu-r3, n-lossy-igpu-r2
-                       unreleased test builds of this project's exact and lossy DLLs and a reference
-                       build: r3 is for Radeon RX 7000 cards, r2 for RX 6000 cards, igpu-r3 for RDNA 3 integrated graphics (Radeon
-                       780M, 890M and others) and for GeForce, Arc and other cards, igpu-r2 for the Steam
-                       Deck, Radeon 680M and older integrated graphics. Each n-exact should give n-0's
-                       picture exactly; the n-lossy ones give one picture between them, different from
-                       n-0's by design. They are compared with each other, not with AMD's picture.
-                       Every PC times all nine, so the summary shows how each kind of build does on your card.
-  dlls\n-exact-r3-alt, n-exact-r2-alt, n-exact-igpu-r3-alt, n-exact-igpu-r2-alt,
-  n-lossy-r3-alt, n-lossy-r2-alt, n-lossy-igpu-r3-alt, n-lossy-igpu-r2-alt,
-  n-exact-r3-alt2, n-exact-r2-alt2, n-exact-igpu-r3-alt2, n-exact-igpu-r2-alt2
-                       each the n-exact or n-lossy build of the same name with one shader (the first one)
-                       written in a different way; timed on every PC and compared with that build (the
-                       summary names it beside it). The alt2 builds should give their n-exact build's picture
-                       exactly. They are compared with each other, not with AMD's picture.
-  dlls\n-exact-r3-p11, n-exact-r2-p11, n-exact-igpu-r3-p11, n-exact-igpu-r2-p11,
-  n-exact-r3-p11pk, n-exact-r2-p11pk, n-exact-igpu-r3-p11pk, n-exact-igpu-r2-p11pk
-                       the n-exact build of the same flavor with one model shader (p11) or several (p11pk)
-                       written in a different way; p11 is timed against its n-exact build, p11pk against
-                       p11 (the summary names the build beside it). All should give their n-exact build's
-                       picture exactly. They are compared with each other, not with AMD's picture.
-  dlls\lt1-reference, lt2-test, lt3-test, lt6-test, lt7-test, lt8-test, lt9-test, lt10-test,
-  lt11-test, lt12-test, lt13-test
-                       a reference build and ten test builds of a smaller FSR 4 network, timed on every PC:
-                       lt2 should give lt1's picture exactly (the summary names lt1 beside it), and lt3 is a
-                       faster form whose picture differs from lt1's by design. lt6 is lt2 with its first shader
-                       written in a different way and should give lt2's picture exactly; lt7 is lt3 with two
-                       small changes, both written compactly, and the same first shader as lt6; lt8 is lt7
-                       without those two rewrites and should give lt7's picture exactly (both differ from lt3's);
-                       lt9 is a lighter form of lt7 (lt3 with lt6's first shader), timed against lt7; its picture
-                       differs from lt7's. lt10 is lt3 without the two shader changes lt2 makes and should give
-                       lt3's picture exactly; lt11 and lt12 are lt1 with one of those two changes each and should
-                       give lt1's picture exactly. lt13 is lt7 with one of its two changes left out and one other
-                       small change, timed against lt1; its picture differs from lt1's by design.
-                       They are compared with each other, not with AMD's picture.
-  dlls\rdna2-f1-exact, rdna2-t1-tiled-pass11, rdna2-t2-amd-cut-pass11 (RX 6000 and RDNA2 integrated graphics only)
-  dlls\rdna3-f1-exact, rdna3-t1-tiled-pass11, rdna3-t2-amd-cut-pass11 (RX 7000 and RDNA3 integrated graphics only)
-                       test DLLs for the second-to-last network shader: f1 is a test build of the next release's
-                       exact DLL for that kind of card; t1 is f1 with that shader working on small square tiles
-                       of the picture instead of rows, t2 the same shader cut into tiles the way AMD's newer
-                       RX 6000 driver shaders do it. Only the speed may differ between the three.
-  dlls\rdna2-p1-amd-shaders, rdna2-p2-dots-split, rdna2-p5-exact, rdna2-p6-swap, rdna2-p7-swap-handpack,
-  rdna2-p8-exact-swap, rdna2-p9-alt-shaders
-                       (RX 6000 and RDNA2 integrated graphics only) the packing test: which way of writing the
-                       last shader gives the RX 6000 picture under Windows its difference from AMD's; p6 and p7
-                       are compared with p2, p8 with p5, p9 with p1 (details in STUDY.txt).
+  dlls\n-0-reference   a reference build of AMD's shaders, for the n- builds below
+  dlls\d-2-driver-rx6000, d-3-driver-rx7000
+                       reference builds of the shaders AMD's own FSR 4.1.2 uses in its graphics driver:
+                       d-2 its model for Radeon RX 6000 (RDNA2), d-3 its model for Radeon RX 7000 (RDNA3).
+                       Timed on RX 6000 / RDNA2 graphics (d-2), RX 7000 / RDNA3 graphics (d-3), and both on
+                       graphics cards. The summary ends with a block that compares the builds made for your
+                       graphics with AMD's own FSR 4.1.2 for it (on graphics built into processors with its
+                       model for those, the smaller network lt1-reference).
+  dlls\n-exact-<flavor>, n-exact-<flavor>-alt2, n-exact-<flavor>-p11,
+  n-lossy-<flavor>, n-lossy-<flavor>-next
+                       test builds of the next release's exact and lossy DLLs for one kind of graphics
+                       (flavor r3 = RX 7000, r2 = RX 6000, igpu-r3 / igpu-r2 = built-in RDNA3 / RDNA2
+                       graphics and other cards). The kit times your own flavor, and on RX 6000 / RX 7000
+                       cards also the other card flavor for comparison. alt2 has the first shader written in a
+                       faster way and should give n-exact's picture; p11 is alt2 with one more shader written
+                       in a different way (the same picture as alt2); n-lossy-...-next is the next lossy build
+                       (its picture differs from n-lossy's by design).
+  dlls\lt1-reference, lt6-test, lt13-test
+                       the smaller FSR 4 network: a reference build (lt1), a faster form that should give its
+                       picture exactly (lt6), and a faster form whose picture differs by design (lt13).
+  dlls\rdna2-d1-driver-prepass, rdna2-d2-driver-postpass, rdna2-d3-driver-model-passes, rdna2-d4-driver-pass11
+                       (RX 6000 cards only) AMD's 4.1.1 shaders with one part replaced by the one AMD's own
+                       FSR 4.1.2 uses on RX 6000: which part makes it faster on your card.
   The test DLLs and reference builds are timed for their speed and compared with each other, not
   with AMD's picture: a large difference from AMD's picture on their lines is expected.
 
@@ -134,8 +96,7 @@ Reading the summary
   The numbers are milliseconds of graphics-card time per upscaled frame; lower is better. Each
   is the mean of that DLL's runs (one per round, and any run it got when timed again), and where
   they spread by more than 3% the smallest and largest are given in square brackets: treat such a
-  line with caution. The percentage compares with the first DLL, or on an RDNA2 chip (RX 6000 or
-  the built-in ones listed above) with 1b-amd-shaders-dots-split. For a lossy DLL the two numbers in brackets are a frame that runs
+  line with caution. The percentage compares with the first DLL. For a lossy DLL the two numbers in brackets are a frame that runs
   FSR 4's model and a frame that skips it.
 
   After each run comes the picture's fingerprint. "= 1-amd-shaders" after it means the
@@ -149,6 +110,12 @@ Reading the summary
   16x16-pixel blocks of the picture differ, the area they lie in, and the largest shift of a
   block's mean value. That is a finding worth sending.
 
+  At the end of the summary, "drift check" compares the reference DLL's first run with its last:
+  if they differ by more than 3% the card's speed changed during the test (heat, power or clock
+  limits, or something running in the background), and the summary says NOISY. Such a report is
+  still welcome; it is read with that in mind. The block after it compares the builds made for
+  your graphics with AMD's own FSR 4.1.2 for it (negative = faster than AMD's).
+
   These are made-up frames. A game's numbers will differ somewhat; what OptiScaler's overlay
   shows in a game is the real thing, and the kit asks for it at the end if you have it.
 
@@ -160,7 +127,6 @@ Options (from a command prompt in this folder)
   fsr4time.exe --once            one round only (a few minutes)
   fsr4time.exe --minutes 8       let the rounds take about 8 minutes instead of 15
   fsr4time.exe --no-questions    no questions at the end, nothing is sent
-  fsr4time.exe --study           the study run (what run-study.cmd starts; see STUDY.txt)
 
 Other graphics cards
   The kit is not limited to Radeon. FSR 4.1.1 should run on any graphics chip whose driver supports

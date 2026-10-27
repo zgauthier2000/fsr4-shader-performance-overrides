@@ -411,6 +411,20 @@ static bool IsRdna2(unsigned ven, unsigned dev) {
 static bool IsRdna3(unsigned ven, unsigned dev) {
     return ven == 0x1002 && ((dev >= 0x7440 && dev <= 0x749F) || dev == 0x15BF || dev == 0x15C8 || dev == 0x150E || dev == 0x1114 || dev == 0x1586);
 }
+// The lean kit (2026-10-26; user: "the next kit we release gives us the best data possible so we can know how much faster our exact and lossy builds are
+// vs amds 4.1.2 driver timings on the gpu it was run on"): a normal run times the builds made for this kind of graphics. RX 6000 cards: the RX 6000 (r2)
+// builds and, for comparison, the RX 7000 (r3) ones; RX 7000 cards the reverse; graphics built into processors only their own flavor (a short run);
+// other graphics the igpu-r3 flavor (the one meant for them). AMD's own FSR 4.1.2 for the card (d-2 = its RX 6000 model, d-3 = its RX 7000 model;
+// on built-in graphics its Lite model, lt1) is timed beside them, so the summary can say how far each build is from it.
+static bool IsApu(unsigned ven, unsigned dev) {      // the RDNA2 / RDNA3 chips built into processors (the lists above)
+    return ven == 0x1002 && (dev == 0x163F || dev == 0x1435 || dev == 0x1681 || dev == 0x1506 || dev == 0x164E || dev == 0x13C0 ||
+                             dev == 0x15BF || dev == 0x15C8 || dev == 0x150E || dev == 0x1114 || dev == 0x1586);
+}
+static int gclass = 0;      // 2 / 3: an RX 6000 / RX 7000 card; 12 / 13: RDNA2 / RDNA3 built-in graphics; 0: other graphics
+static const char* own_fl = "igpu-r3";      // this graphics' flavor of the n-exact / n-lossy builds
+static const char* cross_fl = NULL;         // the other desktop flavor, timed for comparison on RX 6000 / RX 7000 cards
+static bool FlavorIs(const char* t, const char* fl) { const size_t n = strlen(fl); return !strncmp(t, fl, n) && (t[n] == 0 || t[n] == '-'); }
+static const char* DriverRef(void) { return gclass == 2 ? "d-2-driver-rx6000" : gclass == 3 ? "d-3-driver-rx7000" : (gclass == 12 || gclass == 13) ? "lt1-reference" : NULL; }
 static bool GpuIds(unsigned* ven, unsigned* dev, char* name, size_t n) {      // the adapter the runs use (high performance), without a device
     IDXGIFactory6* f6 = NULL; IDXGIAdapter1* ad = NULL; bool ok = false;
     if (SUCCEEDED(CreateDXGIFactory1(&IID_IDXGIFactory6, (void**)&f6)) &&
@@ -436,7 +450,15 @@ static bool StudyOnly(const char* name) {      // since kit 2026-10-22: release 
 }
 static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
-    if (!study) return (!s2 && !s3 && !StudyOnly(name)) || (normgen == 2 && s2 && (Pass11Test(name) || PackingTest(name))) || (normgen == 3 && s3 && Pass11Test(name));
+    if (!study) {      // the lean kit's normal run (see gclass above)
+        if (!strncmp(name, "n-exact-", 8) || !strncmp(name, "n-lossy-", 8)) return FlavorIs(name + 8, own_fl) || (cross_fl && FlavorIs(name + 8, cross_fl));
+        if (!strncmp(name, "d-2-", 4)) return gclass == 2 || gclass == 3 || gclass == 12;      // AMD's RX 6000 model: RDNA2 graphics, and RX 7000 cards for comparison
+        if (!strncmp(name, "d-3-", 4)) return gclass == 2 || gclass == 3 || gclass == 13;      // AMD's RX 7000 model: RDNA3 graphics, and RX 6000 cards for comparison
+        if (s2) return gclass == 2;      // the RX 6000-only test DLLs (rdna2-...)
+        if (s3) return gclass == 3;
+        (void)Pass11Test; (void)PackingTest;
+        return !StudyOnly(name);
+    }
     // since the next kit: also the released lossy and lossy2 DLLs, which the study set's family lossy DLLs (rdna2-f2/f3, rdna3-f2/f3) are
     // compared with; the family DLLs are named rdna2-f* / rdna3-f*, so they come with their generation's study set and stay out of normal runs
     return !strncmp(name, "1-", 2) || !strncmp(name, "1b-", 3) || !strcmp(name, "2-exact") || !strcmp(name, "3-lossy") || !strcmp(name, "3b-lossy2")
@@ -1399,6 +1421,9 @@ int main(int argc, char** argv) {
         GpuIds(&ven, &dev, gn, sizeof(gn));
         if (getenv("FSR4TIME_STUDYGPU")) sscanf(getenv("FSR4TIME_STUDYGPU"), "%x:%x", &ven, &dev);      // for testing the choice (e.g. 1002:73ff = RDNA2)
         normgen = IsRdna2(ven, dev) ? 2 : IsRdna3(ven, dev) ? 3 : 0;
+        const bool apu = IsApu(ven, dev);
+        gclass = normgen ? (apu ? 10 + normgen : normgen) : 0;
+        own_fl = gclass == 2 ? "r2" : gclass == 3 ? "r3" : gclass == 12 ? "igpu-r2" : "igpu-r3"; cross_fl = gclass == 2 ? "r3" : gclass == 3 ? "r2" : NULL;
     }
     SetupRuntime(base, unattended);      // Windows' own runtime unless it offers less than shader model 6.6 (Windows 10); see there
     if (getenv("FSR4TIME_AGILITYONLY")) return 0;      // for testing the runtime choice alone (no DLL runs)
@@ -1575,6 +1600,33 @@ int main(int argc, char** argv) {
             }
         }
         ADD("\n");
+    }
+    {      // drift check (lean kit): the reference's first and last run of the session; rounds alternate direction, so they sit at its start and end
+        bool noisy = false, any = false; char dl[256] = ""; size_t dn = 0;
+        for (int i = 0; i < nr; ++i) {
+            const struct Row* w = &rows[i];
+            if (strcmp(w->name, rows[0].name) || strcmp(w->scene, "moving") || w->n < 2) continue;
+            const double d = 100.0 * (w->runs[w->n - 1] / w->runs[0] - 1.0); any = true; noisy = noisy || d > 3.0 || d < -3.0;
+            dn += snprintf(dl + dn, sizeof(dl) - dn, "%s%s %+.1f%%", dn ? ", " : "", w->size, d);
+        }
+        if (any) ADD("drift check (%s, its first and its last run of this session, moving): %s%s\n", rows[0].name, dl,
+                     noisy ? "  NOISY: this card's speed changed during the run (heat, power or clock limits, or something running in the background); the figures above are less reliable" : "");
+        else ADD("drift check: only one round, not measured\n");
+    }
+    if (DriverRef()) {      // vs AMD's own FSR 4.1.2 for this graphics (lean kit)
+        const char* dr = DriverRef(); bool hdr = false;
+        for (int i = 0; i < nr; ++i) {
+            const struct Row* w = &rows[i];
+            if (strcmp(w->scene, "moving")) continue;
+            const bool mine = ((!strncmp(w->name, "n-exact-", 8) || !strncmp(w->name, "n-lossy-", 8)) && FlavorIs(w->name + 8, own_fl)) || !strcmp(w->name, "lt6-test") || !strcmp(w->name, "lt13-test");
+            if (!mine) continue;
+            const struct Row* b = NULL;
+            for (int j = 0; j < nr && !b; ++j) if (!strcmp(rows[j].name, dr) && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) b = &rows[j];
+            if (!b || Val(b) <= 0) continue;
+            if (!hdr) { ADD("vs AMD's own FSR 4.1.2 for this graphics (%s = %s), moving, %% upscaler time per frame (negative = faster than AMD's):\n", dr,
+                            gclass == 2 ? "its RX 6000 model" : gclass == 3 ? "its RX 7000 model" : "its model for built-in graphics, FSR 4.1.2 Lite"); hdr = true; }
+            ADD("  %-24s %-10s %+.1f%%\n", w->name, w->size, 100.0 * Val(w) / Val(b) - 100.0);
+        }
     }
     if (fl) ADD("did not run:\n%s", fails);
     printf("\n=== summary\n%s", summary);
