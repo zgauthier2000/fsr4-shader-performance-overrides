@@ -1,8 +1,8 @@
 # Downloads of the release files
 
-**Total downloads: 23,198**
+**Total downloads: 23,447**
 
-Updated 2026-10-26 11:04 UTC; counted since 2026-10-11 22:32 UTC. Files that were replaced before then are not in it. Since counting began: 9,931 downloads in 14.5 days, 684 per 24 hours on average.
+Updated 2026-10-27 10:31 UTC; counted since 2026-10-11 22:32 UTC. Files that were replaced before then are not in it. Since counting began: 10,180 downloads in 15.5 days, 657 per 24 hours on average.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="downloads-dark.svg">
@@ -15,6 +15,7 @@ One line per day (UTC), from that day's last reading. "Added" is what came in si
 
 | Day | Read at | Total | Added | Hours covered | Added: DLLs, desktop | Added: DLLs, integrated | Added: Windows kit | Added: Linux kit |
 |---|---|---|---|---|---|---|---|---|
+| 2026-10-27 | 10:31 | 23,447 | 249 | 23.4 | 136 | 81 | 24 | 0 |
 | 2026-10-26 | 11:04 | 23,198 | 363 | 25.3 | 180 | 104 | 53 | 0 |
 | 2026-10-25 | 09:47 | 22,835 | 423 | 24.3 | 196 | 146 | 68 | 0 |
 | 2026-10-24 | 09:31 | 22,412 | 711 | 23.5 | 356 | 266 | 27 | 0 |
@@ -38,34 +39,34 @@ The four columns on the right do not add up to "Added": checksum files and other
 
 | Kind of download | Downloads | Of these, in files since replaced |
 |---|---|---|
-| DLLs: desktop cards and other | 18,041 | 0 |
-| DLLs: integrated graphics | 3,410 | 0 |
+| DLLs: desktop cards and other | 18,177 | 0 |
+| DLLs: integrated graphics | 3,491 | 0 |
 | Timing kit: Linux | 61 | 0 |
-| Timing kit: Windows | 980 | 0 |
+| Timing kit: Windows | 1,004 | 0 |
 
 | Archive, by graphics (since `dll-2026-10-22`, .zip and .7z together) | Downloads |
 |---|---|
-| RX 7000 (rx7000) | 338 |
-| RX 6000 (rx6000) | 486 |
-| Integrated RDNA 3, GeForce, Arc, others (igpu rdna3) | 311 |
-| Steam Deck, 680M, older integrated (igpu rdna2) | 252 |
+| RX 7000 (rx7000) | 386 |
+| RX 6000 (rx6000) | 563 |
+| Integrated RDNA 3, GeForce, Arc, others (igpu rdna3) | 352 |
+| Steam Deck, 680M, older integrated (igpu rdna2) | 287 |
 
 | Release | Downloads | Of these, in files since replaced |
 |---|---|---|
-| `timing-kit-2026-10-25.2` | 22 | 0 |
+| `timing-kit-2026-10-25.2` | 48 | 0 |
 | `timing-kit-2026-10-25` | 5 | 0 |
 | `timing-kit-2026-10-24` | 69 | 0 |
 | `timing-kit-2026-10-22` | 73 | 0 |
-| `dll-2026-10-22` | 1,475 | 0 |
+| `dll-2026-10-22` | 1,682 | 0 |
 | `timing-kit-2026-10-19` | 144 | 0 |
-| `dll-2026-10-19` | 1,641 | 0 |
+| `dll-2026-10-19` | 1,647 | 0 |
 | `timing-kit-2026-10-18.3` | 82 | 0 |
 | `timing-kit-2026-10-18.2` | 30 | 0 |
 | `timing-kit-2026-10-18` | 51 | 0 |
 | `timing-kit-2026-10-15.3` | 137 | 0 |
 | `timing-kit-2026-10-15.2` | 21 | 0 |
 | `timing-kit-2026-10-15` | 64 | 0 |
-| `dll-2026-10-15` | 2,007 | 0 |
+| `dll-2026-10-15` | 2,008 | 0 |
 | `timing-kit-2026-10-14` | 66 | 0 |
 | `dll-2026-10-14` | 725 | 0 |
 | `timing-kit-2026-10-13.2` | 86 | 0 |
@@ -77,18 +78,18 @@ The four columns on the right do not add up to "Added": checksum files and other
 | `timing-kit-2026-10-12.4` | 35 | 0 |
 | `timing-kit-2026-10-12.3` | 81 | 0 |
 | `dll-2026-10-12.2` | 370 | 0 |
-| `dll-2026-10-12` | 295 | 0 |
+| `dll-2026-10-12` | 296 | 0 |
 | `dll-2026-10-11.7` | 635 | 0 |
 | `dll-2026-10-11.6` | 62 | 0 |
 | `dll-2026-10-11.5` | 316 | 0 |
-| `dll-2026-10-11.4` | 409 | 0 |
+| `dll-2026-10-11.4` | 410 | 0 |
 | `dll-2026-10-11.3` | 481 | 0 |
 | `dll-2026-10-11.2` | 189 | 0 |
 | `dll-2026-10-11` | 103 | 0 |
 | `dll-2026-10-10` | 596 | 0 |
 | `dll-2026-10-09` | 756 | 0 |
-| `dll-2026-10-07` | 6,057 | 0 |
-| `dll-2026-10-06.6` | 4,064 | 0 |
+| `dll-2026-10-07` | 6,059 | 0 |
+| `dll-2026-10-06.6` | 4,069 | 0 |
 | `dll-2026-10-06.5` | 65 | 0 |
 | `dll-2026-10-06.4` | 21 | 0 |
 | `dll-2026-10-06.3` | 50 | 0 |
@@ -106,4 +107,4 @@ The four columns on the right do not add up to "Added": checksum files and other
 | `dll-2026-10-04` | 26 | 0 |
 | `dll-2026-10-03` | 120 | 0 |
 
-All files: 23,198. `downloads.csv` has a line for every day a file's count changed; `runs.csv` has the totals of every run.
+All files: 23,447. `downloads.csv` has a line for every day a file's count changed; `runs.csv` has the totals of every run.
