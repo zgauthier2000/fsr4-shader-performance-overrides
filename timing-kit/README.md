@@ -18,7 +18,7 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 - **Why it exists:** the project is developed on one graphics card. What it does on every other chip is only known from
   what people measure and send in.
 - **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait about 15 minutes
-  (17 on RDNA3, about 21 on RDNA2 graphics; it uses the time for repeat rounds; a slow or integrated chip may take up to about 25-30).
+  (it uses the time for repeat rounds; a slow or integrated chip may take up to about 25).
   On Linux or a Steam Deck in desktop mode, the Linux kit described below: one command, about 15 minutes on an RX 7800 XT, or a
   minute or two for the short run.
 - **The output check of the model passes now means something (kit 2026-10-10.1).** Earlier kits filled the small buffer that
@@ -31,7 +31,29 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Windows kit version 2026-10-25.2** (download again if you have an earlier one):
+**Windows kit version KITVER** (download again if you have an earlier one):
+
+- **How much faster AMD's own FSR 4.1.2 is than its 4.1.1 on your graphics.** AMD's FSR 4.1.2 ships inside AMD's graphics driver,
+  with one model for RX 6000 and one for RX 7000 cards. The kit now times both models' shaders on every PC (`d-2-driver-rx6000`,
+  `d-3-driver-rx7000`), as well as FSR 4.1.2 Lite (`lt1-reference`), and the summary ends with a block that compares each with AMD's
+  FSR 4.1.1 (`1-amd-shaders`). AMD's 4.1.2 shaders run in this kit, not in AMD's own driver.
+- **Test builds of the next release's exact and lossy builds** for each kind of graphics, each beside a form with one change
+  (`-nocv`: without one small change to the network's shaders; `-z4` / `-z3`: some network shaders written so the driver can unroll
+  their loops; `-prev`: the exact DLL of `dll-2026-10-22`), and test builds of the smaller FSR 4 network (`lt6`, `lt14`; `lt15` and `lt16`: `lt14` with one
+  of two changes to how it writes its results). They are compared with each other, not with AMD's picture. A block in the summary
+  compares the builds made for your graphics with AMD's own FSR 4.1.2 for it, and one compares the `lt` builds with plain Lite.
+- **Only the builds made for your kind of graphics** (and, on RX 6000 and RX 7000 cards, the other card's builds for comparison), so
+  each gets more rounds. The study run (`run-study.cmd`) is gone.
+- **Busy-GPU rows:** `lt14`, `lt15` and `lt16` are timed a second time with the graphics card's caches emptied before every frame, as
+  a game's own drawing would leave them (`@busy`; the emptying is not counted in the time). A kit run alone keeps the caches warm,
+  which once hid a difference that showed in a game.
+- **A drift check:** the summary compares the reference's first and last run and marks the report NOISY when the card's speed
+  changed by more than 3% during the run (heat, power limits, something in the background).
+- **When a DLL does not finish in time,** the other test DLLs of the same kind of graphics are skipped and listed as not run (one
+  GeForce RTX 2080 lost 30 minutes to ten of them in an earlier kit).
+- About 31 MB.
+
+**Windows kit version 2026-10-25.2:**
 
 - **Three more test builds of the smaller FSR 4 network** (`lt10` to `lt12`), timed on every PC; each should give the picture of the
   build the summary names beside it.
@@ -190,7 +212,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-10-25.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-25.2/fsr4-timing-kit-windows-2026-10-25.2.zip) (about 60 MB, version 2026-10-25.2; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-KITVER.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-KITVER/fsr4-timing-kit-windows-KITVER.zip) (about 31 MB, version KITVER; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
@@ -202,7 +224,9 @@ compatibility tool* and pick a Proton (Proton Experimental works); then press *P
 The summary and `results-raw.txt` are saved in the unpacked folder. It runs the same as on Windows and sends the same report; the summary
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
-For RDNA2 and RDNA3 owners with time for a longer run: `run-study.cmd` in the same folder starts the study run (about 30 minutes; see `STUDY.txt` inside).
+Kits up to version 2026-10-25.2 also had a study run for RDNA2 and RDNA3 (`run-study.cmd`); version KITVER has none.
+
+**New in version KITVER:** AMD's own FSR 4.1.2 against its 4.1.1 on every PC; test builds of the next release; only the builds for your kind of graphics; busy-GPU rows; a drift check; the rest of a kind of graphics skipped after a time-out (see [above](#in-short)).
 
 **New in version 2026-10-25.2:** test builds `lt10` to `lt12` on every PC (see [above](#in-short)).
 
@@ -273,7 +297,9 @@ only:** 4K AMD 4.64 ms, exact 3.07, lossy 2.50 (`dll-2026-10-14`'s lossy DLL, wh
   same picture, byte for byte. The exact DLLs must match AMD's shaders; the lossy ones differ. **RX 6000 cards under Windows
   are the exception:** AMD's own shaders show ghosting there, so the exact DLLs are expected to differ from them and to match
   the second reference instead, AMD's shaders with only the last shader's dot products split into two steps. A third
-  reference carries all three changes of the community's 4.1.1b fix for those cards, rebuilt here from AMD's shaders.
+  reference carries all three changes of the community's 4.1.1b fix for those cards, rebuilt here from AMD's shaders. (That was the
+  setup up to kit 2026-10-25.2. Since version KITVER the references are AMD's 4.1.1 shaders, AMD's FSR 4.1.2 shaders for RX 6000 and
+  RX 7000 and FSR 4.1.2 Lite, and the test builds are compared with each other: the summary names the build each one should match.)
 - **Every DLL is timed twice, in opposite order:** all of them in order, then all in reverse order. A DLL timed early in a run
   can read differently from one timed late (the GPU warming up, something else starting on the PC); with both orders each DLL gets
   an early and a late slot. The summary gives the mean of the two runs, and both figures where they differ by more than 3%, so a

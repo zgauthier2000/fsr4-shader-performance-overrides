@@ -171,18 +171,15 @@ network's twelve layers (closer to AMD's picture on swaying foliage and fireflie
 Performance yet), removed the register cut from the lossy DLLs, and added `.7z` downloads.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-25.2/fsr4-timing-kit-windows-2026-10-25.2.zip)** (experimental, about 60 MB, version 2026-10-25.2): unpack, double-click
-> `fsr4time.exe`, wait about 15 minutes (17 on RX 7000 and RDNA 3 built-in graphics, about 21 on RX 6000, the Steam Deck and other
-> RDNA2 graphics; up to about 25-30 on a slow chip). It times FSR 4 with AMD's shaders and with these DLLs on your graphics card, checks
-> that each DLL gives the same picture, and offers to send the result. Reports are in from more than twenty graphics chips so far;
-> every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck: [the Linux kit](timing-kit).
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-KITVER/fsr4-timing-kit-windows-KITVER.zip)** (experimental, about 31 MB, version KITVER): unpack, double-click
+> `fsr4time.exe`, wait about 15 minutes (up to about 25 on a slow chip). It times FSR 4 with AMD's shaders and with this project's
+> builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
+> than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck:
+> [the Linux kit](timing-kit).
 >
-> - New in the Windows kit (2026-10-25.2): three more test builds of the smaller FSR 4 network, timed on every graphics chip.
->   Version 2026-10-25 added other forms of the next release's exact and lossy builds, each compared with its own build.
->   [Details](timing-kit/README.md#in-short)
-> - Earlier (2026-10-19): a study run for RDNA2 and RDNA3 graphics (`run-study.cmd`, about 30 minutes: each change of the exact DLL
->   timed on its own); Windows 10 PCs can fetch Microsoft's newer DirectX 12 runtime. (2026-10-18.3) it starts on Windows 11 23H2
->   again. [Details](timing-kit/README.md#in-short)
+> - New in the Windows kit (KITVER): **how much faster AMD's own FSR 4.1.2 is than its 4.1.1 on your graphics card** (AMD's FSR 4.1.2
+>   shaders for RX 6000 and RX 7000 and FSR 4.1.2 Lite, timed on every PC), test builds of the next release, timed only for your kind of
+>   graphics, and a run with the graphics card's caches emptied before every frame, as in a game. [Details](timing-kit/README.md#in-short)
 > - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
 >
 > [What the kits do](timing-kit/README.md#windows-experimental)
