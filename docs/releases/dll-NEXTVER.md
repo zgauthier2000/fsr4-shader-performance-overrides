@@ -30,8 +30,9 @@ project's display mapping, not the game's tone mapping. The recorded clip runs t
   which is why the RX 7000 and RDNA 3 archives do not use it).
 - **Version names start with 4.1.2:** `4.1.2-exact-r3-cyboman`, `4.1.2-lossy-r2-cyboman` and so on (they were `4.1.1-...`), and
   `4.1.2l-exact-...` / `4.1.2l-lossy-...` for the Lite builds. The file is still AMD's 4.1.1 game DLL (file version 4.1.1.2740) with this
-  project's shaders, not AMD's 4.1.2 game DLL of FSR SDK 2.4.0 (4.1.2.4555). Whether it works in a game built with SDK 2.4.0 (which
-  ships AMD's 4.1.2 DLL and a newer loader) is not checked yet. Its exact builds give the pictures AMD's 4.1.2 DLL gives (RX 7000 / RDNA 3 and RX 6000 models; [details](../amd-411-vs-412.md)). Under
+  project's shaders, not AMD's 4.1.2 game DLL of FSR SDK 2.4.0 (4.1.2.4555). With SDK 2.4.0's newer loader, which games built with that SDK
+  ship beside AMD's 4.1.2 DLL, every DLL of this release runs and gives the same frames as with the older loader (test rig, Linux;
+  not yet tried in a game). Its exact builds give the pictures AMD's 4.1.2 DLL gives (RX 7000 / RDNA 3 and RX 6000 models; [details](../amd-411-vs-412.md)). Under
   Linux on an RX 7800 XT the RX 7000 exact DLL is 37% faster than AMD's 4.1.2 DLL at 4K (3.13 against 4.98 ms).
 - **New in every archive:** `WHICH-SHOULD-I-CHOOSE.txt`, a short guide to the four folders.
 - **Linux:** the launch-option files are unchanged; the Lite builds are DLLs only (they run under Proton).
