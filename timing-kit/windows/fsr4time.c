@@ -452,8 +452,7 @@ static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
     if (!study) {      // the lean kit's normal run (see gclass above)
         if (!strncmp(name, "n-exact-", 8) || !strncmp(name, "n-lossy-", 8)) return FlavorIs(name + 8, own_fl) || (cross_fl && FlavorIs(name + 8, cross_fl));
-        if (!strncmp(name, "d-2-", 4)) return gclass == 2 || gclass == 3 || gclass == 12;      // AMD's RX 6000 model: RDNA2 graphics, and RX 7000 cards for comparison
-        if (!strncmp(name, "d-3-", 4)) return gclass == 2 || gclass == 3 || gclass == 13;      // AMD's RX 7000 model: RDNA3 graphics, and RX 6000 cards for comparison
+        if (!strncmp(name, "d-2-", 4) || !strncmp(name, "d-3-", 4)) return true;      // AMD's RX 6000 / RX 7000 models: on every graphics (2026-10-28: AMD's 4.1.2 vs its 4.1.1 on each card)
         if (s2) return gclass == 2;      // the RX 6000-only test DLLs (rdna2-...)
         if (s3) return gclass == 3;
         (void)Pass11Test; (void)PackingTest;
@@ -1288,24 +1287,32 @@ static DWORD RunLimit(void) {      // the time limit of the next run, ms (see RU
     if (m > RUN_LIMIT_MIN) m = RUN_LIMIT_MIN;
     return (DWORD)m * 60000u;
 }
-static void RunDll(const char* name, int inpack, const char* base, const char* raw, bool quick, const char* what) {
+// the flavor of an n-exact- / n-lossy- test DLL (r3, r2, igpu-r3, igpu-r2) in fl; false for any other DLL
+static bool FlavorOf(const char* name, char* fl, size_t n) {
+    if (strncmp(name, "n-exact-", 8) && strncmp(name, "n-lossy-", 8)) return false;
+    const char* s = name + 8; size_t k = !strncmp(s, "igpu-", 5) ? 5 : 0;
+    while (s[k] && s[k] != '-') ++k;
+    snprintf(fl, n, "%.*s", (int)k, s); return k > 0;
+}
+static bool RunDll(const char* name, int inpack, const char* base, const char* raw, bool quick, const char* what) {      // true: stopped at the time limit
     char src[MAX_PATH], cmd[1024];
     snprintf(src, sizeof(src), "dlls\\%s\\amd_fidelityfx_upscaler_dx12.dll", name);
     if (inpack >= 0) {
         if (!PackExtract((uint32_t)inpack, "amd_fidelityfx_upscaler_dx12.dll")) {
             printf(stopped_holds ? "%s: could not be put in place (a stopped run still holds the file), skipped\n" : "%s: could not take it out of the DLL pack (please download the kit again), skipped\n", name);
-            return;
+            return false;
         }
-    } else if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", name); return; }
+    } else if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", name); return false; }
     printf("%s %s ...\n", name, what); fflush(stdout);
     snprintf(cmd, sizeof(cmd), "\"%s%s\" --run \"%s\" \"%s\"%s%s", base, child_exe, name, raw, quick ? " quick" : " full", all_presets ? " all" : "");
     STARTUPINFOA si = {.cb = sizeof(si)};
     PROCESS_INFORMATION pi;
-    if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) { printf("could not start a run for %s\n", name); return; }
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) { printf("could not start a run for %s\n", name); return false; }
     const char* lim = getenv("FSR4TIME_LIMIT");
     const DWORD limit = lim && atoi(lim) > 0 ? (DWORD)atoi(lim) * 1000u : RunLimit();
-    const ULONGLONG started = GetTickCount64();
+    const ULONGLONG started = GetTickCount64(); bool timed_out = false;
     if (WaitForSingleObject(pi.hProcess, limit) == WAIT_TIMEOUT) {
+        timed_out = true;
         TerminateProcess(pi.hProcess, 4);
         stopped_holds = WaitForSingleObject(pi.hProcess, 15000) == WAIT_TIMEOUT;
         char t[32];
@@ -1326,6 +1333,7 @@ static void RunDll(const char* name, int inpack, const char* base, const char* r
     }
     CloseHandle(pi.hProcess); CloseHandle(pi.hThread);
     fflush(stdout);
+    return timed_out;
 }
 // A report ID: names one report in the channel, the results file and anything the tester writes about it (8 hex digits, from the clock,
 // the process and the card's line; not a secret and not tied to the PC)
@@ -1491,7 +1499,18 @@ int main(int argc, char** argv) {
         if (failed[i]) continue;
         char what[64];
         snprintf(what, sizeof(what), "(round %d, DLL %d of %d)", rounds + 1, k + 1, nd);
-        RunDll(names[i], inpack[i], base, raw, quick, what);
+        char fl[16];
+        if (RunDll(names[i], inpack[i], base, raw, quick, what) && FlavorOf(names[i], fl, sizeof(fl))) {
+            // (2026-10-28) a DLL stopped at the time limit: the other DLLs of its flavor would most likely stop there too (one card ran ten into it, 30 minutes):
+            // they are skipped and listed as not run
+            FILE* rf = fopen(raw, "a"); int ns = 0; char f2[16];
+            for (int j = 0; j < nd; ++j) if (j != i && !failed[j] && FlavorOf(names[j], f2, sizeof(f2)) && !strcmp(f2, fl)) {
+                failed[j] = true; ++ns;
+                if (rf) fprintf(rf, "R|%s|FAILED|skipped: %s, a DLL of the same flavor (%s), did not finish within the time limit\n", names[j], names[i], fl);
+            }
+            if (rf) fclose(rf);
+            if (ns) { printf("%d more DLLs of the %s flavor are skipped: %s did not finish in time\n", ns, fl, names[i]); fflush(stdout); }
+        }
     }
     // Re-timing: the time left after the rounds goes to DLLs whose runs disagreed by more than 3% at some size (in the reports of kit 2026-10-15.3,
     // repeats disagreed by a median of 5%, a tenth of them by over 50%): one more run each, the most unsteady first, while a run still fits in the
@@ -1618,13 +1637,40 @@ int main(int argc, char** argv) {
         for (int i = 0; i < nr; ++i) {
             const struct Row* w = &rows[i];
             if (strcmp(w->scene, "moving")) continue;
-            const bool mine = ((!strncmp(w->name, "n-exact-", 8) || !strncmp(w->name, "n-lossy-", 8)) && FlavorIs(w->name + 8, own_fl)) || !strcmp(w->name, "lt6-test") || !strcmp(w->name, "lt13-test");
+            const bool mine = ((!strncmp(w->name, "n-exact-", 8) || !strncmp(w->name, "n-lossy-", 8)) && FlavorIs(w->name + 8, own_fl)) || !strcmp(w->name, "lt6-test") || !strcmp(w->name, "lt14-test");      // our release Lite builds (2026-10-28: lt14 = the release lossy3)
             if (!mine) continue;
             const struct Row* b = NULL;
             for (int j = 0; j < nr && !b; ++j) if (!strcmp(rows[j].name, dr) && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) b = &rows[j];
             if (!b || Val(b) <= 0) continue;
             if (!hdr) { ADD("vs AMD's own FSR 4.1.2 for this graphics (%s = %s), moving, %% upscaler time per frame (negative = faster than AMD's):\n", dr,
                             gclass == 2 ? "its RX 6000 model" : gclass == 3 ? "its RX 7000 model" : "its model for built-in graphics, FSR 4.1.2 Lite"); hdr = true; }
+            ADD("  %-24s %-10s %+.1f%%\n", w->name, w->size, 100.0 * Val(w) / Val(b) - 100.0);
+        }
+    }
+    {      // (2026-10-28) AMD's own FSR 4.1.2 models against AMD's FSR 4.1.1 on this graphics
+        const char* m412[3] = {"d-2-driver-rx6000", "d-3-driver-rx7000", "lt1-reference"};
+        const char* what412[3] = {"FSR 4.1.2, AMD's RX 6000 model", "FSR 4.1.2, AMD's RX 7000 model", "FSR 4.1.2 Lite, AMD's smaller model (likely the one for built-in graphics)"};
+        bool hdr = false;
+        for (int m = 0; m < 3; ++m) for (int i = 0; i < nr; ++i) {
+            const struct Row* w = &rows[i];
+            if (strcmp(w->name, m412[m]) || strcmp(w->scene, "moving")) continue;
+            const struct Row* b = NULL;
+            for (int j = 0; j < nr && !b; ++j) if (!strcmp(rows[j].name, "1-amd-shaders") && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) b = &rows[j];
+            if (!b || Val(b) <= 0 || Val(w) <= 0) continue;
+            if (!hdr) { ADD("AMD's FSR 4.1.2 against AMD's FSR 4.1.1 (1-amd-shaders) on this graphics, moving, %% upscaler time per frame (negative = 4.1.2 faster);\n"
+                            "  AMD's 4.1.2 shaders as run in this kit, not in AMD's own driver:\n"); hdr = true; }
+            ADD("  %-24s %-10s %+.1f%%  (%s)\n", w->name, w->size, 100.0 * Val(w) / Val(b) - 100.0, what412[m]);
+        }
+    }
+    {      // (2026-10-28) this project's builds on FSR 4.1.2 Lite against plain Lite
+        bool hdr = false;
+        for (int i = 0; i < nr; ++i) {
+            const struct Row* w = &rows[i];
+            if (strcmp(w->scene, "moving") || strncmp(w->name, "lt", 2) || !strcmp(w->name, "lt1-reference")) continue;
+            const struct Row* b = NULL;
+            for (int j = 0; j < nr && !b; ++j) if (!strcmp(rows[j].name, "lt1-reference") && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) b = &rows[j];
+            if (!b || Val(b) <= 0 || Val(w) <= 0) continue;
+            if (!hdr) { ADD("vs plain FSR 4.1.2 Lite (lt1-reference), moving, %% upscaler time per frame (negative = faster than plain Lite):\n"); hdr = true; }
             ADD("  %-24s %-10s %+.1f%%\n", w->name, w->size, 100.0 * Val(w) / Val(b) - 100.0);
         }
     }

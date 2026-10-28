@@ -52,30 +52,40 @@ What it does
   Each DLL runs in a program of its own. If one crashes, or does not finish in time (a driver
   that stops responding), the kit notes it in the summary and goes on with the next one. The time
   limit is three times the longest DLL run that finished on your PC, at least 2 and at most 10
-  minutes, so a stuck DLL usually costs only a few minutes.
+  minutes, so a stuck DLL usually costs only a few minutes. When a test DLL does not finish in
+  time, the other test DLLs of the same flavor (see below) are skipped and listed as not run:
+  they would most likely run into the limit too.
 
   dlls\1-amd-shaders   AMD's DLL with AMD's shaders (only its graphics-card check is lifted, so
                        that it runs on RX 6000 cards and integrated graphics too): the reference
   dlls\n-0-reference   a reference build of AMD's shaders, for the n- builds below
-  dlls\d-2-driver-rx6000, d-3-driver-rx7000
+  dlls\d-2-driver-rx6000, d-2-driver-rx6000-pp, d-3-driver-rx7000
                        reference builds of the shaders AMD's own FSR 4.1.2 uses in its graphics driver:
                        d-2 its model for Radeon RX 6000 (RDNA2), d-3 its model for Radeon RX 7000 (RDNA3).
-                       Timed on RX 6000 / RDNA2 graphics (d-2), RX 7000 / RDNA3 graphics (d-3), and both on
-                       graphics cards. The summary ends with a block that compares the builds made for your
-                       graphics with AMD's own FSR 4.1.2 for it (on graphics built into processors with its
-                       model for those, the smaller network lt1-reference).
-  dlls\n-exact-<flavor>, n-exact-<flavor>-alt2, n-exact-<flavor>-p11,
-  n-lossy-<flavor>, n-lossy-<flavor>-next
+                       Both are timed on every graphics. The summary ends with blocks that compare AMD's
+                       FSR 4.1.2 models with AMD's FSR 4.1.1 (1-amd-shaders) on your graphics, the builds
+                       made for your graphics with AMD's own FSR 4.1.2 for it (on graphics built into
+                       processors with its model for those, the smaller network lt1-reference), and the
+                       lt- test builds with lt1-reference. AMD's 4.1.2 shaders run here in this kit, not in
+                       AMD's own driver.
+                       d-2-driver-rx6000-pp is d-2 with AMD's 4.1.1 network shaders in place of the driver's
+                       (the network gives the same output either way): the picture reference of the -drv builds.
+  dlls\n-exact-<flavor>, n-exact-<flavor>-nocv, n-exact-<flavor>-z4, n-exact-<flavor>-z3,
+  n-exact-<flavor>-prev, n-lossy-<flavor>, n-lossy-<flavor>-z4, n-lossy-<flavor>-z3
                        test builds of the next release's exact and lossy DLLs for one kind of graphics
                        (flavor r3 = RX 7000, r2 = RX 6000, igpu-r3 / igpu-r2 = built-in RDNA3 / RDNA2
                        graphics and other cards). The kit times your own flavor, and on RX 6000 / RX 7000
-                       cards also the other card flavor for comparison. alt2 has the first shader written in a
-                       faster way and should give n-exact's picture; p11 is alt2 with one more shader written
-                       in a different way (the same picture as alt2); n-lossy-...-next is the next lossy build
-                       (its picture differs from n-lossy's by design).
-  dlls\lt1-reference, lt6-test, lt13-test
+                       cards also the other card flavor for comparison. nocv is n-exact without one small
+                       change to the network's shaders (the same picture); z4 and z3 have some of the
+                       network's shaders written so the driver can unroll their loops (four shaders in z4,
+                       three in z3; the same picture as the build without the -z4 / -z3); prev is the exact
+                       DLL of the current release, dll-2026-10-22. The r2 and igpu-r2 exact builds are written
+                       to give the picture of AMD's own FSR 4.1.2 for RX 6000 and should give
+                       d-2-driver-rx6000-pp's picture; the others n-0-reference's.
+  dlls\lt1-reference, lt6-test, lt14-test, lt15-test
                        the smaller FSR 4 network: a reference build (lt1), a faster form that should give its
-                       picture exactly (lt6), and a faster form whose picture differs by design (lt13).
+                       picture exactly (lt6), and faster forms whose picture differs by design (lt14, and
+                       lt15 = lt14 with one change to how it writes its results: the same picture as lt14).
   dlls\rdna2-d1-driver-prepass, rdna2-d2-driver-postpass, rdna2-d3-driver-model-passes, rdna2-d4-driver-pass11
                        (RX 6000 cards only) AMD's 4.1.1 shaders with one part replaced by the one AMD's own
                        FSR 4.1.2 uses on RX 6000: which part makes it faster on your card.
