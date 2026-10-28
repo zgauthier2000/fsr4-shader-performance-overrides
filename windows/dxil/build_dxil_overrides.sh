@@ -13,7 +13,8 @@
 # PQ_ORDER=driver sums in the driver's order = that driver's picture), POSORDER=driver (the postpass's sample position computed in the order of AMD's
 # FSR 4.1.2 RX 6000 driver postpass, which gives that driver's picture), PASS11=rows (compact pass 11, for integrated GPUs), DOT4=split (dot
 # products as product + add, for RDNA2), DOT4=swap (the same RDNA2 fix by putting the constant operand
-# second instead, as FSR 4.1.2 does; faster than split), TAPS=0 (keep the branches around the postpass's
+# second instead, as FSR 4.1.2 does; faster than split), INTCONV=direct (model passes without our output-scaling rewrite convert their
+# rounded outputs straight to 32-bit integers, as AMD's FSR 4.1.2 RX 7000 driver does; same output), TAPS=0 (keep the branches around the postpass's
 # neighborhood reads), PREPASS=0 / MODEL=0 (leave the prepass / the integer output scaling alone),
 # POSTPASS_SMALL=amd (keep AMD's postpass code in the versions used at 1080p output and below,
 # where the rewrite is slower on RDNA2; DOT4 and TAPS still apply to them), POSTPASS_STORES=amd (the same
@@ -75,6 +76,12 @@ for f in "$src"/*.dxil; do
         "$work/dxilasm" "$dxc_dir/lib/libdxcompiler.so" "$work/out.ll" "$out/$hash.dxil" || { echo "FAILED $(basename "$f"): assembly"; failed=$((failed + 1)); continue; }
         echo "$out/$hash.dxil  (prepass, hybrid, ${PQ_ORDER:-amd} order, from $(basename "$f"))"; built=$((built + 1)); continue
     elif ! python3 "$here/$script" $arg < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
+        # INTCONV=direct: a model pass the output-scaling rewrite leaves alone gets its rounded outputs converted straight to 32-bit integers, as AMD's
+        # FSR 4.1.2 RX 7000 driver passes do (bit-exact), then straight to assembly
+        if [[ ${INTCONV:-} == direct && $script == model_tail_dxil.py ]] && python3 "$here/i32conv_dxil.py" < "$work/in.ll" > "$work/out.ll" 2>/dev/null; then
+            "$work/dxilasm" "$dxc_dir/lib/libdxcompiler.so" "$work/out.ll" "$out/$hash.dxil" || { echo "FAILED $(basename "$f"): assembly"; failed=$((failed + 1)); continue; }
+            echo "$out/$hash.dxil  (${name##*_}, direct conversions, from $(basename "$f"))"; built=$((built + 1)); icv=$((${icv:-0} + 1)); continue
+        fi
         [[ $script == model_tail_dxil.py || $script == prepass_route_dxil.py ]] || echo "skipped $(basename "$f"): not the expected structure"
         continue                                   # a model pass without that code is left alone
     fi
@@ -103,10 +110,19 @@ for f in "$src"/*.dxil; do
         mv "$work/out2.ll" "$work/out.ll"
     fi
     "$work/dxilasm" "$dxc_dir/lib/libdxcompiler.so" "$work/out.ll" "$out/$hash.dxil"
+    # INTCONV=direct on a rewritten model pass that still converts through 16 bits (passes 4 and 5): the same step on the assembled shader
+    if [[ ${INTCONV:-} == direct && $name == *_pass[0-9]* ]]; then
+        "$dxc_dir/bin/dxc" -dumpbin "$out/$hash.dxil" > "$work/as.ll"
+        if python3 "$here/i32conv_dxil.py" < "$work/as.ll" > "$work/out2.ll" 2>/dev/null; then
+            "$work/dxilasm" "$dxc_dir/lib/libdxcompiler.so" "$work/out2.ll" "$out/$hash.dxil" || { echo "FAILED $(basename "$f"): assembly"; failed=$((failed + 1)); continue; }
+            icv=$((${icv:-0} + 1))
+        fi
+    fi
     echo "$out/$hash.dxil  (${name##*_}, from $(basename "$f"))"
     built=$((built + 1))
 done
 [[ $built -gt 0 ]] || { echo "no FSR 4.1.1 INT8 postpass or pass 11 in $src"; exit 1; }
 [[ ${PREPASS:-1} == hybrid ]] && echo "hybrid prepasses (${PQ_ORDER:-amd} order): ${hyb:-0}"
+[[ ${INTCONV:-} == direct ]] && echo "model passes with direct conversions: ${icv:-0}"
 [[ ${POSORDER:-} == driver ]] && echo "sample position order: $(sort "$work/posorder.log" | uniq -c | tr '\n' ' ')"
 [[ $failed -eq 0 ]] || { echo "$failed shaders FAILED"; exit 1; }
