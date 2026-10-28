@@ -82,10 +82,13 @@ What it does
                        DLL of the current release, dll-2026-10-22. The r2 and igpu-r2 exact builds are written
                        to give the picture of AMD's own FSR 4.1.2 for RX 6000 and should give
                        d-2-driver-rx6000-pp's picture; the others n-0-reference's.
-  dlls\lt1-reference, lt6-test, lt14-test, lt15-test
+  dlls\lt1-reference, lt6-test, lt14-test, lt15-test, lt16-test
                        the smaller FSR 4 network: a reference build (lt1), a faster form that should give its
-                       picture exactly (lt6), and faster forms whose picture differs by design (lt14, and
-                       lt15 = lt14 with one change to how it writes its results: the same picture as lt14).
+                       picture exactly (lt6), and faster forms whose picture differs by design (lt14; lt15 and
+                       lt16 = lt14 with one of two changes to how it writes its results: the same picture as lt14).
+                       lt14, lt15 and lt16 are also timed a second time with the graphics card's caches emptied
+                       before every frame, as a game's own drawing would leave them (lines marked @busy; the
+                       copying that empties them is not counted in the time).
   dlls\rdna2-d1-driver-prepass, rdna2-d2-driver-postpass, rdna2-d3-driver-model-passes, rdna2-d4-driver-pass11
                        (RX 6000 cards only) AMD's 4.1.1 shaders with one part replaced by the one AMD's own
                        FSR 4.1.2 uses on RX 6000: which part makes it faster on your card.

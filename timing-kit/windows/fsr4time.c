@@ -502,6 +502,12 @@ static void CreateDevice(char* gpu, size_t gpu_len) {
 }
 
 // One DLL (the one next to the exe), every size and scene. Lines "R|..." are what the summary is made from.
+// (2026-10-28) "busy GPU" runs: a pack DLL listed a second time as <name>@busy is timed with the GPU's caches flushed before every frame (a copy of BUSY_BYTES
+// between two buffers, outside the timed span), as a game's own rendering would leave them; the kit alone otherwise times the upscaler with warm caches, which once hid an
+// occupancy effect a game showed (2026-10-11). Only the Lite test builds lt14 / lt15 / lt16 get such a second entry.
+#define BUSY_BYTES (192ull << 20)      // larger than the biggest Infinity Cache of RX 6000 / RX 7000 cards (128 MB)
+static bool busy = false;
+static bool BusyTwin(const char* name) { return !strcmp(name, "lt14-test") || !strcmp(name, "lt15-test") || !strcmp(name, "lt16-test"); }
 static bool all_presets = false;      // --all-presets: Quality and Performance sizes too (passed on to each DLL's run as "all")
 // Quality / Performance render size and jitter steps for an output, as AMD's loader reports them (the query FSR offers a game); if the
 // query fails, FSR's own formula (output / ratio, rounded down; 8 x ratio^2 steps)
@@ -566,6 +572,14 @@ static int RunOne(const char* name, bool quick) {
     ID3D12Resource* qbuf = Buffer(D3D12_HEAP_TYPE_READBACK, 16);
     UINT64 freq = 0;
     CHECK(ID3D12CommandQueue_GetTimestampFrequency(queue, &freq));
+    ID3D12Resource *busy_src = NULL, *busy_dst = NULL;
+    if (busy) {      // the source is read and the destination written every frame: both stream through the caches
+        busy_src = Buffer(D3D12_HEAP_TYPE_DEFAULT, BUSY_BYTES); busy_dst = Buffer(D3D12_HEAP_TYPE_DEFAULT, BUSY_BYTES);
+        D3D12_RESOURCE_BARRIER b = {.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION};
+        b.Transition.pResource = busy_src; b.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+        b.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST; b.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+        ID3D12GraphicsCommandList_ResourceBarrier(list, 1, &b); Submit();
+    }
 
     for (int vi = 0; vi < nv; ++vi) {
         const uint64_t chosen = vid[vi];
@@ -636,6 +650,7 @@ static int RunOne(const char* name, bool quick) {
                     d.renderSize.width = rw; d.renderSize.height = rh; d.upscaleSize.width = ow; d.upscaleSize.height = oh;
                     d.enableSharpening = false; d.sharpness = 0.5f; d.frameTimeDelta = 10.0f; d.preExposure = 1.0f; d.reset = frame == 0;
                     d.cameraNear = 0.05f; d.cameraFar = 3000.0f; d.cameraFovAngleVertical = 0.75f; d.viewSpaceToMetersFactor = 1.0f;
+                    if (busy) ID3D12GraphicsCommandList_CopyBufferRegion(list, busy_dst, 0, busy_src, 0, BUSY_BYTES);      // caches flushed (not timed)
                     ID3D12GraphicsCommandList_EndQuery(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 0);
                     rc = ffx.Dispatch(&context, &d.header);
                     if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|dispatch %d at %s\n", label, (int)rc, sz); goto next_variant; }
@@ -1371,6 +1386,7 @@ int main(int argc, char** argv) {
         if (getenv("FSR4TIME_CRASHTEST") && !strcmp(getenv("FSR4TIME_CRASHTEST"), argv[2])) printf("%d\n", *(volatile int*)(uintptr_t)0x18C);      // test of the above
         if (getenv("FSR4TIME_HANGTEST") && !strcmp(getenv("FSR4TIME_HANGTEST"), argv[2])) Sleep(INFINITE);      // test of the time limit (RunDll)
         all_presets = argc > 5 && !strcmp(argv[5], "all");
+        busy = strstr(argv[2], "@busy") != NULL;
         return RunOne(argv[2], argc > 4 && !strcmp(argv[4], "quick"));
     }
     if (argc > 1 && !strcmp(argv[1], "--probe")) {      // (win10-helper.exe, from SetupRuntime) a device with this program's runtime: its GPU line
@@ -1440,6 +1456,7 @@ int main(int argc, char** argv) {
     char names[MAXDLLS][64];
     int inpack[MAXDLLS], nd = 0;
     for (uint32_t i = 0; i < npf && nd < MAXDLLS; ++i) if (Wanted(pf[i].path)) { snprintf(names[nd], 64, "%s", pf[i].path); inpack[nd++] = (int)i; }
+    if (!study) for (int i = 0, n0 = nd; i < n0 && nd < MAXDLLS; ++i) if (inpack[i] >= 0 && BusyTwin(names[i])) { snprintf(names[nd], 64, "%s@busy", names[i]); inpack[nd++] = inpack[i]; }
     WIN32_FIND_DATAA fd;
     HANDLE f = FindFirstFileA("dlls\\*", &fd);
     if (f != INVALID_HANDLE_VALUE) {
@@ -1666,12 +1683,30 @@ int main(int argc, char** argv) {
         bool hdr = false;
         for (int i = 0; i < nr; ++i) {
             const struct Row* w = &rows[i];
-            if (strcmp(w->scene, "moving") || strncmp(w->name, "lt", 2) || !strcmp(w->name, "lt1-reference")) continue;
+            if (strcmp(w->scene, "moving") || strncmp(w->name, "lt", 2) || !strcmp(w->name, "lt1-reference") || strchr(w->name, '@')) continue;
             const struct Row* b = NULL;
             for (int j = 0; j < nr && !b; ++j) if (!strcmp(rows[j].name, "lt1-reference") && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) b = &rows[j];
             if (!b || Val(b) <= 0 || Val(w) <= 0) continue;
             if (!hdr) { ADD("vs plain FSR 4.1.2 Lite (lt1-reference), moving, %% upscaler time per frame (negative = faster than plain Lite):\n"); hdr = true; }
             ADD("  %-24s %-10s %+.1f%%\n", w->name, w->size, 100.0 * Val(w) / Val(b) - 100.0);
+        }
+    }
+    {      // (2026-10-28) the busy-GPU twins: each against lt14 in the same mode, with the plain runs beside them
+        bool hdr = false;
+        for (int i = 0; i < nr; ++i) {
+            const struct Row* w = &rows[i];
+            if (strcmp(w->scene, "moving") || !strstr(w->name, "@busy") || !strncmp(w->name, "lt14-test", 9)) continue;
+            char plain[64]; snprintf(plain, sizeof(plain), "%.*s", (int)(strstr(w->name, "@busy") - w->name), w->name);
+            const struct Row *b = NULL, *wp = NULL, *bp = NULL;
+            for (int j = 0; j < nr; ++j) {
+                const struct Row* r = &rows[j];
+                if (strcmp(r->size, w->size) || strcmp(r->scene, w->scene)) continue;
+                if (!strcmp(r->name, "lt14-test@busy")) b = r; else if (!strcmp(r->name, plain)) wp = r; else if (!strcmp(r->name, "lt14-test")) bp = r;
+            }
+            if (!b || Val(b) <= 0 || Val(w) <= 0) continue;
+            if (!hdr) { ADD("busy GPU (caches flushed before every frame, as in a game) against lt14-test in the same mode, moving, %% upscaler time per frame:\n"); hdr = true; }
+            if (wp && bp && Val(bp) > 0) ADD("  %-24s %-10s busy %+.1f%%   (alone %+.1f%%)\n", plain, w->size, 100.0 * Val(w) / Val(b) - 100.0, 100.0 * Val(wp) / Val(bp) - 100.0);
+            else ADD("  %-24s %-10s busy %+.1f%%\n", plain, w->size, 100.0 * Val(w) / Val(b) - 100.0);
         }
     }
     if (fl) ADD("did not run:\n%s", fails);
