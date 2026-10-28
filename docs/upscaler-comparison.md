@@ -3,8 +3,9 @@
 [Back to the front page](../README.md) · [Exact and lossy compared](exact-vs-lossy.md)
 
 > [!NOTE]
-> **Since `dll-NEXTVER`, the DLLs' `lossy` folder holds the trained build this project used to call `lossy2`.** This page calls it lossy2;
-> the figures are unchanged.
+> **The lossy2 on this page is the one of `dll-2026-10-22`.** Since `dll-NEXTVER` the DLLs' `lossy` folder holds that build trained further
+> (fewer dark specks in foliage, slower brightening: [the release page](releases/dll-NEXTVER.md)); the figures here are unchanged. Recorded
+> game clips with this release's builds: the [comparison site](https://zgauthier2000.github.io/fsr4-upscaler-compare/).
 
 > [!WARNING]
 > **These are synthetic benchmarks on one machine.** Every figure and picture on this page comes from made-up test scenes, each built to

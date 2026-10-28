@@ -12,7 +12,7 @@
 | Your graphics chip | Download | Status |
 |---|---|---|
 | Radeon RX 7900, 7800, 7700, 7600 | `fsr4.1.2-cyboman-rx7000-<version>` | measured on an RX 7800 XT (Linux): faster; testers report large gains on Windows |
-| Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.2-cyboman-rx6000-<version>` | runs, with the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact files range from a few percent to about 30%, and we do not yet know what decides it; a few percent below 4K (tester reports) |
+| Radeon RX 6000, including laptop chips such as RX 6700M | `fsr4.1.2-cyboman-rx6000-<version>` | runs, with the fix for the shimmering these cards show with AMD's 4.1.1 file; since `dll-NEXTVER` the exact build gives the picture of AMD's own FSR 4.1.2 for RX 6000 ([AMD's 4.1.1 and 4.1.2](amd-411-vs-412.md)); at 4K, reports with the exact files range from a few percent to about 30%, and we do not yet know what decides it; a few percent below 4K (tester reports) |
 | Graphics built into the processor, RDNA 3 / 3.5: Radeon 780M, 760M, 880M, 890M and the like | `fsr4.1.2-igpu-cyboman-rdna3-<version>` | experimental: few reports, small gains |
 | Steam Deck, Radeon 680M, 660M, 610M and other RDNA2 graphics built into the processor | `fsr4.1.2-igpu-cyboman-rdna2-<version>` | experimental: few reports, small gains |
 | Radeon RX 9000 | none | not covered: it runs a different FSR 4; see [RDNA4](rdna4.md) |
@@ -23,6 +23,9 @@
 - **Why four downloads (since `dll-2026-10-22`):** they differ in how three shaders are built. Pass 11 is built large and fast for RX
   cards and small for chips built into processors; the last shader's dot products are split only for RDNA2 chips (RX 6000, Steam
   Deck, 680M), which need it under Windows; RX 6000 cards also leave out the prepass change, which cost them up to about 2%.
+  Since `dll-NEXTVER`: every flavor has a new prepass layout instead; the RDNA2 flavors put the dot products' constant operand second
+  instead of splitting them and follow the rounding of AMD's FSR 4.1.2 for RX 6000 (its picture, byte for byte); their 4.1.2l-lossy keeps
+  some results in shared memory so that RX 6000 chips can run 8 groups of work at once instead of 7 under Windows.
   [Which download](#which-download-dll-2026-10-22-and-later).
 - **Why AMD's own file refuses most of these chips:** AMD offers this FSR 4 on desktop RX 7000 cards only. The DLLs here
   have that check lifted, which is also why they must not go on an RX 9000 card.

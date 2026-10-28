@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Writes rel-lite-wires-light.svg and rel-lite-wires-dark.svg: shimmer of thin wires while the camera pans (the full check's "wires pan
 # change" row: mean change per frame, lower is steadier; a scene type not used in training), for AMD's FSR 4.1.2 Lite, this project's
-# 4.1.2l-lossy, AMD's FSR 4.1.1 and lossy2, with the game's auto exposure off and on. Linux test rig (Proton, RX 7800 XT), 4K Balanced,
+# 4.1.2l-lossy, AMD's FSR 4.1.1 and lossy (release dll-NEXTVER), with the game's auto exposure off and on. Linux test rig (Proton, RX 7800 XT), 4K Balanced,
 # synthetic scene, one run each. Lite and FSR 4.1.1 measured in this project's local test harness.
 ROWS = [  # build, auto exposure off, on, highlighted
-    ('FSR 4.1.2 Lite (AMD)', 9.75, 7.81, False), ('4.1.2l-lossy (new)', 5.88, 3.83, True),
-    ('FSR 4.1.1 (AMD)', 7.16, 6.79, False), ('lossy (former lossy2)', 4.56, 4.36, False),
+    ('FSR 4.1.2 Lite (AMD)', 9.75, 7.81, False), ('4.1.2l-lossy (new)', 7.50, 4.62, True),
+    ('FSR 4.1.1 (AMD)', 7.16, 6.79, False), ('lossy (this release)', 4.72, 4.70, False),
 ]
 THEMES = {
     'light': dict(surface='#fcfcfb', ink='#0b0b0b', ink2='#52514e', muted='#898781', grid='#e1e0d9', axis='#c3c2b7', off='#2a78d6', on='#d9711c'),

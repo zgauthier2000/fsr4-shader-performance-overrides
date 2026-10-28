@@ -29,7 +29,8 @@ and only one of them keeps AMD's picture.
 
 - **The exact files** (the `exact` DLL in each download and the `prebuilt` Linux folder) do the
   same arithmetic as AMD's shaders, organized so the GPU gets through it faster. The output is
-  AMD's image, byte for byte.
+  AMD's image, byte for byte (since `dll-NEXTVER` the RX 6000 and Steam Deck / older built-in graphics DLLs give the image of AMD's own
+  FSR 4.1.2 for RX 6000, which differs from 4.1.1's only in rounding: [AMD's 4.1.1 and 4.1.2](amd-411-vs-412.md)).
 - **The lossy files** (the `lossy` DLL in each download and the `prebuilt-lossy` Linux folder)
   are the exact files plus one thing: they run FSR 4's model on every other frame only.
 

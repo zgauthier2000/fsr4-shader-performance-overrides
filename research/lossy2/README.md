@@ -1,8 +1,9 @@
 # lossy2: how it is built
 
 > [!NOTE]
-> **Since `dll-NEXTVER`, the DLLs' `lossy` folder holds the trained build described here.** This page keeps the name
-> lossy2 for it, as the file and tool names do.
+> **This page describes the lossy2 of `dll-2026-10-22`.** Since `dll-NEXTVER` the DLLs' `lossy` folder holds this build trained further
+> (against dark specks in foliage) with new rules for the frames it skips; that build is made with this project's local tools, not yet in
+> the repository. What it changes: its `WARNING.txt` and [the release page](../../docs/releases/dll-NEXTVER.md).
 
 lossy2 is the lossy version with new weights in six of the network's twelve layers (passes 1, 2, 4, 5, 10 and 12).
 The weights were trained to match AMD's picture through the whole lossy frame loop, starting from lossy's own weights.

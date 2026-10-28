@@ -16,11 +16,20 @@ and for other makers' cards, and [`fsr4.1.2-igpu-cyboman-rdna2-NEXTVER.7z`](http
 other RDNA2 built-in graphics (each also as a `.zip`; [which one](../docs/gpu-support.md#which-download-dll-2026-10-22-and-later)).
 The exact DLLs were made by this script from AMD's original (SHA-256
 `d0dcccc74a43c44ba435b7a369b456e0970d8a4464e4bd683119b374f2c9fb46`) and the shader sets `../windows/dxil/build_dxil_overrides.sh` builds with
-these options: RX 7000 none, RX 6000 `DOT4=swap PREPASS=0`, integrated RDNA 3 `PASS11=rows`, integrated RDNA2 `DOT4=swap PASS11=rows`
-(`DOT4=swap` since `dll-NEXTVER`; `DOT4=split` before), with `--any-gpu --name` and a build-time name (`4.1.1-rdna3-cyboman`, `4.1.2-exact-r2-build`,
-`4.1.1-igpu-rdna3-cyboman`, `4.1.2-exact-igpu-r2-build`), then given their release names with [`rename_dll.py`](rename_dll.py) (`rename_dll.py <in> <out> <old name>
-<new name>`: it changes only the name and checks that every other byte stays the same). The `lossy` DLLs (called lossy2 until `dll-NEXTVER`) are the
-untrained lossy build's DLLs with 18 shaders swapped: [`research/lossy2`](../research/lossy2/README.md) rebuilds them byte for byte, reading the lossy DLL's
+these options (since `dll-NEXTVER`; every flavor also `INTCONV=direct`):
+
+| Flavor | Options | Picture |
+|---|---|---|
+| RX 7000 (`r3`) | `PREPASS=hybrid PQ_ORDER=amd` | AMD's FSR 4.1.1 |
+| RX 6000 (`r2`) | `DOT4=swap POSORDER=driver PREPASS=hybrid PQ_ORDER=driver` | AMD's FSR 4.1.2 for RX 6000 |
+| integrated RDNA 3 (`igpu-r3`) | `PASS11=rows PREPASS=hybrid PQ_ORDER=amd` | AMD's FSR 4.1.1 |
+| integrated RDNA2 (`igpu-r2`) | `DOT4=swap PASS11=rows POSORDER=driver PREPASS=hybrid PQ_ORDER=driver` | AMD's FSR 4.1.2 for RX 6000 |
+
+(`dll-2026-10-22`: RX 7000 none, RX 6000 `DOT4=split PREPASS=0`, integrated RDNA 3 `PASS11=rows`, integrated RDNA2 `DOT4=split PASS11=rows`.)
+They are patched with `--any-gpu --name 4.1.2-exact-<flavor>-build` and then given their release names with [`rename_dll.py`](rename_dll.py)
+(`rename_dll.py <in> <out> <old name> <new name>`: it changes only the name and checks that every other byte stays the same). The
+`lossy` DLLs (called lossy2 until `dll-NEXTVER`) and the two Lite builds of `dll-NEXTVER` are built with this project's local tools, which
+are not in the repository yet; [`research/lossy2`](../research/lossy2/README.md) rebuilds the lossy2 DLLs of `dll-2026-10-22` byte for byte, reading the lossy DLL's
 shader set back with `recover_set.py` (the patcher only takes AMD's own DLL). Install as the [front page](../README.md#quick-start) describes.
 
 ## Make the DLL
