@@ -171,13 +171,13 @@ network's twelve layers (closer to AMD's picture on swaying foliage and fireflie
 Performance yet), removed the register cut from the lossy DLLs, and added `.7z` downloads.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-KITVER/fsr4-timing-kit-windows-KITVER.zip)** (experimental, about 31 MB, version KITVER): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-28/fsr4-timing-kit-windows-2026-10-28.zip)** (experimental, about 31 MB, version 2026-10-28): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes (up to about 25 on a slow chip). It times FSR 4 with AMD's shaders and with this project's
 > builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
 > than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck:
 > [the Linux kit](timing-kit).
 >
-> - New in the Windows kit (KITVER): **how much faster AMD's own FSR 4.1.2 is than its 4.1.1 on your graphics card** (AMD's FSR 4.1.2
+> - New in the Windows kit (2026-10-28): **how much faster AMD's own FSR 4.1.2 is than its 4.1.1 on your graphics card** (AMD's FSR 4.1.2
 >   shaders for RX 6000 and RX 7000 and FSR 4.1.2 Lite, timed on every PC), test builds of the next release, timed only for your kind of
 >   graphics, and a run with the graphics card's caches emptied before every frame, as in a game. [Details](timing-kit/README.md#in-short)
 > - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
