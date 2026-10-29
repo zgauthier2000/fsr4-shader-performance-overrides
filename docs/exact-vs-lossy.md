@@ -46,8 +46,8 @@ This project ships two kinds of faster FSR 4 shaders. They get their speed in di
 
 > **The lossy builds change the image.** They are opt-in, not the same as the exact files and not the same as AMD's DLL.
 
-All figures on this page are for the Balanced preset's size, 4K output. In Ultra Performance the lossy build skips two frames in three and
-runs the untrained weights; its figures there are not representative of the other modes, and those here not of Ultra Performance.
+All figures on this page are for the Balanced preset's size, 4K output. In Ultra Performance the lossy build runs the network on two frames in three,
+with the untrained weights; its figures there are not representative of the other modes, and those here not of Ultra Performance.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exact-vs-lossy-dark.svg">
@@ -323,7 +323,7 @@ FSR 4's time per frame on a Radeon RX 7800 XT under Linux (Proton), Balanced, mo
 
 - **Frame skip depends on the game's camera jitter.** With the usual sequence, frames alternate strictly. A game with an unusual sequence may
   skip unevenly, and a game that passes no jitter never skips.
-- **Frame skip is off on frames the game marks as a reset.** In Ultra Performance it skips two frames in three with the untrained weights.
+- **Frame skip is off on frames the game marks as a reset.** In Ultra Performance it runs the network on two frames in three, with the untrained weights.
   **Ultra Performance only, not representative of other modes:** its costs there are larger.
 - **Frame skip costs more at some real frame rates than others,** and the alternation is at half the real frame rate, so it is slower and
   easier to see (that part is reasoning, not a measurement). With frame generation on top of a low base rate, the exact build is the safer
