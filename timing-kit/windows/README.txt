@@ -92,6 +92,11 @@ What it does
   dlls\rdna2-d1-driver-prepass, rdna2-d2-driver-postpass, rdna2-d3-driver-model-passes, rdna2-d4-driver-pass11
                        (RX 6000 cards only) AMD's 4.1.1 shaders with one part replaced by the one AMD's own
                        FSR 4.1.2 uses on RX 6000: which part makes it faster on your card.
+  dlls\rdna3-h1-driver-pass11, rdna3-h2-driver-network, rdna3-h3-driver-network-no11
+                       (RX 7000 cards only) n-exact-r3 with one part replaced by the one AMD's own FSR 4.1.2
+                       uses in its model for RX 6000 (d-2): its pass 11 (h1), all of its network shaders
+                       (h2), or all of them but pass 11 (h3); the same picture as n-exact-r3. On some RX 7000
+                       cards d-2 is faster than n-exact-r3: which part makes the difference on your card.
   The test DLLs and reference builds are timed for their speed and compared with each other, not
   with AMD's picture: a large difference from AMD's picture on their lines is expected.
 
