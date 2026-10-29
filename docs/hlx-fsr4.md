@@ -19,6 +19,10 @@ This page lists what we measured, how, and what we did not check.
   Our build's shaders match the checksums HelixSR publishes for its tested build.
 - **HelixSR 3.2.0** (pre-release, 2026-10-29) ships HLX FSR 4 already built. Its DLL holds exactly the same 1,370 shaders as our 3.1.0 build
   (compared by checksum), and on the test rig it gives 3.1.0's frames exactly (7 game clips, 112 of 112 frames) at the same speed.
+- **HLX DLSS** (HelixSR 3.2.0's other upscaler, run through its bundled OptiScaler build) gives exactly the same picture as **HelixSR 2.0**
+  on the test rig: the same frames byte for byte at 1080p, 1440p and 4K and on every synthetic test. It is HelixSR's own existing network,
+  not a new one and not FSR 4. Under Proton it ran about 13% slower than 2.0 at 4K (2.07 vs 1.83 ms, one run each; this run went through
+  OptiScaler, which 2.0's did not).
 
 ## Picture
 

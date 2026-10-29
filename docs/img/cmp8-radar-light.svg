@@ -1,0 +1,320 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="950" viewBox="0 0 760 950" role="img" aria-label="Eight radar charts, one per upscaler, each with 10 spokes; on every spoke the best of the eight reaches the outer ring and the others reach in proportion to it, so a larger shape is better and a dent is a weakness. This project's lossy DLL comes first, and its shape is the dashed outline in the other seven. Still picture and moving background, mean: accuracy (dB): FSR 4.1.1 47.58 dB, Lossy 46.69 dB, 4.1.2l-lossy 46.84 dB, FSR 4.1.2 Lite 47.03 dB, FSR 3.1 45.02 dB, HLX FSR 4 47.26 dB, HelixSR 2.0 / HLX DLSS 45.27 dB, XeSS 45.54 dB. Thin railing in motion: accuracy (dB): FSR 4.1.1 41.61 dB, Lossy 40.58 dB, 4.1.2l-lossy 40.53 dB, FSR 4.1.2 Lite 40.95 dB, FSR 3.1 38.95 dB, HLX FSR 4 40.94 dB, HelixSR 2.0 / HLX DLSS 39.86 dB, XeSS 39.56 dB. Areas a moving object has just uncovered, mean of a panning and a still camera: accuracy (dB): FSR 4.1.1 32.91 dB, Lossy 34.61 dB, 4.1.2l-lossy 32.34 dB, FSR 4.1.2 Lite 33.52 dB, FSR 3.1 30.25 dB, HLX FSR 4 33.37 dB, HelixSR 2.0 / HLX DLSS 29.63 dB, XeSS 32.31 dB. Old image beside a moving object, mean of seven scenes: error (of 255): FSR 4.1.1 1.92, Lossy 2.30, 4.1.2l-lossy 2.36, FSR 4.1.2 Lite 2.52, FSR 3.1 3.20, HLX FSR 4 2.58, HelixSR 2.0 / HLX DLSS 3.63, XeSS 4.84. Thin bars fixed on screen in front of a panning background, mean of four pans: error where their old image lands (of 255): FSR 4.1.1 0.82, Lossy 0.91, 4.1.2l-lossy 0.85, FSR 4.1.2 Lite 1.28, FSR 3.1 1.04, HLX FSR 4 1.29, HelixSR 2.0 / HLX DLSS 2.98, XeSS 3.85. Tiny fast sparks: share of their brightness shown (%): FSR 4.1.1 83%, Lossy 72%, 4.1.2l-lossy 75%, FSR 4.1.2 Lite 76%, FSR 3.1 40%, HLX FSR 4 75%, HelixSR 2.0 / HLX DLSS 79%, XeSS 50%. Leaves swaying without motion vectors, mean of three sway speeds: error (of 255): FSR 4.1.1 11.0, Lossy 12.2, 4.1.2l-lossy 12.3, FSR 4.1.2 Lite 10.0, FSR 3.1 16.7, HLX FSR 4 10.0, HelixSR 2.0 / HLX DLSS 14.2, XeSS 14.3. Still picture: change per frame (of 255): FSR 4.1.1 0.037, Lossy 0.023, 4.1.2l-lossy 0.026, FSR 4.1.2 Lite 0.029, FSR 3.1 0.014, HLX FSR 4 0.024, HelixSR 2.0 / HLX DLSS 0.022, XeSS 0.084. Thin wire under a slow pan: how close its brightness is to the true one (%): FSR 4.1.1 90.5%, Lossy 71.0%, 4.1.2l-lossy 55.3%, FSR 4.1.2 Lite 62.1%, FSR 3.1 90.2%, HLX FSR 4 62.2%, HelixSR 2.0 / HLX DLSS 79.7%, XeSS 81.0%. Time per upscale call, mean of 1080p, 1440p and 4K output (ms): FSR 4.1.1 2.70 ms, Lossy 1.33 ms, 4.1.2l-lossy 1.02 ms, FSR 4.1.2 Lite 1.23 ms, FSR 3.1 0.73 ms, HLX FSR 4 1.23 ms, HelixSR 2.0 / HLX DLSS 1.24 ms, XeSS 2.88 ms.">
+<rect x="0.0" y="0.0" width="760.0" height="950.0" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">The shape of each upscaler: 10 measures</text>
+<text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">On every spoke the best of the eight reaches the outer ring. Bigger is better; a dent is a weakness. Dashed: the lossy DLL.</text>
+<text x="128.0" y="94.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#0b0b0b">Lossy</text>
+<polygon points="128.0,178.0 138.6,181.4 145.1,190.4 145.1,201.6 138.6,210.6 128.0,214.0 117.4,210.6 110.9,201.6 110.9,190.4 117.4,181.4" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,160.0 149.2,166.9 162.2,184.9 162.2,207.1 149.2,225.1 128.0,232.0 106.8,225.1 93.8,207.1 93.8,184.9 106.8,166.9" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,142.0 159.7,152.3 179.4,179.3 179.4,212.7 159.7,239.7 128.0,250.0 96.3,239.7 76.6,212.7 76.6,179.3 96.3,152.3" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,124.0 170.3,137.8 196.5,173.8 196.5,218.2 170.3,254.2 128.0,268.0 85.7,254.2 59.5,218.2 59.5,173.8 85.7,137.8" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="128.0" y2="124.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="170.3" y2="137.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="196.5" y2="173.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="196.5" y2="218.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="170.3" y2="254.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="128.0" y2="268.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="85.7" y2="254.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="59.5" y2="218.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="59.5" y2="173.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="196.0" x2="85.7" y2="137.8" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,131.0 165.6,144.3 196.5,173.8 185.2,214.6 166.1,248.5 128.0,258.6 93.5,243.5 86.3,209.5 74.3,178.5 104.8,164.0" fill="#eb6834" fill-opacity="0.35" stroke="#eb6834" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="128.0" cy="131.0" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="165.6" cy="144.3" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="196.5" cy="173.8" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="185.2" cy="214.6" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="166.1" cy="248.5" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="128.0" cy="258.6" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="93.5" cy="243.5" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="86.3" cy="209.5" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="74.3" cy="178.5" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="104.8" cy="164.0" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<text x="128.0" y="113.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Accuracy</text>
+<text x="175.6" y="128.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
+<text x="205.0" y="174.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Uncovered</text>
+<text x="205.0" y="224.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Old image</text>
+<text x="175.6" y="270.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Fixed bars</text>
+<text x="128.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Sparks</text>
+<text x="80.4" y="270.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Foliage</text>
+<text x="51.0" y="224.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">At rest</text>
+<text x="51.0" y="174.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Wire, pan</text>
+<text x="80.4" y="128.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Speed</text>
+<text x="380.0" y="94.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#0b0b0b">FSR 4.1.1</text>
+<polygon points="380.0,178.0 390.6,181.4 397.1,190.4 397.1,201.6 390.6,210.6 380.0,214.0 369.4,210.6 362.9,201.6 362.9,190.4 369.4,181.4" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,160.0 401.2,166.9 414.2,184.9 414.2,207.1 401.2,225.1 380.0,232.0 358.8,225.1 345.8,207.1 345.8,184.9 358.8,166.9" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,142.0 411.7,152.3 431.4,179.3 431.4,212.7 411.7,239.7 380.0,250.0 348.3,239.7 328.6,212.7 328.6,179.3 348.3,152.3" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,124.0 422.3,137.8 448.5,173.8 448.5,218.2 422.3,254.2 380.0,268.0 337.7,254.2 311.5,218.2 311.5,173.8 337.7,137.8" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="380.0" y2="124.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="422.3" y2="137.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="448.5" y2="173.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="448.5" y2="218.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="422.3" y2="254.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="380.0" y2="268.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="337.7" y2="254.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="311.5" y2="218.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="311.5" y2="173.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="196.0" x2="337.7" y2="137.8" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,124.0 422.3,137.8 436.3,177.7 448.5,218.2 422.3,254.2 380.0,268.0 341.7,248.7 354.1,204.4 311.5,173.8 368.6,180.3" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="380.0,131.0 417.6,144.3 448.5,173.8 437.2,214.6 418.1,248.5 380.0,258.6 345.5,243.5 338.3,209.5 326.3,178.5 356.8,164.0" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="380.0" cy="124.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="422.3" cy="137.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="436.3" cy="177.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="448.5" cy="218.2" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="422.3" cy="254.2" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="380.0" cy="268.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="341.7" cy="248.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="354.1" cy="204.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="311.5" cy="173.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="368.6" cy="180.3" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<text x="380.0" y="113.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Accuracy</text>
+<text x="427.6" y="128.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
+<text x="457.0" y="174.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Uncovered</text>
+<text x="457.0" y="224.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Old image</text>
+<text x="427.6" y="270.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Fixed bars</text>
+<text x="380.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Sparks</text>
+<text x="332.4" y="270.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Foliage</text>
+<text x="303.0" y="224.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">At rest</text>
+<text x="303.0" y="174.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Wire, pan</text>
+<text x="332.4" y="128.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Speed</text>
+<text x="632.0" y="94.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#0b0b0b">4.1.2l-lossy</text>
+<polygon points="632.0,178.0 642.6,181.4 649.1,190.4 649.1,201.6 642.6,210.6 632.0,214.0 621.4,210.6 614.9,201.6 614.9,190.4 621.4,181.4" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="632.0,160.0 653.2,166.9 666.2,184.9 666.2,207.1 653.2,225.1 632.0,232.0 610.8,225.1 597.8,207.1 597.8,184.9 610.8,166.9" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="632.0,142.0 663.7,152.3 683.4,179.3 683.4,212.7 663.7,239.7 632.0,250.0 600.3,239.7 580.6,212.7 580.6,179.3 600.3,152.3" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="632.0,124.0 674.3,137.8 700.5,173.8 700.5,218.2 674.3,254.2 632.0,268.0 589.7,254.2 563.5,218.2 563.5,173.8 589.7,137.8" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="632.0" y2="124.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="674.3" y2="137.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="700.5" y2="173.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="700.5" y2="218.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="674.3" y2="254.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="632.0" y2="268.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="589.7" y2="254.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="563.5" y2="218.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="563.5" y2="173.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="196.0" x2="589.7" y2="137.8" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="632.0,129.9 669.4,144.6 684.7,178.9 687.7,214.1 672.8,252.2 632.0,261.2 597.6,243.3 595.1,208.0 590.2,182.4 601.7,154.3" fill="#eb6834" fill-opacity="0.35" stroke="#eb6834" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="632.0,131.0 669.6,144.3 700.5,173.8 689.2,214.6 670.1,248.5 632.0,258.6 597.5,243.5 590.3,209.5 578.3,178.5 608.8,164.0" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="632.0" cy="129.9" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="669.4" cy="144.6" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="684.7" cy="178.9" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="687.7" cy="214.1" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="672.8" cy="252.2" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="632.0" cy="261.2" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="597.6" cy="243.3" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="595.1" cy="208.0" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="590.2" cy="182.4" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="601.7" cy="154.3" r="2.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1"/>
+<text x="632.0" y="113.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Accuracy</text>
+<text x="679.6" y="128.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
+<text x="709.0" y="174.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Uncovered</text>
+<text x="709.0" y="224.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Old image</text>
+<text x="679.6" y="270.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Fixed bars</text>
+<text x="632.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Sparks</text>
+<text x="584.4" y="270.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Foliage</text>
+<text x="555.0" y="224.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">At rest</text>
+<text x="555.0" y="174.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Wire, pan</text>
+<text x="584.4" y="128.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Speed</text>
+<text x="128.0" y="344.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#0b0b0b">FSR 4.1.2 Lite</text>
+<polygon points="128.0,428.0 138.6,431.4 145.1,440.4 145.1,451.6 138.6,460.6 128.0,464.0 117.4,460.6 110.9,451.6 110.9,440.4 117.4,431.4" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,410.0 149.2,416.9 162.2,434.9 162.2,457.1 149.2,475.1 128.0,482.0 106.8,475.1 93.8,457.1 93.8,434.9 106.8,416.9" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,392.0 159.7,402.3 179.4,429.3 179.4,462.7 159.7,489.7 128.0,500.0 96.3,489.7 76.6,462.7 76.6,429.3 96.3,402.3" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,374.0 170.3,387.8 196.5,423.8 196.5,468.2 170.3,504.2 128.0,518.0 85.7,504.2 59.5,468.2 59.5,423.8 85.7,387.8" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="128.0" y2="374.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="170.3" y2="387.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="196.5" y2="423.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="196.5" y2="468.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="170.3" y2="504.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="128.0" y2="518.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="85.7" y2="504.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="59.5" y2="468.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="59.5" y2="423.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="446.0" x2="85.7" y2="387.8" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,378.4 167.2,392.0 188.4,426.4 180.2,463.0 155.1,483.3 128.0,511.6 85.8,504.0 94.9,456.7 81.0,430.7 102.9,411.4" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="128.0,381.0 165.6,394.3 196.5,423.8 185.2,464.6 166.1,498.5 128.0,508.6 93.5,493.5 86.3,459.5 74.3,428.5 104.8,414.0" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="128.0" cy="378.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="167.2" cy="392.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="188.4" cy="426.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="180.2" cy="463.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="155.1" cy="483.3" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="128.0" cy="511.6" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="85.8" cy="504.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="94.9" cy="456.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="81.0" cy="430.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="102.9" cy="411.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<text x="128.0" y="363.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Accuracy</text>
+<text x="175.6" y="378.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
+<text x="205.0" y="424.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Uncovered</text>
+<text x="205.0" y="474.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Old image</text>
+<text x="175.6" y="520.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Fixed bars</text>
+<text x="128.0" y="536.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Sparks</text>
+<text x="80.4" y="520.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Foliage</text>
+<text x="51.0" y="474.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">At rest</text>
+<text x="51.0" y="424.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Wire, pan</text>
+<text x="80.4" y="378.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Speed</text>
+<text x="380.0" y="344.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#0b0b0b">FSR 3.1</text>
+<polygon points="380.0,428.0 390.6,431.4 397.1,440.4 397.1,451.6 390.6,460.6 380.0,464.0 369.4,460.6 362.9,451.6 362.9,440.4 369.4,431.4" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,410.0 401.2,416.9 414.2,434.9 414.2,457.1 401.2,475.1 380.0,482.0 358.8,475.1 345.8,457.1 345.8,434.9 358.8,416.9" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,392.0 411.7,402.3 431.4,429.3 431.4,462.7 411.7,489.7 380.0,500.0 348.3,489.7 328.6,462.7 328.6,429.3 348.3,402.3" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,374.0 422.3,387.8 448.5,423.8 448.5,468.2 422.3,504.2 380.0,518.0 337.7,504.2 311.5,468.2 311.5,423.8 337.7,387.8" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="380.0" y2="374.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="422.3" y2="387.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="448.5" y2="423.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="448.5" y2="468.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="422.3" y2="504.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="380.0" y2="518.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="337.7" y2="504.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="311.5" y2="468.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="311.5" y2="423.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="446.0" x2="337.7" y2="387.8" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,392.4 411.2,403.1 421.5,432.5 421.1,459.3 413.4,491.9 380.0,480.6 354.7,480.8 311.5,468.2 311.8,423.8 337.7,387.8" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="380.0,381.0 417.6,394.3 448.5,423.8 437.2,464.6 418.1,498.5 380.0,508.6 345.5,493.5 338.3,459.5 326.3,428.5 356.8,414.0" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="380.0" cy="392.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="411.2" cy="403.1" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="421.5" cy="432.5" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="421.1" cy="459.3" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="413.4" cy="491.9" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="380.0" cy="480.6" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="354.7" cy="480.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="311.5" cy="468.2" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="311.8" cy="423.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="337.7" cy="387.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<text x="380.0" y="363.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Accuracy</text>
+<text x="427.6" y="378.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
+<text x="457.0" y="424.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Uncovered</text>
+<text x="457.0" y="474.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Old image</text>
+<text x="427.6" y="520.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Fixed bars</text>
+<text x="380.0" y="536.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Sparks</text>
+<text x="332.4" y="520.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Foliage</text>
+<text x="303.0" y="474.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">At rest</text>
+<text x="303.0" y="424.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Wire, pan</text>
+<text x="332.4" y="378.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Speed</text>
+<text x="632.0" y="344.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#0b0b0b">HLX FSR 4</text>
+<polygon points="632.0,428.0 642.6,431.4 649.1,440.4 649.1,451.6 642.6,460.6 632.0,464.0 621.4,460.6 614.9,451.6 614.9,440.4 621.4,431.4" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="632.0,410.0 653.2,416.9 666.2,434.9 666.2,457.1 653.2,475.1 632.0,482.0 610.8,475.1 597.8,457.1 597.8,434.9 610.8,416.9" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="632.0,392.0 663.7,402.3 683.4,429.3 683.4,462.7 663.7,489.7 632.0,500.0 600.3,489.7 580.6,462.7 580.6,429.3 600.3,402.3" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="632.0,374.0 674.3,387.8 700.5,423.8 700.5,468.2 674.3,504.2 632.0,518.0 589.7,504.2 563.5,468.2 563.5,423.8 589.7,387.8" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="632.0" y2="374.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="674.3" y2="387.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="700.5" y2="423.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="700.5" y2="468.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="674.3" y2="504.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="632.0" y2="518.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="589.7" y2="504.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="563.5" y2="468.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="563.5" y2="423.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="632.0" y1="446.0" x2="589.7" y2="387.8" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="632.0,376.6 671.2,392.1 691.4,426.7 683.0,462.6 658.9,483.0 632.0,511.2 589.7,504.2 592.1,459.0 584.9,430.7 606.9,411.4" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="632.0,381.0 669.6,394.3 700.5,423.8 689.2,464.6 670.1,498.5 632.0,508.6 597.5,493.5 590.3,459.5 578.3,428.5 608.8,414.0" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="632.0" cy="376.6" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="671.2" cy="392.1" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="691.4" cy="426.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="683.0" cy="462.6" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="658.9" cy="483.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="632.0" cy="511.2" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="589.7" cy="504.2" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="592.1" cy="459.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="584.9" cy="430.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="606.9" cy="411.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<text x="632.0" y="363.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Accuracy</text>
+<text x="679.6" y="378.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
+<text x="709.0" y="424.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Uncovered</text>
+<text x="709.0" y="474.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Old image</text>
+<text x="679.6" y="520.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Fixed bars</text>
+<text x="632.0" y="536.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Sparks</text>
+<text x="584.4" y="520.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Foliage</text>
+<text x="555.0" y="474.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">At rest</text>
+<text x="555.0" y="424.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Wire, pan</text>
+<text x="584.4" y="378.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Speed</text>
+<text x="128.0" y="594.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#0b0b0b">HelixSR 2.0 / HLX DLSS</text>
+<polygon points="128.0,678.0 138.6,681.4 145.1,690.4 145.1,701.6 138.6,710.6 128.0,714.0 117.4,710.6 110.9,701.6 110.9,690.4 117.4,681.4" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,660.0 149.2,666.9 162.2,684.9 162.2,707.1 149.2,725.1 128.0,732.0 106.8,725.1 93.8,707.1 93.8,684.9 106.8,666.9" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,642.0 159.7,652.3 179.4,679.3 179.4,712.7 159.7,739.7 128.0,750.0 96.3,739.7 76.6,712.7 76.6,679.3 96.3,652.3" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,624.0 170.3,637.8 196.5,673.8 196.5,718.2 170.3,754.2 128.0,768.0 85.7,754.2 59.5,718.2 59.5,673.8 85.7,637.8" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="128.0" y2="624.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="170.3" y2="637.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="196.5" y2="673.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="196.5" y2="718.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="170.3" y2="754.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="128.0" y2="768.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="85.7" y2="754.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="59.5" y2="718.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="59.5" y2="673.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="128.0" y1="696.0" x2="85.7" y2="637.8" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="128.0,640.8 162.6,648.4 166.6,683.5 164.2,707.8 139.6,712.0 128.0,764.5 98.4,736.8 84.4,710.2 67.7,676.4 103.1,661.7" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="128.0,631.0 165.6,644.3 196.5,673.8 185.2,714.6 166.1,748.5 128.0,758.6 93.5,743.5 86.3,709.5 74.3,678.5 104.8,664.0" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="128.0" cy="640.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="162.6" cy="648.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="166.6" cy="683.5" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="164.2" cy="707.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="139.6" cy="712.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="128.0" cy="764.5" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="98.4" cy="736.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="84.4" cy="710.2" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="67.7" cy="676.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="103.1" cy="661.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<text x="128.0" y="613.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Accuracy</text>
+<text x="175.6" y="628.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
+<text x="205.0" y="674.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Uncovered</text>
+<text x="205.0" y="724.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Old image</text>
+<text x="175.6" y="770.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Fixed bars</text>
+<text x="128.0" y="786.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Sparks</text>
+<text x="80.4" y="770.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Foliage</text>
+<text x="51.0" y="724.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">At rest</text>
+<text x="51.0" y="674.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Wire, pan</text>
+<text x="80.4" y="628.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Speed</text>
+<text x="380.0" y="594.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#0b0b0b">XeSS</text>
+<polygon points="380.0,678.0 390.6,681.4 397.1,690.4 397.1,701.6 390.6,710.6 380.0,714.0 369.4,710.6 362.9,701.6 362.9,690.4 369.4,681.4" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,660.0 401.2,666.9 414.2,684.9 414.2,707.1 401.2,725.1 380.0,732.0 358.8,725.1 345.8,707.1 345.8,684.9 358.8,666.9" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,642.0 411.7,652.3 431.4,679.3 431.4,712.7 411.7,739.7 380.0,750.0 348.3,739.7 328.6,712.7 328.6,679.3 348.3,652.3" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,624.0 422.3,637.8 448.5,673.8 448.5,718.2 422.3,754.2 380.0,768.0 337.7,754.2 311.5,718.2 311.5,673.8 337.7,637.8" fill="none" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="380.0" y2="624.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="422.3" y2="637.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="448.5" y2="673.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="448.5" y2="718.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="422.3" y2="754.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="380.0" y2="768.0" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="337.7" y2="754.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="311.5" y2="718.2" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="311.5" y2="673.8" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="380.0" y1="696.0" x2="337.7" y2="637.8" stroke="#e1e0d9" stroke-width="1"/>
+<polygon points="380.0,639.1 413.4,650.0 432.5,678.9 407.2,704.8 389.0,708.4 380.0,739.4 350.4,736.7 368.6,699.7 318.7,676.1 369.3,681.2" fill="#a09f98" fill-opacity="0.35" stroke="#a09f98" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="380.0,631.0 417.6,644.3 448.5,673.8 437.2,714.6 418.1,748.5 380.0,758.6 345.5,743.5 338.3,709.5 326.3,678.5 356.8,664.0" fill="none" stroke="#52514e" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="round"/>
+<circle cx="380.0" cy="639.1" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="413.4" cy="650.0" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="432.5" cy="678.9" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="407.2" cy="704.8" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="389.0" cy="708.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="380.0" cy="739.4" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="350.4" cy="736.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="368.6" cy="699.7" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="318.7" cy="676.1" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<circle cx="369.3" cy="681.2" r="2.5" fill="#a09f98" stroke="#fcfcfb" stroke-width="1"/>
+<text x="380.0" y="613.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Accuracy</text>
+<text x="427.6" y="628.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Railing</text>
+<text x="457.0" y="674.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Uncovered</text>
+<text x="457.0" y="724.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Old image</text>
+<text x="427.6" y="770.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="start" fill="#898781">Fixed bars</text>
+<text x="380.0" y="786.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#898781">Sparks</text>
+<text x="332.4" y="770.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Foliage</text>
+<text x="303.0" y="724.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">At rest</text>
+<text x="303.0" y="674.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Wire, pan</text>
+<text x="332.4" y="628.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" text-anchor="end" fill="#898781">Speed</text>
+<text x="24.0" y="818.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">The spokes</text>
+<text x="24.0" y="836.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#52514e">Accuracy, Railing, Uncovered</text>
+<text x="24.0" y="848.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">against the true image</text>
+<text x="24.0" y="863.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#52514e">Old image</text>
+<text x="24.0" y="875.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">left beside moving objects</text>
+<text x="206.0" y="836.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#52514e">Fixed bars</text>
+<text x="206.0" y="848.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">old image of things fixed on screen</text>
+<text x="206.0" y="863.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#52514e">Sparks</text>
+<text x="206.0" y="875.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">tiny fast sparks: share shown</text>
+<text x="388.0" y="836.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#52514e">Foliage</text>
+<text x="388.0" y="848.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">swaying leaves, three speeds</text>
+<text x="388.0" y="863.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#52514e">At rest</text>
+<text x="388.0" y="875.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">steadiness of a still picture</text>
+<text x="570.0" y="836.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#52514e">Wire, pan</text>
+<text x="570.0" y="848.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">brightness close to the true one</text>
+<text x="570.0" y="863.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#52514e">Speed</text>
+<text x="570.0" y="875.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">time per call, three sizes</text>
+<text x="24.0" y="908.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">A spoke at half length: twice the error (or the change per frame, or the time) of the best of the eight; for sparks, half as much shown.</text>
+<text x="24.0" y="922.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Orange: this project's lossy and 4.1.2l-lossy DLLs (frame skipping, they change the picture). FSR 4.1.2 Lite: AMD's small model, run in this</text>
+<text x="24.0" y="936.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">project's local test harness. HelixSR 2.0 / HLX DLSS: the same picture. Test rig, 4K output, one card, single runs.</text>
+</svg>
