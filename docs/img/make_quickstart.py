@@ -8,6 +8,7 @@
 #   - the others: Windows timing-kit reports (kits 2026-10-28, 2026-10-28.2 and 2026-10-29), median per card, each card's own AMD FSR 4.1.2 model
 #     (RX 7000 / RX 6000) and AMD's Lite in the same report; test builds with this release's shaders (the lossy ones with test weights; RX 6000
 #     exact and some RX 7000 reports without AMD's SDK pass 11, which this release's RX 7000 / RX 6000 exact DLLs add: up to 3% at 4K in two reports).
+#     Reports of the release kit 2026-10-29.2 (from 2026-10-29 on) time the release's own DLLs (real weights, AMD's SDK pass 11).
 # Until release dll-2026-10-22 this figure showed Shadow of the Tomb Raider's benchmark on the RX 7800 XT (AMD's shaders, exact, lossy).
 import json, os
 THEMES = {
@@ -81,8 +82,9 @@ def figure(t):
     for k, line_ in enumerate((
             "Moving scene, 4K output, Balanced. AMD's FSR 4.1.2 is the card's own model: on RX 7000 it gives FSR 4.1.1's picture, on RX 6000 a picture that",
             "differs only in rounding. Linux row: AMD's FSR 4.1.2 = its FSR SDK 2.4.0 game DLL; Lite in this project's local test harness; two runs each.",
-            "Windows rows: the lossy builds with test weights (same speed); RX 6000 exact and some RX 7000 reports without AMD's SDK pass 11, which this",
-            "release's exact DLLs add (up to 3% at 4K so far). 1080p, 1440p and other cards: the tables below. Linux gains do not carry over to Windows.",
+            "Windows rows: mostly test builds (lossy with test weights, same speed; RX 6000 exact and some RX 7000 reports without AMD's SDK pass 11, which",
+            "this release's exact DLLs add: up to 3% at 4K so far); reports of the release's own timing kit time its DLLs. 1080p, 1440p and other cards:",
+            "the tables below. Linux gains do not carry over to Windows.",
             "The two panels have different scales: 0 to 60% on the left, 0 to 20% on the right.")):
         o.append(text(24, yf + 15 * k, line_, t, 10, 'muted'))
     return o, H
