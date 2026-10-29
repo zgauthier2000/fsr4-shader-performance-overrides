@@ -3,7 +3,7 @@
 # make_upscaler_comparison8.py [<dir>]: the figures of docs/upscaler-comparison.md from release 2026-10-29 on (eight upscalers: FSR 4.1.1, this project's
 # lossy (the former lossy2) and 4.1.2l-lossy, FSR 4.1.2 Lite, FSR 3.1, HLX FSR 4 and HLX DLSS of HelixSR 3.2.0, XeSS). HLX DLSS gives exactly HelixSR 2.0's
 # picture, so it is one column, 'HelixSR 2.0 / HLX DLSS' (user 2026-10-29). Made from make_upscaler_comparison7.py, whose figures stay as they were.
-#   cmp8-radar-{light,dark}.svg: one radar chart per upscaler, ten spokes; lossy first, its shape the dashed outline in the other panels.
+#   cmp8-radar-{light,dark}.svg: one radar chart per upscaler, ten spokes; 4.1.2l-lossy first, its shape the dashed outline in the other panels (user 2026-10-29).
 #   The numbers come from cmp8-data.json (the test rig's result files, parsed; 4K output from 2260x1272, Radeon RX 7800 XT under Proton, single runs).
 #   With <dir>: one picture per picture spoke, cmp8-<scene>.png: the same piece of one frame from the eight upscalers beside the true image (<dir> holds
 #   <scene>_<key>/output_3840x2160_f037.raw and <scene>_truth.npy, as make_upscaler_comparison.py's pictures). Swaying leaves: cmp8-foliage.gif, frames
@@ -45,14 +45,14 @@ def describe():
 def radar(t):
     n = len(MEASURES)
     lab = (f'Eight radar charts, one per upscaler, each with {n} spokes; on every spoke the best of the eight reaches the outer ring and the others reach in '
-           "proportion to it, so a larger shape is better and a dent is a weakness. This project's lossy DLL comes first, and its shape is the dashed outline in the other seven. " + describe())
+           "proportion to it, so a larger shape is better and a dent is a weakness. This project's 4.1.2l-lossy DLL comes first, and its shape is the dashed outline in the other seven. " + describe())
     H = 950
     o = frame(H, lab, f'The shape of each upscaler: {n} measures',
-              'On every spoke the best of the eight reaches the outer ring. Bigger is better; a dent is a weakness. Dashed: the lossy DLL.', t)
+              'On every spoke the best of the eight reaches the outer ring. Bigger is better; a dent is a weakness. Dashed: the 4.1.2l-lossy DLL.', t)
     cxs, cys, r = (128, 380, 632), (196, 446, 696), 72
     short = [m[0] for m in MEASURES]
-    first = KEYS.index('rlossy')
-    for i, k in enumerate([first] + [k for k in range(len(NAMES)) if k != first]):      # lossy first; its outline is the dashed one in the others
+    first = KEYS.index('rl3')
+    for i, k in enumerate([first] + [k for k in range(len(NAMES)) if k != first]):      # 4.1.2l-lossy first; its outline is the dashed one in the others
         cx, cy = cxs[i % 3], cys[i // 3]
         o.append(text(cx, cy - r - 30, NAMES[k], t, 13, 'ink', 'middle', 600))
         radar_panel(o, t, cx, cy, r, k, short, ref=first, M=MEASURES, SC=SCORES, ours=KEYS[k] in OURS)
