@@ -82,8 +82,8 @@ card, two for the RX 6700 XT and RX 6800:
 | GeForce RTX 2080 | 2% / 4% / 4% |
 
 **Windows, against AMD's own FSR 4.1.2 on the same card:** timing-kit reports of test builds with these shaders (kits 2026-10-28 to
-2026-10-29, moving, 4K; the lossy and Lite test builds have the same shaders and speed as the release's, the RX 6000 exact one lacks AMD's
-pass 11 from FSR SDK 2.4.0): exact 9 to 30% less time on RX 7000 cards (RX 7800 XT 9%, RX 7900 XT 18%, RX 7600 30%) and 2 to 5% on RX 6000
+2026-10-29, moving, 4K; the lossy and Lite test builds have the same shaders and speed as the release's, the RX 6000 exact test build and some RX 7000
+reports lack AMD's pass 11 from FSR SDK 2.4.0, up to 3% at 4K so far): exact 9 to 30% less time on RX 7000 cards (RX 7800 XT 9%, RX 7900 XT 18%, RX 7600 30%) and 2 to 5% on RX 6000
 cards, where AMD's FSR 4.1.2 is itself faster than its 4.1.1; lossy 27 to 41% and 16 to 19%; against AMD's FSR 4.1.2 Lite, 4.1.2l-exact 4 to 8%
 and 4.1.2l-lossy 5 to 13%. Every card and size: [What to expect](../../README.md#what-to-expect).
 
