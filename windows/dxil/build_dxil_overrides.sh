@@ -20,6 +20,9 @@
 # where the rewrite is slower on RDNA2; DOT4 and TAPS still apply to them), POSTPASS_STORES=amd (the same
 # at every output size: AMD's image stores, no workgroup-memory rewrite; tuned for drivers that run the
 # postpass 32-wide, where the rewrite gains nothing).
+# SDKP11=<the game DLL of AMD's FSR SDK 2.4.0, amd_fidelityfx_upscaler_dx12.dll>: AMD's own pass 11 of its FSR 4.1.2 RX 6000 model,
+# from that DLL (MIT license, AMD's notice in NOTICE.md), in the six INT8 pass 11 versions instead of the rewrite (sdk_pass11.py; same
+# output as AMD's 4.1.1 pass 11, weights read in wider blocks).
 # Needs DXC (dxc and libdxcompiler.so; set DXC_DIR to the unpacked Linux release) and g++.
 set -euo pipefail
 here=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -122,6 +125,7 @@ for f in "$src"/*.dxil; do
     built=$((built + 1))
 done
 [[ $built -gt 0 ]] || { echo "no FSR 4.1.1 INT8 postpass or pass 11 in $src"; exit 1; }
+if [[ -n ${SDKP11:-} ]]; then python3 "$here/sdk_pass11.py" "$SDKP11" "$out" "$dxc_dir" "$work/dxilasm" || { echo "FAILED: AMD FSR SDK pass 11"; exit 1; }; fi
 [[ ${PREPASS:-1} == hybrid ]] && echo "hybrid prepasses (${PQ_ORDER:-amd} order): ${hyb:-0}"
 [[ ${INTCONV:-} == direct ]] && echo "model passes with direct conversions: ${icv:-0}"
 [[ ${POSORDER:-} == driver ]] && echo "sample position order: $(sort "$work/posorder.log" | uniq -c | tr '\n' ' ')"
