@@ -4,13 +4,10 @@ Makes AMD FSR 4.1.1 upscaling faster on Radeon graphics cards, on Windows and Li
 FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the game changes.
 
 > [!TIP]
-> **How does lossy (called lossy2 until this release) compare with AMD's new FSR 4.1.2 Lite?** See the **[upscaler comparison](docs/upscaler-comparison.md)**: six
-> upscalers (FSR 4.1.1, lossy2 of `dll-2026-10-22`, FSR 4.1.2 Lite, FSR 3.1, HelixSR 2.0 and XeSS) on the same test scenes and timing, and recorded
-> game clips with this release's builds on the [comparison site](https://zgauthier2000.github.io/fsr4-upscaler-compare/). In short, lossy2 and
-> Lite are level on still-picture accuracy (43.9 dB each; FSR 4.1.1 44.3) and within about 0.2 ms of each other in speed. Lite is ahead
-> on swaying leaves; lossy2 on areas a moving object has just uncovered, on old image beside moving things and on steadiness in motion.
-> One Radeon RX 7800 XT, made-up test scenes, single runs. Since `dll-2026-10-29` this project also offers two builds based on Lite:
-> [the Lite builds](docs/lite-builds.md).
+> **New in `dll-2026-10-29`: `4.1.2l-lossy`, about 18% faster than AMD's FSR 4.1.2 Lite** (Linux; 5 to 13% in Windows timing-kit reports),
+> with fewer white specks in foliage on three of six recorded game clips. It is built on Lite, AMD's smaller FSR 4 network, and changes
+> the picture. [What's new](#new-in-this-release) · [eight upscalers compared](docs/upscaler-comparison.md) ·
+> [recorded game clips, side by side](https://zgauthier2000.github.io/fsr4-upscaler-compare/) · [the Lite builds](docs/lite-builds.md).
 
 ## Quick start
 
@@ -167,14 +164,15 @@ More games and resolutions: [all results](docs/results.md).
 **[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-10-29.md)**
 
 > [!TIP]
+> **New: `4.1.2l-lossy`, about 18% faster than AMD's FSR 4.1.2 Lite** at 4K (Linux; 5 to 13% in Windows timing-kit reports), with fewer
+> white specks in foliage on three of six recorded game clips (the picture below) and less shimmer on thin wires in a camera pan. What got
+> worse against Lite: more specks on two clips; small bright details, large particles and foliage are less accurate; read its `WARNING.txt`.
+> Beside it, `4.1.2l-exact` gives Lite's picture byte for byte, 2 to 3% faster. [The Lite builds](docs/lite-builds.md).
+>
 > **Lossy is retrained: far fewer dark specks in foliage.** In a recorded Black Myth: Wukong clip about 460 dark specks per frame,
 > against 3,824 with the lossy2 of `dll-2026-10-22`; fine diagonal patterns crawl less in motion. **What got worse:** brightening is
 > clearly slower (about 3.7 frames to catch up, 2.7 with the game's auto exposure on, against 1.5 / 1.3 before and 0.5 for AMD's file),
 > and at 1080p it is 2% slower than lossy2.
->
-> **New: two builds based on AMD's FSR 4.1.2 Lite.** `4.1.2l-exact` gives Lite's picture byte for byte, 2 to 3% faster; `4.1.2l-lossy`
-> is about 18% faster than Lite at 4K, with a changed picture (thin wires shimmer less in a camera pan; small bright details, large
-> particles and foliage are less accurate; read its `WARNING.txt`). [The Lite builds](docs/lite-builds.md).
 >
 > **Exact:** a faster first shader in every exact build: 2 to 6% faster than `dll-2026-10-22`'s exact on RX 7000 cards and 2 to 4% on RX 6000
 > cards in Windows timing-kit reports. Against AMD's FSR 4.1.1 file, at 1080p / 4K: RX 7900 XTX 7% / 31%, RX 7800 XT 7% / 9%, RX 7600 24% / 26%, RX 6950 XT 7% / 24%, RX 6600 XT 18% / 13%, GeForce RTX 2080
@@ -192,9 +190,10 @@ More games and resolutions: [all results](docs/results.md).
 > Lossy and Lite figures: Linux (Proton), one Radeon RX 7800 XT, synthetic test scenes and recorded game clips; AMD's Lite measured in
 > this project's local test harness.
 
-![Dark specks in foliage, Black Myth: Wukong Benchmark Tool, 4K, 2x zoom: AMD FSR 4.1.1, the lossy2 of dll-2026-10-22 with many dark specks between the branches, and this release's lossy with few.](docs/img/rel-flecks.webp)
+![White specks in foliage, Black Myth: Wukong Benchmark Tool, 4K, 4x zoom, as it is and with every speck circled: AMD FSR 4.1.1 43, AMD FSR 4.1.2 Lite 71 and 4.1.2l-lossy 17 specks in this area and frame.](docs/img/rel-lite-specks.webp)
 
-*Recorded game frames, 4K, 2x zoom; this project's display mapping, not the game's tone mapping.*
+*4.1.2l-lossy against AMD's Lite: recorded game frames, 4K, 4x zoom, below with every speck circled; this project's display mapping, not the
+game's tone mapping. Over the whole clip 473 specks per frame against Lite's 1,004.*
 
 **Earlier: [`dll-2026-10-22`](docs/releases/dll-2026-10-22.md)** split the builds into four, one per kind of graphics card (up to
 about 3% faster than the release before, same pictures), and gave each build a version name that says which one runs.
