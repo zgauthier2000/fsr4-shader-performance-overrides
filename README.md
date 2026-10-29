@@ -200,15 +200,18 @@ More games and resolutions: [all results](docs/results.md).
 about 3% faster than the release before, same pictures), and gave each build a version name that says which one runs.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-29/fsr4-timing-kit-windows-2026-10-29.zip)** (experimental, about 32 MB, version 2026-10-29): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-29.2/fsr4-timing-kit-windows-2026-10-29.2.zip)** (experimental, about 19 MB, version 2026-10-29.2): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes (up to about 25 on a slow chip). It times FSR 4 with AMD's shaders and with this project's
 > builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
 > than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck:
 > [the Linux kit](timing-kit).
 >
-> - New in the Windows kit (2026-10-29): **three test builds for RX 7000 cards**, to find which part of AMD's own FSR 4.1.2 model for RX 6000
->   made it faster than this project's RX 7000 exact build on the one RX 7000 card reported so far. [Details](timing-kit/README.md#in-short)
-> - New in the Windows kit (2026-10-28, fixed in 2026-10-28.2 so that all its reference DLLs run on every card): **how much faster AMD's own FSR 4.1.2 is than its 4.1.1 on your graphics card** (AMD's FSR 4.1.2
+> - New in the Windows kit (2026-10-29.2): **this release's own DLLs** for your kind of graphics (exact, lossy, 4.1.2l-exact, 4.1.2l-lossy), timed
+>   against AMD's own FSR 4.1.2 for your graphics and FSR 4.1.2 Lite, with fewer DLLs so each gets more rounds. It is best run with the
+>   processor and graphics in performance mode (a laptop plugged in, not on battery or a power-saving mode). [Details](timing-kit/README.md#in-short)
+> - Version 2026-10-29: **three test builds for RX 7000 cards**, to find which part of AMD's own FSR 4.1.2 model for RX 6000
+>   made it faster than this project's RX 7000 exact build on the one RX 7000 card reported then. [Details](timing-kit/README.md#in-short)
+> - Version 2026-10-28 (fixed in 2026-10-28.2 so that all its reference DLLs run on every card): **how much faster AMD's own FSR 4.1.2 is than its 4.1.1 on your graphics card** (AMD's FSR 4.1.2
 >   shaders for RX 6000 and RX 7000 and FSR 4.1.2 Lite, timed on every PC), test builds of the next release, timed only for your kind of
 >   graphics, and a run with the graphics card's caches emptied before every frame, as in a game. [Details](timing-kit/README.md#in-short)
 > - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
