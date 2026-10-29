@@ -254,7 +254,7 @@
   {
    "card": "RX 6700 XT",
    "os": "Windows",
-   "reports": 5,
+   "reports": 6,
    "release_builds": false,
    "exact_with_sdk_pass11": [
     "n-exact"
@@ -263,23 +263,23 @@
     "1920x1080": {
      "exact": 1.0,
      "lossy": 17.5,
-     "lite": 37.7,
-     "lexact": 6.1,
-     "llossy": 10.6
+     "lite": 37.4,
+     "lexact": 6.5,
+     "llossy": 10.9
     },
     "2560x1440": {
-     "exact": 2.1,
-     "lossy": 16.8,
-     "lite": 30.6,
-     "lexact": 6.9,
-     "llossy": 14.0
+     "exact": 2.2,
+     "lossy": 16.9,
+     "lite": 30.5,
+     "lexact": 7.2,
+     "llossy": 14.2
     },
     "3840x2160": {
-     "exact": 2.5,
-     "lossy": 16.0,
-     "lite": 34.0,
-     "lexact": 7.6,
-     "llossy": 11.1
+     "exact": 2.4,
+     "lossy": 16.3,
+     "lite": 33.9,
+     "lexact": 7.7,
+     "llossy": 11.3
     }
    }
   },
