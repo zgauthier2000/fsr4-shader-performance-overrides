@@ -66,29 +66,54 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/quickstart-dark.svg">
-  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K on a Radeon RX 7800 XT in Shadow of the Tomb Raider, FSR 4.1.1 Balanced, tested on Linux (Proton). AMD's shaders: 4.16 milliseconds of upscaling per frame, 97 frames per second. Exact DLL: 2.96 milliseconds, 109 frames per second, same picture byte for byte. Lossy DLL: 2.06 milliseconds, 122 frames per second, very close picture, opt-in. Other resolutions, other cards and Windows give other numbers.">
+  <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K: how much less time FSR 4 takes per frame with this project's builds than with AMD's own, card by card, moving scene, Balanced. RX 7800 XT, Linux (this project): exact 37%, lossy 55% less time than AMD's FSR 4.1.2; 4.1.2l-exact 2%, 4.1.2l-lossy 18% less than AMD's Lite; Lite itself 59% less than FSR 4.1.2. RX 7900 XT, Windows (1 report): exact 18%, lossy 34% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 5% less than AMD's Lite; Lite itself 46% less than FSR 4.1.2. RX 7800 XT, Windows (1 report): exact 9%, lossy 27% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 11% less than AMD's Lite; Lite itself 41% less than FSR 4.1.2. RX 7600, Windows (2 reports): exact 30%, lossy 41% less time than AMD's FSR 4.1.2; 4.1.2l-exact 5%, 4.1.2l-lossy 10% less than AMD's Lite; Lite itself 52% less than FSR 4.1.2. RX 6800 XT, Windows (1 report): exact 5%, lossy 19% less time than AMD's FSR 4.1.2; 4.1.2l-exact 4%, 4.1.2l-lossy 13% less than AMD's Lite; Lite itself 33% less than FSR 4.1.2. RX 6800, Windows (2 reports): exact 2%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 7%, 4.1.2l-lossy 11% less than AMD's Lite; Lite itself 34% less than FSR 4.1.2. RX 6750 XT, Windows (2 reports): exact 2%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 7%, 4.1.2l-lossy 11% less than AMD's Lite; Lite itself 34% less than FSR 4.1.2. RX 6700 XT, Windows (5 reports): exact 2%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 8%, 4.1.2l-lossy 11% less than AMD's Lite; Lite itself 34% less than FSR 4.1.2. RX 6700, Windows (2 reports): exact 3%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 7%, 4.1.2l-lossy 12% less than AMD's Lite; Lite itself 33% less than FSR 4.1.2. RX 6650 XT, Windows (1 report): exact 4%, lossy 18% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 12% less than AMD's Lite; Lite itself 35% less than FSR 4.1.2. RX 6600 XT, Windows (1 report): exact 4%, lossy 18% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 12% less than AMD's Lite; Lite itself 34% less than FSR 4.1.2. RX 6600, Windows (1 report): exact 4%, lossy 18% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 12% less than AMD's Lite; Lite itself 35% less than FSR 4.1.2. The Windows rows come from testers' timing-kit reports of test builds with this release's shaders. Other resolutions give other numbers.">
 </picture>
 
-- **The gain depends on the output resolution.** It is largest at 4K. At 1440p and 1080p the exact
-  DLL's gain depends on the card: some keep most of it (an RX 7900 XT 30% at 1440p, an RX 6600 XT 24% at 1080p),
-  others show little or nothing (the RX 7800 XT and an RX 7900 XTX at 1080p). The lossy DLL helps at every size,
-  because it skips work instead of only doing the same work faster.
-- **It depends on your graphics chip, and on Windows or Linux.** FSR 4 time saved at 4K, from testers' timing-kit runs
-  up to October 17, 2026 (Windows: about 130 reports; Linux: 13 runs on 8 cards, plus our own RX 7800 XT). The same
-  DLL saves much more under Linux on most Radeon cards, most likely because Linux's driver runs two of AMD's shaders
-  (the last pass and network pass 11) in a slower mode than Windows does, which leaves more to save.
+- **What the chart compares.** Exact and lossy against AMD's own FSR 4.1.2 on the same card (the model AMD's driver picks there: on RX 7000
+  it gives FSR 4.1.1's picture, on RX 6000 a picture that differs only in rounding), and the Lite builds against AMD's FSR 4.1.2 Lite. The
+  right column shows how much less time AMD's Lite itself takes than AMD's FSR 4.1.2: Lite is a smaller network with a different picture
+  ([how it compares](docs/upscaler-comparison.md)).
+- **It depends on your graphics chip, and on Windows or Linux.** Less time per frame than AMD's, moving scene, 1080p / 1440p / 4K
+  (exact and lossy against AMD's FSR 4.1.2, the Lite builds against AMD's Lite, the last column Lite against FSR 4.1.2):
+
+  | Graphics card | Source | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
+  |---|---|---|---|---|---|---|
+  | Radeon RX 7800 XT | Linux, this project (release builds) | 16% / 34% / 37% | 34% / 52% / 55% | 3% / 3% / 2% | 15% / 19% / 18% | 39% / 53% / 59% |
+  | Radeon RX 7900 XT | Windows, 1 report | 11% / 16% / 18% | 30% / 32% / 34% | 6% / 7% / 6% | 11% / 12% / 5% | 47% / 42% / 46% |
+  | Radeon RX 7800 XT | Windows, 1 report | 7% / 8% / 9% | 27% / 26% / 27% | 6% / 6% / 6% | 14% / 14% / 11% | 41% / 36% / 41% |
+  | Radeon RX 7600 | Windows, 2 reports | 24% / 25% / 30% | 37% / 37% / 41% | 13% / 10% / 5% | 14% / 15% / 10% | 50% / 44% / 52% |
+  | Radeon RX 6800 XT | Windows, 1 report | 0% / 3% / 5% | 18% / 17% / 19% | 6% / 6% / 4% | 11% / 14% / 13% | 38% / 32% / 33% |
+  | Radeon RX 6800 | Windows, 2 reports | 1% / 2% / 2% | 18% / 17% / 16% | 6% / 6% / 7% | 11% / 14% / 11% | 39% / 32% / 34% |
+  | Radeon RX 6750 XT | Windows, 2 reports | 1% / 2% / 2% | 18% / 17% / 16% | 7% / 7% / 7% | 11% / 14% / 11% | 38% / 31% / 34% |
+  | Radeon RX 6700 XT | Windows, 5 reports | 1% / 2% / 2% | 18% / 17% / 16% | 6% / 7% / 8% | 11% / 14% / 11% | 38% / 31% / 34% |
+  | Radeon RX 6700 | Windows, 2 reports | 2% / 2% / 3% | 18% / 17% / 16% | 7% / 7% / 7% | 11% / 15% / 12% | 38% / 29% / 33% |
+  | Radeon RX 6650 XT | Windows, 1 report | 3% / 4% / 4% | 18% / 18% / 18% | 6% / 5% / 6% | 12% / 15% / 12% | 36% / 30% / 35% |
+  | Radeon RX 6600 XT | Windows, 1 report | 3% / 7% / 4% | 18% / 19% / 18% | 6% / 5% / 6% | 14% / 15% / 12% | 36% / 30% / 34% |
+  | Radeon RX 6600 | Windows, 1 report | 4% / 4% / 4% | 19% / 17% / 18% | 6% / 7% / 6% | 14% / 15% / 12% | 36% / 27% / 35% |
+
+  The Windows rows are testers' timing-kit reports (kits 2026-10-28 to 2026-10-29, median per card) of test builds with this release's
+  shaders: the lossy ones carry test weights (the same speed), and the RX 6000 exact and some RX 7000 reports lack AMD's own eleventh network
+  shader from FSR SDK 2.4.0, which this release's RX 7000 and RX 6000 exact DLLs add (up to 3% faster at 4K in the two reports so far). One
+  report per card is one run. The Linux row is this project's own RX 7800 XT with the release's builds (AMD's FSR 4.1.2 there = its FSR SDK 2.4.0
+  game DLL, Lite in this project's local test harness; two runs each). The same DLL saves much more under Linux on most Radeon cards, most likely
+  because Linux's driver runs two of AMD's shaders (the last pass and network pass 11) in a slower mode than Windows does. We do not yet know
+  what decides where a card falls in its range.
+
+  Other graphics chips are not in those kits' reports yet. Earlier builds (`dll-2026-10-15` to `dll-2026-10-19`) against AMD's FSR 4.1.1, 4K,
+  reports up to October 17, 2026:
 
   | Graphics chip | Exact DLL, Windows | Exact DLL, Linux | Lossy DLL, Windows | Lossy DLL, Linux |
   |---|---|---|---|---|
-  | Radeon RX 7600, RX 7900 GRE, XT, XTX | 17 to 29% | 12 to 48% (7900 XTX, 7900 GRE) | 33 to 49% | about 42 to 63% |
-  | Radeon RX 7800 XT | 2 to 4% (one report 14%) | 28 to 35% | 29 to 41% | about 50% |
-  | Radeon RX 6600 XT, RX 6650 XT, RX 6900 XT | 10 to 20% | 29 to 31% (6600 XT, 6900 XT) | 30 to 41% | about 47 to 48% |
-  | Radeon RX 6600, RX 6700, RX 6700 XT, RX 6750 XT, RX 6800 (XT) | 0 to 6% | 29 to 30% (6750 XT, 6800 XT) | 15 to 45% | about 50 to 51% |
   | Integrated graphics and handhelds (Steam Deck, Radeon 890M) | from 8% faster to 4% slower | 5% (Steam Deck) | 23 to 32% | about 29 to 36% |
   | Intel Arc (B580; integrated Arc in one report) | 6 to 10% | not measured | 30 to 33% | not measured |
   | GeForce (GTX 1650, RTX 3060 Ti, 3090, 5070) | none | not measured | 24 to 37% | not measured |
   | Radeon RX 5000 (RDNA 1, e.g. RX 5700 XT) | not supported: does not work | not supported | not supported: does not work | not supported |
   | RX Vega, Radeon Pro VII | does not work: no picture (RX Vega) | 6% (Pro VII, shaders only) | does not work: no picture (RX Vega) | about 35% (Pro VII, shaders only) |
+
+  Newer, one report (Windows, kit 2026-10-28.2, test builds with this release's shaders): **the built-in graphics of a Ryzen Z1 Extreme (RDNA 3)**,
+  1080p / 1440p / 4K. The `igpu-r3` exact DLL takes 5% / 6% / 8% and the lossy DLL 21% / 20% / 21% less time than AMD's FSR 4.1.1 (AMD's FSR 4.1.2
+  RX 7000 and RX 6000 models run there at 4.1.1's speed; which model AMD's driver picks on such chips, most likely Lite, is not confirmed).
+  4.1.2l-exact takes 5% / 1% / 0% and 4.1.2l-lossy 11% / 11% / 8% less than AMD's Lite, which itself takes 36% / 32% / 36% less than FSR 4.1.1.
 
   **None of this project's DLLs work on Radeon RX 5000 (RDNA 1) cards,** on Windows or Linux: FSR 4 gives only a black picture there
   ([issue #43](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/43)). On RX Vega cards under Windows it is the same.
@@ -98,9 +123,6 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   the shaders alone; whether games show a picture on it is not known.
   Most Linux cells rest on one or two runs per card. The Linux lossy figures are derived: the Linux kit times a frame
   that runs the network and a frame that skips it, and the lossy DLL alternates them, so the table gives their average.
-  On RX 6000 cards under Windows the exact DLL is compared with AMD's shaders with the ghosting fix (the same picture),
-  so the table shows only the speed difference. One Windows RX 6700 report with impossible readings is left out. We do
-  not yet know what decides where a card falls in its range.
   [Results by graphics chip](docs/results.md#by-gpu-type), [timing kit results](timing-kit/RESULTS.md).
 - **It only shows when the graphics card is the limit.** If the processor limits your frame rate,
   the frame rate does not change.
@@ -114,15 +136,15 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   differences and comparison crops: [exact and lossy compared](docs/exact-vs-lossy.md). What the
   alternating cost means for frame caps and V-Sync: [frame pacing](docs/frame-pacing.md).
 
-One card, one game, as an example of the best case: a Radeon RX 7800 XT, Shadow of the Tomb Raider's benchmark, 4K
-output, FSR 4.1.1 Balanced. Your card and your game will give other numbers:
+One card, one game, as an example: a Radeon RX 7800 XT under Linux, Shadow of the Tomb Raider's benchmark, 4K output, FSR 4.1.1 Balanced,
+with earlier builds (this release's builds have not been run through it yet). Your card and your game will give other numbers:
 
 | | FSR 4 time per frame | Frame rate | Picture |
 |---|---|---|---|
 | AMD's shaders | 4.16 ms | 97 FPS | the reference |
 | Exact | 2.96 ms (−29%) | 109 FPS (+12%) | identical (RX 7000 build, one run, `dll-2026-10-22`) |
-| Lossy (called lossy2 until this release) | 2.09 ms (−50%) | 121 FPS (+25%) | still picture within 0.5 dB of AMD's (one run, `dll-2026-10-19`) |
-| Older lossy (not in this release) | 2.06 ms (−50%) | 122 FPS (+26%) | still picture within 0.2 dB of AMD's |
+| Lossy2 of `dll-2026-10-19` (this release's lossy is it trained further) | 2.09 ms (−50%) | 121 FPS (+25%) | still picture within 0.5 dB of AMD's (one run) |
+| The old untrained lossy (last in `dll-2026-10-22`) | 2.06 ms (−50%) | 122 FPS (+26%) | still picture within 0.2 dB of AMD's |
 
 More games and resolutions: [all results](docs/results.md).
 
