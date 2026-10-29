@@ -1135,7 +1135,7 @@ static const char* const JOKES[] = {
     "Why did the kit run every size? Small and big can both surprise.",
 };
 #define NJOKES ((int)(sizeof(JOKES) / sizeof(JOKES[0])))
-#define HEADER_ROWS 11     // the 4 rows of letters, a blank row, the thanks and the request, a blank row, the joke, a blank row, a line
+#define HEADER_ROWS 12     // the 4 rows of letters, a blank row, the thanks, the request and the power-mode note, a blank row, the joke, a blank row, a line
 static HANDLE hdr_thread, hdr_stop;
 static int hdr_joke;
 static void HeaderJoke(HANDLE h, int k) {      // the joke line, written into its cells directly (the cursor and the scrolling text below are not touched)
@@ -1147,7 +1147,7 @@ static void HeaderJoke(HANDLE h, int k) {      // the joke line, written into it
     if (n > w - 1) n = w - 1;      // never past the window's width: a longer line spilled into the next header row (jokes are kept <= 73 characters)
     while (n < w - 1 && n < (int)sizeof(line) - 1) line[n++] = ' ';
     DWORD done;
-    COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + 8)};      // row 9 of the window
+    COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + 9)};      // row 10 of the window
     WriteConsoleOutputCharacterA(h, line, (DWORD)n, at, &done);
 }
 // Wine's console (Proton) ignores the scroll region, so there the window scrolls as a whole and the header leaves the top. Four times a second
@@ -1160,14 +1160,14 @@ static void HeaderPaint(HANDLE h, int k) {
     const int w = bi.srWindow.Right - bi.srWindow.Left + 1;
     const WORD yellow = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY, bold = (WORD)(hdr_attr | FOREGROUND_INTENSITY);
     for (int r = 0; r < HEADER_ROWS; ++r) {
-        const char* t = r < 4 ? CYBOMAN_ART[r] : r == 5 ? "Thank you for help with this project." : r == 6 ? "Please don't use your GPU or web browser while the test is running." : "";
+        const char* t = r < 4 ? CYBOMAN_ART[r] : r == 5 ? "Thank you for help with this project." : r == 6 ? "Please don't use your GPU or web browser while the test is running." : r == 7 ? "Best results: CPU and GPU in performance mode, not battery/power saving." : "";
         char line[512];
         int n = snprintf(line, sizeof(line), "%s", t);
         if (r == HEADER_ROWS - 1) n = 0;
         while (n < w - 1 && n < (int)sizeof(line) - 1) line[n++] = r == HEADER_ROWS - 1 ? '-' : ' ';
         DWORD done;
         const COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + r)};
-        FillConsoleOutputAttribute(h, r < 4 ? yellow : r == 5 || r == 6 ? bold : hdr_attr, (DWORD)w, at, &done);
+        FillConsoleOutputAttribute(h, r < 4 ? yellow : r == 5 || r == 6 || r == 7 ? bold : hdr_attr, (DWORD)w, at, &done);
         WriteConsoleOutputCharacterA(h, line, (DWORD)n, at, &done);
     }
     HeaderJoke(h, k);
@@ -1201,7 +1201,7 @@ static bool HeaderStart(void) {
     hdr_attr = bi.wAttributes;
     printf("\x1b[2J\x1b[H\x1b[93;1m");
     for (int i = 0; i < 4; ++i) printf("%s\n", CYBOMAN_ART[i]);
-    printf("\x1b[0m\n\x1b[1mThank you for help with this project.\nPlease don't use your GPU or web browser while the test is running.\x1b[0m\n\n\n\n");      // a blank row, the joke's row, a blank row
+    printf("\x1b[0m\n\x1b[1mThank you for help with this project.\nPlease don't use your GPU or web browser while the test is running.\nBest results: CPU and GPU in performance mode, not battery/power saving.\x1b[0m\n\n\n\n");      // the power-mode note (2026-10-29), a blank row, the joke's row, a blank row
     for (int i = 0; i < w - 1; ++i) putchar('-');
     printf("\n\x1b[%d;%dr\x1b[%d;1H", HEADER_ROWS + 1, rows, HEADER_ROWS + 1);      // the scroll region: everything below the header
     fflush(stdout);
@@ -1483,7 +1483,7 @@ int main(int argc, char** argv) {
     if (HeaderStart())
         printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more rounds).\n\n", KIT_VERSION, once ? budget / 2 : budget);
     else
-        printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more\nrounds); please leave the PC alone and close games, browsers and video while it runs.\n\n", KIT_VERSION, once ? budget / 2 : budget);
+        printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more\nrounds); please leave the PC alone and close games, browsers and video while it runs.\nBest results: CPU and GPU in performance mode, not battery/power saving.\n\n", KIT_VERSION, once ? budget / 2 : budget);
     // Rounds, every other one in reverse order: a DLL's runs then sit at mirrored places in the sequence, so a drift over the
     // run (the card warming up, something starting in the background) shows as a spread between them. After each round the
     // next one starts only if it fits in the time given (the last round's length is the estimate); a second round also runs

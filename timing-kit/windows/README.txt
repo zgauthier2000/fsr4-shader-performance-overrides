@@ -12,7 +12,8 @@ How to run it
   1. Unpack the whole folder somewhere (not inside the zip viewer). The DLLs come packed in
      dlls.pack.zst: the program takes out each one when it times it and replaces it with the next,
      so only one DLL (about 40 MB) is on disk at a time, and none when it has finished.
-  2. Close games, browsers and video players.
+  2. Close games, browsers and video players. For the best results, run it with the CPU and graphics
+     in performance mode: a laptop plugged in, not on battery, battery saver or a power-saving mode.
   3. Double-click fsr4time.exe. It takes about 15 minutes (a slow or integrated graphics chip up to
      about 25). It times only the builds made for your kind of graphics, so each gets more rounds.
      Leave the PC alone while it runs: the header at the top of the window says so the whole time.
