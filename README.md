@@ -158,6 +158,8 @@ More games and resolutions: [all results](docs/results.md).
 > cards in Windows timing-kit reports. Against AMD's FSR 4.1.1 file, at 1080p / 4K: RX 7900 XTX 7% / 31%, RX 7800 XT 7% / 9%, RX 7600 24% / 26%, RX 6950 XT 7% / 24%, RX 6600 XT 18% / 13%, GeForce RTX 2080
 > 2% / 4% ([all cards](docs/releases/dll-NEXTVER.md#speed)). On RX 6000 and Steam Deck / older built-in graphics it now gives the picture of
 > AMD's own FSR 4.1.2 for RX 6000, which in games looks the same as 4.1.1: [what AMD's 4.1.2 changes](docs/amd-411-vs-412.md).
+> The RX 7000 and RX 6000 exact builds also carry AMD's own eleventh network shader from FSR SDK 2.4.0 (same picture; up to 3% faster in
+> Windows reports so far).
 >
 > - **Version names** now start with 4.1.2: `4.1.2-exact-r3-cyboman`, `4.1.2-lossy-r2-cyboman` and so on.
 > - **RX 6000:** the fix for its picture difference under Windows is now AMD's own (constant operand second in the last shader's dot

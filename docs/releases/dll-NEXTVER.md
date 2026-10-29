@@ -21,6 +21,10 @@ project's display mapping, not the game's tone mapping. The recorded clip runs t
   outputs as AMD's FSR 4.1.2 for RX 7000 does (same output). The RX 6000 and Steam Deck / older built-in graphics exact builds now give
   the picture of AMD's FSR 4.1.2 for RX 6000 byte for byte; it differs from FSR 4.1.1's only in rounding, and in recorded game clips no
   difference could be measured. The other exact builds give FSR 4.1.1's picture, which is also the picture of AMD's FSR 4.1.2 for RX 7000.
+  The RX 7000 and RX 6000 exact builds also use AMD's own version of the network's eleventh shader, the one AMD's FSR 4.1.2 uses for RX 6000
+  cards, taken from the game DLL of AMD's FSR SDK 2.4.0 (MIT license; same picture). It reads the network's weights in wider blocks. In
+  Windows timing-kit reports it was 3% faster at 4K on an RX 7600 and 1.6% at 1080p on an RX 7900 XT, and the same speed at the other sizes
+  (two cards so far; under Linux no difference). The builds for built-in graphics keep this project's smaller version of that shader.
   [What AMD's 4.1.2 changes against 4.1.1](../amd-411-vs-412.md).
 - **RX 6000 and Steam Deck / older built-in graphics:** the fix for the picture difference RX 6000 cards show with AMD's file under Windows
   now puts the constant operand of the last shader's dot products second, as AMD's FSR 4.1.2 does, instead of splitting them (same
