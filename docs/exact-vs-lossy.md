@@ -3,7 +3,7 @@
 [Back to the README](../README.md)
 
 > [!NOTE]
-> **This page describes release `dll-NEXTVER`.** Its `lossy` DLL is the trained build earlier releases called `lossy2`, trained further.
+> **This page describes release `dll-2026-10-29`.** Its `lossy` DLL is the trained build earlier releases called `lossy2`, trained further.
 > Every figure and picture here was made again with it, beside the old, untrained lossy build that `dll-2026-10-22` was the last release to
 > include. The page as it was for the old build is in this file's history. This release's Lite builds (`4.1.2l-exact`, `4.1.2l-lossy`) are
 > on [their own page](lite-builds.md).
@@ -313,7 +313,7 @@ FSR 4's time per frame on a Radeon RX 7800 XT under Linux (Proton), Balanced, mo
 
 - **Lossy's two kinds of frame:** at 4K, 3.22 ms when the network runs and 1.25 ms when it is skipped.
 - **Windows:** the exact DLL's gains are smaller on most cards (on this RX 7800 XT 7 to 9% against AMD's file, in testers' timing-kit reports)
-  and larger on some ([all cards](releases/dll-NEXTVER.md#speed)). Linux's driver runs two of AMD's shaders in a slower mode, which leaves more
+  and larger on some ([all cards](releases/dll-2026-10-29.md#speed)). Linux's driver runs two of AMD's shaders in a slower mode, which leaves more
   to save there. This release's lossy has not been timed on Windows yet.
 - **Games:** this release's builds have not been run through a game benchmark here yet. Earlier figures in Shadow of the Tomb Raider (4K Balanced,
   this card, Linux, single runs): AMD's 4.16 ms and 97 FPS, an earlier exact build 2.99 ms and 109 FPS, the old lossy of `dll-2026-10-15` 2.06 ms
@@ -351,7 +351,7 @@ FSR 4's time per frame on a Radeon RX 7800 XT under Linux (Proton), Balanced, mo
 
 - [This project's lossy DLLs beside FSR 4.1.2 Lite, FSR 3.1, HelixSR and XeSS](upscaler-comparison.md): the same scenes and timing for eight upscalers
 - [The Lite builds](lite-builds.md): `4.1.2l-exact` and `4.1.2l-lossy`, on AMD's smaller FSR 4.1.2 Lite network
-- [The release page](releases/dll-NEXTVER.md): what this release changes against `dll-2026-10-22`
+- [The release page](releases/dll-2026-10-29.md): what this release changes against `dll-2026-10-22`
 - [How the exact rewrites work](how-it-works.md) and [all results](results.md)
 - [The lossy track](../research/lossy): folding, rounding, what was tried and rejected
 - [Frame skip](../research/frame-skip): the mechanism, each repair, results by frame rate, and what was tried and not shipped

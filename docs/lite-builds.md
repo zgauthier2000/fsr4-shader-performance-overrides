@@ -1,6 +1,6 @@
 # The Lite builds: 4.1.2l-exact and 4.1.2l-lossy
 
-Since release `dll-NEXTVER` every archive also holds two builds based on **FSR 4.1.2 Lite**, the smaller FSR 4 network that AMD's
+Since release `dll-2026-10-29` every archive also holds two builds based on **FSR 4.1.2 Lite**, the smaller FSR 4 network that AMD's
 driver most likely uses for graphics built into the processor ([what AMD's 4.1.2 changes](amd-411-vs-412.md)):
 
 | Folder | Version name in OptiScaler | Picture | Speed against AMD's Lite (Linux, RX 7800 XT) |

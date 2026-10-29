@@ -3,7 +3,7 @@
 [Back to the front page](../README.md) · [Exact and lossy compared](exact-vs-lossy.md) · [What HLX FSR 4 runs](hlx-fsr4.md)
 
 > [!NOTE]
-> **This version (2026-10-29) measures release `dll-NEXTVER`:** its lossy DLL (the former lossy2, trained further) and its new 4.1.2l-lossy DLL.
+> **This version (2026-10-29) measures release `dll-2026-10-29`:** its lossy DLL (the former lossy2, trained further) and its new 4.1.2l-lossy DLL.
 > It adds HelixSR 3.2.0 (HLX FSR 4 and HLX DLSS). Recorded game clips: the [comparison site](https://zgauthier2000.github.io/fsr4-upscaler-compare/).
 > The earlier version (six upscalers, lossy2 of `dll-2026-10-19`, HelixSR 2.0.0) is in this file's history.
 
@@ -119,8 +119,8 @@ These are Lite's three largest losses against AMD's full model that a picture ca
 | Name here | What it is | Version | Settings |
 |---|---|---|---|
 | FSR 4.1.1 | AMD's FSR 4 (INT8 model) with AMD's own shaders. This project's exact DLL gives the same picture, byte for byte | 4.1.1 | defaults |
-| Lossy | this project's lossy DLL (the former lossy2, trained further): FSR 4.1.1's network on every other frame, with trained weights | release `dll-NEXTVER`, RX 7000 flavor, at the Balanced preset's size (auto exposure is off on this page) | defaults |
-| 4.1.2l-lossy | this project's 4.1.2l-lossy DLL: FSR 4.1.2 Lite's network on every other frame, with trained weights | release `dll-NEXTVER`, RX 7000 flavor | defaults |
+| Lossy | this project's lossy DLL (the former lossy2, trained further): FSR 4.1.1's network on every other frame, with trained weights | release `dll-2026-10-29`, RX 7000 flavor, at the Balanced preset's size (auto exposure is off on this page) | defaults |
+| 4.1.2l-lossy | this project's 4.1.2l-lossy DLL: FSR 4.1.2 Lite's network on every other frame, with trained weights | release `dll-2026-10-29`, RX 7000 flavor | defaults |
 | FSR 4.1.2 Lite | AMD's small FSR 4 model ("Lite": three network passes where FSR 4.1.1 has twelve), made for integrated graphics. Run here in this project's local test harness (see the note below) | 4.1.2 | its normal weight set (the one for every preset but Ultra Performance) |
 | FSR 3.1 | AMD's FSR 3.1 upscaler, from the same AMD file as FSR 4.1.1 | 3.1.5 | defaults |
 | HLX FSR 4 | HelixSR's HLX FSR 4: AMD's FSR 4.1.2 Lite network on HelixSR's own pipeline ([what HLX FSR 4 runs](hlx-fsr4.md)), in place of AMD's upscaler file | HelixSR 3.2.0 | defaults (the INT8 version it picks on this card) |
@@ -298,7 +298,7 @@ This is the graphics-card time for one upscale call, in milliseconds, at the sam
 | Mean of the three (the chart's speed spoke) | 2.70 | 1.83 | 1.33 | 1.02 | 1.23 | 0.73 | 1.23 | 1.24 | 2.88 |
 
 - **How the timings were taken:**
-  - FSR 4.1.1, this project's DLLs (release `dll-NEXTVER`, RX 7000 flavor), FSR 4.1.2 Lite, FSR 3.1, HLX FSR 4 and HLX DLSS were timed by the same program:
+  - FSR 4.1.1, this project's DLLs (release `dll-2026-10-29`, RX 7000 flavor), FSR 4.1.2 Lite, FSR 3.1, HLX FSR 4 and HLX DLSS were timed by the same program:
     200 calls after 40 to warm up, on 2026-10-29, one run each.
   - XeSS has another interface and was timed by a second program over 32 calls, so its column is not measured in quite the same way.
 - **The lossy figures are averages over the two kinds of frame.** At 4K, lossy takes 3.22 ms when the network runs and 1.25 ms when it is skipped;

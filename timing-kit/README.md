@@ -33,7 +33,7 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 
 **Windows kit version 2026-10-29.2** (download again if you have an earlier one):
 
-- **This release's own DLLs** (`dll-NEXTVER`): for your kind of graphics its exact and lossy DLLs (`n-exact-<flavor>`, `n-lossy-<flavor>`),
+- **This release's own DLLs** (`dll-2026-10-29`): for your kind of graphics its exact and lossy DLLs (`n-exact-<flavor>`, `n-lossy-<flavor>`),
   its 4.1.2l-exact (`lt6-test`) and 4.1.2l-lossy (`lt14-test`; `lt15-test`, its form for RX 6000 and older built-in graphics), the same files as
   in the release's archives, and the exact DLL of the release before (`-prev`). The references are AMD's FSR 4.1.1 (`1-amd-shaders`), AMD's own
   FSR 4.1.2 for RX 6000 and RX 7000 (`d-2-driver-rx6000`, `d-3-driver-rx7000`) and FSR 4.1.2 Lite (`lt1-reference`). The summary compares this

@@ -8,7 +8,7 @@ what that does to frame pacing, frame caps, V-Sync, latency and the numbers an o
 
 It applies to the lossy DLL (the `lossy` folder of each download) only. The exact files take the same time every frame.
 
-The figures are for release `dll-NEXTVER`'s lossy DLL. FSR 4's times are measured in this project's test rig; what they mean for
+The figures are for release `dll-2026-10-29`'s lossy DLL. FSR 4's times are measured in this project's test rig; what they mean for
 whole frames is worked out from them and marked as derived. Before this release the page used Shadow of the Tomb Raider figures of
 earlier builds (1.7 ms apart); they are in this file's history. The release's Lite build `4.1.2l-lossy` alternates the same way, with
 smaller times (about 2.1 and 1.3 ms at 4K on the same card).
