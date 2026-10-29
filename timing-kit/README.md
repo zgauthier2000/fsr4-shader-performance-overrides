@@ -31,7 +31,15 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Windows kit version 2026-10-28.2** (download again if you have an earlier one):
+**Windows kit version 2026-10-29** (download again if you have an earlier one):
+
+- **Three test builds for RX 7000 cards** (`rdna3-h1-driver-pass11`, `rdna3-h2-driver-network`, `rdna3-h3-driver-network-no11`). On the one
+  RX 7000 card reported so far (an RX 7800 XT), AMD's own FSR 4.1.2 model for RX 6000 (`d-2-driver-rx6000`) was faster than this project's
+  RX 7000 exact build (`n-exact-r3`). Each test build is `n-exact-r3` with one part of that model in its place: its pass 11, all of its network
+  shaders, or all of them but pass 11, to show which part makes the difference. They run on RX 7000 cards only. AMD's 4.1.2 shaders run in
+  this kit, not in AMD's own driver. Nothing else changed.
+
+**Windows kit version 2026-10-28.2:**
 
 - **Six reference DLLs now run on every graphics card.** In version 2026-10-28, `d-3-driver-rx7000`, `d-2-driver-rx6000-pp` and the four
   `rdna2-d...` DLLs ran only on RX 7000 cards and were listed as "did not run" elsewhere. Nothing else changed.
@@ -217,7 +225,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-10-28.2.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-28.2/fsr4-timing-kit-windows-2026-10-28.2.zip) (about 31 MB, version 2026-10-28.2; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-10-29.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-29/fsr4-timing-kit-windows-2026-10-29.zip) (about 32 MB, version 2026-10-29; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
@@ -230,6 +238,8 @@ The summary and `results-raw.txt` are saved in the unpacked folder. It runs the 
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
 Kits up to version 2026-10-25.2 also had a study run for RDNA2 and RDNA3 (`run-study.cmd`); version 2026-10-28 has none.
+
+**New in version 2026-10-29:** three test builds for RX 7000 cards (see [above](#in-short)).
 
 **New in version 2026-10-28.2:** six reference DLLs that ran only on RX 7000 cards now run on every graphics card (see [above](#in-short)).
 
