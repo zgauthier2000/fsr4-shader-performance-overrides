@@ -58,47 +58,30 @@ What it does
 
   dlls\1-amd-shaders   AMD's DLL with AMD's shaders (only its graphics-card check is lifted, so
                        that it runs on RX 6000 cards and integrated graphics too): the reference
-  dlls\n-0-reference   a reference build of AMD's shaders, for the n- builds below
-  dlls\d-2-driver-rx6000, d-2-driver-rx6000-pp, d-3-driver-rx7000
-                       reference builds of the shaders AMD's own FSR 4.1.2 uses in its graphics driver:
-                       d-2 its model for Radeon RX 6000 (RDNA2), d-3 its model for Radeon RX 7000 (RDNA3).
-                       Both are timed on every graphics. The summary ends with blocks that compare AMD's
-                       FSR 4.1.2 models with AMD's FSR 4.1.1 (1-amd-shaders) on your graphics, the builds
-                       made for your graphics with AMD's own FSR 4.1.2 for it (on graphics built into
-                       processors with its model for those, the smaller network lt1-reference), and the
-                       lt- test builds with lt1-reference. AMD's 4.1.2 shaders run here in this kit, not in
-                       AMD's own driver.
-                       d-2-driver-rx6000-pp is d-2 with AMD's 4.1.1 network shaders in place of the driver's
-                       (the network gives the same output either way): the picture reference of the -drv builds.
-  dlls\n-exact-<flavor>, n-exact-<flavor>-nocv, n-exact-<flavor>-z4, n-exact-<flavor>-z3,
-  n-exact-<flavor>-prev, n-lossy-<flavor>, n-lossy-<flavor>-z4, n-lossy-<flavor>-z3
-                       test builds of the next release's exact and lossy DLLs for one kind of graphics
-                       (flavor r3 = RX 7000, r2 = RX 6000, igpu-r3 / igpu-r2 = built-in RDNA3 / RDNA2
-                       graphics and other cards). The kit times your own flavor, and on RX 6000 / RX 7000
-                       cards also the other card flavor for comparison. nocv is n-exact without one small
-                       change to the network's shaders (the same picture); z4 and z3 have some of the
-                       network's shaders written so the driver can unroll their loops (four shaders in z4,
-                       three in z3; the same picture as the build without the -z4 / -z3); prev is the exact
-                       DLL of the current release, dll-2026-10-22. The r2 and igpu-r2 exact builds are written
-                       to give the picture of AMD's own FSR 4.1.2 for RX 6000 and should give
-                       d-2-driver-rx6000-pp's picture; the others n-0-reference's.
-  dlls\lt1-reference, lt6-test, lt14-test, lt15-test, lt16-test
-                       the smaller FSR 4 network: a reference build (lt1), a faster form that should give its
-                       picture exactly (lt6), and faster forms whose picture differs by design (lt14; lt15 and
-                       lt16 = lt14 with one of two changes to how it writes its results: the same picture as lt14).
-                       lt14, lt15 and lt16 are also timed a second time with the graphics card's caches emptied
-                       before every frame, as a game's own drawing would leave them (lines marked @busy; the
-                       copying that empties them is not counted in the time).
-  dlls\rdna2-d1-driver-prepass, rdna2-d2-driver-postpass, rdna2-d3-driver-model-passes, rdna2-d4-driver-pass11
-                       (RX 6000 cards only) AMD's 4.1.1 shaders with one part replaced by the one AMD's own
-                       FSR 4.1.2 uses on RX 6000: which part makes it faster on your card.
-  dlls\rdna3-h1-driver-pass11, rdna3-h2-driver-network, rdna3-h3-driver-network-no11
-                       (RX 7000 cards only) n-exact-r3 with one part replaced by the one AMD's own FSR 4.1.2
-                       uses in its model for RX 6000 (d-2): its pass 11 (h1), all of its network shaders
-                       (h2), or all of them but pass 11 (h3). On the one RX 7000 card reported so far, d-2
-                       was faster than n-exact-r3: which part makes the difference on your card.
-  The test DLLs and reference builds are timed for their speed and compared with each other, not
-  with AMD's picture: a large difference from AMD's picture on their lines is expected.
+  dlls\d-2-driver-rx6000, d-3-driver-rx7000
+                       AMD's own FSR 4.1.2: d-2 its model for Radeon RX 6000 (RDNA2), d-3 its model for
+                       Radeon RX 7000 (RDNA3), the shaders of AMD's FSR SDK 2.4.0 game DLL. Both are timed
+                       on every graphics. The summary ends with blocks that compare AMD's FSR 4.1.2 models
+                       with AMD's FSR 4.1.1 (1-amd-shaders) on your graphics, this release's builds for your
+                       graphics with AMD's own FSR 4.1.2 for it (on graphics built into processors with its
+                       model for those, the smaller network lt1-reference), and the lt- builds with
+                       lt1-reference. AMD's 4.1.2 shaders run here in this kit, not in AMD's own driver.
+  dlls\n-exact-<flavor>, n-lossy-<flavor>, n-exact-<flavor>-prev
+                       this release's exact and lossy DLLs for one kind of graphics (flavor r3 = RX 7000,
+                       r2 = RX 6000, igpu-r3 / igpu-r2 = built-in RDNA3 / RDNA2 graphics and other cards),
+                       and prev, the exact DLL of the release before (dll-2026-10-22). The kit times your
+                       own flavor, and on RX 6000 / RX 7000 cards also the other card flavor for comparison.
+                       The exact builds give AMD's picture: the r3 and igpu-r3 ones 1-amd-shaders', the r2
+                       and igpu-r2 ones d-2-driver-rx6000's. The lossy builds do not, by design.
+  dlls\lt1-reference, lt6-test, lt14-test, lt15-test
+                       the smaller FSR 4 network, FSR 4.1.2 Lite: plain Lite (lt1), this release's
+                       4.1.2l-exact (lt6, Lite's picture exactly) and 4.1.2l-lossy (lt14, its form for RX 7000
+                       and other graphics; lt15, its form for RX 6000 and older built-in graphics, the same
+                       picture as lt14). lt14 and lt15 are also timed a second time with the graphics card's
+                       caches emptied before every frame, as a game's own drawing would leave them (lines
+                       marked @busy; the copying that empties them is not counted in the time).
+  These are the DLLs of the release itself, with their real weights: the picture lines show
+  whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
   these, make a folder dlls\ next to fsr4time.exe, a folder for the DLL in it, and put its amd_fidelityfx_upscaler_dx12.dll there. For
