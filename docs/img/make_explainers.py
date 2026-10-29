@@ -44,7 +44,7 @@ def frame(H, label, title, sub, t):
 
 def skip(t):
     o = frame(250, "How the lossy DLL saves time. AMD's shaders and the exact DLL run FSR 4's neural network on every frame. The lossy DLL runs it on every other frame "
-              'and, on the frames in between, reuses the last result moved along with the picture. About 2.9 ms on a frame that runs the network and about 1.1 ms on one that skips it, at 4K on a Radeon RX 7800 XT.',
+              'and, on the frames in between, reuses the last result moved along with the picture. About 3.2 ms on a frame that runs the network and about 1.3 ms on one that skips it, at 4K on a Radeon RX 7800 XT (Linux).',
               'How the lossy DLL saves time', "FSR 4's neural network is about 60% of its work. The lossy DLL runs it on every other frame.", t)
     for r, (name, kinds, c) in enumerate((("AMD's shaders and the exact DLL", [1] * 6, 'exact'), ('Lossy DLL', [1, 0, 1, 0, 1, 0], 'lossy'))):
         y = 84 + r * 78
@@ -57,7 +57,7 @@ def skip(t):
                 o.append(text(x + 8, y + 43, 'network runs', t, 11, 'on', weight=600))
             else:
                 o.append(text(x + 56, y + 43, 'skipped', t, 11, 'muted'))
-    o.append(text(24, 236, 'Each box is one frame; the colored part is the time FSR 4 takes. 4K on an RX 7800 XT: about 2.9 ms with the network, about 1.1 ms without.', t, 11, 'muted'))
+    o.append(text(24, 236, 'Each box is one frame; the colored part is the time FSR 4 takes. 4K on an RX 7800 XT (Linux): about 3.2 ms with the network, about 1.3 ms without.', t, 11, 'muted'))
     return o
 
 

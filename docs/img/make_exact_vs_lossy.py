@@ -4,6 +4,8 @@
 # what each of FSR 4.1.1's passes does in AMD's shaders, in the exact files and in the lossy test
 # builds (on a frame that runs the model and on a skipped frame), with the upscaler time of each and
 # what the lossy builds cost. Data: docs/exact-vs-lossy.md, research/lossy, research/frame-skip.
+# From release dll-2026-10-29 on: the RX 7000 builds of that release (exact with AMD's own pass 11 from FSR SDK 2.4.0; lossy = the former
+# lossy2 with trained weights in passes 1, 2, 4, 5, 10 and 12), times from the test rig's timing program (4K Balanced, moving scene, one run).
 THEMES = {
     'light': dict(surface='#fcfcfb', ink='#0b0b0b', ink2='#52514e', muted='#898781', grid='#e1e0d9', axis='#c3c2b7',
                   amd='#c3c2b7', exact='#2a78d6', lossy='#eb6834', onlossy='#0b0b0b'),
@@ -11,23 +13,24 @@ THEMES = {
                  amd='#4a4a46', exact='#3987e5', lossy='#d95926', onlossy='#0b0b0b'),
 }
 FONT = "font-family=\"-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif\""
-W, H = 760, 856
+W, H = 760, 896
 PASSES = ['Prepass', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'Postpass']
 MODEL = PASSES[1:13]
 # state of every pass in each kind of frame: a = AMD's code, e = rewritten with the same output,
 # l = changes the output, s = skipped
-EXACT = {p: 'e' for p in PASSES} | {'3': 'a', '6': 'a'}
-LOSSY_RUN = dict(EXACT) | {'10': 'l', 'Postpass': 'l'}      # the exact files' model with one light fold (pass 10: 18 of 36 weight words) and the postpass's dead band; passes 1 and 12 were folded too up to dll-2026-10-11.3
+EXACT = {p: 'e' for p in PASSES} | {'3': 'a', '6': 'a', '11': 'a'}      # pass 11: AMD's own from FSR SDK 2.4.0 (RX 7000 and RX 6000 exact builds, from dll-2026-10-29)
+LOSSY_RUN = {p: 'e' for p in PASSES} | {'3': 'a', '6': 'a'} | {k: 'l' for k in ('1', '2', '4', '5', '10', '12')} | {'Postpass': 'l'}      # trained weights in six passes (the former lossy2), the postpass's dead band
 LOSSY_SKIP = {p: 's' for p in MODEL} | {'Prepass': 'l', 'Postpass': 'l'}
 ROWS = [
-    ("AMD's shaders", 'every frame', {p: 'a' for p in PASSES}, 4.16, '4.16 ms', 'amd',
+    ("AMD's shaders", 'every frame', {p: 'a' for p in PASSES}, 4.83, '4.83 ms', 'amd',
      ['The reference: all fourteen passes as AMD ships them.']),
-    ('Exact files', 'every frame', EXACT, 2.99, '2.99 ms', 'exact',
-     ["Twelve passes do the same arithmetic, laid out so the GPU gets through it faster. The image is AMD's, byte for byte."]),
-    ('Lossy build', 'a frame that runs the model (every other frame)', LOSSY_RUN, 2.9, 'about 2.9 ms', 'lossy',
-     ["The exact files' shaders, except that one model pass merges a few of its smallest weights (steadier fine detail)",
-      "and the last pass skips corrections too small to matter (steadier flat areas). The prepass notes each area's motion."]),
-    ('Lossy build', 'a skipped frame (every other frame)', LOSSY_SKIP, 1.1, 'about 1.1 ms', 'lossy',
+    ('Exact files', 'every frame', EXACT, 3.14, '3.14 ms', 'exact',
+     ["Eleven passes do the same arithmetic, laid out so the GPU gets through it faster; pass 11 is AMD's own faster",
+      "version from its FSR SDK 2.4.0 (RX 7000 and RX 6000 builds). The image is AMD's, byte for byte."]),
+    ('Lossy build', 'a frame that runs the model (every other frame)', LOSSY_RUN, 3.22, '3.22 ms', 'lossy',
+     ["Six of the twelve model passes carry new weights, trained on this machine to match AMD's picture through this",
+      "whole frame loop; the last pass skips corrections too small to matter. The prepass notes each area's motion."]),
+    ('Lossy build', 'a skipped frame (every other frame)', LOSSY_SKIP, 1.25, '1.25 ms', 'lossy',
      ["The model does not run, and its last result follows the picture's motion. The picture is almost entirely the",
       "previous one moved along with the scene; the new frame counts for very little, except where the model had asked",
       "for it. Repairs: the history limited to the new frame's colors around the pixel, less weight where the nearest",
@@ -80,13 +83,13 @@ def legend(x, y, t):
 def figure(t):
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" '
          'aria-label="How the exact files and the lossy test builds differ from AMD\'s FSR 4.1.1 shaders, pass by pass. '
-         "AMD's shaders: all fourteen passes unchanged, 4.16 ms per frame. Exact files: twelve passes rewritten with the same output "
-         '(model passes 3 and 6 untouched), 2.99 ms, the image is AMD\'s byte for byte. Lossy build on a frame that runs the model: '
-         'the same shaders as the exact files except model pass 10, which merges a few of its smallest weights, and the postpass, which skips corrections smaller than about two steps of the picture\'s number format, about 2.9 ms. '
-         'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and four repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, about 1.1 ms. '
-         'The two kinds of frame alternate, 2.06 ms on average, 50% less than AMD\'s. Cost of the lossy build in a test scene at 4K Balanced: '
-         'still picture 44.26 dB against 44.33, flicker on fine detail at rest 0.087 against 0.110, areas just uncovered by a moving object 35.90 dB against 34.48. '
-         'Shadow of the Tomb Raider, 4K Balanced, Radeon RX 7800 XT.">',
+         "AMD's shaders: all fourteen passes unchanged, 4.83 ms per frame. Exact files: eleven passes rewritten with the same output, "
+         'model passes 3 and 6 untouched and pass 11 replaced by AMD\'s own faster version from FSR SDK 2.4.0, 3.14 ms, the image is AMD\'s byte for byte. '
+         'Lossy build on a frame that runs the model: six of the twelve model passes (1, 2, 4, 5, 10 and 12) carry new trained weights, and the postpass skips corrections smaller than about two steps of the picture\'s number format, 3.22 ms. '
+         'Lossy build on a skipped frame: all twelve model passes are skipped and the prepass and postpass show mostly the reprojected history, with the model\'s last result following the motion and the repairs, and nothing taken from the new frame where the picture is at rest unless its content changed, 1.25 ms. '
+         'The two kinds of frame alternate, 2.25 ms on average, 53% less than AMD\'s. What the lossy build costs in test scenes at 4K Balanced: '
+         'still picture 43.89 dB against 44.33, flicker on fine detail at rest 0.080 against 0.110, areas just uncovered by a moving object 37.09 dB against 34.48, '
+         'brightening 3.7 frames behind against 0.5. The test rig\'s timing program, 4K Balanced, moving scene, Radeon RX 7800 XT under Linux, one run.">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 34, 'Exact files and lossy builds, pass by pass', t, 16, 'ink', weight=600),
          text(24, 54, "FSR 4.1.1's passes in the order they run each frame, and what each build does with them.", t)]
@@ -110,36 +113,36 @@ def figure(t):
             m0 = X0 + wide + G
             m1 = W - X0 - wide - G
             o.append(text((m0 + m1) / 2, ys - 6, 'the model: 12 passes, about 60% of the time', t, 11, 'muted', 'middle'))
-        # time bar under the strip, full width = AMD's 4.16 ms
+        # time bar under the strip, full width = AMD's 4.83 ms
         yb = ys + BH + 8
         o.append(f'<rect x="{X0}" y="{yb}" width="{full}" height="8" rx="4" fill="{t["grid"]}"/>')
-        o.append(hbar(X0, yb, full * ms / 4.16, 8, t[kind]))
+        o.append(hbar(X0, yb, full * ms / 4.83, 8, t[kind]))
         for k, l in enumerate(notes):
             o.append(text(X0, yb + 26 + 16 * k, l, t))
         y = yb + 26 + 16 * len(notes) + 22
     # ---- what it adds up to
     o.append(f'<line x1="24" y1="{y - 14}" x2="{W - 24}" y2="{y - 14}" stroke="{t["grid"]}" stroke-width="1"/>')
     o.append(text(24, y + 12, 'Upscaler time, average', t, 14, 'ink', weight=600))
-    o.append(text(24, y + 30, 'Shadow of the Tomb Raider, 4K Balanced, RX 7800 XT', t, 11, 'muted'))
+    o.append(text(24, y + 30, 'Test rig, 4K Balanced, moving scene, RX 7800 XT (Linux)', t, 11, 'muted'))
     bx, bw = 24 + 84, 150
-    for i, (lab, v, kind, note) in enumerate([("AMD's", 4.16, 'amd', '4.16 ms  ·  97 FPS'), ('Exact', 2.99, 'exact', '2.99 ms  ·  109 FPS  ·  28% less'),
-                                              ('Lossy', 2.06, 'lossy', '2.06 ms  ·  122 FPS  ·  50% less')]):
+    for i, (lab, v, kind, note) in enumerate([("AMD's", 4.83, 'amd', '4.83 ms'), ('Exact', 3.14, 'exact', '3.14 ms  ·  35% less'),
+                                              ('Lossy', 2.25, 'lossy', '2.25 ms  ·  53% less')]):
         yy = y + 46 + i * 26
         o.append(text(bx - 10, yy + 12, lab, t, 12, 'ink', 'end'))
-        o.append(hbar(bx, yy, bw * v / 4.16, 16, t[kind]))
-        o.append(text(bx + bw * v / 4.16 + 8, yy + 12, note, t))
+        o.append(hbar(bx, yy, bw * v / 4.83, 16, t[kind]))
+        o.append(text(bx + bw * v / 4.83 + 8, yy + 12, note, t))
     x2 = 452
     o.append(text(x2, y + 12, 'What the lossy build costs', t, 14, 'ink', weight=600))
     o.append(text(x2, y + 30, "Test scene, 4K Balanced. Exact files = AMD's.", t, 11, 'muted'))
     o.append(text(x2 + 196, y + 52, "AMD's", t, 11, 'muted', 'end'))
     o.append(text(x2 + 284, y + 52, 'Lossy', t, 11, 'muted', 'end'))
-    for i, (lab, a, b) in enumerate([('Still picture', '44.33 dB', '44.26 dB'), ('Flicker at rest, fine detail', '0.110', '0.087'),
-                                     ('Areas just uncovered', '34.48 dB', '35.90 dB')]):
+    for i, (lab, a, b) in enumerate([('Still picture', '44.33 dB', '43.89 dB'), ('Flicker at rest, fine detail', '0.110', '0.080'),
+                                     ('Areas just uncovered', '34.48 dB', '37.09 dB'), ('Brightening: frames behind', '0.46', '3.66')]):
         yy = y + 72 + i * 22
         o.append(text(x2, yy, lab, t, 12, 'ink'))
         o.append(text(x2 + 196, yy, a, t, 12, 'ink2', 'end'))
         o.append(text(x2 + 284, yy, b, t, 12, 'ink', 'end', 600))
-    return o, y + 72 + 2 * 22 + 24
+    return o, y + 72 + 3 * 22 + 24
 
 
 for name, t in THEMES.items():
