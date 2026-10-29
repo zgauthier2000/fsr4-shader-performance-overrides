@@ -18,8 +18,9 @@ FONT = "font-family=\"-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif\""
 DAT = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'quickstart-data.json')))
 ROWS = [r for r in DAT['rows'] if '3840x2160' in r['saved']]
 W = 760
-PA, PB, PW, SMAX = 196, 470, 214, 70      # left panel x, right panel x, panel width, % at the panel's right edge (both panels on one scale)
-Y0, RH, GAP = 158, 34, 64                  # first row, row height, room between this project's row and the Windows rows (a rule and their heading)
+PA, PB, PW = 168, 468, 252               # left panel x, right panel x, panel width
+SA, SB = 60, 20                          # % at each panel's right edge: each panel has its own scale (the Lite gains are small), shown on its own axis
+Y0, RH, GAP, BH = 176, 44, 64, 15        # first row, row height, room between this project's row and the Windows rows (a rule and their heading), bar height
 
 
 def text(x, y, s, t, size=12, fill='ink2', anchor='start', weight=None):
@@ -27,10 +28,10 @@ def text(x, y, s, t, size=12, fill='ink2', anchor='start', weight=None):
     return f'<text x="{x:.1f}" y="{y:.1f}" {FONT} font-size="{size}"{w} text-anchor="{anchor}" fill="{t[fill]}">{s}</text>'
 
 
-def bar(x, y, v, col, t):
-    w = max(1.0, PW * v / SMAX); r = min(3, w / 2)
-    return [f'<path d="M{x},{y} H{x + w - r:.1f} Q{x + w:.1f},{y} {x + w:.1f},{y + r} V{y + 11 - r} Q{x + w:.1f},{y + 11} {x + w - r:.1f},{y + 11} H{x} Z" fill="{t[col]}"/>',
-            text(x + w + 5, y + 10, f'{v:.0f}%', t, 10.5, 'ink2')]
+def bar(x, y, v, smax, col, t):
+    w = max(1.0, PW * max(v, 0) / smax); r = min(4, w / 2)
+    return [f'<path d="M{x},{y} H{x + w - r:.1f} Q{x + w:.1f},{y} {x + w:.1f},{y + r} V{y + BH - r} Q{x + w:.1f},{y + BH} {x + w - r:.1f},{y + BH} H{x} Z" fill="{t[col]}"/>',
+            text(x + w + 6, y + BH - 3, f'{v:.0f}%', t, 11.5, 'ink2')]
 
 
 def ypos(i):
@@ -38,7 +39,7 @@ def ypos(i):
 
 
 def figure(t):
-    n = len(ROWS); H = ypos(n - 1) + RH + 118
+    n = len(ROWS); H = ypos(n - 1) + RH + 132
     desc = ' '.join(f"{r['card']}, {r['os']}" + (f" ({r['reports']} report{'s' if r['reports'] > 1 else ''})" if r['reports'] else ' (this project)') + ': '
                     + f"exact {r['saved']['3840x2160']['exact']:.0f}%, lossy {r['saved']['3840x2160']['lossy']:.0f}% less time than AMD's FSR 4.1.2; "
                     + f"4.1.2l-exact {r['saved']['3840x2160']['lexact']:.0f}%, 4.1.2l-lossy {r['saved']['3840x2160']['llossy']:.0f}% less than AMD's Lite." for r in ROWS)
@@ -52,13 +53,18 @@ def figure(t):
     for col, lab in (('exact', "exact / 4.1.2l-exact: same picture as AMD's"), ('lossy', 'lossy / 4.1.2l-lossy: picture changed, opt-in')):
         o += [f'<rect x="{lx}" y="68" width="12" height="11" rx="3" fill="{t[col]}"/>', text(lx + 18, 78, lab, t, 11.5, 'ink2')]
         lx += 18 + 6.4 * len(lab) + 22
-    o += [text(PA, 110, "Against AMD's FSR 4.1.2", t, 12, 'ink', weight=600), text(PA, 124, 'exact, lossy', t, 10.5, 'muted'),
-          text(PB, 110, "Against AMD's FSR 4.1.2 Lite", t, 12, 'ink', weight=600), text(PB, 124, '4.1.2l-exact, 4.1.2l-lossy', t, 10.5, 'muted'),
+    for x0, title, keys in ((PA, "Against AMD's FSR 4.1.2", (('exact', 'exact'), ('lossy', 'lossy'))),
+                            (PB, "Against AMD's FSR 4.1.2 Lite", (('exact', '4.1.2l-exact'), ('lossy', '4.1.2l-lossy')))):
+        o.append(text(x0, 112, title, t, 13, 'ink', weight=600)); kx = x0      # each panel names its own two bars
+        for col, lab in keys:
+            o += [f'<rect x="{kx}" y="122" width="11" height="11" rx="3" fill="{t[col]}"/>', text(kx + 16, 132, lab, t, 11.5, 'ink', weight=600)]
+            kx += 16 + 7.2 * len(lab) + 18
+    o += [
           text(24, Y0 - 12, "This project's RX 7800 XT, Linux (Proton): the release's builds", t, 11, 'muted', weight=600)]
     ybot = ypos(n - 1) + RH - 6
-    for x0 in (PA, PB):
-        for g in range(0, SMAX + 1, 20):
-            x = x0 + PW * g / SMAX
+    for x0, smax, step in ((PA, SA, 20), (PB, SB, 5)):
+        for g in range(0, smax + 1, step):
+            x = x0 + PW * g / smax
             for y_a, y_b in ((Y0 - 4, ypos(0) + RH - 6), (ypos(1) - 4, ybot)):      # grid in each section, not across the gap between them
                 o.append(f'<line x1="{x:.1f}" y1="{y_a}" x2="{x:.1f}" y2="{y_b}" stroke="{t["grid"]}" stroke-width="1"/>')
             o.append(text(x, ybot + 14, f'{g}%', t, 10, 'muted', 'middle'))
@@ -68,15 +74,16 @@ def figure(t):
     for i, r in enumerate(ROWS):
         y = ypos(i); s = r['saved']['3840x2160']
         sub = 'two runs each' if r['os'] == 'Linux' else f"{r['reports']} report{'s' if r['reports'] > 1 else ''}"
-        o += [text(24, y + 11, r['card'], t, 12.5, 'ink', weight=600), text(24, y + 25, sub, t, 10.5, 'muted')]
-        o += bar(PA, y, s['exact'], 'exact', t) + bar(PA, y + 13, s['lossy'], 'lossy', t)
-        o += bar(PB, y, s['lexact'], 'exact', t) + bar(PB, y + 13, s['llossy'], 'lossy', t)
+        o += [text(24, y + 17, r['card'], t, 13, 'ink', weight=600), text(24, y + 32, sub, t, 10.5, 'muted')]
+        o += bar(PA, y + 4, s['exact'], SA, 'exact', t) + bar(PA, y + 7 + BH, s['lossy'], SA, 'lossy', t)
+        o += bar(PB, y + 4, s['lexact'], SB, 'exact', t) + bar(PB, y + 7 + BH, s['llossy'], SB, 'lossy', t)
     yf = ybot + 36
     for k, line_ in enumerate((
             "Moving scene, 4K output, Balanced. AMD's FSR 4.1.2 is the card's own model: on RX 7000 it gives FSR 4.1.1's picture, on RX 6000 a picture that",
             "differs only in rounding. Linux row: AMD's FSR 4.1.2 = its FSR SDK 2.4.0 game DLL; Lite in this project's local test harness; two runs each.",
             "Windows rows: the lossy builds with test weights (same speed); RX 6000 exact and some RX 7000 reports without AMD's SDK pass 11, which this",
-            "release's exact DLLs add (up to 3% at 4K so far). 1080p, 1440p and other cards: the tables below. Linux gains do not carry over to Windows.")):
+            "release's exact DLLs add (up to 3% at 4K so far). 1080p, 1440p and other cards: the tables below. Linux gains do not carry over to Windows.",
+            "The two panels have different scales: 0 to 60% on the left, 0 to 20% on the right.")):
         o.append(text(24, yf + 15 * k, line_, t, 10, 'muted'))
     return o, H
 
