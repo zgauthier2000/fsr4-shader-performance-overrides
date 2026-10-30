@@ -87,7 +87,12 @@ What it does
                        fewer memory writes; lt21 is lt20 with a rewritten last step; lt22 is lt20 with its first
                        network step rearranged; lt23 and lt24 are lt20 with numbers built into the code instead
                        of read from memory. On RX 6000 the kit is looking for how much faster they are than lt6.
-  Apart from lt17 to lt24, these are the DLLs of the release itself, with their real weights: the
+  dlls\lt25-test, lt26-test, lt27-test, lt28-test, lt29-test
+                       five measuring builds, deliberately SLOWER than the others and never for a game or a
+                       release: each runs one step twice (lt25 the step before the network, lt26, lt27, lt28 its
+                       three steps, lt29 the step after it), with the same picture. The extra time shows how
+                       long that step takes on your card.
+  Apart from lt17 to lt29, these are the DLLs of the release itself, with their real weights: the
   picture lines show whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
