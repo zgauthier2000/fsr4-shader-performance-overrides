@@ -81,12 +81,12 @@ What it does
                        picture as lt14). lt14 and lt15 are also timed a second time with the graphics card's
                        caches emptied before every frame, as a game's own drawing would leave them (lines
                        marked @busy; the copying that empties them is not counted in the time).
-  dlls\lt17-test, lt18-test, lt19-test, lt20-test, lt21-test, lt22-test, lt23-test, lt24-test
-                       eight test builds of 4.1.2l-exact, not in any release: faster code, the same picture as
+  dlls\lt17-test, lt18-test, lt19-test, lt20-test, lt22-test, lt30-test
+                       six test builds of 4.1.2l-exact, not in any release: faster code, the same picture as
                        lt6 at the sizes this kit runs (the picture lines show it). lt19 and lt20 are lt17 with
-                       fewer memory writes; lt21 is lt20 with a rewritten last step; lt22 is lt20 with its first
-                       network step rearranged; lt23 and lt24 are lt20 with numbers built into the code instead
-                       of read from memory. On RX 6000 the kit is looking for how much faster they are than lt6.
+                       fewer memory writes; lt22 is lt20 with its first network step rearranged; lt30 is lt20
+                       sharing color samples between pixels. On RX 6000 the kit is looking for how much faster
+                       they are than lt6.
   dlls\lt25-test, lt26-test, lt27-test, lt28-test, lt29-test
                        five measuring builds, deliberately SLOWER than the others and never for a game or a
                        release: each runs one step twice (lt25 the step before the network, lt26, lt27, lt28 its

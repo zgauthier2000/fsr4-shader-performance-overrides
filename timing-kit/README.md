@@ -31,7 +31,12 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Windows kit version 2026-10-30.6** (download again if you have an earlier one):
+**Windows kit version 2026-10-30.7** (download again if you have an earlier one):
+
+- **One more test build of `4.1.2l-exact`:** `lt30-test`, not in any release. It is `lt20-test` sharing color samples between pixels in the postpass, and should give the same picture as `lt6-test` at the sizes the kit runs. On this project's RX 7800 XT under Linux it is about 1.5% faster than `lt20-test`; RX 6000 under Windows is what this kit is for.
+- `lt21-test`, `lt23-test` and `lt24-test` are removed: they were slower than `lt20-test` on the cards that reported.
+
+**Windows kit version 2026-10-30.6:**
 
 - **Five measuring builds:** `lt25-test` to `lt29-test`. Each runs one step of `4.1.2l-exact` twice, with the same picture, and the extra time shows how long that step takes on your card. They are deliberately slower and not for games. Reports from RX 6000 cards are the ones most wanted: they decide which step this project works on next.
 - `lt24-test` can pause for a minute or more before its first result.
@@ -263,7 +268,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-10-30.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-30.6/fsr4-timing-kit-windows-2026-10-30.6.zip) (about 22 MB, version 2026-10-30.6; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-10-30.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-30.7/fsr4-timing-kit-windows-2026-10-30.7.zip) (about 21 MB, version 2026-10-30.7; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
@@ -276,6 +281,8 @@ The summary and `results-raw.txt` are saved in the unpacked folder. It runs the 
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
 Kits up to version 2026-10-25.2 also had a study run for RDNA2 and RDNA3 (`run-study.cmd`); version 2026-10-28 has none.
+
+**New in version 2026-10-30.7:** one more test build of 4.1.2l-exact, `lt30-test`; `lt21-test`, `lt23-test` and `lt24-test` removed.
 
 **New in version 2026-10-30.6:** five measuring builds, `lt25-test` to `lt29-test` (deliberately slower).
 
