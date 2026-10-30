@@ -1,8 +1,8 @@
 # Downloads of the release files
 
-**Total downloads: 23,845**
+**Total downloads: 24,886**
 
-Updated 2026-10-29 11:29 UTC; counted since 2026-10-11 22:32 UTC. Files that were replaced before then are not in it. Since counting began: 10,578 downloads in 17.5 days, 603 per 24 hours on average.
+Updated 2026-10-30 11:23 UTC; counted since 2026-10-11 22:32 UTC. Files that were replaced before then are not in it. Since counting began: 11,619 downloads in 18.5 days, 627 per 24 hours on average.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="downloads-dark.svg">
@@ -15,6 +15,7 @@ One line per day (UTC), from that day's last reading. "Added" is what came in si
 
 | Day | Read at | Total | Added | Hours covered | Added: DLLs, desktop | Added: DLLs, integrated | Added: Windows kit | Added: Linux kit |
 |---|---|---|---|---|---|---|---|---|
+| 2026-10-30 | 11:23 | 24,886 | 1,041 | 23.9 | 508 | 283 | 111 | 10 |
 | 2026-10-29 | 11:29 | 23,845 | 218 | 24.2 | 97 | 36 | 73 | 0 |
 | 2026-10-28 | 11:19 | 23,627 | 180 | 24.8 | 90 | 52 | 23 | 0 |
 | 2026-10-27 | 10:31 | 23,447 | 249 | 23.4 | 136 | 81 | 24 | 0 |
@@ -41,74 +42,77 @@ The four columns on the right do not add up to "Added": checksum files and other
 
 | Kind of download | Downloads | Of these, in files since replaced |
 |---|---|---|
-| DLLs: desktop cards and other | 18,364 | 0 |
-| DLLs: integrated graphics | 3,579 | 0 |
-| Timing kit: Linux | 61 | 0 |
-| Timing kit: Windows | 1,100 | 0 |
+| DLLs: desktop cards and other | 18,872 | 0 |
+| DLLs: integrated graphics | 3,862 | 0 |
+| Timing kit: Linux | 71 | 0 |
+| Timing kit: Windows | 1,211 | 0 |
 
 | Archive, by graphics (since `dll-2026-10-22`, .zip and .7z together) | Downloads |
 |---|---|
-| RX 7000 (rx7000) | 447 |
-| RX 6000 (rx6000) | 668 |
-| Integrated RDNA 3, GeForce, Arc, others (igpu rdna3) | 392 |
-| Steam Deck, 680M, older integrated (igpu rdna2) | 330 |
+| RX 7000 (rx7000) | 609 |
+| RX 6000 (rx6000) | 899 |
+| Integrated RDNA 3, GeForce, Arc, others (igpu rdna3) | 528 |
+| Steam Deck, 680M, older integrated (igpu rdna2) | 422 |
 
 | Release | Downloads | Of these, in files since replaced |
 |---|---|---|
-| `timing-kit-2026-10-28.2` | 45 | 0 |
-| `timing-kit-2026-10-28` | 16 | 0 |
-| `timing-kit-2026-10-25.2` | 79 | 0 |
-| `timing-kit-2026-10-25` | 10 | 0 |
-| `timing-kit-2026-10-24` | 69 | 0 |
-| `timing-kit-2026-10-22` | 73 | 0 |
-| `dll-2026-10-22` | 1,957 | 0 |
-| `timing-kit-2026-10-19` | 144 | 0 |
-| `dll-2026-10-19` | 1,657 | 0 |
-| `timing-kit-2026-10-18.3` | 82 | 0 |
-| `timing-kit-2026-10-18.2` | 30 | 0 |
-| `timing-kit-2026-10-18` | 51 | 0 |
-| `timing-kit-2026-10-15.3` | 137 | 0 |
-| `timing-kit-2026-10-15.2` | 21 | 0 |
-| `timing-kit-2026-10-15` | 64 | 0 |
-| `dll-2026-10-15` | 2,009 | 0 |
-| `timing-kit-2026-10-14` | 66 | 0 |
-| `dll-2026-10-14` | 725 | 0 |
-| `timing-kit-2026-10-13.2` | 86 | 0 |
-| `timing-kit-2026-10-13` | 50 | 0 |
-| `dll-2026-10-13.2` | 566 | 0 |
-| `dll-2026-10-13` | 347 | 0 |
-| `timing-kit-2026-10-12.6` | 52 | 0 |
-| `timing-kit-2026-10-12.5` | 9 | 0 |
-| `timing-kit-2026-10-12.4` | 35 | 0 |
-| `timing-kit-2026-10-12.3` | 81 | 0 |
-| `dll-2026-10-12.2` | 370 | 0 |
-| `dll-2026-10-12` | 296 | 0 |
-| `dll-2026-10-11.7` | 635 | 0 |
-| `dll-2026-10-11.6` | 62 | 0 |
-| `dll-2026-10-11.5` | 316 | 0 |
-| `dll-2026-10-11.4` | 410 | 0 |
-| `dll-2026-10-11.3` | 482 | 0 |
-| `dll-2026-10-11.2` | 189 | 0 |
-| `dll-2026-10-11` | 103 | 0 |
-| `dll-2026-10-10` | 596 | 0 |
-| `dll-2026-10-09` | 756 | 0 |
-| `dll-2026-10-07` | 6,061 | 0 |
-| `dll-2026-10-06.6` | 4,078 | 0 |
-| `dll-2026-10-06.5` | 65 | 0 |
-| `dll-2026-10-06.4` | 21 | 0 |
-| `dll-2026-10-06.3` | 50 | 0 |
-| `dll-2026-10-06.2` | 67 | 0 |
-| `dll-2026-10-06` | 40 | 0 |
-| `dll-2026-10-05.4` | 104 | 0 |
-| `dll-2026-10-05.3` | 92 | 0 |
-| `dll-2026-10-05.2` | 57 | 0 |
-| `dll-2026-10-05` | 56 | 0 |
-| `timing-kit-2026-10-05` | 21 | 0 |
-| `dll-2026-10-04.5` | 143 | 0 |
-| `dll-2026-10-04.4` | 6 | 0 |
-| `dll-2026-10-04.3` | 78 | 0 |
-| `dll-2026-10-04.2` | 84 | 0 |
-| `dll-2026-10-04` | 26 | 0 |
-| `dll-2026-10-03` | 120 | 0 |
+| `timing-kit-2026-10-29.2` | 48 | 0 |
+| `timing-kit-2026-10-29` | 32 | 0 |
+| `dll-2026-10-29` | 558 | 0 |
+| `timing-kit-2026-10-28.2` | 54 | 0 |
+| `timing-kit-2026-10-28` | 19 | 0 |
+| `timing-kit-2026-10-25.2` | 81 | 0 |
+| `timing-kit-2026-10-25` | 12 | 0 |
+| `timing-kit-2026-10-24` | 71 | 0 |
+| `timing-kit-2026-10-22` | 75 | 0 |
+| `dll-2026-10-22` | 2,060 | 0 |
+| `timing-kit-2026-10-19` | 146 | 0 |
+| `dll-2026-10-19` | 1,676 | 0 |
+| `timing-kit-2026-10-18.3` | 85 | 0 |
+| `timing-kit-2026-10-18.2` | 35 | 0 |
+| `timing-kit-2026-10-18` | 54 | 0 |
+| `timing-kit-2026-10-15.3` | 139 | 0 |
+| `timing-kit-2026-10-15.2` | 23 | 0 |
+| `timing-kit-2026-10-15` | 68 | 0 |
+| `dll-2026-10-15` | 2,012 | 0 |
+| `timing-kit-2026-10-14` | 69 | 0 |
+| `dll-2026-10-14` | 728 | 0 |
+| `timing-kit-2026-10-13.2` | 90 | 0 |
+| `timing-kit-2026-10-13` | 57 | 0 |
+| `dll-2026-10-13.2` | 569 | 0 |
+| `dll-2026-10-13` | 350 | 0 |
+| `timing-kit-2026-10-12.6` | 56 | 0 |
+| `timing-kit-2026-10-12.5` | 12 | 0 |
+| `timing-kit-2026-10-12.4` | 40 | 0 |
+| `timing-kit-2026-10-12.3` | 84 | 0 |
+| `dll-2026-10-12.2` | 373 | 0 |
+| `dll-2026-10-12` | 300 | 0 |
+| `dll-2026-10-11.7` | 640 | 0 |
+| `dll-2026-10-11.6` | 68 | 0 |
+| `dll-2026-10-11.5` | 320 | 0 |
+| `dll-2026-10-11.4` | 415 | 0 |
+| `dll-2026-10-11.3` | 485 | 0 |
+| `dll-2026-10-11.2` | 192 | 0 |
+| `dll-2026-10-11` | 109 | 0 |
+| `dll-2026-10-10` | 599 | 0 |
+| `dll-2026-10-09` | 761 | 0 |
+| `dll-2026-10-07` | 6,076 | 0 |
+| `dll-2026-10-06.6` | 4,091 | 0 |
+| `dll-2026-10-06.5` | 72 | 0 |
+| `dll-2026-10-06.4` | 27 | 0 |
+| `dll-2026-10-06.3` | 58 | 0 |
+| `dll-2026-10-06.2` | 73 | 0 |
+| `dll-2026-10-06` | 47 | 0 |
+| `dll-2026-10-05.4` | 110 | 0 |
+| `dll-2026-10-05.3` | 105 | 0 |
+| `dll-2026-10-05.2` | 64 | 0 |
+| `dll-2026-10-05` | 62 | 0 |
+| `timing-kit-2026-10-05` | 26 | 0 |
+| `dll-2026-10-04.5` | 144 | 0 |
+| `dll-2026-10-04.4` | 13 | 0 |
+| `dll-2026-10-04.3` | 88 | 0 |
+| `dll-2026-10-04.2` | 95 | 0 |
+| `dll-2026-10-04` | 37 | 0 |
+| `dll-2026-10-03` | 133 | 0 |
 
-All files: 23,845. `downloads.csv` has a line for every day a file's count changed; `runs.csv` has the totals of every run.
+All files: 24,886. `downloads.csv` has a line for every day a file's count changed; `runs.csv` has the totals of every run.
