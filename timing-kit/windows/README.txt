@@ -81,8 +81,12 @@ What it does
                        picture as lt14). lt14 and lt15 are also timed a second time with the graphics card's
                        caches emptied before every frame, as a game's own drawing would leave them (lines
                        marked @busy; the copying that empties them is not counted in the time).
-  These are the DLLs of the release itself, with their real weights: the picture lines show
-  whether each gives the picture it should.
+  dlls\lt17-test, lt18-test
+                       two test builds of 4.1.2l-exact, not in any release: faster code, the same picture as
+                       lt6 at the sizes this kit runs (the picture lines show it). On RX 6000 the kit is
+                       looking for how much faster they are than lt6.
+  Apart from lt17 and lt18, these are the DLLs of the release itself, with their real weights: the
+  picture lines show whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
   these, make a folder dlls\ next to fsr4time.exe, a folder for the DLL in it, and put its amd_fidelityfx_upscaler_dx12.dll there. For
