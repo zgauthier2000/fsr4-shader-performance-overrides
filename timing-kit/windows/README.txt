@@ -87,9 +87,11 @@ What it does
                        fewer memory writes; lt22 is lt20 with its first network step rearranged; lt30 is lt20
                        sharing color samples between pixels; lt31 is lt20 keeping them in shared memory. On
                        RX 6000 the kit is looking for how much faster they are than lt6.
-  dlls\lt32-test, lt33-test
-                       two test builds of 4.1.2l-lossy, not in any release: lt33 is lt14 with faster code,
-                       lt32 is lt33 keeping color samples in shared memory (the same picture as lt33).
+  dlls\lt32-test, lt33-test, lt34-test, lt35-test
+                       four test builds of 4.1.2l-lossy, not in any release: lt33 is lt14 with faster code,
+                       lt32 is lt33 keeping color samples in shared memory; lt34 and lt35 are forms of lt33 for
+                       RX 6000 that also keep finished pixels in shared memory, lt34 with the color samples too.
+                       All four give the same picture as lt33.
   dlls\lt25-test, lt26-test, lt27-test, lt28-test, lt29-test
                        five measuring builds, deliberately SLOWER than the others and never for a game or a
                        release: each runs one step twice (lt25 the step before the network, lt26, lt27, lt28 its
