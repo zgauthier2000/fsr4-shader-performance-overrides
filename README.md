@@ -202,7 +202,7 @@ game's tone mapping. Over the whole clip 473 specks per frame against Lite's 1,0
 about 3% faster than the release before, same pictures), and gave each build a version name that says which one runs.
 
 > ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-30.8/fsr4-timing-kit-windows-2026-10-30.8.zip)** (experimental, about 21 MB, version 2026-10-30.8): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-10-30.8/fsr4-timing-kit-windows-2026-10-30.8.zip)** (experimental, about 29 MB, version 2026-10-30.8): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes (up to about 25 on a slow chip). It times FSR 4 with AMD's shaders and with this project's
 > builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
 > than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck:
