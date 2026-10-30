@@ -81,12 +81,13 @@ What it does
                        picture as lt14). lt14 and lt15 are also timed a second time with the graphics card's
                        caches emptied before every frame, as a game's own drawing would leave them (lines
                        marked @busy; the copying that empties them is not counted in the time).
-  dlls\lt17-test, lt18-test, lt19-test, lt20-test, lt21-test, lt22-test
-                       six test builds of 4.1.2l-exact, not in any release: faster code, the same picture as
+  dlls\lt17-test, lt18-test, lt19-test, lt20-test, lt21-test, lt22-test, lt23-test, lt24-test
+                       eight test builds of 4.1.2l-exact, not in any release: faster code, the same picture as
                        lt6 at the sizes this kit runs (the picture lines show it). lt19 and lt20 are lt17 with
                        fewer memory writes; lt21 is lt20 with a rewritten last step; lt22 is lt20 with its first
-                       network step rearranged. On RX 6000 the kit is looking for how much faster they are than lt6.
-  Apart from lt17 to lt22, these are the DLLs of the release itself, with their real weights: the
+                       network step rearranged; lt23 and lt24 are lt20 with numbers built into the code instead
+                       of read from memory. On RX 6000 the kit is looking for how much faster they are than lt6.
+  Apart from lt17 to lt24, these are the DLLs of the release itself, with their real weights: the
   picture lines show whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
