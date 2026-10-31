@@ -81,12 +81,13 @@ What it does
                        picture as lt14). lt14 and lt15 are also timed a second time with the graphics card's
                        caches emptied before every frame, as a game's own drawing would leave them (lines
                        marked @busy; the copying that empties them is not counted in the time).
-  dlls\lt17-test, lt18-test, lt19-test, lt20-test, lt22-test, lt30-test, lt31-test
+  dlls\lt17-test, lt18-test, lt19-test, lt20-test, lt22-test, lt30-test, lt31-test, lt36-test
                        seven test builds of 4.1.2l-exact, not in any release: faster code, the same picture as
                        lt6 at the sizes this kit runs (the picture lines show it). lt19 and lt20 are lt17 with
                        fewer memory writes; lt22 is lt20 with its first network step rearranged; lt30 is lt20
-                       sharing color samples between pixels; lt31 is lt20 keeping them in shared memory. On
-                       RX 6000 the kit is looking for how much faster they are than lt6.
+                       sharing color samples between pixels; lt31 is lt20 keeping them in shared memory; lt36 is
+                       lt31 with some results written earlier. On RX 6000 the kit is looking for how much
+                       faster they are than lt6.
   dlls\lt32-test, lt33-test, lt34-test, lt35-test
                        four test builds of 4.1.2l-lossy, not in any release: lt33 is lt14 with faster code,
                        lt32 is lt33 keeping color samples in shared memory; lt34 and lt35 are forms of lt33 for
