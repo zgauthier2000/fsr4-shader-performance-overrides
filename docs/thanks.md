@@ -53,6 +53,18 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **R3nd3r** (Radeon RX 6600, Windows)
 - **Hassan** (Radeon RX 6800, Windows)
 - **Jumpoff** (Windows)
+- **Flare** (Radeon RX 6950 XT, Windows)
+- **rtd1395** (Radeon RX 5500 XT, Windows)
+- **Xander** (Radeon graphics, Windows)
+- **LeD3F** (Radeon RX 6900 XT, Windows)
+- **SommoGioppo** (Radeon RX 7900 XTX, Windows)
+- **Greant** (Radeon 780M, Linux)
+- **stefvnalekandrw** (Radeon RX 7800 XT, Windows)
+- **biri** (Radeon RX 7900 XT and 780M, Windows)
+- **TheMadLynx** (Radeon RX 6900 XT, Windows)
+- **atomizasser** (Radeon RX 6800, Windows)
+- **charly** (Radeon RX 6700 XT, Windows)
+- **STEAMVIN STUDIOS** (GeForce GTX 1060, Windows)
 
 ## How to be listed, or taken off
 
