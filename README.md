@@ -1,6 +1,6 @@
 # fsr4-shader-performance-overrides
 
-Makes AMD FSR 4.1.1 upscaling faster on Radeon graphics cards, on Windows and Linux, by replacing
+Makes AMD FSR 4.1.2 upscaling faster on Radeon graphics cards, on Windows and Linux, by replacing
 FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the game changes.
 
 > [!TIP]
