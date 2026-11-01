@@ -102,12 +102,16 @@ What it does
                        on whole frames, lt40 the step before it, lt41 the step after it; lt42 leaves out one copy;
                        lt43 uses one square as large as the screen. Their pictures differ from lt33's and
                        can differ between runs: expected in this test.
+  dlls\lt44-test, lt45-test
+                       two more measuring builds of the same method, with squares twice and four times as large
+                       as lt37's: does the time on your card fall with fewer squares? Never for a game or a
+                       release. Their pictures differ from lt33's and can differ between runs: expected.
   dlls\lt25-test, lt26-test, lt27-test, lt28-test, lt29-test
                        five measuring builds, deliberately SLOWER than the others and never for a game or a
                        release: each runs one step twice (lt25 the step before the network, lt26, lt27, lt28 its
                        three steps, lt29 the step after it), with the same picture. The extra time shows how
                        long that step takes on your card.
-  Apart from lt17 to lt43, these are the DLLs of the release itself, with their real weights: the
+  Apart from lt17 to lt45, these are the DLLs of release dll-2026-10-29, with their real weights: the
   picture lines show whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
