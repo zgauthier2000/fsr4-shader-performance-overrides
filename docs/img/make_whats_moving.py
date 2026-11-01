@@ -52,7 +52,7 @@ def now(t):
     return wrap(o, y + 6, 'Four parts being worked on, each with what would help: ' + '; '.join(f'{a}: {h}' for a, _, _, h in NOW), t)
 
 
-STEPS = (('Idea', 'a possible', 'speedup', 0), ('Train', 'network runs on', 'one RX 7800 XT', 0), ('Test here', 'Linux only, on', 'the same card', 0), ('Timing kit', 'your PC, your', 'card, Windows', 1), ('Release', 'if the numbers', 'hold up', 0))
+STEPS = (('Idea', 'more speed or a', 'better picture', 0), ('Train', 'network runs on', 'one RX 7800 XT', 0), ('Test here', 'Linux only, on', 'the same card', 0), ('Timing kit', 'your PC, your', 'card, Windows', 1), ('Release', 'if the numbers', 'hold up', 0))
 HELP = ((1, ('One GPU with 16 GB: one run at a time,', 'about an hour per run', '30 GB of system memory', 'Each setting needs several runs'), ('More GPU memory, a faster GPU,', 'more system memory')),
         (2, ('Linux and one card: no Windows or', 'RX 6000 timing here', 'Clips and data on one slow USB drive'), ('A Windows PC with Radeon, an', 'RX 6000 card, a bigger, faster drive')),
         (3, ('Only the cards people own and report', 'Each experiment needs a new kit,', 'then time for reports to arrive'), ('Your timing kit report,', 'from any card')))
@@ -61,7 +61,7 @@ HELP = ((1, ('One GPU with 16 GB: one run at a time,', 'about an hour per run', 
 def path(t):
     bw, gap, y0 = 128, 18, 74
     xs = [24 + i * (bw + gap) for i in range(5)]
-    o = [text(24, 32, 'How a speedup gets to you, and what limits each step', t, 15, 'ink', weight=600)]
+    o = [text(24, 32, 'How an improvement gets to you, and what limits each step', t, 15, 'ink', weight=600)]
     for i, (a, b, c, hot) in enumerate(STEPS):
         o += [box(xs[i], y0, bw, 78, t, 'hibg' if hot else 'box', 'hi' if hot else 'line'), text(xs[i] + bw // 2, y0 + 26, a, t, 14, 'ink', 'middle', 600), text(xs[i] + bw // 2, y0 + 46, b, t, 11, 'ink2', 'middle'), text(xs[i] + bw // 2, y0 + 62, c, t, 11, 'ink2', 'middle')]
         if i < 4:
@@ -79,7 +79,7 @@ def path(t):
         o += [text(x + 12, yh + 38 + 16 * k, l, t, 11.5, 'ink') for k, l in enumerate(lim)]
         o += [text(x + 12, yh + 104, 'WOULD HELP', t, 10, 'ink2', weight=600)]
         o += [text(x + 12, yh + 122 + 17 * k, l, t, 11.5, 'ink', weight=600) for k, l in enumerate(helps)]
-    return wrap(o, yh + 174, 'The path of a speedup: idea, training on one RX 7800 XT, testing here on Linux, the timing kit on testers\' Windows PCs, release; kit results lead to the next change. Training is limited by one GPU with 16 GB, one run at a time at about an hour per run, 30 GB of system memory and several runs per setting; more GPU or system memory or a faster GPU would help. Testing here is limited to Linux and one card, with data on one slow USB drive; a Windows PC with Radeon, an RX 6000 card or a bigger, faster drive would help. The kit is limited to the cards people report and needs a new kit per experiment; your report helps.', t)
+    return wrap(o, yh + 174, 'The path of an improvement: idea, training on one RX 7800 XT, testing here on Linux, the timing kit on testers\' Windows PCs, release; kit results lead to the next change. Training is limited by one GPU with 16 GB, one run at a time at about an hour per run, 30 GB of system memory and several runs per setting; more GPU or system memory or a faster GPU would help. Testing here is limited to Linux and one card, with data on one slow USB drive; a Windows PC with Radeon, an RX 6000 card or a bigger, faster drive would help. The kit is limited to the cards people report and needs a new kit per experiment; your report helps.', t)
 
 
 CARDS = (('RX 6000', 'current focus', ['every card, even if already reported'], 1), ('RX 7000', '', ['RX 7700 XT', 'RX 7900 GRE', 'laptop chips', 'others welcome'], 1),
