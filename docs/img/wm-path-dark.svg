@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="360" viewBox="0 0 760 360" role="img" aria-label="The path of a speedup: idea, training on one RX 7800 XT, testing here on Linux, the timing kit on testers&#x27; Windows PCs, release; kit results lead to the next change. Training is limited by one GPU with 16 GB, 30 GB of system memory and several runs per setting; more GPU or system memory or a faster GPU would help. Testing here is limited to Linux and one card, with data on one slow USB drive; a Windows PC with Radeon, an RX 6000 card or a bigger, faster drive would help. The kit is limited to the cards people report and needs a new kit per experiment; your report helps.">
+<rect width="760" height="360" rx="8" fill="#1a1a19"/>
+<text x="24" y="32" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" text-anchor="start" fill="#ffffff">How a speedup gets to you, and what limits each step</text>
+<rect x="24" y="74" width="128" height="78" rx="8" fill="#262624" stroke="#45453f"/>
+<text x="88" y="100" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#ffffff">Idea</text>
+<text x="88" y="120" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">a possible</text>
+<text x="88" y="136" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">speedup</text>
+<line x1="152" y1="113" x2="163" y2="113" stroke="#898781" stroke-width="1.5"/><polygon points="170,113 163,110 163,116" fill="#898781"/>
+<rect x="170" y="74" width="128" height="78" rx="8" fill="#262624" stroke="#45453f"/>
+<text x="234" y="100" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#ffffff">Train</text>
+<text x="234" y="120" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">network runs on</text>
+<text x="234" y="136" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">one RX 7800 XT</text>
+<line x1="298" y1="113" x2="309" y2="113" stroke="#898781" stroke-width="1.5"/><polygon points="316,113 309,110 309,116" fill="#898781"/>
+<rect x="316" y="74" width="128" height="78" rx="8" fill="#262624" stroke="#45453f"/>
+<text x="380" y="100" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#ffffff">Test here</text>
+<text x="380" y="120" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">Linux only, on</text>
+<text x="380" y="136" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">the same card</text>
+<line x1="444" y1="113" x2="455" y2="113" stroke="#898781" stroke-width="1.5"/><polygon points="462,113 455,110 455,116" fill="#898781"/>
+<rect x="462" y="74" width="128" height="78" rx="8" fill="#1c2c40" stroke="#3987e5"/>
+<text x="526" y="100" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#ffffff">Timing kit</text>
+<text x="526" y="120" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">your PC, your</text>
+<text x="526" y="136" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">card, Windows</text>
+<line x1="590" y1="113" x2="601" y2="113" stroke="#898781" stroke-width="1.5"/><polygon points="608,113 601,110 601,116" fill="#898781"/>
+<rect x="608" y="74" width="128" height="78" rx="8" fill="#262624" stroke="#45453f"/>
+<text x="672" y="100" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#ffffff">Release</text>
+<text x="672" y="120" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">if the numbers</text>
+<text x="672" y="136" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#c3c2b7">hold up</text>
+<polyline points="526,74 526,64 88,64" fill="none" stroke="#898781" stroke-width="1.5"/>
+<line x1="88" y1="64" x2="88" y2="67" stroke="#898781" stroke-width="1.5"/><polygon points="88,74 85,67 91,67" fill="#898781"/>
+<text x="307" y="59" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="middle" fill="#898781">results point to the next change</text>
+<polyline points="234,152 234,172 138,172 138,186" fill="none" stroke="#d95926" stroke-width="1.5" stroke-dasharray="4 3"/>
+<rect x="24" y="186" width="228" height="158" rx="8" fill="#3a2318" stroke="#d95926"/>
+<text x="36" y="206" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">LIMITED BY</text>
+<text x="36" y="224" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#ffffff">One GPU with 16 GB: one run at a time</text>
+<text x="36" y="240" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#ffffff">30 GB of system memory</text>
+<text x="36" y="256" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#ffffff">Each setting needs several runs</text>
+<text x="36" y="290" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">WOULD HELP</text>
+<text x="36" y="308" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#ffffff">More GPU memory, a faster GPU,</text>
+<text x="36" y="325" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#ffffff">more system memory</text>
+<polyline points="380,152 380,172 380,172 380,186" fill="none" stroke="#d95926" stroke-width="1.5" stroke-dasharray="4 3"/>
+<rect x="266" y="186" width="228" height="158" rx="8" fill="#3a2318" stroke="#d95926"/>
+<text x="278" y="206" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">LIMITED BY</text>
+<text x="278" y="224" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#ffffff">Linux and one card: no Windows or</text>
+<text x="278" y="240" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#ffffff">RX 6000 timing here</text>
+<text x="278" y="256" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#ffffff">Clips and data on one slow USB drive</text>
+<text x="278" y="290" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">WOULD HELP</text>
+<text x="278" y="308" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#ffffff">A Windows PC with Radeon, an</text>
+<text x="278" y="325" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#ffffff">RX 6000 card, a bigger, faster drive</text>
+<polyline points="526,152 526,172 622,172 622,186" fill="none" stroke="#3987e5" stroke-width="1.5" stroke-dasharray="4 3"/>
+<rect x="508" y="186" width="228" height="158" rx="8" fill="#1c2c40" stroke="#3987e5"/>
+<text x="520" y="206" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">LIMITED BY</text>
+<text x="520" y="224" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#ffffff">Only the cards people own and report</text>
+<text x="520" y="240" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#ffffff">Each experiment needs a new kit,</text>
+<text x="520" y="256" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#ffffff">then time for reports to arrive</text>
+<text x="520" y="290" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">WOULD HELP</text>
+<text x="520" y="308" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#ffffff">Your timing kit report,</text>
+<text x="520" y="325" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#ffffff">from any card</text>
+</svg>

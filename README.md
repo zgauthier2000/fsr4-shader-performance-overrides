@@ -183,6 +183,8 @@ More games and resolutions: [all results](docs/results.md).
 about 3% faster than the release before, same pictures), and gave each build a version name that says which one runs.
 
 > ### Help test it: the timing kit
+> What the project is working on now, and which cards are most wanted: **[What's moving](docs/whats-moving.md)**.
+>
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-01.4/fsr4-timing-kit-windows-2026-11-01.4.zip)** (experimental, about 54 MB, version 2026-11-01.4): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes (up to about 25 on a slow chip). It times FSR 4 with AMD's shaders and with this project's
 > builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
