@@ -36,10 +36,10 @@ laptop with two, the RX one is the one games use. Every archive works on every c
 
 | Folder | Network | Speed | Picture |
 |---|---|---|---|
-| `exact` | FSR 4.1.1 | faster than AMD's | **the same as AMD's, byte for byte** (the RX 6000 and Steam Deck / older built-in graphics archives: AMD's FSR 4.1.2 for RX 6000, which in games looks the same as 4.1.1: [why](docs/amd-411-vs-412.md)) |
-| `lossy` | FSR 4.1.1, trained | faster again | close to AMD's, not the same. **This is the build earlier releases called `lossy2`, retrained** (the older, untrained lossy build is no longer included). Brightening catches up more slowly than before. Read `WARNING.txt` in that folder first |
-| `4.1.2l-exact` (new) | FSR 4.1.2 Lite, AMD's smaller network | a little faster than AMD's Lite | **the same as AMD's Lite, byte for byte** (not the same as full FSR 4) |
-| `4.1.2l-lossy` (new) | FSR 4.1.2 Lite | about 13 to 18% faster than AMD's Lite | close to Lite's, not the same; thin wires shimmer less in motion, small bright details are less accurate. Read `WARNING.txt` in that folder first |
+| `exact` | FSR 4.1.2 | faster than AMD's | **the same as AMD's, byte for byte** (the RX 6000 and Steam Deck / older built-in graphics archives: AMD's FSR 4.1.2 for RX 6000, which in games looks the same as 4.1.1: [why](docs/amd-411-vs-412.md)) |
+| `lossy` | FSR 4.1.2, trained | faster again | close to AMD's, not the same. **This is the build earlier releases called `lossy2`, retrained** (the older, untrained lossy build is no longer included). Brightening catches up more slowly than before. Read `WARNING.txt` in that folder first |
+| `4.1.2l-exact` | FSR 4.1.2 Lite, AMD's smaller network | a little faster than AMD's Lite | **the same as AMD's Lite, byte for byte** (not the same as full FSR 4) |
+| `4.1.2l-lossy` | FSR 4.1.2 Lite | about 12 to 25% faster than AMD's Lite | close to Lite's, not the same; thin wires shimmer less in motion, small bright details are less accurate. Read `WARNING.txt` in that folder first |
 
 If you are not sure, take `exact`.
 
