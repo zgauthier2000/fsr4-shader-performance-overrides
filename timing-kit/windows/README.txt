@@ -107,12 +107,15 @@ What it does
                        times as large as lt37's, lt46 and lt47 half and a quarter as large: how does the time on
                        your card change with the size of the squares? Never for a game or a
                        release. Their pictures differ from lt33's and can differ between runs: expected.
+  dlls\lt48-test, lt49-test
+                       two test builds of exact, not in any release: n-exact-r3 (lt48) and n-exact-r2 (lt49)
+                       keeping color samples in shared memory, with the same pictures as those builds.
   dlls\lt25-test, lt26-test, lt27-test, lt28-test, lt29-test
                        five measuring builds, deliberately SLOWER than the others and never for a game or a
                        release: each runs one step twice (lt25 the step before the network, lt26, lt27, lt28 its
                        three steps, lt29 the step after it), with the same picture. The extra time shows how
                        long that step takes on your card.
-  Apart from lt17 to lt47, these are the DLLs of release dll-2026-10-29, with their real weights: the
+  Apart from lt17 to lt49, these are the DLLs of release dll-2026-10-29, with their real weights: the
   picture lines show whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
