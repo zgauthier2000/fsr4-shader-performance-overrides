@@ -96,12 +96,11 @@ What it does
                        512-pixel squares each frame, instead of the whole screen every other frame. Its picture
                        differs from lt33's and can differ a little between runs, and it uses more graphics
                        memory: both expected in this test.
-  dlls\lt38-test, lt39-test, lt40-test, lt41-test, lt42-test, lt43-test
-                       six measuring builds of lt37's method, never for a game or a release: each changes one
-                       part, to show which part costs time on your card. lt38 is the base; lt39 runs the network
-                       on whole frames, lt40 the step before it, lt41 the step after it; lt42 leaves out one copy;
-                       lt43 uses one square as large as the screen. Their pictures differ from lt33's and
-                       can differ between runs: expected in this test.
+  dlls\lt38-test, lt39-test, lt41-test, lt43-test
+                       measuring builds of lt37's method, never for a game or a release: lt38 is lt37 with one
+                       kept copy, lt39 runs the network on whole frames, lt41 the step after it; lt43 uses one
+                       square as large as the screen. Their pictures differ from lt33's and can differ between
+                       runs: expected in this test.
   dlls\lt48-test
                        a test build of exact, not in any release: n-exact-r3 keeping color samples in shared
                        memory, with the same picture as that build.
@@ -111,12 +110,17 @@ What it does
                        turns with the rest of the screen; lt52 does that only in the step after the network, lt53
                        only in the network. Their pictures differ from lt33's and can differ between runs:
                        expected in this test.
+  dlls\lt54-test, lt55-test, lt56-test, lt57-test, lt58-test
+                       five more measuring builds like lt51, never for a game or a release: lt54, lt55 and lt56
+                       use the narrowest possible, a 64 px and a 1024 px column; lt57 uses the narrowest only in
+                       the step after the network, lt58 only in the network. Their pictures differ from lt33's
+                       and can differ between runs: expected in this test.
   dlls\lt25-test, lt26-test, lt27-test, lt28-test, lt29-test
                        five measuring builds, deliberately SLOWER than the others and never for a game or a
                        release: each runs one step twice (lt25 the step before the network, lt26, lt27, lt28 its
                        three steps, lt29 the step after it), with the same picture. The extra time shows how
                        long that step takes on your card.
-  Apart from lt17 to lt53, these are the DLLs of release dll-2026-10-29, with their real weights: the
+  Apart from lt17 to lt58, these are the DLLs of release dll-2026-10-29, with their real weights: the
   picture lines show whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
