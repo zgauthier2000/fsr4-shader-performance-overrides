@@ -5,12 +5,13 @@ driver most likely uses for graphics built into the processor ([what AMD's 4.1.2
 
 | Folder | Version name in OptiScaler | Picture | Speed against AMD's Lite (Linux, RX 7800 XT) |
 |---|---|---|---|
-| `4.1.2l-exact` | `4.1.2l-exact-<flavor>-cyboman` | **AMD's Lite picture, byte for byte** (exact to AMD's Lite, not to full FSR 4) | 2 to 3% faster |
-| `4.1.2l-lossy` | `4.1.2l-lossy-<flavor>-cyboman` | close to Lite's, not the same: read its `WARNING.txt` | about 13 to 18% faster |
+| `4.1.2l-exact` | `4.1.2l-exact-<flavor>-cyboman` | **AMD's Lite picture, byte for byte** (exact to AMD's Lite, not to full FSR 4) | about 5 to 7% faster |
+| `4.1.2l-lossy` | `4.1.2l-lossy-<flavor>-cyboman` | close to Lite's, not the same: read its `WARNING.txt` | about 15 to 18% faster |
 
-`<flavor>` is `r3`, `r2`, `igpu-r3` or `igpu-r2`, after the archive. 4.1.2l-exact is the same file in all four archives; only the name
-differs. 4.1.2l-lossy comes in two forms with the same picture: the RX 6000 and Steam Deck / older built-in graphics archives keep some
-finished results in the chip's shared memory instead of its registers, so that RX 6000 chips under Windows can run 8 groups of work at
+`<flavor>` is `r3`, `r2`, `igpu-r3` or `igpu-r2`, after the archive. Since `dll-2026-11-01` each build comes in the form that timed best for its kind of
+graphics, with the same picture. 4.1.2l-exact: the RX 7000, RX 6000 and RDNA 3 / other archives share color samples between pixels; the Steam Deck / older built-in graphics archive
+keeps them in the chip's shared memory instead (the shared samples were 5 to 8% slower on a Vega and an RX 5700 XT report). 4.1.2l-lossy: the RX 7000 archive keeps
+color samples in shared memory; the other three also keep some finished results there, so that RX 6000 chips under Windows can run 8 groups of work at
 once instead of 7 ([below](#rx-6000-8-groups-of-work-instead-of-7)).
 
 > [!WARNING]
@@ -29,14 +30,14 @@ once instead of 7 ([below](#rx-6000-8-groups-of-work-instead-of-7)).
 
 ## Speed
 
-FSR 4's time per frame, milliseconds, moving scene, Balanced, **under Linux (Proton) on one Radeon RX 7800 XT**, two runs each.
-Windows and other cards are not measured yet; timing-kit reports will follow.
+FSR 4's time per frame, milliseconds, moving scene, Balanced, **under Linux (Proton) on one Radeon RX 7800 XT**, two runs each (the last column in a
+separate session, three runs). Windows timing-kit reports per card: [the front page](../README.md#what-to-expect).
 
-| Output | FSR 4.1.2 Lite (AMD) | 4.1.2l-exact | 4.1.2l-lossy | 4.1.2l-lossy, RX 6000 / RDNA2 form (on this RX 7000 card) |
+| Output | FSR 4.1.2 Lite (AMD) | 4.1.2l-exact | 4.1.2l-lossy | 4.1.2l-lossy, RX 6000 / built-in graphics form (on this RX 7000 card) |
 |---|---|---|---|---|
-| 1080p | 0.640 | 0.623 (−2.7%) | 0.557 (−13.0%) | 0.575 (−10.2%) |
-| 1440p | 1.023 | 0.993 (−2.9%) | 0.834 (−18.5%) | 0.860 (−15.9%) |
-| 4K | 2.017 | 1.968 (−2.4%) | 1.660 (−17.7%) | 1.705 (−15.5%) |
+| 1080p | 0.659 | 0.611 (−7.3%) | 0.558 (−15.3%) | 0.580 (−12.0%) |
+| 1440p | 1.032 | 0.957 (−7.3%) | 0.843 (−18.3%) | 0.876 (−15.1%) |
+| 4K | 2.020 | 1.911 (−5.4%) | 1.655 (−18.1%) | 1.744 (−13.7%) |
 
 - **4.1.2l-exact** has its first shader (the one that prepares the network's input) rewritten, with the same output. The time it saves
   is close to the spread between runs.
@@ -111,11 +112,11 @@ harness, not in AMD's own runtime. The last column is this release's `lossy` (fu
 
 On the frames it skips, 4.1.2l-lossy works out four output pixels per thread and writes them at the end. AMD's Windows compiler keeps
 the first pixels' finished values in registers while the last one is worked out, and needs 142 to 144 registers for that on RX 6000
-chips, which lets a chip run 7 groups of work at once. The RX 6000 and Steam Deck / older built-in graphics archives keep the first two
-pixels' values in the chip's shared memory instead (22.5 KB per group) and read them back at the end: 128 registers, 8 groups, the same
-picture byte for byte (AMD's Windows compiler for RX 6800 / 6900, RX 6700 and RX 6600 chips, all 32 changed shader versions, no spills).
-How much faster that is on Windows is not measured yet; the timing kit's next version times both forms on every card. On an RX 7000
-card, which has room for enough groups either way, it costs about 3% under Linux, so the RX 7000 and RDNA 3 archives do not use it.
+chips, which lets a chip run 7 groups of work at once. Every archive except RX 7000 keeps the first
+pixel's values in the chip's shared memory instead, beside the color samples, and reads them back at the end: 128 registers, 8 groups, the same
+picture byte for byte (AMD's Windows compiler for RX 6800 / 6900, RX 6700 and RX 6600 chips, no spills).
+On Windows, RX 6000 timing-kit reports put the form in this release 1.6% / 2.3% / 1.8% (median, 1080p / 1440p / 4K; see the [release page](releases/dll-2026-11-01.md#speed)) ahead of the previous release's. On an RX 7000
+card, which has room for enough groups either way, it costs about 3% under Linux, so the RX 7000 archive does not use it. The RDNA 3 / other cards archive does: a Radeon 890M report gained 4 to 5% over the previous release, a Ryzen Z1 Extreme report under Proton lost about 0.7%, and GeForce and Intel Arc are not measured.
 
 ## Ultra Performance and above 4K
 

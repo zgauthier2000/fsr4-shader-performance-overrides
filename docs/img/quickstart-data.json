@@ -7,123 +7,91 @@
    "release_builds": true,
    "saved": {
     "1920x1080": {
-     "exact": 15.5,
-     "lossy": 34.4,
-     "lite": 38.8,
-     "lexact": 3.2,
-     "llossy": 14.8
+     "exact": 13.9,
+     "lossy": 33.2,
+     "lite": 36.7,
+     "lexact": 7.1,
+     "llossy": 15.3
     },
     "2560x1440": {
-     "exact": 34.2,
-     "lossy": 51.5,
-     "lite": 53.0,
-     "lexact": 3.3,
-     "llossy": 18.6
+     "exact": 34.3,
+     "lossy": 51.4,
+     "lite": 53.1,
+     "lexact": 7.3,
+     "llossy": 18.3
     },
     "3840x2160": {
-     "exact": 36.9,
-     "lossy": 54.9,
-     "lite": 59.3,
-     "lexact": 2.4,
-     "llossy": 17.7
+     "exact": 37.4,
+     "lossy": 55.3,
+     "lite": 59.6,
+     "lexact": 5.4,
+     "llossy": 18.0
     }
    },
    "ms": {
     "1920x1080": {
-     "a411": 1.062,
-     "a412": 1.062,
-     "exact": 0.897,
-     "lossy": 0.696,
-     "lite": 0.649,
-     "lexact": 0.629,
-     "llossy": 0.554
+     "a411": 1.032,
+     "a412": 1.039,
+     "exact": 0.895,
+     "lossy": 0.694,
+     "lite": 0.659,
+     "lexact": 0.611,
+     "llossy": 0.558
     },
     "2560x1440": {
-     "a411": 2.196,
-     "a412": 2.192,
-     "exact": 1.443,
-     "lossy": 1.064,
-     "lite": 1.03,
-     "lexact": 0.996,
-     "llossy": 0.839
+     "a411": 2.191,
+     "a412": 2.199,
+     "exact": 1.445,
+     "lossy": 1.069,
+     "lite": 1.032,
+     "lexact": 0.957,
+     "llossy": 0.843
     },
     "3840x2160": {
-     "a411": 4.843,
-     "a412": 4.969,
-     "exact": 3.138,
-     "lossy": 2.239,
-     "lite": 2.023,
-     "lexact": 1.974,
-     "llossy": 1.665
+     "a411": 4.822,
+     "a412": 5.003,
+     "exact": 3.131,
+     "lossy": 2.237,
+     "lite": 2.02,
+     "lexact": 1.911,
+     "llossy": 1.655
     }
    }
   },
   {
    "card": "RX 7900 XTX",
    "os": "Windows",
-   "reports": 1,
+   "reports": 4,
    "release_builds": false,
    "exact_with_sdk_pass11": [
     "n-exact"
    ],
    "saved": {
     "1920x1080": {
-     "exact": 6.1,
-     "lossy": 26.9,
-     "lite": 44.7,
-     "lexact": 5.1,
-     "llossy": 13.0
+     "exact": 5.8,
+     "lossy": 26.8,
+     "lite": 44.5,
+     "lexact": 9.2,
+     "llossy": 19.5
     },
     "2560x1440": {
-     "exact": 24.7,
+     "exact": 24.8,
      "lossy": 40.1,
-     "lite": 49.2,
-     "lexact": 6.3,
-     "llossy": 16.5
+     "lite": 49.3,
+     "lexact": 11.0,
+     "llossy": 24.7
     },
     "3840x2160": {
-     "exact": 31.3,
-     "lossy": 44.3,
-     "lite": 54.8,
-     "lexact": 6.6,
-     "llossy": 15.5
+     "exact": 31.4,
+     "lossy": 44.9,
+     "lite": 55.5,
+     "lexact": 10.1,
+     "llossy": 18.7
     }
    }
   },
   {
    "card": "RX 7900 XT",
-   "os": "Windows",
-   "reports": 1,
-   "release_builds": false,
-   "exact_with_sdk_pass11": [
-    "h1"
-   ],
-   "saved": {
-    "1920x1080": {
-     "exact": 11.1,
-     "lossy": 29.7,
-     "lite": 47.1,
-     "lexact": 6.2,
-     "llossy": 11.2
-    },
-    "2560x1440": {
-     "exact": 16.5,
-     "lossy": 32.2,
-     "lite": 42.0,
-     "lexact": 6.9,
-     "llossy": 12.2
-    },
-    "3840x2160": {
-     "exact": 17.9,
-     "lossy": 33.7,
-     "lite": 46.4,
-     "lexact": 6.5,
-     "llossy": 4.9
-    }
-   }
-  },
-  {
-   "card": "RX 7800 XT",
    "os": "Windows",
    "reports": 2,
    "release_builds": false,
@@ -132,25 +100,57 @@
    ],
    "saved": {
     "1920x1080": {
-     "exact": 7.0,
-     "lossy": 26.5,
-     "lite": 41.0,
-     "lexact": 5.6,
-     "llossy": 13.9
+     "exact": 7.7,
+     "lossy": 26.9,
+     "lite": 43.6,
+     "lexact": 10.5,
+     "llossy": 16.8
     },
     "2560x1440": {
-     "exact": 8.0,
-     "lossy": 26.0,
-     "lite": 35.8,
-     "lexact": 6.1,
-     "llossy": 14.3
+     "exact": 15.6,
+     "lossy": 32.8,
+     "lite": 42.6,
+     "lexact": 10.5,
+     "llossy": 21.6
     },
     "3840x2160": {
-     "exact": 8.7,
-     "lossy": 27.0,
-     "lite": 40.7,
-     "lexact": 6.1,
-     "llossy": 13.8
+     "exact": 16.6,
+     "lossy": 33.7,
+     "lite": 46.3,
+     "lexact": 10.8,
+     "llossy": 18.6
+    }
+   }
+  },
+  {
+   "card": "RX 7800 XT",
+   "os": "Windows",
+   "reports": 1,
+   "release_builds": false,
+   "exact_with_sdk_pass11": [
+    "n-exact"
+   ],
+   "saved": {
+    "1920x1080": {
+     "exact": 6.7,
+     "lossy": 26.2,
+     "lite": 41.6,
+     "lexact": 10.3,
+     "llossy": 20.7
+    },
+    "2560x1440": {
+     "exact": 7.9,
+     "lossy": 26.2,
+     "lite": 36.2,
+     "lexact": 11.0,
+     "llossy": 23.8
+    },
+    "3840x2160": {
+     "exact": 8.9,
+     "lossy": 27.3,
+     "lite": 41.1,
+     "lexact": 10.4,
+     "llossy": 20.0
     }
    }
   },
@@ -160,99 +160,34 @@
    "reports": 3,
    "release_builds": false,
    "exact_with_sdk_pass11": [
-    "h1",
     "n-exact"
    ],
    "saved": {
     "1920x1080": {
-     "exact": 23.7,
-     "lossy": 37.1,
-     "lite": 50.2,
-     "lexact": 12.7,
-     "llossy": 14.5
+     "exact": 23.6,
+     "lossy": 37.0,
+     "lite": 50.3,
+     "lexact": 17.1,
+     "llossy": 22.9
     },
     "2560x1440": {
-     "exact": 25.0,
-     "lossy": 36.9,
+     "exact": 24.5,
+     "lossy": 36.6,
      "lite": 44.1,
-     "lexact": 9.8,
-     "llossy": 15.4
+     "lexact": 15.4,
+     "llossy": 24.7
     },
     "3840x2160": {
-     "exact": 30.8,
-     "lossy": 40.8,
-     "lite": 52.3,
-     "lexact": 4.4,
-     "llossy": 10.1
+     "exact": 29.5,
+     "lossy": 39.3,
+     "lite": 50.8,
+     "lexact": 15.2,
+     "llossy": 21.1
     }
    }
   },
   {
    "card": "RX 6900 XT",
-   "os": "Windows",
-   "reports": 1,
-   "release_builds": false,
-   "exact_with_sdk_pass11": [
-    "n-exact"
-   ],
-   "saved": {
-    "1920x1080": {
-     "exact": 2.2,
-     "lossy": 19.0,
-     "lite": 38.1,
-     "lexact": 5.5,
-     "llossy": 9.5
-    },
-    "2560x1440": {
-     "exact": 4.9,
-     "lossy": 18.1,
-     "lite": 31.2,
-     "lexact": 5.8,
-     "llossy": 14.4
-    },
-    "3840x2160": {
-     "exact": 4.5,
-     "lossy": 18.9,
-     "lite": 31.6,
-     "lexact": 2.3,
-     "llossy": 12.6
-    }
-   }
-  },
-  {
-   "card": "RX 6800 XT",
-   "os": "Windows",
-   "reports": 1,
-   "release_builds": false,
-   "exact_with_sdk_pass11": [
-    "n-exact"
-   ],
-   "saved": {
-    "1920x1080": {
-     "exact": -0.2,
-     "lossy": 18.2,
-     "lite": 38.3,
-     "lexact": 5.8,
-     "llossy": 10.7
-    },
-    "2560x1440": {
-     "exact": 2.8,
-     "lossy": 17.4,
-     "lite": 32.3,
-     "lexact": 6.5,
-     "llossy": 13.7
-    },
-    "3840x2160": {
-     "exact": 5.0,
-     "lossy": 19.1,
-     "lite": 33.2,
-     "lexact": 3.6,
-     "llossy": 13.0
-    }
-   }
-  },
-  {
-   "card": "RX 6800",
    "os": "Windows",
    "reports": 2,
    "release_builds": false,
@@ -261,30 +196,30 @@
    ],
    "saved": {
     "1920x1080": {
-     "exact": 0.7,
-     "lossy": 18.2,
-     "lite": 38.6,
-     "lexact": 6.4,
-     "llossy": 11.2
+     "exact": 2.9,
+     "lossy": 19.1,
+     "lite": 38.7,
+     "lexact": 9.8,
+     "llossy": 13.1
     },
     "2560x1440": {
-     "exact": 2.2,
-     "lossy": 17.4,
+     "exact": 3.8,
+     "lossy": 18.7,
      "lite": 31.9,
-     "lexact": 6.5,
-     "llossy": 14.0
+     "lexact": 8.8,
+     "llossy": 15.6
     },
     "3840x2160": {
-     "exact": 2.4,
-     "lossy": 16.5,
-     "lite": 34.0,
-     "lexact": 6.7,
-     "llossy": 10.6
+     "exact": 5.0,
+     "lossy": 19.1,
+     "lite": 31.3,
+     "lexact": 3.6,
+     "llossy": 13.5
     }
    }
   },
   {
-   "card": "RX 6750 XT",
+   "card": "RX 6800 XT",
    "os": "Windows",
    "reports": 4,
    "release_builds": false,
@@ -293,30 +228,190 @@
    ],
    "saved": {
     "1920x1080": {
-     "exact": 1.0,
-     "lossy": 17.7,
-     "lite": 38.0,
-     "lexact": 6.8,
-     "llossy": 10.6
+     "exact": 2.0,
+     "lossy": 19.9,
+     "lite": 39.9,
+     "lexact": 12.5,
+     "llossy": 15.1
+    },
+    "2560x1440": {
+     "exact": 3.1,
+     "lossy": 18.5,
+     "lite": 32.3,
+     "lexact": 10.9,
+     "llossy": 18.3
+    },
+    "3840x2160": {
+     "exact": 5.0,
+     "lossy": 19.5,
+     "lite": 33.8,
+     "lexact": 7.4,
+     "llossy": 15.1
+    }
+   }
+  },
+  {
+   "card": "RX 6800",
+   "os": "Windows",
+   "reports": 5,
+   "release_builds": false,
+   "exact_with_sdk_pass11": [
+    "n-exact"
+   ],
+   "saved": {
+    "1920x1080": {
+     "exact": 1.7,
+     "lossy": 18.3,
+     "lite": 39.2,
+     "lexact": 11.0,
+     "llossy": 12.2
+    },
+    "2560x1440": {
+     "exact": 1.9,
+     "lossy": 16.4,
+     "lite": 31.0,
+     "lexact": 10.0,
+     "llossy": 15.8
+    },
+    "3840x2160": {
+     "exact": 3.2,
+     "lossy": 16.3,
+     "lite": 33.6,
+     "lexact": 11.1,
+     "llossy": 3.6
+    }
+   }
+  },
+  {
+   "card": "RX 6750 XT",
+   "os": "Windows",
+   "reports": 1,
+   "release_builds": false,
+   "exact_with_sdk_pass11": [
+    "n-exact"
+   ],
+   "saved": {
+    "1920x1080": {
+     "exact": 1.6,
+     "lossy": 18.4,
+     "lite": 37.8,
+     "lexact": 12.1,
+     "llossy": 13.5
     },
     "2560x1440": {
      "exact": 2.1,
      "lossy": 17.3,
-     "lite": 30.6,
-     "lexact": 7.1,
-     "llossy": 14.0
+     "lite": 30.0,
+     "lexact": 10.7,
+     "llossy": 17.3
     },
     "3840x2160": {
-     "exact": 2.5,
-     "lossy": 16.3,
-     "lite": 33.9,
-     "lexact": 7.4,
-     "llossy": 11.2
+     "exact": 2.1,
+     "lossy": 16.1,
+     "lite": 33.7,
+     "lexact": 10.4,
+     "llossy": 13.3
     }
    }
   },
   {
    "card": "RX 6700 XT",
+   "os": "Windows",
+   "reports": 4,
+   "release_builds": false,
+   "exact_with_sdk_pass11": [
+    "n-exact"
+   ],
+   "saved": {
+    "1920x1080": {
+     "exact": 1.2,
+     "lossy": 17.9,
+     "lite": 37.5,
+     "lexact": 12.3,
+     "llossy": 14.6
+    },
+    "2560x1440": {
+     "exact": 2.1,
+     "lossy": 18.4,
+     "lite": 29.3,
+     "lexact": 12.9,
+     "llossy": 17.0
+    },
+    "3840x2160": {
+     "exact": 0.9,
+     "lossy": 16.7,
+     "lite": 33.3,
+     "lexact": 11.4,
+     "llossy": 14.7
+    }
+   }
+  },
+  {
+   "card": "RX 6650 XT",
+   "os": "Windows",
+   "reports": 4,
+   "release_builds": false,
+   "exact_with_sdk_pass11": [
+    "n-exact"
+   ],
+   "saved": {
+    "1920x1080": {
+     "exact": 3.1,
+     "lossy": 18.1,
+     "lite": 35.7,
+     "lexact": 7.5,
+     "llossy": 14.0
+    },
+    "2560x1440": {
+     "exact": 4.2,
+     "lossy": 17.9,
+     "lite": 29.6,
+     "lexact": 8.0,
+     "llossy": 16.1
+    },
+    "3840x2160": {
+     "exact": 4.3,
+     "lossy": 17.0,
+     "lite": 35.0,
+     "lexact": 8.3,
+     "llossy": 14.0
+    }
+   }
+  },
+  {
+   "card": "RX 6600 XT",
+   "os": "Windows",
+   "reports": 4,
+   "release_builds": false,
+   "exact_with_sdk_pass11": [
+    "n-exact"
+   ],
+   "saved": {
+    "1920x1080": {
+     "exact": 3.5,
+     "lossy": 19.0,
+     "lite": 35.4,
+     "lexact": 8.8,
+     "llossy": 15.5
+    },
+    "2560x1440": {
+     "exact": 4.0,
+     "lossy": 18.2,
+     "lite": 29.3,
+     "lexact": 8.5,
+     "llossy": 16.8
+    },
+    "3840x2160": {
+     "exact": 3.8,
+     "lossy": 18.4,
+     "lite": 34.1,
+     "lexact": 9.3,
+     "llossy": 14.0
+    }
+   }
+  },
+  {
+   "card": "RX 6600",
    "os": "Windows",
    "reports": 6,
    "release_builds": false,
@@ -325,153 +420,25 @@
    ],
    "saved": {
     "1920x1080": {
-     "exact": 1.0,
-     "lossy": 17.5,
-     "lite": 37.4,
-     "lexact": 6.5,
-     "llossy": 10.9
+     "exact": 2.5,
+     "lossy": 18.4,
+     "lite": 34.8,
+     "lexact": 9.7,
+     "llossy": 14.1
     },
     "2560x1440": {
-     "exact": 2.2,
+     "exact": 3.0,
      "lossy": 16.9,
-     "lite": 30.5,
-     "lexact": 7.2,
-     "llossy": 14.2
+     "lite": 28.7,
+     "lexact": 9.7,
+     "llossy": 17.0
     },
     "3840x2160": {
-     "exact": 2.4,
-     "lossy": 16.3,
-     "lite": 33.9,
-     "lexact": 7.7,
-     "llossy": 11.3
-    }
-   }
-  },
-  {
-   "card": "RX 6700",
-   "os": "Windows",
-   "reports": 2,
-   "release_builds": false,
-   "exact_with_sdk_pass11": [
-    "n-exact"
-   ],
-   "saved": {
-    "1920x1080": {
-     "exact": 2.3,
-     "lossy": 18.0,
-     "lite": 37.6,
-     "lexact": 7.4,
-     "llossy": 10.9
-    },
-    "2560x1440": {
-     "exact": 2.0,
-     "lossy": 16.8,
-     "lite": 29.3,
-     "lexact": 7.1,
-     "llossy": 14.7
-    },
-    "3840x2160": {
-     "exact": 2.7,
-     "lossy": 16.5,
-     "lite": 33.2,
-     "lexact": 6.9,
-     "llossy": 12.3
-    }
-   }
-  },
-  {
-   "card": "RX 6650 XT",
-   "os": "Windows",
-   "reports": 1,
-   "release_builds": false,
-   "exact_with_sdk_pass11": [
-    "n-exact"
-   ],
-   "saved": {
-    "1920x1080": {
-     "exact": 3.1,
-     "lossy": 18.0,
-     "lite": 36.5,
-     "lexact": 5.5,
-     "llossy": 12.3
-    },
-    "2560x1440": {
-     "exact": 4.4,
-     "lossy": 17.5,
-     "lite": 29.8,
-     "lexact": 5.4,
-     "llossy": 15.1
-    },
-    "3840x2160": {
-     "exact": 4.2,
-     "lossy": 17.5,
-     "lite": 35.1,
-     "lexact": 6.5,
-     "llossy": 12.5
-    }
-   }
-  },
-  {
-   "card": "RX 6600 XT",
-   "os": "Windows",
-   "reports": 1,
-   "release_builds": false,
-   "exact_with_sdk_pass11": [
-    "n-exact"
-   ],
-   "saved": {
-    "1920x1080": {
-     "exact": 3.3,
-     "lossy": 18.2,
-     "lite": 35.8,
-     "lexact": 5.8,
-     "llossy": 13.7
-    },
-    "2560x1440": {
-     "exact": 6.6,
-     "lossy": 19.0,
-     "lite": 30.0,
-     "lexact": 5.0,
-     "llossy": 15.3
-    },
-    "3840x2160": {
-     "exact": 4.2,
-     "lossy": 18.1,
-     "lite": 34.0,
-     "lexact": 5.6,
-     "llossy": 11.8
-    }
-   }
-  },
-  {
-   "card": "RX 6600",
-   "os": "Windows",
-   "reports": 1,
-   "release_builds": false,
-   "exact_with_sdk_pass11": [
-    "n-exact"
-   ],
-   "saved": {
-    "1920x1080": {
-     "exact": 4.2,
-     "lossy": 18.7,
-     "lite": 35.8,
-     "lexact": 6.1,
-     "llossy": 13.6
-    },
-    "2560x1440": {
-     "exact": 3.9,
-     "lossy": 17.4,
-     "lite": 27.3,
-     "lexact": 7.2,
-     "llossy": 15.1
-    },
-    "3840x2160": {
-     "exact": 4.0,
-     "lossy": 17.9,
-     "lite": 35.3,
-     "lexact": 6.0,
-     "llossy": 12.4
+     "exact": 3.5,
+     "lossy": 17.7,
+     "lite": 34.8,
+     "lexact": 10.0,
+     "llossy": 14.3
     }
    }
   },
@@ -485,25 +452,25 @@
    ],
    "saved": {
     "1920x1080": {
-     "exact": 2.5,
-     "lossy": 18.3,
-     "lite": 35.9,
-     "lexact": 6.4,
-     "llossy": 13.6
+     "exact": 1.1,
+     "lossy": 16.7,
+     "lite": 34.8,
+     "lexact": 9.5,
+     "llossy": 15.0
     },
     "2560x1440": {
-     "exact": 2.6,
-     "lossy": 17.2,
-     "lite": 29.4,
-     "lexact": 5.8,
-     "llossy": 15.6
+     "exact": 0.7,
+     "lossy": 15.3,
+     "lite": 28.1,
+     "lexact": 9.9,
+     "llossy": 17.5
     },
     "3840x2160": {
-     "exact": 2.6,
-     "lossy": 17.4,
-     "lite": 35.3,
-     "lexact": 5.6,
-     "llossy": 11.0
+     "exact": 1.1,
+     "lossy": 16.2,
+     "lite": 34.4,
+     "lexact": 9.6,
+     "llossy": 14.0
     }
    }
   }

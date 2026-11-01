@@ -4,9 +4,9 @@ Makes AMD FSR 4.1.1 upscaling faster on Radeon graphics cards, on Windows and Li
 FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the game changes.
 
 > [!TIP]
-> **New in `dll-2026-10-29`: `4.1.2l-lossy`, about 18% faster than AMD's FSR 4.1.2 Lite** (Linux; 5 to 13% in Windows timing-kit reports),
-> with fewer white specks in foliage on three of six recorded game clips. It is built on Lite, AMD's smaller FSR 4 network, and changes
-> the picture. [What's new](#new-in-this-release) · [eight upscalers compared](docs/upscaler-comparison.md) ·
+> **New in `dll-2026-11-01`: faster Lite builds on Windows, same pictures.** `4.1.2l-lossy` is 8 to 11% faster than in `dll-2026-10-29` on RX 7000 cards in Windows
+> timing-kit reports (about 2% on RX 6000); `4.1.2l-exact` is 3 to 6% faster on RX 7000 and RX 6000. **Worse: on an RX 7800 XT under Linux, 4.1.2l-lossy loses 0.9% of frames in a game benchmark.**
+> Lite is AMD's smaller FSR 4 network; `4.1.2l-lossy` changes the picture. [What's new](#new-in-this-release) · [eight upscalers compared](docs/upscaler-comparison.md) ·
 > [recorded game clips, side by side](https://zgauthier2000.github.io/fsr4-upscaler-compare/) · [the Lite builds](docs/lite-builds.md).
 
 ## Quick start
@@ -20,10 +20,10 @@ FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the 
 
 | Your graphics card | Download |
 |---|---|
-| A Radeon **RX 7000** graphics card: "RX 7" and three more digits, such as RX 7800 XT or RX 7600, including laptops with their own RX 7000 chip (RX 7700S, RX 7600M and the like) | **[fsr4.1.2-cyboman-rx7000-2026-10-29.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-29/fsr4.1.2-cyboman-rx7000-2026-10-29.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-29/fsr4.1.2-cyboman-rx7000-2026-10-29.zip) (100 MB) |
-| A Radeon **RX 6000** graphics card: "RX 6" and three more digits, such as RX 6700 XT or RX 6600, including laptops with their own RX 6000 chip (RX 6700M and the like) | **[fsr4.1.2-cyboman-rx6000-2026-10-29.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-29/fsr4.1.2-cyboman-rx6000-2026-10-29.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-29/fsr4.1.2-cyboman-rx6000-2026-10-29.zip) (100 MB) |
-| **Newer graphics built into the processor** (Radeon 780M, 760M, 880M, 890M and other RDNA 3 and 3.5 chips), and **any other card**: Nvidia GeForce, Intel Arc, older Radeon | **[fsr4.1.2-igpu-cyboman-rdna3-2026-10-29.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-29/fsr4.1.2-igpu-cyboman-rdna3-2026-10-29.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-29/fsr4.1.2-igpu-cyboman-rdna3-2026-10-29.zip) (100 MB) |
-| **Steam Deck** and **older graphics built into the processor** (Radeon 680M, 660M, 610M, the graphics of Ryzen 7000 and 9000 desktop processors) | **[fsr4.1.2-igpu-cyboman-rdna2-2026-10-29.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-29/fsr4.1.2-igpu-cyboman-rdna2-2026-10-29.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-10-29/fsr4.1.2-igpu-cyboman-rdna2-2026-10-29.zip) (100 MB) |
+| A Radeon **RX 7000** graphics card: "RX 7" and three more digits, such as RX 7800 XT or RX 7600, including laptops with their own RX 7000 chip (RX 7700S, RX 7600M and the like) | **[fsr4.1.2-cyboman-rx7000-2026-11-01.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-01/fsr4.1.2-cyboman-rx7000-2026-11-01.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-01/fsr4.1.2-cyboman-rx7000-2026-11-01.zip) (100 MB) |
+| A Radeon **RX 6000** graphics card: "RX 6" and three more digits, such as RX 6700 XT or RX 6600, including laptops with their own RX 6000 chip (RX 6700M and the like) | **[fsr4.1.2-cyboman-rx6000-2026-11-01.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-01/fsr4.1.2-cyboman-rx6000-2026-11-01.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-01/fsr4.1.2-cyboman-rx6000-2026-11-01.zip) (100 MB) |
+| **Newer graphics built into the processor** (Radeon 780M, 760M, 880M, 890M and other RDNA 3 and 3.5 chips), and **any other card**: Nvidia GeForce, Intel Arc, older Radeon | **[fsr4.1.2-igpu-cyboman-rdna3-2026-11-01.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-01/fsr4.1.2-igpu-cyboman-rdna3-2026-11-01.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-01/fsr4.1.2-igpu-cyboman-rdna3-2026-11-01.zip) (100 MB) |
+| **Steam Deck** and **older graphics built into the processor** (Radeon 680M, 660M, 610M, the graphics of Ryzen 7000 and 9000 desktop processors) | **[fsr4.1.2-igpu-cyboman-rdna2-2026-11-01.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-01/fsr4.1.2-igpu-cyboman-rdna2-2026-11-01.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-01/fsr4.1.2-igpu-cyboman-rdna2-2026-11-01.zip) (100 MB) |
 | Radeon RX 9000 | not for these cards: they run a different FSR 4. Do not install it there. |
 
 The `.7z` and the `.zip` hold the same files. Windows 11 (version 23H2 or later) opens a `.7z` itself; on Windows 10 use
@@ -75,25 +75,24 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
   | Graphics card | Source | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
   |---|---|---|---|---|---|---|
-  | Radeon RX 7800 XT | Linux, this project (release builds) | 16% / 34% / 37% | 34% / 52% / 55% | 3% / 3% / 2% | 15% / 19% / 18% | 39% / 53% / 59% |
-  | Radeon RX 7900 XTX | Windows, 1 report | 6% / 25% / 31% | 27% / 40% / 44% | 5% / 6% / 7% | 13% / 16% / 16% | 45% / 49% / 55% |
-  | Radeon RX 7900 XT | Windows, 1 report | 11% / 16% / 18% | 30% / 32% / 34% | 6% / 7% / 6% | 11% / 12% / 5% | 47% / 42% / 46% |
-  | Radeon RX 7800 XT | Windows, 2 reports | 7% / 8% / 9% | 26% / 26% / 27% | 6% / 6% / 6% | 14% / 14% / 14% | 41% / 36% / 41% |
-  | Radeon RX 7600 | Windows, 3 reports | 24% / 25% / 31% | 37% / 37% / 41% | 13% / 10% / 4% | 14% / 15% / 10% | 50% / 44% / 52% |
-  | Radeon RX 6900 XT | Windows, 1 report | 2% / 5% / 4% | 19% / 18% / 19% | 6% / 6% / 2% | 10% / 14% / 13% | 38% / 31% / 32% |
-  | Radeon RX 6800 XT | Windows, 1 report | 0% / 3% / 5% | 18% / 17% / 19% | 6% / 6% / 4% | 11% / 14% / 13% | 38% / 32% / 33% |
-  | Radeon RX 6800 | Windows, 2 reports | 1% / 2% / 2% | 18% / 17% / 16% | 6% / 6% / 7% | 11% / 14% / 11% | 39% / 32% / 34% |
-  | Radeon RX 6750 XT | Windows, 4 reports | 1% / 2% / 2% | 18% / 17% / 16% | 7% / 7% / 7% | 11% / 14% / 11% | 38% / 31% / 34% |
-  | Radeon RX 6700 XT | Windows, 6 reports | 1% / 2% / 2% | 18% / 17% / 16% | 6% / 7% / 8% | 11% / 14% / 11% | 37% / 30% / 34% |
-  | Radeon RX 6700 | Windows, 2 reports | 2% / 2% / 3% | 18% / 17% / 16% | 7% / 7% / 7% | 11% / 15% / 12% | 38% / 29% / 33% |
-  | Radeon RX 6650 XT | Windows, 1 report | 3% / 4% / 4% | 18% / 18% / 18% | 6% / 5% / 6% | 12% / 15% / 12% | 36% / 30% / 35% |
-  | Radeon RX 6600 XT | Windows, 1 report | 3% / 7% / 4% | 18% / 19% / 18% | 6% / 5% / 6% | 14% / 15% / 12% | 36% / 30% / 34% |
-  | Radeon RX 6600 | Windows, 1 report | 4% / 4% / 4% | 19% / 17% / 18% | 6% / 7% / 6% | 14% / 15% / 12% | 36% / 27% / 35% |
-  | Radeon RX 6600M | Windows, 1 report | 2% / 3% / 3% | 18% / 17% / 17% | 6% / 6% / 6% | 14% / 16% / 11% | 36% / 29% / 35% |
+  | Radeon RX 7800 XT | Linux, this project (release builds) | 14% / 34% / 37% | 33% / 51% / 55% | 7% / 7% / 5% | 15% / 18% / 18% | 37% / 53% / 60% |
+  | Radeon RX 7900 XTX | Windows, 4 reports | 6% / 25% / 31% | 27% / 40% / 45% | 9% / 11% / 10% | 20% / 25% / 19% | 44% / 49% / 56% |
+  | Radeon RX 7900 XT | Windows, 2 reports | 8% / 16% / 17% | 27% / 33% / 34% | 10% / 10% / 11% | 17% / 22% / 19% | 44% / 43% / 46% |
+  | Radeon RX 7800 XT | Windows, 1 report | 7% / 8% / 9% | 26% / 26% / 27% | 10% / 11% / 10% | 21% / 24% / 20% | 42% / 36% / 41% |
+  | Radeon RX 7600 | Windows, 3 reports | 24% / 24% / 30% | 37% / 37% / 39% | 17% / 15% / 15% | 23% / 25% / 21% | 50% / 44% / 51% |
+  | Radeon RX 6900 XT | Windows, 2 reports | 3% / 4% / 5% | 19% / 19% / 19% | 10% / 9% / 4% | 13% / 16% / 14% | 39% / 32% / 31% |
+  | Radeon RX 6800 XT | Windows, 4 reports | 2% / 3% / 5% | 20% / 18% / 20% | 12% / 11% / 7% | 15% / 18% / 15% | 40% / 32% / 34% |
+  | Radeon RX 6800 | Windows, 5 reports | 2% / 2% / 3% | 18% / 16% / 16% | 11% / 10% / 11% | 12% / 16% / 4% | 39% / 31% / 34% |
+  | Radeon RX 6750 XT | Windows, 1 report | 2% / 2% / 2% | 18% / 17% / 16% | 12% / 11% / 10% | 14% / 17% / 13% | 38% / 30% / 34% |
+  | Radeon RX 6700 XT | Windows, 4 reports | 1% / 2% / 1% | 18% / 18% / 17% | 12% / 13% / 11% | 15% / 17% / 15% | 38% / 29% / 33% |
+  | Radeon RX 6650 XT | Windows, 4 reports | 3% / 4% / 4% | 18% / 18% / 17% | 8% / 8% / 8% | 14% / 16% / 14% | 36% / 30% / 35% |
+  | Radeon RX 6600 XT | Windows, 4 reports | 4% / 4% / 4% | 19% / 18% / 18% | 9% / 8% / 9% | 16% / 17% / 14% | 35% / 29% / 34% |
+  | Radeon RX 6600 | Windows, 6 reports | 2% / 3% / 4% | 18% / 17% / 18% | 10% / 10% / 10% | 14% / 17% / 14% | 35% / 29% / 35% |
+  | Radeon RX 6600M | Windows, 1 report | 1% / 1% / 1% | 17% / 15% / 16% | 10% / 10% / 10% | 15% / 18% / 14% | 35% / 28% / 34% |
 
-  The Windows rows are testers' timing-kit reports (kits 2026-10-28 to 2026-10-29.2, median per card) of test builds with this release's
-  shaders: the lossy ones carry test weights (the same speed), and the RX 6000 exact and some RX 7000 reports lack AMD's own eleventh network
-  shader from FSR SDK 2.4.0, which this release's RX 7000 and RX 6000 exact DLLs add (up to 3% faster at 4K in the two reports so far). Reports of the release's own timing kit (2026-10-29.2) time this release's DLLs themselves. One
+  The Windows rows are testers' timing-kit reports (kits 2026-10-30.7 to 2026-11-01, median per card). Exact and lossy are the DLLs of `dll-2026-10-29`,
+  unchanged in this release; the two Lite columns are the kits' test slots with this release's shaders and weights (4.1.2l-lossy: its RX 7000 form on RX 7000
+  cards, its RX 6000 form on RX 6000 cards). Results much slower than the median for the same card model are left out (more than 3 scaled median deviations and more than 3 points; cards with at least 3 reports), because other work on a desktop PC can slow a run; faster ones are kept. One
   report per card is one run. The Linux row is this project's own RX 7800 XT with the release's builds (AMD's FSR 4.1.2 there = its FSR SDK 2.4.0
   game DLL, Lite in this project's local test harness; two runs each). The same DLL saves much more under Linux on most Radeon cards, most likely
   because Linux's driver runs two of AMD's shaders (the last pass and network pass 11) in a slower mode than Windows does. We do not yet know
@@ -164,39 +163,21 @@ More games and resolutions: [all results](docs/results.md).
 
 ## New in this release
 
-**[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-10-29.md)**
+**[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-11-01.md)**
 
 > [!TIP]
-> **New: `4.1.2l-lossy`, about 18% faster than AMD's FSR 4.1.2 Lite** at 4K (Linux; 5 to 13% in Windows timing-kit reports), with fewer
-> white specks in foliage on three of six recorded game clips (the picture below) and less shimmer on thin wires in a camera pan. What got
-> worse against Lite: more specks on two clips; small bright details, large particles and foliage are less accurate; read its `WARNING.txt`.
-> Beside it, `4.1.2l-exact` gives Lite's picture byte for byte, 2 to 3% faster. [The Lite builds](docs/lite-builds.md).
+> **Faster Lite builds on Windows; the pictures stay as they were.** Only `4.1.2l-lossy` and `4.1.2l-exact` change; `exact` and `lossy` are the files of `dll-2026-10-29`.
 >
-> **Lossy is retrained: far fewer dark specks in foliage.** In a recorded Black Myth: Wukong clip about 460 dark specks per frame,
-> against 3,824 with the lossy2 of `dll-2026-10-22`; fine diagonal patterns crawl less in motion. **What got worse:** brightening is
-> clearly slower (about 3.7 frames to catch up, 2.7 with the game's auto exposure on, against 1.5 / 1.3 before and 0.5 for AMD's file),
-> and at 1080p it is 2% slower than lossy2.
+> | Windows timing-kit reports, median, moving scene, 1080p / 1440p / 4K, less time per frame than the same build in `dll-2026-10-29` | `4.1.2l-lossy` | `4.1.2l-exact` |
+> |---|---|---|
+> | RX 7000 | 8% / 11% / 9% | 5% / 6% / 5% |
+> | RX 6000 | 2% / 2% / 2% | 5% / 4% / 3% |
 >
-> **Exact:** a faster first shader in every exact build: 2 to 6% faster than `dll-2026-10-22`'s exact on RX 7000 cards and 2 to 4% on RX 6000
-> cards in Windows timing-kit reports. Against AMD's FSR 4.1.1 file, at 1080p / 4K: RX 7900 XTX 7% / 31%, RX 7800 XT 7% / 9%, RX 7600 24% / 26%, RX 6950 XT 7% / 24%, RX 6600 XT 18% / 13%, GeForce RTX 2080
-> 2% / 4% ([all cards](docs/releases/dll-2026-10-29.md#speed)). On RX 6000 and Steam Deck / older built-in graphics it now gives the picture of
-> AMD's own FSR 4.1.2 for RX 6000, which in games looks the same as 4.1.1: [what AMD's 4.1.2 changes](docs/amd-411-vs-412.md).
-> The RX 7000 and RX 6000 exact builds also carry AMD's own eleventh network shader from FSR SDK 2.4.0 (same picture; up to 3% faster in
-> Windows reports so far).
+> **What got worse:** on this project's RX 7800 XT under Linux, `4.1.2l-lossy` renders 0.9% fewer frames in Shadow of the Tomb Raider's benchmark (19,887 against 20,070, four runs), where the Windows reports gain. **Not measured:** GeForce and Intel Arc; the Steam Deck.
 >
-> - **Version names** now start with 4.1.2: `4.1.2-exact-r3-cyboman`, `4.1.2-lossy-r2-cyboman` and so on.
-> - **RX 6000:** the fix for its picture difference under Windows is now AMD's own (constant operand second in the last shader's dot
->   products), about 2% faster on one RX 6700 report; its 4.1.2l-lossy runs 8 groups of work at once instead of 7 on Windows (gain not
->   measured yet).
-> - **Not checked yet:** the lossy and Lite builds on Windows and on other cards.
->
-> Lossy and Lite figures: Linux (Proton), one Radeon RX 7800 XT, synthetic test scenes and recorded game clips; AMD's Lite measured in
-> this project's local test harness.
+> Against AMD's Lite: `4.1.2l-lossy` saves mostly 12 to 25% on Windows at the sizes reported; `4.1.2l-exact` 4 to 17%. [Everything that changed](docs/releases/dll-2026-11-01.md).
 
-![White specks in foliage, Black Myth: Wukong Benchmark Tool, 4K, 4x zoom, as it is and with every speck circled: AMD FSR 4.1.1 43, AMD FSR 4.1.2 Lite 71 and 4.1.2l-lossy 17 specks in this area and frame.](docs/img/rel-lite-specks.webp)
-
-*4.1.2l-lossy against AMD's Lite: recorded game frames, 4K, 4x zoom, below with every speck circled; this project's display mapping, not the
-game's tone mapping. Over the whole clip 473 specks per frame against Lite's 1,004.*
+**Earlier: [`dll-2026-10-29`](docs/releases/dll-2026-10-29.md)** brought `4.1.2l-lossy` and `4.1.2l-exact`, a retrained `lossy` (far fewer dark specks in foliage; brightening is slower) and faster exact builds.
 
 **Earlier: [`dll-2026-10-22`](docs/releases/dll-2026-10-22.md)** split the builds into four, one per kind of graphics card (up to
 about 3% faster than the release before, same pictures), and gave each build a version name that says which one runs.
