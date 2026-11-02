@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# make_deckyupscaler_sottr.py <frame folder> <out.png>: comparison picture for docs/deckyupscaler.md. The folder holds lite/ du1/ du3/ ourll/, each with one output frame (float16 RGBA, 1920x1080).
+# make_deckyupscaler_sottr.py <frame folder> <out.png>: comparison picture for docs/deckyupscaler.md. The folder holds lite/ du1/ du0/ ourll/, each with one output frame (float16 RGBA, 1920x1080).
 # The left edge of the frame at 3x, display mapping x / (1 + x), gamma 1/2.2.
 import glob, sys
 import numpy as np
@@ -8,7 +8,7 @@ src, out = sys.argv[1:3]
 def rd(b):
     a = np.fromfile(glob.glob(f'{src}/{b}/output_*.raw')[-1], np.float16).astype(np.float32).reshape(1080, 1920, 4)[..., :3]
     return (a.clip(0) / (1 + a.clip(0))) ** (1 / 2.2)
-P = [('AMD Lite', 'lite'), ('DeckyUpscaler, shipped set', 'du1'), ('DeckyUpscaler, exact set', 'du3'), ('This project, 4.1.2l-lossy', 'ourll')]
+P = [('AMD Lite', 'lite'), ('DeckyUpscaler, shipped set', 'du1'), ('DeckyUpscaler, no pack', 'du0'), ('This project, 4.1.2l-lossy', 'ourll')]
 x, y, W, H, S, G, L = 0, 600, 240, 135, 3, 8, 30
 font = ImageFont.truetype('/usr/share/fonts/TTF/DejaVuSans.ttf', 18) if glob.glob('/usr/share/fonts/TTF/DejaVuSans.ttf') else ImageFont.load_default()
 im = Image.new('RGB', (2 * W * S + G, 2 * (H * S + L) + G), (24, 28, 32)); dr = ImageDraw.Draw(im)
