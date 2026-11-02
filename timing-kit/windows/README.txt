@@ -106,10 +106,11 @@ What it does
                        rest of the screen, in the step after the network; lt53 the same in the network; lt57 and
                        lt58 use the narrowest possible column. Their pictures differ from lt33's and can differ
                        between runs: expected in this test.
-  dlls\lt68-test to lt82-test
-                       more measuring builds, never for a game or a release. lt68 to lt81 come in pairs that switch
-                       off one part: one square as large as the screen, then a column. lt82 is lt37's method with
-                       one of those parts off. Their pictures are not meant to look right: expected in this test.
+  dlls\lt68-test, lt69-test, lt82-test, lt87-test to lt98-test
+                       more measuring builds, never for a game or a release. lt68, lt69 and lt87 to lt98 come in
+                       pairs that switch parts on or off: one square as large as the screen, then a column. lt82 is
+                       lt37's method with those parts off. Their pictures are not meant to look right: expected in
+                       this test.
   dlls\lt83-test, lt84-test, lt85-test, lt86-test
                        test builds of 4.1.2l-lossy, not in any release: lt83 rounds differently in the network,
                        lt84 reads the history in one step instead of nine, lt85 does both. Their pictures differ
@@ -119,7 +120,7 @@ What it does
                        release: each runs one step twice (lt25 the step before the network, lt26, lt27, lt28 its
                        three steps, lt29 the step after it), with the same picture. The extra time shows how
                        long that step takes on your card.
-  Apart from lt17 to lt86, these are the DLLs of release dll-2026-10-29, with their real weights: the
+  Apart from lt17 to lt98, these are the DLLs of release dll-2026-10-29, with their real weights: the
   picture lines show whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
