@@ -16,4 +16,7 @@ du-nopack, du-shipped: DeckyUpscaler
   du-shipped is its release v0.2.1 FSR 4 Lite drop-in, unchanged, with its shader packs. du-nopack is the same commit built here without shader packs, changed only in the name of the folder it reads (du0).
   They run only under Proton. Both use AMD's unmodified SDK Vulkan DLL. Licenses are in deckyupscaler/: LICENSE, shaders-LICENSE-AMD.md, amd_fidelityfx-LICENSE.md.
 
+du-x-exact, du-x-pmix, du-x-rhu, du-x-pfm, du-x-nodot2, du-x-prepass, du-x-network, du-x-postpass: measuring builds of DeckyUpscaler's shaders, never for a game or a release
+  They time parts of its shipped set, to see which part brings its speed on your card, built here from its generators with no other change than which options and shaders are in each (folders du1 to du8).
+
 The other DLLs are described in README.txt.
