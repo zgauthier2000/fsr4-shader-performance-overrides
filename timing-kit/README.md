@@ -328,7 +328,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Linux and Steam Deck (experimental)
 
-[`fsr4-timing-kit-linux-2026-11-02.9.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.9/fsr4-timing-kit-linux-2026-11-02.9.tar.gz) (about 136 MB, version 2026-11-02.9): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
+[`fsr4-timing-kit-linux-2026-11-02.10.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.10/fsr4-timing-kit-linux-2026-11-02.10.tar.gz) (about 105 MB, version 2026-11-02.10): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
 
 It runs the Windows kit's program and test DLLs under Proton, and sends the same kind of report, marked as Wine/Proton. It lists the Protons it finds and asks which to use, and the report names the one used. CachyOS Proton builds did not start the kit in testing, so use another for now. It needs Proton from Steam (Proton Experimental works), a system-installed Proton or `umu-run`, and installs nothing: its Wine prefix and results stay in the folder. Figures under Proton are not Windows figures: the drivers differ.
 

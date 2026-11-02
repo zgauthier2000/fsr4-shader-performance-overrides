@@ -22,4 +22,4 @@ du-x-exact, du-x-pmix, du-x-rhu, du-x-pfm, du-x-nodot2, du-x-prepass, du-x-netwo
 du-e-notstore, du-e-norecloop, du-e-noq4b, du-e-noring, du-e-nocsan2, du-e-nopdead, du-e-noentry, du-e-base, du-e-prepass, du-e-network, du-e-postpass: more measuring builds of DeckyUpscaler's shaders, never for a game or a release
   They split its same-picture set: one change left out, none of its options, or one step only (folders du10 to du20).
 
-The other DLLs are described in README.txt.
+The other DLLs are described in README.txt, which also lists some that this kit leaves out (their questions are answered): lt17-19, lt22, lt31, lt35, lt36, lt41, lt53, lt57, lt58, lt87-98 and the n-exact-*-prev builds.
