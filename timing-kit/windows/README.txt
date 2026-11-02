@@ -100,28 +100,22 @@ What it does
                        a measuring build of lt37's method, never for a game or a release: it runs the step after
                        the network on whole frames. Its picture differs from lt33's and can differ between runs:
                        expected in this test.
-  dlls\lt50-test, lt51-test, lt52-test, lt53-test
-                       four more measuring builds of lt37's method, never for a game or a release. lt50 uses one
-                       square as large as the screen; lt51 adds one narrow column at the left edge that takes
-                       turns with the rest of the screen; lt52 does that only in the step after the network, lt53
-                       only in the network. Their pictures differ from lt33's and can differ between runs:
-                       expected in this test.
-  dlls\lt54-test, lt55-test, lt56-test, lt57-test, lt58-test
-                       five more measuring builds like lt51, never for a game or a release: lt54, lt55 and lt56
-                       use the narrowest possible, a 128 px and a 2048 px column; lt57 uses the narrowest only in
-                       the step after the network, lt58 only in the network. Their pictures differ from lt33's
-                       and can differ between runs: expected in this test.
-  dlls\lt59-test to lt69-test
-                       eleven more measuring builds like lt52, never for a game or a release. lt59, lt60 and lt61
-                       use wider columns. lt62 to lt69 come in pairs that switch off one part: one square as large
-                       as the screen, then a column. Their pictures are not meant to look right: expected in
-                       this test.
+  dlls\lt50-test, lt52-test, lt53-test, lt57-test, lt58-test
+                       measuring builds of lt37's method, never for a game or a release. lt50 uses one square as
+                       large as the screen; lt52 adds a 512 px column at the left edge that takes turns with the
+                       rest of the screen, in the step after the network; lt53 the same in the network; lt57 and
+                       lt58 use the narrowest possible column. Their pictures differ from lt33's and can differ
+                       between runs: expected in this test.
+  dlls\lt68-test to lt82-test
+                       more measuring builds, never for a game or a release. lt68 to lt81 come in pairs that switch
+                       off one part: one square as large as the screen, then a column. lt82 is lt37's method with
+                       one of those parts off. Their pictures are not meant to look right: expected in this test.
   dlls\lt25-test, lt26-test, lt27-test, lt28-test, lt29-test
                        five measuring builds, deliberately SLOWER than the others and never for a game or a
                        release: each runs one step twice (lt25 the step before the network, lt26, lt27, lt28 its
                        three steps, lt29 the step after it), with the same picture. The extra time shows how
                        long that step takes on your card.
-  Apart from lt17 to lt69, these are the DLLs of release dll-2026-10-29, with their real weights: the
+  Apart from lt17 to lt82, these are the DLLs of release dll-2026-10-29, with their real weights: the
   picture lines show whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of
