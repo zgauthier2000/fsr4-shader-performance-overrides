@@ -121,7 +121,7 @@ Neither is in a release. Other ideas from its notes:
 | Prepass with 2x2 pixels per lane in 64-lane groups, no barrier | Not tried; needs a DXIL version |
 | f16 products summed in f32 in the prepass | Not tried; changes the picture slightly |
 
-The biggest open question is which of its changes bring its RDNA 2 gain. A timing kit test for that is being prepared.
+The biggest open question is which of its changes bring its RDNA 2 gain. Timing kit 2026-11-02.7 times parts of its shipped set (`du-x-*`) to answer that.
 
 Two cautions from its notes also apply here:
 
