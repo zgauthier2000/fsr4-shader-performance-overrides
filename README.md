@@ -188,11 +188,12 @@ about 3% faster than the release before, same pictures), and gave each build a v
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.5/fsr4-timing-kit-windows-2026-11-02.5.zip)** (experimental, about 81 MB, version 2026-11-02.5): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes (up to about 25 on a slow chip). It times FSR 4 with AMD's shaders and with this project's
 > builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
-> than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck:
-> [the Linux kit](timing-kit).
+> than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc.
+>
+> **[Download the Linux and Steam Deck timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.5/fsr4-timing-kit-linux-2026-11-02.5.tar.gz)** (experimental, about 113 MB, version 2026-11-02.5): unpack, and in a terminal in that folder run
+> `bash run.sh`, then wait about 15 minutes. It runs the same tests as the Windows kit under Proton, with Proton from Steam or `umu-run`. On a Steam Deck, use Desktop Mode, plugged in.
 >
 > - New in the kits (2026-11-02.5): **more measuring builds** (`lt87-test` to `lt98-test`).
-> - New: a [Linux and Steam Deck kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.5/fsr4-timing-kit-linux-2026-11-02.5.tar.gz) (about 113 MB) that runs the same tests as the Windows kit under Proton.
 > - New in the Windows kit (2026-11-02.3): **four test builds of 4.1.2l-lossy** (`lt83-test` to `lt86-test`), **more measuring builds** (`lt50-test` to `lt82-test`), **eight test builds of 4.1.2l-exact** (`lt17-test` to `lt20-test`, `lt22-test`, `lt30-test`, `lt31-test`, `lt36-test`), **five of 4.1.2l-lossy** (`lt32-test` to `lt35-test`, `lt37-test`) and fifteen measuring builds (`lt25-test` to `lt29-test`, deliberately slower; `lt38-test` to `lt47-test`), not in any release; reports from RX 6000 cards are the ones most wanted.
 > - New in the Windows kit (2026-10-29.2): **this release's own DLLs** for your kind of graphics (exact, lossy, 4.1.2l-exact, 4.1.2l-lossy), timed
 >   against AMD's own FSR 4.1.2 for your graphics and FSR 4.1.2 Lite, with fewer DLLs so each gets more rounds. It is best run with the
@@ -289,7 +290,7 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 | [All results](docs/results.md) | every game measured, benchmark pages with screenshots |
 | [Linux guide](docs/linux.md) | requirements, building your own files, troubleshooting |
 | [Making a shader dump](docs/shader-dump.md) | step by step, for reporting a wrong image or a missing speedup on Linux |
-| [Timing kit](timing-kit) | a download for Linux and the Steam Deck that times every FSR 4 pass on your GPU, no game needed (new; five GPUs so far) |
+| [Timing kit](timing-kit/README.md) | downloads for Windows, Linux and the Steam Deck that time FSR 4 and this project's builds on your GPU, no game needed |
 | [GPU support](docs/gpu-support.md) | which download fits which GPU, integrated GPUs, RX 6000 cards and their shimmering fix |
 | [Shader variants](docs/variants.md) | which versions of FSR 4's shaders are covered, and what to do if your game's is not |
 | [How it works](docs/how-it-works.md) | what the rewrites do, where the time goes, what else was tried |
