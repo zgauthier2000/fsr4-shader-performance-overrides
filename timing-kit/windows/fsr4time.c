@@ -69,8 +69,8 @@
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
 #define MAXROUNDS 8
-#define MAXDLLS 80     // DLLs in one run (pack + tester folders); a study run has 16 (RDNA2) or 18 (RDNA3)
-#define MAXROWS 1024   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
+#define MAXDLLS 100     // DLLs in one run (pack + tester folders); a study run has 16 (RDNA2) or 18 (RDNA3)
+#define MAXROWS 1600   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
 #define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
 #define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL:
                               // the limit until a first run has finished on this PC; after that RUN_LIMIT_TIMES x the longest finished run,

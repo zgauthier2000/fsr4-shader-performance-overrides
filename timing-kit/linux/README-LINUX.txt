@@ -19,4 +19,7 @@ du-nopack, du-shipped: DeckyUpscaler
 du-x-exact, du-x-pmix, du-x-rhu, du-x-pfm, du-x-nodot2, du-x-prepass, du-x-network, du-x-postpass: measuring builds of DeckyUpscaler's shaders, never for a game or a release
   They time parts of its shipped set, to see which part brings its speed on your card, built here from its generators with no other change than which options and shaders are in each (folders du1 to du8).
 
+du-e-notstore, du-e-norecloop, du-e-noq4b, du-e-noring, du-e-nocsan2, du-e-nopdead, du-e-noentry, du-e-base, du-e-prepass, du-e-network, du-e-postpass: more measuring builds of DeckyUpscaler's shaders, never for a game or a release
+  They split its same-picture set: one change left out, none of its options, or one step only (folders du10 to du20).
+
 The other DLLs are described in README.txt.
