@@ -81,6 +81,8 @@ From the same kit, one row per report, all under Proton, moving scene, ms at 108
 
 **Most of the gain needs none of the named options:** about -14 on the three chips with a clean figure. The three parts add up to about the whole.
 
+These percentages are against its own no-pack route, not against this project's builds. At 1080p, its same-picture set compared with `4.1.2l-exact` (`lt30-test`) is 12% faster on the RX 6700 XT, 10% on the RX 6600 XT and 6% on the Steam Deck, but 18% slower on RX 6800 family report 2 and 24% slower on the Steam Machine. So only part of this gain is still available to this project, on some chips.
+
 Each option left out of the same-picture set, % slower at 1080p (a minus means faster without it):
 
 | Option left out | Steam Deck | Steam Machine | RX 6800, report 2 | RX 6600 XT, report 2 |
