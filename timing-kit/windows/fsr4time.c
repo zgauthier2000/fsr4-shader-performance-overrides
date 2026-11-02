@@ -1612,7 +1612,7 @@ int main(int argc, char** argv) {
             if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) ref = &rows[j];
         if (i == 0 || strcmp(rows[i - 1].name, w->name)) ADD("%s [%s]\n", w->name, w->ver);
         ADD("  %-12s %-6s %.3f", w->size, w->scene, Val(w));
-        if (!strncmp(w->name, "lt5", 3) || !strncmp(w->name, "lt6", 3) || !strncmp(w->name, "lt7", 3) || !strncmp(w->name, "lt8", 3) || !strncmp(w->name, "lt9", 3)) ADD(" (%.3f / %.3f)", w->even, w->odd);      // (2026-11-02) measuring builds: both kinds of frame, always, jitter x >= 0 first
+        if (!strncmp(w->name, "lt5", 3) || !strncmp(w->name, "lt6", 3) || !strncmp(w->name, "lt7", 3) || !strncmp(w->name, "lt8", 3) || !strncmp(w->name, "lt9", 3) || !strncmp(w->name, "lt10", 4)) ADD(" (%.3f / %.3f)", w->even, w->odd);      // (2026-11-02) measuring builds: both kinds of frame, always, jitter x >= 0 first
             else if (w->even > 1.25 * w->odd || w->odd > 1.25 * w->even) ADD(" (%.3f / %.3f)", w->even > w->odd ? w->even : w->odd, w->even > w->odd ? w->odd : w->even);
         if (ref && ref != w) {
             ADD("  %+.0f%%", 100.0 * Val(w) / Val(ref) - 100.0);
