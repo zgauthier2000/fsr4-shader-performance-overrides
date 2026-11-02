@@ -4,9 +4,9 @@
 
 Last updated: 2026-11-02. Timing kit and picture tables: DeckyUpscaler release v0.2.1, except the RX 7800 XT speed table (commit `0137747`).
 
-**In short:** on the one RDNA 2 report so far, under Proton, DeckyUpscaler's shipped set is the fastest build at 1080p, faster than this project's frame-skipping `4.1.2l-lossy`, with a picture much closer to AMD's. Above 1080p, where its shaders do not apply, `4.1.2l-lossy` is faster. On the RDNA 3 cards tested so far, this project's Lite builds are faster at every size.
+**In short:** on the first Steam Deck report, under Proton, DeckyUpscaler's shipped set is the fastest build at 1080p, faster than this project's frame-skipping `4.1.2l-lossy`, and with a picture much closer to AMD's. RDNA 2 reports show the same. Above 1080p, where its shaders do not apply, `4.1.2l-lossy` is clearly faster. On RDNA 3 this project's builds are faster at every size tested.
 
-**The limit:** these are one report per chip and one local card. **No Steam Deck comparison of the two projects exists yet,** and its shaders run only under Proton, so none of this says anything about Windows.
+**The limit:** these are one report per chip and one local card. Its shaders run only under Proton, so none of this says anything about Windows.
 
 ## The two projects at a glance
 
@@ -26,6 +26,36 @@ DeckyUpscaler's sets tested here:
 | No pack | AMD's Lite through the SDK Vulkan DLL, with DeckyUpscaler's memory fix |
 | Exact set | Rewritten shaders; same picture as no pack (`repl_exact`) |
 | Shipped | `fsr4_shaders.bin` + `fsr4_shaders_dot2.bin`: more rewrites, small picture changes. Picture figures are from release v0.2.1 |
+
+## Speed on a Steam Deck
+
+From the [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental), one report, under Proton, moving scene, ms. "AMD Lite" here is AMD's FSR 4.1.2 Lite network and DirectX 12 shaders, run in this project's local test harness, not AMD's own runtime. Lower is faster.
+
+| Build | 1080p | 1440p | 4K |
+|---|---|---|---|
+| AMD Lite | 6.775 | 12.458 | 26.074 |
+| DeckyUpscaler, no pack | 7.135 | 12.327 | 27.695 |
+| DeckyUpscaler, its same-picture changes | 5.917 | 12.154 | 28.113 |
+| **DeckyUpscaler, shipped** | **5.521** | 11.967 | 27.692 |
+| This project, `lt30-test` (`4.1.2l-exact`) | 6.282 | 11.431 | 23.925 |
+| This project, `lt34-test` (`4.1.2l-lossy`) | 5.992 | **10.249** | **21.968** |
+
+- **At 1080p** the shipped set is 19% faster than AMD Lite and 8% faster than `4.1.2l-lossy`, without skipping frames.
+- **Its same-picture changes alone** are 6% faster than `4.1.2l-exact` at 1080p, and level with `4.1.2l-lossy`.
+- **At 1440p and 4K** `4.1.2l-lossy` is 14% and 21% faster than the shipped set, because the shaders only apply up to 1080p.
+
+Where its 1080p gain comes from on this Deck, % against no pack:
+
+| Set | 1080p |
+|---|---|
+| Network pass changes only | -6.2 |
+| Prepass changes only | -5.8 |
+| Postpass changes only | -5.6 |
+| All same-picture changes | -17.1 |
+| Shipped without the `dot2` option | -20.3 |
+| Shipped | -22.6 |
+
+The gain is spread over the three parts and adds up, and the RX 6700 XT under Proton shows the same split. Left out one at a time from the same-picture set, the three that cost most are `q4b` (prepass layout, 2.6% slower without it), `csan2` (1.9%) and the options entry (1.5%). The others are within noise.
 
 ## Speed on RDNA 2 and on a Radeon 780M
 
@@ -118,10 +148,12 @@ Neither is in a release. Other ideas from its notes:
 |---|---|
 | Convolution weights held per wave in scalar registers | Largely here already: a test build of the first network pass gains about 0.5% on RX 6000, and the prepass already loads its weights from fixed addresses |
 | A constant loop count in the last network pass | Already here |
-| Prepass with 2x2 pixels per lane in 64-lane groups, no barrier | Not tried; needs a DXIL version |
+| Prepass with 64-lane groups and 8x4 pixel blocks (`q4b`) | DXIL version being tested. DirectX 12 has no barrier limited to one wave, so this form keeps a workgroup barrier |
+| Color clean-up folded into the readers (`csan2`) | Does not apply: it removes a clean-up pass in DeckyUpscaler's own proxy, and this project's route has no such pass |
+| Options entry: skip the clean-up, drop some small border dispatches | The clean-up part does not apply. Whether the border part can save anything here is being checked, since this project's Lite builds already handle borders differently |
 | f16 products summed in f32 in the prepass | Not tried; changes the picture slightly |
 
-The biggest open question is which of its changes bring its RDNA 2 gain. Timing kit 2026-11-02.7 times parts of its shipped set (`du-x-*`) to answer that.
+Which of its changes bring its gain is now partly answered: see the split under [Speed on a Steam Deck](#speed-on-a-steam-deck). Nothing from that split is in a release here.
 
 Two cautions from its notes also apply here:
 
@@ -130,7 +162,7 @@ Two cautions from its notes also apply here:
 
 ## What would settle more
 
-- **A Steam Deck run** of the [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental), which times `4.1.2l-exact`, `4.1.2l-lossy` and DeckyUpscaler's shipped set together. This is the comparison that matters most.
+- **More Steam Deck runs** of the [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental): the comparison above rests on one report.
 - **Looking at the pictures in motion,** on clips where both projects' builds apply.
 - **More RDNA 2 reports under Proton,** since the result above rests on one.
 
@@ -151,8 +183,8 @@ DeckyUpscaler's author has a Steam Deck and tools this project lacks, and a few 
 
 | Data | How | What it would save or settle |
 |---|---|---|
-| **One [Linux timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental) run on a Deck** | `bash run.sh`, plugged in, Desktop Mode | The comparison of both projects on the chip it targets, which nothing here can measure. Also the first Deck figures for this project's Lite builds under Proton |
-| **Per-pass times on a Deck for no pack, its exact set and its shipped set** | `DU_FSR4_VK_PROFILE`, at 1280x800 and 1920x1080 | Which pass brings its RDNA 2 gain, without waiting for `du-x-*` reports. This project times its own passes only indirectly, by running each twice |
+| **More [Linux timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental) runs on a Deck** | `bash run.sh`, plugged in, Desktop Mode | One Deck report exists; a second would show how far it can be trusted. |
+| **Per-pass times on a Deck for no pack, its exact set and its shipped set** | `DU_FSR4_VK_PROFILE`, at 1280x800 and 1920x1080 | Per-pass times to check the split measured by the kit. This project times its own passes only indirectly, by running each twice |
 | **Gain of each option alone on a Deck, for the current sets** | Its generators with `DU_GEN_OPTS` | Which ideas are worth porting to DirectX 12, so fewer test builds go into kits. Its notes record this across rounds; a single current table would be easiest to compare |
 | **Compiler figures for its passes on Van Gogh** | `RADV_DEBUG=shaders,shaderstats` | Registers, waves and instruction counts on RDNA 2 under RADV, to set beside AMD's Windows compiler figures this project already has. Windows and RADV appear to differ here, and this could show why |
 | **Which of its changes depend on the RADV compiler** | Its judgment | Which ones are unlikely to carry over to Windows, so they can be skipped without a test |
