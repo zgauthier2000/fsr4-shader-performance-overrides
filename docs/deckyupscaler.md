@@ -145,6 +145,22 @@ Open offers to DeckyUpscaler's author.
 | **Run more picture checks** | Game clips, plus this project's synthetic scenes for flicker, rain specks, fine detail and ghosting, at sizes where the shaders apply. |
 | **Share what did not work** | Which ideas were already tried here, on which cards, and what they measured, to save you repeating them. This project's documents are public, and questions about them are welcome. |
 
+## What would help this project
+
+DeckyUpscaler's author has a Steam Deck and tools this project lacks, and a few measurements from them could replace whole rounds of timing kits. None of this is expected, and any part of it helps. Figures from a Deck carry most weight.
+
+| Data | How | What it would save or settle |
+|---|---|---|
+| **One [Linux timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental) run on a Deck** | `bash run.sh`, plugged in, Desktop Mode | The comparison of both projects on the chip it targets, which nothing here can measure. Also the first Deck figures for this project's Lite builds under Proton |
+| **Per-pass times on a Deck for no pack, its exact set and its shipped set** | `DU_FSR4_VK_PROFILE`, at 1280x800 and 1920x1080 | Which pass brings its RDNA 2 gain, without waiting for `du-x-*` reports. This project times its own passes only indirectly, by running each twice |
+| **Gain of each option alone on a Deck, for the current sets** | Its timing script with `DU_GEN_OPTS` | Which ideas are worth porting to DirectX 12, so fewer test builds go into kits. Its notes record this across rounds; a single current table would be easiest to compare |
+| **Compiler figures for its passes on Van Gogh** | `RADV_DEBUG=shaders,shaderstats` | Registers, waves and instruction counts on RDNA 2 under RADV, to set beside AMD's Windows compiler figures this project already has. Windows and RADV appear to differ here, and this could show why |
+| **Which of its changes depend on the RADV compiler** | Its judgment | Which ones are unlikely to carry over to Windows, so they can be skipped without a test |
+| **This project's `4.1.2l-lossy` on its replay and motion tests** | Its `quality.sh` and pan replay, using the DLL from a release | A second picture measure on its captured frames, with the same scoring as its published figures, since the figures on this page use different scenes and scoring |
+| **How it keeps Deck timings steady** | Clock settings, windows, what it discards | Lower noise in this project's handheld figures, so fewer reports are needed to see a small change |
+
+Results can go wherever is easiest. This project's raw game captures stay local, but it can run the same steps on its side if the steps are shared.
+
 ## Licenses
 
 DeckyUpscaler is MIT, and its shaders derive from AMD's SDK under the license in its `shaders/LICENSE-AMD.md`. This project's scripts are GPL v2 or later. DeckyUpscaler's notes say it uses only this project's written documents and has read none of its code. This page shares results and ideas, not code.
