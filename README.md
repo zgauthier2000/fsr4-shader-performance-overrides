@@ -191,8 +191,8 @@ about 3% faster than the release before, same pictures), and gave each build a v
 > than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc.
 >
 > ### Linux timing kit
-> **[Download the Linux and Steam Deck timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.5/fsr4-timing-kit-linux-2026-11-02.5.tar.gz)** (experimental, about 113 MB, version 2026-11-02.5): unpack, and in a terminal in that folder run
-> `bash run.sh`, then wait about 15 minutes. It runs the same tests as the Windows kit under Proton, with Proton from Steam or `umu-run`. On a Steam Deck, use Desktop Mode, plugged in.
+> **[Download the Linux and Steam Deck timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.6/fsr4-timing-kit-linux-2026-11-02.6.tar.gz)** (experimental, about 113 MB, version 2026-11-02.6): unpack, and in a terminal in that folder run
+> `bash run.sh`, choose a Proton if it asks, then wait about 15 minutes. It runs the same tests as the Windows kit under Proton, with Proton from Steam or `umu-run`. On a Steam Deck, use Desktop Mode, plugged in.
 >
 > - New in the kits (2026-11-02.5): **more measuring builds** (`lt87-test` to `lt98-test`).
 > - New in the Windows kit (2026-11-02.3): **four test builds of 4.1.2l-lossy** (`lt83-test` to `lt86-test`), **more measuring builds** (`lt50-test` to `lt82-test`), **eight test builds of 4.1.2l-exact** (`lt17-test` to `lt20-test`, `lt22-test`, `lt30-test`, `lt31-test`, `lt36-test`), **five of 4.1.2l-lossy** (`lt32-test` to `lt35-test`, `lt37-test`) and fifteen measuring builds (`lt25-test` to `lt29-test`, deliberately slower; `lt38-test` to `lt47-test`), not in any release; reports from RX 6000 cards are the ones most wanted.
