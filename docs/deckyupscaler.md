@@ -6,7 +6,7 @@ Last updated: 2026-11-02. Timing kit and picture tables: DeckyUpscaler release v
 
 **In short:** on the first Steam Deck report, under Proton, DeckyUpscaler's shipped set is the fastest build at 1080p, faster than this project's frame-skipping `4.1.2l-lossy`, and with a picture much closer to AMD's. Most RDNA 2 reports show the same, but not all: one RX 6800 family report goes the other way. Above 1080p, where its shaders do not apply, `4.1.2l-lossy` is clearly faster. On RDNA 3, three chips so far, this project's builds are faster at every size tested.
 
-**The limit:** these are one report per chip and one local card. Its shaders run only under Proton, so none of this says anything about Windows.
+**The limit:** these are a few reports per chip and one local card. Its shaders run only under Proton, so none of this says anything about Windows.
 
 ## The two projects at a glance
 
@@ -29,7 +29,7 @@ DeckyUpscaler's sets tested here:
 
 ## Speed on a Steam Deck
 
-From the [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental), one report, under Proton, moving scene, ms. "AMD Lite" here is AMD's FSR 4.1.2 Lite network and DirectX 12 shaders, run in this project's local test harness, not AMD's own runtime. Lower is faster.
+From the [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental), one report (device ID 1435, which the kit lists as a Steam Deck OLED), under Proton, moving scene, ms. "AMD Lite" here is AMD's FSR 4.1.2 Lite network and DirectX 12 shaders, run in this project's local test harness, not AMD's own runtime. Lower is faster.
 
 | Build | 1080p | 1440p | 4K |
 |---|---|---|---|
@@ -44,34 +44,56 @@ From the [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-ste
 - **Its same-picture changes alone** are 6% faster than `4.1.2l-exact` at 1080p, and level with `4.1.2l-lossy`.
 - **At 1440p and 4K** `4.1.2l-lossy` is 14% and 21% faster than the shipped set, because the shaders only apply up to 1080p.
 
-Where its 1080p gain comes from on this Deck, % against no pack:
+The split of that gain, on this Deck and other chips, is under [Where its gain comes from](#where-its-gain-comes-from).
 
-| Set | 1080p |
-|---|---|
-| Network pass changes only | -6.2 |
-| Prepass changes only | -5.8 |
-| Postpass changes only | -5.6 |
-| All same-picture changes | -17.1 |
-| Shipped without the `dot2` option | -20.3 |
-| Shipped | -22.6 |
+## Speed on other chips
 
-The gain is spread over the three parts and adds up, and RDNA 2 reports under Proton show the same split. Most of it does not come from the named options: with none of them it is already -13.9 on this Deck. Left out one at a time from the same-picture set, the three that cost most here are `q4b` (prepass layout, 2.6% slower without it), `csan2` (1.9%) and the options entry (1.5%). Across four chips the options entry is the steadiest, at about 1.5-3%, and `q4b` varies from -3.5% to +2.6%.
+From the same kit, one row per report, all under Proton, moving scene, ms at 1080p / 1440p / 4K. "AMD Lite" here is AMD's FSR 4.1.2 Lite network and DirectX 12 shaders, run in this project's local test harness, not AMD's own runtime. `lt30-test` is `4.1.2l-exact`, `lt34-test` is `4.1.2l-lossy`.
 
-## Speed on RDNA 2 and on a Radeon 780M
+| Chip | AMD Lite | DeckyUpscaler, no pack | DeckyUpscaler, shipped | `lt30-test` | `lt34-test` |
+|---|---|---|---|---|---|
+| RX 6800 family, report 1 | 0.467 / 0.899 / 2.170 | 0.471 / 0.887 / 2.184 | **0.366** / 0.863 / 2.121 | 0.442 / 0.844 / 2.077 | 0.420 / **0.761** / **1.834** |
+| RX 6800 family, report 2 | 0.668 / 1.262 / 2.753 | 0.915 / 1.260 / 2.725 | 0.687 / 1.327 / 2.699 | 0.633 / 1.167 / 2.534 | **0.602** / **1.053** / **2.386** |
+| RX 6700 XT | 0.855 / 1.596 / 3.287 | 0.871 / 1.534 / 3.371 | **0.651** / 1.504 / 3.318 | 0.804 / 1.494 / 3.103 | 0.752 / **1.367** / **2.951** |
+| RX 6600 XT, report 1 | 1.067 / 2.057 / 4.327 | 1.108 / 2.033 / 4.645 | **0.836** / 1.989 / 4.553 | 0.998 / 1.875 / 4.053 | 0.934 / **1.706** / **3.672** |
+| RX 6600 XT, report 2 | 1.159 / 2.216 / 4.577 | 1.195 / 2.110 / 4.788 | **0.906** / 2.044 / 4.659 | 1.077 / 2.055 / 4.283 | 0.999 / **1.857** / **4.015** |
+| Steam Machine (RDNA 3) | 1.458 / 2.737 / 5.420 | 1.918 / 3.284 / 7.048 | 1.586 / 3.263 / 6.916 | 1.320 / 2.483 / 4.943 | **1.187** / **2.158** / **4.446** |
+| Radeon 780M (RDNA 3) | 2.948 / 5.646 / 12.042 | 3.787 / 6.798 / 15.332 | 3.226 / 6.479 / 14.849 | 2.807 / 5.378 / 11.359 | **2.640** / **4.901** / **10.777** |
 
-From the [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental), one report per chip, under Proton, moving scene, ms at 1080p / 1440p / 4K. "AMD Lite" here is AMD's FSR 4.1.2 Lite network and DirectX 12 shaders, run in this project's local test harness, not AMD's own runtime. Lower is faster.
+- **RDNA 2 at 1080p:** on four of the five reports the shipped set is the fastest build, 9-13% ahead of `4.1.2l-lossy`, without skipping frames. On RX 6800 family report 2 it is 14% behind. That report's card is slower overall, so it may be another model in that family; the kit reports one device ID for them.
+- **Above 1080p** `4.1.2l-lossy` is the fastest on every report, since the shipped set is about the same as no pack there.
+- **The no-pack route:** level with AMD Lite on most RDNA 2 reports (RX 6800 family report 2 is the exception, at 1080p only), and 20-37% slower on the RDNA 3 chips here and below.
+- **RDNA 3:** this project's builds are faster at every size, `4.1.2l-exact` included.
 
-| Build | RX 6800 family (RDNA 2) | Radeon 780M (RDNA 3) |
-|---|---|---|
-| AMD Lite | 0.467 / 0.899 / 2.170 | 2.948 / 5.646 / 12.042 |
-| DeckyUpscaler, no pack | 0.471 / 0.887 / 2.184 | 3.787 / 6.798 / 15.332 |
-| **DeckyUpscaler, shipped** | **0.366** / 0.863 / 2.121 | 3.226 / 6.479 / 14.849 |
-| This project, `lt30-test` (`4.1.2l-exact`) | 0.442 / 0.844 / 2.077 | 2.807 / 5.378 / 11.359 |
-| This project, `lt34-test` (`4.1.2l-lossy`) | 0.420 / 0.761 / 1.834 | 2.640 / 4.901 / 10.777 |
+## Where its gain comes from
 
-- **RDNA 2, up to 1080p:** on this report the shipped set is 22% faster than AMD Lite, and about 13% faster than `4.1.2l-lossy`, without skipping frames. A second RX 6800 family report, possibly another model in that family, differs: AMD Lite 0.668, shipped 0.687, `4.1.2l-lossy` 0.602 ms at 1080p. RX 6600 XT and RX 6700 XT reports side with the first: shipped 9-13% faster than `4.1.2l-lossy`.
-- **The no-pack route is mostly not slow on RDNA 2:** it matches AMD Lite on most reports (that second RX 6800 family report is the exception, at 1080p only). The slowdown shows up on three RDNA 3 chips, about 20-32%: RX 7800 XT, Radeon 780M and the Steam Machine.
-- **Above 1080p** the shipped set is about the same as no pack, and `4.1.2l-lossy` is the fastest here.
+1080p, % against no pack, one report per chip, under Proton. All sets here use its generators; the sets without "shipped" keep AMD's picture.
+
+| Set | Steam Deck | Steam Machine | RX 6800, report 2 | RX 6700 XT | RX 6600 XT, report 2 |
+|---|---|---|---|---|---|
+| Prepass changes only | -5.8 | -5.1 | -7.4 | -7.8 | -6.4 |
+| Network pass changes only | -6.2 | -6.0 | -6.6 | -6.7 | -7.7 |
+| Postpass changes only | -5.6 | -5.5 | -6.1 | -6.4 | -9.8 |
+| Same-picture set, no named options | -13.9 | -13.8 | -14.3 | not run | dropped (slow outlier) |
+| Same-picture set | -17.1 | -14.4 | -18.1 | -19.2 | -18.5 |
+| Shipped without `dot2` | -20.3 | -16.1 | -23.0 | -23.8 | -22.6 |
+| Shipped | -22.6 | -17.3 | -24.9 | -25.3 | -24.2 |
+
+**Most of the gain needs none of the named options:** about -14 on the three chips with a clean figure. The three parts add up to about the whole.
+
+Each option left out of the same-picture set, % slower at 1080p (a minus means faster without it):
+
+| Option left out | Steam Deck | Steam Machine | RX 6800, report 2 | RX 6600 XT, report 2 |
+|---|---|---|---|---|
+| `q4b`, prepass layout | +2.6 | +1.9 | +2.1 | -3.5 |
+| `csan2`, color clean-up in the readers | +1.9 | +2.0 | +0.1 | +2.0 |
+| Options entry (skip the clean-up, drop border dispatches) | +1.5 | +2.5 | +3.2 | +3.0 |
+| `ring`, border work folded into passes | +0.3 | +1.6 | +1.9 | -0.2 |
+| `tstore` | +0.2 | +0.6 | +0.1 | dropped (slow outlier) |
+| `recloop` | +0.0 | +1.2 | +0.0 | +0.2 |
+| `pdead` | -0.2 | -0.2 | -0.3 | -0.2 |
+
+Outliers dropped by hand: the RX 6600 XT report's `no named options` (+27.9) and `tstore` left out (+49.6), both far slower than every related set in that report.
 
 ## Speed on the RX 7800 XT
 
@@ -87,7 +109,7 @@ Timing kit under Proton, moving scene, mean of 5 rounds, one session. "AMD Lite"
 | This project, `4.1.2l-lossy-r3` | 0.532 | 0.827 | 1.658 | -15% |
 
 - The shipped set in this table is from before the fix described below. One short run of release v0.2.1 gave about the same: 0.689 ms at 1080p, 2.728 ms at 4K.
-- On this card DeckyUpscaler's shipped set saves 16% at 1080p against its own no-pack route. The no-pack route starts 31% slower than the DirectX 12 shaders. Why is not known; it does not happen on the RDNA 2 report above.
+- On this card DeckyUpscaler's shipped set saves 16% at 1080p against its own no-pack route. The no-pack route starts 31% slower than the DirectX 12 shaders. Why is not known; it does not happen on most RDNA 2 reports above.
 - `4.1.2l-lossy` gets its speed by skipping frames, and pays for it in picture (below). The fair comparison for DeckyUpscaler's shipped set depends on how much picture change you accept.
 
 DeckyUpscaler's own figures on a Steam Deck, not checked here: at 1280x785 on Vulkan, AMD's shaders 3.00 ms, its exact set 2.56 ms, its shipped set about 2.25 ms. For scale only: this project's `4.1.2l-exact` was 16% faster than plain Lite on one Steam Deck report at 1080p, on Windows. Different system, size and scene, so these cannot be set side by side.
@@ -130,7 +152,7 @@ Mostly measured on one RX 7800 XT, offered in case they are useful:
 - **Fixed by its author:** a first test here found a dark strip at the frame's left edge at 1080p with the shipped set, and pictures that differed between runs. The author traced both to the prepass writing past the end of each row at 1920-wide output, reproduced them on a Deck and fixed them the same day. On release v0.2.1 both are gone here: two runs are identical on all four clips.
 - **The Vulkan route's picture differs a little from the DirectX 12 route's** at 51-57 dB on the 4K clips, about the same distance from full FSR 4.1.1.
 - **The packs change nothing above 1080p:** the larger size classes use other shader modules. This matters for a Deck on an external display or for other chips.
-- **Its route is slower on RDNA 3 only, so far:** no pack is 20-31% slower than the DirectX 12 shaders on the RX 7800 XT and a Radeon 780M, and level on RDNA 2. A chip it was not tuned for may be worth a look if it ever targets them.
+- **Its route is slower on RDNA 3, so far:** no pack is 20-37% slower than the DirectX 12 shaders on the RX 7800 XT, a Radeon 780M and the Steam Machine, and mostly level on RDNA 2. A chip it was not tuned for may be worth a look if it ever targets them.
 - **An independent test bed:** DeckyUpscaler's drop-in DLL runs in this project's [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental), included with its author's permission, so a run on a Deck times both projects on the same scene.
 
 ## What this project may try from DeckyUpscaler
@@ -148,12 +170,12 @@ Neither is in a release. Other ideas from its notes:
 |---|---|
 | Convolution weights held per wave in scalar registers | Largely here already: a test build of the first network pass gains about 0.5% on RX 6000, and the prepass already loads its weights from fixed addresses |
 | A constant loop count in the last network pass | Already here |
-| Prepass with 64-lane groups and 8x4 pixel blocks (`q4b`) | DXIL version being tested. DirectX 12 has no barrier limited to one wave, so this form keeps a workgroup barrier |
+| Prepass with 64-lane groups and 8x4 pixel blocks (`q4b`) | DXIL version built, same picture as the builds it replaces (48 of 48 comparisons). DirectX 12 has no barrier limited to one wave, so it keeps a workgroup barrier. On the RX 7800 XT under Proton it is slower: +0.9 / +1.8 / +2.4% at 1080p / 1440p / 4K on `4.1.2l-exact`, 8-12 runs, one session. Not yet tried on RDNA 2 |
 | Color clean-up folded into the readers (`csan2`) | Does not apply: it removes a clean-up pass in DeckyUpscaler's own proxy, and this project's route has no such pass |
 | Options entry: skip the clean-up, drop some small border dispatches | The clean-up part does not apply. Whether the border part can save anything here is being checked, since this project's Lite builds already handle borders differently |
 | f16 products summed in f32 in the prepass | Not tried; changes the picture slightly |
 
-Which of its changes bring its gain is now partly answered: see the split under [Speed on a Steam Deck](#speed-on-a-steam-deck). Nothing from that split is in a release here.
+Which of its changes bring its gain is now partly answered: see [Where its gain comes from](#where-its-gain-comes-from). Nothing from that split is in a release here.
 
 Two cautions from its notes also apply here:
 
@@ -164,7 +186,7 @@ Two cautions from its notes also apply here:
 
 - **More Steam Deck runs** of the [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-steam-deck-experimental): the comparison above rests on one report.
 - **Looking at the pictures in motion,** on clips where both projects' builds apply.
-- **More RDNA 2 reports under Proton,** since the result above rests on one.
+- **More RX 6800 family reports under Proton,** with the exact model named, since two reports disagree.
 
 ## Ways this project can help
 
