@@ -190,6 +190,7 @@ about 3% faster than the release before, same pictures), and gave each build a v
 > builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
 > than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc.
 >
+> ### Linux timing kit
 > **[Download the Linux and Steam Deck timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.5/fsr4-timing-kit-linux-2026-11-02.5.tar.gz)** (experimental, about 113 MB, version 2026-11-02.5): unpack, and in a terminal in that folder run
 > `bash run.sh`, then wait about 15 minutes. It runs the same tests as the Windows kit under Proton, with Proton from Steam or `umu-run`. On a Steam Deck, use Desktop Mode, plugged in.
 >
