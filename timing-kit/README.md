@@ -31,7 +31,11 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Windows kit version 2026-11-02.2** (download again if you have an earlier one):
+**Windows kit version 2026-11-02.3** (download again if you have an earlier one):
+
+- **`lt83-test` to `lt86-test`:** four test builds of 4.1.2l-lossy, not in any release: three with small picture changes that might make it faster, and their reference.
+
+**Windows kit version 2026-11-02.2:**
 
 - **`lt70-test` to `lt82-test`:** thirteen measuring builds, never for a game or a release: they continue the look at why one lossy method costs more on RX 6000 cards. `lt51-test`, `lt54-test` to `lt56-test` and `lt59-test` to `lt67-test` are removed. Reports from RX 6000 cards are the ones most wanted.
 
@@ -317,7 +321,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-10-30.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.2/fsr4-timing-kit-windows-2026-11-02.2.zip) (about 76 MB, version 2026-11-02.2; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-10-30.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.3/fsr4-timing-kit-windows-2026-11-02.3.zip) (about 83 MB, version 2026-11-02.3; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
@@ -330,6 +334,8 @@ The summary and `results-raw.txt` are saved in the unpacked folder. It runs the 
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
 Kits up to version 2026-10-25.2 also had a study run for RDNA2 and RDNA3 (`run-study.cmd`); version 2026-10-28 has none.
+
+**New in version 2026-11-02.3:** `lt83-test` to `lt86-test`.
 
 **New in version 2026-11-02.2:** `lt70-test` to `lt82-test`.
 
