@@ -7,6 +7,10 @@ reports from graphics cards the author does not own, videos of things that look 
 side-by-side comparisons in games have found most of what the releases since the first one fixed.
 Every report is a valued part of this project, including the many sent without a name.
 
+## Other projects
+
+- **[DeckyUpscaler](https://github.com/doodlum/DeckyUpscaler), by doodlum.** Its author invited this project to look at the work and use what helps, published the shaders and notes behind it, and allowed its builds in the Linux timing kit. See [what we found](deckyupscaler.md).
+
 ## Testers who asked to be named
 
 The timing kits (version 2026-10-11.3 and later) ask, after you choose to send your result, whether

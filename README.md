@@ -191,6 +191,7 @@ about 3% faster than the release before, same pictures), and gave each build a v
 > than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc. On Linux and the Steam Deck:
 > [the Linux kit](timing-kit).
 >
+> - New: a [Linux and Steam Deck kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.4/fsr4-timing-kit-linux-2026-11-02.4.tar.gz) (about 115 MB) that runs the same tests as the Windows kit under Proton.
 > - New in the Windows kit (2026-11-02.3): **four test builds of 4.1.2l-lossy** (`lt83-test` to `lt86-test`), **more measuring builds** (`lt50-test` to `lt82-test`), **eight test builds of 4.1.2l-exact** (`lt17-test` to `lt20-test`, `lt22-test`, `lt30-test`, `lt31-test`, `lt36-test`), **five of 4.1.2l-lossy** (`lt32-test` to `lt35-test`, `lt37-test`) and fifteen measuring builds (`lt25-test` to `lt29-test`, deliberately slower; `lt38-test` to `lt47-test`), not in any release; reports from RX 6000 cards are the ones most wanted.
 > - New in the Windows kit (2026-10-29.2): **this release's own DLLs** for your kind of graphics (exact, lossy, 4.1.2l-exact, 4.1.2l-lossy), timed
 >   against AMD's own FSR 4.1.2 for your graphics and FSR 4.1.2 Lite, with fewer DLLs so each gets more rounds. It is best run with the
@@ -324,6 +325,8 @@ The scripts are licensed under the GNU GPL v2 or later, like the project they de
 [LICENSE](LICENSE). The prebuilt shaders are modified versions of AMD's, distributed under the same
 license together with AMD's notice; see [`prebuilt/NOTICE.md`](prebuilt/NOTICE.md). Not affiliated
 with or endorsed by AMD.
+
+[DeckyUpscaler](https://github.com/doodlum/DeckyUpscaler), by doodlum, runs FSR 4 Lite on the Steam Deck. Its author invited this project to learn from it, fixed a fault this project reported, and allowed its builds in the Linux timing kit; see [what we found](docs/deckyupscaler.md).
 
 Testers who have asked to be named are listed on the [thank-you page](docs/thanks.md).
 

@@ -19,8 +19,7 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   what people measure and send in.
 - **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait about 15 minutes
   (it uses the time for repeat rounds; a slow or integrated chip may take up to about 25).
-  On Linux or a Steam Deck in desktop mode, the Linux kit described below: one command, about 15 minutes on an RX 7800 XT, or a
-  minute or two for the short run.
+  On Linux or a Steam Deck in desktop mode, [the Linux kit](#linux-and-steam-deck-experimental): one command, about 15 minutes.
 - **The output check of the model passes now means something (kit 2026-10-10.1).** Earlier kits filled the small buffer that
   holds each pass's output scales and offsets with random bytes. That drove nearly every output to its limits, so a pass with
   different arithmetic still wrote the same bytes and was reported as identical. The kit now carries that buffer as FSR 4 fills
@@ -319,9 +318,19 @@ Tester reports so far are one number per build: the upscaler time a game's overl
 says whether a build is faster, not which pass made it so. This measures every pass separately,
 on the same inputs on every machine, so results from different GPUs can be compared.
 
+## Linux and Steam Deck (experimental)
+
+[`fsr4-timing-kit-linux-2026-11-02.4.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.4/fsr4-timing-kit-linux-2026-11-02.4.tar.gz) (about 115 MB, version 2026-11-02.4): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
+
+It runs the Windows kit's program and test DLLs under Proton, and sends the same kind of report, marked as Wine/Proton. It needs Proton from Steam (Proton Experimental works) or `umu-run`, and installs nothing: its Wine prefix and results stay in the folder. Figures under Proton are not Windows figures: the drivers differ.
+
+It also times [DeckyUpscaler](https://github.com/doodlum/DeckyUpscaler), a Steam Deck plugin by doodlum, included with its author's permission: `du-shipped` is its release v0.2.1, `du-nopack` the same code with no replacement shaders. See [what we found](../docs/deckyupscaler.md).
+
+The sections from [What you need](#what-you-need) on describe the older pass-by-pass Linux kit, last released in version 2026-10-15. It is still available from that release.
+
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-10-30.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.3/fsr4-timing-kit-windows-2026-11-02.3.zip) (about 83 MB, version 2026-11-02.3; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-11-02.3.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.3/fsr4-timing-kit-windows-2026-11-02.3.zip) (about 83 MB, version 2026-11-02.3; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.

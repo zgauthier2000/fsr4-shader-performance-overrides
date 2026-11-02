@@ -69,7 +69,7 @@
 #define TIMED 200
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
 #define MAXROUNDS 8
-#define MAXDLLS 48     // DLLs in one run (pack + tester folders); a study run has 16 (RDNA2) or 18 (RDNA3)
+#define MAXDLLS 64     // DLLs in one run (pack + tester folders); a study run has 16 (RDNA2) or 18 (RDNA3)
 #define MAXROWS 1024   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
 #define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
 #define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL:
@@ -1611,7 +1611,8 @@ int main(int argc, char** argv) {
             if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) ref = &rows[j];
         if (i == 0 || strcmp(rows[i - 1].name, w->name)) ADD("%s [%s]\n", w->name, w->ver);
         ADD("  %-12s %-6s %.3f", w->size, w->scene, Val(w));
-        if (w->even > 1.25 * w->odd || w->odd > 1.25 * w->even) ADD(" (%.3f / %.3f)", w->even > w->odd ? w->even : w->odd, w->even > w->odd ? w->odd : w->even);
+        if (!strncmp(w->name, "lt5", 3) || !strncmp(w->name, "lt6", 3) || !strncmp(w->name, "lt7", 3) || !strncmp(w->name, "lt8", 3)) ADD(" (%.3f / %.3f)", w->even, w->odd);      // (2026-11-02) measuring builds: both kinds of frame, always, jitter x >= 0 first
+            else if (w->even > 1.25 * w->odd || w->odd > 1.25 * w->even) ADD(" (%.3f / %.3f)", w->even > w->odd ? w->even : w->odd, w->even > w->odd ? w->odd : w->even);
         if (ref && ref != w) {
             ADD("  %+.0f%%", 100.0 * Val(w) / Val(ref) - 100.0);
         }
