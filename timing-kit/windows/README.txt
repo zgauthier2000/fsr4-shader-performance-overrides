@@ -119,6 +119,9 @@ What it does
                        test builds of 4.1.2l-lossy, not in any release, with the same picture as lt86: lt102 changes
                        how pixels are grouped in the step before the network, lt103 uses integer maths in more of
                        the step after it, lt104 does both.
+  dlls\lt105-test to lt112-test
+                       more measuring builds of lt37's method, never for a game or a release: they look at what
+                       still costs time in lt101. Their pictures are not meant to look right: expected in this test.
   dlls\lt83-test, lt84-test, lt85-test, lt86-test
                        test builds of 4.1.2l-lossy, not in any release: lt83 rounds differently in the network,
                        lt84 reads the history in one step instead of nine, lt85 does both. Their pictures differ
@@ -128,7 +131,7 @@ What it does
                        release: each runs one step twice (lt25 the step before the network, lt26, lt27, lt28 its
                        three steps, lt29 the step after it), with the same picture. The extra time shows how
                        long that step takes on your card.
-  Apart from lt17 to lt104, these are the DLLs of release dll-2026-10-29, with their real weights: the
+  Apart from lt17 to lt112, these are the DLLs of release dll-2026-10-29, with their real weights: the
   picture lines show whether each gives the picture it should.
 
   To time another FSR 4.1.1 DLL as well, and to see whether it gives the same picture as one of

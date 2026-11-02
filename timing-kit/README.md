@@ -30,7 +30,11 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Kits version 2026-11-02.8** (download again if you have an earlier one):
+**Windows kit version 2026-11-02.11** (download again if you have an earlier one):
+
+- **`lt105-test` to `lt112-test`:** eight measuring builds, never for a game or a release: they look at what still costs time in one lossy method on RX 6000 cards. Builds that have answered their questions are removed. Reports from RX 6000 cards and handhelds are the ones most wanted.
+
+**Kits version 2026-11-02.8:**
 
 - **`lt99-test` to `lt104-test`:** six test builds, not in any release. Reports from RX 6000 cards are the ones most wanted.
 
@@ -338,7 +342,7 @@ The sections from [What you need](#what-you-need) on describe the older pass-by-
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-11-02.8.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.8/fsr4-timing-kit-windows-2026-11-02.8.zip) (about 100 MB, version 2026-11-02.8; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-11-02.11.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.11/fsr4-timing-kit-windows-2026-11-02.11.zip) (about 84 MB, version 2026-11-02.11; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
@@ -351,6 +355,8 @@ The summary and `results-raw.txt` are saved in the unpacked folder. It runs the 
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
 Kits up to version 2026-10-25.2 also had a study run for RDNA2 and RDNA3 (`run-study.cmd`); version 2026-10-28 has none.
+
+**New in version 2026-11-02.11:** `lt105-test` to `lt112-test`.
 
 **New in version 2026-11-02.8:** `lt99-test` to `lt104-test`.
 
