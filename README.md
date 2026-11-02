@@ -293,6 +293,7 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 | [How it works](docs/how-it-works.md) | what the rewrites do, where the time goes, what else was tried |
 | [Exact and lossy compared](docs/exact-vs-lossy.md) | what the older lossy build changes in the picture, with measurements and crops (today's lossy: its `WARNING.txt` and [the lossy2 notes](research/lossy2/README.md)) |
 | [Lossy (lossy2) beside FSR 4.1.2 Lite, FSR 3.1, HelixSR and XeSS](docs/upscaler-comparison.md) | six upscalers on the same test scenes and timing, for comparison |
+| [DeckyUpscaler](docs/deckyupscaler.md) | a first look at another FSR 4 Lite project, for the Steam Deck: speed and picture on one RX 7800 XT, and what each project could use |
 | [Frame pacing with the lossy builds](docs/frame-pacing.md) | what the alternating upscaler time means for frame caps, V-Sync, latency and overlay readings |
 | [RDNA4](docs/rdna4.md) | what is known about the FP8 model on RX 9000 cards; open for anyone who can test on one |
 | [Release pages](docs/releases/README.md) | each release against the one before it, in pictures and figures |
