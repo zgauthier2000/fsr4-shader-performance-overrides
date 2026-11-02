@@ -119,6 +119,10 @@ What it does
                        test builds of 4.1.2l-lossy, not in any release, with the same picture as lt86: lt102 changes
                        how pixels are grouped in the step before the network, lt103 uses integer maths in more of
                        the step after it, lt104 does both.
+  dlls\lt115-test, lt116-test, lt117-test, lt118-test
+                       test builds of 4.1.2l, not in any release, with faster code: lt115 has lt20's picture, lt116
+                       has lt34's, lt117 has lt113's, and lt118 is lt101 with the same changes (its picture can
+                       differ a little between runs: expected in this test).
   dlls\lt113-test, lt114-test
                        two more measuring builds, never for a game or a release: they separate parts of what
                        still costs time in lt101. Their pictures are not meant to look right: expected in this test.

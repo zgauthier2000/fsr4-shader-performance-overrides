@@ -30,7 +30,11 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Windows kit version 2026-11-02.12** (download again if you have an earlier one):
+**Kits version 2026-11-02.13** (download again if you have an earlier one):
+
+- **`lt115-test` to `lt118-test`:** four test builds with faster code, not in any release. Three keep the picture of the build they are compared with; `lt118-test` is the tiled form. Reports from RX 6000 cards, and from a Steam Deck on the Linux kit, are the ones most wanted.
+
+**Windows kit version 2026-11-02.12:**
 
 - **`lt113-test`, `lt114-test`:** two measuring builds, never for a game or a release: they separate two parts of what still costs time in one lossy method on RX 6000 cards. Reports from RX 6000 cards and handhelds are the ones most wanted.
 
@@ -336,7 +340,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Linux and Steam Deck (experimental)
 
-[`fsr4-timing-kit-linux-2026-11-02.10.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.10/fsr4-timing-kit-linux-2026-11-02.10.tar.gz) (about 105 MB, version 2026-11-02.10): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
+[`fsr4-timing-kit-linux-2026-11-02.13.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.13/fsr4-timing-kit-linux-2026-11-02.13.tar.gz) (about 123 MB, version 2026-11-02.13): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
 
 It runs the Windows kit's program and test DLLs under Proton, and sends the same kind of report, marked as Wine/Proton. It lists the Protons it finds and asks which to use, and the report names the one used. CachyOS Proton builds did not start the kit in testing, so use another for now. It needs Proton from Steam (Proton Experimental works), a system-installed Proton or `umu-run`, and installs nothing: its Wine prefix and results stay in the folder. Figures under Proton are not Windows figures: the drivers differ.
 
@@ -346,7 +350,7 @@ The sections from [What you need](#what-you-need) on describe the older pass-by-
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-11-02.12.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.12/fsr4-timing-kit-windows-2026-11-02.12.zip) (about 93 MB, version 2026-11-02.12; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-11-02.13.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.13/fsr4-timing-kit-windows-2026-11-02.13.zip) (about 106 MB, version 2026-11-02.13; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
@@ -359,6 +363,8 @@ The summary and `results-raw.txt` are saved in the unpacked folder. It runs the 
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
 Kits up to version 2026-10-25.2 also had a study run for RDNA2 and RDNA3 (`run-study.cmd`); version 2026-10-28 has none.
+
+**New in version 2026-11-02.13:** `lt115-test` to `lt118-test`.
 
 **New in version 2026-11-02.12:** `lt113-test`, `lt114-test`.
 
