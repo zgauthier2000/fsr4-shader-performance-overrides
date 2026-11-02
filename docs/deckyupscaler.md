@@ -69,7 +69,7 @@ From the [Linux and Steam Deck timing kit](../timing-kit/README.md#linux-and-ste
 | This project, `lt30-test` (`4.1.2l-exact`) | 0.442 / 0.844 / 2.077 | 2.807 / 5.378 / 11.359 |
 | This project, `lt34-test` (`4.1.2l-lossy`) | 0.420 / 0.761 / 1.834 | 2.640 / 4.901 / 10.777 |
 
-- **RDNA 2, up to 1080p:** on this report the shipped set is 22% faster than AMD Lite, and about 13% faster than `4.1.2l-lossy`, without skipping frames. A second RX 6800 family report, possibly another model in that family, differs: AMD Lite 0.668, shipped 0.687, `4.1.2l-lossy` 0.602 ms at 1080p. RX 6600 XT and RX 6700 XT reports side with the first: shipped 7-13% faster than `4.1.2l-lossy`.
+- **RDNA 2, up to 1080p:** on this report the shipped set is 22% faster than AMD Lite, and about 13% faster than `4.1.2l-lossy`, without skipping frames. A second RX 6800 family report, possibly another model in that family, differs: AMD Lite 0.668, shipped 0.687, `4.1.2l-lossy` 0.602 ms at 1080p. RX 6600 XT and RX 6700 XT reports side with the first: shipped 9-13% faster than `4.1.2l-lossy`.
 - **The no-pack route is mostly not slow on RDNA 2:** it matches AMD Lite on most reports (that second RX 6800 family report is the exception, at 1080p only). The slowdown shows up on three RDNA 3 chips, about 20-32%: RX 7800 XT, Radeon 780M and the Steam Machine.
 - **Above 1080p** the shipped set is about the same as no pack, and `4.1.2l-lossy` is the fastest here.
 
