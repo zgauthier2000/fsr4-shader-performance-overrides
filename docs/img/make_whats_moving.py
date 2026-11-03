@@ -30,11 +30,11 @@ def wrap(body, H, label, t):
     return [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(label)}">', f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>'] + body + ['</svg>']
 
 
-NOW = (('Lossy builds on RX 6000', 'Spreading the work evenly across each frame', 'cause found, cost left', 'Timing kit reports: RX 6000 cards'),
-       ('Exact builds', "More speed, picture still AMD's, byte for byte", 'needs Windows timing', 'Timing kit reports: RX 7000 cards'),
-       ('Small and handheld chips', 'Changes must help at 1080p and 1440p', 'few reports so far', 'Timing kit reports: handhelds and built-in graphics'),
+NOW = (('Lossy builds on RX 6000', 'Spreading the work evenly across each frame', 'cost narrowed down', 'Timing kit reports: RX 6000 cards'),
+       ('Exact builds', "More speed, picture still AMD's, byte for byte", 'new speedups to time', 'Timing kit reports: RX 6000 and RX 7000 cards'),
+       ('Small and handheld chips', 'Sizes between 1080p and 4K, and 800p', '800p not in the kit yet', 'Timing kit reports: handhelds and built-in graphics'),
        ('Lossy picture quality', 'Judged on clips recorded from real games', 'needs examples', 'Games and scenes where a lossy build looks wrong'),
-       ('Ideas from DeckyUpscaler', 'Which of its speedups help which cards', 'splitting its parts', 'Timing kit reports: Steam Deck, RX 6000 on Linux'))
+       ('Ideas from DeckyUpscaler', 'Which of its speedups help which cards', 'Windows not measured', 'Timing kit reports: Steam Deck and Windows cards'))
 
 
 def now(t):
