@@ -76,7 +76,7 @@ if [[ ! -s $work/candidates ]]; then
 fi
 
 mkdir -p "$out"
-built=0
+built=0; noshare=0
 while read -r kind hash; do
     spirv-dis "$dump/$hash.spv" -o "$work/$hash.spvasm"
     if [[ $kind == model ]]; then
@@ -124,14 +124,20 @@ while read -r kind hash; do
     if [[ $kind == postpass && ${SHARE:-1} == 1 ]]; then
         # SHARE=1 (the default since release dll-2026-10-15; SHARE=0 as before): each thread fetches and converts its color taps once (postpass_sharetaps.py, on the finished file)
         spirv-dis "$work/$hash.spv" -o "$work/$hash.sh.spvasm"
-        python3 "$here/postpass_sharetaps.py" "$work/$hash.sh.spvasm" "$work/$hash.sh2.spvasm" >/dev/null || { echo "FAILED $hash: shared taps"; exit 1; }
-        spirv-as --target-env vulkan1.1 "$work/$hash.sh2.spvasm" -o "$work/$hash.spv"
-        spirv-val --target-env vulkan1.1 "$work/$hash.spv"
+        # a shader whose structure the tool does not recognize keeps the postpass built above (exact too, without shared taps) and is counted
+        if python3 "$here/postpass_sharetaps.py" "$work/$hash.sh.spvasm" "$work/$hash.sh2.spvasm" >/dev/null 2>"$work/$hash.sh.err"; then
+            spirv-as --target-env vulkan1.1 "$work/$hash.sh2.spvasm" -o "$work/$hash.spv"
+            spirv-val --target-env vulkan1.1 "$work/$hash.spv"
+        else
+            echo "note: $hash (postpass): shared taps not applied ($(tail -1 "$work/$hash.sh.err")); built without them"
+            noshare=$((noshare + 1))
+        fi
     fi
     cp "$work/$hash.spv" "$out/$hash.spv"
     echo "$out/$hash.spv ($kind)"
     built=$((built + 1))
 done < "$work/candidates"
+[[ ${noshare:-0} -gt 0 ]] && echo "$noshare postpass shader(s) built without shared taps (see the notes above)"
 [[ $built -gt 0 ]] || exit 1
 echo
 echo "Launch option:  VKD3D_SHADER_OVERRIDE='Z:$out' %command%"

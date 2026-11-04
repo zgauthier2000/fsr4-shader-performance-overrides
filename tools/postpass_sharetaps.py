@@ -24,13 +24,15 @@ for i, l in enumerate(L):
         uses.setdefault(t, []).append(i)
 
 def color_image(img):
-    # OpLoad <- AccessChain table (registers[2] + 3)
+    # OpLoad <- AccessChain table (registers[m] + 3): returns the %registers member m, else None. vkd3d-proton puts the
+    # table offset in member 2 for most games but in member 3 for some (Crimson Desert, issue #48), so m is read from the shader.
     t = tok(img)
-    if t[2] != 'OpLoad': return False
+    if t[2] != 'OpLoad': return None
     ac = tok(t[4]); idx = ac[-1]
-    if op(idx) != 'OpIAdd' or tok(idx)[-1] != '%uint_3': return False
+    if op(idx) != 'OpIAdd' or tok(idx)[-1] != '%uint_3': return None
     base = tok(idx)[4]
-    return op(base) == 'OpLoad' and tok(tok(base)[4])[-1] == '%uint_2' and '%registers' in L[defs[tok(base)[4]]]
+    if op(base) != 'OpLoad' or '%registers' not in L[defs[tok(base)[4]]]: return None
+    return tok(tok(base)[4])[-1]
 
 def clamp_parts(v):
     # SMin(SMax(c + d, 0), lim) -> (c, d, lim)
@@ -65,8 +67,15 @@ def slice_of(f, F0):
         parts = tuple(S[y] if y in S else ('EXT', canon(y, F0)) if y.startswith('%') else y for y in t[4:])
         S[t[0]] = (t[2], t[3]) + parts; order.append(t[0])
     return S, order
-fetches = [i for i, l in enumerate(L) if re.match(r'\s*%\S+ = OpImageFetch %v4float', l) and color_image(l.split()[4])]
-assert len(fetches) == 36, len(fetches)
+cand = {}
+for i, l in enumerate(L):
+    if re.match(r'\s*%\S+ = OpImageFetch %v4float', l):
+        m = color_image(l.split()[4])
+        if m: cand.setdefault(m, []).append(i)
+# the color input is the table whose fetches number exactly 36 (4 sections x 9 taps)
+hits = [m for m in cand if len(cand[m]) == 36]
+assert len(hits) == 1, {m: len(v) for m, v in cand.items()}
+fetches = cand[hits[0]]
 F0 = fetches[0]
 secs = []
 for s in range(4):
