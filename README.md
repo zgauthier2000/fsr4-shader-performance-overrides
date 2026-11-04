@@ -173,7 +173,7 @@ More games and resolutions: [all results](docs/results.md).
 > | RX 7000 | 8% / 11% / 9% | 5% / 6% / 5% |
 > | RX 6000 | 2% / 2% / 2% | 5% / 4% / 3% |
 >
-> **What got worse:** on this project's RX 7800 XT under Linux, `4.1.2l-lossy` renders 0.9% fewer frames in Shadow of the Tomb Raider's benchmark (19,887 against 20,070, four runs), where the Windows reports gain. **Not measured:** GeForce and Intel Arc; the Steam Deck.
+> **What got worse:** on this project's RX 7800 XT under Linux, `4.1.2l-lossy` renders 0.9% fewer frames in Shadow of the Tomb Raider's benchmark (19,887 against 20,070, four runs), where the Windows reports gain. **Not measured:** GeForce and Intel Arc. **Steam Deck** (8 timing-kit reports read since, Windows and Linux, moving scene): `4.1.2l-lossy` takes about the same time as in `dll-2026-10-29` at 1080p (2% less to 1% more), 3% less at 1440p and 2% less at 4K, and 11% / 19% / 16% less than AMD's Lite at 1080p / 1440p / 4K; the Steam Deck's `4.1.2l-exact` (its own form, see the [release page](docs/releases/dll-2026-11-01.md)) is not in those reports.
 >
 > Against AMD's Lite: `4.1.2l-lossy` saves mostly 12 to 25% on Windows at the sizes reported; `4.1.2l-exact` 4 to 17%. [Everything that changed](docs/releases/dll-2026-11-01.md).
 
