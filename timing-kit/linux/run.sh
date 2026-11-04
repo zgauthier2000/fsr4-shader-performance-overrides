@@ -33,6 +33,8 @@ if [ -z "$P" ]; then
 fi
 if [ -z "$P" ] && ! command -v umu-run >/dev/null; then echo "No Proton found. Install Proton in Steam (Library, search for Proton Experimental), or set FSR4_PROTON=/path/to/a/Proton/folder."; exit 1; fi
 [ -z "$P" ] || [ -x "$P/proton" ] || { echo "No proton program in $P."; exit 1; }
+# the record of tests already run stays when a new kit replaces this folder (its Wine prefix goes with the folder)
+ST="${XDG_DATA_HOME:-$HOME/.local/share}/fsr4-timing-kit"; mkdir -p "$ST" && export FSR4_STATE_DIR="Z:$(printf %s "$ST" | tr / '\\')"
 export FSR4_PROTON_NAME="${P:+$(basename "$P")}"; [ -n "$FSR4_PROTON_NAME" ] || FSR4_PROTON_NAME="umu-run default"      # goes in the report
 if command -v umu-run >/dev/null; then
     [ -n "$P" ] && export PROTONPATH=$P

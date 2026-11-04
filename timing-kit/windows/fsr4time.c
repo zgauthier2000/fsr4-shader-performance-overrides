@@ -58,6 +58,8 @@
 #include "zstd.h"      // zstd/: the decompression part of Zstandard 1.5.7, for the DLL pack
 #include "miniz.h"     // miniz/: miniz 3.0.2 (MIT), to take D3D12Core.dll out of Microsoft's Agility SDK package (Windows 10, see GetAgility)
 #include <bcrypt.h>
+#include "tweetnacl/tweetnacl.h"      // tweetnacl/: TweetNaCl 20140427 (public domain): the channel's Ed25519 signature, the downloaded pack's encoding
+#include "kitkeys.h"      // made by the project's mkkeys.py, not in the repo: the public signing key, and the pack encoding key in two parts
 #include "ffx_api_loader.h"
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
@@ -71,6 +73,7 @@
 #define MAXROUNDS 8
 #define MAXDLLS 100     // DLLs in one run (pack + tester folders); a study run has 16 (RDNA2) or 18 (RDNA3)
 #define MAXROWS 1600   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
+#define MAXKEPT 28     // runs a row can hold (an all-nighter: up to its 24 rounds)
 #define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
 #define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL:
                               // the limit until a first run has finished on this PC; after that RUN_LIMIT_TIMES x the longest finished run,
@@ -507,7 +510,17 @@ static void CreateDevice(char* gpu, size_t gpu_len) {
 // occupancy effect a game showed (2026-10-11). Only the Lite test builds lt14 / lt15 / lt16 get such a second entry.
 #define BUSY_BYTES (192ull << 20)      // larger than the biggest Infinity Cache of RX 6000 / RX 7000 cards (128 MB)
 static bool busy = false;
-static bool BusyTwin(const char* name) { return !strcmp(name, "lt14-test") || !strcmp(name, "lt15-test") || !strcmp(name, "lt16-test"); }
+static char chan_busy[1024], chan_both[1024], chan_passes[1024];      // from the signed channel file of a downloaded pack: comma lists (see fsr4update.inc)
+static bool InList(const char* name, const char* list, bool prefix) {
+    for (const char* l = list; *l; ) {
+        const char* e = strchr(l, ','); const size_t n = e ? (size_t)(e - l) : strlen(l);
+        if (n && !strncmp(name, l, n) && (prefix || !name[n])) return true;
+        l = e ? e + 1 : l + n;
+    }
+    return false;
+}
+static bool BusyTwin(const char* name) { return chan_busy[0] ? InList(name, chan_busy, false) : !strcmp(name, "lt14-test") || !strcmp(name, "lt15-test") || !strcmp(name, "lt16-test"); }
+static bool BothTimes(const char* name) { return chan_both[0] ? InList(name, chan_both, true) : !strncmp(name, "lt5", 3) || !strncmp(name, "lt6", 3) || !strncmp(name, "lt7", 3) || !strncmp(name, "lt8", 3) || !strncmp(name, "lt9", 3) || !strncmp(name, "lt10", 4); }
 static bool all_presets = false;      // --all-presets: Quality and Performance sizes too (passed on to each DLL's run as "all")
 // Quality / Performance render size and jitter steps for an output, as AMD's loader reports them (the query FSR offers a game); if the
 // query fails, FSR's own formula (output / ratio, rounded down; 8 x ratio^2 steps)
@@ -523,6 +536,37 @@ static void PresetSize(ffxFunctions* fx, uint32_t ow, uint32_t oh, uint32_t mode
     if (n > PHASES) n = PHASES;
     *rw = w; *rh = h; *phases = n;
 }
+// ---- per-pass timing (2026-11-02; FSR4TIME_PASSES=1, set by --passes and the all-nighter for a run of its own): a GPU timestamp before and after every dispatch the DLL records, by replacing Dispatch and
+// SetPipelineState in the command list's table. Moving scene, Balanced only. Lines T|name|size|even or odd frame|dispatch number|pipeline number|frames|groups x|y|z|mean us of the dispatch|mean us from its end to the next one's start. No R lines: the timestamps may disturb the totals.
+#define PT_MAX 48
+static bool pt_mode = false, pt_on = false; static int pt_n = 0, pt_cur = -1, pt_npipes = 0; static void* pt_pipes[64]; static ID3D12QueryHeap* pt_qh;
+static struct { int pipe; UINT x, y, z; } pt_d[PT_MAX];
+typedef void (STDMETHODCALLTYPE* PtDispatchFn)(ID3D12GraphicsCommandList*, UINT, UINT, UINT);
+typedef void (STDMETHODCALLTYPE* PtPipeFn)(ID3D12GraphicsCommandList*, ID3D12PipelineState*);
+static PtDispatchFn pt_real_dispatch; static PtPipeFn pt_real_pipe;
+// FSR4TIME_DROP="<dispatch numbers>" (2026-11-02; a measuring switch, for this project's own runs): those dispatches of each frame are not recorded, nor the barriers right after them: what would dropping them from the DLL gain, and does the picture change?
+static char pt_drop[256]; static int pt_i = 0; static bool pt_after_drop = false; typedef void (STDMETHODCALLTYPE* PtBarrierFn)(ID3D12GraphicsCommandList*, UINT, const D3D12_RESOURCE_BARRIER*); static PtBarrierFn pt_real_barrier;
+static void STDMETHODCALLTYPE PtBarrier(ID3D12GraphicsCommandList* l, UINT n, const D3D12_RESOURCE_BARRIER* b) { if (pt_after_drop) { bool allu = true; for (UINT i = 0; i < n; ++i) allu = allu && b[i].Type == D3D12_RESOURCE_BARRIER_TYPE_UAV; if (allu) return; } pt_real_barrier(l, n, b); }
+static bool PtDropThis(void) { char t[16], *p = pt_drop; int k = pt_i++; snprintf(t, sizeof(t), ",%d,", k); return strstr(p, t) != NULL; }
+static void STDMETHODCALLTYPE PtDispatch(ID3D12GraphicsCommandList* l, UINT x, UINT y, UINT z) {
+    if (pt_drop[0]) { const bool d = PtDropThis(); pt_after_drop = d; if (d) return; }
+    if (!pt_on || pt_n >= PT_MAX) { pt_real_dispatch(l, x, y, z); return; }
+    const int i = pt_n++; pt_d[i].pipe = pt_cur; pt_d[i].x = x; pt_d[i].y = y; pt_d[i].z = z;
+    ID3D12GraphicsCommandList_EndQuery(l, pt_qh, D3D12_QUERY_TYPE_TIMESTAMP, 2 + 2 * i);
+    pt_real_dispatch(l, x, y, z);
+    ID3D12GraphicsCommandList_EndQuery(l, pt_qh, D3D12_QUERY_TYPE_TIMESTAMP, 3 + 2 * i);
+}
+static void STDMETHODCALLTYPE PtPipe(ID3D12GraphicsCommandList* l, ID3D12PipelineState* s) {
+    int k = 0; while (k < pt_npipes && pt_pipes[k] != s) ++k;
+    if (k == pt_npipes && k < 64) pt_pipes[pt_npipes++] = s;
+    pt_cur = k; pt_real_pipe(l, s);
+}
+static void PtInstall(void) {
+    ID3D12GraphicsCommandListVtbl* v = (ID3D12GraphicsCommandListVtbl*)list->lpVtbl; DWORD old;
+    if (VirtualProtect(v, sizeof(*v), PAGE_READWRITE, &old)) { pt_real_dispatch = v->Dispatch; pt_real_pipe = v->SetPipelineState; v->Dispatch = PtDispatch; v->SetPipelineState = PtPipe; pt_real_barrier = v->ResourceBarrier; v->ResourceBarrier = PtBarrier; VirtualProtect(v, sizeof(*v), old, &old); }
+    else { pt_mode = false; pt_drop[0] = 0; }
+}
+static bool size800 = false;      // the 1280x800 size: built-in graphics and all-nighter runs (set in main)
 static int RunOne(const char* name, bool quick) {
     char gpu[256];
     CreateDevice(gpu, sizeof(gpu));
@@ -554,10 +598,14 @@ static int RunOne(const char* name, bool quick) {
     // the Balanced preset's render size (16 jitter steps, as in every kit before) and Ultra Performance's (72 steps, as FSR asks a game for)
     // with --all-presets also Quality (" Q") and Performance (" P") at each output, sized by PresetSize (after the six above, so their order
     // and figures stay those of every kit before)
-    struct { UINT ow, oh, rw, rh; int phases; const char* tag; } sizes[12] = {
+    struct { UINT ow, oh, rw, rh; int phases; const char* tag; } sizes[14] = {
         {1920, 1080, 1130, 636, 16, ""}, {2560, 1440, 1506, 848, 16, ""}, {3840, 2160, 2260, 1272, 16, ""},
         {1920, 1080, 640, 360, 72, " UP"}, {2560, 1440, 853, 480, 72, " UP"}, {3840, 2160, 1280, 720, 72, " UP"}};
     int nsizes = 6;
+    { const char* e8 = getenv("FSR4TIME_800P"); if (e8 && e8[0] && strcmp(e8, "0")) size800 = true; }
+    // (2026-11-03, user: "add 800p size ... for the deck") 1280x800 Balanced (render 754x472: output / 1.7 rounded up to even, as the three above) on built-in graphics
+    // (the Steam Deck's screen size, and the 1080p size class's in-between case) and in every all-nighter run; after the six, so their order stays as before
+    if (size800) { sizes[nsizes].ow = 1280; sizes[nsizes].oh = 800; sizes[nsizes].rw = 754; sizes[nsizes].rh = 472; sizes[nsizes].phases = 16; sizes[nsizes].tag = ""; ++nsizes; }
     if (all_presets)
         for (int m = 0; m < 2; ++m)
             for (int o = 0; o < 3; ++o) {
@@ -567,9 +615,11 @@ static int RunOne(const char* name, bool quick) {
                 ++nsizes;
             }
     ID3D12QueryHeap* qh;
-    D3D12_QUERY_HEAP_DESC qhd = {.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP, .Count = 2};
+    pt_mode = getenv("FSR4TIME_PASSES") && getenv("FSR4TIME_PASSES")[0];
+    D3D12_QUERY_HEAP_DESC qhd = {.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP, .Count = 2 + 2 * PT_MAX};
     CHECK(ID3D12Device_CreateQueryHeap(device, &qhd, &IID_ID3D12QueryHeap, (void**)&qh));
-    ID3D12Resource* qbuf = Buffer(D3D12_HEAP_TYPE_READBACK, 16);
+    ID3D12Resource* qbuf = Buffer(D3D12_HEAP_TYPE_READBACK, 8 * (2 + 2 * PT_MAX));
+    pt_qh = qh; if (getenv("FSR4TIME_DROP")) snprintf(pt_drop, sizeof(pt_drop), ",%s,", getenv("FSR4TIME_DROP")); if (pt_mode || pt_drop[0]) PtInstall();
     UINT64 freq = 0;
     CHECK(ID3D12CommandQueue_GetTimestampFrequency(queue, &freq));
     ID3D12Resource *busy_src = NULL, *busy_dst = NULL;
@@ -589,6 +639,7 @@ static int RunOne(const char* name, bool quick) {
         else { snprintf(label, sizeof(label), "%.40s, variant %d of %d", name, vi + 1, nv); snprintf(idtext, sizeof(idtext), ", id %llx", (unsigned long long)chosen); }
         for (int si = 0; si < nsizes; ++si) {
             if (quick && sizes[si].ow == 2560) continue;
+            if (pt_mode && sizes[si].tag[0]) continue;
             const UINT ow = sizes[si].ow, oh = sizes[si].oh, rw = sizes[si].rw, rh = sizes[si].rh;
             const int phases = sizes[si].phases;
             char sz[24];      // the size as the summary names it: the output, and " UP" / " Q" / " P" for the presets other than Balanced
@@ -608,7 +659,7 @@ static int RunOne(const char* name, bool quick) {
             for (size_t i = 0; i < (size_t)rw * rh; ++i) dbuf[i] = 0.5f;
             UploadRows(depth, rw, rh, 4, (const uint8_t*)dbuf);
             const float sx = (float)rw / (float)ow, sy = (float)rh / (float)oh;
-            for (int scene = 0; scene < 2; ++scene) {            // 0: nothing moves; 1: the camera pans 12, 6 output pixels per frame
+            for (int scene = pt_mode ? 1 : 0; scene < 2; ++scene) {            // 0: nothing moves; 1: the camera pans 12, 6 output pixels per frame
                 const int vx = scene ? 12 : 0, vy = scene ? 6 : 0;
                 for (size_t i = 0; i < (size_t)rw * rh; ++i) { mbuf[2 * i] = Half((float)vx * sx); mbuf[2 * i + 1] = Half((float)vy * sy); }
                 UploadRows(motion, rw, rh, 4, (const uint8_t*)mbuf);
@@ -637,7 +688,9 @@ static int RunOne(const char* name, bool quick) {
                 ffx.Query(&context, &provider.header);
                 static double ms[TIMED], even[TIMED], odd[TIMED];
                 int ne = 0, no = 0;
+                static double pt_dur[2][PT_MAX], pt_gap[2][PT_MAX]; static int pt_frames[2], pt_count[2]; memset(pt_dur, 0, sizeof(pt_dur)); memset(pt_gap, 0, sizeof(pt_gap)); pt_frames[0] = pt_frames[1] = 0; pt_count[0] = pt_count[1] = -1; static struct { int pipe; UINT x, y, z; } pt_k[2][PT_MAX];
                 for (int frame = 0; frame < WARM + TIMED; ++frame) {
+                    pt_n = 0; pt_i = 0; pt_after_drop = false; pt_on = pt_mode && frame >= WARM;
                     const int p = frame % phases;
                     struct ffxDispatchDescUpscale d = {0};
                     d.header.type = FFX_API_DISPATCH_DESC_TYPE_UPSCALE; d.commandList = list;
@@ -655,17 +708,34 @@ static int RunOne(const char* name, bool quick) {
                     rc = ffx.Dispatch(&context, &d.header);
                     if (rc != FFX_API_RETURN_OK) { Say("R|%s|FAILED|dispatch %d at %s\n", label, (int)rc, sz); goto next_variant; }
                     ID3D12GraphicsCommandList_EndQuery(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 1);
-                    ID3D12GraphicsCommandList_ResolveQueryData(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 0, 2, qbuf, 0);
+                    ID3D12GraphicsCommandList_ResolveQueryData(list, qh, D3D12_QUERY_TYPE_TIMESTAMP, 0, 2 + 2 * pt_n, qbuf, 0);
                     Submit();
                     if (frame >= WARM) {
                         UINT64* t;
-                        D3D12_RANGE rr = {0, 16};
+                        D3D12_RANGE rr = {0, (SIZE_T)(8 * (2 + 2 * pt_n))};
                         CHECK(ID3D12Resource_Map(qbuf, 0, &rr, (void**)&t));
                         const double v = (double)(t[1] - t[0]) * 1000.0 / (double)freq;
+                        if (pt_on) {
+                            const int f = jx[p] < 0; const double us = 1e6 / (double)freq;
+                            if (pt_count[f] < 0 || pt_count[f] == pt_n) {      // a frame with another number of dispatches would not line up: left out, and the count says so
+                                pt_count[f] = pt_n; ++pt_frames[f];
+                                for (int i = 0; i < pt_n; ++i) {
+                                    pt_dur[f][i] += (double)(t[3 + 2 * i] - t[2 + 2 * i]) * us; if (i + 1 < pt_n) pt_gap[f][i] += (double)(t[4 + 2 * i] - t[3 + 2 * i]) * us; else pt_gap[f][i] += (double)(t[1] - t[3 + 2 * i]) * us;
+                                    pt_k[f][i].pipe = pt_d[i].pipe; pt_k[f][i].x = pt_d[i].x; pt_k[f][i].y = pt_d[i].y; pt_k[f][i].z = pt_d[i].z;
+                                }
+                            }
+                        }
                         ID3D12Resource_Unmap(qbuf, 0, NULL);
                         ms[frame - WARM] = v;
                         if (jx[p] < 0) odd[no++] = v; else even[ne++] = v;      // a lossy DLL skips the model where the jitter's x is negative
                     }
+                }
+                if (pt_mode) {
+                    pt_on = false;
+                    for (int f = 0; f < 2; ++f) for (int i = 0; i < pt_count[f]; ++i)
+                        Say("T|%s|%s|%s|%d|%d|%d|%u|%u|%u|%.2f|%.2f\n", label, sz, f ? "odd" : "even", i, pt_k[f][i].pipe, pt_frames[f], pt_k[f][i].x, pt_k[f][i].y, pt_k[f][i].z, pt_dur[f][i] / pt_frames[f], pt_gap[f][i] / pt_frames[f]);
+                    ffx.DestroyContext(&context, NULL);
+                    continue;
                 }
                 double sum = 0, fastest = ms[0];
                 for (int i = 0; i < TIMED; ++i) { sum += ms[i]; if (ms[i] < fastest) fastest = ms[i]; }
@@ -917,15 +987,17 @@ static void SetupRuntime(const char* base, bool unattended) {
 // Pack layout (little endian, inside the zstd stream): "FSR4PK1\n", u32 count, per file: u16 path length, path ('/' separated; its first part is the
 // DLL's name), u64 size, u64 FNV-1a 64 of the data; then the files' data in the same order.
 #define PACK_NAME "dlls.pack.zst"
+static const char* pack_path = PACK_NAME;      // or the downloaded pack, dlls-update.pack (fsr4update.inc)
 #define PACK_MAX 128     // since kit 2026-10-19 the pack also holds both study sets (about 40 DLLs); 128 since the next kit (71 DLLs)
 struct PackFile { char path[260]; uint64_t size, hash; };
-struct PackIn { FILE* f; ZSTD_DCtx* dc; uint8_t* ib; ZSTD_inBuffer in; uint8_t* ob; size_t ob_len, ob_pos; bool end; };
+struct PackIn { FILE* f; ZSTD_DCtx* dc; uint8_t* ib; ZSTD_inBuffer in; uint8_t* ob; size_t ob_len, ob_pos; bool end; bool enc; uint64_t nonce; unsigned char key[32]; };      // enc: a downloaded pack, "FSR4EP1\n" + u64 nonce + the zstd stream, each MiB run through Salsa20
 static bool PackFill(struct PackIn* p) {      // more decompressed bytes into ob (keeps what is left unread); false at the end of the stream
     if (p->ob_pos > 0) { memmove(p->ob, p->ob + p->ob_pos, p->ob_len - p->ob_pos); p->ob_len -= p->ob_pos; p->ob_pos = 0; }
     while (p->ob_len < (1u << 20)) {
         if (p->in.pos == p->in.size) {
             if (p->end) return p->ob_len > 0;
             p->in.size = fread(p->ib, 1, 1u << 20, p->f); p->in.pos = 0;
+            if (p->enc && p->in.size) { unsigned char n[8]; memcpy(n, &p->nonce, 8); ++p->nonce; crypto_stream_salsa20_xor(p->ib, p->ib, p->in.size, n, p->key); }
             if (!p->in.size) { p->end = true; continue; }
         }
         ZSTD_outBuffer o = {p->ob + p->ob_len, (2u << 20) - p->ob_len, 0};
@@ -957,6 +1029,7 @@ static struct PackFile pf[PACK_MAX];
 static uint32_t npf;
 static bool PackStart(struct PackIn* p, FILE* f) {      // opens the stream and reads the list of files into pf / npf
     *p = (struct PackIn){f, ZSTD_createDCtx(), malloc(1u << 20), {0}, malloc(2u << 20), 0, 0, false};
+    { char head[8]; if (fread(head, 1, 8, f) == 8 && !memcmp(head, "FSR4EP1\n", 8) && fread(&p->nonce, 1, 8, f) == 8) { p->enc = true; KitPackKey(p->key); } else rewind(f); }
     p->in.src = p->ib;
     ZSTD_DCtx_setParameter(p->dc, ZSTD_d_windowLogMax, 27);
     char magic[8]; uint32_t n = 0;
@@ -972,16 +1045,16 @@ static bool PackStart(struct PackIn* p, FILE* f) {      // opens the stream and 
 }
 static void PackEnd(struct PackIn* p) { fclose(p->f); ZSTD_freeDCtx(p->dc); free(p->ib); free(p->ob); }
 static bool PackList(void) {      // true when there is no pack or its list could be read; false (with a message) when it is damaged
-    FILE* f = fopen(PACK_NAME, "rb");
+    FILE* f = fopen(pack_path, "rb");
     if (!f) return true;
     struct PackIn p;
     const bool ok = PackStart(&p, f);
     PackEnd(&p);
-    if (!ok) printf("The DLL pack (%s) is not one this program can read. Please download the kit again.\n", PACK_NAME);
+    if (!ok) printf("The DLL pack (%s) is not one this program can read. Please download the kit again.\n", pack_path);
     return ok;
 }
 static bool PackExtract(uint32_t want, const char* dst) {      // the pack's file number want, checked, as dst
-    FILE* f = fopen(PACK_NAME, "rb");
+    FILE* f = fopen(pack_path, "rb");
     if (!f) return false;
     struct PackIn p;
     bool ok = PackStart(&p, f) && want < npf;
@@ -1219,7 +1292,7 @@ static void HeaderEnd(void) {
     printf("\n"); fflush(stdout);
 }
 
-struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXRUNS]; bool hashdiff; char diff[160];
+struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXKEPT]; bool hashdiff; char diff[160];
              char pic[2][112]; };      // pic: how far the picture is from REFS[0] / REFS[1] (P lines, see ComparePicture), "" if not measured
 // the figure the summary gives: the mean of a DLL's runs (one per round; fewer if a run failed)
 static double Val(const struct Row* w) { double t = 0; for (int i = 0; i < w->n; ++i) t += w->runs[i]; return w->n ? t / w->n : 0; }
@@ -1233,7 +1306,7 @@ static double Spread(const struct Row* w) {      // (largest - smallest) of the 
 static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t gl, char* fails, size_t fsz) {
     int nr = 0, fl = 0;
     char line[512];
-    static char plines[4096][200]; int np = 0;      // P lines come before their run's R line: kept and matched after reading
+    static char plines[16384][200]; int np = 0;      // P lines come before their run's R line: kept and matched after reading
     if (fails && fsz) fails[0] = 0;
     FILE* r = fopen(raw, "r");
     while (r && fgets(line, sizeof(line), r)) {
@@ -1247,7 +1320,7 @@ static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t
                         snprintf(rows[j].diff, sizeof(rows[j].diff), ": %u of %u blocks of %dx%d pixels differ, within x %u..%u y %u..%u, largest shift of a block's mean %.6f of full scale", nd, nb, BLK, BLK, x0, x1, y0, y1, worst);
             continue;
         }
-        if (line[0] == 'P' && line[1] == '|') { if (np < 4096) snprintf(plines[np++], sizeof(plines[0]), "%s", line); continue; }
+        if (line[0] == 'P' && line[1] == '|') { if (np < 16384) snprintf(plines[np++], sizeof(plines[0]), "%s", line); continue; }
         if (line[0] != 'R' || line[1] != '|') continue;
         if (strstr(line, "|FAILED|")) {      // each failure once (a DLL that fails every round gave one line per round: a GTX 1660 SUPER report of
                                              // 2026-10-18 filled the list and cut its last line), and only whole lines
@@ -1264,7 +1337,7 @@ static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t
             for (int j = 0; j < nr && !first; ++j)
                 if (!strcmp(rows[j].name, w->name) && !strcmp(rows[j].ver, w->ver) && !strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) first = &rows[j];
             if (first) {
-                if (first->n < MAXRUNS) {
+                if (first->n < MAXKEPT) {
                     first->even = (first->even * first->n + w->even) / (first->n + 1); first->odd = (first->odd * first->n + w->odd) / (first->n + 1);
                     first->runs[first->n++] = w->mean;
                 }
@@ -1352,6 +1425,14 @@ static bool RunDll(const char* name, int inpack, const char* base, const char* r
 }
 // A report ID: names one report in the channel, the results file and anything the tester writes about it (8 hex digits, from the clock,
 // the process and the card's line; not a secret and not tied to the PC)
+static bool fopen_exists(const char* n) { FILE* f = fopen(n, "rb"); if (f) fclose(f); return f != NULL; }
+static bool DllsFolderHasAny(void) {
+    WIN32_FIND_DATAA fd; HANDLE f = FindFirstFileA("dlls\\*", &fd); bool any = false;
+    if (f != INVALID_HANDLE_VALUE) { do { any = any || ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && fd.cFileName[0] != '.'); } while (FindNextFileA(f, &fd)); FindClose(f); }
+    return any;
+}
+#include "fsr4update.inc"
+static unsigned hist_ven, hist_dev; static char night_os[16] = "windows"; static int night_dist = 0;
 static void ReportId(char* id, size_t n, const char* gpu) {
     LARGE_INTEGER q;
     QueryPerformanceCounter(&q);
@@ -1404,13 +1485,20 @@ int main(int argc, char** argv) {
     }
     bool quick = false, unattended = false, once = false;
     double budget = 15;      // minutes the rounds may take
-    bool budget_set = false;
+    bool passes_flag = false, budget_set = false, no_update = false, force_update = false, update_only = false;
     for (int a = 1; a < argc; ++a) {
         if (!strcmp(argv[a], "--quick")) quick = true;
         if (!strcmp(argv[a], "--all-presets")) all_presets = true;
         if (!strcmp(argv[a], "--no-questions")) unattended = true;
         if (!strcmp(argv[a], "--once")) once = true;
         if (!strcmp(argv[a], "--study")) study = 1;
+        if (!strcmp(argv[a], "--no-update")) no_update = true;
+        if (!strcmp(argv[a], "--passes")) passes_flag = true;
+        if (!strcmp(argv[a], "--update")) force_update = true;
+        if (!strcmp(argv[a], "--update-only")) { force_update = true; update_only = true; }
+        if (!strcmp(argv[a], "--all-nighter")) { night_wanted = true; night_given = true; }
+        if (!strcmp(argv[a], "--night-run")) { night_run = true; unattended = true; no_update = true; budget = 1e9; budget_set = true; }
+        if (!strcmp(argv[a], "--idle-test")) { char why[128] = "free"; const bool idle = NightIdle(why, sizeof(why), true); printf("idle: %s (%s)\n", idle ? "yes" : "no", why); return 0; }
         if (!strcmp(argv[a], "--minutes") && a + 1 < argc) { budget = atof(argv[++a]); budget_set = true; }
     }
     if (study && !budget_set) budget = 30;      // 16 or 18 DLLs, about twice a normal run's
@@ -1421,8 +1509,31 @@ int main(int argc, char** argv) {
     char results[MAX_PATH], raw[MAX_PATH];
     snprintf(results, sizeof(results), "%sresults-%04d%02d%02d-%02d%02d%02d.txt", base, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
     snprintf(raw, sizeof(raw), "%sresults-raw.txt", base);
-    DeleteFileA(raw);
 
+    {   // new tests, a new program, or tests already run on this card: see fsr4update.inc
+        unsigned ven = 0, dev = 0; char gn[128] = "?";
+        GpuIds(&ven, &dev, gn, sizeof(gn));
+        hist_ven = ven; hist_dev = dev;
+        const bool wine = GetProcAddress(GetModuleHandleA("ntdll.dll"), "wine_get_version") != NULL;
+        const bool check = !no_update && !fopen_exists("no-update.txt") && (!unattended || force_update);
+        const char* os = getenv("FSR4TIME_OS") ? getenv("FSR4TIME_OS") : wine ? "linux" : "windows";
+        if (night_wanted && !unattended) {      // --all-nighter: the question comes first, before anything is fetched
+            if (!NightConsent()) return 0;
+            return NightLoop(os, ven, dev, gn);
+        }
+        if (!UpdateStep(check, !unattended, os, study ? "study" : "normal", ven, dev, gn)) return 0;
+        have_serial = update_have; night_seen_serial = have_serial;
+        if (night_wanted_flag) { night_given = true; if (!NightConsent()) return 0; return NightLoop(os, ven, dev, gn); }
+        if (update_only) return 0;
+        if (!night_run) DeleteFileA(raw);      // the all-nighter's figures go on from process to process
+        snprintf(night_os, sizeof(night_os), "%s", os); hist_ven = ven; hist_dev = dev;
+        if (night_run) {
+            const char* tests = tests_version[0] ? tests_version : KIT_VERSION; int done = 0;
+            if (!(NightLoad(tests, ven, dev, &night_rounds, night_id, sizeof(night_id), &done) && fopen_exists(raw))) { night_rounds = 0; DeleteFileA(raw); ReportId(night_id, sizeof(night_id), gn); }
+            NightSave(tests, ven, dev, night_rounds, night_id, 0);
+            if (EnvInt("FSR4TIME_NIGHT_QUICK", 0)) quick = true;
+        }
+    }
     if (!PackList()) {
         if (!unattended) { char in[8]; printf("\nPress Enter to close."); fflush(stdout); fgets(in, sizeof(in), stdin); }
         return 1;
@@ -1447,6 +1558,8 @@ int main(int argc, char** argv) {
         normgen = IsRdna2(ven, dev) ? 2 : IsRdna3(ven, dev) ? 3 : 0;
         const bool apu = IsApu(ven, dev);
         gclass = normgen ? (apu ? 10 + normgen : normgen) : 0;
+        size800 = apu || night_run || EnvInt("FSR4TIME_800P", 0);
+        if (size800) _putenv("FSR4TIME_800P=1");      // the timing runs are child processes (--run): they read it from here
         own_fl = gclass == 2 ? "r2" : gclass == 3 ? "r3" : gclass == 12 ? "igpu-r2" : "igpu-r3"; cross_fl = gclass == 2 ? "r3" : gclass == 3 ? "r2" : NULL;
     }
     SetupRuntime(base, unattended);      // Windows' own runtime unless it offers less than shader model 6.6 (Windows 10); see there
@@ -1491,13 +1604,17 @@ int main(int argc, char** argv) {
     DeleteBlockRecords(); DeletePictureRecords();      // none left over from a run that was cut short
     const ULONGLONG t0 = GetTickCount64();
     ULONGLONG tr = t0;
-    int rounds = 0;
+    int rounds = night_run ? night_rounds : 0;      // (an all-nighter goes on from where it was)
     static bool failed[PACK_MAX + 64];      // DLLs that failed in the first round: not run again (since 2026-10-18.2)
     int nfailed = 0;
+    const ULONGLONG night_seg = GetTickCount64(); int night_retry = 0;
+    if (passes_flag) { NightPasses((const char(*)[64])names, nd, inpack, base, raw, quick, night_os); if (getenv("FSR4TIME_PASSESONLY")) return 0; }
     for (int k = 0;; ++k) {
-        if (k == nd) {      // a round is complete: another one?
-            ++rounds; k = 0;
-            if (rounds == 1) {
+        if (k == nd || (night_run && k == 0 && rounds > 0 && !nfailed && !night_retry)) {      // a round is complete (or an all-nighter resumed): another one?
+            const bool resumed = k != nd;
+            if (!resumed) ++rounds;
+            k = 0;
+            if (rounds == 1 || resumed) {
                 FILE* rf = fopen(raw, "r"); char ln[512], key[300];
                 for (int j = 0; j < nd && rf; ++j) {
                     snprintf(key, sizeof(key), "R|%s|FAILED|", names[j]); rewind(rf);
@@ -1508,8 +1625,20 @@ int main(int argc, char** argv) {
             }
             const double done = (double)(GetTickCount64() - t0) / 60000.0, last = (double)(GetTickCount64() - tr) / 60000.0;
             tr = GetTickCount64();
-            const bool more = !once && nfailed < nd && rounds < MAXROUNDS && (done + last <= budget || (rounds == 1 && done + last <= 20.0));
-            printf("round %d took %.1f minutes (%.1f so far)%s\n", rounds, last, done, more ? "; one more round" : ""); fflush(stdout);
+            if (resumed) night_retry = 1;
+            if (night_run && !resumed) {
+                double worst = 100;
+                const bool steady = NightSteady(raw, &worst) && rounds >= (EnvInt("FSR4TIME_NIGHT_ROUNDS", 0) ? EnvInt("FSR4TIME_NIGHT_ROUNDS", 0) : NIGHT_MIN_ROUNDS), full = rounds >= (EnvInt("FSR4TIME_NIGHT_ROUNDS", 0) ? EnvInt("FSR4TIME_NIGHT_ROUNDS", 0) : NIGHT_ROUNDS);
+                const bool over = nfailed >= nd || steady || full;
+                const bool seg = rounds == 1 || GetTickCount64() - night_seg >= (ULONGLONG)EnvInt("FSR4TIME_NIGHT_SEG", NIGHT_SEG_S) * 1000u;
+                NightSave(tests_version[0] ? tests_version : KIT_VERSION, hist_ven, hist_dev, rounds, night_id, over);
+                if (!NightHasPasses(raw) && !NightPasses((const char(*)[64])names, nd, inpack, base, raw, quick, night_os)) { night_exit = 10; break; }
+                printf("round %d done; least steady figure known to within %.2f%%%s\n", rounds, worst, over ? ": these tests are finished" : seg ? ": sending the figures so far" : ""); fflush(stdout);
+                if (over) { night_exit = 0; break; }
+                if (seg) { night_exit = 11; break; }
+            }
+            const bool more = night_run || (!once && nfailed < nd && rounds < MAXROUNDS && (done + last <= budget || (rounds == 1 && done + last <= 20.0)));
+            if (!resumed && !night_run) printf("round %d took %.1f minutes (%.1f so far)%s\n", rounds, last, done, more ? "; one more round" : ""); fflush(stdout);
             if (!more) break;
         }
         const int i = rounds % 2 ? nd - 1 - k : k;
@@ -1517,7 +1646,17 @@ int main(int argc, char** argv) {
         char what[64];
         snprintf(what, sizeof(what), "(round %d, DLL %d of %d)", rounds + 1, k + 1, nd);
         char fl[16];
-        if (RunDll(names[i], inpack[i], base, raw, quick, what) && FlavorOf(names[i], fl, sizeof(fl))) {
+        if (night_run && !NightGate(night_os)) { night_exit = 10; break; }
+        const long long night_len = FileLen(raw); const ULONGLONG night_t = GetTickCount64();
+        if (night_run) CpuBusyShare();
+        const bool stopped_at_limit = RunDll(names[i], inpack[i], base, raw, quick, what);
+        if (night_run && !stopped_at_limit && NightDisturbed(night_t) && night_dist < 3) {      // the figures of a disturbed run go; the same DLL again once the PC is idle
+            FileCut(raw, night_len); ++night_dist; --k;
+            printf("That run was disturbed, so its figures were dropped.\n"); fflush(stdout);
+            continue;
+        }
+        night_dist = 0;
+        if (stopped_at_limit && FlavorOf(names[i], fl, sizeof(fl))) {
             // (2026-10-28) a DLL stopped at the time limit: the other DLLs of its flavor would most likely stop there too (one card ran ten into it, 30 minutes):
             // they are skipped and listed as not run
             FILE* rf = fopen(raw, "a"); int ns = 0; char f2[16];
@@ -1533,7 +1672,7 @@ int main(int argc, char** argv) {
     // repeats disagreed by a median of 5%, a tenth of them by over 50%): one more run each, the most unsteady first, while a run still fits in the
     // time given (a run's length estimated from the rounds); up to MAXRUNS runs per DLL.
     int retimed = 0;
-    if (!once && rounds >= 2) {
+    if (!once && !night_run && rounds >= 2) {
         const double per = (double)(GetTickCount64() - t0) / 60000.0 / (rounds * nd);
         bool room = true;
         for (int pass = 0; room && pass < MAXRUNS - MAXROUNDS; ++pass) {
@@ -1572,6 +1711,8 @@ int main(int argc, char** argv) {
     const int fl = (int)strlen(fails);
     char id[16];
     ReportId(id, sizeof(id), gpu);
+    if (night_run && night_id[0]) snprintf(id, sizeof(id), "%s", night_id);
+    SetThreadExecutionState(ES_CONTINUOUS);
     // RX 6000 cards (Navi 21 to 24): the percentages are against 1b (AMD's shaders with the dot products split), not AMD's own: under Windows
     // these cards show ghosting with AMD's original form, so 1b is the picture and the speed to compare with there
     unsigned ven = 0, dev = 0;
@@ -1592,7 +1733,11 @@ int main(int argc, char** argv) {
     RegGetValueA(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", "ProcessorNameString", RRF_RT_REG_SZ, NULL, cpu, &cl);
     const bool wine = GetProcAddress(GetModuleHandleA("ntdll.dll"), "wine_get_version") != NULL;
 #define ADD(...) sn += snprintf(summary + sn, sizeof(summary) - sn, __VA_ARGS__)
+    const bool night_test = EnvInt("FSR4TIME_NIGHT_TEST", 0) != 0;      // a line the report parser takes for no report
+    if (night_test) ADD("TEST ");
     ADD("report %s, kit %s\nGPU: %s\nsystem: Windows %lu.%lu build %lu%s; CPU: %s\n", id, KIT_VERSION, gpu, vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, wine ? " (Wine/Proton)" : "", cpu);
+    if (night_run) ADD("all-nighter: %d rounds so far; the newest report with this ID replaces the earlier ones\n", rounds);
+    if (tests_version[0]) ADD("tests: %s\n", tests_version);      // the pack, which can be newer than the program
     if (getenv("FSR4_PROTON_NAME") && getenv("FSR4_PROTON_NAME")[0]) ADD("Proton: %s\n", getenv("FSR4_PROTON_NAME"));      // (2026-11-02) the Linux kit's run.sh: which Proton ran this
     if (runtime_note[0]) ADD("%s\n", runtime_note);
     if (study) ADD("study: the RDNA%d study set (run-study.cmd / --study): each change of the exact DLL added alone and left out alone\n", study);
@@ -1612,7 +1757,7 @@ int main(int argc, char** argv) {
             if (!strcmp(rows[j].size, w->size) && !strcmp(rows[j].scene, w->scene)) ref = &rows[j];
         if (i == 0 || strcmp(rows[i - 1].name, w->name)) ADD("%s [%s]\n", w->name, w->ver);
         ADD("  %-12s %-6s %.3f", w->size, w->scene, Val(w));
-        if (!strncmp(w->name, "lt5", 3) || !strncmp(w->name, "lt6", 3) || !strncmp(w->name, "lt7", 3) || !strncmp(w->name, "lt8", 3) || !strncmp(w->name, "lt9", 3) || !strncmp(w->name, "lt10", 4)) ADD(" (%.3f / %.3f)", w->even, w->odd);      // (2026-11-02) measuring builds: both kinds of frame, always, jitter x >= 0 first
+        if (BothTimes(w->name)) ADD(" (%.3f / %.3f)", w->even, w->odd);      // (2026-11-02) measuring builds: both kinds of frame, always, jitter x >= 0 first
             else if (w->even > 1.25 * w->odd || w->odd > 1.25 * w->even) ADD(" (%.3f / %.3f)", w->even > w->odd ? w->even : w->odd, w->even > w->odd ? w->odd : w->even);
         if (ref && ref != w) {
             ADD("  %+.0f%%", 100.0 * Val(w) / Val(ref) - 100.0);
@@ -1721,7 +1866,22 @@ int main(int argc, char** argv) {
     }
     FILE* o = fopen(results, "w");
     if (o) { fputs(summary, o); fclose(o); }
+    const bool hist = nr > 0 && (night_run ? rounds >= 1 : !quick && !once);      // a full run with timings counts as having run these tests
+    if (hist) HistoryAdd(study ? "study" : "normal", tests_version, hist_ven, hist_dev, id, 0, results);
     printf("\nSaved as %s\nReport ID: %s (also in the file; please mention it if you write about this run)\n", results, id);
+    if (night_run) {      // agreed at the start of the all-nighter
+        char gpuname[128], message[512], fname[80], rname[80];
+        snprintf(gpuname, sizeof(gpuname), "%s", gpu); gpuname[strcspn(gpuname, "(")] = 0;
+        while (gpuname[0] && gpuname[strlen(gpuname) - 1] == ' ') gpuname[strlen(gpuname) - 1] = 0;
+        snprintf(message, sizeof(message), "%sTiming kit report %s: %s, kit %s, all-nighter, %d round%s. The summary and the per-run figures are attached.", night_test ? "TEST, not a result: " : "", id, gpuname, KIT_VERSION, rounds, rounds == 1 ? "" : "s");
+        snprintf(fname, sizeof(fname), "%sresults-%s.txt", night_test ? "test-" : "", id); snprintf(rname, sizeof(rname), "%sresults-raw-%s.txt", night_test ? "test-" : "", id);
+        char* rawtext = ReadText(raw);
+        const bool sent = nr > 0 && NightSend(message, fname, summary, rawtext ? rname : NULL, rawtext);
+        free(rawtext);
+        if (sent && hist) HistoryAdd("normal", tests_version, hist_ven, hist_dev, id, 1, results);
+        printf(nr == 0 ? "Nothing to send yet.\n" : sent ? "Sent. Thank you: your help is a valued part of this project.\n" : "Could not send it; it is saved above, and the next report carries these figures too.\n"); fflush(stdout);
+        return night_exit;
+    }
     if (!unattended) {
         char in[16];
         printf("\nSend this summary and the per-run figures (results-raw.txt in this folder), and nothing else, to the project's results channel? [Y/n] ");
@@ -1749,6 +1909,7 @@ int main(int argc, char** argv) {
             char* rawtext = ReadText(raw);      // missing (no DLL ran) or too large: the summary alone
             const bool sent = Send(message, fname, summary, rawtext ? rname : NULL, rawtext);
             free(rawtext);
+            if (sent && hist) HistoryAdd(study ? "study" : "normal", tests_version, hist_ven, hist_dev, id, 1, results);
             printf(sent ? "Sent. Thank you: your help is a valued part of this project.\n" : "Could not send it. Please post the results file on the project's GitHub page or Discord instead.\n");
         }
         printf("\nPress Enter to close.");

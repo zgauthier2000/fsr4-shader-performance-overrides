@@ -30,7 +30,14 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
   If you send it, you can also type a name or nickname to be listed on the project's [thank-you page](../docs/thanks.md):
   optional, and published there only if you type one (since kit versions 2026-10-11.3).
 
-**Kits version 2026-11-02.14** (download again if you have an earlier one):
+**Kits version 2026-11-03** (download again if you have an earlier one; from this version on, the kit fetches new tests by itself):
+
+- **New tests without a new kit:** each time it starts, the kit looks on this project's GitHub page for new tests, shows their size and asks before downloading them. It's an ordinary web request: nothing about you or your PC is sent, and results are only sent when you say yes at the end of a run. Everything it downloads must carry the project's signature and match the checksum in that signed file, or it is refused. If a newer kit program is out, it tells you and gives the link; it never replaces itself. `--no-update`, or an empty file named `no-update.txt` beside the program, turns this off.
+- **Already ran the latest tests?** The kit says so and thanks you, and offers the optional **all-nighter** (`fsr4time.exe --all-nighter` asks straight away): while the PC is idle it repeats the tests until the figures are steady, fetches new tests by itself and sends each result without asking, no name. It waits while the PC is in use or on battery. The kit's README.txt explains it in full.
+- **`lt121-test` to `lt127-test`:** seven test builds with faster code, not in any release. `lt121`/`lt122` keep the picture of `lt119`, `lt123`/`lt124` that of `lt120`; `lt125` to `lt127` are tiled forms.
+- **1280x800 output** (the Steam Deck's screen) is timed on graphics built into processors and in all-nighter runs. Reports from RX 6000 cards and the Steam Deck are the ones most wanted.
+
+**Kits version 2026-11-02.14:**
 
 - **`lt119-test`, `lt120-test`:** two test builds with faster code, not in any release. They keep the picture of the released `4.1.2l-exact` and `4.1.2l-lossy` for RX 6000 and handhelds. Reports from RX 6000 cards, and from a Steam Deck on the Linux kit, are the ones most wanted.
 
@@ -344,7 +351,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Linux and Steam Deck (experimental)
 
-[`fsr4-timing-kit-linux-2026-11-02.14.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.14/fsr4-timing-kit-linux-2026-11-02.14.tar.gz) (about 124 MB, version 2026-11-02.14): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
+[`fsr4-timing-kit-linux-2026-11-03.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-03/fsr4-timing-kit-linux-2026-11-03.tar.gz) (about 38 MB, plus about 94 MB of tests it downloads on the first start; version 2026-11-03): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
 
 It runs the Windows kit's program and test DLLs under Proton, and sends the same kind of report, marked as Wine/Proton. It lists the Protons it finds and asks which to use, and the report names the one used. CachyOS Proton builds did not start the kit in testing, so use another for now. It needs Proton from Steam (Proton Experimental works), a system-installed Proton or `umu-run`, and installs nothing: its Wine prefix and results stay in the folder. Figures under Proton are not Windows figures: the drivers differ.
 
@@ -354,7 +361,7 @@ The sections from [What you need](#what-you-need) on describe the older pass-by-
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-11-02.14.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-02.14/fsr4-timing-kit-windows-2026-11-02.14.zip) (about 108 MB, version 2026-11-02.14; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-11-03.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-03/fsr4-timing-kit-windows-2026-11-03.zip) (under 1 MB, plus about 113 MB of tests it downloads on the first start; version 2026-11-03; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes.
@@ -367,6 +374,8 @@ The summary and `results-raw.txt` are saved in the unpacked folder. It runs the 
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
 Kits up to version 2026-10-25.2 also had a study run for RDNA2 and RDNA3 (`run-study.cmd`); version 2026-10-28 has none.
+
+**New in version 2026-11-03:** fetches new tests by itself (signed), the all-nighter, 1280x800 on built-in graphics, `lt121-test` to `lt127-test`.
 
 **New in version 2026-11-02.14:** `lt119-test`, `lt120-test`.
 

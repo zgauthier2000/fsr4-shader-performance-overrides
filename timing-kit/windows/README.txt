@@ -29,13 +29,47 @@ Windows will warn about an unknown program, because the file is not signed. The 
 the project's repository (timing-kit/windows/fsr4time.c) with the command that builds it, and the
 checksums are on the download page.
 
+New tests without a new kit
+  Each time it starts, the kit looks on the project's GitHub page for new tests. If there are any, it
+  shows their size and asks before downloading them. They replace the older tests beside the program.
+  - This is an ordinary web request, as when you open a page. Nothing about you or your PC is sent.
+    Results are only ever sent when you say yes at the end of a run.
+  - Everything it uses this way must carry the project's signature, and a download must match the
+    checksum in that signed file. Anything else is refused and not run.
+  - If a new version of the kit program itself is out, it tells you and gives the link. It doesn't
+    replace itself: you download the new kit when you want to.
+  - It remembers which tests finished on which graphics card. If you already ran the latest tests on
+    this card, it says so and thanks you, and you don't need to run them again.
+    Windows keeps that note in %LOCALAPPDATA%\FSR4 timing kit; the Linux kit keeps it in
+    ~/.local/share/fsr4-timing-kit. Delete it whenever you like.
+  - To turn off looking for new tests, start the program with --no-update, or put an empty file named
+    no-update.txt beside it. Without internet it carries on with the tests it already has.
+
+All-nighter mode (optional)
+  If you already ran the latest tests, the kit offers this; fsr4time.exe --all-nighter asks straight away.
+  Leave the window open and, until you close it, the kit will:
+  - repeat the tests while the PC is idle, until the figures are steady (at most 24 rounds), then leave
+    the graphics card alone;
+  - look for new tests every 30 minutes, download them and run them by itself. Only signed ones, up to 1 GB;
+  - send each result to the project's results channel without asking: the same summary and per-run
+    figures as after a normal run, no name. The first goes out after the first round, then one after a
+    round about every half hour, so running it for an hour or two still counts. Closing the window
+    loses only a round in progress.
+  It waits while the PC is in use: keyboard or mouse in the last five minutes (Windows only), processor
+  or graphics card busy, or running on battery. A run disturbed that way is dropped and repeated.
+  Your agreement lasts for that session: the next start asks again. Finished rounds are kept when you
+  close it, and it goes on from there. While rounds are running on Windows, the PC won't go to sleep.
+  It can use a lot of power while the rounds run, and none extra once they are done.
+  It also times a few builds pass by pass once, after the first round. Those figures go in the same report.
+
 What it does
   For every folder in dlls\ it loads that upscaler DLL through AMD's FidelityFX loader, feeds it
   made-up frames at 1080p, 1440p and 4K output, with two render sizes: the Balanced preset's, and
   Ultra Performance's (a third of the output, marked "UP" in the summary; the UP lines are for that
   mode only and do not describe the lossy DLL in other modes). Each with the picture
   still and with the camera moving. It measures the graphics card's time for each upscale call:
-  200 calls after 40 to warm up.
+  200 calls after 40 to warm up. On graphics built into processors, such as the Steam Deck's, and in
+  all-nighter runs it also times 1280x800 output (the Steam Deck's screen), Balanced only.
 
   It does this in rounds: all DLLs in name order, then all in reverse order, and so on, for about
   15 minutes. A fast card gets up to eight rounds, a slow one two (one, if a single round takes
@@ -119,6 +153,11 @@ What it does
                        test builds of 4.1.2l-lossy, not in any release, with the same picture as lt86: lt102 changes
                        how pixels are grouped in the step before the network, lt103 uses integer maths in more of
                        the step after it, lt104 does both.
+  dlls\lt121-test to lt127-test
+                       test builds of 4.1.2l, not in any release, with faster code: lt121 and lt122 have lt119's
+                       picture, lt123 and lt124 have lt120's. lt125 is lt118 with more of the same changes, and lt126
+                       and lt127 have lt125's picture (its picture can differ a little between runs: expected in
+                       this test).
   dlls\lt119-test, lt120-test
                        test builds of 4.1.2l, not in any release, with faster code: lt119 has lt30's picture, lt120
                        has lt34's.
@@ -182,7 +221,7 @@ Reading the summary
   shows in a game is the real thing, and the kit asks for it at the end if you have it.
 
 Options (from a command prompt in this folder)
-  fsr4time.exe --quick           1080p and 4K only
+  fsr4time.exe --quick           1080p and 4K only (and 1280x800 where it runs)
   fsr4time.exe --all-presets     also the Quality and Performance presets' render sizes: twelve sizes
                                  instead of six, so the rounds get about 30 minutes (lines marked "Q"
                                  and "P"; no mark = Balanced)
