@@ -20,8 +20,8 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 - **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait about 15 minutes
   (it uses the time for repeat rounds; a slow or integrated chip may take up to about 25).
   On Linux or a Steam Deck in desktop mode, [the Linux kit](#linux-and-steam-deck-experimental): one command, about 15 minutes.
-  **On a Steam Deck either kit takes about 1 to 1.5 hours** (reports so far: 58 to 82 minutes for its one round of tests), and on a
-  Radeon 780M handheld about 40 minutes (35 to 42), so keep it plugged in and let it finish.
+  **On a Steam Deck either kit takes about 30 to 40 minutes** (reports with the tests of 2026-11-04: 29 and 40 minutes for its one round of tests), and on a
+  Radeon 780M handheld about 15 to 20 minutes (14 and 17), so keep it plugged in and let it finish.
 - **The output check of the model passes now means something (kit 2026-10-10.1).** Earlier kits filled the small buffer that
   holds each pass's output scales and offsets with random bytes. That drove nearly every output to its limits, so a pass with
   different arithmetic still wrote the same bytes and was reported as identical. The kit now carries that buffer as FSR 4 fills
