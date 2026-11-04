@@ -73,6 +73,8 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **Bel** (Steam Machine and Steam Deck OLED, Linux)
 - **kcuD** (Radeon 780M, Linux; Radeon RX 5700 XT, Windows)
 - **john6650xt** (Radeon RX 6650 XT, Windows)
+- **BrunoGM0** (graphics of a Ryzen 5 5600G and Radeon VII, Windows)
+- **Duva** (Radeon RX 6650 XT, Windows)
 
 ## How to be listed, or taken off
 
