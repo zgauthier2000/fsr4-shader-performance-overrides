@@ -113,21 +113,25 @@ def stats(t):
     o = [text(24, 32, 'What the project uses', t, 15, 'ink', weight=600), text(24, 52, f"Measured {s['date']} on the author's PC.", t, 12)]
     y = 76
     o += [text(24, y, 'DISK SPACE', t, 10, 'ink2', weight=600)]
-    y += 14; bx, bw = 250, 486
-    for d in s['drives']:
+    y += 16; R = 58; cxs = (140, 380, 620)
+    import math
+    def arc(cx, cy, a0, a1, col, stroke):
+        if a1 - a0 >= 0.9999:
+            return f'<circle cx="{cx}" cy="{cy}" r="{R}" fill="{col}" stroke="{t[stroke]}" stroke-width="1.5"/>'
+        p0 = (cx + R * math.sin(2 * math.pi * a0), cy - R * math.cos(2 * math.pi * a0)); p1 = (cx + R * math.sin(2 * math.pi * a1), cy - R * math.cos(2 * math.pi * a1))
+        big = 1 if a1 - a0 > 0.5 else 0
+        return f'<path d="M{cx},{cy} L{p0[0]:.1f},{p0[1]:.1f} A{R},{R} 0 {big} 1 {p1[0]:.1f},{p1[1]:.1f} Z" fill="{col}" stroke="{t["surface"]}" stroke-width="2"/>'
+    for d, cx in zip(s['drives'], cxs):
         cap, proj, other = d['capacity'], d['project'], max(d['used'] - d['project'], 0)
-        wp = max(round(bw * proj / cap), 2); wo = round(bw * other / cap)
-        o += [text(24, y + 17, d['name'], t, 12.5, 'ink', weight=600), text(24, y + 33, f"{fmt_b(cap)} drive", t, 10.5, 'muted')]
-        o += [f'<rect x="{bx}" y="{y + 6}" width="{bw}" height="22" rx="4" fill="none" stroke="{t["line"]}"/>',
-              f'<rect x="{bx}" y="{y + 6}" width="{wp}" height="22" rx="4" fill="{t["hi"]}"/>',
-              f'<rect x="{bx + wp + 2}" y="{y + 6}" width="{max(wo - 2, 0)}" height="22" fill="{t["box"]}" stroke="{t["line"]}"/>']
-        lab = f"{fmt_b(proj)} project"
-        o += [text(bx + wp + 8 if wp < 140 else bx + 8, y + 22, lab, t, 11.5, 'ink' if wp < 140 else 'surface', weight=600)]
-        y += 42
-    o += [f'<rect x="{bx}" y="{y + 2}" width="14" height="10" fill="{t["hi"]}"/>', text(bx + 20, y + 11, 'this project', t, 10.5, 'ink2'),
-          f'<rect x="{bx + 110}" y="{y + 2}" width="14" height="10" fill="{t["box"]}" stroke="{t["line"]}"/>', text(bx + 130, y + 11, 'other files', t, 10.5, 'ink2'),
-          text(bx + 220, y + 11, 'empty: free space', t, 10.5, 'muted')]
-    y += 30
+        cy = y + R + 4; f1 = proj / cap; f2 = f1 + other / cap
+        o += [f'<circle cx="{cx}" cy="{cy}" r="{R}" fill="{t["surface"]}" stroke="{t["line"]}" stroke-width="1.5"/>', arc(cx, cy, f1, f2, t['box'], 'line'), arc(cx, cy, 0, f1, t['hi'], 'hi'), f'<circle cx="{cx}" cy="{cy}" r="{R}" fill="none" stroke="{t["line"]}" stroke-width="1.5"/>']
+        o += [text(cx, cy + R + 24, d['name'], t, 12.5, 'ink', 'middle', 600), text(cx, cy + R + 41, f"{fmt_b(proj)} of {fmt_b(cap)} ({100 * f1:.0f}%)", t, 11.5, 'ink2', 'middle')]
+    y += 2 * R + 60
+    lx = 220
+    o += [f'<rect x="{lx}" y="{y + 2}" width="14" height="10" fill="{t["hi"]}"/>', text(lx + 20, y + 11, 'this project', t, 10.5, 'ink2'),
+          f'<rect x="{lx + 110}" y="{y + 2}" width="14" height="10" fill="{t["box"]}" stroke="{t["line"]}"/>', text(lx + 130, y + 11, 'other files', t, 10.5, 'ink2'),
+          f'<rect x="{lx + 220}" y="{y + 2}" width="14" height="10" fill="{t["surface"]}" stroke="{t["line"]}"/>', text(lx + 240, y + 11, 'free space', t, 10.5, 'ink2')]
+    y += 40
     tot = sum(d['project'] for d in s['drives'])
     o += [text(24, y, f"Total: {fmt_b(tot)}, backups included ({fmt_b(s['backup'])} of it).", t, 12.5, 'ink', weight=600)]
     if s.get('files'):
