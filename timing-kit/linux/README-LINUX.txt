@@ -7,7 +7,7 @@ To run it, from a terminal in this folder:   bash run.sh
 It lists the Protons it finds and asks which to use; Enter takes the first. The report names the one used. To choose without the question: env FSR4_PROTON=/path/to/a/Proton/folder bash run.sh
 If you change Proton for a later run, delete the pfx folder first.
 CachyOS Proton builds did not start this kit in testing: the program ends without running. Use another Proton, such as Proton Experimental or GE-Proton.
-On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run. A window asks its questions, then whether to send the result.
+On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes on a desktop card, but about 1 to 1.5 hours on a Steam Deck (one round of tests takes that long there); `bash run.sh --quick` is a short run. A window asks its questions, then whether to send the result.
 It needs Proton from Steam or umu-run. Nothing is installed: its Wine prefix and results stay in this folder, so deleting the folder removes everything.
 On a Steam Deck or a laptop, performance mode gives the best results.
 

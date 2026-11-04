@@ -20,6 +20,8 @@ with AMD's shaders and with this repository's rewrites, the model's 12 passes in
 - **Which one:** on Windows, [the Windows kit](#windows-experimental) (experimental): double-click and wait about 15 minutes
   (it uses the time for repeat rounds; a slow or integrated chip may take up to about 25).
   On Linux or a Steam Deck in desktop mode, [the Linux kit](#linux-and-steam-deck-experimental): one command, about 15 minutes.
+  **On a Steam Deck either kit takes about 1 to 1.5 hours** (reports so far: 58 to 82 minutes for its one round of tests), and on a
+  Radeon 780M handheld about 40 minutes (35 to 42), so keep it plugged in and let it finish.
 - **The output check of the model passes now means something (kit 2026-10-10.1).** Earlier kits filled the small buffer that
   holds each pass's output scales and offsets with random bytes. That drove nearly every output to its limits, so a pass with
   different arithmetic still wrote the same bytes and was reported as identical. The kit now carries that buffer as FSR 4 fills
@@ -364,7 +366,7 @@ The sections from [What you need](#what-you-need) on describe the older pass-by-
 [`fsr4-timing-kit-windows-2026-11-03.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-03/fsr4-timing-kit-windows-2026-11-03.zip) (under 1 MB, plus about 113 MB of tests it downloads on the first start; version 2026-11-03; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
-ten does two, up to about 20 minutes.
+ten does two, up to about 20 minutes. A Steam Deck needs about an hour or more for its one round (reports so far: 58 to 82 minutes).
 
 **On Linux, the Windows kit runs under Proton too,** and it times some DLLs the Linux kit does not have (the test DLLs, such as
 `6-durandal-test`). Through Steam: unpack the zip; in Steam choose *Games → Add a Non-Steam Game to My Library*, *Browse* to

@@ -15,7 +15,9 @@ How to run it
   2. Close games, browsers and video players. For the best results, run it with the CPU and graphics
      in performance mode: a laptop plugged in, not on battery, battery saver or a power-saving mode.
   3. Double-click fsr4time.exe. It takes about 15 minutes (a slow or integrated graphics chip up to
-     about 25). It times only the builds made for your kind of graphics, so each gets more rounds.
+     about 25; a Steam Deck about 1 to 1.5 hours and a Radeon 780M about 40 minutes, since one round
+     takes that long there). It times only the builds made for your kind of graphics, so each gets
+     more rounds.
      Leave the PC alone while it runs: the header at the top of the window says so the whole time.
   4. At the end it shows a summary, saves it as results-<time>.txt in this folder, and asks
      whether to send it to the project. Only two files are sent, in one short message: the summary
