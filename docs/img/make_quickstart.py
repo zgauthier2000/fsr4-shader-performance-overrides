@@ -5,7 +5,7 @@
 # 4.1.2l-lossy). Data: quickstart-data.json (moving scene, 4K Balanced):
 #   - the first row: this project's Radeon RX 7800 XT under Linux (Proton), this release's builds, AMD's FSR 4.1.2 = the FSR SDK 2.4.0 game DLL
 #     (RX 7000 model), two runs each in mirrored order;
-#   - the others: Windows timing-kit reports (kits 2026-10-30.7 to 2026-11-01), median per card, each card's own AMD FSR 4.1.2 model
+#   - the others: Windows timing-kit reports (test packs 2026-11-04 / .2 of the self-updating kit), median per card, each card's own AMD FSR 4.1.2 model
 #     (RX 7000 / RX 6000) and AMD's Lite in the same report; exact and lossy = the DLLs of dll-2026-10-29, unchanged in this release; the Lite builds = the kits' test slots with the shaders
 #     and weights of this release (lt30, lt32 on RX 7000, lt34 on RX 6000).
 # Until release dll-2026-10-22 this figure showed Shadow of the Tomb Raider's benchmark on the RX 7800 XT (AMD's shaders, exact, lossy).
