@@ -23,7 +23,7 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **bombaygypsy** (Radeon RX 6700 XT, Windows)
 - **Vinicius Lima** (Radeon RX 6600, Windows)
 - **guyoum** (Radeon 890M, Windows)
-- **Ameisenstock** (Radeon RX 6600 XT, RX 6800, RX 5700 XT and RX Vega, Windows)
+- **Ameisenstock** (Radeon RX 6600 XT, RX 6800, RX 5700 XT and RX Vega, Windows; an RX 6800-class card, Linux)
 - **Burton92** (Intel Arc graphics of a Core Ultra 5 135H, Windows)
 - **lobuzprzemdesigner** (Radeon RX 6600 XT, Windows)
 - **cacdai3met** (GeForce GTX 1650, Windows)
@@ -69,6 +69,10 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **TheMadLynx** (Radeon RX 6900 XT, Windows)
 - **atomizasser** (Radeon RX 6800, Windows)
 - **charly** (Radeon RX 6700 XT, Windows)
+- **Gatuno** (Radeon RX 6950 XT, Linux)
+- **Bel** (Steam Machine and Steam Deck OLED, Linux)
+- **kcuD** (Radeon 780M, Linux; Radeon RX 5700 XT, Windows)
+- **john6650xt** (Radeon RX 6650 XT, Windows)
 
 ## How to be listed, or taken off
 
