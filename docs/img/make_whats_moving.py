@@ -30,7 +30,7 @@ def wrap(body, H, label, t):
     return [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(label)}">', f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>'] + body + ['</svg>']
 
 
-NOW = (('Lossy builds on RX 6000', 'Spreading the work evenly across each frame', 'still a few % slower', 'Timing kit reports: RX 6000 cards'),
+NOW = (('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'slower on RX 6000 so far', 'Timing kit reports: RX 6000 cards'),
        ('Exact builds', "More speed, picture still AMD's, byte for byte", 'new speedups in the kit', 'Timing kit reports: RX 7600 and Steam Machine'),
        ('Small and handheld chips', 'Sizes between 1080p and 4K, and 800p', '800p now in the kit', 'Timing kit reports: handhelds and built-in graphics'),
        ('Lossy picture quality', 'Fewer twinkling specks in foliage', 'needs examples', 'Games and scenes where a lossy build looks wrong'),
