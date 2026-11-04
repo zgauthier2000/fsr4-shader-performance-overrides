@@ -73,7 +73,7 @@ footer a { color: var(--brass); }
 <div class="wrap">
   <header>
     <h1 class="plate">Two <span>Lite</span> engines, <em>one</em> rhythm apart</h1>
-    <p class="lede">The two FSR 4.1.2 Lite builds of this project, drawn as glass engines. One turn of the crank is one game frame. Each frame enters at the intake on the left, goes through the <b>prepass</b>, the network's <b>three passes</b> (the cylinders) and the <b>postpass</b>, and leaves as the upscaled picture on the right; the postpass also sends a copy back as <b>history</b> for the next frame. Drag an engine to turn it.</p>
+    <p class="lede">The two FSR 4.1.2 Lite builds of this project, drawn as glass engines. One turn of the crank is one game frame. Each frame enters at the intake on the left, goes through the <b>prepass</b>, the network's <b>three passes</b> (the cylinders) and the <b>postpass</b>, and leaves as the upscaled picture on the right; the postpass also sends a copy back as <b>history</b> for the next frame. Drag an engine to turn it; the picture screens always face you.</p>
   </header>
 
   <section class="bay exact" aria-label="4.1.2l-exact engine">
@@ -328,8 +328,8 @@ footer a { color: var(--brass); }
     let runTurns = 0, prevFrame = 0;
     function update(dt, time) {
       if (!playing) dt = 0; if (slow) dt *= 0.3;
-      if (!drag) { idle += dt; if (idle > 1.5) az += dt * 0.06; }
       cam.position.set(Math.sin(az) * Math.cos(el) * dist, 0.6 + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist); cam.lookAt(0, 0.4, 0);
+      screen.lookAt(cam.position); frameEdge.quaternion.copy(screen.quaternion); inPanel.lookAt(cam.position);
       const prev = angle; angle += dt * TAU / period;
       const frame = Math.floor(angle / TAU), within = angle / TAU - frame;
       if (frame !== prevFrame) { if (!lossy || prevFrame % 2 === 0) runTurns++; prevFrame = frame; }
