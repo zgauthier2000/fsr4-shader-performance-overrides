@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Writes the three figures of docs/whats-moving.md, light and dark: wm-now, wm-path, wm-cards.
+# Writes the four figures of docs/whats-moving.md, light and dark: wm-now, wm-path, wm-cards, wm-stats (from wm-stats.json).
 from html import escape
 THEMES = {
     'light': dict(surface='#fcfcfb', ink='#0b0b0b', ink2='#52514e', muted='#898781', line='#c9c8c0', box='#f1f0ec', hi='#2a78d6', hibg='#e3eefb', hot='#eb6834', hotbg='#fdeae2'),
@@ -102,7 +102,60 @@ def cards(t):
     return wrap(o, y + 6, 'Reports most wanted: ' + '; '.join(f'{a}: ' + ', '.join(c) for a, _, c, _ in CARDS), t)
 
 
+def fmt_b(b):
+    return f'{b / 1e12:.1f} TB' if b >= 1e12 else f'{b / 1e9:.0f} GB'
+
+
+def stats(t):
+    # wm-stats.json: written by the author's local measuring scripts (disk use per drive, the job recorder's CPU / GPU / I/O totals); this only draws it
+    import json, os
+    s = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wm-stats.json')))
+    o = [text(24, 32, 'What the project uses', t, 15, 'ink', weight=600), text(24, 52, f"Measured {s['date']} on the author's PC.", t, 12)]
+    y = 76
+    o += [text(24, y, 'DISK SPACE', t, 10, 'ink2', weight=600)]
+    y += 14; bx, bw = 250, 486
+    for d in s['drives']:
+        cap, proj, other = d['capacity'], d['project'], max(d['used'] - d['project'], 0)
+        wp = max(round(bw * proj / cap), 2); wo = round(bw * other / cap)
+        o += [text(24, y + 17, d['name'], t, 12.5, 'ink', weight=600), text(24, y + 33, f"{fmt_b(cap)} drive", t, 10.5, 'muted')]
+        o += [f'<rect x="{bx}" y="{y + 6}" width="{bw}" height="22" rx="4" fill="none" stroke="{t["line"]}"/>',
+              f'<rect x="{bx}" y="{y + 6}" width="{wp}" height="22" rx="4" fill="{t["hi"]}"/>',
+              f'<rect x="{bx + wp + 2}" y="{y + 6}" width="{max(wo - 2, 0)}" height="22" fill="{t["box"]}" stroke="{t["line"]}"/>']
+        lab = f"{fmt_b(proj)} project"
+        o += [text(bx + wp + 8 if wp < 140 else bx + 8, y + 22, lab, t, 11.5, 'ink' if wp < 140 else 'surface', weight=600)]
+        y += 42
+    o += [f'<rect x="{bx}" y="{y + 2}" width="14" height="10" fill="{t["hi"]}"/>', text(bx + 20, y + 11, 'this project', t, 10.5, 'ink2'),
+          f'<rect x="{bx + 110}" y="{y + 2}" width="14" height="10" fill="{t["box"]}" stroke="{t["line"]}"/>', text(bx + 130, y + 11, 'other files', t, 10.5, 'ink2'),
+          text(bx + 220, y + 11, 'empty: free space', t, 10.5, 'muted')]
+    y += 30
+    tot = sum(d['project'] for d in s['drives'])
+    o += [text(24, y, f"Total: {fmt_b(tot)}, backups included ({fmt_b(s['backup'])} of it).", t, 12.5, 'ink', weight=600)]
+    if s.get('files'):
+        o += [text(24, y + 20, f"{s['files']:,} files, not counting the backup copies.", t, 12.5, 'ink2')]
+        y += 20
+    if s.get('grew_week') is not None:
+        o += [text(24, y + 20, f"Grew by about {fmt_b(s['grew_week'])} in the past 7 days ({fmt_b(s['grew_week_backup'])} of it backups).", t, 12.5, 'ink2')]
+        y += 20
+    y += 34
+    o += [text(24, y, 'WORK DONE', t, 10, 'ink2', weight=600), text(470, y, 'Past 7 days', t, 11, 'muted', 'end', 600), text(W - 24, y, f"Since {s['since']}", t, 11, 'muted', 'end', 600)]
+    rows = (('Processor time', lambda x: f"{x['cpu_s'] / 3600:,.0f} h"), ('Graphics card time', lambda x: f"{x['gpu_s'] / 3600:,.0f} h"),
+            ('Data read', lambda x: f"{fmt_b(x['all_r'])} ({fmt_b(x['disk_r'])} from drives)"), ('Data written', lambda x: f"{fmt_b(x['all_w'])} ({fmt_b(x['disk_w'])} to drives)"))
+    y += 10
+    for i, (a, f) in enumerate(rows):
+        o += [f'<line x1="24" y1="{y + 4}" x2="{W - 24}" y2="{y + 4}" stroke="{t["line"]}"/>', text(24, y + 25, a, t, 12.5, 'ink', weight=600),
+              text(470, y + 25, f(s['week']), t, 12.5, 'ink', 'end'), text(W - 24, y + 25, f(s['all']), t, 12.5, 'ink', 'end')]
+        y += 32
+    y += 18
+    for l in s['notes']:
+        o += [text(24, y, l, t, 10.5, 'muted')]; y += 15
+    lab = (f"What the project uses, measured {s['date']}: disk space " + '; '.join(f"{d['name']} {fmt_b(d['project'])} of {fmt_b(d['capacity'])}" for d in s['drives'])
+           + f"; total {fmt_b(tot)} including {fmt_b(s['backup'])} of backups" + (f", {s['files']:,} files not counting backup copies" if s.get('files') else '') + (f"; grew about {fmt_b(s['grew_week'])} in the past 7 days" if s.get('grew_week') is not None else '')
+           + f". Past 7 days: {s['week']['cpu_s'] / 3600:.0f} processor hours, {s['week']['gpu_s'] / 3600:.0f} graphics card hours, {fmt_b(s['week']['all_r'])} read, {fmt_b(s['week']['all_w'])} written."
+           + f" Since {s['since']}: {s['all']['cpu_s'] / 3600:.0f} processor hours, {s['all']['gpu_s'] / 3600:.0f} graphics card hours, {fmt_b(s['all']['all_r'])} read, {fmt_b(s['all']['all_w'])} written.")
+    return wrap(o, y + 4, lab, t)
+
+
 if __name__ == '__main__':
-    for n, f in (('wm-now', now), ('wm-path', path), ('wm-cards', cards)):
+    for n, f in (('wm-now', now), ('wm-path', path), ('wm-cards', cards), ('wm-stats', stats)):
         for k, t in THEMES.items():
             open(f'{n}-{k}.svg', 'w').write('\n'.join(f(t)) + '\n')
