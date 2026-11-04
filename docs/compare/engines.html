@@ -33,9 +33,11 @@ header { display: grid; gap: 10px; }
 .lede { max-width: 66ch; color: var(--muted); margin: 0; }
 .lede b { color: var(--ink); font-weight: 600; }
 .bay { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; overflow: hidden; }
+@media (min-width: 861px) { .bay .stage { aspect-ratio: auto; min-height: 460px; } }
 .stage { position: relative; min-width: 0; aspect-ratio: 16 / 10; max-width: 100%; background: radial-gradient(120% 90% at 50% 35%, #1a2530 0%, var(--bg) 70%); cursor: grab; touch-action: pan-y; }
 .stage:active { cursor: grabbing; }
 .stage canvas { display: block; width: 100%; height: 100%; }
+.nogl { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 24px; text-align: center; color: var(--muted); font-size: 14px; }
 .hud { position: absolute; left: 14px; top: 12px; font-family: var(--mono); font-size: 12px; color: var(--muted); display: grid; gap: 2px; pointer-events: none; font-variant-numeric: tabular-nums; }
 .hud .state { color: var(--ink); font-weight: 500; }
 .ctrl { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 6px; }
@@ -43,6 +45,7 @@ header { display: grid; gap: 10px; }
 .ctrl button:hover { border-color: var(--muted); }
 .ctrl button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .ctrl button[aria-pressed="true"] { border-color: var(--ink); }
+.ctrl button[aria-label] { min-width: 32px; font-size: 14px; }
 aside { border-left: 1px solid var(--rule); padding: 20px 20px 22px; display: grid; gap: 14px; align-content: start; min-width: 0; }
 .name { font-family: var(--display); font-weight: 800; font-size: 34px; letter-spacing: 0.03em; line-height: 1; text-transform: uppercase; margin: 0; }
 .exact .name { color: var(--brass); }
@@ -63,7 +66,7 @@ footer a { color: var(--brass); }
 @media (max-width: 860px) {
   .bay { grid-template-columns: minmax(0, 1fr); }
   aside { border-left: 0; border-top: 1px solid var(--rule); }
-  .stage { aspect-ratio: 4 / 3.4; }
+  .stage { aspect-ratio: 4 / 3.6; }
 }
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
@@ -73,14 +76,14 @@ footer a { color: var(--brass); }
 <div class="wrap">
   <header>
     <h1 class="plate">Two <span>Lite</span> engines, <em>one</em> rhythm apart</h1>
-    <p class="lede">The two FSR 4.1.2 Lite builds of this project, drawn as glass engines. One turn of the crank is one game frame. Each frame enters at the intake on the left, goes through the <b>prepass</b>, the network's <b>three passes</b> (the cylinders) and the <b>postpass</b>, and leaves as the upscaled picture on the right; the postpass also sends a copy back as <b>history</b> for the next frame. Drag an engine to turn it; the picture screens always face you.</p>
+    <p class="lede">The two FSR 4.1.2 Lite builds of this project, drawn as glass engines. One turn of the crank is one game frame. Each frame enters at the intake on the left, goes through the <b>prepass</b>, the network's <b>three passes</b> (the cylinders) and the <b>postpass</b>, and leaves as the upscaled picture on the right; the postpass also sends a copy back as <b>history</b> for the next frame. The two engines turn together; drag one to look around it, and zoom with + and &minus;, a pinch, or Ctrl and the mouse wheel. The picture screens always face you.</p>
   </header>
 
   <section class="bay exact" aria-label="4.1.2l-exact engine">
     <div class="stage" id="stage-exact">
       <canvas id="c-exact" aria-label="Animated glass engine: three cylinders fire on every turn, with a red outline of AMD's engine moving exactly on top of it."></canvas>
       <div class="hud" aria-live="off"><span>4.1.2l-exact · turn = frame</span><span class="state" id="hud-exact">frame 0</span></div>
-      <div class="ctrl"><button type="button" id="play-exact" aria-pressed="false">Pause</button><button type="button" id="slow-exact" aria-pressed="false">Slow</button></div>
+      <div class="ctrl"><button type="button" id="zin-exact" aria-label="Zoom in">+</button><button type="button" id="zout-exact" aria-label="Zoom out">&minus;</button><button type="button" id="play-exact" aria-pressed="false">Pause</button><button type="button" id="slow-exact" aria-pressed="false">Slow</button></div>
     </div>
     <aside>
       <div class="tag">Same picture as AMD's Lite</div>
@@ -101,7 +104,7 @@ footer a { color: var(--brass); }
     <div class="stage" id="stage-lossy">
       <canvas id="c-lossy" aria-label="Animated glass engine: the cylinders fire on every other turn; on the turns between, a clutch opens and a glowing tank of stored network output feeds the output rotor through a motion-following gimbal."></canvas>
       <div class="hud" aria-live="off"><span>4.1.2l-lossy · turn = frame</span><span class="state" id="hud-lossy">frame 0</span></div>
-      <div class="ctrl"><button type="button" id="play-lossy" aria-pressed="false">Pause</button><button type="button" id="slow-lossy" aria-pressed="false">Slow</button></div>
+      <div class="ctrl"><button type="button" id="zin-lossy" aria-label="Zoom in">+</button><button type="button" id="zout-lossy" aria-label="Zoom out">&minus;</button><button type="button" id="play-lossy" aria-pressed="false">Pause</button><button type="button" id="slow-lossy" aria-pressed="false">Slow</button></div>
     </div>
     <aside>
       <div class="tag">Changes the picture</div>
@@ -126,6 +129,7 @@ footer a { color: var(--brass); }
 (function () {
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const TAU = Math.PI * 2;
+  let drift = 0;      // shared by both engines: they swing together, within +-0.45 rad of the front view, so the screens stay in sight
 
   function label(text, color, size) {
     const c = document.createElement('canvas'); const s = 4; c.width = 512 * s / 2; c.height = 96 * s / 2;
@@ -144,7 +148,9 @@ footer a { color: var(--brass); }
 
   function engine(canvas, opt) {
     const lossy = opt.lossy, accent = new THREE.Color(opt.accent);
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    let renderer;
+    try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); }
+    catch (err) { const n = document.createElement('p'); n.className = 'nogl'; n.textContent = 'This browser could not start 3D graphics (WebGL), so the engine cannot be shown here.'; canvas.parentElement.appendChild(n); return null; }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputEncoding = THREE.sRGBEncoding;
     const scene = new THREE.Scene();
@@ -160,9 +166,9 @@ footer a { color: var(--brass); }
     const root = new THREE.Group(); scene.add(root);
 
     // floor: a turned-steel disc with engraved rings
-    const floor = new THREE.Mesh(new THREE.CircleGeometry(9, 96), new THREE.MeshStandardMaterial({ color: 0x121a20, metalness: 0.6, roughness: 0.55 }));
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(7.4, 96), new THREE.MeshStandardMaterial({ color: 0x0f161b, metalness: 0.25, roughness: 0.85 }));
     floor.rotation.x = -Math.PI / 2; floor.position.y = -2.25; root.add(floor);
-    for (let r = 2; r <= 8.5; r += 1.6) {
+    for (let r = 2; r <= 7.0; r += 1.6) {
       const ring = new THREE.Mesh(new THREE.RingGeometry(r, r + 0.02, 128), new THREE.MeshBasicMaterial({ color: 0x24323d, side: THREE.DoubleSide }));
       ring.rotation.x = -Math.PI / 2; ring.position.y = -2.24; root.add(ring);
     }
@@ -279,27 +285,36 @@ footer a { color: var(--brass); }
     }
 
     // labels
-    const L = (t, c, x, y, z, s) => { const sp = label(t, c, s || 0.32); sp.position.set(x, y, z); root.add(sp); return sp; };
+    const labels = []; const L = (t, c, x, y, z, s, right) => { const sp = label(t, c, (s || 0.32) * 1.55); sp.userData.h = (s || 0.32) * 1.55; if (right) sp.center.set(right, 0.5); sp.position.set(x, y, z); root.add(sp); labels.push(sp); return sp; };
     L('frame in', '#7fb6e6', -7.4, 1.65, 0.2);
     L('prepass', '#7fb6e6', -5.0, 1.45, 0.4);
     L('network: 3 passes', opt.accent, -1.6, 3.45, 0.2);
     L('postpass', '#f3c98b', 4.6, -0.75, 0.6);
-    L('picture out', opt.accent, 5.6, 1.95, 0.2);
+    L('picture out', opt.accent, 7.6, 1.95, 0.2, 0.32, 0.62);
     L('history', '#9a7fe0', -0.6, -2.0, 0.9, 0.28);
-    if (lossy) { L('stored output', '#64e3c4', 2.2, 3.45, 0.6, 0.28); L('motion follow', '#64e3c4', 4.7, 2.2, 0.8, 0.26); L('clutch', '#c4f0f2', -2.9, -1.85, 0.5, 0.26); }
+    if (lossy) { L('stored output', '#64e3c4', 2.2, 3.45, 0.6, 0.28); L('motion follow', '#64e3c4', 3.95, 1.75, 0.8, 0.26, 1); L('clutch', '#c4f0f2', -2.9, -1.85, 0.5, 0.26); }
     else { L("AMD's Lite (outline)", '#e0614e', 1.9, 1.3, 1.0, 0.26); }
 
     // camera control: drag to turn, slow drift when idle
-    let az = lossy ? 0.35 : -0.35, el = 0.3, dist = 17.5, drag = null, idle = 0;
-    canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, az, el }; canvas.setPointerCapture(e.pointerId); });
-    canvas.addEventListener('pointermove', e => { if (!drag) return; az = drag.az - (e.clientX - drag.x) * 0.008; el = Math.max(-0.1, Math.min(1.1, drag.el + (e.clientY - drag.y) * 0.006)); idle = 0; });
-    const end = () => { drag = null; }; canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+    let az = 0, el = 0.3, dist = 17.5, drag = null, idle = 0;
+    let zoom = 1; const ZMIN = 0.35, ZMAX = 1.5; const setZoom = z => { zoom = Math.max(ZMIN, Math.min(ZMAX, z)); };
+    const pts = new Map(); let pinch = null;
+    canvas.addEventListener('pointerdown', e => { pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); canvas.setPointerCapture(e.pointerId);
+      if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: zoom }; drag = null; } else if (pts.size === 1) drag = { x: e.clientX, y: e.clientY, az, el }; });
+    canvas.addEventListener('pointermove', e => { if (!pts.has(e.pointerId)) return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pinch && pts.size === 2) { const [a, b] = [...pts.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (d > 10) setZoom(pinch.z * pinch.d / d); return; }
+      if (!drag) return; az = drag.az - (e.clientX - drag.x) * 0.008; el = Math.max(-0.1, Math.min(1.1, drag.el + (e.clientY - drag.y) * 0.006)); });
+    const end = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; if (pts.size === 0) drag = null; }; canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+    // trackpad pinch and Ctrl + wheel zoom; a plain wheel keeps scrolling the page
+    canvas.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); setZoom(zoom * Math.exp(e.deltaY * 0.01)); }, { passive: false });
 
     function resize() {
       const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
-      renderer.setSize(w, h, false); cam.aspect = w / h; cam.fov = w / h < 1.3 ? 48 : 36; dist = w / h < 1.3 ? 21 : 17.5; cam.updateProjectionMatrix();
+      renderer.setSize(w, h, false); cam.aspect = w / h; cam.fov = 38; cam.updateProjectionMatrix();
+      const narrow = cam.aspect < 1.4; dist = Math.max(11, (narrow ? 15.6 : 16.8) / (2 * Math.tan(cam.fov * Math.PI / 360) * cam.aspect) + (narrow ? 1.2 : 2.5));
+      const k = Math.min(2.1, Math.max(1, 1.9 / cam.aspect)); labels.forEach(s => s.scale.set(s.userData.h * k * 512 / 96, s.userData.h * k, 1));
     }
-    resize(); window.addEventListener('resize', resize);
+    window.addEventListener('resize', resize);
 
     // the picture on the screen: a little scene that scrolls with the camera "motion"
     function drawScreen(time, frame, ran, flash) {
@@ -328,7 +343,7 @@ footer a { color: var(--brass); }
     let runTurns = 0, prevFrame = 0;
     function update(dt, time) {
       if (!playing) dt = 0; if (slow) dt *= 0.3;
-      cam.position.set(Math.sin(az) * Math.cos(el) * dist, 0.6 + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist); cam.lookAt(0, 0.4, 0);
+      const a = az + 0.45 * Math.sin(drift * 0.16); const dz = dist * zoom; cam.position.set(Math.sin(a) * Math.cos(el) * dz, 0.6 + Math.sin(el) * dz, Math.cos(a) * Math.cos(el) * dz); cam.lookAt(0, 0.4, 0);
       screen.lookAt(cam.position); frameEdge.quaternion.copy(screen.quaternion); inPanel.lookAt(cam.position);
       const prev = angle; angle += dt * TAU / period;
       const frame = Math.floor(angle / TAU), within = angle / TAU - frame;
@@ -387,16 +402,21 @@ footer a { color: var(--brass); }
       renderer.render(scene, cam);
     }
     function setPlaying(p) { playing = p; }
-    return { update, setPlaying, isPlaying: () => playing, toggleSlow: () => (slow = !slow), resize, stage: canvas.parentElement, renderOnce: () => update(0, 0) };
+    resize();
+    return { zoomBy: f => setZoom(zoom * f), update, setPlaying, isPlaying: () => playing, toggleSlow: () => (slow = !slow), resize, stage: canvas.parentElement, renderOnce: () => update(0, 0) };
   }
 
-  const engines = [
+  const made = [
     engine(document.getElementById('c-exact'), { lossy: false, accent: '#d9a55b', period: 2.4, hud: 'hud-exact' }),
     engine(document.getElementById('c-lossy'), { lossy: true, accent: '#46c2c9', period: 2.0, hud: 'hud-lossy' }),
   ];
+  const engines = made.filter(Boolean);
   // the lossy crank turns faster: same number of frames in less time (period 2.0 s against 2.4 s, an illustration of "less time per frame")
   [['exact', 0], ['lossy', 1]].forEach(([n, i]) => {
-    const e = engines[i], pb = document.getElementById('play-' + n), sb = document.getElementById('slow-' + n);
+    const e = made[i]; if (!e) { document.getElementById('play-' + n).parentElement.hidden = true; return; }
+    const pb = document.getElementById('play-' + n), sb = document.getElementById('slow-' + n);
+    document.getElementById('zin-' + n).addEventListener('click', () => e.zoomBy(0.8));
+    document.getElementById('zout-' + n).addEventListener('click', () => e.zoomBy(1.25));
     const sync = () => { pb.textContent = e.isPlaying() ? 'Pause' : 'Play'; pb.setAttribute('aria-pressed', String(!e.isPlaying())); };
     pb.addEventListener('click', () => { e.setPlaying(!e.isPlaying()); sync(); });
     sb.addEventListener('click', () => { const s = e.toggleSlow(); sb.setAttribute('aria-pressed', String(s)); sb.textContent = s ? 'Normal' : 'Slow'; });
@@ -410,7 +430,8 @@ footer a { color: var(--brass); }
   engines.forEach(e => e.renderOnce());
   let last = performance.now();
   function loop(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
+    if (!reduce) drift += dt;
     engines.forEach(e => { if (visible.get(e)) e.update(dt, now / 1000); });
     requestAnimationFrame(loop);
   }
