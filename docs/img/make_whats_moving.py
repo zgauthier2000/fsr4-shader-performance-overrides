@@ -30,11 +30,11 @@ def wrap(body, H, label, t):
     return [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(label)}">', f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>'] + body + ['</svg>']
 
 
-NOW = (('Lossy builds on RX 6000', 'Spreading the work evenly across each frame', 'cost narrowed down', 'Timing kit reports: RX 6000 cards'),
-       ('Exact builds', "More speed, picture still AMD's, byte for byte", 'new speedups to time', 'Timing kit reports: RX 6000 and RX 7000 cards'),
-       ('Small and handheld chips', 'Sizes between 1080p and 4K, and 800p', '800p not in the kit yet', 'Timing kit reports: handhelds and built-in graphics'),
-       ('Lossy picture quality', 'Judged on clips recorded from real games', 'needs examples', 'Games and scenes where a lossy build looks wrong'),
-       ('Ideas from DeckyUpscaler', 'Which of its speedups help which cards', 'Windows not measured', 'Timing kit reports: Steam Deck and Windows cards'))
+NOW = (('Lossy builds on RX 6000', 'Spreading the work evenly across each frame', 'still a few % slower', 'Timing kit reports: RX 6000 cards'),
+       ('Exact builds', "More speed, picture still AMD's, byte for byte", 'new speedups in the kit', 'Timing kit reports: RX 7600 and Steam Machine'),
+       ('Small and handheld chips', 'Sizes between 1080p and 4K, and 800p', '800p now in the kit', 'Timing kit reports: handhelds and built-in graphics'),
+       ('Lossy picture quality', 'Fewer twinkling specks in foliage', 'needs examples', 'Games and scenes where a lossy build looks wrong'),
+       ('A cleaner Lite (early)', "Teaching Lite to fix its weakest spots", 'one run at a time', 'Games and scenes where Lite looks wrong'))
 
 
 def now(t):
@@ -56,7 +56,7 @@ def now(t):
 STEPS = (('Idea', 'more speed or a', 'better picture', 0), ('Train', 'network runs on', 'one RX 7800 XT', 0), ('Test here', 'Linux only, on', 'the same card', 0), ('Timing kit', 'your PC, your', 'Windows or Linux', 1), ('Release', 'if the numbers', 'hold up', 0))
 HELP = ((1, ('One GPU with 16 GB: one run at a time,', 'about an hour per run', '30 GB of system memory', 'Each setting needs several runs'), ('More GPU memory, a faster GPU,', 'more system memory')),
         (2, ('Linux and one card: no Windows or', 'RX 6000 timing here', 'Clips and data on one slow USB drive'), ('A Windows PC with Radeon, an', 'RX 6000 card, a bigger, faster drive')),
-        (3, ('Only the cards people own and report', 'Each experiment needs a new kit,', 'then time for reports to arrive'), ('Your timing kit report,', 'from any card')))
+        (3, ('Only the cards people own and report', 'New tests reach the kit by itself,', 'then reports take time to arrive'), ('Your timing kit report,', 'from any card')))
 
 
 def path(t):
@@ -80,10 +80,10 @@ def path(t):
         o += [text(x + 12, yh + 38 + 16 * k, l, t, 11.5, 'ink') for k, l in enumerate(lim)]
         o += [text(x + 12, yh + 104, 'WOULD HELP', t, 10, 'ink2', weight=600)]
         o += [text(x + 12, yh + 122 + 17 * k, l, t, 11.5, 'ink', weight=600) for k, l in enumerate(helps)]
-    return wrap(o, yh + 174, 'The path of an improvement: idea, training on one RX 7800 XT, testing here on Linux, the timing kit on testers\' PCs, release; kit results lead to the next change. Training is limited by one GPU with 16 GB, one run at a time at about an hour per run, 30 GB of system memory and several runs per setting; more GPU or system memory or a faster GPU would help. Testing here is limited to Linux and one card, with data on one slow USB drive; a Windows PC with Radeon, an RX 6000 card or a bigger, faster drive would help. The kit is limited to the cards people report and needs a new kit per experiment; your report helps.', t)
+    return wrap(o, yh + 174, 'The path of an improvement: idea, training on one RX 7800 XT, testing here on Linux, the timing kit on testers\' PCs, release; kit results lead to the next change. Training is limited by one GPU with 16 GB, one run at a time at about an hour per run, 30 GB of system memory and several runs per setting; more GPU or system memory or a faster GPU would help. Testing here is limited to Linux and one card, with data on one slow USB drive; a Windows PC with Radeon, an RX 6000 card or a bigger, faster drive would help. The kit is limited to the cards people report, and reports take time to arrive after new tests reach the kit; your report helps.', t)
 
 
-CARDS = (('RX 6000', 'current focus', ['every card, even if already reported'], 1), ('RX 7000', '', ['RX 7700 XT', 'RX 7900 GRE', 'laptop chips', 'others welcome'], 1),
+CARDS = (('RX 6000', 'current focus', ['every card, even if already reported'], 1), ('RX 7000', '', ['RX 7600', 'Steam Machine', 'RX 7700 XT', 'RX 7900 GRE', 'laptop chips'], 1),
          ('Built-in', '', ['780M', '760M', '880M', '680M', '660M'], 1), ('Handhelds', 'Windows or Linux', ['Steam Deck', 'ROG Ally', 'Legion Go'], 1),
          ('Older Radeon', '', ['RX 5000', 'Vega'], 1), ('Others', '', ['GeForce', 'Arc'], 1))
 
