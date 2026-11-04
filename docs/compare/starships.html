@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="The FSR 4.1.2 Lite builds of fsr4-shader-performance-overrides as animated starship displays.">
+<title>Lite Starships</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antonio:wght@500;700&family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a machine-shop showroom. A stamped title plate, then two engine bays stacked, each a 3D stage with a parts legend and a live readout beside it. */
+:root {
+  color-scheme: dark;
+  --bg: #0e1317;          /* graphite floor */
+  --panel: #141b21;       /* bay walls */
+  --rule: #25313b;
+  --ink: #e6edf1;
+  --muted: #8b9aa6;
+  --brass: #d9a55b;       /* exact engine */
+  --teal: #46c2c9;        /* lossy engine */
+  --amd: #e0614e;         /* AMD reference */
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 28px; }
+header { display: grid; gap: 10px; }
+.plate { font-family: var(--display); font-weight: 800; font-size: clamp(40px, 7vw, 76px); letter-spacing: 0.02em; line-height: 0.95; text-transform: uppercase; text-wrap: balance; margin: 0; }
+.plate span { color: var(--brass); }
+.plate em { font-style: normal; color: var(--teal); }
+.lede { max-width: 66ch; color: var(--muted); margin: 0; }
+.lede b { color: var(--ink); font-weight: 600; }
+.bay { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; overflow: hidden; }
+@media (min-width: 861px) { .bay .stage { aspect-ratio: auto; min-height: 460px; } }
+.stage { position: relative; min-width: 0; aspect-ratio: 16 / 10; max-width: 100%; background: #000; }
+.stage canvas { display: block; width: 100%; height: 100%; }
+.nogl { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 24px; text-align: center; color: var(--muted); font-size: 14px; }
+.hud { position: absolute; left: 14px; top: 12px; font-family: var(--mono); font-size: 12px; color: var(--muted); display: grid; gap: 2px; pointer-events: none; font-variant-numeric: tabular-nums; }
+.hud .state { color: var(--ink); font-weight: 500; }
+.ctrl { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 6px; }
+.ctrl button { font: 500 12px var(--mono); color: var(--ink); background: rgba(14, 19, 23, 0.72); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+.ctrl button:hover { border-color: var(--muted); }
+.ctrl button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.ctrl button[aria-pressed="true"] { border-color: var(--ink); }
+.ctrl button[aria-label] { min-width: 32px; font-size: 14px; }
+aside { border-left: 1px solid var(--rule); padding: 20px 20px 22px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.name { font-family: var(--display); font-weight: 800; font-size: 34px; letter-spacing: 0.03em; line-height: 1; text-transform: uppercase; margin: 0; }
+.exact .name { color: var(--brass); }
+.lossy .name { color: var(--teal); }
+.tag { font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+aside p { margin: 0; font-size: 14px; }
+.parts { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 13.5px; }
+.parts li { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 9px; align-items: baseline; }
+.parts i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; transform: translateY(1px); }
+.parts b { font-weight: 600; }
+.figure { font-family: var(--mono); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 12px; display: grid; gap: 4px; font-variant-numeric: tabular-nums; }
+.figure strong { font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: 0.02em; line-height: 1; }
+.exact .figure strong { color: var(--brass); }
+.lossy .figure strong { color: var(--teal); }
+.figure span { color: var(--muted); }
+footer { color: var(--muted); font-size: 13px; max-width: 80ch; }
+footer a { color: var(--brass); }
+@media (max-width: 860px) {
+  .bay { grid-template-columns: minmax(0, 1fr); }
+  aside { border-left: 0; border-top: 1px solid var(--rule); }
+  .stage { aspect-ratio: 4 / 3.6; }
+}
+.stage canvas { display: block; width: 100%; height: 100%; }
+@media (max-width: 860px) { .bay .stage { aspect-ratio: 600 / 860; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 class="plate">Two <span>Lite</span> starships, <em>one</em> rhythm apart</h1>
+    <p class="lede">The two FSR 4.1.2 Lite builds of this project, drawn as starship engineering displays. One cycle is one game frame. The frame enters at the <b>sensor array</b> (the prepass), passes through <b>three plasma injectors</b> (the network's three passes) and the <b>image assembly</b> (the postpass), and appears on the viewscreen; the image assembly also keeps a copy in the <b>log buffer</b> as history for the next frame.</p>
+  </header>
+
+  <section class="bay exact" aria-label="4.1.2l-exact starship">
+    <div class="stage">
+      <canvas id="c-exact" aria-label="Animated engineering display: the three plasma injectors fire in order on every cycle, and the AMD reference panel shows zero deviation."></canvas>
+      <div class="ctrl"><button type="button" id="play-exact" aria-pressed="false">Pause</button><button type="button" id="slow-exact" aria-pressed="false">Slow</button></div>
+    </div>
+    <aside>
+      <div class="tag">Same picture as AMD's Lite</div>
+      <h2 class="name">4.1.2l-exact</h2>
+      <p>All three injectors fire on every cycle, as in AMD's own Lite. The reference panel compares each frame with AMD's: the deviation stays at zero, because the output is the same, byte for byte. The ship is tuned finer, so each cycle costs less.</p>
+      <ul class="parts">
+        <li><i style="background:#99ccff"></i><span><b>Sensor array</b>: the prepass gathers the frame's color, depth and motion</span></li>
+        <li><i style="background:#ff9c00"></i><span><b>Injectors 1-3</b>: the network's three passes, AMD's weights</span></li>
+        <li><i style="background:#ffcc99"></i><span><b>Image assembly</b>: the postpass builds the picture</span></li>
+        <li><i style="background:#cc99cc"></i><span><b>Log buffer</b>: history for the next frame</span></li>
+        <li><i style="background:#cc6666"></i><span><b>AMD reference</b>: AMD's Lite, for comparison</span></li>
+      </ul>
+      <div class="figure"><strong>4-17%</strong><span>less time per frame than AMD's Lite, Windows timing-kit reports</span></div>
+    </aside>
+  </section>
+
+  <section class="bay lossy" aria-label="4.1.2l-lossy starship">
+    <div class="stage">
+      <canvas id="c-lossy" aria-label="Animated engineering display: the plasma injectors fire on every other cycle; on the cycles between, the pattern buffer sends the stored network output through course correction to the image assembly."></canvas>
+      <div class="ctrl"><button type="button" id="play-lossy" aria-pressed="false">Pause</button><button type="button" id="slow-lossy" aria-pressed="false">Slow</button></div>
+    </div>
+    <aside>
+      <div class="tag">Changes the picture</div>
+      <h2 class="name">4.1.2l-lossy</h2>
+      <p>The injectors fire on every other cycle. On the cycles between they stand by: the pattern buffer holds the last network output, and course correction moves it along the game's motion before the image assembly uses it. Its weights were retrained for this rhythm, so the cycles run faster.</p>
+      <ul class="parts">
+        <li><i style="background:#99ccff"></i><span><b>Sensor array</b>: the prepass, every frame</span></li>
+        <li><i style="background:#66ccff"></i><span><b>Injectors 1-3</b>: the network, every other frame, retrained weights</span></li>
+        <li><i style="background:#9999ff"></i><span><b>Pattern buffer</b>: the stored network output</span></li>
+        <li><i style="background:#ffaa44"></i><span><b>Course correction</b>: moves it with the motion</span></li>
+        <li><i style="background:#ffcc99"></i><span><b>Image assembly</b>: the postpass, every frame</span></li>
+      </ul>
+      <div class="figure"><strong>12-25%</strong><span>less time per frame than AMD's Lite, Windows timing-kit reports</span></div>
+    </aside>
+  </section>
+
+  <footer>An illustration, not a diagram of the shaders: the parts stand for the stages of FSR 4.1.2 Lite and show what each build changes. Figures are the project's published timing-kit medians at the sizes reported. <a href="engines.html">The glass engine version</a> · <a href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides">The project on GitHub</a>.</footer>
+</div>
+<script>
+(function () {
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const C = { or: '#ff9c00', peach: '#ffcc99', lav: '#cc99cc', purp: '#9999ff', blue: '#99ccff', red: '#cc6666', gold: '#ffaa44', teal: '#66ccff', dim: '#3a2c1c', ink: '#000000' };
+  const F = '"Antonio", "Arial Narrow", "Helvetica Neue", Arial, sans-serif';
+  const TAU = Math.PI * 2;
+
+  // LCARS shapes
+  function pill(g, x, y, w, h, col, left, right) {
+    const r = h / 2; g.fillStyle = col; g.beginPath();
+    g.moveTo(x + (left ? r : 0), y);
+    g.lineTo(x + w - (right ? r : 0), y);
+    if (right) g.arc(x + w - r, y + r, r, -Math.PI / 2, Math.PI / 2); else g.lineTo(x + w, y + h);
+    g.lineTo(x + (left ? r : 0), y + h);
+    if (left) g.arc(x + r, y + r, r, Math.PI / 2, Math.PI * 1.5); else g.lineTo(x, y);
+    g.fill();
+  }
+  function elbow(g, x, y, sw, bw, bh, len, R, ri, col, flip) {
+    // an L-shaped LCARS elbow: a sidebar sw wide and a bar bh high, outer corner R, inner corner ri; flip = bottom-left
+    g.save(); if (flip) { g.translate(0, 2 * y + len); g.scale(1, -1); }
+    g.fillStyle = col; g.beginPath();
+    g.moveTo(x, y + len); g.lineTo(x, y + R); g.arcTo(x, y, x + R, y, R); g.lineTo(x + bw, y); g.lineTo(x + bw, y + bh);
+    g.lineTo(x + sw + ri, y + bh); g.arcTo(x + sw, y + bh, x + sw, y + bh + ri, ri); g.lineTo(x + sw, y + len); g.closePath(); g.fill();
+    g.restore();
+  }
+  function text(g, s, x, y, size, col, align, weight) { g.font = `${weight || 500} ${size}px ${F}`; g.fillStyle = col; g.textAlign = align || 'left'; g.textBaseline = 'middle'; g.fillText(s, x, y); }
+  function lerp(a, b, u) { return a + (b - a) * u; }
+  function along(path, u) {
+    let L = 0; const seg = []; for (let i = 1; i < path.length; i++) { const d = Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]); seg.push(d); L += d; }
+    let t = u * L; for (let i = 0; i < seg.length; i++) { if (t <= seg[i] || i === seg.length - 1) { const v = seg[i] ? Math.min(1, t / seg[i]) : 0; return [lerp(path[i][0], path[i + 1][0], v), lerp(path[i][1], path[i + 1][1], v)]; } t -= seg[i]; }
+  }
+  const win = (u, a, b) => (u >= a && u < b) ? (u - a) / (b - a) : -1;      // -1 outside, else 0..1
+  const glow = (u, a, b) => { const v = win(u, a, b); return v < 0 ? 0 : Math.sin(v * Math.PI); };
+
+  // layouts: logical coordinates, wide (desktop) and tall (phone)
+  function layout(wide, lossy) {
+    if (wide) {
+      const L = { W: 1000, H: 620, wide: true, fs: 17,
+        frame: { sw: 120, bh: 34, R: 46, ri: 26, top: 10, len: 250, bot: 360 },
+        title: [990, 27],
+        mods: { sens: [190, 210, 140, 56], i1: [380, 210, 100, 56], i2: [500, 210, 100, 56], i3: [620, 210, 100, 56], asm: [760, 210, 150, 56] },
+        vs: [700, 312, 280, 168], read: [190, 318, 180, 150],
+        paths: { input: [[150, 238], [190, 238]], toNet: [[330, 238], [380, 238]], n12: [[480, 238], [500, 238]], n23: [[600, 238], [620, 238]], toAsm: [[720, 238], [760, 238]],
+                 toVs: [[860, 266], [860, 312]], hist: [[700, 470], [222, 470], [222, 266]], bypass: [[300, 266], [300, 292], [790, 292], [790, 266]],
+                 toBuf: [[670, 210], [670, 166]], bufCc: [[730, 141], [760, 141]], ccAsm: [[835, 166], [835, 210]] },
+        columns: true };
+      if (lossy) { L.mods.buf = [560, 116, 170, 50]; L.mods.cc = [760, 116, 150, 50]; } else L.mods.ref = [400, 340, 270, 48];
+      return L;
+    }
+    const L = { W: 600, H: 860, wide: false, fs: 22,
+      frame: { sw: 64, bh: 34, R: 40, ri: 22, top: 10, len: 330, bot: 520 },
+      title: [590, 27],
+      mods: { sens: [110, 92, 230, 54], i1: [110, 192, 140, 54], i2: [268, 192, 140, 54], i3: [426, 192, 140, 54], asm: [110, 372, 456, 54] },
+      vs: [110, 462, 456, 232], read: [110, 716, 456, 92],
+      paths: { input: [[225, 64], [225, 92]], toNet: [[180, 146], [180, 192]], n12: [[250, 219], [268, 219]], n23: [[408, 219], [426, 219]], toAsm: [[566, 219], [584, 219], [584, 399], [566, 399]],
+               toVs: [[338, 426], [338, 462]], hist: [[110, 680], [86, 680], [86, 106], [110, 106]], bypass: [[110, 130], [98, 130], [98, 390], [110, 390]],
+               toBuf: [[496, 246], [496, 282]], bufCc: [[350, 305], [338, 305]], ccAsm: [[224, 328], [224, 372]] },
+      columns: false };
+    if (lossy) { L.mods.buf = [350, 282, 216, 46]; L.mods.cc = [110, 282, 228, 46]; } else L.mods.ref = [110, 282, 456, 46];
+    return L;
+  }
+
+  function ship(canvas, opt) {
+    const lossy = opt.lossy, acc = lossy ? C.teal : C.or;
+    const g = canvas.getContext('2d');
+    const scr = document.createElement('canvas'); scr.width = 480; scr.height = 300; const sg = scr.getContext('2d');
+    let Lw, Lt, cw = 0, ch = 0, dpr = 1;
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2); cw = canvas.clientWidth; ch = canvas.clientHeight; if (!cw || !ch) return;
+      canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
+    }
+    resize(); window.addEventListener('resize', resize);
+    Lw = layout(true, lossy); Lt = layout(false, lossy);
+
+    function drawScreen(frame, ran) {
+      const W = scr.width, H = scr.height;
+      const sky = sg.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#0b1030'); sky.addColorStop(0.55, '#3a2a6a'); sky.addColorStop(1, '#c46a4a');
+      sg.fillStyle = sky; sg.fillRect(0, 0, W, H);
+      for (let k = 0; k < 60; k++) { const x = (k * 97 + frame * (k % 3 + 1) * 3) % W, y = (k * 53) % (H * 0.55); sg.fillStyle = `rgba(255,255,255,${0.35 + (k % 5) * 0.12})`; sg.fillRect(x, y, k % 7 ? 1.5 : 2.5, k % 7 ? 1.5 : 2.5); }
+      sg.fillStyle = '#ffcc99'; sg.beginPath(); sg.arc(W * 0.7, H * 0.5, 34, 0, TAU); sg.fill();
+      sg.fillStyle = 'rgba(255,204,153,0.25)'; sg.beginPath(); sg.ellipse(W * 0.7, H * 0.5, 70, 14, -0.2, 0, TAU); sg.fill();
+      const pan = frame * 7;
+      for (let layer = 0; layer < 3; layer++) {
+        sg.fillStyle = ['#4a2c55', '#2a1c3c', '#120d22'][layer]; sg.beginPath(); sg.moveTo(0, H);
+        for (let x = 0; x <= W; x += 8) { const u = (x + pan * (layer + 1) * 0.6) * (0.01 + layer * 0.005); sg.lineTo(x, H * (0.66 + layer * 0.1) - Math.sin(u) * (18 - layer * 4) - Math.sin(u * 2.3) * 7); }
+        sg.lineTo(W, H); sg.fill();
+      }
+    }
+
+    const period = opt.period; let t = 0, playing = !reduce, slow = false, lastFrame = -1;
+    function update(dt) {
+      if (!playing) dt = 0; if (slow) dt *= 0.3;
+      t += dt;
+      const cyc = t / period, frame = Math.floor(cyc), u = cyc - frame, ran = !lossy || frame % 2 === 0;
+      if (frame !== lastFrame) { lastFrame = frame; drawScreen(frame, ran); }
+      if (!cw || !ch) return;
+      const wide = cw / ch > 1.15, L = wide ? Lw : Lt;
+      const s = Math.min(cw / L.W, ch / L.H), ox = (cw - L.W * s) / 2, oy = (ch - L.H * s) / 2;
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = '#000'; g.fillRect(0, 0, cw, ch);
+      g.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
+      const fs = L.fs, f = L.frame;
+
+      // frame: two elbows, sidebar blocks, top bar segments, bottom bar
+      elbow(g, 10, f.top, f.sw, L.W * (wide ? 0.42 : 0.38), f.bh, f.len, f.R, f.ri, C.or, false);
+      elbow(g, 10, L.H - 10 - (L.H - 10 - f.bot), f.sw, L.W * (wide ? 0.3 : 0.32), f.bh, L.H - 10 - f.bot, f.R, f.ri, C.lav, true);
+      const sbTop = f.top + f.len + 6, sbBot = f.bot - 6, blocks = [[C.peach, '41-12'], [C.purp, '0' + (frame % 10) + '-77'], [C.red, '2740'], [C.blue, '04-' + (100 + frame % 900)]];
+      const bh = (sbBot - sbTop - 6 * (blocks.length - 1)) / blocks.length;
+      blocks.forEach(([col, lab], k) => {
+        const y = sbTop + k * (bh + 6); const blink = k === 1 && (u < 0.5); g.fillStyle = blink ? C.gold : col; g.fillRect(10, y, f.sw, bh);
+        text(g, lab, 10 + f.sw - 8, y + bh - 12, fs * 0.8, C.ink, 'right');
+      });
+      // top bar: segments after the elbow, then the title
+      let tx = 10 + L.W * (wide ? 0.42 : 0.38) + 8; const segs = wide ? [[60, C.purp], [30, C.peach]] : [[34, C.purp]];
+      segs.forEach(([w, col]) => { g.fillStyle = col; g.fillRect(tx, f.top, w, f.bh); tx += w + 8; });
+      const title = (lossy ? '4.1.2L-LOSSY' : '4.1.2L-EXACT');
+      text(g, title, L.title[0] - f.bh - 10, f.top + f.bh / 2, fs * 1.55, acc, 'right', 700);
+      g.font = `700 ${fs * 1.55}px ${F}`; const tw = g.measureText(title).width;
+      const endX = L.title[0] - f.bh - 10 - tw - 10; if (endX > tx) { g.fillStyle = C.or; g.fillRect(tx, f.top, endX - tx, f.bh); }
+      pill(g, L.title[0] - f.bh, f.top, f.bh, f.bh, C.or, false, true);
+      // bottom bar
+      let bx = 10 + L.W * (wide ? 0.3 : 0.32) + 8; const by = L.H - 10 - f.bh;
+      [[wide ? 90 : 60, C.peach], [wide ? 46 : 30, C.blue]].forEach(([w, col]) => { g.fillStyle = col; g.fillRect(bx, by, w, f.bh); bx += w + 8; });
+      if (wide) text(g, 'FSR 4.1.2 LITE · ENGINEERING', bx + 6, by + f.bh / 2, fs * 0.95, C.lav, 'left', 500);
+      pill(g, L.W - 10 - f.bh, by, f.bh, f.bh, C.lav, false, true);
+
+      // connections (dim bars), then pulses
+      const P = L.paths, bar = (p, col) => { g.strokeStyle = col; g.lineWidth = wide ? 5 : 6; g.lineCap = 'butt'; g.lineJoin = 'round'; g.beginPath(); g.moveTo(p[0][0], p[0][1]); for (let i = 1; i < p.length; i++) g.lineTo(p[i][0], p[i][1]); g.stroke(); };
+      bar(P.input, '#2b3a55'); bar(P.toNet, '#3b2a14'); bar(P.n12, '#3b2a14'); bar(P.n23, '#3b2a14'); bar(P.toAsm, '#3b2a14'); bar(P.toVs, '#3b2a14'); bar(P.hist, '#33243a');
+      if (lossy) { bar(P.toBuf, '#25254a'); bar(P.bufCc, '#3b2a14'); bar(P.ccAsm, '#3b2a14'); bar(P.bypass, '#1f3040'); }
+      const pulse = (p, a, b, col) => { const v = win(u, a, b); if (v < 0) return; const [x, y] = along(p, v); g.fillStyle = col; g.shadowColor = col; g.shadowBlur = 12; g.fillRect(x - 9, y - 5, 18, 10); g.shadowBlur = 0; };
+
+      // modules
+      const M = L.mods, mod = (r, label, sub, col, on, dimCol) => {
+        const [x, y, w, h] = r; const c = on > 0 ? col : (dimCol || C.dim);
+        if (on > 0) { g.shadowColor = col; g.shadowBlur = 18 * on; }
+        pill(g, x, y, w, h, c, true, true); g.shadowBlur = 0;
+        text(g, label, x + w - h / 2, y + h * (sub ? 0.38 : 0.5), fs, on > 0 ? C.ink : col, 'right', 700);
+        if (sub) text(g, sub, x + w - h / 2, y + h * 0.74, fs * 0.72, on > 0 ? C.ink : col, 'right', 500);
+      };
+      const sensOn = glow(u, 0.06, 0.24) > 0 ? 1 : 0.0;
+      mod(M.sens, 'SENSOR ARRAY', 'PREPASS', C.blue, sensOn, '#1c2a3a');
+      const fire = [[0.22, 0.36], [0.34, 0.48], [0.46, 0.6]];
+      ['i1', 'i2', 'i3'].forEach((k, i) => {
+        const on = ran ? glow(u, fire[i][0], fire[i][1]) : 0;
+        mod(M[k], (L.wide ? 'INJ ' : 'INJECTOR ') + (i + 1), ran ? 'NETWORK' : 'STANDBY', acc, on, ran ? '#3b2a14' : '#1a1a1a');
+        if (L.columns) {      // plasma column above each injector
+          const [x, y, w] = M[k]; const segN = lossy ? 3 : 6, lit = ran ? Math.round(segN * Math.max(0, Math.min(1, win(u, fire[i][0] - 0.04, fire[i][1]) < 0 ? 0 : Math.sin(win(u, fire[i][0] - 0.04, fire[i][1]) * Math.PI)))) : 0;
+          for (let sIdx = 0; sIdx < segN; sIdx++) { g.fillStyle = sIdx < lit ? acc : '#241a10'; g.fillRect(x + w * 0.3, y - 14 - sIdx * 13 - (lossy ? 0 : 0), w * 0.4, 9); }
+        }
+      });
+      const asmOn = glow(u, 0.62, 0.82);
+      mod(M.asm, 'IMAGE ASSEMBLY', 'POSTPASS', C.peach, asmOn > 0 ? 1 : 0, '#3a2c1c');
+      if (lossy) {
+        const bufOn = ran ? glow(u, 0.6, 0.72) : glow(u, 0.2, 0.5);
+        mod(M.buf, 'PATTERN BUFFER', ran ? 'STORING OUTPUT' : 'RELEASING', C.purp, bufOn > 0 ? 1 : 0, '#25254a');
+        const ccOn = ran ? 0 : glow(u, 0.4, 0.62);
+        mod(M.cc, 'COURSE CORRECTION', 'MOTION FOLLOWING', C.gold, ccOn > 0 ? 1 : 0, '#3a2a12');
+      } else {
+        const [x, y, w, h] = M.ref; pill(g, x, y, w, h, '#2a1414', true, true);
+        text(g, "AMD REFERENCE", x + h / 2 + 4, y + h * 0.38, fs * 0.92, C.red, 'left', 700);
+        text(g, 'DEVIATION 0.000000', x + h / 2 + 4, y + h * 0.74, fs * 0.72, C.peach, 'left', 500);
+        for (let i = 0; i < 3; i++) { const on = glow(u, fire[i][0], fire[i][1]); g.fillStyle = on > 0 ? C.red : '#4a2020'; g.beginPath(); g.arc(x + w - h / 2 - 8 - (2 - i) * (h * 0.55), y + h / 2, h * 0.18, 0, TAU); g.fill(); }
+      }
+      // pulses along the active route
+      pulse(P.input, 0, 0.1, C.blue);
+      if (ran) {
+        pulse(P.toNet, 0.17, 0.23, acc); pulse(P.n12, 0.32, 0.36, acc); pulse(P.n23, 0.44, 0.48, acc); pulse(P.toAsm, 0.57, 0.65, acc);
+        if (lossy) pulse(P.toBuf, 0.57, 0.63, C.purp);
+      } else {
+        pulse(P.bypass, 0.18, 0.42, C.blue); pulse(P.bufCc, 0.36, 0.44, C.purp); pulse(P.ccAsm, 0.55, 0.64, C.gold);
+      }
+      pulse(P.toVs, 0.76, 0.84, C.peach); pulse(P.hist, 0.82, 1.0, C.lav);
+      // labels on the routes
+      text(g, 'FRAME IN', L.wide ? 150 : 236, L.wide ? 222 : 74, fs * 0.72, C.blue, 'left', 500);
+      text(g, 'LOG BUFFER · HISTORY', L.wide ? 232 : 120, L.wide ? 488 : 666 + 0, fs * 0.72, C.lav, 'left', 500);
+      if (lossy) text(g, 'BYPASS ON STANDBY CYCLES', L.wide ? 310 : 120, L.wide ? 304 : 358, fs * 0.66, '#5f86a6', 'left', 500);
+
+      // viewscreen
+      const [vx, vy, vw, vh] = L.vs; g.save(); g.beginPath(); g.rect(vx, vy, vw, vh); g.clip(); g.drawImage(scr, vx, vy, vw, vh);
+      const fl = glow(u, 0.82, 0.95); if (fl > 0) { g.fillStyle = `rgba(255,255,255,${0.25 * fl})`; g.fillRect(vx, vy, vw, vh); }
+      g.restore(); g.strokeStyle = C.peach; g.lineWidth = 3; g.strokeRect(vx, vy, vw, vh);
+      pill(g, vx, vy - 6 - 26, 160, 26, C.peach, true, true); text(g, 'VIEWSCREEN', vx + 160 - 13, vy - 6 - 13, fs * 0.8, C.ink, 'right', 700);
+      text(g, lossy && !ran ? 'REPROJECTED' : 'NEW FRAME', vx + vw, vy - 6 - 13, fs * 0.72, lossy && !ran ? C.gold : acc, 'right', 500);
+
+      // readouts
+      const [rx, ry, rw, rh] = L.read; const lines = [['CYCLE', String(Math.max(frame, 0)).padStart(6, '0'), C.peach], ['NETWORK', ran ? 'ACTIVE' : 'STANDBY', ran ? acc : C.gold], ['CYCLE TIME', lossy ? '2.0 S' : '2.4 S', C.lav]];
+      if (L.wide) lines.forEach(([k, v, col], i) => { text(g, k, rx, ry + 14 + i * 40, fs * 0.72, '#8a7a9a', 'left', 500); text(g, v, rx, ry + 34 + i * 40, fs * 1.05, col, 'left', 700); });
+      else lines.forEach(([k, v, col], i) => { const x = rx + i * (rw / 3); text(g, k, x, ry + 16, fs * 0.72, '#8a7a9a', 'left', 500); text(g, v, x, ry + 46, fs * 1.05, col, 'left', 700); });
+    }
+    return { update, stage: canvas.parentElement, setPlaying: p => (playing = p), isPlaying: () => playing, toggleSlow: () => (slow = !slow) };
+  }
+
+  const ships = [ship(document.getElementById('c-exact'), { lossy: false, period: 2.4 }), ship(document.getElementById('c-lossy'), { lossy: true, period: 2.0 })];
+  [['exact', 0], ['lossy', 1]].forEach(([n, i]) => {
+    const e = ships[i], pb = document.getElementById('play-' + n), sb = document.getElementById('slow-' + n);
+    const sync = () => { pb.textContent = e.isPlaying() ? 'Pause' : 'Play'; pb.setAttribute('aria-pressed', String(!e.isPlaying())); };
+    pb.addEventListener('click', () => { e.setPlaying(!e.isPlaying()); sync(); });
+    sb.addEventListener('click', () => { const s = e.toggleSlow(); sb.setAttribute('aria-pressed', String(s)); sb.textContent = s ? 'Normal' : 'Slow'; });
+    sync();
+  });
+  ships.forEach(e => e.update(0));
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => ships.forEach(e => e.update(0)));
+  let last = performance.now();
+  function loop(now) { const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now; ships.forEach(e => e.update(dt)); requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
