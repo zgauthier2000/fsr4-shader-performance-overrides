@@ -8,9 +8,11 @@ driver most likely uses for graphics built into the processor ([what AMD's 4.1.2
 | `4.1.2l-exact` | `4.1.2l-exact-<flavor>-cyboman` | **AMD's Lite picture, byte for byte** (exact to AMD's Lite, not to full FSR 4) | about 5 to 7% faster |
 | `4.1.2l-lossy` | `4.1.2l-lossy-<flavor>-cyboman` | close to Lite's, not the same: read its `WARNING.txt` | about 15 to 18% faster |
 
-`<flavor>` is `r3`, `r2`, `igpu-r3` or `igpu-r2`, after the archive. Since `dll-2026-11-04` each build is one form for all four archives, which timed fastest
-on every kind of graphics reported, the Steam Deck and older chips included: 4.1.2l-exact shares color samples between pixels; 4.1.2l-lossy keeps color samples
-and some finished results in the chip's shared memory, so that RX 6000 chips under Windows can run 8 groups of work at once instead of 7 ([below](#rx-6000-8-groups-of-work-instead-of-7)).
+`<flavor>` is `r3`, `r2`, `igpu-r3` or `igpu-r2`, after the archive. Since `dll-2026-11-04` 4.1.2l-exact is one form for all four archives, which timed fastest
+on every kind of graphics reported, the Steam Deck and older chips included: it shares color samples between pixels. 4.1.2l-lossy keeps color samples
+and some finished results in the chip's shared memory, so that RX 6000 chips under Windows can run 8 groups of work at once instead of 7 ([below](#rx-6000-8-groups-of-work-instead-of-7)),
+in every archive but RX 7000's: there that form needs too many registers under Linux (Proton), so the RX 7000 build keeps only the finished results (same picture, byte for byte;
+not yet timed on Windows RX 7000).
 
 > [!WARNING]
 > **4.1.2l-lossy changes the picture.** It is neither AMD's FSR 4.1.1 nor AMD's FSR 4.1.2 Lite. Never use any of these builds in

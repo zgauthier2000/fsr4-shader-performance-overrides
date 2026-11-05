@@ -55,11 +55,11 @@ def figure(t):
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>', text(24, 34, "How much faster than AMD's FSR 4.1.2 Lite", t, 17, 'ink', weight=600),
          text(24, 54, "0% = AMD's Lite. Taller is faster.", t), f'<rect x="24" y="68" width="12" height="11" rx="3" fill="{t["prev"]}"/>', text(42, 78, 'Previous release (dll-2026-11-01)', t, 11.5),
          f'<rect x="250" y="68" width="12" height="11" rx="3" fill="{t["lossy"]}"/>', f'<rect x="264" y="68" width="12" height="11" rx="3" fill="{t["exact"]}"/>', text(282, 78, 'This release (dll-2026-11-04)', t, 11.5)]
-    o += panel(24, 112, 'lossy', 'RX 7000', t) + panel(396, 112, 'lossy', 'RX 6000', t) + panel(24, 336, 'exact', 'RX 7000', t) + panel(396, 336, 'exact', 'RX 6000', t)
+    o += panel(24, 112, 'lossy', 'RX 7000', t, sub="Other archives' form: up to 5% faster than before") + panel(396, 112, 'lossy', 'RX 6000', t) + panel(24, 336, 'exact', 'RX 7000', t) + panel(396, 336, 'exact', 'RX 6000', t)
     for k, l in enumerate(("Windows timing-kit reports with both releases' builds in the same report, moving scene, Balanced; timing program, not games. Gray: median per family;",
                            "colored: the gray bar moved by the median same-report gain (the subtitle).",
                            "RX 7000: 4 reports (RX 7600, RX 7800 XT, RX 7900 XT, RX 7900 XTX); RX 6000: 9 reports. Steam Deck and Steam Machine: the second chart.",
-                           "Same speed: 4.1.2l-lossy on RX 7000 at 1080p and 4K (0.0%).",
+                           "4.1.2l-lossy on RX 7000: the other archives' form (same speed at 1080p and 4K); the RX 7000 archive's own form is not yet timed on Windows.",
                            "1440p: the kit's AMD Lite reference ran one pass on a whole size class (AMD's own Lite does not): its time less that waste, from the same reports.")):
         o.append(text(24, 552 + 15 * k, l, t, 10, 'muted'))
     return o

@@ -8,7 +8,7 @@
 <rect x="264" y="68" width="12" height="11" rx="3" fill="#2a78d6"/>
 <text x="282.0" y="78.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#52514e">This release (dll-2026-11-04)</text>
 <text x="24.0" y="112.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#0b0b0b">4.1.2l-lossy on RX 7000</text>
-<text x="24.0" y="130.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Up to 4% faster than the previous release</text>
+<text x="24.0" y="130.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Other archives' form: up to 5% faster than before</text>
 <line x1="24" y1="282.0" x2="364" y2="282.0" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="24" y1="238.7" x2="364" y2="238.7" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="24" y1="195.3" x2="364" y2="195.3" stroke="#e1e0d9" stroke-width="1"/>
@@ -94,6 +94,6 @@
 <text x="24.0" y="552.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Windows timing-kit reports with both releases' builds in the same report, moving scene, Balanced; timing program, not games. Gray: median per family;</text>
 <text x="24.0" y="567.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">colored: the gray bar moved by the median same-report gain (the subtitle).</text>
 <text x="24.0" y="582.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">RX 7000: 4 reports (RX 7600, RX 7800 XT, RX 7900 XT, RX 7900 XTX); RX 6000: 9 reports. Steam Deck and Steam Machine: the second chart.</text>
-<text x="24.0" y="597.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Same speed: 4.1.2l-lossy on RX 7000 at 1080p and 4K (0.0%).</text>
+<text x="24.0" y="597.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">4.1.2l-lossy on RX 7000: the other archives' form (same speed at 1080p and 4K); the RX 7000 archive's own form is not yet timed on Windows.</text>
 <text x="24.0" y="612.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">1440p: the kit's AMD Lite reference ran one pass on a whole size class (AMD's own Lite does not): its time less that waste, from the same reports.</text>
 </svg>

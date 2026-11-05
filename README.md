@@ -75,7 +75,7 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
   | Graphics card | Source | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
   |---|---|---|---|---|---|---|
-  | Radeon RX 7800 XT | Linux, this project (release builds) | 15% / 35% / 37% | 35% / 51% / 55% | 10% / 10% / 9% | 16% / 16% / 18% | 38% / 56% / 59% |
+  | Radeon RX 7800 XT | Linux, this project (release builds) | 15% / 35% / 37% | 35% / 52% / 55% | 10% / 11% / 9% | 19% / 20% / 21% | 40% / 56% / 60% |
   | Radeon RX 7900 XTX | Windows, 1 report | 7% / 29% / 34% | 28% / 44% / 48% | 12% / 13% / 10% | 21% / 21% / 18% | 46% / 55% / 58% |
   | Radeon RX 7900 XT | Windows, 1 report | 4% / 16% / 17% | 25% / 33% / 34% | 15% / 13% / 11% | 20% / 21% / 19% | 42% / 46% / 46% |
   | Radeon RX 7800 XT | Windows, 1 report | 7% / 8% / 9% | 26% / 26% / 27% | 12% / 14% / 12% | 21% / 22% / 20% | 41% / 40% / 41% |
@@ -86,7 +86,7 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   | Radeon RX 6650 XT | Windows, 3 reports | 3% / 4% / 4% | 18% / 18% / 18% | 10% / 11% / 10% | 14% / 15% / 15% | 36% / 34% / 35% |
 
   The Windows rows are testers' timing-kit reports (test packs 2026-11-04 and 2026-11-04.2 of the self-updating kit, median per card). Exact and lossy are the DLLs of
-  `dll-2026-10-29`, unchanged in this release; the two Lite columns are this release's 4.1.2l-exact and 4.1.2l-lossy (the same build in all four archives). Results much slower than the median for the same card model are left out (more than 3 scaled median deviations and more than 3 points; cards with at least 3 reports), because other work on a desktop PC can slow a run; faster ones are kept. One
+  `dll-2026-10-29`, unchanged in this release; the two Lite columns are this release's 4.1.2l-exact and 4.1.2l-lossy (in the Windows rows: the RX 6000 form; the RX 7000 archive's 4.1.2l-lossy is not yet timed on Windows). Results much slower than the median for the same card model are left out (more than 3 scaled median deviations and more than 3 points; cards with at least 3 reports), because other work on a desktop PC can slow a run; faster ones are kept. One
   report per card is one run. At 1440p, AMD's Lite is the kit's Lite reference less the time one of its passes spends on a whole size class there, which AMD's own
   Lite DLL does not do: taken from each report's own figures, and measured on this project's RX 7800 XT (1.025 → 0.962 ms); 1080p and 4K are as measured.
   The Linux row is this project's own RX 7800 XT with the release's builds (AMD's FSR 4.1.2 there = its FSR SDK 2.4.0
