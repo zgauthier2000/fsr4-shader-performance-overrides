@@ -4,6 +4,8 @@ What this project is working on, and how you can help. These are aims, not promi
 
 Last updated: 2026-11-05.
 
+<picture><source media="(prefers-color-scheme: dark)" srcset="img/wm-release-dark.svg"><img src="img/wm-release-light.svg" alt="Next release: 4 of 6 steps done (builds made, pictures checked here, speed measured with the kit, release pages written; the author's game test and publishing to do). No date."></picture>
+
 <picture><source media="(prefers-color-scheme: dark)" srcset="img/wm-now-dark.svg"><img src="img/wm-now-light.svg" alt="Six parts being worked on, each with what would help."></picture>
 
 **Tiled lossy is an internal experiment,** tested only through the timing kit: it is not in any release, and the released lossy builds do not work this way. It splits each frame into tiles that skip the network at different times, instead of skipping it on the whole frame every other frame.

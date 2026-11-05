@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Writes the four figures of docs/whats-moving.md, light and dark: wm-now, wm-path, wm-cards, wm-stats (from wm-stats.json).
+# Writes the five figures of docs/whats-moving.md, light and dark: wm-now, wm-release, wm-path, wm-cards, wm-stats (from wm-stats.json).
 from html import escape
 THEMES = {
     'light': dict(surface='#fcfcfb', ink='#0b0b0b', ink2='#52514e', muted='#898781', line='#c9c8c0', box='#f1f0ec', hi='#2a78d6', hibg='#e3eefb', hot='#eb6834', hotbg='#fdeae2'),
@@ -103,6 +103,27 @@ def cards(t):
     return wrap(o, y + 6, 'Reports most wanted: ' + '; '.join(f'{a}: ' + ', '.join(c) for a, _, c, _ in CARDS), t)
 
 
+# Next release, steps done (2026-11-05, user: "show, without promising anything, how close the next release is to being ready"). Steps only: no date and nothing about what
+# the release contains (upcoming changes are not announced without the author's word). Update the flags as steps finish; a failed step can send a build back.
+RELEASE = (('Builds made', 1), ('Pictures checked here', 1), ('Speed measured with the kit', 1), ('Release pages written', 1), ("Author's game test", 0), ('Published', 0))
+
+
+def release(t):
+    n = len(RELEASE); done = sum(d for _, d in RELEASE); bw = (W - 48 - 10 * (n - 1)) / n
+    o = [text(24, 32, 'Next release: how close it is', t, 15, 'ink', weight=600), text(24, 52, f'{done} of {n} steps done. No date: any step can send a build back for more work.', t, 12)]
+    y = 70
+    for i, (a, d) in enumerate(RELEASE):
+        x = 24 + i * (bw + 10)
+        o += [f'<rect x="{x:.1f}" y="{y}" width="{bw:.1f}" height="64" rx="8" fill="{t["hibg" if d else "box"]}" stroke="{t["hi" if d else "line"]}"/>',
+              text(x + bw / 2, y + 26, 'done' if d else 'to do', t, 11, 'hi' if d else 'muted', 'middle', 600)]
+        words = a.split(); l1 = ''
+        while words and len(l1) + len(words[0]) < 15:
+            l1 += words.pop(0) + ' '
+        l2 = ' '.join(words)
+        o += [text(x + bw / 2, y + 44, l1.strip(), t, 11.5, 'ink', 'middle')] + ([text(x + bw / 2, y + 58, l2, t, 11.5, 'ink', 'middle')] if l2 else [])
+    return wrap(o, y + 80, f'Next release: {done} of {n} steps done (' + '; '.join(f"{a}: {'done' if d else 'to do'}" for a, d in RELEASE) + '). No date.', t)
+
+
 def fmt_b(b):
     return f'{b / 1e12:.1f} TB' if b >= 1e12 else f'{b / 1e9:.0f} GB'
 
@@ -162,6 +183,6 @@ def stats(t):
 
 
 if __name__ == '__main__':
-    for n, f in (('wm-now', now), ('wm-path', path), ('wm-cards', cards), ('wm-stats', stats)):
+    for n, f in (('wm-now', now), ('wm-release', release), ('wm-path', path), ('wm-cards', cards), ('wm-stats', stats)):
         for k, t in THEMES.items():
             open(f'{n}-{k}.svg', 'w').write('\n'.join(f(t)) + '\n')

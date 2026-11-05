@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="150" viewBox="0 0 760 150" role="img" aria-label="Next release: 4 of 6 steps done (Builds made: done; Pictures checked here: done; Speed measured with the kit: done; Release pages written: done; Author&#x27;s game test: to do; Published: to do). No date.">
+<rect width="760" height="150" rx="8" fill="#1a1a19"/>
+<text x="24" y="32" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" text-anchor="start" fill="#ffffff">Next release: how close it is</text>
+<text x="24" y="52" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">4 of 6 steps done. No date: any step can send a build back for more work.</text>
+<rect x="24.0" y="70" width="110.3" height="64" rx="8" fill="#1c2c40" stroke="#3987e5"/>
+<text x="79.16666666666666" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#3987e5">done</text>
+<text x="79.16666666666666" y="114" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">Builds made</text>
+<rect x="144.3" y="70" width="110.3" height="64" rx="8" fill="#1c2c40" stroke="#3987e5"/>
+<text x="199.49999999999997" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#3987e5">done</text>
+<text x="199.49999999999997" y="114" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">Pictures</text>
+<text x="199.49999999999997" y="128" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">checked here</text>
+<rect x="264.7" y="70" width="110.3" height="64" rx="8" fill="#1c2c40" stroke="#3987e5"/>
+<text x="319.8333333333333" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#3987e5">done</text>
+<text x="319.8333333333333" y="114" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">Speed measured</text>
+<text x="319.8333333333333" y="128" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">with the kit</text>
+<rect x="385.0" y="70" width="110.3" height="64" rx="8" fill="#1c2c40" stroke="#3987e5"/>
+<text x="440.1666666666667" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#3987e5">done</text>
+<text x="440.1666666666667" y="114" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">Release pages</text>
+<text x="440.1666666666667" y="128" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">written</text>
+<rect x="505.3" y="70" width="110.3" height="64" rx="8" fill="#262624" stroke="#45453f"/>
+<text x="560.5" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#898781">to do</text>
+<text x="560.5" y="114" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">Author's game</text>
+<text x="560.5" y="128" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">test</text>
+<rect x="625.7" y="70" width="110.3" height="64" rx="8" fill="#262624" stroke="#45453f"/>
+<text x="680.8333333333333" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#898781">to do</text>
+<text x="680.8333333333333" y="114" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#ffffff">Published</text>
+</svg>
