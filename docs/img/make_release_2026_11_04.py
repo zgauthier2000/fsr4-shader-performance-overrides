@@ -59,7 +59,7 @@ def figure(t):
     for k, l in enumerate(("Windows timing-kit reports with both releases' builds in the same report, moving scene, Balanced; timing program, not games. Gray: median per family;",
                            "colored: the gray bar moved by the median same-report gain (the subtitle).",
                            "RX 7000: 4 reports (RX 7600, RX 7800 XT, RX 7900 XT, RX 7900 XTX); RX 6000: 9 reports. Steam Deck and Steam Machine: the second chart.",
-                           "4.1.2l-lossy on RX 7000: the other archives' form (same speed at 1080p and 4K); the RX 7000 archive's own form is not yet timed on Windows.",
+                           "4.1.2l-lossy on RX 7000: the other archives' form (same speed at 1080p and 4K); the RX 7000 archive's own form: one report so far (RX 7600, 0.3-0.7% faster).",
                            "1440p: the kit's AMD Lite reference ran one pass on a whole size class (AMD's own Lite does not): its time less that waste, from the same reports.")):
         o.append(text(24, 552 + 15 * k, l, t, 10, 'muted'))
     return o
