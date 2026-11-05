@@ -8,7 +8,7 @@ driver most likely uses for graphics built into the processor ([what AMD's 4.1.2
 | `4.1.2l-exact` | `4.1.2l-exact-<flavor>-cyboman` | **AMD's Lite picture, byte for byte** (exact to AMD's Lite, not to full FSR 4) | about 5 to 7% faster |
 | `4.1.2l-lossy` | `4.1.2l-lossy-<flavor>-cyboman` | close to Lite's, not the same: read its `WARNING.txt` | about 15 to 18% faster |
 
-`<flavor>` is `r3`, `r2`, `igpu-r3` or `igpu-r2`, after the archive. Since `dll-2026-11-04` 4.1.2l-exact is one form for all four archives, which timed fastest
+`<flavor>` is `r3`, `r2`, `igpu-r3` or `igpu-r2`, after the archive. Since `dll-2026-11-05` 4.1.2l-exact is one form for all four archives, which timed fastest
 on every kind of graphics reported, the Steam Deck and older chips included: it shares color samples between pixels. 4.1.2l-lossy keeps color samples
 and some finished results in the chip's shared memory, so that RX 6000 chips under Windows can run 8 groups of work at once instead of 7 ([below](#rx-6000-8-groups-of-work-instead-of-7)),
 in every archive but RX 7000's: there that form needs too many registers under Linux (Proton), so the RX 7000 build keeps only the finished results (same picture, byte for byte;
@@ -30,7 +30,7 @@ one Windows RX 7000 report so far: RX 7600, 0.3 to 0.7% faster).
 
 ## Speed
 
-FSR 4's time per frame, milliseconds, moving scene, Balanced, **under Linux (Proton) on one Radeon RX 7800 XT**, `dll-2026-11-04`'s builds, two runs each.
+FSR 4's time per frame, milliseconds, moving scene, Balanced, **under Linux (Proton) on one Radeon RX 7800 XT**, `dll-2026-11-05`'s builds, two runs each.
 Windows timing-kit reports per card: [the front page](../README.md#what-to-expect).
 
 | Output | FSR 4.1.2 Lite (AMD) | 4.1.2l-exact | 4.1.2l-lossy |

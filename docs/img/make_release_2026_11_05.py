@@ -7,22 +7,18 @@ THEMES = {
 }
 FONT = "font-family=\"-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif\""
 SIZES = ('1080p', '1440p', '4K')
-DATA = {"RX 7000": {"lossy_new": [21.3, 26.8, 19.2], "lossy_prev": [21.8, 23.8, 19.6], "exact_new": [13.3, 19.4, 11.8], "exact_prev": [12.5, 11.6, 10.8]}, "RX 6000": {"lossy_new": [15.3, 21.1, 14.9], "lossy_prev": [13.8, 16.7, 13.5], "exact_new": [14.1, 18.6, 11.4], "exact_prev": [11.8, 10.8, 9.6]}}
-GAIN = {"lossy": {"RX 7000": [0.0, 4.5, -0.0], "RX 6000": [2.0, 5.3, 1.7]}, "exact": {"RX 7000": [1.1, 8.6, 1.1], "RX 6000": [2.6, 8.7, 2.0]}}
-W, H = 760, 643
 # (2026-11-05) 1440p reference corrected: the kit's AMD Lite slot (lt1) runs AMD's Lite pass 2 with twice the groups AMD's own DLL launches, so between size classes
 # (1440p in the 4K class, 800p in the 1080p class) it computes the whole class's tensor; each report's AMD Lite time minus that waste (lt121 - lt128, the fix's own
-# saving in the same report) gives the 800p (Steam Deck) and 1440p (Steam Machine) gray values (estimated); 1080p and 4K as measured. ~/er-fsr4/release/lite_ref/chartfix.py
-VALVE = {"deck": {"lossy_new": [20.5, 13.4], "lossy_prev": [10.2, 11.1], "exact_new": [21.1, 12.7], "exact_prev": [6.5, 10.8]}, "sm": {"lossy_new": [20.7, 27.2, 20.4], "lossy_prev": [19.5, 15.6, 18.9], "exact_new": [12.4, 19.6, 11.9], "exact_prev": [10.8, 2.1, 8.9]}}
-VGAIN = {"deck": {"lossy": [6.0, 2.6], "exact": [10.0, 2.2]}, "sm": {"lossy": [1.4, 6.6, 1.8], "exact": [1.8, 11.1, 3.3]}}
+# saving in the same report) gives the 1440p gray values (estimated: 10.8 -> 5.3 etc.); 1080p and 4K as measured. ~/er-fsr4/release/lite_ref/chartfix.py
+DATA = {"RX 7000": {"lossy_new": [21.3, 26.8, 19.2], "lossy_prev": [21.8, 18.1, 19.6], "exact_new": [13.3, 19.4, 11.8], "exact_prev": [12.5, 5.4, 10.8]}, "RX 6000": {"lossy_new": [15.2, 21.1, 14.9], "lossy_prev": [13.8, 12.0, 13.5], "exact_new": [13.8, 18.6, 10.6], "exact_prev": [11.7, 5.3, 9.0]}}
+GAIN = {"lossy": {"RX 7000": [0.0, 4.5, -0.0], "RX 6000": [1.9, 5.2, 1.7]}, "exact": {"RX 7000": [1.1, 8.6, 1.1], "RX 6000": [2.4, 8.7, 2.0]}}
 
 # (2026-11-04) each colored bar = the gray bar moved by the median same-report gain, so bars and subtitles always agree: separate medians of the
 # two columns came from different reports and showed 4.1.2l-lossy on RX 7000 half a point LOWER at 1080p and 4K where the same-report gain is 0.0%
 def moved(prev, g): return [round(100 * (1 - (1 - p / 100) * (1 - x / 100)), 1) for p, x in zip(prev, g)]
 for f in DATA:
     for b in ('lossy', 'exact'): DATA[f][b + '_new'] = moved(DATA[f][b + '_prev'], GAIN[b][f])
-for f in VALVE:
-    for b in ('lossy', 'exact'): VALVE[f][b + '_new'] = moved(VALVE[f][b + '_prev'], VGAIN[f][b])
+W, H = 760, 643
 PW, PH, MAX = 340, 130, 30
 
 
@@ -54,22 +50,21 @@ def panel(x0, top, build, fam, t, d=None, g=None, sizes=SIZES, sub=None):
 
 
 def figure(t):
-    desc = 'How much faster than AMD\'s FSR 4.1.2 Lite on the Steam Deck and the Steam Machine, previous release then this release. ' + ' '.join(f"4.1.2l-{b} on {n}: {' / '.join(str(x) for x in VALVE[k][b + '_prev'])}% then {' / '.join(str(x) for x in VALVE[k][b + '_new'])}%." for b in ('lossy', 'exact') for k, n in (('deck', 'Steam Deck (800p / 1080p)'), ('sm', 'Steam Machine (1080p / 1440p / 4K)')))
+    desc = ' '.join(f"4.1.2l-{b} on {f}: faster than AMD's Lite at 1080p / 1440p / 4K, previous release {' / '.join(str(v) for v in DATA[f][b + '_prev'])}%, this release {' / '.join(str(v) for v in DATA[f][b + '_new'])}%." for b in ('lossy', 'exact') for f in DATA)
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{desc}">',
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>', text(24, 34, "How much faster than AMD's FSR 4.1.2 Lite", t, 17, 'ink', weight=600),
          text(24, 54, "0% = AMD's Lite. Taller is faster.", t), f'<rect x="24" y="68" width="12" height="11" rx="3" fill="{t["prev"]}"/>', text(42, 78, 'Previous release (dll-2026-11-01)', t, 11.5),
-         f'<rect x="250" y="68" width="12" height="11" rx="3" fill="{t["lossy"]}"/>', f'<rect x="264" y="68" width="12" height="11" rx="3" fill="{t["exact"]}"/>', text(282, 78, 'This release (dll-2026-11-04)', t, 11.5)]
-    o += panel(24, 112, 'lossy', 'Steam Deck', t, VALVE['deck'], VGAIN['deck']['lossy'], ('800p', '1080p')) + panel(396, 112, 'lossy', 'Steam Machine', t, VALVE['sm'], VGAIN['sm']['lossy'])
-    o += panel(24, 336, 'exact', 'Steam Deck', t, VALVE['deck'], VGAIN['deck']['exact'], ('800p', '1080p')) + panel(396, 336, 'exact', 'Steam Machine', t, VALVE['sm'], VGAIN['sm']['exact'])
-    for k, l in enumerate(("Timing-kit reports with both releases' builds in the same report, moving scene, Balanced; timing program, not games. Gray: median per family;",
+         f'<rect x="250" y="68" width="12" height="11" rx="3" fill="{t["lossy"]}"/>', f'<rect x="264" y="68" width="12" height="11" rx="3" fill="{t["exact"]}"/>', text(282, 78, 'This release (dll-2026-11-05)', t, 11.5)]
+    o += panel(24, 112, 'lossy', 'RX 7000', t, sub="Other archives' form: up to 5% faster than before") + panel(396, 112, 'lossy', 'RX 6000', t) + panel(24, 336, 'exact', 'RX 7000', t) + panel(396, 336, 'exact', 'RX 6000', t)
+    for k, l in enumerate(("Windows timing-kit reports with both releases' builds in the same report, moving scene, Balanced; timing program, not games. Gray: median per family;",
                            "colored: the gray bar moved by the median same-report gain (the subtitle).",
-                           "Steam Deck: 2 reports (an OLED under Linux, an LCD under Windows; 4.1.2l-exact: the LCD only), 800p is its screen. Steam Machine: 1 report (Linux).",
-                           "Previous release = the build in each device's archive: Steam Deck = the older built-in graphics archive, Steam Machine = the RX 7000 archive.",
-                           "800p and 1440p: the kit's AMD Lite reference ran one pass on a whole size class (AMD's own Lite does not): its time less that waste, from the same reports.")):
+                           "RX 7000: 4 reports (RX 7600, RX 7800 XT, RX 7900 XT, RX 7900 XTX); RX 6000: 9 reports. Steam Deck and Steam Machine: the second chart.",
+                           "4.1.2l-lossy on RX 7000: the other archives' form (same speed at 1080p and 4K); the RX 7000 archive's own form: one report so far (RX 7600, 0.3-0.7% faster).",
+                           "1440p: the kit's AMD Lite reference ran one pass on a whole size class (AMD's own Lite does not): its time less that waste, from the same reports.")):
         o.append(text(24, 552 + 15 * k, l, t, 10, 'muted'))
     return o
 
 
 if __name__ == '__main__':
     for name, t in THEMES.items():
-        open(f'rel-2026-11-04-valve-{name}.svg', 'w').write('\n'.join(figure(t) + ['</svg>']) + '\n')
+        open(f'rel-2026-11-05-gain-{name}.svg', 'w').write('\n'.join(figure(t) + ['</svg>']) + '\n')

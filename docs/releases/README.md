@@ -4,7 +4,7 @@ One page per release, comparing it with the release before it, in pictures and f
 
 | Release | Compared with | Page |
 |---|---|---|
-| `dll-2026-11-04` (latest) | `dll-2026-11-01` | [dll-2026-11-04](dll-2026-11-04.md) |
+| `dll-2026-11-05` (latest) | `dll-2026-11-01` | [dll-2026-11-05](dll-2026-11-05.md) |
 | `dll-2026-11-01` (superseded) | `dll-2026-10-29` | [dll-2026-11-01](dll-2026-11-01.md) |
 | `dll-2026-10-29` (superseded) | `dll-2026-10-22` | [dll-2026-10-29](dll-2026-10-29.md) |
 | `dll-2026-10-22` (superseded) | `dll-2026-10-19` | [dll-2026-10-22](dll-2026-10-22.md) |

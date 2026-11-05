@@ -4,7 +4,7 @@ Makes AMD FSR 4.1.2 upscaling faster on Radeon graphics cards, on Windows and Li
 FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the game changes.
 
 > [!TIP]
-> **New in `dll-2026-11-04`: faster Lite builds, same pictures, most of all at 1440p and on the Steam Deck.** `4.1.2l-exact` is about 9% faster at 1440p and 800p
+> **New in `dll-2026-11-05`: faster Lite builds, same pictures, most of all at 1440p and on the Steam Deck.** `4.1.2l-exact` is about 9% faster at 1440p and 800p
 > (1 to 3% at 1080p and 4K), `4.1.2l-lossy` about 5% (0 to 3%), on every kind of Radeon reported, in timing-kit reports against `dll-2026-11-01`.
 > Lite is AMD's smaller FSR 4 network; `4.1.2l-lossy` changes the picture. [What's new](#new-in-this-release) · [eight upscalers compared](docs/upscaler-comparison.md) ·
 > [recorded game clips, side by side](https://zgauthier2000.github.io/fsr4-upscaler-compare/) · [the Lite builds](docs/lite-builds.md).
@@ -20,10 +20,10 @@ FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the 
 
 | Your graphics card | Download |
 |---|---|
-| A Radeon **RX 7000** graphics card: "RX 7" and three more digits, such as RX 7800 XT or RX 7600, including laptops with their own RX 7000 chip (RX 7700S, RX 7600M and the like) | **[fsr4.1.2-cyboman-rx7000-2026-11-04.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-04/fsr4.1.2-cyboman-rx7000-2026-11-04.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-04/fsr4.1.2-cyboman-rx7000-2026-11-04.zip) (100 MB) |
-| A Radeon **RX 6000** graphics card: "RX 6" and three more digits, such as RX 6700 XT or RX 6600, including laptops with their own RX 6000 chip (RX 6700M and the like) | **[fsr4.1.2-cyboman-rx6000-2026-11-04.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-04/fsr4.1.2-cyboman-rx6000-2026-11-04.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-04/fsr4.1.2-cyboman-rx6000-2026-11-04.zip) (100 MB) |
-| **Newer graphics built into the processor** (Radeon 780M, 760M, 880M, 890M and other RDNA 3 and 3.5 chips), and **any other card**: Nvidia GeForce, Intel Arc, older Radeon | **[fsr4.1.2-igpu-cyboman-rdna3-2026-11-04.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-04/fsr4.1.2-igpu-cyboman-rdna3-2026-11-04.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-04/fsr4.1.2-igpu-cyboman-rdna3-2026-11-04.zip) (100 MB) |
-| **Steam Deck** and **older graphics built into the processor** (Radeon 680M, 660M, 610M, the graphics of Ryzen 7000 and 9000 desktop processors) | **[fsr4.1.2-igpu-cyboman-rdna2-2026-11-04.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-04/fsr4.1.2-igpu-cyboman-rdna2-2026-11-04.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-04/fsr4.1.2-igpu-cyboman-rdna2-2026-11-04.zip) (100 MB) |
+| A Radeon **RX 7000** graphics card: "RX 7" and three more digits, such as RX 7800 XT or RX 7600, including laptops with their own RX 7000 chip (RX 7700S, RX 7600M and the like) | **[fsr4.1.2-cyboman-rx7000-2026-11-05.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-cyboman-rx7000-2026-11-05.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-cyboman-rx7000-2026-11-05.zip) (100 MB) |
+| A Radeon **RX 6000** graphics card: "RX 6" and three more digits, such as RX 6700 XT or RX 6600, including laptops with their own RX 6000 chip (RX 6700M and the like) | **[fsr4.1.2-cyboman-rx6000-2026-11-05.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-cyboman-rx6000-2026-11-05.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-cyboman-rx6000-2026-11-05.zip) (100 MB) |
+| **Newer graphics built into the processor** (Radeon 780M, 760M, 880M, 890M and other RDNA 3 and 3.5 chips), and **any other card**: Nvidia GeForce, Intel Arc, older Radeon | **[fsr4.1.2-igpu-cyboman-rdna3-2026-11-05.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-igpu-cyboman-rdna3-2026-11-05.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-igpu-cyboman-rdna3-2026-11-05.zip) (100 MB) |
+| **Steam Deck** and **older graphics built into the processor** (Radeon 680M, 660M, 610M, the graphics of Ryzen 7000 and 9000 desktop processors) | **[fsr4.1.2-igpu-cyboman-rdna2-2026-11-05.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-igpu-cyboman-rdna2-2026-11-05.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-igpu-cyboman-rdna2-2026-11-05.zip) (100 MB) |
 | Radeon RX 9000 | not for these cards: they run a different FSR 4. Do not install it there. |
 
 The `.7z` and the `.zip` hold the same files. Windows 11 (version 23H2 or later) opens a `.7z` itself; on Windows 10 use
@@ -159,7 +159,7 @@ More games and resolutions: [all results](docs/results.md).
 
 ## New in this release
 
-**[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-11-04.md)**
+**[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-11-05.md)**
 
 > [!TIP]
 > **Faster Lite builds, most of all at 1440p and on the Steam Deck; the pictures stay as they were.** Only `4.1.2l-exact` and `4.1.2l-lossy` change; `exact` and `lossy` are the files of `dll-2026-11-01`.
@@ -173,7 +173,7 @@ More games and resolutions: [all results](docs/results.md).
 >
 > **What got worse:** nothing slower beyond the spread of single runs (one: `4.1.2l-exact` on a Radeon 780M / Ryzen Z1 at 1080p, 1.7% slower, two reports). **Not measured:** GeForce and Intel Arc.
 >
-> Against AMD's Lite: `4.1.2l-exact` saves 11 to 16% and `4.1.2l-lossy` 13 to 22% at the sizes reported. [Everything that changed](docs/releases/dll-2026-11-04.md).
+> Against AMD's Lite: `4.1.2l-exact` saves 11 to 16% and `4.1.2l-lossy` 13 to 22% at the sizes reported. [Everything that changed](docs/releases/dll-2026-11-05.md).
 
 **Earlier: [`dll-2026-11-01`](docs/releases/dll-2026-11-01.md)** made `4.1.2l-lossy` and `4.1.2l-exact` faster on Windows (most on RX 7000), with the same pictures.
 
