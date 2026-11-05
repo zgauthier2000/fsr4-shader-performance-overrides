@@ -102,10 +102,13 @@ This builds the exact files. The lossy files are provided ready-made only; the t
 
 4. **Check it** the same way as in the quick start.
 
-One `override/` folder serves every game. Files are named by shader hash, so if a second game uses
-the same shaders it needs only the launch option, and if it uses different ones you repeat steps 1
-and 2 and the new files are added alongside. To have everything in one place, copy the files from
-`prebuilt/` into `override/` as well.
+**Build a separate override folder for each game** from that game's own dump (give `build_override.sh` a
+second argument, e.g. `./tools/build_override.sh /home/you/fsr4-dump-gamename override-gamename`). Files are
+named by the hash of AMD's shader, but vkd3d-proton can translate the same shader differently from one game
+to the next, even on the same Proton version: it has settings of its own for some games (Dragon's Dogma 2
+gets extra descriptor checks, for example), and in Crimson Desert one table offset sits in a different
+place. A file built from one game's dump can then carry the other game's layout under the same name.
+`./tools/check_prebuilt.sh <dump folder>` tells you whether a game's dump matches the prebuilt files.
 
 ## When the prebuilt files are not enough
 
