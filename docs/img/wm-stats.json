@@ -1,49 +1,57 @@
 {
- "date": "2026-11-04",
+ "date": "2026-11-05",
  "drives": [
   {
-   "name": "Main SSD",
+   "name": "Main NVMe drive",
    "capacity": 1006450229248,
-   "used": 873783504896,
-   "project": 699330925586
+   "used": 790313656320,
+   "project": 615726913834
   },
   {
-   "name": "Second SSD (also games)",
+   "name": "Second NVMe drive (also games)",
    "capacity": 983358451712,
-   "used": 811259244544,
-   "project": 379069069367
+   "used": 771938983936,
+   "project": 339242954955
+  },
+  {
+   "name": "USB M.2 SSD",
+   "capacity": 502921392128,
+   "used": 357604450304,
+   "project": 357569900622
   },
   {
    "name": "USB hard drive",
    "capacity": 7937302376448,
-   "used": 4244783726592,
-   "project": 2047576682031
+   "used": 4644006514688,
+   "project": 2170025833944
   }
  ],
- "backup": 1534743913878,
- "grew_week": 666151213698,
- "grew_week_backup": 418930146004,
- "files": 953764,
+ "backup": 1902932336874,
+ "grew_week": 1075991726073,
+ "grew_week_backup": 697787402113,
+ "files": 974816,
  "since": "Oct 16",
  "all": {
-  "cpu_s": 1641024.5299999963,
-  "gpu_s": 690928.0,
-  "all_r": 266654503153173,
-  "disk_r": 114682372325376,
-  "all_w": 6454174038722,
-  "disk_w": 1494123585536
+  "cpu_s": 1731044.3699999931,
+  "gpu_s": 732374.0,
+  "all_r": 277561963231749,
+  "disk_r": 121656747597824,
+  "all_w": 6672863926663,
+  "disk_w": 1529272647680
  },
  "week": {
-  "cpu_s": 282435.2799999996,
-  "gpu_s": 124171.0,
-  "all_r": 46392439947328,
-  "disk_r": 26145726283776,
-  "all_w": 1511074058565,
-  "disk_w": 247993044992
+  "cpu_s": 303258.9800000001,
+  "gpu_s": 132319.0,
+  "all_r": 46392786237637,
+  "disk_r": 24901038968832,
+  "all_w": 1531200101073,
+  "disk_w": 185102110720
  },
  "notes": [
   "Work is counted from Oct 16, 2026, when the job recorder started (the project began Oct 1); jobs still running are counted when they end.",
   "Graphics card time is how long jobs held the card: an upper bound. Data read includes data read again from memory; \"from drives\" reached the drives.",
-  "Growth: the backed-up project files a week apart, new files on the USB drive, and what the nightly backups copied."
+  "Growth: the backed-up project files a week apart, new files on the USB drives, and what the nightly backups copied.",
+  "Estimated, not scanned (a full scan of the backups takes too long): the backups' size, the USB hard drive's file count",
+  "and the week's growth, from the last full count (Nov 4) and what the nightly backups copied since."
  ]
 }

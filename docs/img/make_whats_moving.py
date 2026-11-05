@@ -31,10 +31,11 @@ def wrap(body, H, label, t):
 
 
 NOW = (('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'slower on RX 6000 so far', 'Timing kit reports: RX 6000 cards'),
-       ('Exact builds', "More speed, picture still AMD's, byte for byte", 'new speedups in the kit', 'Timing kit reports: RX 7600 and Steam Machine'),
-       ('Small and handheld chips', 'Sizes between 1080p and 4K, and 800p', '800p now in the kit', 'Timing kit reports: handhelds and built-in graphics'),
+       ('Exact builds', "More speed, picture still AMD's, byte for byte", 'new speedups in the kit', 'Timing kit reports: GeForce, Arc and RX 5000'),
+       ('Small and handheld chips', 'Sizes between 1080p and 4K, and 800p', '800p and 1440p speedups in the kit', 'Timing kit reports: handhelds and built-in graphics'),
        ('Lossy picture quality', 'Fewer twinkling specks in foliage', 'needs examples', 'Games and scenes where a lossy build looks wrong'),
-       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'one run at a time', "Games and scenes where AMD's Lite looks wrong"))
+       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'one run at a time', "Games and scenes where AMD's Lite looks wrong"),
+       ('4.1.2l-lossy on RX 7000', 'Same picture, one shader change left out', 'new test in the kit', 'Timing kit reports: RX 7000, Windows and Linux'))
 
 
 def now(t):
@@ -50,12 +51,12 @@ def now(t):
         l2 = ' '.join(words)
         o += [text(484, y + (27 if l2 else 36), l1.strip(), t, 12.5, 'ink', weight=600)] + ([text(484, y + 45, l2, t, 12.5, 'ink', weight=600)] if l2 else [])
         y += 76
-    return wrap(o, y + 6, 'Five parts being worked on, each with what would help: ' + '; '.join(f'{a}: {h}' for a, _, _, h in NOW), t)
+    return wrap(o, y + 6, f'{len(NOW)} parts being worked on, each with what would help: ' + '; '.join(f'{a}: {h}' for a, _, _, h in NOW), t)
 
 
 STEPS = (('Idea', 'more speed or a', 'better picture', 0), ('Train', 'network runs on', 'one RX 7800 XT', 0), ('Test here', 'Linux only, on', 'the same card', 0), ('Timing kit', 'your PC, your', 'Windows or Linux', 1), ('Release', 'if the numbers', 'hold up', 0))
 HELP = ((1, ('One GPU with 16 GB: one run at a time,', 'about an hour per run', '30 GB of system memory', 'Each setting needs several runs'), ('More GPU memory, a faster GPU,', 'more system memory')),
-        (2, ('Linux and one card: no Windows or', 'RX 6000 timing here', 'Clips and data on one slow USB drive'), ('A Windows PC with Radeon, an', 'RX 6000 card, a bigger, faster drive')),
+        (2, ('Linux and one card: no Windows or', 'RX 6000 timing here', 'Game clips on a slow USB hard drive'), ('A Windows PC with Radeon, an', 'RX 6000 card, a bigger, faster drive')),
         (3, ('Only the cards people own and report', 'New tests reach the kit by itself,', 'then reports take time to arrive'), ('Your timing kit report,', 'from any card')))
 
 
@@ -83,9 +84,9 @@ def path(t):
     return wrap(o, yh + 174, 'The path of an improvement: idea, training on one RX 7800 XT, testing here on Linux, the timing kit on testers\' PCs, release; kit results lead to the next change. Training is limited by one GPU with 16 GB, one run at a time at about an hour per run, 30 GB of system memory and several runs per setting; more GPU or system memory or a faster GPU would help. Testing here is limited to Linux and one card, with data on one slow USB drive; a Windows PC with Radeon, an RX 6000 card or a bigger, faster drive would help. The kit is limited to the cards people report, and reports take time to arrive after new tests reach the kit; your report helps.', t)
 
 
-CARDS = (('RX 6000', 'current focus', ['every card, even if already reported'], 1), ('RX 7000', '', ['RX 7600', 'Steam Machine', 'RX 7700 XT', 'RX 7900 GRE', 'laptop chips'], 1),
+CARDS = (('RX 6000', 'Linux especially', ['every card, even if already reported'], 1), ('RX 7000', 'new test', ['RX 7800 XT', 'RX 7900 XT / XTX', 'RX 7700 XT', 'RX 7600', 'laptop chips'], 1),
          ('Built-in', '', ['780M', '760M', '880M', '680M', '660M'], 1), ('Handhelds', 'Windows or Linux', ['Steam Deck', 'ROG Ally', 'Legion Go'], 1),
-         ('Older Radeon', '', ['RX 5000', 'Vega'], 1), ('Others', '', ['GeForce', 'Arc'], 1))
+         ('Older Radeon', '', ['RX 5000', 'Vega'], 1), ('Others', '', ['GeForce', 'Intel Arc'], 1))
 
 
 def cards(t):
@@ -113,7 +114,7 @@ def stats(t):
     o = [text(24, 32, 'What the project uses', t, 15, 'ink', weight=600), text(24, 52, f"Measured {s['date']} on the author's PC.", t, 12)]
     y = 76
     o += [text(24, y, 'DISK SPACE', t, 10, 'ink2', weight=600)]
-    y += 16; R = 58; cxs = (140, 380, 620)
+    y += 16; R = 52; cxs = (112, 291, 470, 649)      # (2026-11-05) four drives: the USB M.2 SSD added
     import math
     def arc(cx, cy, a0, a1, col, stroke):
         if a1 - a0 >= 0.9999:
@@ -125,8 +126,9 @@ def stats(t):
         cap, proj, other = d['capacity'], d['project'], max(d['used'] - d['project'], 0)
         cy = y + R + 4; f1 = proj / cap; f2 = f1 + other / cap
         o += [f'<circle cx="{cx}" cy="{cy}" r="{R}" fill="{t["surface"]}" stroke="{t["line"]}" stroke-width="1.5"/>', arc(cx, cy, f1, f2, t['box'], 'line'), arc(cx, cy, 0, f1, t['hi'], 'hi'), f'<circle cx="{cx}" cy="{cy}" r="{R}" fill="none" stroke="{t["line"]}" stroke-width="1.5"/>']
-        o += [text(cx, cy + R + 24, d['name'], t, 12.5, 'ink', 'middle', 600), text(cx, cy + R + 41, f"{fmt_b(proj)} of {fmt_b(cap)} ({100 * f1:.0f}%)", t, 11.5, 'ink2', 'middle')]
-    y += 2 * R + 60
+        nm, _, sub = d['name'].partition(' ('); sub = sub.rstrip(')')
+        o += [text(cx, cy + R + 24, nm, t, 12.5, 'ink', 'middle', 600), text(cx, cy + R + 41, f"{fmt_b(proj)} of {fmt_b(cap)} ({100 * f1:.0f}%)", t, 11.5, 'ink2', 'middle')] + ([text(cx, cy + R + 57, sub, t, 10.5, 'muted', 'middle')] if sub else [])
+    y += 2 * R + 76
     lx = 220
     o += [f'<rect x="{lx}" y="{y + 2}" width="14" height="10" fill="{t["hi"]}"/>', text(lx + 20, y + 11, 'this project', t, 10.5, 'ink2'),
           f'<rect x="{lx + 110}" y="{y + 2}" width="14" height="10" fill="{t["box"]}" stroke="{t["line"]}"/>', text(lx + 130, y + 11, 'other files', t, 10.5, 'ink2'),

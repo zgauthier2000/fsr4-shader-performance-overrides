@@ -1,22 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="318" viewBox="0 0 760 318" role="img" aria-label="Reports most wanted: RX 6000: every card, even if already reported; RX 7000: RX 7600, Steam Machine, RX 7700 XT, RX 7900 GRE, laptop chips; Built-in: 780M, 760M, 880M, 680M, 660M; Handhelds: Steam Deck, ROG Ally, Legion Go; Older Radeon: RX 5000, Vega; Others: GeForce, Arc">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="318" viewBox="0 0 760 318" role="img" aria-label="Reports most wanted: RX 6000: every card, even if already reported; RX 7000: RX 7800 XT, RX 7900 XT / XTX, RX 7700 XT, RX 7600, laptop chips; Built-in: 780M, 760M, 880M, 680M, 660M; Handhelds: Steam Deck, ROG Ally, Legion Go; Older Radeon: RX 5000, Vega; Others: GeForce, Intel Arc">
 <rect width="760" height="318" rx="8" fill="#1a1a19"/>
 <text x="24" y="32" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" text-anchor="start" fill="#ffffff">Timing kit reports most wanted</text>
 <text x="24" y="52" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Each new kit tests new things, so a card already reported still helps.</text>
 <text x="24" y="87" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6000</text>
-<text x="24" y="102" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">current focus</text>
+<text x="24" y="102" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">Linux especially</text>
 <rect x="140" y="72" width="279" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
 <text x="279" y="91" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">every card, even if already reported</text>
-<text x="24" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 7000</text>
-<rect x="140" y="112" width="73" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
-<text x="176" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">RX 7600</text>
-<rect x="221" y="112" width="116" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
-<text x="279" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">Steam Machine</text>
-<rect x="345" y="112" width="95" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
-<text x="392" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">RX 7700 XT</text>
-<rect x="448" y="112" width="102" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
-<text x="499" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">RX 7900 GRE</text>
-<rect x="558" y="112" width="109" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
-<text x="612" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">laptop chips</text>
+<text x="24" y="127" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 7000</text>
+<text x="24" y="142" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">new test</text>
+<rect x="140" y="112" width="95" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
+<text x="187" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">RX 7800 XT</text>
+<rect x="243" y="112" width="137" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
+<text x="311" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">RX 7900 XT / XTX</text>
+<rect x="388" y="112" width="95" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
+<text x="435" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">RX 7700 XT</text>
+<rect x="491" y="112" width="73" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
+<text x="527" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">RX 7600</text>
+<rect x="572" y="112" width="109" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
+<text x="626" y="131" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">laptop chips</text>
 <text x="24" y="171" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Built-in</text>
 <rect x="140" y="152" width="52" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
 <text x="166" y="171" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">780M</text>
@@ -44,6 +45,6 @@
 <text x="24" y="291" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">Others</text>
 <rect x="140" y="272" width="73" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
 <text x="176" y="291" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">GeForce</text>
-<rect x="221" y="272" width="45" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
-<text x="243" y="291" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">Arc</text>
+<rect x="221" y="272" width="87" height="28" rx="14" fill="#1c2c40" stroke="#3987e5"/>
+<text x="264" y="291" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff">Intel Arc</text>
 </svg>
