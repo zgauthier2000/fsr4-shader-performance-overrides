@@ -9,9 +9,17 @@ FONT = "font-family=\"-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif\""
 SIZES = ('1080p', '1440p', '4K')
 DATA = {"RX 7000": {"lossy_new": [21.3, 26.8, 19.2], "lossy_prev": [21.8, 23.8, 19.6], "exact_new": [13.3, 19.4, 11.8], "exact_prev": [12.5, 11.6, 10.8]}, "RX 6000": {"lossy_new": [15.3, 21.1, 14.9], "lossy_prev": [13.8, 16.7, 13.5], "exact_new": [14.1, 18.6, 11.4], "exact_prev": [11.8, 10.8, 9.6]}}
 GAIN = {"lossy": {"RX 7000": [0.0, 4.5, -0.0], "RX 6000": [2.0, 5.3, 1.7]}, "exact": {"RX 7000": [1.1, 8.6, 1.1], "RX 6000": [2.6, 8.7, 2.0]}}
-W, H = 760, 612
+W, H = 760, 628
 VALVE = {"deck": {"lossy_new": [20.5, 13.4], "lossy_prev": [15.4, 11.1], "exact_new": [21.1, 12.7], "exact_prev": [12.3, 10.8]}, "sm": {"lossy_new": [20.7, 27.2, 20.4], "lossy_prev": [19.5, 22.1, 18.9], "exact_new": [12.4, 19.6, 11.9], "exact_prev": [10.8, 9.6, 8.9]}}
 VGAIN = {"deck": {"lossy": [6.0, 2.6], "exact": [10.0, 2.2]}, "sm": {"lossy": [1.4, 6.6, 1.8], "exact": [1.8, 11.1, 3.3]}}
+
+# (2026-11-04) each colored bar = the gray bar moved by the median same-report gain, so bars and subtitles always agree: separate medians of the
+# two columns came from different reports and showed 4.1.2l-lossy on RX 7000 half a point LOWER at 1080p and 4K where the same-report gain is 0.0%
+def moved(prev, g): return [round(100 * (1 - (1 - p / 100) * (1 - x / 100)), 1) for p, x in zip(prev, g)]
+for f in DATA:
+    for b in ('lossy', 'exact'): DATA[f][b + '_new'] = moved(DATA[f][b + '_prev'], GAIN[b][f])
+for f in VALVE:
+    for b in ('lossy', 'exact'): VALVE[f][b + '_new'] = moved(VALVE[f][b + '_prev'], VGAIN[f][b])
 PW, PH, MAX = 340, 130, 30
 
 
@@ -50,7 +58,8 @@ def figure(t):
          f'<rect x="250" y="68" width="12" height="11" rx="3" fill="{t["lossy"]}"/>', f'<rect x="264" y="68" width="12" height="11" rx="3" fill="{t["exact"]}"/>', text(282, 78, 'This release (dll-2026-11-04)', t, 11.5)]
     o += panel(24, 112, 'lossy', 'Steam Deck', t, VALVE['deck'], VGAIN['deck']['lossy'], ('800p', '1080p')) + panel(396, 112, 'lossy', 'Steam Machine', t, VALVE['sm'], VGAIN['sm']['lossy'])
     o += panel(24, 336, 'exact', 'Steam Deck', t, VALVE['deck'], VGAIN['deck']['exact'], ('800p', '1080p')) + panel(396, 336, 'exact', 'Steam Machine', t, VALVE['sm'], VGAIN['sm']['exact'])
-    for k, l in enumerate(("Timing-kit reports with this release's builds and dll-2026-11-01's in the same report, moving scene, Balanced, median; timing program, not games.",
+    for k, l in enumerate(("Timing-kit reports with both releases' builds in the same report, moving scene, Balanced; timing program, not games. Gray: median per family;",
+                           "colored: the gray bar moved by the median same-report gain (the subtitle).",
                            "Steam Deck: 2 reports (an OLED under Linux, an LCD under Windows; 4.1.2l-exact: the LCD only), 800p is its screen. Steam Machine: 1 report (Linux).",
                            "Previous release = the build in each device's archive: Steam Deck = the older built-in graphics archive, Steam Machine = the RX 7000 archive.")):
         o.append(text(24, 552 + 15 * k, l, t, 10, 'muted'))
