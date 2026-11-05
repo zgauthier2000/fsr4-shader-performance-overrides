@@ -165,7 +165,7 @@ More games and resolutions: [all results](docs/results.md).
 > | Timing-kit reports, median, moving scene, less time per frame than the same build in `dll-2026-11-01` | `4.1.2l-exact` | `4.1.2l-lossy` |
 > |---|---|---|
 > | RX 7000, Windows (4 reports), 1080p / 1440p / 4K | 1% / 9% / 1% | 0% / 5% / 0% |
-> | RX 6000, Windows (8 reports), 1080p / 1440p / 4K | 3% / 9% / 2% | 2% / 5% / 2% |
+> | RX 6000, Windows (9 reports), 1080p / 1440p / 4K | 2% / 9% / 2% | 2% / 5% / 2% |
 > | Steam Deck (2 reports), 800p / 1080p | 10% / 2% | 6% / 3% |
 > | Steam Machine (1 report), 1080p / 1440p / 4K | 2% / 11% / 3% | 1% / 7% / 2% |
 >
