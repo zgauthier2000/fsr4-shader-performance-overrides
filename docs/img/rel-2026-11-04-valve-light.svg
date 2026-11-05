@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="628" viewBox="0 0 760 628" role="img" aria-label="How much faster than AMD's FSR 4.1.2 Lite on the Steam Deck and the Steam Machine, previous release then this release. 4.1.2l-lossy on Steam Deck (800p / 1080p): 15.4 / 11.1% then 20.5 / 13.4%. 4.1.2l-lossy on Steam Machine (1080p / 1440p / 4K): 19.5 / 22.1 / 18.9% then 20.6 / 27.2 / 20.4%. 4.1.2l-exact on Steam Deck (800p / 1080p): 12.3 / 10.8% then 21.1 / 12.8%. 4.1.2l-exact on Steam Machine (1080p / 1440p / 4K): 10.8 / 9.6 / 8.9% then 12.4 / 19.6 / 11.9%.">
-<rect width="760" height="628" rx="8" fill="#fcfcfb"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="643" viewBox="0 0 760 643" role="img" aria-label="How much faster than AMD's FSR 4.1.2 Lite on the Steam Deck and the Steam Machine, previous release then this release. 4.1.2l-lossy on Steam Deck (800p / 1080p): 10.2 / 11.1% then 15.6 / 13.4%. 4.1.2l-lossy on Steam Machine (1080p / 1440p / 4K): 19.5 / 15.6 / 18.9% then 20.6 / 21.2 / 20.4%. 4.1.2l-exact on Steam Deck (800p / 1080p): 6.5 / 10.8% then 15.8 / 12.8%. 4.1.2l-exact on Steam Machine (1080p / 1440p / 4K): 10.8 / 2.1 / 8.9% then 12.4 / 13.0 / 11.9%.">
+<rect width="760" height="643" rx="8" fill="#fcfcfb"/>
 <text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" font-weight="600" text-anchor="start" fill="#0b0b0b">How much faster than AMD's FSR 4.1.2 Lite</text>
 <text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">0% = AMD's Lite. Taller is faster.</text>
 <rect x="24" y="68" width="12" height="11" rx="3" fill="#b9b8b1"/>
@@ -13,10 +13,10 @@
 <line x1="24" y1="238.7" x2="364" y2="238.7" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="24" y1="195.3" x2="364" y2="195.3" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="24" y1="152.0" x2="364" y2="152.0" stroke="#e1e0d9" stroke-width="1"/>
-<path d="M66.0,282 V219.3 Q66.0,215.3 70.0,215.3 H104.0 Q108.0,215.3 108.0,219.3 V282 Z" fill="#b9b8b1"/>
-<text x="87.0" y="210.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">15%</text>
-<path d="M110.0,282 V197.2 Q110.0,193.2 114.0,193.2 H148.0 Q152.0,193.2 152.0,197.2 V282 Z" fill="#eb6834"/>
-<text x="131.0" y="188.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">20%</text>
+<path d="M66.0,282 V241.8 Q66.0,237.8 70.0,237.8 H104.0 Q108.0,237.8 108.0,241.8 V282 Z" fill="#b9b8b1"/>
+<text x="87.0" y="232.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">10%</text>
+<path d="M110.0,282 V218.4 Q110.0,214.4 114.0,214.4 H148.0 Q152.0,214.4 152.0,218.4 V282 Z" fill="#eb6834"/>
+<text x="131.0" y="209.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">16%</text>
 <text x="109.0" y="299.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#52514e">800p</text>
 <path d="M236.0,282 V237.9 Q236.0,233.9 240.0,233.9 H274.0 Q278.0,233.9 278.0,237.9 V282 Z" fill="#b9b8b1"/>
 <text x="257.0" y="228.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">11%</text>
@@ -34,10 +34,10 @@
 <path d="M453.7,282 V196.7 Q453.7,192.7 457.7,192.7 H491.7 Q495.7,192.7 495.7,196.7 V282 Z" fill="#eb6834"/>
 <text x="474.7" y="187.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">21%</text>
 <text x="452.7" y="299.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#52514e">1080p</text>
-<path d="M523.0,282 V190.2 Q523.0,186.2 527.0,186.2 H561.0 Q565.0,186.2 565.0,190.2 V282 Z" fill="#b9b8b1"/>
-<text x="544.0" y="181.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">22%</text>
-<path d="M567.0,282 V168.1 Q567.0,164.1 571.0,164.1 H605.0 Q609.0,164.1 609.0,168.1 V282 Z" fill="#eb6834"/>
-<text x="588.0" y="159.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">27%</text>
+<path d="M523.0,282 V218.4 Q523.0,214.4 527.0,214.4 H561.0 Q565.0,214.4 565.0,218.4 V282 Z" fill="#b9b8b1"/>
+<text x="544.0" y="209.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">16%</text>
+<path d="M567.0,282 V194.1 Q567.0,190.1 571.0,190.1 H605.0 Q609.0,190.1 609.0,194.1 V282 Z" fill="#eb6834"/>
+<text x="588.0" y="185.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">21%</text>
 <text x="566.0" y="299.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#52514e">1440p</text>
 <path d="M636.3,282 V204.1 Q636.3,200.1 640.3,200.1 H674.3 Q678.3,200.1 678.3,204.1 V282 Z" fill="#b9b8b1"/>
 <text x="657.3" y="195.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">19%</text>
@@ -50,10 +50,10 @@
 <line x1="24" y1="462.7" x2="364" y2="462.7" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="24" y1="419.3" x2="364" y2="419.3" stroke="#e1e0d9" stroke-width="1"/>
 <line x1="24" y1="376.0" x2="364" y2="376.0" stroke="#e1e0d9" stroke-width="1"/>
-<path d="M66.0,506 V456.7 Q66.0,452.7 70.0,452.7 H104.0 Q108.0,452.7 108.0,456.7 V506 Z" fill="#b9b8b1"/>
-<text x="87.0" y="447.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">12%</text>
-<path d="M110.0,506 V418.6 Q110.0,414.6 114.0,414.6 H148.0 Q152.0,414.6 152.0,418.6 V506 Z" fill="#2a78d6"/>
-<text x="131.0" y="409.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">21%</text>
+<path d="M66.0,506 V481.8 Q66.0,477.8 70.0,477.8 H104.0 Q108.0,477.8 108.0,481.8 V506 Z" fill="#b9b8b1"/>
+<text x="87.0" y="472.8" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">6%</text>
+<path d="M110.0,506 V441.5 Q110.0,437.5 114.0,437.5 H148.0 Q152.0,437.5 152.0,441.5 V506 Z" fill="#2a78d6"/>
+<text x="131.0" y="432.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">16%</text>
 <text x="109.0" y="523.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#52514e">800p</text>
 <path d="M236.0,506 V463.2 Q236.0,459.2 240.0,459.2 H274.0 Q278.0,459.2 278.0,463.2 V506 Z" fill="#b9b8b1"/>
 <text x="257.0" y="454.2" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">11%</text>
@@ -71,10 +71,10 @@
 <path d="M453.7,506 V456.3 Q453.7,452.3 457.7,452.3 H491.7 Q495.7,452.3 495.7,456.3 V506 Z" fill="#2a78d6"/>
 <text x="474.7" y="447.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">12%</text>
 <text x="452.7" y="523.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#52514e">1080p</text>
-<path d="M523.0,506 V468.4 Q523.0,464.4 527.0,464.4 H561.0 Q565.0,464.4 565.0,468.4 V506 Z" fill="#b9b8b1"/>
-<text x="544.0" y="459.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">10%</text>
-<path d="M567.0,506 V425.1 Q567.0,421.1 571.0,421.1 H605.0 Q609.0,421.1 609.0,425.1 V506 Z" fill="#2a78d6"/>
-<text x="588.0" y="416.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">20%</text>
+<path d="M523.0,506 V500.9 Q523.0,496.9 527.0,496.9 H561.0 Q565.0,496.9 565.0,500.9 V506 Z" fill="#b9b8b1"/>
+<text x="544.0" y="491.9" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">2%</text>
+<path d="M567.0,506 V453.7 Q567.0,449.7 571.0,449.7 H605.0 Q609.0,449.7 609.0,453.7 V506 Z" fill="#2a78d6"/>
+<text x="588.0" y="444.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">13%</text>
 <text x="566.0" y="523.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#52514e">1440p</text>
 <path d="M636.3,506 V471.4 Q636.3,467.4 640.3,467.4 H674.3 Q678.3,467.4 678.3,471.4 V506 Z" fill="#b9b8b1"/>
 <text x="657.3" y="462.4" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#898781">9%</text>
@@ -85,4 +85,5 @@
 <text x="24.0" y="567.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">colored: the gray bar moved by the median same-report gain (the subtitle).</text>
 <text x="24.0" y="582.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Steam Deck: 2 reports (an OLED under Linux, an LCD under Windows; 4.1.2l-exact: the LCD only), 800p is its screen. Steam Machine: 1 report (Linux).</text>
 <text x="24.0" y="597.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Previous release = the build in each device's archive: Steam Deck = the older built-in graphics archive, Steam Machine = the RX 7000 archive.</text>
+<text x="24.0" y="612.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">800p and 1440p: the kit's AMD Lite reference ran one pass on a whole size class (AMD's own Lite does not): its time less that waste, from the same reports.</text>
 </svg>

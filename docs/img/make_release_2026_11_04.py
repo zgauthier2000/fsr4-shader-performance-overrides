@@ -7,7 +7,10 @@ THEMES = {
 }
 FONT = "font-family=\"-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif\""
 SIZES = ('1080p', '1440p', '4K')
-DATA = {"RX 7000": {"lossy_new": [21.3, 26.8, 19.2], "lossy_prev": [21.8, 23.8, 19.6], "exact_new": [13.3, 19.4, 11.8], "exact_prev": [12.5, 11.6, 10.8]}, "RX 6000": {"lossy_new": [15.2, 21.1, 14.9], "lossy_prev": [13.8, 17.0, 13.5], "exact_new": [13.8, 18.6, 10.6], "exact_prev": [11.7, 10.8, 9.0]}}
+# (2026-11-05) 1440p reference corrected: the kit's AMD Lite slot (lt1) runs AMD's Lite pass 2 with twice the groups AMD's own DLL launches, so between size classes
+# (1440p in the 4K class, 800p in the 1080p class) it computes the whole class's tensor; each report's AMD Lite time minus that waste (lt121 - lt128, the fix's own
+# saving in the same report) gives the 1440p gray values (estimated: 10.8 -> 5.3 etc.); 1080p and 4K as measured. ~/er-fsr4/release/lite_ref/chartfix.py
+DATA = {"RX 7000": {"lossy_new": [21.3, 26.8, 19.2], "lossy_prev": [21.8, 18.1, 19.6], "exact_new": [13.3, 19.4, 11.8], "exact_prev": [12.5, 5.4, 10.8]}, "RX 6000": {"lossy_new": [15.2, 21.1, 14.9], "lossy_prev": [13.8, 12.0, 13.5], "exact_new": [13.8, 18.6, 10.6], "exact_prev": [11.7, 5.3, 9.0]}}
 GAIN = {"lossy": {"RX 7000": [0.0, 4.5, -0.0], "RX 6000": [1.9, 5.2, 1.7]}, "exact": {"RX 7000": [1.1, 8.6, 1.1], "RX 6000": [2.4, 8.7, 2.0]}}
 
 # (2026-11-04) each colored bar = the gray bar moved by the median same-report gain, so bars and subtitles always agree: separate medians of the
@@ -15,7 +18,7 @@ GAIN = {"lossy": {"RX 7000": [0.0, 4.5, -0.0], "RX 6000": [1.9, 5.2, 1.7]}, "exa
 def moved(prev, g): return [round(100 * (1 - (1 - p / 100) * (1 - x / 100)), 1) for p, x in zip(prev, g)]
 for f in DATA:
     for b in ('lossy', 'exact'): DATA[f][b + '_new'] = moved(DATA[f][b + '_prev'], GAIN[b][f])
-W, H = 760, 628
+W, H = 760, 643
 PW, PH, MAX = 340, 130, 30
 
 
@@ -56,7 +59,8 @@ def figure(t):
     for k, l in enumerate(("Windows timing-kit reports with both releases' builds in the same report, moving scene, Balanced; timing program, not games. Gray: median per family;",
                            "colored: the gray bar moved by the median same-report gain (the subtitle).",
                            "RX 7000: 4 reports (RX 7600, RX 7800 XT, RX 7900 XT, RX 7900 XTX); RX 6000: 9 reports. Steam Deck and Steam Machine: the second chart.",
-                           "Same speed: 4.1.2l-lossy on RX 7000 at 1080p and 4K (0.0%).")):
+                           "Same speed: 4.1.2l-lossy on RX 7000 at 1080p and 4K (0.0%).",
+                           "1440p: the kit's AMD Lite reference ran one pass on a whole size class (AMD's own Lite does not): its time less that waste, from the same reports.")):
         o.append(text(24, 552 + 15 * k, l, t, 10, 'muted'))
     return o
 
