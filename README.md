@@ -39,7 +39,7 @@ laptop with two, the RX one is the one games use. Every archive works on every c
 | `exact` | FSR 4.1.2 | faster than AMD's | **the same as AMD's, byte for byte** (the RX 6000 and Steam Deck / older built-in graphics archives: AMD's FSR 4.1.2 for RX 6000, which in games looks the same as 4.1.1: [why](docs/amd-411-vs-412.md)) |
 | `lossy` | FSR 4.1.2, trained | faster again | close to AMD's, not the same. **This is the build earlier releases called `lossy2`, retrained** (the older, untrained lossy build is no longer included). Brightening catches up more slowly than before. Read `WARNING.txt` in that folder first |
 | `4.1.2l-exact` | FSR 4.1.2 Lite, AMD's smaller network | a little faster than AMD's Lite | **the same as AMD's Lite, byte for byte** (not the same as full FSR 4) |
-| `4.1.2l-lossy` | FSR 4.1.2 Lite | about 12 to 25% faster than AMD's Lite | close to Lite's, not the same; thin wires shimmer less in motion, small bright details are less accurate. Read `WARNING.txt` in that folder first |
+| `4.1.2l-lossy` | FSR 4.1.2 Lite | about 13 to 22% faster than AMD's Lite | close to Lite's, not the same; thin wires shimmer less in motion, small bright details are less accurate. Read `WARNING.txt` in that folder first |
 
 If you are not sure, take `exact`.
 
@@ -75,19 +75,21 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
   | Graphics card | Source | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
   |---|---|---|---|---|---|---|
-  | Radeon RX 7800 XT | Linux, this project (release builds) | 15% / 35% / 37% | 35% / 51% / 55% | 10% / 16% / 9% | 16% / 22% / 18% | 38% / 53% / 59% |
-  | Radeon RX 7900 XTX | Windows, 1 report | 7% / 29% / 34% | 28% / 44% / 48% | 12% / 19% / 10% | 21% / 26% / 18% | 46% / 52% / 58% |
-  | Radeon RX 7900 XT | Windows, 1 report | 4% / 16% / 17% | 25% / 33% / 34% | 15% / 18% / 11% | 20% / 25% / 19% | 42% / 43% / 46% |
-  | Radeon RX 7800 XT | Windows, 1 report | 7% / 8% / 9% | 26% / 26% / 27% | 12% / 20% / 12% | 21% / 27% / 20% | 41% / 36% / 41% |
-  | Radeon RX 7600 | Windows, 1 report | 24% / 25% / 31% | 37% / 37% / 40% | 18% / 23% / 16% | 23% / 28% / 21% | 50% / 44% / 52% |
-  | Radeon RX 6800 XT | Windows, 1 report | 2% / 3% / 6% | 20% / 18% / 20% | 15% / 19% / 10% | 18% / 23% / 17% | 40% / 32% / 34% |
-  | Radeon RX 6750 XT | Windows, 3 reports | 1% / 2% / 2% | 18% / 17% / 16% | 14% / 19% / 12% | 16% / 22% / 15% | 38% / 30% / 34% |
-  | Radeon RX 6700 XT | Windows, 1 report | 0% / 2% / 2% | 17% / 17% / 16% | 14% / 19% / 13% | 16% / 21% / 14% | 37% / 30% / 34% |
-  | Radeon RX 6650 XT | Windows, 3 reports | 3% / 4% / 4% | 18% / 18% / 18% | 10% / 16% / 10% | 14% / 20% / 15% | 36% / 30% / 35% |
+  | Radeon RX 7800 XT | Linux, this project (release builds) | 15% / 35% / 37% | 35% / 51% / 55% | 10% / 10% / 9% | 16% / 16% / 18% | 38% / 56% / 59% |
+  | Radeon RX 7900 XTX | Windows, 1 report | 7% / 29% / 34% | 28% / 44% / 48% | 12% / 13% / 10% | 21% / 21% / 18% | 46% / 55% / 58% |
+  | Radeon RX 7900 XT | Windows, 1 report | 4% / 16% / 17% | 25% / 33% / 34% | 15% / 13% / 11% | 20% / 21% / 19% | 42% / 46% / 46% |
+  | Radeon RX 7800 XT | Windows, 1 report | 7% / 8% / 9% | 26% / 26% / 27% | 12% / 14% / 12% | 21% / 22% / 20% | 41% / 40% / 41% |
+  | Radeon RX 7600 | Windows, 1 report | 24% / 25% / 31% | 37% / 37% / 40% | 18% / 17% / 16% | 23% / 22% / 21% | 50% / 48% / 52% |
+  | Radeon RX 6800 XT | Windows, 1 report | 2% / 3% / 6% | 20% / 18% / 20% | 15% / 14% / 10% | 18% / 18% / 17% | 40% / 36% / 34% |
+  | Radeon RX 6750 XT | Windows, 3 reports | 1% / 2% / 2% | 18% / 17% / 16% | 14% / 14% / 12% | 16% / 17% / 15% | 38% / 34% / 34% |
+  | Radeon RX 6700 XT | Windows, 1 report | 0% / 2% / 2% | 17% / 17% / 16% | 14% / 14% / 13% | 16% / 16% / 14% | 37% / 34% / 34% |
+  | Radeon RX 6650 XT | Windows, 3 reports | 3% / 4% / 4% | 18% / 18% / 18% | 10% / 11% / 10% | 14% / 15% / 15% | 36% / 34% / 35% |
 
   The Windows rows are testers' timing-kit reports (test packs 2026-11-04 and 2026-11-04.2 of the self-updating kit, median per card). Exact and lossy are the DLLs of
   `dll-2026-10-29`, unchanged in this release; the two Lite columns are this release's 4.1.2l-exact and 4.1.2l-lossy (the same build in all four archives). Results much slower than the median for the same card model are left out (more than 3 scaled median deviations and more than 3 points; cards with at least 3 reports), because other work on a desktop PC can slow a run; faster ones are kept. One
-  report per card is one run. The Linux row is this project's own RX 7800 XT with the release's builds (AMD's FSR 4.1.2 there = its FSR SDK 2.4.0
+  report per card is one run. At 1440p, AMD's Lite is the kit's Lite reference less the time one of its passes spends on a whole size class there, which AMD's own
+  Lite DLL does not do: taken from each report's own figures, and measured on this project's RX 7800 XT (1.025 → 0.962 ms); 1080p and 4K are as measured.
+  The Linux row is this project's own RX 7800 XT with the release's builds (AMD's FSR 4.1.2 there = its FSR SDK 2.4.0
   game DLL, Lite in this project's local test harness; two runs each). The same DLL saves much more under Linux on most Radeon cards, most likely
   because Linux's driver runs two of AMD's shaders (the last pass and network pass 11) in a slower mode than Windows does. We do not yet know
   what decides where a card falls in its range.
@@ -171,7 +173,7 @@ More games and resolutions: [all results](docs/results.md).
 >
 > **What got worse:** nothing slower beyond the spread of single runs (one: `4.1.2l-exact` on a Radeon 780M / Ryzen Z1 at 1080p, 1.7% slower, two reports). **Not measured:** GeForce and Intel Arc.
 >
-> Against AMD's Lite: `4.1.2l-exact` saves 11 to 21% and `4.1.2l-lossy` 13 to 27% at the sizes reported. [Everything that changed](docs/releases/dll-2026-11-04.md).
+> Against AMD's Lite: `4.1.2l-exact` saves 11 to 16% and `4.1.2l-lossy` 13 to 22% at the sizes reported. [Everything that changed](docs/releases/dll-2026-11-04.md).
 
 **Earlier: [`dll-2026-11-01`](docs/releases/dll-2026-11-01.md)** made `4.1.2l-lossy` and `4.1.2l-exact` faster on Windows (most on RX 7000), with the same pictures.
 
