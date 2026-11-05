@@ -34,8 +34,7 @@ NOW = (('Tiled lossy (experiment only)', 'Not how released lossy builds work', '
        ('Exact builds', "More speed, picture still AMD's, byte for byte", 'new speedups in the kit', 'Timing kit reports: GeForce, Arc and RX 5000'),
        ('Small and handheld chips', 'Sizes between 1080p and 4K, and 800p', '800p, 1440p speedups', 'Timing kit reports: handhelds and built-in graphics'),
        ('Lossy picture quality', 'Fewer twinkling specks in foliage', 'needs examples', 'Games and scenes where a lossy build looks wrong'),
-       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'one run at a time', "Games and scenes where AMD's Lite looks wrong"),
-       ('4.1.2l-lossy on RX 7000', 'Same picture, one shader change left out', 'new test in the kit', 'Timing kit reports: RX 7000, Windows and Linux'))
+       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'one run at a time', "Games and scenes where AMD's Lite looks wrong"))
 
 
 def now(t):
@@ -84,7 +83,7 @@ def path(t):
     return wrap(o, yh + 174, 'The path of an improvement: idea, training on one RX 7800 XT, testing here on Linux, the timing kit on testers\' PCs, release; kit results lead to the next change. Training is limited by one GPU with 16 GB, one run at a time at about an hour per run, 30 GB of system memory and several runs per setting; more GPU or system memory or a faster GPU would help. Testing here is limited to Linux and one card, with data on one slow USB drive; a Windows PC with Radeon, an RX 6000 card or a bigger, faster drive would help. The kit is limited to the cards people report, and reports take time to arrive after new tests reach the kit; your report helps.', t)
 
 
-CARDS = (('RX 6000', 'Linux especially', ['every card, even if already reported'], 1), ('RX 7000', 'new test', ['RX 7800 XT', 'RX 7900 XT / XTX', 'RX 7700 XT', 'RX 7600', 'laptop chips'], 1),
+CARDS = (('RX 6000', 'Linux especially', ['every card, even if already reported'], 1), ('RX 7000', '', ['RX 7800 XT', 'RX 7900 XT / XTX', 'RX 7700 XT', 'RX 7600', 'laptop chips'], 1),
          ('Built-in', '', ['780M', '760M', '880M', '680M', '660M'], 1), ('Handhelds', 'Windows or Linux', ['Steam Deck', 'ROG Ally', 'Legion Go'], 1),
          ('Older Radeon', '', ['RX 5000', 'Vega'], 1), ('Others', '', ['GeForce', 'Intel Arc'], 1))
 
@@ -105,7 +104,7 @@ def cards(t):
 
 # Next release, steps done (2026-11-05, user: "show, without promising anything, how close the next release is to being ready"). Steps only: no date and nothing about what
 # the release contains (upcoming changes are not announced without the author's word). Update the flags as steps finish; a failed step can send a build back.
-RELEASE = (('Builds made', 1), ('Pictures checked here', 1), ('Speed measured with the kit', 1), ('Release pages written', 1), ("Author's game test", 0), ('Published', 0))
+RELEASE = (('Builds made', 0), ('Pictures checked here', 0), ('Speed measured with the kit', 0), ('Release pages written', 0), ("Author's game test", 0), ('Published', 0))      # dll-2026-11-05 published 2026-11-05: next one starts over
 
 
 def release(t):
