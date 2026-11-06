@@ -2,7 +2,7 @@
 
 What this project is working on, and how you can help. These are aims, not promises, and nothing here is a release date.
 
-Last updated: 2026-11-05.
+Last updated: 2026-11-06.
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="img/wm-release-dark.svg"><img src="img/wm-release-light.svg" alt="Next release: 0 of 6 steps done (builds made, pictures checked here, speed measured with the kit, release pages written, the author's game test, publishing: all to do). No date."></picture>
 
@@ -10,7 +10,9 @@ Last updated: 2026-11-05.
 
 **Tiled lossy is an internal experiment,** tested only through the timing kit: it is not in any release, and the released lossy builds do not work this way. It splits each frame into tiles that skip the network at different times, instead of skipping it on the whole frame every other frame.
 
-**A cleaner Lite is measured against AMD's own FSR 4.1.2 Lite,** unchanged: the aim is a build that keeps Lite's strengths and fixes the places where it looks worse than AMD's full FSR 4, such as fine patterns that crawl. It is early and not in any release; it would not be AMD's picture, so it would be neither exact nor lossy. The current try learns, pixel by pixel, from whichever of AMD's Lite and full FSR 4 is closer to the true picture of the test scenes, so it should keep Lite where Lite is already better. The latest runs work on lag: earlier tries followed a brightening or fading scene more slowly than AMD's Lite, and the newest has closed most of that gap but is a little less steady on still scenes; ghost outlines behind moving objects are next.
+**A cleaner Lite is measured against AMD's own FSR 4.1.2 Lite,** unchanged: the aim is a build that keeps Lite's strengths and fixes the places where it looks worse than AMD's full FSR 4, such as fine patterns that crawl. It is early and not in any release; it would not be AMD's picture, so it would be neither exact nor lossy. The current try learns, pixel by pixel, from whichever of AMD's Lite and full FSR 4 is closer to the true picture of the test scenes, so it should keep Lite where Lite is already better. The lag is now mostly fixed: earlier tries followed a brightening or fading scene clearly more slowly than AMD's Lite, and the newest is close to it. The current runs work on still scenes, where thin lines such as wires shimmer more than in AMD's Lite; ghost outlines behind moving objects are next.
+
+**The timing kit now also times AMD's FSR 4.1.2 Lite as AMD's own FSR SDK 2.4.0 ships it** (the Lite that OptiScaler offers as "FSR 4.1.2" with the INT8 Lite model), next to the Lite this project has compared against so far. Kits from 2026-11-03 on pick this test up by themselves. We are also looking at what AMD's SDK does differently, to bring any speedup to this project's Lite builds. Reports from RX 7000 cards on Windows are the most wanted for it.
 
 **The RX 7000 test of `4.1.2l-lossy` is now released** in [`dll-2026-11-05`](releases/dll-2026-11-05.md): the same picture, with one shader change left out on RX 7000.
 
