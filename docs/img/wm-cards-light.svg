@@ -2,8 +2,7 @@
 <rect width="760" height="318" rx="8" fill="#fcfcfb"/>
 <text x="24" y="32" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" text-anchor="start" fill="#0b0b0b">Timing kit reports most wanted</text>
 <text x="24" y="52" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Each new kit tests new things, so a card already reported still helps.</text>
-<text x="24" y="87" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">RX 6000</text>
-<text x="24" y="102" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">Linux especially</text>
+<text x="24" y="91" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">RX 6000</text>
 <rect x="140" y="72" width="279" height="28" rx="14" fill="#e3eefb" stroke="#2a78d6"/>
 <text x="279" y="91" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#0b0b0b">every card, even if already reported</text>
 <text x="24" y="127" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">RX 7000</text>
