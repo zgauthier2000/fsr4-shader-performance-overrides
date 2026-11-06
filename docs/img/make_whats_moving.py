@@ -30,12 +30,12 @@ def wrap(body, H, label, t):
     return [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(label)}">', f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>'] + body + ['</svg>']
 
 
-NOW = (('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'slower on RX 6000 so far', 'Timing kit reports: RX 6000 cards'),
+NOW = (('Lite speed', "Learning from AMD's own SDK Lite", 'new kit test: SDK Lite', 'Timing kit reports: RX 7000 on Windows'),
+       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'still scenes, then ghosting', "Games and scenes where AMD's Lite looks wrong"),
        ('Exact builds', "More speed, picture still AMD's, byte for byte", 'new speedups in the kit', 'Timing kit reports: GeForce, Arc and RX 5000'),
        ('Small and handheld chips', 'Sizes between 1080p and 4K, and 800p', '800p, 1440p speedups', 'Timing kit reports: handhelds and built-in graphics'),
        ('Lossy picture quality', 'Fewer twinkling specks in foliage', 'needs examples', 'Games and scenes where a lossy build looks wrong'),
-       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'still scenes, then ghosting', "Games and scenes where AMD's Lite looks wrong"),
-       ('Lite speed', "Learning from AMD's own SDK Lite", 'new kit test: SDK Lite', 'Timing kit reports: RX 7000 on Windows'))
+       ('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'slower on RX 6000 so far', 'Timing kit reports: RX 6000 cards'))
 
 
 def now(t):
