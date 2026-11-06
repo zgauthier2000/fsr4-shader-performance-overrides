@@ -30,7 +30,7 @@ def wrap(body, H, label, t):
     return [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(label)}">', f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>'] + body + ['</svg>']
 
 
-NOW = (("Speed from AMD's SDK", "Lite first, then full FSR 4 builds", 'new kit test: SDK Lite', 'Timing kit reports from every card'),
+NOW = (("Speed from AMD's SDK", "Lite first, then full FSR 4 builds", 'new kit tests: SDK launch', 'Timing kit reports from every card'),
        ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'still scenes, then ghosting', "Games and scenes where AMD's Lite looks wrong"),
        ('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'slower on RX 6000 so far', 'Timing kit reports: RX 6000 cards'))
 

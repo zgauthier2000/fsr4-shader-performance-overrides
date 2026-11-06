@@ -6,7 +6,7 @@
 <text x="38" y="70" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#0b0b0b">Speed from AMD's SDK</text>
 <text x="38" y="90" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#52514e">Lite first, then full FSR 4 builds</text>
 <line x1="324" y1="75" x2="463" y2="75" stroke="#898781" stroke-width="1.5"/><polygon points="470,75 463,72 463,78" fill="#898781"/>
-<text x="397" y="67" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="middle" fill="#898781">new kit test: SDK Lite</text>
+<text x="397" y="67" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="middle" fill="#898781">new kit tests: SDK launch</text>
 <rect x="470" y="44" width="266" height="62" rx="8" fill="#e3eefb" stroke="#2a78d6"/>
 <text x="484" y="71" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#0b0b0b">Timing kit reports from every</text>
 <text x="484" y="89" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#0b0b0b">card</text>

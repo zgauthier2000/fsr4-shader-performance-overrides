@@ -4,7 +4,7 @@
   {
    "name": "Main NVMe drive",
    "capacity": 1006450229248,
-   "used": 802588942336,
+   "used": 806497673216,
    "project": 615726913834
   },
   {
@@ -32,20 +32,20 @@
  "files": 974816,
  "since": "Oct 16",
  "all": {
-  "cpu_s": 1816854.0999999952,
-  "gpu_s": 776014.0,
-  "all_r": 289373502868609,
-  "disk_r": 130422101217280,
-  "all_w": 6862014221545,
-  "disk_w": 1567858978816
+  "cpu_s": 1836754.809999997,
+  "gpu_s": 786293.0,
+  "all_r": 292327841346886,
+  "disk_r": 132566441721856,
+  "all_w": 6914990311054,
+  "disk_w": 1577598316544
  },
  "week": {
-  "cpu_s": 354838.31999999966,
-  "gpu_s": 158643.0,
-  "all_r": 51359104048112,
-  "disk_r": 29755469922304,
-  "all_w": 1559461986548,
-  "disk_w": 213417783296
+  "cpu_s": 363408.29000000004,
+  "gpu_s": 164233.0,
+  "all_r": 51731804579649,
+  "disk_r": 31024100540416,
+  "all_w": 1494309307979,
+  "disk_w": 217443074048
  },
  "notes": [
   "Work is counted from Oct 16, 2026, when the job recorder started (the project began Oct 1); jobs still running are counted when they end.",
