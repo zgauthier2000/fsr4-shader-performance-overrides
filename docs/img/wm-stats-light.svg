@@ -4,7 +4,7 @@
 <text x="24" y="52" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Measured 2026-11-06 on the author's PC.</text>
 <text x="24" y="76" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#52514e">DISK SPACE</text>
 <circle cx="112" cy="148" r="52" fill="#fcfcfb" stroke="#c9c8c0" stroke-width="1.5"/>
-<path d="M112,148 L78.4,187.7 A52,52 0 0 1 62.2,133.0 Z" fill="#f1f0ec" stroke="#fcfcfb" stroke-width="2"/>
+<path d="M112,148 L78.4,187.7 A52,52 0 0 1 62.3,132.7 Z" fill="#f1f0ec" stroke="#fcfcfb" stroke-width="2"/>
 <path d="M112,148 L112.0,96.0 A52,52 0 1 1 78.4,187.7 Z" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="112" cy="148" r="52" fill="none" stroke="#c9c8c0" stroke-width="1.5"/>
 <text x="112" y="224" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="middle" fill="#0b0b0b">Main NVMe drive</text>
