@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="How this project trains its cleaner FSR 4.1.2 Lite, shown as animated neurons: a simplified analogy.">
+<title>Lite Neurons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a lab notebook at night. A title, one big living stage of neurons with a step readout, then the steps as a numbered list beside a short legend. */
+:root {
+  color-scheme: dark;
+  --bg: #0a0e13;
+  --panel: #11171e;
+  --rule: #222c36;
+  --ink: #e7edf2;
+  --muted: #8c9aa7;
+  --lite: #46c2c9;      /* AMD's Lite, teacher 1 */
+  --full: #e3a35a;      /* AMD's full FSR 4, teacher 2 */
+  --student: #b796ff;   /* the network being trained */
+  --truth: #f4f1e8;     /* the true picture */
+  --err: #ff5e72;       /* the difference that drives learning */
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 24px; }
+header { display: grid; gap: 10px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(40px, 7vw, 76px); letter-spacing: 0.02em; line-height: 0.95; text-transform: uppercase; text-wrap: balance; margin: 0; }
+h1 .s { color: var(--student); }
+h1 .l { color: var(--lite); }
+h1 .f { color: var(--full); }
+.lede { max-width: 68ch; color: var(--muted); margin: 0; }
+.lede b { color: var(--ink); font-weight: 600; }
+.note { font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.stagebox { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.stage { position: relative; aspect-ratio: 16 / 8.6; min-height: 340px; background: radial-gradient(110% 90% at 55% 45%, #161f2b 0%, var(--bg) 72%); }
+.stage canvas { display: block; width: 100%; height: 100%; }
+.hud { position: absolute; left: 14px; top: 12px; font-family: var(--mono); font-size: 12px; color: var(--muted); display: grid; gap: 2px; pointer-events: none; font-variant-numeric: tabular-nums; }
+.hud .state { color: var(--ink); font-weight: 500; font-size: 13px; }
+.ctrl { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 6px; }
+.ctrl button { font: 500 12px var(--mono); color: var(--ink); background: rgba(10, 14, 19, 0.75); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+.ctrl button:hover { border-color: var(--muted); }
+.ctrl button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.ctrl button[aria-pressed="true"] { border-color: var(--ink); }
+.below { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 24px; align-items: start; }
+ol.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: s; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); transition: border-color .25s, background .25s; }
+ol.steps li::before { content: counter(s); font-family: var(--display); font-weight: 800; font-size: 24px; line-height: 1; color: var(--muted); }
+ol.steps li.on { border-color: var(--student); background: #18142a; }
+ol.steps li.on::before { color: var(--student); }
+ol.steps b { font-weight: 600; }
+ol.steps p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+aside { display: grid; gap: 14px; }
+.legend { list-style: none; margin: 0; padding: 14px 16px; display: grid; gap: 8px; font-size: 13.5px; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); }
+.legend li { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 9px; align-items: baseline; }
+.legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; transform: translateY(1px); }
+.legend b { font-weight: 600; }
+.card { padding: 14px 16px; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); font-size: 14px; display: grid; gap: 6px; }
+.card strong { font-family: var(--display); font-weight: 800; font-size: 26px; letter-spacing: 0.02em; line-height: 1; color: var(--student); }
+.card span { color: var(--muted); }
+footer { color: var(--muted); font-size: 13px; max-width: 82ch; }
+footer a { color: var(--student); }
+@media (max-width: 860px) {
+  .below { grid-template-columns: minmax(0, 1fr); }
+  .stage { aspect-ratio: 3 / 5.4; min-height: 0; }
+  .hud span:first-child { display: none; }
+}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="note">Unreleased, early work · a simplified analogy</div>
+    <h1>One <span class="s">student</span>, two teachers: <span class="l">Lite</span> and <span class="f">full FSR&nbsp;4</span></h1>
+    <p class="lede">This project is training a <b>cleaner FSR 4.1.2 Lite</b>: the same small network as AMD's Lite, taught to fix the places where Lite looks worse than AMD's full FSR 4, such as fine patterns that crawl, while keeping what Lite already does well. Here the networks are drawn as neurons. It would not be AMD's picture, so it would be neither exact nor lossy, and it is not in any release.</p>
+  </header>
+
+  <section class="stagebox" aria-label="Animated training step">
+    <div class="stage" id="stage">
+      <canvas id="c" aria-label="Animated neurons: a test frame goes to two teacher networks, AMD's Lite and AMD's full FSR 4. For every pixel, whichever teacher is closer to the true picture becomes the target. The student network answers, the difference flows back through it, and its connections change a little. Its memory of the last frame loops back for the next one."></canvas>
+      <div class="hud" aria-live="off"><span>one training step</span><span class="state" id="hud">step 1: a test frame arrives</span><span id="hud2">practice frames seen: 0</span></div>
+      <div class="ctrl"><button type="button" id="slow" aria-pressed="false">Slow</button><button type="button" id="play" aria-pressed="false">Pause</button></div>
+    </div>
+  </section>
+
+  <div class="below">
+    <ol class="steps" id="steps">
+      <li data-i="0"><span><b>A test frame arrives.</b><p>The frames come from test scenes made on purpose, so the true, perfect picture is known for every one: rain, foliage, wires, fades, fine patterns.</p></span></li>
+      <li data-i="1"><span><b>Both teachers answer.</b><p>AMD's own Lite and AMD's full FSR 4 each upscale the same frame. Neither is perfect, and each is better in different places.</p></span></li>
+      <li data-i="2"><span><b>Pixel by pixel, the closer teacher wins.</b><p>Each pixel's target comes from whichever teacher is closer to the true picture there. So the student learns from full FSR 4 where Lite crawls, and from Lite where Lite is already better.</p></span></li>
+      <li data-i="3"><span><b>The student answers.</b><p>The student is Lite's own network, started from AMD's Lite weights, so it begins as Lite. It runs on every frame, like AMD's Lite.</p></span></li>
+      <li data-i="4"><span><b>The difference flows back.</b><p>Where the student's pixels miss the target, the miss travels backward through its neurons and says which connections caused it.</p></span></li>
+      <li data-i="5"><span><b>Connections change, a little.</b><p>Each step nudges the connection strengths only slightly. The latest runs change about one in a hundred of the network's stored values in a whole run. Bigger steps undid earlier gains.</p></span></li>
+      <li data-i="6"><span><b>Memory loops back.</b><p>The network keeps part of each frame as history for the next. How much it keeps decides how fast it follows a brightening scene and whether moving objects leave outlines, so training watches that too.</p></span></li>
+    </ol>
+    <aside>
+      <ul class="legend">
+        <li><i style="background:var(--truth)"></i><span><b>True picture</b>: known for every test frame</span></li>
+        <li><i style="background:var(--lite)"></i><span><b>Teacher 1</b>: AMD's FSR 4.1.2 Lite</span></li>
+        <li><i style="background:var(--full)"></i><span><b>Teacher 2</b>: AMD's full FSR 4</span></li>
+        <li><i style="background:var(--student)"></i><span><b>Student</b>: the cleaner Lite being trained</span></li>
+        <li><i style="background:var(--err)"></i><span><b>Difference</b>: what the student still gets wrong</span></li>
+      </ul>
+      <div class="card"><strong>Then the checks</strong><span>Training alone proves nothing. Every saved version goes through dozens of test scenes against rules set before the results, and through frames recorded from real games. The current runs work on still scenes, where thin lines such as wires shimmer more than in AMD's Lite.</span></div>
+    </aside>
+  </div>
+
+  <footer>A simplified analogy, not a diagram of the network: the real networks have far more neurons, work on whole frames, and train on thousands of frames. The step times here are made up for viewing. <a href="engines.html">The glass engine version</a> · <a href="starships.html">The starship version</a> · <a href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/docs/whats-moving.md">What's moving</a> · <a href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides">The project on GitHub</a>.</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  const hud = document.getElementById('hud'), hud2 = document.getElementById('hud2');
+  const stepsEl = Array.from(document.querySelectorAll('#steps li'));
+  const playB = document.getElementById('play'), slowB = document.getElementById('slow');
+  const css = getComputedStyle(document.documentElement);
+  const C = { lite: css.getPropertyValue('--lite').trim(), full: css.getPropertyValue('--full').trim(), student: css.getPropertyValue('--student').trim(), truth: css.getPropertyValue('--truth').trim(), err: css.getPropertyValue('--err').trim(), muted: css.getPropertyValue('--muted').trim(), ink: css.getPropertyValue('--ink').trim() };
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let paused = false, slow = reduce;
+  if (reduce) slowB.setAttribute('aria-pressed', 'true');
+
+  // ---- the little pictures: 5x5 cells, a striped pattern (where Lite crawls) and a soft gradient (where Lite is fine) ----
+  const N = 5, cells = N * N;
+  const truth = [], liteAns = [], fullAns = [], target = [], winner = [];
+  function rnd(i) { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
+  for (let i = 0; i < cells; i++) {
+    const x = i % N, y = Math.floor(i / N);
+    const stripe = x >= 2;                                   // right side: fine stripes
+    const t = stripe ? ((x + y) % 2 ? 0.9 : 0.25) : 0.35 + 0.1 * y;
+    truth.push(t);
+    const le = stripe ? 0.32 * (rnd(i) - 0.5) + ((x + y) % 2 ? -0.18 : 0.18) : 0.05 * (rnd(i + 9) - 0.5);   // Lite: crawls on stripes
+    const fe = stripe ? 0.06 * (rnd(i + 3) - 0.5) : 0.16 * (rnd(i + 5) - 0.5) + 0.07;                       // full: slightly off on the gradient
+    liteAns.push(clamp(t + le)); fullAns.push(clamp(t + fe));
+    const w = Math.abs(liteAns[i] - t) <= Math.abs(fullAns[i] - t) ? 0 : 1;
+    winner.push(w); target.push(w ? fullAns[i] : liteAns[i]);
+  }
+  function clamp(v) { return Math.max(0, Math.min(1, v)); }
+  let updates = 0;                                           // grows with every loop: the student's error shrinks, then levels off
+  function studentAns(i) { const k = Math.exp(-updates / 7); const base = liteAns[i]; return clamp(target[i] + (base - target[i]) * (0.18 + 0.82 * k) + 0.02 * Math.sin(i + updates)); }
+
+  // ---- layout: positions in 0..1 of the stage, two arrangements (wide / tall) ----
+  let W = 0, H = 0, DPR = 1, wide = true;
+  function L() {
+    if (wide) return { truth: [0.09, 0.5], lite: [0.36, 0.25], full: [0.36, 0.77], judge: [0.585, 0.5], student: [0.79, 0.47], tile: 0.085, net: [0.17, 0.25], snet: [0.2, 0.4],
+                       ansL: [0.51, 0.22], ansF: [0.52, 0.78], ansS: [0.79, 0.86], labL: -1, labF: 1, labS: -1 };
+    return { truth: [0.5, 0.165], lite: [0.27, 0.35], full: [0.73, 0.35], judge: [0.5, 0.625], student: [0.5, 0.8], tile: 0.15, net: [0.34, 0.11], snet: [0.66, 0.11],
+             ansL: [0.27, 0.485], ansF: [0.73, 0.485], ansS: [0.5, 0.94], labL: -1, labF: -1, labS: -1 };
+  }
+  function nets() {
+    const l = L(); const out = {};
+    function mk(name, c, size, layers) {
+      const [cx, cy] = c; const nodes = []; const edges = [];
+      const nl = layers.length;
+      for (let a = 0; a < nl; a++) {
+        const n = layers[a]; const col = [];
+        for (let b = 0; b < n; b++) {
+          const u = nl === 1 ? 0.5 : a / (nl - 1), v = n === 1 ? 0.5 : b / (n - 1);
+          const x = wide ? cx + (u - 0.5) * size[0] : cx + (v - 0.5) * size[0];
+          const y = wide ? cy + (v - 0.5) * size[1] : cy + (u - 0.5) * size[1];
+          col.push({ x, y, glow: 0, s: rnd(a * 31 + b * 7 + name.length) });
+        }
+        nodes.push(col);
+      }
+      for (let a = 0; a + 1 < nl; a++) for (const p of nodes[a]) for (const q of nodes[a + 1]) edges.push({ p, q, a, w: 0.25 + 0.75 * rnd(p.x * 97 + q.y * 61), nudge: 0 });
+      out[name] = { nodes, edges };
+    }
+    mk('lite', l.lite, l.net, [3, 4, 4, 3]);
+    mk('full', l.full, [l.net[0] * 1.12, l.net[1] * 1.12], [4, 6, 6, 4]);
+    mk('student', l.student, l.snet, [3, 5, 5, 5, 3]);
+    return out;
+  }
+  let NET = null;
+  function resize() {
+    const r = cv.getBoundingClientRect(); DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = Math.max(1, r.width); H = Math.max(1, r.height); cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    wide = W / H > 1.15; NET = nets();
+  }
+  window.addEventListener('resize', resize); resize();
+
+  // ---- timing: 7 steps, ~11 s per loop ----
+  const PH = [1.4, 2.0, 1.9, 1.5, 1.6, 1.4, 1.4]; const TOTAL = PH.reduce((a, b) => a + b, 0);
+  const NAMES = ['step 1: a test frame arrives', 'step 2: both teachers answer', 'step 3: per pixel, the closer teacher wins', 'step 4: the student answers', 'step 5: the difference flows back', 'step 6: connections change, a little', 'step 7: memory loops back'];
+  let t = 0, last = performance.now(), lastPhase = -1;
+  const hm = /[#&]t=([\d.]+)/.exec(location.hash); if (hm) { t = parseFloat(hm[1]) % TOTAL; if (/[#&]still/.test(location.hash)) paused = true; }      // #t=<seconds>[&still]: open at a given moment (for checking a step)
+  function phaseAt(tt) { let a = 0; for (let i = 0; i < PH.length; i++) { if (tt < a + PH[i]) return [i, (tt - a) / PH[i]]; a += PH[i]; } return [PH.length - 1, 1]; }
+
+  // ---- drawing helpers ----
+  function P(xy) { return [xy[0] * W, xy[1] * H]; }
+  function glowDot(x, y, r, col, a) { ctx.save(); ctx.globalAlpha = a; ctx.shadowColor = col; ctx.shadowBlur = r * 3; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill(); ctx.restore(); }
+  function shade(v, col) {                                   // a cell's brightness, tinted toward its owner
+    const g = Math.round(30 + v * 215);
+    if (!col) return `rgb(${g},${g},${Math.round(g * 0.96)})`;
+    const c = hex(col); const m = 0.35;
+    return `rgb(${Math.round(g * (1 - m) + c[0] * m * v)},${Math.round(g * (1 - m) + c[1] * m * v)},${Math.round(g * (1 - m) + c[2] * m * v)})`;
+  }
+  function hex(h) { h = h.replace('#', ''); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+  function tile(cx, cy, vals, label, col, alpha, opts) {
+    opts = opts || {};
+    const s = L().tile * Math.min(W, H) * (wide ? 1.55 : 1); const c = s / N; const x0 = cx - s / 2, y0 = cy - s / 2;
+    ctx.save(); ctx.globalAlpha = alpha;
+    for (let i = 0; i < cells; i++) {
+      const x = i % N, y = Math.floor(i / N);
+      const v = typeof vals === 'function' ? vals(i) : vals[i];
+      ctx.fillStyle = shade(v, opts.tint ? opts.tint(i) : null);
+      ctx.fillRect(x0 + x * c + 1, y0 + y * c + 1, c - 2, c - 2);
+      if (opts.mark && opts.mark(i)) { ctx.strokeStyle = opts.mark(i); ctx.lineWidth = 1.6; ctx.strokeRect(x0 + x * c + 1.5, y0 + y * c + 1.5, c - 3, c - 3); }
+    }
+    ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.strokeRect(x0 - 2, y0 - 2, s + 4, s + 4);
+    ctx.fillStyle = col; ctx.font = `500 ${Math.max(11, Math.min(13, W / 80))}px "IBM Plex Mono", monospace`; ctx.textAlign = 'center';
+    ctx.fillText(label, cx, y0 - 9);
+    ctx.restore();
+    return { x0, y0, s, c };
+  }
+  function cellXY(tl, i) { const x = i % N, y = Math.floor(i / N); return [tl.x0 + (x + 0.5) * tl.c, tl.y0 + (y + 0.5) * tl.c]; }
+  function drawNet(net, col, fire, back, nudgeA) {
+    const k = Math.min(W, H);
+    for (const e of net.edges) {
+      const [x1, y1] = [e.p.x * W, e.p.y * H], [x2, y2] = [e.q.x * W, e.q.y * H];
+      const a = 0.08 + 0.2 * e.w + 0.5 * e.nudge * nudgeA;
+      ctx.strokeStyle = col; ctx.globalAlpha = a; ctx.lineWidth = 0.6 + 1.4 * e.w;
+      ctx.beginPath(); const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 + (wide ? 0 : 0); ctx.moveTo(x1, y1); ctx.quadraticCurveTo(mx + (y2 - y1) * 0.08, my - (x2 - x1) * 0.08, x2, y2); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    const nl = net.nodes.length;
+    net.nodes.forEach((col_, a) => col_.forEach((n) => {
+      const x = n.x * W, y = n.y * H, r = Math.max(3.5, k * 0.0105);
+      let g = 0.35 + 0.15 * Math.sin(t * 2 + n.s * 6);
+      if (fire >= 0) { const d = fire * (nl + 0.6) - a; g += Math.max(0, 1 - Math.abs(d - 0.3) * 1.6); }
+      if (back >= 0) { const d = back * (nl + 0.6) - (nl - 1 - a); g += 0.9 * Math.max(0, 1 - Math.abs(d - 0.3) * 1.6); }
+      glowDot(x, y, r, back >= 0 && g > 0.6 ? C.err : col, Math.min(1, 0.45 + g * 0.6));
+      ctx.save(); ctx.globalAlpha = 0.9; ctx.fillStyle = '#0a0e13'; ctx.beginPath(); ctx.arc(x, y, r * 0.42, 0, 6.2832); ctx.fill(); ctx.restore();
+    }));
+    // travelling spikes
+    if (fire >= 0 || back >= 0) {
+      const f = fire >= 0 ? fire : back; const lay = f * (nl - 1 + 0.6);
+      for (const e of net.edges) {
+        const la = fire >= 0 ? e.a : (nl - 2 - e.a);
+        const u = lay - la; if (u < 0 || u > 1) continue;
+        if (rnd(e.p.x * 13 + e.q.y * 17 + Math.floor(updates)) > 0.45) continue;
+        const uu = fire >= 0 ? u : 1 - u;
+        const x = e.p.x * W + (e.q.x - e.p.x) * W * uu, y = e.p.y * H + (e.q.y - e.p.y) * H * uu;
+        glowDot(x, y, Math.max(1.6, k * 0.004), fire >= 0 ? col : C.err, 0.95);
+      }
+    }
+  }
+  function label(xy, txt, col, dy) { const [x, y] = P(xy); ctx.save(); ctx.fillStyle = col; ctx.globalAlpha = 0.95; ctx.font = `600 ${Math.max(12, Math.min(15, W / 70))}px "IBM Plex Sans", sans-serif`; ctx.textAlign = 'center'; ctx.fillText(txt, x, y + dy); ctx.restore(); }
+  function flow(a, b, u, col, n, spread) {                  // particles flowing from a to b
+    for (let j = 0; j < n; j++) {
+      const v = (u * 1.3 - j / n * 0.3); if (v < 0 || v > 1) continue;
+      const off = (rnd(j * 7.1) - 0.5) * spread;
+      const x = a[0] + (b[0] - a[0]) * v + (wide ? 0 : off), y = a[1] + (b[1] - a[1]) * v + (wide ? off : 0) * Math.sin(v * 3.1416);
+      glowDot(x, y, 2.2, col, 0.85 * Math.sin(v * 3.1416));
+    }
+  }
+  function ease(u) { return u < 0 ? 0 : u > 1 ? 1 : u * u * (3 - 2 * u); }
+
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (!paused) t += dt * (slow ? 0.45 : 1);
+    if (t >= TOTAL) { t -= TOTAL; updates += 1; }
+    const [ph, u] = phaseAt(t);
+    if (ph !== lastPhase) { lastPhase = ph; hud.textContent = NAMES[ph]; stepsEl.forEach((li, i) => li.classList.toggle('on', i === ph)); hud2.textContent = 'practice frames seen: ' + (updates * 997 + Math.floor(updates * updates * 13)).toLocaleString('en-US'); }
+
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, W, H);
+    const l = L(); const k = Math.min(W, H);
+    const pT = P(l.truth), pL = P(l.lite), pF = P(l.full), pJ = P(l.judge), pS = P(l.student);
+    const tileOff = (wide ? 0.115 : 0.0) * W, tileOffY = wide ? 0 : 0.11 * H;
+
+    // nudge memory on student edges during step 6
+    for (const e of NET.student.edges) {
+      if (ph === 5) e.nudge = Math.min(1, e.nudge + dt * (rnd(e.p.y * 41 + e.q.x * 29 + updates) > 0.55 ? 2.5 : 0));
+      else e.nudge = Math.max(0, e.nudge - dt * 0.6);
+    }
+    if (ph === 5 && u > 0.98) { for (const e of NET.student.edges) if (e.nudge > 0.5) e.w = Math.max(0.15, Math.min(1, e.w + (rnd(e.p.x * 3 + updates) - 0.5) * 0.05)); }
+
+    // the true picture (input)
+    const tT = tile(pT[0], pT[1], truth, 'true picture', C.truth, 1);
+    label(l.truth, 'test frame', C.muted, tT.s / 2 + 20);
+
+    // teachers
+    drawNet(NET.lite, C.lite, ph === 1 ? u : -1, -1, 0);
+    drawNet(NET.full, C.full, ph === 1 ? u : -1, -1, 0);
+    label(l.lite, wide ? "teacher 1 · AMD's Lite" : "AMD's Lite", C.lite, l.labL < 0 ? -l.net[1] / 2 * H - 14 : l.net[1] / 2 * H + 22);
+    label(l.full, wide ? "teacher 2 · AMD's full FSR 4" : 'full FSR 4', C.full, l.labF < 0 ? -l.net[1] * 1.12 / 2 * H - 14 : l.net[1] * 1.12 / 2 * H + 22);
+
+    // flows: frame into teachers and student
+    if (ph === 0) {
+      flow([pT[0] + tT.s / 2, pT[1]], [pL[0] - l.net[0] / 2 * W, pL[1]], u, C.truth, 16, 20);
+      flow([pT[0] + tT.s / 2, pT[1]], [pF[0] - l.net[0] / 2 * W, pF[1]], u, C.truth, 16, 20);
+      flow([pT[0] + tT.s / 2, pT[1]], [pS[0] - l.snet[0] / 2 * W, pS[1]], u, C.truth, 16, 24);
+    }
+
+    // teacher answers appear beside each teacher
+    const showAns = ph >= 1 ? ease(ph === 1 ? (u - 0.55) / 0.45 : 1) : 0;
+    let tAL = null, tAF = null;
+    if (showAns > 0) {
+      const aL = P(l.ansL), aF = P(l.ansF);
+      tAL = tile(aL[0], aL[1], liteAns, 'Lite says', C.lite, showAns, { mark: (i) => (ph === 2 && Math.abs(liteAns[i] - truth[i]) > 0.12 ? C.err : null) });
+      tAF = tile(aF[0], aF[1], fullAns, 'full FSR 4 says', C.full, showAns, { mark: (i) => (ph === 2 && Math.abs(fullAns[i] - truth[i]) > 0.12 ? C.err : null) });
+    }
+
+    // the judge: per pixel, the closer teacher's cell flies into the target
+    const tgtXY = wide ? [pJ[0], pJ[1]] : [pJ[0], pJ[1]];
+    const showT = ph >= 2 ? ease(ph === 2 ? (u - 0.15) / 0.85 : 1) : 0;
+    let tTg = null;
+    if (ph >= 2) {
+      tTg = tile(tgtXY[0], tgtXY[1], (i) => target[i], 'target: closer teacher, per pixel', C.ink, 1, { tint: (i) => (winner[i] ? C.full : C.lite) });
+      // cover the not-yet-arrived cells
+      if (ph === 2) {
+        for (let i = 0; i < cells; i++) {
+          const arrive = ease((u - 0.15 - i / cells * 0.6) / 0.25);
+          const src = winner[i] ? tAF : tAL; if (!src) continue;
+          const [sx, sy] = cellXY(src, i), [dx, dy] = cellXY(tTg, i);
+          if (arrive < 1) { ctx.fillStyle = '#11171e'; ctx.fillRect(dx - tTg.c / 2 + 1, dy - tTg.c / 2 + 1, tTg.c - 2, tTg.c - 2); }
+          if (arrive > 0 && arrive < 1) glowDot(sx + (dx - sx) * arrive, sy + (dy - sy) * arrive, Math.max(2.5, tTg.c * 0.22), winner[i] ? C.full : C.lite, 0.95);
+        }
+      }
+    }
+
+    // student
+    drawNet(NET.student, C.student, ph === 3 ? u : -1, ph === 4 ? u : -1, 1);
+    label(l.student, wide ? 'student · the cleaner Lite' : 'student', C.student, -l.snet[1] / 2 * H - 14);
+    let tSA = null;
+    const showS = ph >= 3 ? ease(ph === 3 ? (u - 0.6) / 0.4 : 1) : 0;
+    if (showS > 0 && tTg) {
+      const sA = P(l.ansS); sA[1] = Math.min(sA[1], H - tTg.s / 2 - (wide ? 22 : 10));
+      tSA = tile(sA[0], sA[1], studentAns, 'student says', C.student, showS, { mark: (i) => (ph === 4 && Math.abs(studentAns(i) - target[i]) > 0.06 ? C.err : null) });
+    }
+    // step 5: difference sparks from target to student answer
+    if (ph === 4 && tTg && tSA) {
+      for (let i = 0; i < cells; i++) {
+        const d = Math.abs(studentAns(i) - target[i]); if (d < 0.03) continue;
+        const [ax, ay] = cellXY(tTg, i), [bx, by] = cellXY(tSA, i); const v = ease((u * 1.4 - (i % 5) * 0.06));
+        if (v > 0 && v < 1) glowDot(ax + (bx - ax) * v, ay + (by - ay) * v, 1.6 + d * 10, C.err, 0.9);
+      }
+    }
+    // step 7: memory loop arc around the student
+    const loopA = ph === 6 ? Math.sin(u * 3.1416) : 0.18;
+    {
+      const r = l.snet[1] * H * (wide ? 0.62 : 0.0) + (wide ? 0 : l.snet[0] * W * 0.62);
+      ctx.save(); ctx.strokeStyle = C.student; ctx.globalAlpha = 0.25 + 0.6 * loopA; ctx.lineWidth = 1.4 + 2 * loopA; ctx.setLineDash([5, 7]); ctx.lineDashOffset = -t * 30;
+      ctx.beginPath();
+      ctx.ellipse(pS[0], pS[1], l.snet[0] / 2 * W + 26, l.snet[1] / 2 * H + (wide ? 40 : 30), 0, Math.PI * 1.08, Math.PI * 1.92);
+      ctx.stroke(); ctx.restore();
+      if (ph === 6) {
+        const ang = Math.PI * (1.92 - 0.84 * u);
+        const ex = pS[0] + Math.cos(ang) * (l.snet[0] / 2 * W + 26), ey = pS[1] + Math.sin(ang) * (l.snet[1] / 2 * H + (wide ? 40 : 30));
+        glowDot(ex, ey, Math.max(3, k * 0.008), C.student, 1);
+        label([pS[0] / W, (pS[1] - l.snet[1] / 2 * H - (wide ? 40 : 30)) / H], 'history for the next frame', C.student, -10);
+      }
+    }
+    // step 6 caption
+    if (ph === 5) { const [x, y] = pS; ctx.save(); ctx.globalAlpha = Math.sin(u * 3.1416); ctx.fillStyle = C.ink; ctx.font = `500 ${Math.max(11, Math.min(13, W / 85))}px "IBM Plex Mono", monospace`; ctx.textAlign = 'center'; ctx.fillText('a small nudge to each connection', x, y + l.snet[1] / 2 * H + 18); ctx.restore(); }
+
+    requestAnimationFrame(frame);
+  }
+  playB.addEventListener('click', () => { paused = !paused; playB.textContent = paused ? 'Play' : 'Pause'; playB.setAttribute('aria-pressed', String(paused)); });
+  slowB.addEventListener('click', () => { slow = !slow; slowB.setAttribute('aria-pressed', String(slow)); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {});
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
