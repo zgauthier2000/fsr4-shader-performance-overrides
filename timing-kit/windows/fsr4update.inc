@@ -19,7 +19,7 @@
 #define KIT_CHANNEL_URL "https://raw.githubusercontent.com/zgauthier2000/fsr4-shader-performance-overrides/main/timing-kit/channel/channel.txt"
 #endif
 #define CHANNEL_MAX (64u << 10)
-struct Channel { char* text; long long serial, pack_serial, pack_size, pack_min, prog_build, prog_min; char pack_ver[64], pack_url[512], pack_sha[65], prog_ver[64], prog_url[512], prog_note[512], message[1024], busy[1024], both[1024], passes[1024]; };
+struct Channel { char* text; long long serial, pack_serial, pack_size, pack_min, prog_build, prog_min, music_serial, music_size, music_min; char pack_ver[64], pack_url[512], pack_sha[65], prog_ver[64], prog_url[512], prog_note[512], message[1024], busy[1024], both[1024], passes[1024], music_ver[64], music_url[512], music_sha[65]; };
 
 static int HexVal(char c) { return c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'f' ? c - 'a' + 10 : -1; }
 static bool ChannelValue(const char* text, const char* key, char* out, size_t n) {      // the value of "key value" in the signed text
@@ -59,6 +59,8 @@ static bool ChannelCheck(const char* text, size_t n, const char* os, struct Chan
     snprintf(key, sizeof(key), "program.%s.version", os); ChannelValue(text, key, c->prog_ver, sizeof(c->prog_ver));
     snprintf(key, sizeof(key), "program.%s.url", os); ChannelValue(text, key, c->prog_url, sizeof(c->prog_url));
     ChannelValue(text, "program.note", c->prog_note, sizeof(c->prog_note)); ChannelValue(text, "message", c->message, sizeof(c->message));
+    NUM("music.serial", music_serial); NUM("music.size", music_size); NUM("music.min_build", music_min);      // (2026-11-06) the song pack, the same for both systems
+    ChannelValue(text, "music.version", c->music_ver, sizeof(c->music_ver)); ChannelValue(text, "music.url", c->music_url, sizeof(c->music_url)); ChannelValue(text, "music.sha256", c->music_sha, sizeof(c->music_sha));
     #undef NUM
     #undef PK
     c->text = (char*)text;
@@ -173,6 +175,41 @@ static bool night_wanted_flag = false, update_too_old = false, night_given = fal
 static long long update_have = -1;
 // The check at the start. Returns false when the program should close (the tester's answer, or a program too old for the current tests).
 // check = false (--no-update, no-update.txt, --no-questions without --update): the network is not used; the newest verified pack here still counts.
+
+// ---- new songs for the music player (2026-11-06, user: "i want this kit to also pull new songs via the same archive it grabs for the dlls (or a separate one)"):
+// the signed channel can name a song pack (music.serial / version / url / size / sha256 [/ min_build]): a zip of NN_name.ogg files that replaces the songs in music\.
+// The serial of the songs here is in music\serial.txt (the kit's own songs carry one). Only asked about when someone is there to answer; the download must match
+// the signed checksum, and every file in it must be a plain .ogg name (no folders), at most 64 songs, 40 MB each, 300 MB in all, or nothing is changed.
+static long long MusicSerialHere(void) { long long v = -1; FILE* f = fopen("music\\serial.txt", "r"); if (f) { if (fscanf(f, "%lld", &v) != 1) v = -1; fclose(f); } return v; }
+static bool MusicNameOk(const char* n) {
+    size_t L = strlen(n); if (L < 5 || L > 120 || _stricmp(n + L - 4, ".ogg")) return false;
+    for (const char* c = n; *c; ++c) if (!(isalnum((unsigned char)*c) || *c == '_' || *c == '-' || *c == '.')) return false;
+    return !strstr(n, "..");
+}
+static void MusicUpdate(const struct Channel* c, bool asks) {
+    if (!asks || !c->music_url[0] || c->music_serial <= MusicSerialHere() || c->music_min > KIT_BUILD || c->music_size <= 0 || c->music_size > (300ll << 20)) return;
+    char q[220]; snprintf(q, sizeof(q), "New songs for the music player are available (%s, %.0f MB). Download them?", c->music_ver, c->music_size / 1e6);
+    if (!AskYes(q, true)) { printf("\n"); return; }
+    printf("Downloading the new songs:\n");
+    const bool dl = FetchUrl(c->music_url, (size_t)c->music_size + 1, "music-update.part", c->music_size, NULL) != NULL;
+    if (!dl || !FileSha("music-update.part", c->music_size, c->music_sha)) { DeleteFileA("music-update.part"); printf(dl ? "The download doesn't match the signed checksum, so it was refused.\n\n" : "The download did not finish.\n\n"); return; }
+    mz_zip_archive z; memset(&z, 0, sizeof(z)); bool ok = mz_zip_reader_init_file(&z, "music-update.part", 0); int n = ok ? (int)mz_zip_reader_get_num_files(&z) : 0; long long tot = 0;
+    ok = ok && n > 0 && n <= 64;
+    for (int i = 0; ok && i < n; ++i) { mz_zip_archive_file_stat st; ok = mz_zip_reader_file_stat(&z, (mz_uint)i, &st) && !st.m_is_directory && MusicNameOk(st.m_filename) && st.m_uncomp_size <= (40ull << 20); tot += ok ? (long long)st.m_uncomp_size : 0; }
+    ok = ok && tot <= (300ll << 20);
+    CreateDirectoryA("music", NULL); CreateDirectoryA("music\\new", NULL);
+    for (int i = 0; ok && i < n; ++i) { mz_zip_archive_file_stat st; mz_zip_reader_file_stat(&z, (mz_uint)i, &st); char out[MAX_PATH]; snprintf(out, sizeof(out), "music\\new\\%s", st.m_filename); ok = mz_zip_reader_extract_to_file(&z, (mz_uint)i, out, 0); }
+    if (n || ok) mz_zip_reader_end(&z);
+    WIN32_FIND_DATAA fd; HANDLE h;
+    if (ok) {                                                        // the old songs out, the new ones in
+        h = FindFirstFileA("music\\*.ogg", &fd); if (h != INVALID_HANDLE_VALUE) { do { char d[MAX_PATH]; snprintf(d, sizeof(d), "music\\%s", fd.cFileName); DeleteFileA(d); } while (FindNextFileA(h, &fd)); FindClose(h); }
+        h = FindFirstFileA("music\\new\\*.ogg", &fd); if (h != INVALID_HANDLE_VALUE) { do { char a[MAX_PATH], b[MAX_PATH]; snprintf(a, sizeof(a), "music\\new\\%s", fd.cFileName); snprintf(b, sizeof(b), "music\\%s", fd.cFileName); ok = MoveFileExA(a, b, MOVEFILE_REPLACE_EXISTING) && ok; } while (FindNextFileA(h, &fd)); FindClose(h); }
+        FILE* f = fopen("music\\serial.txt", "w"); if (f) { fprintf(f, "%lld\n", c->music_serial); fclose(f); }
+        printf(ok ? "Done: %d songs, checked against the project's signature.\n\n" : "Some of the new songs could not be put in place.\n\n", n);
+    } else printf("The song pack could not be read, so the songs here were kept.\n\n");
+    h = FindFirstFileA("music\\new\\*", &fd); if (h != INVALID_HANDLE_VALUE) { do { char d[MAX_PATH]; snprintf(d, sizeof(d), "music\\new\\%s", fd.cFileName); DeleteFileA(d); } while (FindNextFileA(h, &fd)); FindClose(h); }
+    RemoveDirectoryA("music\\new"); DeleteFileA("music-update.part");
+}
 static bool UpdateStep(bool check, bool asks, const char* os, const char* mode, unsigned ven, unsigned dev, const char* gpu) {
     // what is here: the pack that came with the kit, and a downloaded one if its signed file and checksum still fit
     long long have = fopen_exists(PACK_NAME) ? KIT_PACK_SERIAL : -1;
@@ -228,6 +265,7 @@ static bool UpdateStep(bool check, bool asks, const char* os, const char* mode, 
                 }
             }
         }
+        if (checked && !too_old) MusicUpdate(&c, asks);      // (2026-11-06) new songs, if the channel names newer ones
         free(ct);      // (a kept channel lives in dlls-update.txt; rules were copied)
         if (c.text == ct) c.text = NULL;
     }

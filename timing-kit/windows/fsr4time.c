@@ -1211,6 +1211,18 @@ static const char* const JOKES[] = {
 #define HEADER_ROWS 12     // the 4 rows of letters, a blank row, the thanks, the request and the power-mode note, a blank row, the joke, a blank row, a line
 static HANDLE hdr_thread, hdr_stop;
 static int hdr_joke;
+static char music_status[256];      // (2026-11-06, user: "it needs to show what song is playing on the screen at all times, along with the music controls") set by music.inc; "" = no music here
+static void HeaderMusic(HANDLE h) {      // the header's row 11 (the blank row under the joke): the song playing and the keys, written into its cells like the joke
+    CONSOLE_SCREEN_BUFFER_INFO bi;
+    if (!music_status[0] || !GetConsoleScreenBufferInfo(h, &bi)) return;
+    const int w = bi.srWindow.Right - bi.srWindow.Left + 1;
+    char line[512]; int n = snprintf(line, sizeof(line), "  %s", music_status);
+    if (n > w - 1) n = w - 1;
+    while (n < w - 1 && n < (int)sizeof(line) - 1) line[n++] = ' ';
+    DWORD done; const COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + HEADER_ROWS - 2)};
+    FillConsoleOutputAttribute(h, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY, (DWORD)(n < w ? n : w), at, &done);      // light cyan
+    WriteConsoleOutputCharacterA(h, line, (DWORD)n, at, &done);
+}
 static void HeaderJoke(HANDLE h, int k) {      // the joke line, written into its cells directly (the cursor and the scrolling text below are not touched)
     CONSOLE_SCREEN_BUFFER_INFO bi;
     if (!GetConsoleScreenBufferInfo(h, &bi)) return;
@@ -1243,7 +1255,7 @@ static void HeaderPaint(HANDLE h, int k) {
         FillConsoleOutputAttribute(h, r < 4 ? yellow : r == 5 || r == 6 || r == 7 ? bold : hdr_attr, (DWORD)w, at, &done);
         WriteConsoleOutputCharacterA(h, line, (DWORD)n, at, &done);
     }
-    HeaderJoke(h, k);
+    HeaderJoke(h, k); HeaderMusic(h);
 }
 static bool HeaderInPlace(HANDLE h) {
     CONSOLE_SCREEN_BUFFER_INFO bi;
@@ -1260,6 +1272,7 @@ static DWORD WINAPI HeaderTicker(LPVOID p) {
         if (t % 40 == 0) ++hdr_joke;
         if (!HeaderInPlace((HANDLE)p)) HeaderPaint((HANDLE)p, hdr_joke);
         else if (t % 40 == 0) HeaderJoke((HANDLE)p, hdr_joke);
+        if (music_status[0]) HeaderMusic((HANDLE)p);      // four times a second: the song and the keys
     }
     return 0;
 }
@@ -1432,6 +1445,7 @@ static bool DllsFolderHasAny(void) {
     return any;
 }
 #include "fsr4update.inc"
+#include "music.inc"      // (2026-11-06) optional music during the runs
 static unsigned hist_ven, hist_dev; static char night_os[16] = "windows"; static int night_dist = 0;
 static void ReportId(char* id, size_t n, const char* gpu) {
     LARGE_INTEGER q;
@@ -1483,13 +1497,14 @@ int main(int argc, char** argv) {
         printf("%s\n", ok ? "sent" : "failed");
         return ok ? 0 : 1;
     }
-    bool quick = false, unattended = false, once = false;
+    bool quick = false, unattended = false, once = false, no_music = false;
     double budget = 15;      // minutes the rounds may take
     bool passes_flag = false, budget_set = false, no_update = false, force_update = false, update_only = false;
     for (int a = 1; a < argc; ++a) {
         if (!strcmp(argv[a], "--quick")) quick = true;
         if (!strcmp(argv[a], "--all-presets")) all_presets = true;
         if (!strcmp(argv[a], "--no-questions")) unattended = true;
+        if (!strcmp(argv[a], "--no-music")) no_music = true;
         if (!strcmp(argv[a], "--once")) once = true;
         if (!strcmp(argv[a], "--study")) study = 1;
         if (!strcmp(argv[a], "--no-update")) no_update = true;
@@ -1609,6 +1624,7 @@ int main(int argc, char** argv) {
     int nfailed = 0;
     const ULONGLONG night_seg = GetTickCount64(); int night_retry = 0;
     if (passes_flag) { NightPasses((const char(*)[64])names, nd, inpack, base, raw, quick, night_os); if (getenv("FSR4TIME_PASSESONLY")) return 0; }
+    MusicBegin(no_music);
     for (int k = 0;; ++k) {
         if (k == nd || (night_run && k == 0 && rounds > 0 && !nfailed && !night_retry)) {      // a round is complete (or an all-nighter resumed): another one?
             const bool resumed = k != nd;
@@ -1698,6 +1714,7 @@ int main(int argc, char** argv) {
             }
         }
     }
+    MusicEnd();
     DeleteFileA("amd_fidelityfx_upscaler_dx12.dll");
     DeleteBlockRecords(); DeletePictureRecords();
     HeaderEnd();
@@ -1738,6 +1755,7 @@ int main(int argc, char** argv) {
     ADD("report %s, kit %s\nGPU: %s\nsystem: Windows %lu.%lu build %lu%s; CPU: %s\n", id, KIT_VERSION, gpu, vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, wine ? " (Wine/Proton)" : "", cpu);
     if (night_run) ADD("all-nighter: %d rounds so far; the newest report with this ID replaces the earlier ones\n", rounds);
     if (tests_version[0]) ADD("tests: %s\n", tests_version);      // the pack, which can be newer than the program
+    if (music_played) ADD("music: played during some runs (their timings were taken with it on)\n");      // (2026-11-06)
     if (getenv("FSR4_PROTON_NAME") && getenv("FSR4_PROTON_NAME")[0]) ADD("Proton: %s\n", getenv("FSR4_PROTON_NAME"));      // (2026-11-02) the Linux kit's run.sh: which Proton ran this
     if (runtime_note[0]) ADD("%s\n", runtime_note);
     if (study) ADD("study: the RDNA%d study set (run-study.cmd / --study): each change of the exact DLL added alone and left out alone\n", study);

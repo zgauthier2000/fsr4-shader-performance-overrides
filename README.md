@@ -185,13 +185,13 @@ about 3% faster than the release before, same pictures), and gave each build a v
 > ### Help test it: the timing kit
 > What the project is working on now, and which cards are most wanted: **[What's moving](docs/whats-moving.md)**.
 >
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-03/fsr4-timing-kit-windows-2026-11-03.zip)** (experimental, version 2026-11-03; under 1 MB, and it downloads its tests, about 113 MB, on the first start): unpack, double-click
+> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/fsr4-timing-kit-windows-2026-11-06.zip)** (experimental, version 2026-11-03; under 1 MB, and it downloads its tests, about 113 MB, on the first start): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes on a desktop graphics card (a Steam Deck: about 30 to 40 minutes; a Radeon 780M handheld: about 15 to 20 minutes). It times FSR 4 with AMD's shaders and with this project's
 > builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
 > than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc.
 >
 > ### Linux timing kit
-> **[Download the Linux and Steam Deck timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-03/fsr4-timing-kit-linux-2026-11-03.tar.gz)** (experimental, version 2026-11-03; about 38 MB, plus about 94 MB of tests it downloads on the first start): unpack, and in a terminal in that folder run
+> **[Download the Linux and Steam Deck timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/fsr4-timing-kit-linux-2026-11-06.tar.gz)** (experimental, version 2026-11-03; about 38 MB, plus about 94 MB of tests it downloads on the first start): unpack, and in a terminal in that folder run
 > `bash run.sh`, choose a Proton if it asks, then wait about 15 minutes (on a Steam Deck about 30 to 40 minutes: one round of tests takes that long there). It runs the same tests as the Windows kit under Proton, with Proton from Steam or `umu-run`. On a Steam Deck, use Desktop Mode, plugged in.
 >
 > - New in the kits (2026-11-03): **they fetch new tests by themselves** (signed downloads, asked first; `--no-update` turns it off), an optional **all-nighter** mode that keeps measuring while the PC is idle, **seven test builds with faster code** (`lt121-test` to `lt127-test`), and **1280x800 output** (the Steam Deck's screen) on built-in graphics.

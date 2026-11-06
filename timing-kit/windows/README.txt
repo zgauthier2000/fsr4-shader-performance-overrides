@@ -31,6 +31,17 @@ Windows will warn about an unknown program, because the file is not signed. The 
 the project's repository (timing-kit/windows/fsr4time.c) with the command that builds it, and the
 checksums are on the download page.
 
+Music while it runs (optional)
+  The kit has a small music player, off until you press a key. While the timing runs go:
+  - Space: start the music (a random song first), Space again to pause, again to resume.
+  - Left / Right arrow: the previous / next song. Songs play on in order and start over after the last.
+  The header at the top shows the song playing and these keys. The keys only work during the runs,
+  never at the kit's questions. The songs are the .ogg files in the music folder; music.txt there
+  says what each one is and who made it. Playing music costs a little processor time but did not
+  change the timings in this project's tests; the summary says if music played. New songs can arrive
+  like new tests: the kit asks before downloading them. To keep it silent, just don't press Space, or
+  start it with --no-music.
+
 New tests without a new kit
   Each time it starts, the kit looks on the project's GitHub page for new tests. If there are any, it
   shows their size and asks before downloading them. They replace the older tests beside the program.
