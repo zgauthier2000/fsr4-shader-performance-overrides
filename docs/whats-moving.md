@@ -10,7 +10,7 @@ Last updated: 2026-11-05.
 
 **Tiled lossy is an internal experiment,** tested only through the timing kit: it is not in any release, and the released lossy builds do not work this way. It splits each frame into tiles that skip the network at different times, instead of skipping it on the whole frame every other frame.
 
-**A cleaner Lite is measured against AMD's own FSR 4.1.2 Lite,** unchanged: the aim is a build that keeps Lite's strengths and fixes the places where it looks worse than AMD's full FSR 4, such as fine patterns that crawl. It is early and not in any release; it would not be AMD's picture, so it would be neither exact nor lossy. The current try learns, pixel by pixel, from whichever of AMD's Lite and full FSR 4 is closer to the true picture of the test scenes, so it should keep Lite where Lite is already better.
+**A cleaner Lite is measured against AMD's own FSR 4.1.2 Lite,** unchanged: the aim is a build that keeps Lite's strengths and fixes the places where it looks worse than AMD's full FSR 4, such as fine patterns that crawl. It is early and not in any release; it would not be AMD's picture, so it would be neither exact nor lossy. The current try learns, pixel by pixel, from whichever of AMD's Lite and full FSR 4 is closer to the true picture of the test scenes, so it should keep Lite where Lite is already better. The latest runs work on lag: earlier tries followed a brightening or fading scene more slowly than AMD's Lite, and the newest has closed most of that gap but is a little less steady on still scenes; ghost outlines behind moving objects are next.
 
 **The RX 7000 test of `4.1.2l-lossy` is now released** in [`dll-2026-11-05`](releases/dll-2026-11-05.md): the same picture, with one shader change left out on RX 7000.
 

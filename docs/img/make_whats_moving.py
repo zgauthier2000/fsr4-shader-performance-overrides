@@ -34,7 +34,7 @@ NOW = (('Tiled lossy (experiment only)', 'Not how released lossy builds work', '
        ('Exact builds', "More speed, picture still AMD's, byte for byte", 'new speedups in the kit', 'Timing kit reports: GeForce, Arc and RX 5000'),
        ('Small and handheld chips', 'Sizes between 1080p and 4K, and 800p', '800p, 1440p speedups', 'Timing kit reports: handhelds and built-in graphics'),
        ('Lossy picture quality', 'Fewer twinkling specks in foliage', 'needs examples', 'Games and scenes where a lossy build looks wrong'),
-       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'one run at a time', "Games and scenes where AMD's Lite looks wrong"))
+       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'now: lag, then ghosting', "Games and scenes where AMD's Lite looks wrong"))
 
 
 def now(t):

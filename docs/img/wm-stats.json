@@ -4,13 +4,13 @@
   {
    "name": "Main NVMe drive",
    "capacity": 1006450229248,
-   "used": 790313656320,
+   "used": 796340625408,
    "project": 615726913834
   },
   {
    "name": "Second NVMe drive (also games)",
    "capacity": 983358451712,
-   "used": 771938983936,
+   "used": 771938684928,
    "project": 339242954955
   },
   {
@@ -22,7 +22,7 @@
   {
    "name": "USB hard drive",
    "capacity": 7937302376448,
-   "used": 4644006514688,
+   "used": 4727199535104,
    "project": 2170025833944
   }
  ],
@@ -32,20 +32,20 @@
  "files": 974816,
  "since": "Oct 16",
  "all": {
-  "cpu_s": 1731044.3699999931,
-  "gpu_s": 732374.0,
-  "all_r": 277561963231749,
-  "disk_r": 121656747597824,
-  "all_w": 6672863926663,
-  "disk_w": 1529272647680
+  "cpu_s": 1776821.1699999913,
+  "gpu_s": 755141.0,
+  "all_r": 283588483068921,
+  "disk_r": 126128066134016,
+  "all_w": 6780990781600,
+  "disk_w": 1548777259008
  },
  "week": {
-  "cpu_s": 303258.9800000001,
-  "gpu_s": 132319.0,
-  "all_r": 46392786237637,
-  "disk_r": 24901038968832,
-  "all_w": 1531200101073,
-  "disk_w": 185102110720
+  "cpu_s": 319661.9899999995,
+  "gpu_s": 139765.0,
+  "all_r": 47052860133790,
+  "disk_r": 25683892420608,
+  "all_w": 1605349140830,
+  "disk_w": 200434216960
  },
  "notes": [
   "Work is counted from Oct 16, 2026, when the job recorder started (the project began Oct 1); jobs still running are counted when they end.",

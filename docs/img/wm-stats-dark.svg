@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="621" viewBox="0 0 760 621" role="img" aria-label="What the project uses, measured 2026-11-05: disk space Main NVMe drive 616 GB of 1.0 TB; Second NVMe drive (also games) 339 GB of 983 GB; USB M.2 SSD 358 GB of 503 GB; USB hard drive 2.2 TB of 7.9 TB; total 3.5 TB including 1.9 TB of backups, 974,816 files not counting backup copies; grew about 1.1 TB in the past 7 days. Past 7 days: 84 processor hours, 37 graphics card hours, 46.4 TB read, 1.5 TB written. Since Oct 16: 481 processor hours, 203 graphics card hours, 277.6 TB read, 6.7 TB written.">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="621" viewBox="0 0 760 621" role="img" aria-label="What the project uses, measured 2026-11-05: disk space Main NVMe drive 616 GB of 1.0 TB; Second NVMe drive (also games) 339 GB of 983 GB; USB M.2 SSD 358 GB of 503 GB; USB hard drive 2.2 TB of 7.9 TB; total 3.5 TB including 1.9 TB of backups, 974,816 files not counting backup copies; grew about 1.1 TB in the past 7 days. Past 7 days: 89 processor hours, 39 graphics card hours, 47.1 TB read, 1.6 TB written. Since Oct 16: 494 processor hours, 210 graphics card hours, 283.6 TB read, 6.8 TB written.">
 <rect width="760" height="621" rx="8" fill="#1a1a19"/>
 <text x="24" y="32" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" text-anchor="start" fill="#ffffff">What the project uses</text>
 <text x="24" y="52" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Measured 2026-11-05 on the author's PC.</text>
 <text x="24" y="76" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="start" fill="#c3c2b7">DISK SPACE</text>
 <circle cx="112" cy="148" r="52" fill="#1a1a19" stroke="#45453f" stroke-width="1.5"/>
-<path d="M112,148 L78.4,187.7 A52,52 0 0 1 61.3,136.6 Z" fill="#262624" stroke="#1a1a19" stroke-width="2"/>
+<path d="M112,148 L78.4,187.7 A52,52 0 0 1 61.7,134.7 Z" fill="#262624" stroke="#1a1a19" stroke-width="2"/>
 <path d="M112,148 L112.0,96.0 A52,52 0 1 1 78.4,187.7 Z" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
 <circle cx="112" cy="148" r="52" fill="none" stroke="#45453f" stroke-width="1.5"/>
 <text x="112" y="224" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="middle" fill="#ffffff">Main NVMe drive</text>
@@ -23,7 +23,7 @@
 <text x="470" y="224" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="middle" fill="#ffffff">USB M.2 SSD</text>
 <text x="470" y="241" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#c3c2b7">358 GB of 503 GB (71%)</text>
 <circle cx="649" cy="148" r="52" fill="#1a1a19" stroke="#45453f" stroke-width="1.5"/>
-<path d="M649,148 L700.4,155.6 A52,52 0 0 1 622.5,192.7 Z" fill="#262624" stroke="#1a1a19" stroke-width="2"/>
+<path d="M649,148 L700.4,155.6 A52,52 0 0 1 619.6,190.9 Z" fill="#262624" stroke="#1a1a19" stroke-width="2"/>
 <path d="M649,148 L649.0,96.0 A52,52 0 0 1 700.4,155.6 Z" fill="#3987e5" stroke="#1a1a19" stroke-width="2"/>
 <circle cx="649" cy="148" r="52" fill="none" stroke="#45453f" stroke-width="1.5"/>
 <text x="649" y="224" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="middle" fill="#ffffff">USB hard drive</text>
@@ -42,20 +42,20 @@
 <text x="736" y="386" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="end" fill="#898781">Since Oct 16</text>
 <line x1="24" y1="400" x2="736" y2="400" stroke="#45453f"/>
 <text x="24" y="421" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#ffffff">Processor time</text>
-<text x="470" y="421" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">84 h</text>
-<text x="736" y="421" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">481 h</text>
+<text x="470" y="421" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">89 h</text>
+<text x="736" y="421" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">494 h</text>
 <line x1="24" y1="432" x2="736" y2="432" stroke="#45453f"/>
 <text x="24" y="453" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#ffffff">Graphics card time</text>
-<text x="470" y="453" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">37 h</text>
-<text x="736" y="453" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">203 h</text>
+<text x="470" y="453" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">39 h</text>
+<text x="736" y="453" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">210 h</text>
 <line x1="24" y1="464" x2="736" y2="464" stroke="#45453f"/>
 <text x="24" y="485" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#ffffff">Data read</text>
-<text x="470" y="485" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">46.4 TB (24.9 TB from drives)</text>
-<text x="736" y="485" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">277.6 TB (121.7 TB from drives)</text>
+<text x="470" y="485" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">47.1 TB (25.7 TB from drives)</text>
+<text x="736" y="485" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">283.6 TB (126.1 TB from drives)</text>
 <line x1="24" y1="496" x2="736" y2="496" stroke="#45453f"/>
 <text x="24" y="517" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#ffffff">Data written</text>
-<text x="470" y="517" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">1.5 TB (185 GB to drives)</text>
-<text x="736" y="517" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">6.7 TB (1.5 TB to drives)</text>
+<text x="470" y="517" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">1.6 TB (200 GB to drives)</text>
+<text x="736" y="517" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" text-anchor="end" fill="#ffffff">6.8 TB (1.5 TB to drives)</text>
 <text x="24" y="542" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">Work is counted from Oct 16, 2026, when the job recorder started (the project began Oct 1); jobs still running are counted when they end.</text>
 <text x="24" y="557" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">Graphics card time is how long jobs held the card: an upper bound. Data read includes data read again from memory; "from drives" reached the drives.</text>
 <text x="24" y="572" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">Growth: the backed-up project files a week apart, new files on the USB drives, and what the nightly backups copied.</text>
