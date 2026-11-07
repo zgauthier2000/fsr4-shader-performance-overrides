@@ -216,7 +216,7 @@ about 3% faster than the release before, same pictures), and gave each build a v
 
 | Graphics card | Which archive | Status |
 |---|---|---|
-| RX 7900, 7800, 7700, 7600 (desktop RDNA3) | `fsr4.1.2-cyboman-rx7000-<version>` | measured here on an RX 7800 XT; testers report large gains on Windows |
+| RX 7900, 7800, 7700, 7600 (desktop RDNA3), and the Steam Machine | `fsr4.1.2-cyboman-rx7000-<version>` | measured here on an RX 7800 XT; testers report large gains on Windows; Steam Machine: three timing-kit reports (SteamOS) |
 | RX 6000 (RDNA2) | `fsr4.1.2-cyboman-rx6000-<version>` | runs, and includes the fix for the shimmering these cards show with AMD's file; at 4K, reports with the exact DLL range from a few percent to about 30%, and we do not yet know what decides it; a few percent at 1440p and below (tester reports) |
 | Radeon 780M, 760M, 880M, 890M and other RDNA 3 / 3.5 graphics built into the processor | `fsr4.1.2-igpu-cyboman-rdna3-<version>` | experimental: few reports, small gains |
 | Steam Deck, Radeon 680M, 660M, 610M and other RDNA2 graphics built into the processor | `fsr4.1.2-igpu-cyboman-rdna2-<version>` | experimental: few reports, small gains |
