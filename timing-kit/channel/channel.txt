@@ -1,16 +1,16 @@
 fsr4-kit-channel 1
-serial 9
-pack.windows.serial 9
-pack.windows.version 2026-11-06.3w
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/dlls-2026-11-06.3w.pack
-pack.windows.size 36419596
-pack.windows.sha256 2b9ee047bcc428097763ae14f116fb6aa098b974f87377a6d36466cae503faa9
+serial 10
+pack.windows.serial 10
+pack.windows.version 2026-11-06.4w
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/dlls-2026-11-06.4w.pack
+pack.windows.size 39718565
+pack.windows.sha256 0af50e9a9d4962b42476cb8b9d08c7b3d5f4e30d3b1db156bffc2f9f064a6089
 pack.windows.busy none
-pack.linux.serial 9
-pack.linux.version 2026-11-06.3l
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/dlls-2026-11-06.3l.pack
-pack.linux.size 36891768
-pack.linux.sha256 14204681d9d98a28262f27763ba2584b215a8d78fc43b55a9f20920cc510d6ed
+pack.linux.serial 10
+pack.linux.version 2026-11-06.4l
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/dlls-2026-11-06.4l.pack
+pack.linux.size 40477532
+pack.linux.sha256 bd3b9ef03bd1d22adb6c2b124536d0a331047dcb74338a466aa14308e30e2548
 pack.linux.busy none
 music.serial 1
 music.version 2026-11-06
@@ -24,4 +24,4 @@ program.linux.build 2
 program.linux.version 2026-11-06
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/fsr4-timing-kit-linux-2026-11-06.tar.gz
 program.note This version adds an optional music player (Space / arrow keys during the runs).
-sig b511ccef70d28c67f01fd6cf49a57f770bee97bf83e65d6171434ecf5bb9993153c242ce3718f7c10dc47e9d6e0690d6be759225ac2109ead545c97ba91afc02
+sig 1de8de7f24c743041d218ede10c24cf1ffc48ea5e8b036461a14c85ca37d9b270fa5972b3ccacdca48da8b7bacfd670eaf9e8cb6a3c224592d84bb91337db803
