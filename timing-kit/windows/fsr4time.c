@@ -72,7 +72,7 @@
 #define PHASES 72      // the most jitter steps any size uses (Ultra Performance: 8 x 3 x 3, what FSR asks a game for)
 #define MAXROUNDS 8
 #define MAXDLLS 100     // DLLs in one run (pack + tester folders); a study run has 16 (RDNA2) or 18 (RDNA3)
-#define MAXROWS 1600   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; RX 9000: twice the DLLs)
+#define MAXROWS 1600   // summary lines: DLL x size x still/moving (a study run with --all-presets: 18 x 12 x 2 = 432; a DLL with several model variants: once per variant)
 #define MAXKEPT 28     // runs a row can hold (an all-nighter: up to its 24 rounds)
 #define MAXRUNS 12     // a DLL's runs: one per round, and up to four more where its runs disagreed (the re-timing after the rounds)
 #define RUN_LIMIT_MIN 10      // a DLL's run that takes longer is stopped and noted (a hung driver call), and the kit goes on with the next DLL:
@@ -588,9 +588,16 @@ static int RunOne(const char* name, bool quick) {
     uint64_t vid[8];
     const char* vname[8];
     int nv = 0;
-    for (uint64_t i = 0; i < count; ++i)
-        if (nv < 8 && (!strncmp(names[i], "4.", 2) || !strncmp(names[i], "fsr4", 4))) { vid[nv] = ids[i]; vname[nv++] = names[i]; }      // AMD's "4.1.1" and this project's
+    for (uint64_t i = 0; i < count; ++i) {
+        if (nv >= 8 || !(!strncmp(names[i], "4.", 2) || !strncmp(names[i], "fsr4", 4))) continue;      // AMD's "4.1.1" and this project's
         // "4.1.1-...-cyboman" names (also "fsr4..." ones, which no release uses: OptiScaler reads the version from the name, so names keep x.y.z first)
+        // (2026-11-07) a version id listed twice is timed once: on RX 9000 cards the kit's lt1-reference lists one id twice (f5a5ca1e01001001
+        // on an RX 9070 XT, the same picture both times), which made every run there time the same model twice. AMD's own 4.1.1 DLL lists two
+        // different ids there ("4.1.2 *" f5a5ca1e81001002 and "4.1.1" f5a5ca1e01001001), both its FP8 version; those are still both timed
+        bool dup = false;
+        for (int k = 0; k < nv; ++k) dup = dup || vid[k] == ids[i];
+        if (!dup) { vid[nv] = ids[i]; vname[nv++] = names[i]; }
+    }
     if (getenv("FSR4TIME_TWICE") && nv == 1) { vid[1] = vid[0]; vname[1] = vname[0]; nv = 2; }      // for testing the lines of a DLL with two variants: the one version, listed twice
     if (!nv) { Say("R|%s|FAILED|this DLL offers no FSR 4 on this GPU (%llu versions listed)\n", name, (unsigned long long)count); return 1; }
     Say("G|%s\n", gpu);
