@@ -19,7 +19,14 @@
 #define KIT_CHANNEL_URL "https://raw.githubusercontent.com/zgauthier2000/fsr4-shader-performance-overrides/main/timing-kit/channel/channel.txt"
 #endif
 #define CHANNEL_MAX (64u << 10)
-struct Channel { char* text; long long serial, pack_serial, pack_size, pack_min, prog_build, prog_min, music_serial, music_size, music_min; char pack_ver[64], pack_url[512], pack_sha[65], prog_ver[64], prog_url[512], prog_note[512], message[1024], busy[1024], both[1024], passes[1024], music_ver[64], music_url[512], music_sha[65]; };
+struct Channel { char* text; long long serial, pack_serial, pack_size, pack_min, prog_build, prog_min, music_serial, music_size, music_min; char pack_ver[64], pack_url[512], pack_sha[65], prog_ver[64], prog_url[512], prog_note[512], pack_note[1024], message[1024], busy[1024], both[1024], passes[1024], music_ver[64], music_url[512], music_sha[65]; };
+
+static void PrintPackNote(const char* note) {      // (2026-11-10) "pack.<os>.note": what the new tests measure; a literal \n in the signed value starts a new line
+    if (!note[0]) return;
+    printf("What the new tests measure:\n  ");
+    for (const char* q = note; *q; q++) { if (q[0] == '\\' && q[1] == 'n') { printf("\n  "); q++; } else putchar((unsigned char)*q); }
+    printf("\n\n");
+}
 
 static int HexVal(char c) { return c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'f' ? c - 'a' + 10 : -1; }
 static bool ChannelValue(const char* text, const char* key, char* out, size_t n) {      // the value of "key value" in the signed text
@@ -55,6 +62,7 @@ static bool ChannelCheck(const char* text, size_t n, const char* os, struct Chan
     NUM(PK("serial"), pack_serial); NUM(PK("size"), pack_size); NUM(PK("min_build"), pack_min); NUM("program.min_build", prog_min);
     ChannelValue(text, PK("version"), c->pack_ver, sizeof(c->pack_ver)); ChannelValue(text, PK("url"), c->pack_url, sizeof(c->pack_url)); ChannelValue(text, PK("sha256"), c->pack_sha, sizeof(c->pack_sha));
     ChannelValue(text, PK("busy"), c->busy, sizeof(c->busy)); ChannelValue(text, PK("both_times"), c->both, sizeof(c->both)); ChannelValue(text, PK("passes"), c->passes, sizeof(c->passes));
+    ChannelValue(text, PK("note"), c->pack_note, sizeof(c->pack_note));      // (2026-11-10) a short text on what the pack's new tests measure; kits before this build ignore the key
     snprintf(key, sizeof(key), "program.%s.build", os); if (ChannelValue(text, key, v, sizeof(v))) c->prog_build = atoll(v);
     snprintf(key, sizeof(key), "program.%s.version", os); ChannelValue(text, key, c->prog_ver, sizeof(c->prog_ver));
     snprintf(key, sizeof(key), "program.%s.url", os); ChannelValue(text, key, c->prog_url, sizeof(c->prog_url));
@@ -242,6 +250,7 @@ static bool UpdateStep(bool check, bool asks, const char* os, const char* mode, 
             if (!too_old && c.pack_url[0] && c.pack_serial > have) {
                 if (c.pack_min > KIT_BUILD) printf("New tests (%s) are out, but they need the newer kit program above.\n\n", c.pack_ver);
                 else {
+                    PrintPackNote(c.pack_note);
                     bool get = !asks && c.pack_size <= (1ll << 30);      // nobody to ask: no surprise of many GB
                     if (asks) { char q[200]; snprintf(q, sizeof(q), "New tests are available (%s, %.0f MB). Download them now?", c.pack_ver, c.pack_size / 1e6); get = AskYes(q, true); }
                     if (get) {
