@@ -8,6 +8,10 @@ Times FSR 4.1.1 the way a game runs it, with AMD's own shaders and with this pro
 your graphics card. No game and no OptiScaler are needed, and nothing is installed or changed.
 https://github.com/zgauthier2000/fsr4-shader-performance-overrides
 
+The DLLs in this kit are for timing in this kit only, not for use in games: they are not checked
+or supported there, and the test builds can show a wrong picture in a game. For games, use the
+builds from a release: https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases
+
 How to run it
   1. Unpack the whole folder somewhere (not inside the zip viewer). The DLLs come packed in
      dlls.pack.zst: the program takes out each one when it times it and replaces it with the next,
@@ -115,7 +119,8 @@ What it does
                        model for those, the smaller network lt1-reference), and the lt- builds with
                        lt1-reference. AMD's 4.1.2 shaders run here in this kit, not in AMD's own driver.
   dlls\n-exact-<flavor>, n-lossy-<flavor>, n-exact-<flavor>-prev
-                       this release's exact and lossy DLLs for one kind of graphics (flavor r3 = RX 7000,
+                       timing-only test builds of this release's exact and lossy DLLs (the files for games are
+                       on the release page) for one kind of graphics (flavor r3 = RX 7000,
                        r2 = RX 6000, igpu-r3 / igpu-r2 = built-in RDNA3 / RDNA2 graphics and other cards),
                        and prev, the exact DLL of the release before (dll-2026-10-22). The kit times your
                        own flavor, and on RX 6000 / RX 7000 cards also the other card flavor for comparison.

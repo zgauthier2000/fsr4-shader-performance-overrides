@@ -1,6 +1,11 @@
 FSR 4 timing kit for Linux and the Steam Deck
 
 This is the Windows kit's program and test DLLs, run under Proton, so reports from Linux can be set beside those from Windows.
+
+The DLLs in this kit are for timing in this kit only, not for use in games: they are not checked
+or supported there, and the test builds can show a wrong picture in a game. For games, use the
+builds from a release: https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases
+
 Figures under Proton are not Windows figures: the drivers differ.
 
 To run it, from a terminal in this folder:   bash run.sh

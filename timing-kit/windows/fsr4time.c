@@ -1619,6 +1619,8 @@ int main(int argc, char** argv) {
         printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more rounds).\n\n", KIT_VERSION, once ? budget / 2 : budget);
     else
         printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more\nrounds); please leave the PC alone and close games, browsers and video while it runs.\nBest results: CPU and GPU in performance mode, not battery/power saving.\n\n", KIT_VERSION, once ? budget / 2 : budget);
+    printf("The DLLs in this kit are for timing only, not for use in games. Builds for games:\n"
+           "https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases\n\n");      // (2026-11-10) kit DLLs were found shipped for games
     // Rounds, every other one in reverse order: a DLL's runs then sit at mirrored places in the sequence, so a drift over the
     // run (the card warming up, something starting in the background) shows as a spread between them. After each round the
     // next one starts only if it fits in the time given (the last round's length is the estimate); a second round also runs
