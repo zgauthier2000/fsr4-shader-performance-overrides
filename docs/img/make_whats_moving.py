@@ -30,8 +30,9 @@ def wrap(body, H, label, t):
     return [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(label)}">', f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>'] + body + ['</svg>']
 
 
-NOW = (("Speed from AMD's SDK", "Lite first, then full FSR 4 builds", 'new kit tests: SDK launch', 'Timing kit reports from every card'),
-       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'still scenes, then ghosting', "Games and scenes where AMD's Lite looks wrong"),
+NOW = (("Speed from AMD's SDK", "Lite first, then full FSR 4 builds", 'first kit results in', 'Timing kit reports: RX 7000 on Windows, handhelds'),
+       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'steadiness at rest next', "Games and scenes where AMD's Lite looks wrong"),
+       ('Faster sharpening (early)', 'Sharpening inside the last pass', 'one card measured so far', 'Games you play with FSR sharpening on'),
        ('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'slower on RX 6000 so far', 'Timing kit reports: RX 6000 cards'))
 
 
@@ -102,7 +103,7 @@ def cards(t):
 
 # Next release, steps done (2026-11-05, user: "show, without promising anything, how close the next release is to being ready"). Steps only: no date and nothing about what
 # the release contains (upcoming changes are not announced without the author's word). Update the flags as steps finish; a failed step can send a build back.
-RELEASE = (('Builds made', 0), ('Pictures checked here', 0), ('Speed measured with the kit', 0), ('Release pages written', 0), ("Author's game test", 0), ('Published', 0))      # dll-2026-11-05 published 2026-11-05: next one starts over
+RELEASE = (('Builds made', 1), ('Pictures checked here', 0), ('Speed measured with the kit', 1), ('Release pages written', 0), ("Author's game test", 0), ('Published', 0))      # dll-2026-11-05 published 2026-11-05: next one starts over; 2026-11-09: builds staged, kit pack 11 measured
 
 
 def release(t):
