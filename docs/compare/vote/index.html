@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vote: which games should this project test with?</title>
+<meta name="description" content="Vote for the games fsr4-shader-performance-overrides should record as test clips and may use for training.">
+<!-- vote/index.html (2026-11-10): the project's game wish list. The poll itself is StrawPoll's (embedded); this page has no script or tracking of its own. -->
+<style>
+:root { --bg: #f6f7f9; --panel: #ffffff; --line: #d5d9df; --ink: #1d2128; --muted: #5d6673; --accent: #8a5a00; }
+@media (prefers-color-scheme: dark) { :root { --bg: #111317; --panel: #1b1e24; --line: #2c313a; --ink: #e6e8eb; --muted: #9aa1ab; --accent: #f2c94c; } }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, sans-serif; }
+main { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 22px; margin: 0 0 6px; }
+h2 { font-size: 16px; margin: 28px 0 6px; }
+p, li { color: var(--ink); }
+.muted { color: var(--muted); }
+a { color: var(--accent); }
+.poll { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; margin: 18px 0 6px; }
+.poll iframe { display: block; width: 100%; height: 640px; border: 0; border-radius: 6px; background: var(--panel); }
+ul { padding-left: 20px; margin: 4px 0; }
+footer { margin-top: 32px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Which games should this project test with?</h1>
+<p>This project makes faster FSR 4 builds and, as an experiment, cleaner ones. Pictures from real games decide whether a change looks better or worse, so the games we record matter. Vote for the games you would most like to see tested. The most-voted ones are the first to be installed, recorded as short test clips and compared, and some may also be used to train the cleaner builds.</p>
+<p class="muted">This is a wish list, not a promise: a game is only used if it works for the project (see below) and the author can get it.</p>
+
+<div class="poll">
+<iframe src="https://strawpoll.com/embed/xVg71KdbOyr" title="Poll: which games to test with" allowfullscreen></iframe>
+</div>
+<p class="muted">If the poll does not show here, <a href="https://strawpoll.com/xVg71KdbOyr">open it on StrawPoll</a>.</p>
+
+<h2>What a game needs</h2>
+<ul>
+<li>DirectX 12, with an upscaler that <a href="https://github.com/optiscaler/OptiScaler">OptiScaler</a> can switch to FSR 4 (games with FSR 3.1, DLSS or XeSS usually work). Games that run only on Vulkan or older DirectX can't use this project's builds.</li>
+<li>It runs under Proton on Linux, the author's system.</li>
+<li>Single-player, or a mode without online play: games with kernel anti-cheat are left out.</li>
+<li>Scenes that are hard for an upscaler help most: grass and leaves, hair, rain and sparks, thin wires and railings, water, fast camera motion.</li>
+</ul>
+
+<h2>Already used</h2>
+<ul>
+<li>Shadow of the Tomb Raider</li>
+<li>Black Myth: Wukong Benchmark Tool</li>
+<li>Stellar Blade demo</li>
+</ul>
+
+<h2>Your vote and your data</h2>
+<p class="muted">The poll is run by StrawPoll, not by this project; its <a href="https://strawpoll.com/privacy">privacy policy</a> applies to your vote, and to what your browser sends StrawPoll when this page loads the poll. The page itself has no tracking or scripts of its own.</p>
+
+<footer>
+<a href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides">fsr4-shader-performance-overrides on GitHub</a> ·
+<a href="../">Upscaler slider pages</a>
+</footer>
+</main>
+</body>
+</html>
