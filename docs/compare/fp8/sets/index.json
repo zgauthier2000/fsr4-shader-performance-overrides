@@ -1,0 +1,10 @@
+[
+ {
+  "name": "fp8-rain",
+  "title": "Bright rain at rest: INT8 vs FP8 model (synthetic test scene)"
+ },
+ {
+  "name": "fp8-wukong",
+  "title": "Black Myth: Wukong Benchmark Tool: INT8 vs FP8 model"
+ }
+]

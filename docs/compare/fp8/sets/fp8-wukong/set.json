@@ -1,0 +1,51 @@
+{
+ "title": "Black Myth: Wukong Benchmark Tool: INT8 vs FP8 model",
+ "note": "Sixteen consecutive upscaled frames from a recorded clip of the Black Myth: Wukong Benchmark Tool, 4K Balanced (render 2228x1256), the area where the two models differ most (46.5 dB apart, the largest gap of the 12 game clips). Upscaler output only: no UI or post-processing. FP8 emulated through Proton's FP16 WMMA path on an RX 7800 XT. Display mapping x/(1+x), gamma 1/2.2 (not a game's tone mapping).",
+ "images": [
+  [
+   "FSR 4.1.1 INT8",
+   [
+    "01_01.webp",
+    "01_02.webp",
+    "01_03.webp",
+    "01_04.webp",
+    "01_05.webp",
+    "01_06.webp",
+    "01_07.webp",
+    "01_08.webp",
+    "01_09.webp",
+    "01_10.webp",
+    "01_11.webp",
+    "01_12.webp",
+    "01_13.webp",
+    "01_14.webp",
+    "01_15.webp",
+    "01_16.webp"
+   ]
+  ],
+  [
+   "FSR 4.1.1 FP8 (emulated)",
+   [
+    "02_01.webp",
+    "02_02.webp",
+    "02_03.webp",
+    "02_04.webp",
+    "02_05.webp",
+    "02_06.webp",
+    "02_07.webp",
+    "02_08.webp",
+    "02_09.webp",
+    "02_10.webp",
+    "02_11.webp",
+    "02_12.webp",
+    "02_13.webp",
+    "02_14.webp",
+    "02_15.webp",
+    "02_16.webp"
+   ]
+  ]
+ ],
+ "a": 1,
+ "b": 2,
+ "fps": 8
+}

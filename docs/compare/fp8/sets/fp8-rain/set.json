@@ -1,0 +1,51 @@
+{
+ "title": "Bright rain at rest: INT8 vs FP8 model (synthetic test scene)",
+ "note": "Sixteen consecutive frames of a still camera with bright rain streaks, 4K Balanced. The FP8 model leaves more bright specks (full check: 5,431 pixels brighter than 20 levels vs 1,314 for INT8). FP8 emulated through Proton's FP16 WMMA path on an RX 7800 XT. Display mapping x/(1+x), gamma 1/2.2 (not a game's tone mapping).",
+ "images": [
+  [
+   "FSR 4.1.1 INT8",
+   [
+    "01_01.webp",
+    "01_02.webp",
+    "01_03.webp",
+    "01_04.webp",
+    "01_05.webp",
+    "01_06.webp",
+    "01_07.webp",
+    "01_08.webp",
+    "01_09.webp",
+    "01_10.webp",
+    "01_11.webp",
+    "01_12.webp",
+    "01_13.webp",
+    "01_14.webp",
+    "01_15.webp",
+    "01_16.webp"
+   ]
+  ],
+  [
+   "FSR 4.1.1 FP8 (emulated)",
+   [
+    "02_01.webp",
+    "02_02.webp",
+    "02_03.webp",
+    "02_04.webp",
+    "02_05.webp",
+    "02_06.webp",
+    "02_07.webp",
+    "02_08.webp",
+    "02_09.webp",
+    "02_10.webp",
+    "02_11.webp",
+    "02_12.webp",
+    "02_13.webp",
+    "02_14.webp",
+    "02_15.webp",
+    "02_16.webp"
+   ]
+  ]
+ ],
+ "a": 1,
+ "b": 2,
+ "fps": 8
+}
