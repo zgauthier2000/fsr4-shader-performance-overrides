@@ -36,11 +36,31 @@ if [ -z "$P" ] && ! command -v umu-run >/dev/null; then echo "No Proton found. I
 # the record of tests already run stays when a new kit replaces this folder (its Wine prefix goes with the folder)
 ST="${XDG_DATA_HOME:-$HOME/.local/share}/fsr4-timing-kit"; mkdir -p "$ST" && export FSR4_STATE_DIR="Z:$(printf %s "$ST" | tr / '\\')"
 export FSR4_PROTON_NAME="${P:+$(basename "$P")}"; [ -n "$FSR4_PROTON_NAME" ] || FSR4_PROTON_NAME="umu-run default"      # goes in the report
+# (2026-11-10) the graphics driver setup, for the report: the Mesa version (from vulkaninfo, which follows VK_DRIVER_FILES, else from the driver library's own text) and the
+# settings that change how FSR 4 runs (a descriptor heap costs RDNA 3 cards 6-10% on some Mesa versions)
+mesa_version() {
+    local v=""
+    command -v vulkaninfo >/dev/null && v=$(timeout 20 vulkaninfo --summary 2>/dev/null | grep -m1 -oE 'Mesa [0-9][0-9.]*[^ ,)]*')
+    if [ -z "$v" ]; then
+        local j f
+        for j in ${VK_DRIVER_FILES//:/ } ${VK_ICD_FILENAMES//:/ } /usr/share/vulkan/icd.d/radeon_icd*.json /etc/vulkan/icd.d/radeon_icd*.json; do
+            [ -f "$j" ] || continue; f=$(grep -oE '"library_path"[^"]*"[^"]+"' "$j" | sed 's/.*"\([^"]*\)"$/\1/'); [ -n "$f" ] || continue
+            [ -f "$f" ] || f=$(ls /usr/lib*/"$(basename "$f")" /usr/lib/*/"$(basename "$f")" 2>/dev/null | head -1)
+            [ -n "$f" ] && [ -f "$f" ] && v=$(grep -aom1 -E 'Mesa [0-9]+\.[0-9]+\.[0-9]+[-a-z0-9.]*' "$f") && break
+        done
+    fi
+    echo "${v:-Mesa version not found}"
+}
+LI="$(mesa_version)"; for e in VKD3D_CONFIG RADV_EXPERIMENTAL RADV_PERFTEST RADV_DEBUG; do [ -n "${!e:-}" ] && LI="$LI; $e=${!e}"; done
+[ -n "${VK_DRIVER_FILES:-}${VK_ICD_FILENAMES:-}" ] && LI="$LI; own Vulkan driver file (VK_DRIVER_FILES)"
+export FSR4_LINUX_INFO="$LI"      # goes in the report
+# (2026-11-10) no screen blanking or sleep while the runs go: a tester's runs stopped when the screen went off (KDE). systemd-inhibit holds the lock as long as the program runs.
+INH=(); command -v systemd-inhibit >/dev/null && [ -z "${FSR4_NO_INHIBIT:-}" ] && INH=(systemd-inhibit --what=idle:sleep --who="FSR 4 timing kit" --why="timing runs (a blanked screen or sleep can stop them)" --mode=block)
 if command -v umu-run >/dev/null; then
     [ -n "$P" ] && export PROTONPATH=$P
     export WINEPREFIX="$KIT/pfx" GAMEID=umu-fsr4timekit
-    echo "Running with umu-run${P:+ and $(basename "$P")}."; exec umu-run "$KIT/fsr4time.exe" "$@"
+    echo "Running with umu-run${P:+ and $(basename "$P")}."; exec "${INH[@]}" umu-run "$KIT/fsr4time.exe" "$@"
 fi
 S=; for r in "${ROOTS[@]}"; do [ -d "$r" ] && { S=$r; break; }; done
 mkdir -p "$KIT/pfx"; export STEAM_COMPAT_DATA_PATH="$KIT/pfx" STEAM_COMPAT_CLIENT_INSTALL_PATH="$S"
-echo "Running with $(basename "$P"). The first start sets up a Wine prefix: about a minute."; exec "$P/proton" run "$KIT/fsr4time.exe" "$@"
+echo "Running with $(basename "$P"). The first start sets up a Wine prefix: about a minute."; exec "${INH[@]}" "$P/proton" run "$KIT/fsr4time.exe" "$@"

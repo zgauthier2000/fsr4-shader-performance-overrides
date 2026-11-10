@@ -16,6 +16,46 @@ static volatile LONG music_req = 0;          // 1 toggle, 2 next, 3 previous, 9 
 static volatile LONG music_keys_on = 0;
 static bool music_played = false;
 static HANDLE music_thread = NULL, music_keys_thread = NULL, music_wake = NULL; static DWORD music_mode0 = 0; static bool music_mode_set = false;
+// (2026-11-10) Lyrics: a song may carry its timed lines in a Vorbis comment LYRICS= ("[mm:ss.cc]text" per line, LRC style); while it plays (not paused) the header's
+// joke row shows the line being sung (fsr4time.c HeaderJoke), from the sound device's own play position; the jokes come back between songs, when paused and for songs without.
+#define LYR_MAX 400
+static double lyr_t[LYR_MAX]; static char lyr_s[LYR_MAX][128]; static int lyr_n = 0, lyr_cur = -2;
+static void LyricSet(const char* t) {
+    EnterCriticalSection(&lyric_cs); snprintf(lyric_now, sizeof(lyric_now), "%s", t ? t : ""); LeaveCriticalSection(&lyric_cs);
+    InterlockedIncrement(&lyric_seq);
+    if (getenv("FSR4TIME_LYRICLOG")) { printf("[lyric] %s\n", t && t[0] ? t : "(none)"); fflush(stdout); }      // test only: each change also in the output
+}
+static void LyricsLoad(stb_vorbis* v) {      // the LYRICS= comment of the song just opened
+    lyr_n = 0; lyr_cur = -2; LyricSet("");
+    stb_vorbis_comment c = stb_vorbis_get_comment(v);
+    for (int i = 0; i < c.comment_list_length; ++i) {
+        const char* e = c.comment_list[i];
+        if (_strnicmp(e, "LYRICS=", 7)) continue;
+        for (const char* l = e + 7; *l && lyr_n < LYR_MAX; ) {
+            const char* nl = strchr(l, '\n'); const size_t len = nl ? (size_t)(nl - l) : strlen(l);
+            int mm = 0, ss = 0, cc = 0, used = 0;
+            if (len > 9 && sscanf(l, "[%d:%d.%d]%n", &mm, &ss, &cc, &used) == 3 && used > 0 && (size_t)used <= len) {
+                size_t k = len - (size_t)used; if (k && l[used + k - 1] == '\r') --k; if (k > sizeof(lyr_s[0]) - 1) k = sizeof(lyr_s[0]) - 1;
+                lyr_t[lyr_n] = mm * 60.0 + ss + cc / 100.0; memcpy(lyr_s[lyr_n], l + used, k); lyr_s[lyr_n][k] = 0;
+                for (char* q = lyr_s[lyr_n]; *q; ++q) if ((unsigned char)*q < 32 || (unsigned char)*q > 126) *q = ' ';      // the console row takes plain characters only
+                ++lyr_n;
+            }
+            l = nl ? nl + 1 : l + len;
+        }
+        break;
+    }
+}
+static void LyricsTick(HWAVEOUT wo, int ch, int rate, bool paused) {      // the line for the device's play position
+    int want = -1;
+    if (lyr_n && wo && !paused) {
+        MMTIME mt = {.wType = TIME_SAMPLES};
+        if (waveOutGetPosition(wo, &mt, sizeof(mt)) == MMSYSERR_NOERROR) {
+            const double s = mt.wType == TIME_SAMPLES ? (double)mt.u.sample / rate : mt.wType == TIME_BYTES ? (double)mt.u.cb / (rate * ch * 2) : -1;
+            for (int i = 0; i < lyr_n && s >= 0 && lyr_t[i] <= s + 0.05; ++i) want = i;
+        }
+    }
+    if (want != lyr_cur) { lyr_cur = want; LyricSet(want >= 0 ? lyr_s[want] : ""); }
+}
 static void MusicTitle(const char* path, char* out, size_t n) {
     const char* b = strrchr(path, '\\'); b = b ? b + 1 : path;
     if (isdigit((unsigned char)b[0]) && isdigit((unsigned char)b[1]) && b[2] == '_') b += 3;
@@ -27,6 +67,9 @@ static void MusicShow(int cur, bool playing, bool paused) {      // the header's
     char t[MAX_PATH] = ""; if (cur >= 0) MusicTitle(music_files[cur], t, sizeof(t));
     if (!playing) snprintf(music_status, sizeof(music_status), "Music: off   [Space] play   [<-] [->] skip   (%d songs)", music_n);
     else snprintf(music_status, sizeof(music_status), "Music: %s %d/%d  %s   [Space] %s   [<-] [->] skip", paused ? "paused" : "playing", cur + 1, music_n, t, paused ? "resume" : "pause");
+    const char* st = strstr(t, " - "); st = st ? st + 3 : t;      // (2026-11-10) narrow windows: the title without "Artist - "
+    if (!playing) music_status_short[0] = 0;
+    else snprintf(music_status_short, sizeof(music_status_short), "Music: %s %d/%d  %s   [Space] %s   [<-] [->] skip", paused ? "paused" : "playing", cur + 1, music_n, st, paused ? "resume" : "pause");
 }
 static int MusicCmp(const void* a, const void* b) { return strcmp((const char*)a, (const char*)b); }
 static int MusicScan(void) {
@@ -61,6 +104,7 @@ static DWORD WINAPI MusicMain(LPVOID unused) {
             if (waveOutOpen(&wo, WAVE_MAPPER, &wf, (DWORD_PTR)done, 0, CALLBACK_EVENT) != MMSYSERR_NOERROR) { wo = NULL; stb_vorbis_close(v); v = NULL; printf("[music: no sound device]\n"); fflush(stdout); break; }
             for (int b = 0; b < MUSIC_BUFS; ++b) { memset(&hdr[b], 0, sizeof(WAVEHDR)); hdr[b].lpData = (LPSTR)pcm[b]; hdr[b].dwFlags = WHDR_DONE; }
             playing = true; paused = false; eof = false; music_played = true; jump = 0;
+            LyricsLoad(v);
             char t[MAX_PATH]; MusicTitle(music_files[cur], t, sizeof(t)); MusicShow(cur, playing, paused); printf("[music: %s]\n", t); fflush(stdout);
         }
         if (playing && wo && v && !paused) {                              // keep the buffers full
@@ -73,12 +117,14 @@ static DWORD WINAPI MusicMain(LPVOID unused) {
                 waveOutPrepareHeader(wo, &hdr[b], sizeof(WAVEHDR)); waveOutWrite(wo, &hdr[b], sizeof(WAVEHDR));
             }
         }
+        if (playing) LyricsTick(wo, ch, rate, paused);
         if (playing && eof) {                                              // the song ended and its last buffer played: the next one
             bool all = true; for (int b = 0; b < MUSIC_BUFS; ++b) all = all && (hdr[b].dwFlags & WHDR_DONE);
             if (all) InterlockedCompareExchange(&music_req, 2, 0);
         }
         HANDLE w[2] = {done, music_wake}; WaitForMultipleObjects(2, w, FALSE, 100);
     }
+    LyricSet("");
     if (wo) { waveOutReset(wo); for (int b = 0; b < MUSIC_BUFS; ++b) waveOutUnprepareHeader(wo, &hdr[b], sizeof(WAVEHDR)); waveOutClose(wo); }
     if (v) stb_vorbis_close(v);
     CloseHandle(done); return 0;
@@ -109,6 +155,7 @@ static void MusicBegin(bool no_music) {
     // as key events. Single keys during the runs, without echo; the old mode comes back in MusicEnd.
     music_mode0 = mode; music_mode_set = SetConsoleMode(in, (mode & ~(DWORD)(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT)) | ENABLE_PROCESSED_INPUT);
     FlushConsoleInputBuffer(in);
+    InitializeCriticalSection(&lyric_cs);
     music_wake = CreateEventA(NULL, FALSE, FALSE, NULL); music_keys_on = 1;
     music_thread = CreateThread(NULL, 0, MusicMain, NULL, 0, NULL); SetThreadPriority(music_thread, THREAD_PRIORITY_BELOW_NORMAL);
     music_keys_thread = CreateThread(NULL, 0, MusicKeys, in, 0, NULL);

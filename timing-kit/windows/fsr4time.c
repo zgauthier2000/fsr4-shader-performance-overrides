@@ -744,9 +744,11 @@ static int RunOne(const char* name, bool quick) {
                     ffx.DestroyContext(&context, NULL);
                     continue;
                 }
-                double sum = 0, fastest = ms[0];
-                for (int i = 0; i < TIMED; ++i) { sum += ms[i]; if (ms[i] < fastest) fastest = ms[i]; }
+                double sum = 0, fastest = ms[0], swing = 0;
+                for (int i = 0; i < TIMED; ++i) { sum += ms[i]; if (ms[i] < fastest) fastest = ms[i]; if (i) swing += fabs(ms[i] - ms[i - 1]); }      // (2026-11-10) swing: in call order, before Median sorts ms
+                swing /= TIMED - 1;
                 const double med = Median(ms, TIMED), me = Median(even, ne), mo = Median(odd, no);
+                const double p95 = ms[(TIMED * 95) / 100], p99 = ms[(TIMED * 99) / 100];      // ms is sorted now
                 char key[256];      // names this DLL, version, size and scene: the same in its two runs
                 snprintf(key, sizeof(key), "%s|%s%s|%s|%s", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, scene ? "moving" : "still");
                 char pkey[64];      // size, render size and scene, without the DLL: the reference pictures' key
@@ -755,6 +757,9 @@ static int RunOne(const char* name, bool quick) {
                 // name | version name the DLL reports | output | render | scene | mean | median | median where jitter x >= 0 | where < 0 | fastest | picture hash
                 Say("R|%s|%s%s|%s|%ux%u|%s|%.4f|%.4f|%.4f|%.4f|%.4f|%016llx\n", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, rw, rh,
                     scene ? "moving" : "still", sum / TIMED, med, me, mo, fastest, (unsigned long long)h);
+                // (2026-11-10, user: frame-to-frame spread) F| name | version | output | render | scene | 95th / 99th percentile call | mean change from one call to the next (ms): a lossy DLL that
+                // skips the network on every other frame alternates (large change); one that runs every frame, or refreshes tiles, does not. Older report readers skip this line.
+                Say("F|%s|%s%s|%s|%ux%u|%s|%.4f|%.4f|%.4f\n", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, rw, rh, scene ? "moving" : "still", p95, p99, swing);
                 ffx.DestroyContext(&context, NULL);
             }
             for (int p = 0; p < phases; ++p) ID3D12Resource_Release(color[p]);
@@ -1218,12 +1223,15 @@ static const char* const JOKES[] = {
 #define HEADER_ROWS 12     // the 4 rows of letters, a blank row, the thanks, the request and the power-mode note, a blank row, the joke, a blank row, a line
 static HANDLE hdr_thread, hdr_stop;
 static int hdr_joke;
+static char music_status_short[256];      // (2026-11-10, user: narrow windows) the same row with the song's title only (no "Artist - "): used when the full one does not fit
+static char lyric_now[160]; static CRITICAL_SECTION lyric_cs; static volatile LONG lyric_seq = 0;      // (2026-11-10, user: "show the current line of lyrics instead of the jokes while music is playing") set by music.inc
 static char music_status[256];      // (2026-11-06, user: "it needs to show what song is playing on the screen at all times, along with the music controls") set by music.inc; "" = no music here
 static void HeaderMusic(HANDLE h) {      // the header's row 11 (the blank row under the joke): the song playing and the keys, written into its cells like the joke
     CONSOLE_SCREEN_BUFFER_INFO bi;
     if (!music_status[0] || !GetConsoleScreenBufferInfo(h, &bi)) return;
     const int w = bi.srWindow.Right - bi.srWindow.Left + 1;
     char line[512]; int n = snprintf(line, sizeof(line), "  %s", music_status);
+    if (n > w - 1 && music_status_short[0]) n = snprintf(line, sizeof(line), "  %s", music_status_short);      // (2026-11-10) narrow window: the title without its artist
     if (n > w - 1) n = w - 1;
     while (n < w - 1 && n < (int)sizeof(line) - 1) line[n++] = ' ';
     DWORD done; const COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + HEADER_ROWS - 2)};
@@ -1235,7 +1243,8 @@ static void HeaderJoke(HANDLE h, int k) {      // the joke line, written into it
     if (!GetConsoleScreenBufferInfo(h, &bi)) return;
     const int w = bi.srWindow.Right - bi.srWindow.Left + 1;
     char line[512];
-    int n = snprintf(line, sizeof(line), "  %s", JOKES[k % NJOKES]);
+    char lyr[160] = ""; if (lyric_seq) { EnterCriticalSection(&lyric_cs); snprintf(lyr, sizeof(lyr), "%s", lyric_now); LeaveCriticalSection(&lyric_cs); }
+    int n = lyr[0] ? snprintf(line, sizeof(line), "  ~ %s ~", lyr) : snprintf(line, sizeof(line), "  %s", JOKES[k % NJOKES]);      // (2026-11-10) the line being sung while a song with lyrics plays
     if (n > w - 1) n = w - 1;      // never past the window's width: a longer line spilled into the next header row (jokes are kept <= 73 characters)
     while (n < w - 1 && n < (int)sizeof(line) - 1) line[n++] = ' ';
     DWORD done;
@@ -1280,6 +1289,7 @@ static DWORD WINAPI HeaderTicker(LPVOID p) {
         if (!HeaderInPlace((HANDLE)p)) HeaderPaint((HANDLE)p, hdr_joke);
         else if (t % 40 == 0) HeaderJoke((HANDLE)p, hdr_joke);
         if (music_status[0]) HeaderMusic((HANDLE)p);      // four times a second: the song and the keys
+        { static LONG seen = 0; const LONG q = lyric_seq; if (q != seen) { seen = q; HeaderJoke((HANDLE)p, hdr_joke); } }      // (2026-11-10) a new lyric line (or none: the joke again)
     }
     return 0;
 }
@@ -1312,7 +1322,7 @@ static void HeaderEnd(void) {
     printf("\n"); fflush(stdout);
 }
 
-struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXKEPT]; bool hashdiff; char diff[160];
+struct Row { char name[64], ver[64], size[16], scene[8]; double mean, med, even, odd; char hash[20]; int n; double runs[MAXKEPT]; bool hashdiff; char diff[160]; double sw, p99; int fn;      /* (2026-11-10) F lines: summed over runs */
              char pic[2][112]; };      // pic: how far the picture is from REFS[0] / REFS[1] (P lines, see ComparePicture), "" if not measured
 // the figure the summary gives: the mean of a DLL's runs (one per round; fewer if a run failed)
 static double Val(const struct Row* w) { double t = 0; for (int i = 0; i < w->n; ++i) t += w->runs[i]; return w->n ? t / w->n : 0; }
@@ -1341,6 +1351,13 @@ static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t
             continue;
         }
         if (line[0] == 'P' && line[1] == '|') { if (np < 16384) snprintf(plines[np++], sizeof(plines[0]), "%s", line); continue; }
+        if (line[0] == 'F' && line[1] == '|') {      // (2026-11-10) frame-to-frame spread of a run: after its R line
+            char dn[64], dv[64], ds[16], dr[16], dc[8]; double q95, q99, sw;
+            if (sscanf(line, "F|%63[^|]|%63[^|]|%15[^|]|%15[^|]|%7[^|]|%lf|%lf|%lf", dn, dv, ds, dr, dc, &q95, &q99, &sw) == 8)
+                for (int j = 0; j < nr; ++j)
+                    if (!strcmp(rows[j].name, dn) && !strcmp(rows[j].ver, dv) && !strcmp(rows[j].size, ds) && !strcmp(rows[j].scene, dc)) { rows[j].sw += sw; rows[j].p99 += q99; ++rows[j].fn; break; }
+            continue;
+        }
         if (line[0] != 'R' || line[1] != '|') continue;
         if (strstr(line, "|FAILED|")) {      // each failure once (a DLL that fails every round gave one line per round: a GTX 1660 SUPER report of
                                              // 2026-10-18 filled the list and cut its last line), and only whole lines
@@ -1362,7 +1379,7 @@ static int Collect(const char* raw, struct Row* rows, int max, char* gpu, size_t
                     first->runs[first->n++] = w->mean;
                 }
                 if (strcmp(first->hash, w->hash)) first->hashdiff = true;
-            } else { w->n = 1; w->runs[0] = w->mean; w->hashdiff = false; w->diff[0] = 0; w->pic[0][0] = w->pic[1][0] = 0; ++nr; }
+            } else { w->n = 1; w->runs[0] = w->mean; w->hashdiff = false; w->diff[0] = 0; w->pic[0][0] = w->pic[1][0] = 0; w->sw = w->p99 = 0; w->fn = 0; ++nr; }
         }
     }
     if (r) fclose(r);
@@ -1765,7 +1782,8 @@ int main(int argc, char** argv) {
     if (night_run) ADD("all-nighter: %d rounds so far; the newest report with this ID replaces the earlier ones\n", rounds);
     if (tests_version[0]) ADD("tests: %s\n", tests_version);      // the pack, which can be newer than the program
     if (music_played) ADD("music: played during some runs (their timings were taken with it on)\n");      // (2026-11-06)
-    if (getenv("FSR4_PROTON_NAME") && getenv("FSR4_PROTON_NAME")[0]) ADD("Proton: %s\n", getenv("FSR4_PROTON_NAME"));      // (2026-11-02) the Linux kit's run.sh: which Proton ran this
+    if (getenv("FSR4_PROTON_NAME") && getenv("FSR4_PROTON_NAME")[0]) ADD("Proton: %s\n", getenv("FSR4_PROTON_NAME"));
+    if (getenv("FSR4_LINUX_INFO") && getenv("FSR4_LINUX_INFO")[0]) ADD("Linux driver: %s\n", getenv("FSR4_LINUX_INFO"));      // (2026-11-10) run.sh: Mesa version, VKD3D_CONFIG / RADV_* settings      // (2026-11-02) the Linux kit's run.sh: which Proton ran this
     if (runtime_note[0]) ADD("%s\n", runtime_note);
     if (study) ADD("study: the RDNA%d study set (run-study.cmd / --study): each change of the exact DLL added alone and left out alone\n", study);
     ADD("upscaler time per frame, ms: mean (for a lossy DLL also: frame that runs the model / skipped frame); %% vs %s\n",
@@ -1810,6 +1828,21 @@ int main(int argc, char** argv) {
             }
         }
         ADD("\n");
+    }
+    {      // (2026-11-10, user: frame-to-frame spread) how steady each DLL's frames are in the moving scene, Balanced sizes: the mean change from one frame to the next, ms
+        bool any = false;
+        for (int i = 0; i < nr && !any; ++i) any = rows[i].fn && !strcmp(rows[i].scene, "moving") && !strchr(rows[i].size, ' ');
+        if (any) {
+            ADD("steadiness, moving scene: mean change of the upscaler time from one frame to the next, ms (a lossy DLL that skips the network on every other\nframe alternates, so its change is large; one that refreshes tiles or runs every frame stays small)\n");
+            for (int i = 0; i < nr; ++i) {
+                if (i && !strcmp(rows[i - 1].name, rows[i].name)) continue;
+                char l[512]; size_t ln = 0;
+                for (int j = i; j < nr && !strcmp(rows[j].name, rows[i].name); ++j)
+                    if (rows[j].fn && !strcmp(rows[j].scene, "moving") && !strchr(rows[j].size, ' '))
+                        ln += snprintf(l + ln, sizeof(l) - ln, "  %s %.3f (99%%: %.3f)", rows[j].size, rows[j].sw / rows[j].fn, rows[j].p99 / rows[j].fn);
+                if (ln) ADD("  %-28s%s\n", rows[i].name, l);
+            }
+        }
     }
     {      // drift check (lean kit): the reference's first and last run of the session; rounds alternate direction, so they sit at its start and end
         bool noisy = false, any = false; char dl[256] = ""; size_t dn = 0;

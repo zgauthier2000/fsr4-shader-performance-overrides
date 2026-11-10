@@ -189,7 +189,9 @@ static long long update_have = -1;
 // The serial of the songs here is in music\serial.txt (the kit's own songs carry one). Only asked about when someone is there to answer; the download must match
 // the signed checksum, and every file in it must be a plain .ogg name (no folders), at most 64 songs, 40 MB each, 300 MB in all, or nothing is changed.
 static long long MusicSerialHere(void) { long long v = -1; FILE* f = fopen("music\\serial.txt", "r"); if (f) { if (fscanf(f, "%lld", &v) != 1) v = -1; fclose(f); } return v; }
+static bool MusicIsCredits(const char* n) { return !_stricmp(n, "music.txt"); }      // (2026-11-10, user: "song packs can update the music credits file") the credits beside the songs
 static bool MusicNameOk(const char* n) {
+    if (MusicIsCredits(n)) return true;      // a pack carrying it needs music.min_build >= this build: older kits refuse a pack with any non-.ogg name and keep their songs
     size_t L = strlen(n); if (L < 5 || L > 120 || _stricmp(n + L - 4, ".ogg")) return false;
     for (const char* c = n; *c; ++c) if (!(isalnum((unsigned char)*c) || *c == '_' || *c == '-' || *c == '.')) return false;
     return !strstr(n, "..");
@@ -201,9 +203,9 @@ static void MusicUpdate(const struct Channel* c, bool asks) {
     printf("Downloading the new songs:\n");
     const bool dl = FetchUrl(c->music_url, (size_t)c->music_size + 1, "music-update.part", c->music_size, NULL) != NULL;
     if (!dl || !FileSha("music-update.part", c->music_size, c->music_sha)) { DeleteFileA("music-update.part"); printf(dl ? "The download doesn't match the signed checksum, so it was refused.\n\n" : "The download did not finish.\n\n"); return; }
-    mz_zip_archive z; memset(&z, 0, sizeof(z)); bool ok = mz_zip_reader_init_file(&z, "music-update.part", 0); int n = ok ? (int)mz_zip_reader_get_num_files(&z) : 0; long long tot = 0;
-    ok = ok && n > 0 && n <= 64;
-    for (int i = 0; ok && i < n; ++i) { mz_zip_archive_file_stat st; ok = mz_zip_reader_file_stat(&z, (mz_uint)i, &st) && !st.m_is_directory && MusicNameOk(st.m_filename) && st.m_uncomp_size <= (40ull << 20); tot += ok ? (long long)st.m_uncomp_size : 0; }
+    mz_zip_archive z; memset(&z, 0, sizeof(z)); bool ok = mz_zip_reader_init_file(&z, "music-update.part", 0); int n = ok ? (int)mz_zip_reader_get_num_files(&z) : 0, songs = 0; long long tot = 0;
+    ok = ok && n > 0 && n <= 65;      // (2026-11-10) 64 songs + the credits
+    for (int i = 0; ok && i < n; ++i) { mz_zip_archive_file_stat st; ok = mz_zip_reader_file_stat(&z, (mz_uint)i, &st) && !st.m_is_directory && MusicNameOk(st.m_filename) && st.m_uncomp_size <= (MusicIsCredits(st.m_filename) ? (64ull << 10) : (40ull << 20)); songs += ok && !MusicIsCredits(st.m_filename); tot += ok ? (long long)st.m_uncomp_size : 0; }
     ok = ok && tot <= (300ll << 20);
     CreateDirectoryA("music", NULL); CreateDirectoryA("music\\new", NULL);
     for (int i = 0; ok && i < n; ++i) { mz_zip_archive_file_stat st; mz_zip_reader_file_stat(&z, (mz_uint)i, &st); char out[MAX_PATH]; snprintf(out, sizeof(out), "music\\new\\%s", st.m_filename); ok = mz_zip_reader_extract_to_file(&z, (mz_uint)i, out, 0); }
@@ -212,8 +214,9 @@ static void MusicUpdate(const struct Channel* c, bool asks) {
     if (ok) {                                                        // the old songs out, the new ones in
         h = FindFirstFileA("music\\*.ogg", &fd); if (h != INVALID_HANDLE_VALUE) { do { char d[MAX_PATH]; snprintf(d, sizeof(d), "music\\%s", fd.cFileName); DeleteFileA(d); } while (FindNextFileA(h, &fd)); FindClose(h); }
         h = FindFirstFileA("music\\new\\*.ogg", &fd); if (h != INVALID_HANDLE_VALUE) { do { char a[MAX_PATH], b[MAX_PATH]; snprintf(a, sizeof(a), "music\\new\\%s", fd.cFileName); snprintf(b, sizeof(b), "music\\%s", fd.cFileName); ok = MoveFileExA(a, b, MOVEFILE_REPLACE_EXISTING) && ok; } while (FindNextFileA(h, &fd)); FindClose(h); }
+        if (fopen_exists("music\\new\\music.txt")) ok = MoveFileExA("music\\new\\music.txt", "music\\music.txt", MOVEFILE_REPLACE_EXISTING) && ok;      // (2026-11-10) the pack's credits replace the old ones
         FILE* f = fopen("music\\serial.txt", "w"); if (f) { fprintf(f, "%lld\n", c->music_serial); fclose(f); }
-        printf(ok ? "Done: %d songs, checked against the project's signature.\n\n" : "Some of the new songs could not be put in place.\n\n", n);
+        printf(ok ? "Done: %d songs, checked against the project's signature.\n\n" : "Some of the new songs could not be put in place.\n\n", songs);
     } else printf("The song pack could not be read, so the songs here were kept.\n\n");
     h = FindFirstFileA("music\\new\\*", &fd); if (h != INVALID_HANDLE_VALUE) { do { char d[MAX_PATH]; snprintf(d, sizeof(d), "music\\new\\%s", fd.cFileName); DeleteFileA(d); } while (FindNextFileA(h, &fd)); FindClose(h); }
     RemoveDirectoryA("music\\new"); DeleteFileA("music-update.part");
