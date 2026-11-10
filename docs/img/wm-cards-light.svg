@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="318" viewBox="0 0 760 318" role="img" aria-label="Reports most wanted: RX 6000: every card, even if already reported; RX 7000: RX 7800 XT, RX 7900 XT / XTX, RX 7700 XT, RX 7600, laptop chips; Built-in: 780M, 760M, 880M, 680M, 660M; Handhelds: Steam Deck, ROG Ally, Legion Go; Older Radeon: RX 5000, Vega; Others: GeForce, Intel Arc">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="318" viewBox="0 0 760 318" role="img" aria-label="Reports most wanted: RX 6000: every card, even if already reported; RX 7000: RX 7800 XT, RX 7900 XT / XTX, RX 7700 XT, RX 7600, laptop chips; Built-in: 780M, 760M, 880M, 680M, 660M; Handhelds: Steam Deck, ROG Ally, Legion Go; Older Radeon: RX 5000, Vega; Others: GeForce, GTX 16 / RTX 20 too, Intel Arc">
 <rect width="760" height="318" rx="8" fill="#fcfcfb"/>
 <text x="24" y="32" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" text-anchor="start" fill="#0b0b0b">Timing kit reports most wanted</text>
 <text x="24" y="52" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">Each new kit tests new things, so a card already reported still helps.</text>
@@ -42,8 +42,8 @@
 <rect x="221" y="232" width="52" height="28" rx="14" fill="#e3eefb" stroke="#2a78d6"/>
 <text x="247" y="251" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#0b0b0b">Vega</text>
 <text x="24" y="291" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Others</text>
-<rect x="140" y="272" width="73" height="28" rx="14" fill="#e3eefb" stroke="#2a78d6"/>
-<text x="176" y="291" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#0b0b0b">GeForce</text>
-<rect x="221" y="272" width="87" height="28" rx="14" fill="#e3eefb" stroke="#2a78d6"/>
-<text x="264" y="291" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#0b0b0b">Intel Arc</text>
+<rect x="140" y="272" width="222" height="28" rx="14" fill="#e3eefb" stroke="#2a78d6"/>
+<text x="251" y="291" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#0b0b0b">GeForce, GTX 16 / RTX 20 too</text>
+<rect x="370" y="272" width="87" height="28" rx="14" fill="#e3eefb" stroke="#2a78d6"/>
+<text x="413" y="291" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#0b0b0b">Intel Arc</text>
 </svg>

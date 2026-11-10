@@ -31,9 +31,9 @@ def wrap(body, H, label, t):
 
 
 NOW = (("Speed from AMD's SDK", "Lite first, then full FSR 4 builds", 'first kit results in', 'Timing kit reports: RX 7000 on Windows, handhelds'),
-       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'steadiness at rest next', "Games and scenes where AMD's Lite looks wrong"),
-       ('Faster sharpening (early)', 'Sharpening inside the last pass', 'one card measured so far', 'Games you play with FSR sharpening on'),
-       ('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'slower on RX 6000 so far', 'Timing kit reports: RX 6000 cards'))
+       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'half of the extra flicker fixed', "Games and scenes where AMD's Lite looks wrong"),
+       ('Faster sharpening (early)', 'Sharpening inside the last pass', 'first exact piece working', 'Games you play with FSR sharpening on'),
+       ('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'helped on a GTX 1660 only', 'Timing kit reports: GeForce GTX 16 / RTX 20'))
 
 
 def now(t):
@@ -84,7 +84,7 @@ def path(t):
 
 CARDS = (('RX 6000', '', ['every card, even if already reported'], 1), ('RX 7000', 'Windows especially', ['RX 7800 XT', 'RX 7900 XT / XTX', 'RX 7700 XT', 'RX 7600', 'laptop chips'], 1),
          ('Built-in', '', ['780M', '760M', '880M', '680M', '660M'], 1), ('Handhelds', 'Windows or Linux', ['Steam Deck', 'ROG Ally', 'Legion Go'], 1),
-         ('Older Radeon', '', ['RX 5000', 'Vega'], 1), ('Others', '', ['GeForce', 'Intel Arc'], 1))
+         ('Older Radeon', '', ['RX 5000', 'Vega'], 1), ('Others', '', ['GeForce, GTX 16 / RTX 20 too', 'Intel Arc'], 1))
 
 
 def cards(t):
@@ -103,7 +103,7 @@ def cards(t):
 
 # Next release, steps done (2026-11-05, user: "show, without promising anything, how close the next release is to being ready"). Steps only: no date and nothing about what
 # the release contains (upcoming changes are not announced without the author's word). Update the flags as steps finish; a failed step can send a build back.
-RELEASE = (('Builds made', 1), ('Pictures checked here', 0), ('Speed measured with the kit', 1), ('Release pages written', 0), ("Author's game test", 0), ('Published', 0))      # dll-2026-11-05 published 2026-11-05: next one starts over; 2026-11-09: builds staged, kit pack 11 measured
+RELEASE = (('Builds made', 1), ('Pictures checked here', 1), ('Speed measured with the kit', 1), ('Release pages written', 0), ("Author's game test", 0), ('Published', 0))      # dll-2026-11-05 published 2026-11-05: next one starts over; 2026-11-09: builds staged, kit pack 11 measured; 2026-11-10: pictures checked (stsharp overnight 11-09 PASSED)
 
 
 def release(t):
