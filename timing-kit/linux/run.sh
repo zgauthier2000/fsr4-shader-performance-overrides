@@ -55,12 +55,13 @@ LI="$(mesa_version)"; for e in VKD3D_CONFIG RADV_EXPERIMENTAL RADV_PERFTEST RADV
 [ -n "${VK_DRIVER_FILES:-}${VK_ICD_FILENAMES:-}" ] && LI="$LI; own Vulkan driver file (VK_DRIVER_FILES)"
 export FSR4_LINUX_INFO="$LI"      # goes in the report
 # (2026-11-10) no screen blanking or sleep while the runs go: a tester's runs stopped when the screen went off (KDE). systemd-inhibit holds the lock as long as the program runs.
-INH=(); command -v systemd-inhibit >/dev/null && [ -z "${FSR4_NO_INHIBIT:-}" ] && INH=(systemd-inhibit --what=idle:sleep --who="FSR 4 timing kit" --why="timing runs (a blanked screen or sleep can stop them)" --mode=block)
+# Used only if it works here: without systemd-inhibit, or where it cannot take the lock (no login service, some containers), the kit runs as before.
+INH=(); command -v systemd-inhibit >/dev/null && [ -z "${FSR4_NO_INHIBIT:-}" ] && timeout 10 systemd-inhibit --what=idle:sleep --who="FSR 4 timing kit" --why=check true >/dev/null 2>&1 && INH=(systemd-inhibit --what=idle:sleep --who="FSR 4 timing kit" --why="timing runs (a blanked screen or sleep can stop them)" --mode=block)
 if command -v umu-run >/dev/null; then
     [ -n "$P" ] && export PROTONPATH=$P
     export WINEPREFIX="$KIT/pfx" GAMEID=umu-fsr4timekit
-    echo "Running with umu-run${P:+ and $(basename "$P")}."; exec "${INH[@]}" umu-run "$KIT/fsr4time.exe" "$@"
+    echo "Running with umu-run${P:+ and $(basename "$P")}."; exec ${INH[@]+"${INH[@]}"} umu-run "$KIT/fsr4time.exe" "$@"
 fi
 S=; for r in "${ROOTS[@]}"; do [ -d "$r" ] && { S=$r; break; }; done
 mkdir -p "$KIT/pfx"; export STEAM_COMPAT_DATA_PATH="$KIT/pfx" STEAM_COMPAT_CLIENT_INSTALL_PATH="$S"
-echo "Running with $(basename "$P"). The first start sets up a Wine prefix: about a minute."; exec "${INH[@]}" "$P/proton" run "$KIT/fsr4time.exe" "$@"
+echo "Running with $(basename "$P"). The first start sets up a Wine prefix: about a minute."; exec ${INH[@]+"${INH[@]}"} "$P/proton" run "$KIT/fsr4time.exe" "$@"
