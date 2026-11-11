@@ -133,7 +133,7 @@ def stats(t):
     o = [text(24, 32, 'What the project uses', t, 15, 'ink', weight=600), text(24, 52, f"Measured {s['date']} on the author's PC.", t, 12)]
     y = 76
     o += [text(24, y, 'DISK SPACE', t, 10, 'ink2', weight=600)]
-    y += 16; R = 52; cxs = (112, 291, 470, 649)      # (2026-11-05) four drives: the USB M.2 SSD added
+    y += 16; R = 52; cxs = (112, 291, 470, 649) if len(s['drives']) == 4 else tuple(88 + 146 * i for i in range(len(s['drives'])))      # (2026-11-05) four drives: the USB M.2 SSD added; (2026-11-10) five: the USB NVMe
     import math
     def arc(cx, cy, a0, a1, col, stroke):
         if a1 - a0 >= 0.9999:

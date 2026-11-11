@@ -1,55 +1,62 @@
 {
- "date": "2026-11-06",
+ "date": "2026-11-11",
  "drives": [
   {
    "name": "Main NVMe drive",
    "capacity": 1006450229248,
-   "used": 808730525696,
-   "project": 615726913834
+   "used": 511309811712,
+   "project": 334041890477
   },
   {
    "name": "Second NVMe drive (also games)",
    "capacity": 983358451712,
-   "used": 771938684928,
-   "project": 339242954955
+   "used": 744587300864,
+   "project": 312853793085
   },
   {
    "name": "USB M.2 SSD",
    "capacity": 502921392128,
-   "used": 357604450304,
-   "project": 357569900622
+   "used": 387940139008,
+   "project": 387354886463
+  },
+  {
+   "name": "USB NVMe drive (new)",
+   "capacity": 1006979743744,
+   "used": 394998751232,
+   "project": 394619246099
   },
   {
    "name": "USB hard drive",
    "capacity": 7937302376448,
-   "used": 4829971955712,
-   "project": 2170025833944
+   "used": 5772267065344,
+   "project": 2959553203697
   }
  ],
- "backup": 1902932336874,
- "grew_week": 1075991726073,
- "grew_week_backup": 697787402113,
- "files": 974816,
+ "backup": 2692459706627,
+ "grew_week": 1957560006876,
+ "grew_week_backup": 1493264151070,
+ "files": 1086973,
  "since": "Oct 16",
  "all": {
-  "cpu_s": 1846706.6499999978,
-  "gpu_s": 791448.0,
-  "all_r": 293762479303925,
-  "disk_r": 133640232108032,
-  "all_w": 6933895634024,
-  "disk_w": 1582520209408
+  "cpu_s": 2169821.359999998,
+  "gpu_s": 956790.0,
+  "all_r": 343008114195877,
+  "disk_r": 166406944464896,
+  "all_w": 7942889462973,
+  "disk_w": 1788351868928
  },
  "week": {
-  "cpu_s": 372326.04,
-  "gpu_s": 168795.0,
-  "all_r": 52726310800016,
-  "disk_r": 32051369283584,
-  "all_w": 1462083649479,
-  "disk_w": 222362808320
+  "cpu_s": 529096.6099999998,
+  "gpu_s": 266081.0,
+  "all_r": 76394103937966,
+  "disk_r": 51757821960192,
+  "all_w": 1488998095733,
+  "disk_w": 294228901888
  },
  "notes": [
   "Work is counted from Oct 16, 2026, when the job recorder started (the project began Oct 1); jobs still running are counted when they end.",
   "Graphics card time is how long jobs held the card: an upper bound. Data read includes data read again from memory; \"from drives\" reached the drives.",
-  "Growth: the backed-up project files a week apart, new files on the USB drives, and what the nightly backups copied."
+  "Growth: the backed-up project files a week apart, new files on the USB drives, and what the nightly backups copied.",
+  "This week's backup growth includes a one-time re-copy of about 960 GB after the Nov 10 drive reshuffle (files got new paths)."
  ]
 }
