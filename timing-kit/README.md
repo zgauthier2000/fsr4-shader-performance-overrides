@@ -353,7 +353,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Linux and Steam Deck (experimental)
 
-[`fsr4-timing-kit-linux-2026-11-06.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/fsr4-timing-kit-linux-2026-11-06.tar.gz) (about 55 MB, plus about 37 MB of tests it downloads on the first start; version 2026-11-03): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
+[`fsr4-timing-kit-linux-2026-11-11.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-linux-2026-11-11.tar.gz) (about 48 MB, plus about 43 MB of tests it downloads on the first start; version 2026-11-03): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
 
 It runs the Windows kit's program and test DLLs under Proton, and sends the same kind of report, marked as Wine/Proton. It lists the Protons it finds and asks which to use, and the report names the one used. CachyOS Proton builds did not start the kit in testing, so use another for now. It needs Proton from Steam (Proton Experimental works), a system-installed Proton or `umu-run`, and installs nothing: its Wine prefix and results stay in the folder. Figures under Proton are not Windows figures: the drivers differ.
 
@@ -363,11 +363,11 @@ The sections from [What you need](#what-you-need) on describe the older pass-by-
 
 ## Music while it runs (since 2026-11-06)
 
-The kit has an optional music player: during the timing runs, Space starts the music (a random song first), Space again pauses and resumes, and the Left / Right arrows skip. The header shows the song playing and the keys. It stays silent unless Space is pressed, the keys never answer the kit's questions, and the summary says if music played (the timings were the same with music on and off in this project's tests). Twelve songs come with the kit, seven of them written for this project; `music/music.txt` lists who made each one. New songs can arrive through the same signed channel as new tests, and the kit asks first. `--no-music` turns it off.
+The kit has an optional music player: during the timing runs, Space starts the music (a random song first), Space again pauses and resumes, and the Left / Right arrows skip. The header shows the song playing and the keys. It stays silent unless Space is pressed, the keys never answer the kit's questions, and the summary says if music played (the timings were the same with music on and off in this project's tests). Eleven songs come with the kit, all written for this project and sung by a synthetic voice; `music/music.txt` lists who made them. Since version 2026-11-11 the line being sung shows at the top of the window while a song plays (the songs carry their timed lyrics). New songs can arrive through the same signed channel as new tests, and the kit asks first. `--no-music` turns it off.
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-11-06.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/fsr4-timing-kit-windows-2026-11-06.zip) (about 17 MB, plus about 36 MB of tests it downloads on the first start; version 2026-11-03; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-11-11.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-windows-2026-11-11.zip) (about 10 MB, plus about 42 MB of tests it downloads on the first start; version 2026-11-03; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes. A Steam Deck needs about an hour or more for its one round (reports so far: 58 to 82 minutes).
@@ -380,6 +380,8 @@ The summary and `results-raw.txt` are saved in the unpacked folder. It runs the 
 shows "(Wine/Proton)". Figures under Proton are not Windows figures: the drivers differ.
 
 Kits up to version 2026-10-25.2 also had a study run for RDNA2 and RDNA3 (`run-study.cmd`); version 2026-10-28 has none.
+
+**New in version 2026-11-11:** the line being sung shows while music plays; the summary gives each build's frame-to-frame steadiness (95th / 99th percentile and the mean change from one frame to the next); a short note says what a new test pack measures before it downloads; on Linux, `run.sh` asks the desktop not to blank the screen or sleep during the runs (where `systemd-inhibit` works) and the report names the Mesa driver; a notice that the kit's DLLs are for timing only, not for games. Kits from 2026-11-03 keep working.
 
 **New in version 2026-11-03:** fetches new tests by itself (signed), the all-nighter, 1280x800 on built-in graphics, `lt121-test` to `lt127-test`.
 
