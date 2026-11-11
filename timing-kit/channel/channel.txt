@@ -1,27 +1,30 @@
 fsr4-kit-channel 1
-serial 13
-pack.windows.serial 13
-pack.windows.version 2026-11-10w
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/dlls-2026-11-10w.pack
-pack.windows.size 41500799
-pack.windows.sha256 7bbcf02d74d72c4d8ae6068ca9e74ab9f4078fa0a58b8f88c04079e66ceb7a51
+serial 14
+pack.windows.serial 14
+pack.windows.version 2026-11-11w
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11w.pack
+pack.windows.size 44301717
+pack.windows.sha256 22113c9977c1f6f1cd1e565b1caeb96816e5160427feb8f49575593aeb5ddd55
 pack.windows.busy none
-pack.linux.serial 13
-pack.linux.version 2026-11-10l
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/dlls-2026-11-10l.pack
-pack.linux.size 42538819
-pack.linux.sha256 a646f3e5fb260bd68465f4256dd7bb0e8fa6e70f316cf707ea95bab4f5b77c28
+pack.linux.serial 14
+pack.linux.version 2026-11-11l
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11l.pack
+pack.linux.size 44544499
+pack.linux.sha256 3db94b4d93c3abd293d3e21a2ab176acd25c9004dfd85f371d38b960bb4b6395
 pack.linux.busy none
-music.serial 2
-music.version 2026-11-08
-music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/music-2026-11-08.zip
-music.size 10020989
-music.sha256 32425dc8a0d393dd39db3eae9ce6e6dead4d0bf23194469d9ef8ef9725602061
-program.windows.build 2
-program.windows.version 2026-11-06
-program.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/fsr4-timing-kit-windows-2026-11-06.zip
-program.linux.build 2
-program.linux.version 2026-11-06
-program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-06/fsr4-timing-kit-linux-2026-11-06.tar.gz
-program.note This version adds an optional music player (Space / arrow keys during the runs).
-sig 2575047908efffd0d9c36d0365f637575e1cab078b221f54fc99914ea74cf9fafe8663e6bf32292ff5f95dce1b135caebce09c061ffebeeae0d12942a978040f
+pack.windows.note n-exact-r3-hlx11 / n-exact-r3-hlx11w32: the RX 7000 exact build with a different, faster form of pass 11 from HelixSR (same picture as n-exact-r3). Wanted from RX 7000 and RX 6000 cards.
+pack.linux.note n-exact-r3-hlx11 / n-exact-r3-hlx11w32: the RX 7000 exact build with a different form of pass 11 from HelixSR (same picture as n-exact-r3).
+music.serial 3
+music.version 2026-11-11
+music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/music-2026-11-11.zip
+music.size 10030965
+music.sha256 ff43ada328a4ab12c8d8ef132e4701cf56f718a3ca27b43961553d43b198ac87
+music.min_build 3
+program.windows.build 3
+program.windows.version 2026-11-11
+program.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-windows-2026-11-11.zip
+program.linux.build 3
+program.linux.version 2026-11-11
+program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-linux-2026-11-11.tar.gz
+program.note This version shows the line being sung while music plays, how steady each build's frame times are, and what a new test pack measures.
+sig f2e684c9dd98eb5434592e8701913e885c3c993c76fe6eee44385404eb94fc0b5c49970848b9c941874a749a42b4697eba31d4d42b8deb8d6643b9daad16500b
