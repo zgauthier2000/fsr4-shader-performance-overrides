@@ -1,19 +1,19 @@
 fsr4-kit-channel 1
-serial 14
-pack.windows.serial 14
-pack.windows.version 2026-11-11w
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11w.pack
-pack.windows.size 44301717
-pack.windows.sha256 22113c9977c1f6f1cd1e565b1caeb96816e5160427feb8f49575593aeb5ddd55
+serial 15
+pack.windows.serial 15
+pack.windows.version 2026-11-11bw
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11bw.pack
+pack.windows.size 44648863
+pack.windows.sha256 827a52d26c24e4e6ef157ffdd78c53ebcae5431badac91d684d56cec31e30466
 pack.windows.busy none
-pack.linux.serial 14
-pack.linux.version 2026-11-11l
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11l.pack
-pack.linux.size 44544499
-pack.linux.sha256 3db94b4d93c3abd293d3e21a2ab176acd25c9004dfd85f371d38b960bb4b6395
+pack.linux.serial 15
+pack.linux.version 2026-11-11bl
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11bl.pack
+pack.linux.size 45506361
+pack.linux.sha256 0058482eeb80e8074f431709ffde7d28be1249c32b9a0ca804d3b3cc21cb70bf
 pack.linux.busy none
-pack.windows.note n-exact-r3-hlx11 / n-exact-r3-hlx11w32: the RX 7000 exact build with a different, faster form of pass 11 from HelixSR (same picture as n-exact-r3). Wanted from RX 7000 and RX 6000 cards.
-pack.linux.note n-exact-r3-hlx11 / n-exact-r3-hlx11w32: the RX 7000 exact build with a different form of pass 11 from HelixSR (same picture as n-exact-r3).
+pack.windows.note lt139-reference / lt140-test: a refined FSR 4.1.2 Lite test build without and with a new history rule at moving edges (test builds, compared with each other, not with AMD's picture). Wanted from every card. n-exact-r3-hlx11 / -hlx11w32: the RX 7000 exact build with a different, faster form of pass 11 from HelixSR (same picture as n-exact-r3).
+pack.linux.note lt139-reference / lt140-test: a refined FSR 4.1.2 Lite test build without and with a new history rule at moving edges (test builds, compared with each other, not with AMD's picture). n-exact-r3-hlx11 / -hlx11w32: the RX 7000 exact build with a different form of pass 11 from HelixSR (same picture as n-exact-r3).
 music.serial 3
 music.version 2026-11-11
 music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/music-2026-11-11.zip
@@ -27,4 +27,4 @@ program.linux.build 3
 program.linux.version 2026-11-11
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-linux-2026-11-11.tar.gz
 program.note This version shows the line being sung while music plays, how steady each build's frame times are, and what a new test pack measures.
-sig f2e684c9dd98eb5434592e8701913e885c3c993c76fe6eee44385404eb94fc0b5c49970848b9c941874a749a42b4697eba31d4d42b8deb8d6643b9daad16500b
+sig 7c29e65011d8201adb72868889464b5e3d7fd833a865ae03c2b60b834e686dddeaea57151921c6d6e449533597630bcdccd0d002194573e321dc4ec94e15f602
