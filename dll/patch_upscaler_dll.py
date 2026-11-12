@@ -14,6 +14,9 @@
 # is made to always answer yes. Whether FSR 4 then works on a given GPU is up to that GPU and its
 # driver. Not for RDNA4: there both versions of FSR 4 would then report support.
 #
+# Only the replacement set decides which AMD DLL fits: the sets from ../windows/dxil/rdna4/build_rdna4_fp8.sh also
+# exist for AMD's 4.1.2.4555, and --name works on 4.1.2 too (--any-gpu does not).
+#
 # --name changes the version name the DLL reports through the FidelityFX API ("4.1.1" in AMD's),
 # which is what OptiScaler and other front ends display, so that a patched DLL can be told from
 # AMD's. A name of up to 7 characters is written over AMD's; a longer one goes into the new
@@ -157,21 +160,23 @@ if any_gpu:
         die('the INT8 provider\'s GPU check is not the expected code (another DLL version?)')
 
 # --- the version name (--name)
-VERSION_NAME = b'4.1.1\0\0\0FSR4-i8\0'                               # AMD's 4.1.1.2740
+VERSION_NAMES = (b'4.1.1\0\0\0FSR4-i8\0',                            # AMD's 4.1.1.2740
+                 b'4.1.2\0\0\0FSR4L-i8\0')                           # AMD's 4.1.2.4555
 name_at = name_ref = None
 if new_name:
-    name_at = d.find(VERSION_NAME)
-    if name_at < 0 or d.find(VERSION_NAME, name_at + 1) >= 0:
+    hits = [i for v in VERSION_NAMES if (i := d.find(v)) >= 0 and d.find(v, i + 1) < 0]
+    if len(hits) != 1:
         die('the version name was not found (another DLL version?)')
+    name_at = hits[0]
     if len(new_name) > 7:
         target = va_of_file(name_at) - image_base
         text = next(s for s in sections if s[0] == '.text')
         refs = [i for i in range(text[3] + 3, text[3] + text[4] - 4)
                 if d[i - 2] == 0x8d and d[i - 3] in (0x48, 0x4c) and d[i - 1] & 0xc7 == 5      # lea r64, [rip+disp]
                 and text[1] + i - text[3] + 4 + struct.unpack_from('<i', d, i)[0] == target]
-        if len(refs) != 1:
-            die(f'expected one instruction loading the version name, found {len(refs)}')
-        name_ref = refs[0]
+        if not 1 <= len(refs) <= 4:                                  # 4.1.2: one per FSR 4 provider
+            die(f'expected one to four instructions loading the version name, found {len(refs)}')
+        name_ref = refs
 
 # --- patch
 if unlock_at is not None:
@@ -229,7 +234,8 @@ if appended:
         print(f'{h}: moved to .fsr4 ({old} -> {n} bytes)')
     if name_off is not None:
         text = next(s for s in sections if s[0] == '.text')
-        struct.pack_into('<i', d, name_ref, va + name_off - (text[1] + name_ref - text[3] + 4))
+        for r in name_ref:
+            struct.pack_into('<i', d, r, va + name_off - (text[1] + r - text[3] + 4))
         print(f'version name: {new_name.decode()} (in .fsr4)')
 
 # PE checksum
