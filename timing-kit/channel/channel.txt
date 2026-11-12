@@ -1,19 +1,19 @@
 fsr4-kit-channel 1
-serial 16
-pack.windows.serial 16
-pack.windows.version 2026-11-11cw
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11cw.pack
-pack.windows.size 45117659
-pack.windows.sha256 ebdd5b0280bbcbf53e0d69971e59ce3a20a0222dc3d3cdfa873ef8f0428681a3
+serial 17
+pack.windows.serial 17
+pack.windows.version 2026-11-11dw
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11dw.pack
+pack.windows.size 45984114
+pack.windows.sha256 2121978bb307063580e20fab759b92526fba07aed82a4866ac6545dfbaf72211
 pack.windows.busy none
-pack.linux.serial 16
-pack.linux.version 2026-11-11cl
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11cl.pack
-pack.linux.size 45833933
-pack.linux.sha256 3dfcd736b7dd1293363402f5724105f0a76aab3045da870893866aa191b6ae59
+pack.linux.serial 17
+pack.linux.version 2026-11-11dl
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11dl.pack
+pack.linux.size 46542548
+pack.linux.sha256 c0dd94c17591f5fb420a6f9477a7890f9b87bd38bc1fd9ca2ddb096c48e9dbd3
 pack.linux.busy none
-pack.windows.note lt141-test: the same refined FSR 4.1.2 Lite test build as lt140-test, with the new history rule computed only where it applies (same picture as lt140, should cost less). lt139-reference / lt140-test: that build without and with the rule (test builds, compared with each other, not with AMD's picture). Wanted from every card, GeForce especially. n-exact-r3-hlx11 / -hlx11w32: the RX 7000 exact build with a different form of pass 11 from HelixSR (same picture as n-exact-r3).
-pack.linux.note lt141-test: the same refined FSR 4.1.2 Lite test build as lt140-test, with the new history rule computed only where it applies (same picture as lt140, should cost less). lt139-reference / lt140-test: that build without and with the rule (test builds, compared with each other, not with AMD's picture). n-exact-r3-hlx11 / -hlx11w32: the RX 7000 exact build with a different form of pass 11 from HelixSR (same picture as n-exact-r3).
+pack.windows.note lt142-test: the same test build as lt141-test in a form that needs fewer registers on older Radeon cards (Vega, RX 400 / 500); same picture as lt141. Wanted from Vega and RX 400 / 500 owners especially, and from every card. lt139-reference / lt140-test / lt141-test: that refined FSR 4.1.2 Lite test build without the new history rule at moving edges, with it, and with it computed only where it applies (test builds, compared with each other, not with AMD's picture). n-exact-r3-hlx11 / -hlx11w32: the RX 7000 exact build with a different form of pass 11 from HelixSR (same picture as n-exact-r3).
+pack.linux.note lt142-test: the same test build as lt141-test in a form that needs fewer registers on older Radeon cards (Vega, RX 400 / 500); same picture as lt141. Wanted from Vega and RX 400 / 500 owners especially. lt139-reference / lt140-test / lt141-test: that refined FSR 4.1.2 Lite test build without the new history rule at moving edges, with it, and with it computed only where it applies (test builds, compared with each other, not with AMD's picture). n-exact-r3-hlx11 / -hlx11w32: the RX 7000 exact build with a different form of pass 11 from HelixSR (same picture as n-exact-r3).
 music.serial 3
 music.version 2026-11-11
 music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/music-2026-11-11.zip
@@ -27,4 +27,4 @@ program.linux.build 3
 program.linux.version 2026-11-11
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-linux-2026-11-11.tar.gz
 program.note This version shows the line being sung while music plays, how steady each build's frame times are, and what a new test pack measures.
-sig 95e3b8d102c0f0e56f9dc6ad10da5d7b9ca319e7882623b995c5561595f135d58545f29b3d095bac9266a8395342fb58ad77422fbc3e97679328372138e4680d
+sig 28378dd93115038edec67929c0bb209a8aa7f4d1511bf5c169a99b1f2c7111d22a998c9678ada9147f1df73ae7077c5320066740a7d4f7f87125812b62d9ee01
