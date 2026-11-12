@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which GPUs Use the Project</title>
+<style>
+/* Layout: one reading column; summary tiles, then the per-GPU bars, then the family shares, then the tables the charts are drawn from. */
+:root {
+  color-scheme: light;
+  --surface: #fcfcfb; --surface-2: #f2f2ef; --rule: #dedcd5;
+  --text: #0b0b0b; --text-2: #52514e; --text-3: #75736d;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
+  --display: "Bahnschrift", "DIN Alternate", "Roboto Condensed", "Arial Narrow", sans-serif;
+  --body: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface: #1a1a19; --surface-2: #242423; --rule: #3a3936;
+    --text: #f0efec; --text-2: #c3c2b7; --text-3: #9a988f;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #1a1a19; --surface-2: #242423; --rule: #3a3936;
+  --text: #f0efec; --text-2: #c3c2b7; --text-3: #9a988f;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface); color: var(--text); font: 16px/1.5 var(--body); }
+main { max-width: 900px; margin: 0 auto; padding: 32px 20px 56px; display: grid; gap: 36px; }
+h1, h2 { font-family: var(--display); font-weight: 600; text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+h1 { font-size: 34px; line-height: 1.1; }
+h2 { font-size: 23px; }
+p { margin: 0; max-width: 68ch; color: var(--text-2); }
+.lede { display: grid; gap: 10px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.tile { background: var(--surface-2); border-radius: 6px; padding: 14px 16px; display: grid; gap: 2px; }
+.tile b { font: 600 30px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.tile span { font-size: 14px; color: var(--text-2); }
+section { display: grid; gap: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--text-2); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+figure { margin: 0; display: grid; gap: 8px; }
+figcaption { font-size: 14px; color: var(--text-3); max-width: 68ch; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--text); font-family: var(--body); font-size: 13px; }
+svg .muted { fill: var(--text-2); }
+svg .grid { stroke: var(--rule); stroke-width: 1; }
+svg .hit { fill: transparent; }
+svg .hit:hover + .bar, svg .bar:hover { opacity: 0.82; }
+#tip { position: fixed; pointer-events: none; background: var(--surface-2); color: var(--text); border: 1px solid var(--rule); border-radius: 6px;
+       padding: 8px 10px; font-size: 13px; line-height: 1.4; box-shadow: 0 4px 14px rgba(0,0,0,0.18); display: none; max-width: 280px; z-index: 5; }
+#tip b { font-weight: 600; }
+.foot { font-size: 14px; color: var(--text-3); }
+a { color: var(--s1); }
+.notes { display: grid; gap: 8px; font-size: 15px; }
+.notes p { color: var(--text-2); }
+.tables { display: grid; gap: 18px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; min-width: 420px; }
+th, td { text-align: left; padding: 5px 12px 5px 0; border-bottom: 1px solid var(--rule); }
+th { font-weight: 600; color: var(--text-2); }
+td:nth-child(n+3), th:nth-child(n+3) { text-align: right; }
+.dl td:nth-child(n+2), .dl th:nth-child(n+2) { text-align: right; }
+.dl tr:last-child td { font-weight: 600; }
+@media (max-width: 420px) { h1 { font-size: 28px; } .tile b { font-size: 26px; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="lede">
+    <h1>Which GPUs use the project</h1>
+    <p>Timing kit reports from 2026-10-10 to 2026-11-11 (Windows, Proton and Linux kits; Discord and GitHub), and DLL downloads read 2026-11-11 12:41 UTC. The kit tells us which cards, the downloads only which archive family.</p>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><b>142</b><span>machines sent kit reports (estimate)</span></div>
+    <div class="tile"><b>655</b><span>kit reports, 53 different GPU names</span></div>
+    <div class="tile"><b>6,547</b><span>downloads of the per-family archives</span></div>
+    <div class="tile"><b>29,707</b><span>release downloads in all (checksum files left out)</span></div>
+  </div>
+
+  <section>
+    <h2>Timing kit: machines per GPU</h2>
+    <div class="legend" id="legend1"></div>
+    <figure>
+      <svg id="bars" role="img" aria-label="Horizontal bars: estimated machines per GPU in the timing kit reports, most first. RX 6700 XT and RX 6600 XT lead; RX 6000 cards fill most of the top ten."></svg>
+      <figcaption>A machine is one GPU + CPU + operating system seen in the reports, so one person on two systems counts twice. 30 more GPUs sent reports from one machine each (listed in the table below). Hover a bar for its report count.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Share by GPU family: kit machines vs downloads</h2>
+    <div class="legend" id="legend2"></div>
+    <figure>
+      <svg id="shares" role="img" aria-label="Two 100% bars by GPU family. Kit machines: RX 6000 about half. Downloads of the per-family archives: RX 6000 about a third, with the two integrated-GPU archives together above 40%."></svg>
+      <figcaption>Downloads: the four releases that ship one archive per family (2026-10-22, 10-29, 11-01, 11-05), zip and .7z together. RX 5000 / 9000 / Radeon VII owners have no archive of their own; they most likely take the RDNA 3 iGPU + other brands one.</figcaption>
+    </figure>
+  </section>
+
+  <section class="notes">
+    <h2>How far these numbers go</h2>
+    <p><b>Measured:</b> report counts per GPU name, and download counts per archive file (GitHub's own counters).</p>
+    <p><b>Estimated:</b> machines. Downloads are not people either: one person may fetch both the zip and the .7z, or every release.</p>
+    <p><b>Not known:</b> which GPU a download was for inside a family, and anything from 20,570 downloads of the older archives (one desktop and one integrated archive, single DLLs, test builds), which mix families. Timing kit downloads (2,590) are left out of the family chart.</p>
+    <p>RX 6000 is about half of the kit machines but about a third of the per-family downloads. A likely reason (a guess, not measured): most open kit questions were about RX 6000 speed, so those owners were asked to test most. The kit shows who helps test; the downloads come closer to who uses the builds.</p>
+  </section>
+
+  <section class="tables">
+    <h2>The numbers</h2>
+    <div class="scroll"><table class="dl"><tr><th>Release</th><th>RX 7000</th><th>RX 6000</th><th>RDNA 3 iGPU + other brands</th><th>RDNA 2 iGPU / Steam Deck</th><th>Total</th></tr><tr><td>2026-10-22</td><td>511</td><td>724</td><td>473</td><td>451</td><td>2,159</td></tr><tr><td>2026-10-29</td><td>385</td><td>510</td><td>278</td><td>199</td><td>1,372</td></tr><tr><td>2026-11-01</td><td>303</td><td>455</td><td>274</td><td>178</td><td>1,210</td></tr><tr><td>2026-11-05</td><td>392</td><td>590</td><td>452</td><td>372</td><td>1,806</td></tr><tr><td>All four</td><td>1,591</td><td>2,279</td><td>1,477</td><td>1,200</td><td>6,547</td></tr></table></div>
+    <div class="scroll"><table><tr><th>GPU</th><th>Group</th><th>Machines (est.)</th><th>Reports</th></tr><tr><td>RX 6700 XT</td><td>RX 6000</td><td>13</td><td>63</td></tr><tr><td>RX 6600 XT</td><td>RX 6000</td><td>11</td><td>38</td></tr><tr><td>RX 6600</td><td>RX 6000</td><td>7</td><td>63</td></tr><tr><td>RX 6800 XT</td><td>RX 6000</td><td>7</td><td>46</td></tr><tr><td>RX 7800 XT</td><td>RX 7000</td><td>7</td><td>44</td></tr><tr><td>RX 7900 XTX</td><td>RX 7000</td><td>7</td><td>32</td></tr><tr><td>RX 6900 XT</td><td>RX 6000</td><td>7</td><td>21</td></tr><tr><td>RX 7900 XT</td><td>RX 7000</td><td>6</td><td>16</td></tr><tr><td>RX 6650 XT</td><td>RX 6000</td><td>5</td><td>39</td></tr><tr><td>RX 6750 XT</td><td>RX 6000</td><td>4</td><td>35</td></tr><tr><td>RX 7600</td><td>RX 7000</td><td>4</td><td>35</td></tr><tr><td>RX 6800</td><td>RX 6000</td><td>4</td><td>23</td></tr><tr><td>Radeon 780M</td><td>RDNA 3 iGPU + other brands</td><td>4</td><td>14</td></tr><tr><td>Radeon 890M</td><td>RDNA 3 iGPU + other brands</td><td>3</td><td>14</td></tr><tr><td>RX Vega</td><td>RDNA 2 iGPU / Steam Deck</td><td>3</td><td>9</td></tr><tr><td>Radeon Graphics (APU, model not named)</td><td>RDNA 2 iGPU / Steam Deck</td><td>3</td><td>7</td></tr><tr><td>RX 6950 XT</td><td>RX 6000</td><td>3</td><td>6</td></tr><tr><td>RX 5700 XT</td><td>RX 5000 / 9000 / Radeon VII</td><td>3</td><td>4</td></tr><tr><td>RX 9070 XT</td><td>RX 5000 / 9000 / Radeon VII</td><td>3</td><td>4</td></tr><tr><td>RX 6800 / 6800 XT / 6900 XT (Proton name)</td><td>RX 6000</td><td>2</td><td>13</td></tr><tr><td>Arc B580</td><td>RDNA 3 iGPU + other brands</td><td>2</td><td>3</td></tr><tr><td>GeForce RTX 3060 Ti</td><td>RDNA 3 iGPU + other brands</td><td>2</td><td>2</td></tr><tr><td>RX 7900 GRE</td><td>RX 7000</td><td>2</td><td>2</td></tr><tr><td>RX 6700</td><td>RX 6000</td><td>1</td><td>22</td></tr><tr><td>Steam Deck OLED</td><td>RDNA 2 iGPU / Steam Deck</td><td>1</td><td>18</td></tr><tr><td>Steam Deck LCD</td><td>RDNA 2 iGPU / Steam Deck</td><td>1</td><td>16</td></tr><tr><td>RX 6600M</td><td>RX 6000</td><td>1</td><td>10</td></tr><tr><td>GeForce GTX 1660</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>9</td></tr><tr><td>GeForce GTX 1650</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>6</td></tr><tr><td>RX 5500 XT</td><td>RX 5000 / 9000 / Radeon VII</td><td>1</td><td>6</td></tr><tr><td>GeForce RTX 3090</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>4</td></tr><tr><td>GeForce RTX 4090</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>3</td></tr><tr><td>Steam Machine</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>3</td></tr><tr><td>GeForce GTX 1660 SUPER</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>2</td></tr><tr><td>GeForce RTX 2080</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>2</td></tr><tr><td>RX 9060 XT</td><td>RX 5000 / 9000 / Radeon VII</td><td>1</td><td>2</td></tr><tr><td>Radeon VII</td><td>RX 5000 / 9000 / Radeon VII</td><td>1</td><td>2</td></tr><tr><td>Ryzen Z1 Extreme</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>2</td></tr><tr><td>Arc 140V GPU</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>1</td></tr><tr><td>Arc A770</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>1</td></tr><tr><td>GeForce RTX 5070</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>1</td></tr><tr><td>Intel Arc</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>1</td></tr><tr><td>Intel Graphics</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>1</td></tr><tr><td>RX 5700</td><td>RX 5000 / 9000 / Radeon VII</td><td>1</td><td>1</td></tr><tr><td>RX 6400</td><td>RX 6000</td><td>1</td><td>1</td></tr><tr><td>RX 6700M</td><td>RX 6000</td><td>1</td><td>1</td></tr><tr><td>RX 6700S</td><td>RX 6000</td><td>1</td><td>1</td></tr><tr><td>RX 6800S</td><td>RX 6000</td><td>1</td><td>1</td></tr><tr><td>RX 7600 XT</td><td>RX 7000</td><td>1</td><td>1</td></tr><tr><td>RX 9070</td><td>RX 5000 / 9000 / Radeon VII</td><td>1</td><td>1</td></tr><tr><td>Radeon 8060S</td><td>RDNA 3 iGPU + other brands</td><td>1</td><td>1</td></tr><tr><td>Radeon Pro VII</td><td>RX 5000 / 9000 / Radeon VII</td><td>1</td><td>1</td></tr><tr><td>Steam Deck (model unknown)</td><td>RDNA 2 iGPU / Steam Deck</td><td>1</td><td>1</td></tr></table></div>
+  </section>
+  <p class="foot">Made from the project's timing kit reports and GitHub's download counters on 2026-11-11; updated by hand. <a href="../">Comparison pages</a> · <a href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides">Project on GitHub</a></p>
+</main>
+<div id="tip" role="status"></div>
+<script>
+const D = {"big": [{"gpu": "RX 6700 XT", "family": "RX 6000", "reports": 63, "machines": 13}, {"gpu": "RX 6600 XT", "family": "RX 6000", "reports": 38, "machines": 11}, {"gpu": "RX 6600", "family": "RX 6000", "reports": 63, "machines": 7}, {"gpu": "RX 6800 XT", "family": "RX 6000", "reports": 46, "machines": 7}, {"gpu": "RX 7800 XT", "family": "RX 7000", "reports": 44, "machines": 7}, {"gpu": "RX 7900 XTX", "family": "RX 7000", "reports": 32, "machines": 7}, {"gpu": "RX 6900 XT", "family": "RX 6000", "reports": 21, "machines": 7}, {"gpu": "RX 7900 XT", "family": "RX 7000", "reports": 16, "machines": 6}, {"gpu": "RX 6650 XT", "family": "RX 6000", "reports": 39, "machines": 5}, {"gpu": "RX 6750 XT", "family": "RX 6000", "reports": 35, "machines": 4}, {"gpu": "RX 7600", "family": "RX 7000", "reports": 35, "machines": 4}, {"gpu": "RX 6800", "family": "RX 6000", "reports": 23, "machines": 4}, {"gpu": "Radeon 780M", "family": "iGPU RDNA 3 + GeForce / Arc / other", "reports": 14, "machines": 4}, {"gpu": "Radeon 890M", "family": "iGPU RDNA 3 + GeForce / Arc / other", "reports": 14, "machines": 3}, {"gpu": "RX Vega", "family": "iGPU RDNA 2 / Steam Deck / older", "reports": 9, "machines": 3}, {"gpu": "Radeon Graphics (APU, model not named)", "family": "iGPU RDNA 2 / Steam Deck / older", "reports": 7, "machines": 3}, {"gpu": "RX 6950 XT", "family": "RX 6000", "reports": 6, "machines": 3}, {"gpu": "RX 5700 XT", "family": "other (RX 5000, RX 9000, Radeon VII)", "reports": 4, "machines": 3}, {"gpu": "RX 9070 XT", "family": "other (RX 5000, RX 9000, Radeon VII)", "reports": 4, "machines": 3}, {"gpu": "RX 6800 / 6800 XT / 6900 XT (Proton name)", "family": "RX 6000", "reports": 13, "machines": 2}, {"gpu": "Arc B580", "family": "iGPU RDNA 3 + GeForce / Arc / other", "reports": 3, "machines": 2}, {"gpu": "GeForce RTX 3060 Ti", "family": "iGPU RDNA 3 + GeForce / Arc / other", "reports": 2, "machines": 2}, {"gpu": "RX 7900 GRE", "family": "RX 7000", "reports": 2, "machines": 2}], "small_n": 30, "small_reports": 122, "fam": ["RX 7000", "RX 6000", "iGPU RDNA 3 + GeForce / Arc / other", "iGPU RDNA 2 / Steam Deck / older", "other (RX 5000, RX 9000, Radeon VII)"], "famshort": {"RX 7000": "RX 7000", "RX 6000": "RX 6000", "iGPU RDNA 3 + GeForce / Arc / other": "RDNA 3 iGPU + other brands", "iGPU RDNA 2 / Steam Deck / older": "RDNA 2 iGPU / Steam Deck", "other (RX 5000, RX 9000, Radeon VII)": "RX 5000 / 9000 / Radeon VII"}, "shares": [{"label": "Timing kit machines (142)", "vals": [27, 69, 25, 9, 12]}, {"label": "DLL downloads, per-family archives (6,547)", "vals": [1591, 2279, 1477, 1200, 0]}]};
+const COL = ['--s1', '--s2', '--s3', '--s4', '--s5'];
+const fi = f => D.fam.indexOf(f);
+const NS = 'http://www.w3.org/2000/svg';
+const el = (n, a, p) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+const tip = document.getElementById('tip');
+function showTip(ev, h) { tip.innerHTML = h; tip.style.display = 'block'; const x = Math.min(ev.clientX + 14, innerWidth - tip.offsetWidth - 8); tip.style.left = x + 'px'; tip.style.top = (ev.clientY + 14) + 'px'; }
+function hideTip() { tip.style.display = 'none'; }
+function legend(id, fams) {
+  document.getElementById(id).innerHTML = fams.map(f => `<span><i style="background:var(${COL[fi(f)]})"></i>${D.famshort[f]}</span>`).join('');
+}
+// chart 1: horizontal bars, one per GPU with 2+ machines
+(function () {
+  const s = document.getElementById('bars'), rows = D.big, W = 860, L = 250, R = 40, rh = 24, top = 24;
+  const max = Math.max(...rows.map(r => r.machines)), H = top + rows.length * rh + 8, x = v => L + (W - L - R) * v / max;
+  s.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  for (let t = 0; t <= max; t += 2) { el('line', {x1: x(t), x2: x(t), y1: top - 6, y2: H - 6, class: 'grid'}, s); el('text', {x: x(t), y: top - 10, 'text-anchor': 'middle', class: 'muted'}, s).textContent = t; }
+  rows.forEach((r, i) => {
+    const y = top + i * rh, bw = x(r.machines) - L;
+    el('text', {x: L - 10, y: y + 16, 'text-anchor': 'end'}, s).textContent = r.gpu;
+    const hit = el('rect', {x: 0, y: y, width: W, height: rh, class: 'hit'}, s);
+    el('path', {class: 'bar', fill: `var(${COL[fi(r.family)]})`, d: `M${L},${y + 4}h${bw - 4}a4,4 0 0 1 4,4v8a4,4 0 0 1 -4,4h${-(bw - 4)}z`}, s);
+    el('text', {x: L + bw + 6, y: y + 16, class: 'muted'}, s).textContent = r.machines;
+    const h = `<b>${r.gpu}</b><br>${D.famshort[r.family]}<br>${r.machines} machines (estimate), ${r.reports} reports`;
+    hit.addEventListener('mousemove', e => showTip(e, h)); hit.addEventListener('mouseleave', hideTip);
+  });
+  legend('legend1', D.fam.filter(f => rows.some(r => r.family === f)));
+})();
+// chart 2: two 100% bars by family
+(function () {
+  const s = document.getElementById('shares'), W = 860, L = 0, top = 6, bh = 34, gap = 46;
+  const H = top + D.shares.length * (bh + gap); s.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  D.shares.forEach((b, i) => {
+    const y = top + i * (bh + gap) + 20, tot = b.vals.reduce((a, c) => a + c, 0); let x0 = L;
+    el('text', {x: L, y: y - 8, class: 'muted'}, s).textContent = b.label;
+    b.vals.forEach((v, j) => {
+      if (!v) return; const w = (W - L) * v / tot, pct = 100 * v / tot;
+      const seg = el('rect', {x: x0 + (x0 > L ? 1 : 0), y: y, width: Math.max(w - (x0 > L ? 2 : 0), 1), height: bh, rx: 4, fill: `var(${COL[j]})`}, s);
+      if (w > 44) el('text', {x: x0 + w / 2, y: y + bh / 2 + 5, 'text-anchor': 'middle', style: 'fill:#0b0b0b;font-weight:600'}, s).textContent = pct.toFixed(0) + '%';
+      const h = `<b>${D.famshort[D.fam[j]]}</b><br>${b.label.split(' (')[0]}: ${v.toLocaleString()} (${pct.toFixed(1)}%)`;
+      seg.addEventListener('mousemove', e => showTip(e, h)); seg.addEventListener('mouseleave', hideTip);
+      x0 += w;
+    });
+  });
+  legend('legend2', D.fam);
+})();
+</script>
+</body>
+</html>
