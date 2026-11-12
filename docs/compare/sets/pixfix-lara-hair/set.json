@@ -1,0 +1,36 @@
+{
+ "title": "Lara's hair, Shadow of the Tomb Raider, 4K Balanced (game clip): Lite vs pixelization fix",
+ "note": "Eight consecutive frames from a moving close-up of Lara. Watch the grainy, blocky edge of her hair behind the ear and around the ponytail. Display mapping x/(1+x), gamma 1/2.2 (not the game's tone mapping). Upscaled in this project's local test harness; unreleased experiment.",
+ "images": [
+  [
+   "FSR 4.1.2 Lite",
+   [
+    "01_01.webp",
+    "01_02.webp",
+    "01_03.webp",
+    "01_04.webp",
+    "01_05.webp",
+    "01_06.webp",
+    "01_07.webp",
+    "01_08.webp"
+   ]
+  ],
+  [
+   "Lite + pixelization fix (strength 1.0)",
+   [
+    "02_01.webp",
+    "02_02.webp",
+    "02_03.webp",
+    "02_04.webp",
+    "02_05.webp",
+    "02_06.webp",
+    "02_07.webp",
+    "02_08.webp"
+   ]
+  ]
+ ],
+ "a": 1,
+ "b": 2,
+ "fps": 8,
+ "about": "<p><b>Unreleased experiment.</b> These pictures compare plain FSR 4.1.2 Lite with Lite plus a \"pixelization fix\" at strength 1.0. The fix comes from the\n<a href=\"https://github.com/UzenUPoZiTiV4ik/fsr4-native-macos\">fsr4-native-macos</a> project. None of our released builds contains it.</p>\n<p><b>What the fix does.</b> Where Lite throws away its history, for example on moving hair, thin lines and areas that were just uncovered, its current-frame filter is so narrow\nthat edges break into 2&times;2-pixel steps. The fix widens that filter only in those places: by up to about 1.5 times at strength 1.0, and not at all where history is kept.</p>\n<p><b>What got worse.</b> The picture gets softer. Measured against AMD's FSR 4.1.1 on 12 recorded game clips (16 frames each), strength 1.0 was 0.0 to 3.4 dB further away\n(the Shadow of the Tomb Raider clip: 1.4 dB; the three Stellar Blade clips: 2.8 to 3.4 dB). In return it had 17% to 91% fewer isolated bright specks and 1.5% to 8% less change from frame to frame.\nMeasured as 2&times;2 blocking, it removed 4% to 20% across whole frames and about a fifth to two fifths in the spots where it helped most.</p>\n<p><b>How these pictures were made.</b> Recorded game frames (color, depth and motion) were upscaled in this project's local test harness, not in AMD's own runtime or the game.\nBoth sides are the same frames of the same clip, cropped to the same region. The display mapping is ours (x / (1 + x), then gamma 1/2.2), not the game's tone mapping,\nand there is no game UI or post-processing.</p>\n"
+}

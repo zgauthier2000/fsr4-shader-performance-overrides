@@ -6,5 +6,21 @@
  {
   "name": "moire-stairs",
   "title": "Far stairs in motion (synthetic test scene)"
+ },
+ {
+  "name": "pixfix-lara-hair",
+  "title": "Lara's hair, Shadow of the Tomb Raider, 4K Balanced (game clip): Lite vs pixelization fix"
+ },
+ {
+  "name": "pixfix-sottr-ropes",
+  "title": "Thin ropes, Shadow of the Tomb Raider, 4K Balanced (game clip): Lite vs pixelization fix"
+ },
+ {
+  "name": "pixfix-eve-face",
+  "title": "Eve's face and hair, Stellar Blade, 4K Quality (game clip): Lite vs pixelization fix"
+ },
+ {
+  "name": "pixfix-sb-hair",
+  "title": "Hair strands in motion, Stellar Blade, 4K Quality (game clip): Lite vs pixelization fix"
  }
 ]
