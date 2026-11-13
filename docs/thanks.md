@@ -75,6 +75,7 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **john6650xt** (Radeon RX 6650 XT, Windows)
 - **BrunoGM0** (graphics of a Ryzen 5 5600G and Radeon VII, Windows)
 - **Duva** (Radeon RX 6650 XT, Windows)
+- **Ian Tiso** (GeForce RTX 3080 Ti, Windows)
 
 ## How to be listed, or taken off
 
