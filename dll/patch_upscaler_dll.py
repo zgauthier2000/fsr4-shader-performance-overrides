@@ -14,7 +14,7 @@
 # is made to always answer yes. Whether FSR 4 then works on a given GPU is up to that GPU and its
 # driver. Not for RDNA4: there both versions of FSR 4 would then report support.
 #
-# Only the replacement set decides which AMD DLL fits: the sets from ../windows/dxil/rdna4/build_rdna4_fp8.sh also
+# Only the replacement set decides which AMD DLL fits: the sets from ../windows/rdna4/build_rdna4_fp8.sh also
 # exist for AMD's 4.1.2.4555, and --name works on 4.1.2 too (--any-gpu does not).
 #
 # --name changes the version name the DLL reports through the FidelityFX API ("4.1.1" in AMD's),

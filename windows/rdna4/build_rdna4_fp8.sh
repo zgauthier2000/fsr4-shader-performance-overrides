@@ -3,21 +3,24 @@
 # build_rdna4_fp8.sh <amd_fidelityfx_upscaler_dx12.dll> <out dir> [work dir]
 #
 # Rewrites every FP8 network shader of AMD's FSR 4.1.1.2740 or 4.1.2.4555 DLL so that the RDNA4 driver issues its loads
-# earlier, and writes the results as <out dir>/<hash>.dxil for ../../../dll/patch_upscaler_dll.py. The picture stays
+# earlier, and writes the results as <out dir>/<hash>.dxil for ../../dll/patch_upscaler_dll.py. The picture stays
 # AMD's byte for byte (checked with the timing kit on RX 9070 XT in all 26 rows, both versions). Per pass:
 #   pass 9, 11       groupmove D=4
 #   pass 4, 5, 10    dedupg, groupmove D=2
 #   pass 6           m2r, dedupg, groupmove D=4
 #   postpass         taphoist, unname, groupmove_postpass D=4
-#   prepass          dedupe, unname, xhoist, thread
+#   prepass          dedupe; with PREPASS_HOIST=1: dedupe, unname, xhoist, thread
+# xhoist and thread move `fast` float math between blocks, which another driver could contract differently; they are
+# the two smallest steps, so they are off unless PREPASS_HOIST=1. Everything else only reorders loads and integer math,
+# or shares identical reads.
 # Passes 1, 2, 3, 7, 8 and 12 compile to the same code either way and stay AMD's. Only the FP8 versions are touched
 # (they use AMD's intrinsics through atomicCompareExchange); the INT8 and Lite shaders, which share the names, are not.
 #
-# Needs: DXC (path to dxc, for -dumpbin), DXILASM (the dxilasm tool from ../../tools/dxilasm.cpp) and DXCOMPILER (the
+# Needs: DXC (path to dxc, for -dumpbin), DXILASM (the dxilasm tool from ../tools/dxilasm.cpp) and DXCOMPILER (the
 # dxcompiler library dxilasm loads), and Python 3 (PYTHON, default python3).
 set -u
 here=$(cd "$(dirname "$0")" && pwd)
-[[ $# -ge 2 ]] || { sed -n '3,17p' "$0" | cut -c3-; exit 1; }
+[[ $# -ge 2 ]] || { sed -n '3,20p' "$0" | cut -c3-; exit 1; }
 dll=$1; out=$2; work=${3:-$(mktemp -d)}
 py=${PYTHON:-python3}
 for v in DXC DXILASM DXCOMPILER; do [[ -n ${!v:-} ]] || { echo "set $v"; exit 1; }; done
@@ -43,7 +46,7 @@ for f in "$work"/src/*.dxbc; do
         pass4|pass5|pass10) steps="dedupg groupmove:2";;
         pass6) steps="m2r dedupg groupmove:4";;
         postpass) steps="taphoist unname groupmove_postpass:4";;
-        prepass) steps="dedupe unname xhoist thread";;
+        prepass) steps="dedupe"; [[ ${PREPASS_HOIST:-0} == 1 ]] && steps="dedupe unname xhoist thread";;
         *) continue;;
     esac
     "$DXC" -dumpbin "$f" > "$L.0.ll" 2>/dev/null
