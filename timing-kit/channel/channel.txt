@@ -1,19 +1,19 @@
 fsr4-kit-channel 1
-serial 17
-pack.windows.serial 17
-pack.windows.version 2026-11-11dw
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11dw.pack
-pack.windows.size 45984114
-pack.windows.sha256 2121978bb307063580e20fab759b92526fba07aed82a4866ac6545dfbaf72211
+serial 18
+pack.windows.serial 18
+pack.windows.version 2026-11-13w
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-13w.pack
+pack.windows.size 49945988
+pack.windows.sha256 e759e44f48a8ef79d602c2b462c5658d229a2c28b86b072aa15777e1211eb99f
 pack.windows.busy none
-pack.linux.serial 17
-pack.linux.version 2026-11-11dl
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-11dl.pack
-pack.linux.size 46542548
-pack.linux.sha256 c0dd94c17591f5fb420a6f9477a7890f9b87bd38bc1fd9ca2ddb096c48e9dbd3
+pack.linux.serial 18
+pack.linux.version 2026-11-13l
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-13l.pack
+pack.linux.size 49945988
+pack.linux.sha256 21f367310009c907bc6aa407ede6281719dd1effe99d0380f4025d9af4878930
 pack.linux.busy none
-pack.windows.note lt142-test: the same test build as lt141-test in a form that needs fewer registers on older Radeon cards (Vega, RX 400 / 500); same picture as lt141. Wanted from Vega and RX 400 / 500 owners especially, and from every card. lt139-reference / lt140-test / lt141-test: that refined FSR 4.1.2 Lite test build without the new history rule at moving edges, with it, and with it computed only where it applies (test builds, compared with each other, not with AMD's picture). n-exact-r3-hlx11 / -hlx11w32: the RX 7000 exact build with a different form of pass 11 from HelixSR (same picture as n-exact-r3).
-pack.linux.note lt142-test: the same test build as lt141-test in a form that needs fewer registers on older Radeon cards (Vega, RX 400 / 500); same picture as lt141. Wanted from Vega and RX 400 / 500 owners especially. lt139-reference / lt140-test / lt141-test: that refined FSR 4.1.2 Lite test build without the new history rule at moving edges, with it, and with it computed only where it applies (test builds, compared with each other, not with AMD's picture). n-exact-r3-hlx11 / -hlx11w32: the RX 7000 exact build with a different form of pass 11 from HelixSR (same picture as n-exact-r3).
+pack.windows.note r4-amd-412-reference / r4-exact-412-test: for RX 9000 owners: AMD's FSR 4.1.2 and a faster exact build of it contributed by rolandinus (issue #56), expected to give AMD's picture byte for byte. nv-b1 to nv-b5: for GeForce GTX 16 owners: AMD's FSR 4.1.1 with one part of our exact build each, to find the part that never finishes on those cards (a slot that hangs is stopped after 3 minutes). Other cards may skip these or run them quickly. lt142-test: lt141-test in a form that needs fewer registers on older Radeon cards (Vega, RX 400 / 500). Removed: the tests that already have their answer (n-exact-*-sdkmp / -sdkmn, n-exact-r3-hlx11, lt140, lt141, du-*), so runs stay about as long as before.
+pack.linux.note r4-amd-412-reference / r4-exact-412-test: for RX 9000 owners: AMD's FSR 4.1.2 and a faster exact build of it contributed by rolandinus (issue #56), expected to give AMD's picture byte for byte. nv-b1 to nv-b5: for GeForce GTX 16 owners: AMD's FSR 4.1.1 with one part of our exact build each, to find the part that never finishes on those cards (a slot that hangs is stopped after 3 minutes). Other cards may skip these or run them quickly. lt142-test: lt141-test in a form that needs fewer registers on older Radeon cards (Vega, RX 400 / 500). Removed: the tests that already have their answer (n-exact-*-sdkmp / -sdkmn, n-exact-r3-hlx11, lt140, lt141, du-*), so runs stay about as long as before.
 music.serial 3
 music.version 2026-11-11
 music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/music-2026-11-11.zip
@@ -27,4 +27,4 @@ program.linux.build 3
 program.linux.version 2026-11-11
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-linux-2026-11-11.tar.gz
 program.note This version shows the line being sung while music plays, how steady each build's frame times are, and what a new test pack measures.
-sig 28378dd93115038edec67929c0bb209a8aa7f4d1511bf5c169a99b1f2c7111d22a998c9678ada9147f1df73ae7077c5320066740a7d4f7f87125812b62d9ee01
+sig 1dffac095a9ca6605cedc0b842606f384daf5c46506747725c11a8a808818cb9d1b6e4443919540be54528fb33c5eae8f603dc541677c2e9417ba1aee784f30b
