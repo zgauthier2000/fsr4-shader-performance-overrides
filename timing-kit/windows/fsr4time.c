@@ -24,6 +24,9 @@
 //                              =2 also accept any probe that made a device (Proton does not load D3D12\'s runtime, so its probe never says "from the kit")
 //   win10-helper.exe --probe (used by SetupRuntime) prints the GPU line of a device made with Microsoft's runtime from D3D12\
 //
+// Vulkan slots (2026-11-13): pack DLLs named vk-... are AMD's FidelityFX upscaler DLL for Vulkan or builds of it, timed the same way through Vulkan (vkrun.c);
+// they need amd_fidelityfx_loader_vk.dll next to the program, and run on AMD RX 6000 / RX 7000 graphics and their built-in relatives only.
+//
 // What is timed: the GPU time of one upscale call (prepass, 12 model passes, postpass and the small shaders around
 // them), from a timestamp before to one after, 200 calls back to back after 40 to warm up. For a lossy DLL the
 // two kinds of frame are also given apart. The summary gives a fingerprint of the picture each DLL produces from
@@ -63,6 +66,7 @@
 #include "ffx_api_loader.h"
 #include "ffx_upscale.h"
 #include "dx12/ffx_api_dx12.h"
+#include "vkrun.h"      // (2026-11-13) the Vulkan run of vk-... slots (vkrun.c, built with the FidelityFX SDK 2.4.0 headers)
 
 #ifndef KIT_VERSION      // the builder passes -DKIT_VERSION="\"windows <version>\"" (since the next kit: kit 2026-10-20 was first built still
 #define KIT_VERSION "windows 2026-10-20"      // saying 2026-10-19, because this line was not changed)
@@ -387,6 +391,19 @@ static uint64_t HashOutput(ID3D12Resource* output, UINT ow, UINT oh, const char*
     return h;
 }
 
+static uint64_t PictureOf(const uint8_t* data, unsigned pitch, unsigned ow, unsigned oh, const char* key, const char* label, const char* pkey) {      // (vkrun.c's readback)
+    uint64_t h = 1469598103934665603ull;
+    for (UINT y = 0; y < oh; ++y)
+        for (UINT x = 0; x < ow * 8; ++x) { h ^= data[(size_t)y * pitch + x]; h *= 1099511628211ull; }
+    if (key) CompareBlocks(data, pitch, ow, oh, key, &h);
+    if (key && label && pkey) ComparePicture(data, pitch, ow, oh, label, key, pkey);
+    return h;
+}
+static void SayV(const char* fmt, ...) { va_list a; va_start(a, fmt); vprintf(fmt, a); va_end(a); if (out) { va_start(a, fmt); vfprintf(out, fmt, a); va_end(a); fflush(out); } fflush(stdout); }
+// (2026-11-13) Vulkan slots: a pack DLL whose name starts with vk- is AMD's FidelityFX upscaler DLL for Vulkan (or a build of it). It is put next to the
+// program as amd_fidelityfx_upscaler_vk.dll and timed by vkrun.c (Vulkan device on the same graphics, same sizes, scenes and lines as RunOne).
+static bool VkSlot(const char* name) { return !strncmp(name, "vk-", 3); }
+static const char* UpscalerFile(const char* name) { return VkSlot(name) ? "amd_fidelityfx_upscaler_vk.dll" : "amd_fidelityfx_upscaler_dx12.dll"; }
 static void Message(uint32_t type, const wchar_t* message) { Say("  FFX %s: %ls\n", type == FFX_API_MESSAGE_TYPE_ERROR ? "error" : "warning", message); }
 static int CmpD(const void* a, const void* b) { double x = *(const double*)a, y = *(const double*)b; return x < y ? -1 : x > y; }
 static double Median(double* v, int n) { qsort(v, n, sizeof(double), CmpD); return n ? v[n / 2] : 0; }
@@ -453,6 +470,7 @@ static bool StudyOnly(const char* name) {      // since kit 2026-10-22: release 
 }
 static bool Wanted(const char* name) {
     const bool s2 = !strncmp(name, "rdna2-", 6), s3 = !strncmp(name, "rdna3-", 6);
+    if (VkSlot(name)) return !study && (gclass == 2 || gclass == 3 || gclass == 12 || gclass == 13);      // (2026-11-13) Vulkan slots: AMD RDNA2 / RDNA3 graphics
     if (!study) {      // the lean kit's normal run (see gclass above)
         if (!strncmp(name, "n-exact-", 8) || !strncmp(name, "n-lossy-", 8)) return FlavorIs(name + 8, own_fl) || (cross_fl && FlavorIs(name + 8, cross_fl));
         if (!strncmp(name, "d-2-", 4) || !strncmp(name, "d-3-", 4)) return true;      // AMD's RX 6000 / RX 7000 models: on every graphics (2026-10-28: AMD's 4.1.2 vs its 4.1.1 on each card)
@@ -1421,13 +1439,13 @@ static bool FlavorOf(const char* name, char* fl, size_t n) {
 }
 static bool RunDll(const char* name, int inpack, const char* base, const char* raw, bool quick, const char* what) {      // true: stopped at the time limit
     char src[MAX_PATH], cmd[1024];
-    snprintf(src, sizeof(src), "dlls\\%s\\amd_fidelityfx_upscaler_dx12.dll", name);
+    snprintf(src, sizeof(src), "dlls\\%s\\%s", name, UpscalerFile(name));
     if (inpack >= 0) {
-        if (!PackExtract((uint32_t)inpack, "amd_fidelityfx_upscaler_dx12.dll")) {
+        if (!PackExtract((uint32_t)inpack, UpscalerFile(name))) {
             printf(stopped_holds ? "%s: could not be put in place (a stopped run still holds the file), skipped\n" : "%s: could not take it out of the DLL pack (please download the kit again), skipped\n", name);
             return false;
         }
-    } else if (!CopyFileA(src, "amd_fidelityfx_upscaler_dx12.dll", FALSE)) { printf("%s: no amd_fidelityfx_upscaler_dx12.dll in that folder, skipped\n", name); return false; }
+    } else if (!CopyFileA(src, UpscalerFile(name), FALSE)) { printf("%s: no %s in that folder, skipped\n", name, UpscalerFile(name)); return false; }
     printf("%s %s ...\n", name, what); fflush(stdout);
     snprintf(cmd, sizeof(cmd), "\"%s%s\" --run \"%s\" \"%s\"%s%s", base, child_exe, name, raw, quick ? " quick" : " full", all_presets ? " all" : "");
     STARTUPINFOA si = {.cb = sizeof(si)};
@@ -1506,6 +1524,13 @@ int main(int argc, char** argv) {
         if (getenv("FSR4TIME_HANGTEST") && !strcmp(getenv("FSR4TIME_HANGTEST"), argv[2])) Sleep(INFINITE);      // test of the time limit (RunDll)
         all_presets = argc > 5 && !strcmp(argv[5], "all");
         busy = strstr(argv[2], "@busy") != NULL;
+        if (VkSlot(argv[2])) {
+            { const char* e8 = getenv("FSR4TIME_800P"); if (e8 && e8[0] && strcmp(e8, "0")) size800 = true; }
+            char gn[256]; unsigned ven = 0, dv = 0; GpuIds(&ven, &dv, gn, sizeof(gn));
+            struct VkRunHost h = {.Say = SayV, .World = World, .Halton = Halton, .Half = Half, .Picture = PictureOf, .all_presets = all_presets, .size800 = size800,
+                                  .ven = ven, .dev = dv, .warm = WARM, .timed = TIMED, .phases_max = PHASES};
+            return RunOneVk(&h, argv[2], argc > 4 && !strcmp(argv[4], "quick"));
+        }
         return RunOne(argv[2], argc > 4 && !strcmp(argv[4], "quick"));
     }
     if (argc > 1 && !strcmp(argv[1], "--probe")) {      // (win10-helper.exe, from SetupRuntime) a device with this program's runtime: its GPU line
@@ -1741,7 +1766,7 @@ int main(int argc, char** argv) {
         }
     }
     MusicEnd();
-    DeleteFileA("amd_fidelityfx_upscaler_dx12.dll");
+    DeleteFileA("amd_fidelityfx_upscaler_dx12.dll"); DeleteFileA("amd_fidelityfx_upscaler_vk.dll");
     DeleteBlockRecords(); DeletePictureRecords();
     HeaderEnd();
 

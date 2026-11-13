@@ -126,6 +126,15 @@ What it does
                        own flavor, and on RX 6000 / RX 7000 cards also the other card flavor for comparison.
                        The exact builds give AMD's picture: the r3 and igpu-r3 ones 1-amd-shaders', the r2
                        and igpu-r2 ones d-2-driver-rx6000's. The lossy builds do not, by design.
+  dlls\n-lossy-<flavor>-acc
+                       test builds of this release's lossy DLLs, not in any release: the same picture as
+                       n-lossy-<flavor> byte for byte, with their network steps written so that AMD's Windows
+                       driver needs fewer instructions for them. The kit is looking for how much faster they are.
+  dlls\vk-amd-412-reference, vk-exact-r3-test
+                       FSR 4 for Vulkan games: AMD's FSR 4.1.2 Vulkan DLL from its FidelityFX SDK 2.4.0 (vk-amd)
+                       and a test build of it with this project's faster exact network steps, the same picture
+                       byte for byte (vk-exact), not in any release. They are timed through Vulkan (Vulkan 1.3
+                       needed), on RX 6000 / RX 7000 cards and the built-in graphics of the same families only.
   dlls\lt1-reference, lt6-test, lt14-test, lt15-test
                        the smaller FSR 4 network, FSR 4.1.2 Lite: plain Lite (lt1), this release's
                        4.1.2l-exact (lt6, Lite's picture exactly) and 4.1.2l-lossy (lt14, its form for RX 7000
