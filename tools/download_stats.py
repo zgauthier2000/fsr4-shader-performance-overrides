@@ -53,6 +53,8 @@ with open(out + '/runs.csv', 'a', newline='') as f:
 def kind(r):
     if r['tag'].startswith('timing-kit'):
         return 'Timing kit: Windows' if 'windows' in r['file'] else 'Timing kit: Linux' if r['file'].endswith('.tar.gz') else None
+    if r['tag'].startswith('reference-scenes'):      # reference frames for other implementations (pictures and inputs, no DLLs), since reference-scenes-1 (2026-11-13)
+        return 'Reference frames' if r['file'].endswith('.7z') else None
     if not r['file'].endswith(('.zip', '.7z', '.dll')):      # .7z twins since dll-2026-10-19 (they were left out of the kinds until 2026-10-22)
         return None
     return 'DLLs: integrated graphics' if 'igpu' in r['file'] else 'DLLs: desktop cards and other'
@@ -64,7 +66,7 @@ for r in last.values():
 order = [r['tag_name'] for r in rel] + sorted((t for t in tags if t not in {r['tag_name'] for r in rel}), reverse=True)
 since = min((r['date'] for r in first.values()), default=now)
 # ---- per day: the last reading of every day (UTC), and what was added since the last reading of the day before, split by kind from downloads.csv
-KINDS = ['DLLs: desktop cards and other', 'DLLs: integrated graphics', 'Timing kit: Windows', 'Timing kit: Linux']
+KINDS = ['DLLs: desktop cards and other', 'DLLs: integrated graphics', 'Timing kit: Windows', 'Timing kit: Linux', 'Reference frames']
 runs = [(r[0], int(r[3])) for r in list(csv.reader(open(out + '/runs.csv', newline='')))[1:] if len(r) > 3]
 rows = list(csv.DictReader(open(path, newline='')))
 days = []      # (day, time of the reading, total, {kind: total})
@@ -146,20 +148,20 @@ md = [f'# Downloads of the release files', '', f'**Total downloads: {total:,}**'
       '  <img src="downloads-light.svg" width="760" alt="Two charts: the total downloads of the release files at each day\'s reading, and the downloads added per day. The figures are in the table below.">', '</picture>', '',
       '## Per day', '',
       'One line per day (UTC), from that day\'s last reading. "Added" is what came in since the last reading of the day before; the readings are not exactly 24 hours apart, so the hours each one covers are given.', '',
-      '| Day | Read at | Total | Added | Hours covered | Added: DLLs, desktop | Added: DLLs, integrated | Added: Windows kit | Added: Linux kit |', '|---|---|---|---|---|---|---|---|---|']
+      '| Day | Read at | Total | Added | Hours covered | Added: DLLs, desktop | Added: DLLs, integrated | Added: Windows kit | Added: Linux kit | Added: reference frames |', '|---|---|---|---|---|---|---|---|---|---|']
 for i in range(len(days) - 1, -1, -1):
     d = days[i]
     if i == 0:
-        md.append(f'| {d[0]} | {d[1]} | {d[2]:,} | counting began | | | | | |')
+        md.append(f'| {d[0]} | {d[1]} | {d[2]:,} | counting began | | | | | | |')
     else:
         p = days[i - 1]; md.append(f'| {d[0]} | {d[1]} | {d[2]:,} | {d[2] - p[2]:,} | {hours(p, d):.1f} | ' + ' | '.join(f'{d[3][n] - p[3][n]:,}' for n in KINDS) + ' |')
-md += ['', 'The four columns on the right do not add up to "Added": checksum files and other small files are downloaded too.', '',
+md += ['', 'The five columns on the right do not add up to "Added": checksum files and other small files are downloaded too.', '',
        '## By kind and by release', '',
        '| Kind of download | Downloads | Of these, in files since replaced |', '|---|---|---|']
 md += [f'| {k} | {v[0]:,} | {v[0] - v[1]:,} |' for k, v in sorted(kinds.items())]
 FLAVORS = [('RX 7000 (rx7000)', 'rx7000'), ('RX 6000 (rx6000)', 'rx6000'), ('Integrated RDNA 3, GeForce, Arc, others (igpu rdna3)', 'igpu-cyboman-rdna3'),
            ('Steam Deck, 680M, older integrated (igpu rdna2)', 'igpu-cyboman-rdna2')]      # the four archives per release since dll-2026-10-22
-fl = {n: sum(int(r['downloads']) for r in last.values() if not r['tag'].startswith('timing-kit') and w in r['file']) for n, w in FLAVORS}
+fl = {n: sum(int(r['downloads']) for r in last.values() if not r['tag'].startswith(('timing-kit', 'reference-scenes')) and w in r['file']) for n, w in FLAVORS}
 if any(fl.values()):
     md += ['', '| Archive, by graphics (since `dll-2026-10-22`, .zip and .7z together) | Downloads |', '|---|---|'] + [f'| {n} | {fl[n]:,} |' for n, _ in FLAVORS]
 md += ['', '| Release | Downloads | Of these, in files since replaced |', '|---|---|---|'] + [f'| `{t}` | {tags[t][0]:,} | {tags[t][0] - tags[t][1]:,} |' for t in order if t in tags]
