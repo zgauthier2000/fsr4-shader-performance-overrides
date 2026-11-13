@@ -30,9 +30,10 @@ def wrap(body, H, label, t):
     return [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(label)}">', f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>'] + body + ['</svg>']
 
 
-NOW = (("Speed from AMD's SDK", "Lite first, then full FSR 4 builds", 'first kit results in', 'Timing kit reports: RX 7000 on Windows, handhelds'),
-       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'half of the extra flicker fixed', "Games and scenes where AMD's Lite looks wrong"),
-       ('Faster sharpening (early)', 'Sharpening inside the last pass', 'first exact piece working', 'Games you play with FSR sharpening on'),
+NOW = (('Faster lossy builds', 'Fewer GPU instructions, same picture', 'faster on one RX 6700 XT', 'Timing kit reports: Radeon on Windows, GeForce'),
+       ("Speed from AMD's SDK", "Lite and full FSR 4 builds", 'small gains measured', 'Timing kit reports: handhelds, built-in Radeon'),
+       ('A Vulkan version (early)', 'For games that use FSR 4 through Vulkan', 'same picture, faster here', 'Names of Vulkan games with FSR 4'),
+       ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'cause of softer trees found', "Games and scenes where AMD's Lite looks wrong"),
        ('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'helped on a GTX 1660 only', 'Timing kit reports: GeForce GTX 16 / RTX 20'))
 
 
@@ -84,7 +85,7 @@ def path(t):
 
 CARDS = (('RX 6000', '', ['every card, even if already reported'], 1), ('RX 7000', 'Windows especially', ['RX 7800 XT', 'RX 7900 XT / XTX', 'RX 7700 XT', 'RX 7600', 'laptop chips'], 1),
          ('Built-in', '', ['780M', '760M', '880M', '680M', '660M'], 1), ('Handhelds', 'Windows or Linux', ['Steam Deck', 'ROG Ally', 'Legion Go'], 1),
-         ('Older Radeon', '', ['RX 5000', 'Vega'], 1), ('Others', '', ['GeForce, GTX 16 / RTX 20 too', 'Intel Arc'], 1))
+         ('Older Radeon', '', ['RX 5000', 'Vega'], 1), ('Others', '', ['GeForce, any series', 'Intel Arc'], 1))
 
 
 def cards(t):
@@ -103,7 +104,7 @@ def cards(t):
 
 # Next release, steps done (2026-11-05, user: "show, without promising anything, how close the next release is to being ready"). Steps only: no date and nothing about what
 # the release contains (upcoming changes are not announced without the author's word). Update the flags as steps finish; a failed step can send a build back.
-RELEASE = (('Builds made', 1), ('Pictures checked here', 1), ('Speed measured with the kit', 1), ('Release pages written', 0), ("Author's game test", 0), ('Published', 0))      # dll-2026-11-05 published 2026-11-05: next one starts over; 2026-11-09: builds staged, kit pack 11 measured; 2026-11-10: pictures checked (stsharp overnight 11-09 PASSED)
+RELEASE = (('Builds made', 0), ('Pictures checked here', 0), ('Speed measured with the kit', 1), ('Release pages written', 0), ("Author's game test", 0), ('Published', 0))      # dll-2026-11-05 published 2026-11-05: next one starts over; 2026-11-09: builds staged, kit pack 11 measured; 2026-11-10: pictures checked (stsharp); 2026-11-13: changes added to the next release (Lite launch, Deck prepass), so builds and picture checks are to do again
 
 
 def release(t):

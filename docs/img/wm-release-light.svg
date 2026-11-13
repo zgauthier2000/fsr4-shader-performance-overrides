@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="150" viewBox="0 0 760 150" role="img" aria-label="Next release: 3 of 6 steps done (Builds made: done; Pictures checked here: done; Speed measured with the kit: done; Release pages written: to do; Author&#x27;s game test: to do; Published: to do). No date.">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="150" viewBox="0 0 760 150" role="img" aria-label="Next release: 1 of 6 steps done (Builds made: to do; Pictures checked here: to do; Speed measured with the kit: done; Release pages written: to do; Author&#x27;s game test: to do; Published: to do). No date.">
 <rect width="760" height="150" rx="8" fill="#fcfcfb"/>
 <text x="24" y="32" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" text-anchor="start" fill="#0b0b0b">Next release: how close it is</text>
-<text x="24" y="52" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">3 of 6 steps done. No date: any step can send a build back for more work.</text>
-<rect x="24.0" y="70" width="110.3" height="64" rx="8" fill="#e3eefb" stroke="#2a78d6"/>
-<text x="79.16666666666666" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#2a78d6">done</text>
+<text x="24" y="52" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">1 of 6 steps done. No date: any step can send a build back for more work.</text>
+<rect x="24.0" y="70" width="110.3" height="64" rx="8" fill="#f1f0ec" stroke="#c9c8c0"/>
+<text x="79.16666666666666" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#898781">to do</text>
 <text x="79.16666666666666" y="114" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#0b0b0b">Builds made</text>
-<rect x="144.3" y="70" width="110.3" height="64" rx="8" fill="#e3eefb" stroke="#2a78d6"/>
-<text x="199.49999999999997" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#2a78d6">done</text>
+<rect x="144.3" y="70" width="110.3" height="64" rx="8" fill="#f1f0ec" stroke="#c9c8c0"/>
+<text x="199.49999999999997" y="96" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="middle" fill="#898781">to do</text>
 <text x="199.49999999999997" y="114" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#0b0b0b">Pictures</text>
 <text x="199.49999999999997" y="128" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="middle" fill="#0b0b0b">checked here</text>
 <rect x="264.7" y="70" width="110.3" height="64" rx="8" fill="#e3eefb" stroke="#2a78d6"/>
