@@ -183,10 +183,6 @@ More games and resolutions: [all results](docs/results.md).
 about 3% faster than the release before, same pictures), and gave each build a version name that says which one runs.
 
 > ### Help test it: the timing kit
-> What the project is working on now, and which cards are most wanted: **[What's moving](docs/whats-moving.md)**.
-> Which games should the project record and test with next? **[Vote for games](https://zgauthier2000.github.io/fsr4-shader-performance-overrides/vote/)**.
-> Which cards send timing kit reports, and which GPU families download the builds: **[Which GPUs use the project](https://zgauthier2000.github.io/fsr4-shader-performance-overrides/gpus/)**.
->
 > **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-windows-2026-11-11.zip)** (experimental, version 2026-11-11; about 10 MB, and it downloads its tests, about 44 MB, on the first start): unpack, double-click
 > `fsr4time.exe`, wait about 15 minutes on a desktop graphics card (a Steam Deck: about 30 to 40 minutes; a Radeon 780M handheld: about 15 to 20 minutes). It times FSR 4 with AMD's shaders and with this project's
 > builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
@@ -295,6 +291,9 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 
 | Page | What is in it |
 |---|---|
+| [What's moving](docs/whats-moving.md) | what the project is working on now, and which cards are most wanted in the timing kit |
+| [Vote for games](https://zgauthier2000.github.io/fsr4-shader-performance-overrides/vote/) | which games the project should record and test with next |
+| [Which GPUs use the project](https://zgauthier2000.github.io/fsr4-shader-performance-overrides/gpus/) | which cards send timing kit reports, and which GPU families download the builds |
 | [All results](docs/results.md) | every game measured, benchmark pages with screenshots |
 | [Linux guide](docs/linux.md) | requirements, building your own files, troubleshooting |
 | [Making a shader dump](docs/shader-dump.md) | step by step, for reporting a wrong image or a missing speedup on Linux |
