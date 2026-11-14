@@ -1,19 +1,19 @@
 fsr4-kit-channel 1
-serial 20
+serial 21
 pack.windows.serial 20
 pack.windows.version 2026-11-14w
 pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-14w.pack
 pack.windows.size 53733779
 pack.windows.sha256 6ddc561475a8a78b0565bf1106e9a8bb8b0e8bc61c5b6be74f04ad96dac8560a
 pack.windows.busy none
-pack.linux.serial 18
-pack.linux.version 2026-11-13l
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-13l.pack
-pack.linux.size 49945988
-pack.linux.sha256 21f367310009c907bc6aa407ede6281719dd1effe99d0380f4025d9af4878930
+pack.linux.serial 21
+pack.linux.version 2026-11-14l
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-14l.pack
+pack.linux.size 50699395
+pack.linux.sha256 69a316744e1a10ae18a39fa5ff05cd89509738e0940d16e9a6c023f906961924
 pack.linux.busy none
 pack.windows.note rdna2-grid-pass11-test (RX 6000 cards only): this release's RX 6000 exact DLL with the same picture byte for byte, its network's last pass launched in the group layout AMD's own FSR SDK uses; the kit compares its speed with n-exact-r2. Other tests as before.
-pack.linux.note r4-amd-412-reference / r4-exact-412-test: for RX 9000 owners: AMD's FSR 4.1.2 and a faster exact build of it contributed by rolandinus (issue #56), expected to give AMD's picture byte for byte. nv-b1 to nv-b5: for GeForce GTX 16 owners: AMD's FSR 4.1.1 with one part of our exact build each, to find the part that never finishes on those cards (a slot that hangs is stopped after 3 minutes). Other cards may skip these or run them quickly. lt142-test: lt141-test in a form that needs fewer registers on older Radeon cards (Vega, RX 400 / 500). Removed: the tests that already have their answer (n-exact-*-sdkmp / -sdkmn, n-exact-r3-hlx11, lt140, lt141, du-*), so runs stay about as long as before.
+pack.linux.note rdna2-grid-pass11-test (RX 6000 cards only): this release's RX 6000 exact DLL with the same picture byte for byte, its network's last pass launched in the group layout AMD's own FSR SDK uses; the kit compares its speed with n-exact-r2. Also since 2026-11-13: r4-amd-412-reference / r4-exact-412-test (RX 9000 owners: AMD's FSR 4.1.2 and a faster exact build contributed by rolandinus, issue #56), nv-b1 to nv-b5 (GeForce GTX 16 owners: AMD's FSR 4.1.1 with one part of our exact build each; a slot that hangs is stopped after 3 minutes), lt142-test (lt141 for older Radeon cards: Vega, RX 400 / 500).
 music.serial 3
 music.version 2026-11-11
 music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/music-2026-11-11.zip
@@ -27,4 +27,4 @@ program.linux.build 3
 program.linux.version 2026-11-11
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-linux-2026-11-11.tar.gz
 program.note This version shows the line being sung while music plays, how steady each build's frame times are, and what a new test pack measures.
-sig c4406ae44e83cda1491853e31ee91a0644fd65b366c0bfe2e26d5097293c275cd8078fdfb505f8c4b0e1a3136f861c920993ba14f613afa015bad43added1406
+sig 77a6c1d6a08adbab3b16a669998bf2e9b0e981f255a33d715936ca86800f22a574166434a1b6f27da46c2e6cb6794baf06ea5746a4a21f182d9a4702df2ddd06
