@@ -30,7 +30,7 @@ def wrap(body, H, label, t):
     return [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(label)}">', f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>'] + body + ['</svg>']
 
 
-NOW = (('Faster lossy builds', 'Fewer GPU instructions, same picture', 'faster on one RX 6700 XT', 'Timing kit reports: Radeon on Windows, GeForce'),
+NOW = (('Faster lossy builds', 'Fewer GPU instructions, same picture', 'faster on Radeon cards', 'Timing kit reports: Radeon on Windows, GeForce'),
        ("Speed from AMD's SDK", "Lite and full FSR 4 builds", 'small gains measured', 'Timing kit reports: handhelds, built-in Radeon'),
        ('A Vulkan version (early)', 'For games that use FSR 4 through Vulkan', 'same picture, faster here', 'Names of Vulkan games with FSR 4'),
        ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'cause of softer trees found', "Games and scenes where AMD's Lite looks wrong"),
