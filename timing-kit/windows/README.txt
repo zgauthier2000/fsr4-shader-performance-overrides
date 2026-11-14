@@ -183,6 +183,18 @@ What it does
                        test builds of 4.1.2l-lossy, not in any release, with the same picture as lt86: lt102 changes
                        how pixels are grouped in the step before the network, lt103 uses integer maths in more of
                        the step after it, lt104 does both.
+  dlls\lt143-test, lt144-test
+                       test builds of 4.1.2l-lossy, not in any release: lt143 is the RX 7000 archive's DLL,
+                       lt144 the other archives', each with one memory location moved so that it no longer
+                       overlaps the network's output (the cause of a flickering band at the top of the screen
+                       in one report). Same picture on this project's test machine; the kit compares their speed
+                       and picture with lt131 / lt129.
+  dlls\n-lossy-<flavor>-n16
+                       test builds of this release's lossy DLLs, not in any release: one more rule for skipped
+                       frames (bright moving lights). Their picture differs from n-lossy-<flavor>'s: expected in
+                       this test. The kit compares their speed with n-lossy-<flavor>.
+  Tests that arrived in test packs between kit versions are described in the note the kit showed
+  before downloading each pack; not all of them are listed here.
   dlls\lt121-test to lt127-test
                        test builds of 4.1.2l, not in any release, with faster code: lt121 and lt122 have lt119's
                        picture, lt123 and lt124 have lt120's. lt125 is lt118 with more of the same changes, and lt126
