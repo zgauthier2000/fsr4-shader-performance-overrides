@@ -1563,12 +1563,25 @@ static DWORD RunLimit(void) {      // the time limit of the next run, ms (see RU
     if (m > RUN_LIMIT_MIN) m = RUN_LIMIT_MIN;
     return (DWORD)m * 60000u;
 }
-// the flavor of an n-exact- / n-lossy- test DLL (r3, r2, igpu-r3, igpu-r2) in fl; false for any other DLL
-static bool FlavorOf(const char* name, char* fl, size_t n) {
-    if (strncmp(name, "n-exact-", 8) && strncmp(name, "n-lossy-", 8)) return false;
-    const char* s = name + 8; size_t k = !strncmp(s, "igpu-", 5) ? 5 : 0;
-    while (s[k] && s[k] != '-') ++k;
-    snprintf(fl, n, "%.*s", (int)k, s); return k > 0;
+// The time-out skip groups (2026-10-28; table form 2026-11-14 for program build 4, user: "the same flavor skip"): after one DLL of a group stops at the
+// time limit, the other DLLs of that group are skipped (they share the code that hung: one card ran ten igpu DLLs into the limit, 30 minutes).
+// Failure-based, not vendor-based. AMD's references and the bisect DLLs are never grouped: a reference must always run, and in a bisect each
+// DLL's own result is the measurement.
+//   n-exact-<f>[-...], n-lossy-<f>[-...]   our full-network builds of one flavor f (r3, r2, igpu-r3, igpu-r2), exact and lossy together
+//   lt<N>-test                              the Lite test builds (one Lite DLL serves every flavor)
+//   vk-<...>-test                           the Vulkan test builds
+//   never: *-reference, 1-amd-shaders, 1b-*, d-*, sdk-*, r4-*, rdna2-*, nv-b*, anything else
+static bool FlavorOf(const char* name, char* fl, size_t n) {      // the group of a DLL in fl (for the report); false: not grouped
+    const size_t ln = strlen(name);
+    if (ln > 10 && !strcmp(name + ln - 10, "-reference")) return false;
+    if (!strncmp(name, "n-exact-", 8) || !strncmp(name, "n-lossy-", 8)) {
+        const char* s = name + 8; size_t k = !strncmp(s, "igpu-", 5) ? 5 : 0;
+        while (s[k] && s[k] != '-') ++k;
+        snprintf(fl, n, "%.*s", (int)k, s); return k > 0;
+    }
+    if (name[0] == 'l' && name[1] == 't' && name[2] >= '0' && name[2] <= '9' && ln > 5 && !strcmp(name + ln - 5, "-test")) { snprintf(fl, n, "Lite test"); return true; }
+    if (!strncmp(name, "vk-", 3) && ln > 5 && !strcmp(name + ln - 5, "-test")) { snprintf(fl, n, "Vulkan test"); return true; }
+    return false;
 }
 static bool RunDll(const char* name, int inpack, const char* base, const char* raw, bool quick, const char* what) {      // true: stopped at the time limit
     char src[MAX_PATH], cmd[1024];
@@ -1819,7 +1832,7 @@ int main(int argc, char** argv) {
                 FILE* rf = fopen(raw, "r"); char ln[512], key[300];
                 for (int j = 0; j < nd && rf; ++j) {
                     snprintf(key, sizeof(key), "R|%s|FAILED|", names[j]); rewind(rf);
-                    while (fgets(ln, sizeof(ln), rf)) if (!strncmp(ln, key, strlen(key))) { failed[j] = true; ++nfailed; break; }
+                    while (fgets(ln, sizeof(ln), rf)) if (!strncmp(ln, key, strlen(key))) { if (!failed[j]) { failed[j] = true; ++nfailed; } break; }      // skipped ones: counted already
                 }
                 if (rf) fclose(rf);
                 if (nfailed) { printf("%d of %d DLLs failed in the first round; they are not run again\n", nfailed, nd); fflush(stdout); }
@@ -1864,16 +1877,17 @@ int main(int argc, char** argv) {
             continue;
         }
         night_dist = 0;
+        if (stopped_at_limit && !failed[i]) { failed[i] = true; ++nfailed; }      // (2026-11-14) a DLL stopped at the limit is not run again, in any round (was: only after round 1)
         if (stopped_at_limit && FlavorOf(names[i], fl, sizeof(fl))) {
             // (2026-10-28) a DLL stopped at the time limit: the other DLLs of its flavor would most likely stop there too (one card ran ten into it, 30 minutes):
             // they are skipped and listed as not run
             FILE* rf = fopen(raw, "a"); int ns = 0; char f2[16];
             for (int j = 0; j < nd; ++j) if (j != i && !failed[j] && FlavorOf(names[j], f2, sizeof(f2)) && !strcmp(f2, fl)) {
-                failed[j] = true; ++ns;
-                if (rf) fprintf(rf, "R|%s|FAILED|skipped: %s, a DLL of the same flavor (%s), did not finish within the time limit\n", names[j], names[i], fl);
+                failed[j] = true; ++ns; ++nfailed;      // (2026-11-14) counted now, so the time-left estimate drops them at once
+                if (rf) fprintf(rf, "R|%s|FAILED|skipped: %s, a DLL of the same kind (%s), did not finish within the time limit\n", names[j], names[i], fl);
             }
             if (rf) fclose(rf);
-            if (ns) { printf("%d more DLLs of the %s flavor are skipped: %s did not finish in time\n", ns, fl, names[i]); fflush(stdout); }
+            if (ns) { printf("%d more DLL%s of the same kind (%s) %s skipped: %s did not finish in time\n", ns, ns > 1 ? "s" : "", fl, ns > 1 ? "are" : "is", names[i]); fflush(stdout); }
         }
     }
     // Re-timing: the time left after the rounds goes to DLLs whose runs disagreed by more than 3% at some size (in the reports of kit 2026-10-15.3,

@@ -106,8 +106,10 @@ What it does
   that stops responding), the kit notes it in the summary and goes on with the next one. The time
   limit is three times the longest DLL run that finished on your PC, at least 2 and at most 10
   minutes, so a stuck DLL usually costs only a few minutes. When a test DLL does not finish in
-  time, the other test DLLs of the same flavor (see below) are skipped and listed as not run:
-  they would most likely run into the limit too.
+  time, the other test DLLs of the same kind are skipped and listed as not run: they would most
+  likely run into the limit too. Same kind: our full-network builds of one flavor (see below),
+  the Lite test DLLs (lt...-test), or the Vulkan test DLLs (vk-...-test). AMD's DLLs and the
+  reference DLLs always run, and a DLL that did not finish in time is not run again.
 
   dlls\1-amd-shaders   AMD's DLL with AMD's shaders (only its graphics-card check is lifted, so
                        that it runs on RX 6000 cards and integrated graphics too): the reference
