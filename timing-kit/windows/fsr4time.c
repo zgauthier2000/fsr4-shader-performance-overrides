@@ -55,6 +55,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <io.h>
+#include <fcntl.h>
 
 #include "ffx_api.h"
 #define ZSTD_STATIC_LINKING_ONLY
@@ -1244,6 +1246,56 @@ static int hdr_joke;
 static char music_status_short[256];      // (2026-11-10, user: narrow windows) the same row with the song's title only (no "Artist - "): used when the full one does not fit
 static char lyric_now[160]; static CRITICAL_SECTION lyric_cs; static volatile LONG lyric_seq = 0;      // (2026-11-10, user: "show the current line of lyrics instead of the jokes while music is playing") set by music.inc
 static char music_status[256];      // (2026-11-06, user: "it needs to show what song is playing on the screen at all times, along with the music controls") set by music.inc; "" = no music here
+// (2026-11-14, user: "build in a kind of progress bar/eta to show how much the tests have progressed and what's left, approximately") the header's row 9 (the blank row under
+// the power-mode note): a bar, the round and DLL, and the time left. The estimate follows the kit's own plan: a round's length (round 1: the average DLL so far x the DLLs;
+// later: the rounds measured), as many rounds as the rule below lets start within the time given, then the re-timing fills that time. Approximate by design.
+static volatile LONG pane_on; static void PanePaint(void);      // (2026-11-14) the Wine output pane, below
+static CRITICAL_SECTION prog_cs; static volatile LONG prog_on = 0; static ULONGLONG prog_t0, prog_end; static char prog_where[96], prog_note[48]; static int prog_known = 0;
+static void ProgSet(ULONGLONG t0, ULONGLONG end, bool known, const char* where, const char* note) {
+    EnterCriticalSection(&prog_cs); prog_t0 = t0; prog_end = end; prog_known = known; snprintf(prog_where, sizeof(prog_where), "%s", where); snprintf(prog_note, sizeof(prog_note), "%s", note ? note : ""); prog_on = 1; LeaveCriticalSection(&prog_cs);
+}
+static int ProgLeft(char* out, size_t len) {      // "about 7 min left" (or ""); returns the percent done, -1 if unknown
+    EnterCriticalSection(&prog_cs); const ULONGLONG t0 = prog_t0, end = prog_end; const int known = prog_known; LeaveCriticalSection(&prog_cs);
+    if (!known || end <= t0) { snprintf(out, len, "estimating the time left"); return -1; }
+    const ULONGLONG now = GetTickCount64(); const double left = now >= end ? 0 : (double)(end - now) / 60000.0;
+    if (left < 0.75) snprintf(out, len, "less than a minute left"); else snprintf(out, len, "about %.0f min left", left < 1.5 ? 1.0 : left);
+    int pct = (int)(100.0 * (double)(now - t0) / (double)(end - t0)); return pct > 99 ? 99 : pct < 0 ? 0 : pct;
+}
+// the end time from what is known: el = minutes since the rounds began, rlen = a round's length (minutes, <= 0: not known yet), rounds_done, frac = the share of the current round done
+static ULONGLONG ProgPlan(ULONGLONG t0, double rlen, int rounds_done, double frac, double budget, bool once, int ndll, int* rounds_planned) {
+    if (rlen <= 0) { *rounds_planned = 0; return 0; }
+    double d = rlen; int r = 1;      // the kit's rule (see the round loop): another round starts while it fits in the time given, a second one also while the run stays under 20 minutes
+    while (!once && r < MAXROUNDS && (d + rlen <= budget || (r == 1 && d + rlen <= 20.0))) { d += rlen; ++r; }
+    if (r < rounds_done + 1) r = rounds_done + 1;
+    const double per = ndll > 0 ? rlen / ndll : 0.0, rt_end = budget - 0.7 * per;      // the re-timing starts a run only while it fits with 20% to spare: it ends ~0.2-1.2 runs early (test 2026-11-14)
+    double total = r >= 2 && !once && rt_end > d ? rt_end : d;      // with two rounds or more the re-timing fills (most of) the time given
+    const double el = (double)(GetTickCount64() - t0) / 60000.0, rest = rlen * (1.0 - frac) + (r - rounds_done - 1) * rlen;
+    if (total < el + rest) total = el + rest;      // never less than the rounds still to run
+    *rounds_planned = r; return t0 + (ULONGLONG)(total * 60000.0) + 10000u;      // + about 10 s for the summary
+}
+static void HeaderProgress(HANDLE h) {
+    CONSOLE_SCREEN_BUFFER_INFO bi;
+    if (!prog_on || !GetConsoleScreenBufferInfo(h, &bi)) return;
+    const int w = bi.srWindow.Right - bi.srWindow.Left + 1;
+    char left[64], where[96], note[48]; const int pct = ProgLeft(left, sizeof(left));
+    EnterCriticalSection(&prog_cs); snprintf(where, sizeof(where), "%s", prog_where); snprintf(note, sizeof(note), "%s", prog_note); LeaveCriticalSection(&prog_cs);
+    char tail[256]; int tn = snprintf(tail, sizeof(tail), " %3d%%  %s  %s%s%s", pct < 0 ? 0 : pct, where, left, note[0] ? "  " : "", note);
+    if (pct < 0) tn = snprintf(tail, sizeof(tail), "       %s  %s", where, left);
+    int bw = w - 1 - 4 - tn; if (bw > 40) bw = 40;
+    char line[512]; int n = 0;
+    if (bw >= 10) {
+        const int fill = pct < 0 ? 0 : pct * bw / 100;
+        n += snprintf(line + n, sizeof(line) - n, "  [");
+        for (int i = 0; i < bw; ++i) line[n++] = i < fill ? '=' : i == fill && pct >= 0 ? '>' : ' ';
+        line[n++] = ']'; line[n] = 0;
+    } else n += snprintf(line + n, sizeof(line) - n, " ");
+    n += snprintf(line + n, sizeof(line) - n, "%s", tail);
+    if (n > w - 1) n = w - 1;
+    while (n < w - 1 && n < (int)sizeof(line) - 1) line[n++] = ' ';
+    DWORD done; const COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + 8)};      // row 9 of the window
+    FillConsoleOutputAttribute(h, FOREGROUND_GREEN | FOREGROUND_INTENSITY, (DWORD)(n < w ? n : w), at, &done);      // light green
+    WriteConsoleOutputCharacterA(h, line, (DWORD)n, at, &done);
+}
 static void HeaderMusic(HANDLE h) {      // the header's row 11 (the blank row under the joke): the song playing and the keys, written into its cells like the joke
     CONSOLE_SCREEN_BUFFER_INFO bi;
     if (!music_status[0] || !GetConsoleScreenBufferInfo(h, &bi)) return;
@@ -1289,7 +1341,7 @@ static void HeaderPaint(HANDLE h, int k) {
         FillConsoleOutputAttribute(h, r < 4 ? yellow : r == 5 || r == 6 || r == 7 ? bold : hdr_attr, (DWORD)w, at, &done);
         WriteConsoleOutputCharacterA(h, line, (DWORD)n, at, &done);
     }
-    HeaderJoke(h, k); HeaderMusic(h);
+    HeaderJoke(h, k); HeaderMusic(h); HeaderProgress(h);
 }
 static bool HeaderInPlace(HANDLE h) {
     CONSOLE_SCREEN_BUFFER_INFO bi;
@@ -1307,17 +1359,96 @@ static DWORD WINAPI HeaderTicker(LPVOID p) {
         if (!HeaderInPlace((HANDLE)p)) HeaderPaint((HANDLE)p, hdr_joke);
         else if (t % 40 == 0) HeaderJoke((HANDLE)p, hdr_joke);
         if (music_status[0]) HeaderMusic((HANDLE)p);      // four times a second: the song and the keys
+        if (pane_on && t % 4 == 0) PanePaint();      // (2026-11-14) once a second: a resized window gets its lines again
+        if (prog_on) HeaderProgress((HANDLE)p);      // (2026-11-14) four times a second: the bar and the time left
         { static LONG seen = 0; const LONG q = lyric_seq; if (q != seen) { seen = q; HeaderJoke((HANDLE)p, hdr_joke); } }      // (2026-11-10) a new lyric line (or none: the joke again)
     }
     return 0;
 }
+// (2026-11-14, user: "can we fix the header/text scrolling up briefly and then snapping back into place? i want it to not jitter") Wine's console ignores the scroll
+// region, so every new line scrolled the whole window, header too, until the ticker painted the header back (a visible jump several times a second under Proton).
+// Under Wine the window now never scrolls: while the header shows, the program's output and its runs' output (they inherit it) go into a pipe; a thread keeps the last
+// lines and writes them into the rows under the header, cell by cell like the header. Windows keeps the scroll region (it works there). FSR4TIME_NOPANE=1: as before.
+#define PANE_N 256
+static HANDLE pane_con, pane_rd, pane_thread; static int pane_fd1 = -1, pane_fd2 = -1; static volatile LONG pane_on = 0;
+static char pane_lines[PANE_N][320]; static int pane_head = 0, pane_count = 0, pane_cur = 0; static char pane_part[320]; static CRITICAL_SECTION pane_cs;
+static void PanePush(void) {      // the partial line becomes a full line
+    snprintf(pane_lines[pane_head], sizeof(pane_lines[0]), "%s", pane_part); pane_head = (pane_head + 1) % PANE_N; if (pane_count < PANE_N) ++pane_count; pane_cur = 0; pane_part[0] = 0;
+}
+static void PanePaint(void) {
+    CONSOLE_SCREEN_BUFFER_INFO bi;
+    if (!pane_on || !GetConsoleScreenBufferInfo(pane_con, &bi)) return;
+    const int w = bi.srWindow.Right - bi.srWindow.Left + 1, rows = bi.srWindow.Bottom - bi.srWindow.Top + 1 - HEADER_ROWS, cw = w - 1 > 1 ? w - 1 : 1;
+    if (rows <= 0) return;
+    static char out[200][512]; int no = 0;      // the rows to show, newest last: the lines (and the partial one), wrapped at the window's width
+    EnterCriticalSection(&pane_cs);
+    char* tmp[PANE_N + 1]; int nt = 0;
+    for (int i = 0; i < pane_count; ++i) tmp[nt++] = pane_lines[(pane_head - pane_count + i + PANE_N) % PANE_N];
+    if (pane_part[0]) tmp[nt++] = pane_part;
+    int need = 0, start = nt;      // from the end back: as many lines as fill the rows
+    while (start > 0) { const int len = (int)strlen(tmp[start - 1]); const int r = len ? (len + cw - 1) / cw : 1; if (need + r > rows && need > 0) break; need += r; --start; }
+    for (int i = start; i < nt && no < 200; ++i) {
+        const int len = (int)strlen(tmp[i]);
+        if (!len) { out[no++][0] = 0; continue; }
+        for (int o = 0; o < len && no < 200; o += cw) { snprintf(out[no], sizeof(out[0]), "%.*s", cw, tmp[i] + o); ++no; }
+    }
+    LeaveCriticalSection(&pane_cs);
+    const int skip = no > rows ? no - rows : 0;
+    for (int r = 0; r < rows; ++r) {
+        char line[512]; const int src = skip + r; int n = src < no ? snprintf(line, sizeof(line), "%s", out[src]) : 0;
+        if (n > cw) n = cw;
+        while (n < cw && n < (int)sizeof(line) - 1) line[n++] = ' ';
+        DWORD done; const COORD at = {bi.srWindow.Left, (SHORT)(bi.srWindow.Top + HEADER_ROWS + r)};
+        FillConsoleOutputAttribute(pane_con, hdr_attr, (DWORD)cw, at, &done); WriteConsoleOutputCharacterA(pane_con, line, (DWORD)n, at, &done);
+    }
+}
+static DWORD WINAPI PaneReader(LPVOID p) {
+    (void)p; char buf[4096]; DWORD got; bool esc = false;
+    while (ReadFile(pane_rd, buf, sizeof(buf), &got, NULL) && got) {
+        EnterCriticalSection(&pane_cs);
+        for (DWORD i = 0; i < got; ++i) {
+            const char c = buf[i];
+            if (esc) { if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) esc = false; continue; }      // ANSI escape sequences (colors) are left out
+            if (c == 0x1b) { esc = true; continue; }
+            if (c == '\n') { PanePush(); continue; }
+            if (c == '\r') { pane_cur = 0; continue; }      // a carriage return: the line is written again from its start
+            if (pane_cur < (int)sizeof(pane_part) - 1) { const int L = (int)strlen(pane_part); pane_part[pane_cur++] = c; if (pane_cur > L) pane_part[pane_cur] = 0; }
+        }
+        LeaveCriticalSection(&pane_cs);
+        PanePaint();
+    }
+    return 0;
+}
+static void PaneStart(HANDLE con) {
+    if (getenv("FSR4TIME_NOPANE") || !GetProcAddress(GetModuleHandleA("ntdll.dll"), "wine_get_version")) return;      // Windows: the scroll region works
+    SECURITY_ATTRIBUTES sa = {.nLength = sizeof(sa), .bInheritHandle = TRUE}; HANDLE wr;
+    if (!CreatePipe(&pane_rd, &wr, &sa, 0)) return;
+    SetHandleInformation(pane_rd, HANDLE_FLAG_INHERIT, 0);
+    fflush(stdout); fflush(stderr);
+    pane_fd1 = _dup(1); pane_fd2 = _dup(2);
+    const int fd = _open_osfhandle((intptr_t)wr, _O_TEXT);
+    if (fd < 0 || pane_fd1 < 0) { CloseHandle(pane_rd); CloseHandle(wr); return; }
+    InitializeCriticalSection(&pane_cs); pane_con = con;
+    _dup2(fd, 1); _dup2(fd, 2); _close(fd);
+    SetStdHandle(STD_OUTPUT_HANDLE, (HANDLE)_get_osfhandle(1)); SetStdHandle(STD_ERROR_HANDLE, (HANDLE)_get_osfhandle(2));      // the runs (child processes) inherit these
+    pane_on = 1; pane_thread = CreateThread(NULL, 0, PaneReader, NULL, 0, NULL);
+}
+static void PaneEnd(void) {
+    if (!pane_on) return;
+    fflush(stdout); fflush(stderr);
+    _dup2(pane_fd1, 1); _dup2(pane_fd2, 2); _close(pane_fd1); _close(pane_fd2);      // the pipe's write end is closed with the last fd: the reader reads to its end
+    SetStdHandle(STD_OUTPUT_HANDLE, pane_con); SetStdHandle(STD_ERROR_HANDLE, pane_con);
+    WaitForSingleObject(pane_thread, 3000); CloseHandle(pane_thread); CloseHandle(pane_rd); PanePaint(); pane_on = 0;
+}
 static bool HeaderStart(void) {
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    { HANDLE c_ = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL); if (c_ != INVALID_HANDLE_VALUE) h = c_; }      // (2026-11-14) its own handle: the Wine pane redirects stdout (fd 1) and must not close the one the header draws with
     DWORD mode;
     CONSOLE_SCREEN_BUFFER_INFO bi;
     if (getenv("FSR4TIME_NOHEADER") || !GetConsoleMode(h, &mode) || !GetConsoleScreenBufferInfo(h, &bi)) return false;
     const int w = bi.srWindow.Right - bi.srWindow.Left + 1, rows = bi.srWindow.Bottom - bi.srWindow.Top + 1;
     if (w < 76 || rows < 20 || !SetConsoleMode(h, mode | ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING)) return false;
+    { HANDLE so_ = GetStdHandle(STD_OUTPUT_HANDLE); DWORD m_; if (so_ != h && GetConsoleMode(so_, &m_)) SetConsoleMode(so_, m_ | ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING); }      // (2026-11-14) printf writes through stdout's own handle
     hdr_joke = (int)(GetTickCount() % NJOKES);
     hdr_attr = bi.wAttributes;
     printf("\x1b[2J\x1b[H\x1b[93;1m");
@@ -1329,10 +1460,12 @@ static bool HeaderStart(void) {
     HeaderJoke(h, hdr_joke);
     hdr_stop = CreateEventA(NULL, TRUE, FALSE, NULL);
     hdr_thread = CreateThread(NULL, 0, HeaderTicker, h, 0, NULL);
+    PaneStart(h);      // (2026-11-14) Wine: no scrolling while the header shows
     return true;
 }
 static void HeaderEnd(void) {
     if (!hdr_thread) return;
+    PaneEnd();
     SetEvent(hdr_stop); WaitForSingleObject(hdr_thread, 3000); CloseHandle(hdr_thread); hdr_thread = NULL;
     printf("\x1b[r");      // scroll region off: from here the window scrolls as a whole again, with its history
     CONSOLE_SCREEN_BUFFER_INFO bi;
@@ -1657,6 +1790,7 @@ int main(int argc, char** argv) {
         for (int i = 0; i < nd; ++i) extra += !strncmp(names[i], "rdna2-", 6) || !strncmp(names[i], "rdna3-", 6);
         if (extra && nd > extra) budget = budget * nd / (double)(nd - extra);
     }
+    InitializeCriticalSection(&prog_cs);      // (2026-11-14) the progress row
     if (HeaderStart())
         printf("FSR 4.1.1 timing kit (%s). This takes up to about %.0f minutes (faster cards use the time for more rounds).\n\n", KIT_VERSION, once ? budget / 2 : budget);
     else
@@ -1710,8 +1844,15 @@ int main(int argc, char** argv) {
         }
         const int i = rounds % 2 ? nd - 1 - k : k;
         if (failed[i]) continue;
-        char what[64];
+        char what[128];
         snprintf(what, sizeof(what), "(round %d, DLL %d of %d)", rounds + 1, k + 1, nd);
+        if (!night_run) {      // (2026-11-14) the progress estimate: a round's length from the rounds measured, in round 1 from the DLLs so far
+            const double rlen = rounds >= 1 ? (double)(tr - t0) / 60000.0 / rounds : k > 0 ? (double)(GetTickCount64() - t0) / 60000.0 / k * (nd - nfailed) : 0.0;
+            int rp = 0; const ULONGLONG end = ProgPlan(t0, rlen, rounds, (double)k / nd, budget, once, nd - nfailed, &rp);
+            char wh[96]; if (rp > 0) snprintf(wh, sizeof(wh), "round %d of %s%d, DLL %d of %d", rounds + 1, rp > rounds + 1 && !once ? "about " : "", rp, k + 1, nd); else snprintf(wh, sizeof(wh), "round %d, DLL %d of %d", rounds + 1, k + 1, nd);
+            ProgSet(t0, end, rp > 0, wh, NULL);
+            if (!hdr_thread && rp > 0) { char lf[64]; ProgLeft(lf, sizeof(lf)); snprintf(what, sizeof(what), "(round %d, DLL %d of %d; %s)", rounds + 1, k + 1, nd, lf); }
+        }
         char fl[16];
         if (night_run && !NightGate(night_os)) { night_exit = 10; break; }
         const long long night_len = FileLen(raw); const ULONGLONG night_t = GetTickCount64();
@@ -1758,8 +1899,9 @@ int main(int argc, char** argv) {
             if (!no) break;
             for (int q = 0; q < no; ++q) {
                 if ((double)(GetTickCount64() - t0) / 60000.0 + per * 1.2 > budget) { room = false; break; }
-                char what[96];
+                char what[160];
                 snprintf(what, sizeof(what), "(timed again: its runs differed by up to %.0f%%)", 100.0 * sp[order[q]]);
+                ProgSet(t0, t0 + (ULONGLONG)((budget - 0.7 * per) * 60000.0) + 10000u, true, "timing the least steady DLLs again", NULL);      // (2026-11-14) the re-timing ends at the time given
                 RunDll(names[order[q]], inpack[order[q]], base, raw, quick, what);
                 ++retimed;
             }
