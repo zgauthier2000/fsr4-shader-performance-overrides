@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// dxilasm <libdxcompiler.so> <in.ll> <out.dxil>
+// dxilasm <libdxcompiler.so | dxcompiler.dll> <in.ll> <out.dxil>
 // Assembles LLVM IR text (as printed by "dxc -dumpbin") into a DXIL container and has DXC's
 // validator check and sign it, using Microsoft's documented IDxcAssembler / IDxcValidator.
 #include <cstdio>
 #include <fstream>
 #include <iterator>
 #include <string>
+#ifdef _WIN32
+#include <windows.h>
+#include <dxcapi.h>     // Windows SDK
+#else
 #include <dlfcn.h>
 #include "dxc/dxcapi.h"
+#endif
 
 static IDxcBlob* take(IDxcOperationResult* result, const char* what) {
     if (!result) return nullptr;
@@ -25,9 +30,15 @@ static IDxcBlob* take(IDxcOperationResult* result, const char* what) {
 
 int main(int argc, char** argv) {
     if (argc != 4) { std::fprintf(stderr, "usage: dxilasm <libdxcompiler.so> <in.ll> <out.dxil>\n"); return 2; }
+#ifdef _WIN32
+    HMODULE lib = LoadLibraryA(argv[1]);   // dxcompiler.dll, e.g. the Windows SDK's
+    if (!lib) { std::fprintf(stderr, "cannot load %s\n", argv[1]); return 2; }
+    auto create = reinterpret_cast<DxcCreateInstanceProc>(GetProcAddress(lib, "DxcCreateInstance"));
+#else
     void* lib = dlopen(argv[1], RTLD_NOW | RTLD_LOCAL);
     if (!lib) { std::fprintf(stderr, "%s\n", dlerror()); return 2; }
     auto create = reinterpret_cast<DxcCreateInstanceProc>(dlsym(lib, "DxcCreateInstance"));
+#endif
     if (!create) return 2;
     std::ifstream in(argv[2], std::ios::binary);
     std::string text((std::istreambuf_iterator<char>(in)), {});
