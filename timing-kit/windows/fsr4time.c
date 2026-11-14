@@ -216,15 +216,46 @@ static void World(float wx, float wy, float* rgb) {
     if (line) { r = 0.9f; gr = 0.85f; b = 0.7f; }
     rgb[0] = r; rgb[1] = gr; rgb[2] = b;
 }
+
+// (2026-11-14, user: "the timing kit is still using lots of cpu and hardly any gpu") the made-up frames are drawn on all CPU cores: each pixel is computed on
+// its own, so the frame is bit for bit the one a single thread draws; before, one core drew every frame of every size for every DLL (over 100 million pixels a
+// size at 4K) while the GPU waited.
+typedef struct { uint16_t* buf; UINT rw, rh, y0, y1; float sx, sy, jx, jy, ox, oy; } PaintJob;
+static DWORD WINAPI PaintRows(LPVOID a) {
+    const PaintJob* j = (const PaintJob*)a;
+    for (UINT y = j->y0; y < j->y1; ++y)
+        for (UINT x = 0; x < j->rw; ++x) {
+            float rgb[3];
+            World(((float)x + 0.5f - j->jx) / j->sx - 0.5f + j->ox, ((float)y + 0.5f - j->jy) / j->sy - 0.5f + j->oy, rgb);
+            uint16_t* q = j->buf + ((size_t)y * j->rw + x) * 4;
+            q[0] = Half(rgb[0]); q[1] = Half(rgb[1]); q[2] = Half(rgb[2]); q[3] = Half(1.0f);
+        }
+    return 0;
+}
+static void PaintFrame(uint16_t* buf, unsigned rw, unsigned rh, float sx, float sy, float jx, float jy, float ox, float oy) {
+    SYSTEM_INFO si; GetSystemInfo(&si); int n = (int)si.dwNumberOfProcessors; if (n < 1) n = 1; if (n > 32) n = 32;
+    PaintJob jobs[32]; HANDLE th[32]; int started = 0;
+    for (int k = 0; k < n; ++k) {
+        jobs[k] = (PaintJob){buf, rw, rh, (UINT)((uint64_t)rh * k / n), (UINT)((uint64_t)rh * (k + 1) / n), sx, sy, jx, jy, ox, oy};
+        th[k] = k ? CreateThread(NULL, 0, PaintRows, &jobs[k], 0, NULL) : NULL;
+        if (k && !th[k]) PaintRows(&jobs[k]); else if (k) ++started;
+    }
+    PaintRows(&jobs[0]);
+    for (int k = 1; k < n; ++k) if (th[k]) { WaitForSingleObject(th[k], INFINITE); CloseHandle(th[k]); }
+}
 static float Halton(int i, int b) {
     float f = 1, r = 0;
     while (i > 0) { f /= (float)b; r += f * (float)(i % b); i /= b; }
     return r;
 }
 
+// (2026-11-14) one upload buffer, reused for every upload of a run (it grows when a bigger upload comes): a new buffer per upload page-faulted every
+// page of it (under Proton about 2,500 major faults a second, one CPU core busy between the timed calls). The timed calls are not affected either way.
+static ID3D12Resource* stage_up; static UINT64 stage_up_size;
 static void UploadRows(ID3D12Resource* tex, UINT w, UINT h, UINT bpp, const uint8_t* src) {
     const UINT pitch = (w * bpp + 255) & ~255u;
-    ID3D12Resource* up = Buffer(D3D12_HEAP_TYPE_UPLOAD, (UINT64)pitch * h);
+    if ((UINT64)pitch * h > stage_up_size) { if (stage_up) ID3D12Resource_Release(stage_up); stage_up = Buffer(D3D12_HEAP_TYPE_UPLOAD, (UINT64)pitch * h); stage_up_size = (UINT64)pitch * h; }
+    ID3D12Resource* up = stage_up;
     uint8_t* data;
     CHECK(ID3D12Resource_Map(up, 0, NULL, (void**)&data));
     for (UINT y = 0; y < h; ++y) memcpy(data + (size_t)y * pitch, src + (size_t)y * w * bpp, (size_t)w * bpp);
@@ -236,7 +267,6 @@ static void UploadRows(ID3D12Resource* tex, UINT w, UINT h, UINT bpp, const uint
     s.PlacedFootprint.Footprint.Depth = 1; s.PlacedFootprint.Footprint.RowPitch = pitch;
     ID3D12GraphicsCommandList_CopyTextureRegion(list, &dst, 0, 0, 0, &s, NULL);
     Submit();
-    ID3D12Resource_Release(up);
 }
 
 // When a DLL's two runs give different pictures, the summary also says how different. Whole frames of every run would be gigabytes, so the first run
@@ -693,13 +723,7 @@ static int RunOne(const char* name, bool quick) {
                 float jx[PHASES], jy[PHASES];
                 for (int p = 0; p < phases; ++p) {
                     jx[p] = Halton(p + 1, 2) - 0.5f; jy[p] = Halton(p + 1, 3) - 0.5f;
-                    for (UINT y = 0; y < rh; ++y)
-                        for (UINT x = 0; x < rw; ++x) {
-                            float rgb[3];
-                            World(((float)x + 0.5f - jx[p]) / sx - 0.5f + (float)(vx * p), ((float)y + 0.5f - jy[p]) / sy - 0.5f + (float)(vy * p), rgb);
-                            uint16_t* q = cbuf + ((size_t)y * rw + x) * 4;
-                            q[0] = Half(rgb[0]); q[1] = Half(rgb[1]); q[2] = Half(rgb[2]); q[3] = Half(1.0f);
-                        }
+                    PaintFrame(cbuf, rw, rh, sx, sy, jx[p], jy[p], (float)(vx * p), (float)(vy * p));
                     UploadRows(color[p], rw, rh, 8, (const uint8_t*)cbuf);
                 }
                 struct ffxCreateContextDescUpscale create = {0};
@@ -1674,7 +1698,7 @@ int main(int argc, char** argv) {
             { const char* e8 = getenv("FSR4TIME_800P"); if (e8 && e8[0] && strcmp(e8, "0")) size800 = true; }
             char gn[256]; unsigned ven = 0, dv = 0; GpuIds(&ven, &dv, gn, sizeof(gn));
             struct VkRunHost h = {.Say = SayV, .World = World, .Halton = Halton, .Half = Half, .Picture = PictureOf, .all_presets = all_presets, .size800 = size800,
-                                  .ven = ven, .dev = dv, .warm = WARM, .timed = TIMED, .phases_max = PHASES};
+                                  .ven = ven, .dev = dv, .warm = WARM, .timed = TIMED, .phases_max = PHASES, .Paint = PaintFrame};
             return RunOneVk(&h, argv[2], argc > 4 && !strcmp(argv[4], "quick"));
         }
         return RunOne(argv[2], argc > 4 && !strcmp(argv[4], "quick"));

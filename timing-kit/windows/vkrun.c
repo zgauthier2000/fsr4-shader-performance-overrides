@@ -79,25 +79,42 @@ static Tex Texture(VkFormat fmt, uint32_t w, uint32_t h) {      // every image l
 }
 static void FreeTex(Tex t) { vkDestroyImage(dev, t.img, NULL); vkFreeMemory(dev, t.mem, NULL); }
 typedef struct { VkBuffer buf; VkDeviceMemory mem; uint8_t* ptr; } HostBuf;
-static HostBuf Host(VkDeviceSize size) {
+static HostBuf HostMem(VkDeviceSize size, bool cached);
+static HostBuf Host(VkDeviceSize size) { return HostMem(size, false); }
+// (2026-11-14, user: "the timing kit is still using lots of cpu and hardly any gpu") the READBACK buffer must be CPU-cached memory: the picture checks read
+// every output value several times, and from uncached (write-combined) memory that took 3.4 s at 1080p and 13.8 s at 4K per size and scene under Proton
+// (most of a Vulkan run; one CPU core busy, the GPU idle). Direct3D 12's readback heap is cached, which is why only the Vulkan runs did this.
+static HostBuf Readback(VkDeviceSize size) { return HostMem(size, true); }
+static HostBuf HostMem(VkDeviceSize size, bool cached) {
     HostBuf h = {0};
     VkBufferCreateInfo ci = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, .size = size, .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT};
     VKC(vkCreateBuffer(dev, &ci, NULL, &h.buf));
     VkMemoryRequirements mr; vkGetBufferMemoryRequirements(dev, h.buf, &mr);
     VkMemoryAllocateInfo ai = {.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, .allocationSize = mr.size,
                                .memoryTypeIndex = MemType(mr.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)};
+    if (cached) {      // prefer a cached host-visible type (coherent if there is one); MemType returns 0 when nothing matches, so check the flags
+        for (uint32_t i = 0; i < memprops.memoryTypeCount; ++i) {
+            const VkMemoryPropertyFlags f = memprops.memoryTypes[i].propertyFlags;
+            if ((mr.memoryTypeBits & (1u << i)) && (f & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) && (f & VK_MEMORY_PROPERTY_HOST_CACHED_BIT) && (f & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) { ai.memoryTypeIndex = i; break; }
+        }
+    }
     VKC(vkAllocateMemory(dev, &ai, NULL, &h.mem)); VKC(vkBindBufferMemory(dev, h.buf, h.mem, 0));
     VKC(vkMapMemory(dev, h.mem, 0, VK_WHOLE_SIZE, 0, (void**)&h.ptr));
     return h;
 }
 static void FreeHost(HostBuf h) { vkUnmapMemory(dev, h.mem); vkDestroyBuffer(dev, h.buf, NULL); vkFreeMemory(dev, h.mem, NULL); }
+// (2026-11-14) one staging buffer, kept mapped and reused for every upload (it grows when a bigger upload comes). Before, each upload allocated, mapped and freed
+// its own host buffer, so every page of every new buffer page-faulted (Proton: ~2,500 major faults/s, one CPU core busy, the GPU idle between the timed calls).
+static HostBuf stage; static VkDeviceSize stage_size;
+static void FreeStage(void) { if (stage_size) { FreeHost(stage); stage_size = 0; } }
 static void UploadRows(Tex t, uint32_t bpp, const uint8_t* src) {
-    HostBuf h = Host((VkDeviceSize)t.w * t.h * bpp);
-    memcpy(h.ptr, src, (size_t)t.w * t.h * bpp);
+    const VkDeviceSize n = (VkDeviceSize)t.w * t.h * bpp;
+    if (n > stage_size) { FreeStage(); stage = Host(n); stage_size = n; }
+    memcpy(stage.ptr, src, (size_t)n);
     Begin(); FullBarrier();
     VkBufferImageCopy r = {.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, .imageExtent = {t.w, t.h, 1}};
-    vkCmdCopyBufferToImage(cmd, h.buf, t.img, VK_IMAGE_LAYOUT_GENERAL, 1, &r);
-    FullBarrier(); Submit(); FreeHost(h);
+    vkCmdCopyBufferToImage(cmd, stage.buf, t.img, VK_IMAGE_LAYOUT_GENERAL, 1, &r);
+    FullBarrier(); Submit();
 }
 static struct FfxApiResource Resource(Tex t, uint32_t format, uint32_t state) {
     struct FfxApiResource out = {0};
@@ -279,7 +296,7 @@ int RunOneVk(const struct VkRunHost* host, const char* name, bool quick) {
             uint16_t* cbuf = malloc((size_t)rw * rh * 8); float* dbuf = malloc((size_t)rw * rh * 4); uint16_t* mbuf = malloc((size_t)rw * rh * 4);
             for (size_t i = 0; i < (size_t)rw * rh; ++i) dbuf[i] = 0.5f;
             UploadRows(depth, 4, (const uint8_t*)dbuf);
-            HostBuf rb = Host((VkDeviceSize)ow * oh * 8);
+            HostBuf rb = Readback((VkDeviceSize)ow * oh * 8);      // cached memory: the picture checks read it
             const float sx = (float)rw / (float)ow, sy = (float)rh / (float)oh;
             for (int scene = 0; scene < 2 && vk_ok; ++scene) {      // 0: nothing moves; 1: the camera pans 12, 6 output pixels per frame
                 const int vx = scene ? 12 : 0, vy = scene ? 6 : 0;
@@ -287,13 +304,7 @@ int RunOneVk(const struct VkRunHost* host, const char* name, bool quick) {
                 UploadRows(motion, 4, (const uint8_t*)mbuf);
                 for (int p = 0; p < phases; ++p) {
                     jx[p] = H->Halton(p + 1, 2) - 0.5f; jy[p] = H->Halton(p + 1, 3) - 0.5f;
-                    for (uint32_t y = 0; y < rh; ++y)
-                        for (uint32_t x = 0; x < rw; ++x) {
-                            float rgb[3];
-                            H->World(((float)x + 0.5f - jx[p]) / sx - 0.5f + (float)(vx * p), ((float)y + 0.5f - jy[p]) / sy - 0.5f + (float)(vy * p), rgb);
-                            uint16_t* q = cbuf + ((size_t)y * rw + x) * 4;
-                            q[0] = H->Half(rgb[0]); q[1] = H->Half(rgb[1]); q[2] = H->Half(rgb[2]); q[3] = H->Half(1.0f);
-                        }
+                    H->Paint(cbuf, rw, rh, sx, sy, jx[p], jy[p], (float)(vx * p), (float)(vy * p));      // (2026-11-14) on all cores, same pixels
                     UploadRows(color[p], 8, (const uint8_t*)cbuf);
                 }
                 struct ffxCreateContextDescUpscale create = {0};
@@ -355,7 +366,7 @@ int RunOneVk(const struct VkRunHost* host, const char* name, bool quick) {
                 H->Say("F|%s|%s%s|%s|%ux%u|%s|%.4f|%.4f|%.4f\n", label, provider.versionName ? provider.versionName : chosen_name, idtext, sz, rw, rh, scene ? "moving" : "still", p95, p99, swing);
                 ffx.DestroyContext(&context, NULL);
             }
-            FreeHost(rb);
+            FreeHost(rb); FreeStage();
             for (int p = 0; p < phases; ++p) FreeTex(color[p]);
             FreeTex(depth); FreeTex(motion); FreeTex(output);
             free(cbuf); free(dbuf); free(mbuf);

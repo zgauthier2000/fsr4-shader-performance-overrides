@@ -17,5 +17,6 @@ struct VkRunHost {
     bool all_presets, size800;
     unsigned ven, dev;      // the graphics the Direct3D 12 runs use (DXGI's high-performance adapter): the Vulkan run picks the same
     int warm, timed, phases_max;
+    void (*Paint)(uint16_t* buf, unsigned rw, unsigned rh, float sx, float sy, float jx, float jy, float ox, float oy);      // (2026-11-14) one frame on all cores
 };
 int RunOneVk(const struct VkRunHost* h, const char* name, bool quick);
