@@ -4,6 +4,8 @@
 // a random song; a song that ends goes on to the next one. Keys are read only between MusicBegin and MusicEnd (the timing runs), never while the program asks a
 // question, and the console's input is flushed afterwards so no key pressed for the music answers one. Decoder: stb_vorbis (public domain / MIT, stb\stb_vorbis.c).
 // Sound: winmm waveOut, which Wine / Proton also provide. A report says whether music played (its timings were taken with it on).
+// (2026-11-13, user: "when the music starts, its set at 75% volume. the up and down arrows control volume in 5% steps") Volume: 75% at start, Up / Down arrow
+// +-5% (0-100%), applied to the decoded samples before they are queued (the same on Windows and under Proton; a change is heard after the queued ~0.7 s).
 #include <ctype.h>
 #define STB_VORBIS_HEADER_ONLY
 #include "stb/stb_vorbis.c"
@@ -14,6 +16,7 @@
 static char music_files[MUSIC_MAX][MAX_PATH]; static int music_n = 0;
 static volatile LONG music_req = 0;          // 1 toggle, 2 next, 3 previous, 9 quit
 static volatile LONG music_keys_on = 0;
+static volatile LONG music_vol = 75;          // percent of the song's own level (Up / Down arrows, 5% steps)
 static bool music_played = false;
 static HANDLE music_thread = NULL, music_keys_thread = NULL, music_wake = NULL; static DWORD music_mode0 = 0; static bool music_mode_set = false;
 // (2026-11-10) Lyrics: a song may carry its timed lines in a Vorbis comment LYRICS= ("[mm:ss.cc]text" per line, LRC style); while it plays (not paused) the header's
@@ -65,11 +68,12 @@ static void MusicTitle(const char* path, char* out, size_t n) {
 }
 static void MusicShow(int cur, bool playing, bool paused) {      // the header's music row (fsr4time.c HeaderMusic); also the only place the keys are shown
     char t[MAX_PATH] = ""; if (cur >= 0) MusicTitle(music_files[cur], t, sizeof(t));
-    if (!playing) snprintf(music_status, sizeof(music_status), "Music: off   [Space] play   [<-] [->] skip   (%d songs)", music_n);
-    else snprintf(music_status, sizeof(music_status), "Music: %s %d/%d  %s   [Space] %s   [<-] [->] skip", paused ? "paused" : "playing", cur + 1, music_n, t, paused ? "resume" : "pause");
+    const int vol = (int)music_vol;
+    if (!playing) snprintf(music_status, sizeof(music_status), "Music: off   [Space] play   [<-] [->] skip   [Up] [Down] volume %d%%   (%d songs)", vol, music_n);
+    else snprintf(music_status, sizeof(music_status), "Music: %s %d/%d  %s   [Space] %s   [<-] [->] skip   [Up] [Down] vol %d%%", paused ? "paused" : "playing", cur + 1, music_n, t, paused ? "resume" : "pause", vol);
     const char* st = strstr(t, " - "); st = st ? st + 3 : t;      // (2026-11-10) narrow windows: the title without "Artist - "
     if (!playing) music_status_short[0] = 0;
-    else snprintf(music_status_short, sizeof(music_status_short), "Music: %s %d/%d  %s   [Space] %s   [<-] [->] skip", paused ? "paused" : "playing", cur + 1, music_n, st, paused ? "resume" : "pause");
+    else snprintf(music_status_short, sizeof(music_status_short), "Music: %s %d/%d  %s   [Space] %s   [<-] [->] skip   vol %d%%", paused ? "paused" : "playing", cur + 1, music_n, st, paused ? "resume" : "pause", vol);
 }
 static int MusicCmp(const void* a, const void* b) { return strcmp((const char*)a, (const char*)b); }
 static int MusicScan(void) {
@@ -82,8 +86,9 @@ static DWORD WINAPI MusicMain(LPVOID unused) {
     (void)unused;
     HWAVEOUT wo = NULL; WAVEHDR hdr[MUSIC_BUFS]; static short pcm[MUSIC_BUFS][MUSIC_FRAMES * 2];
     stb_vorbis* v = NULL; int cur = -1, ch = 2, rate = 44100; bool playing = false, paused = false, eof = false;
-    HANDLE done = CreateEventA(NULL, FALSE, FALSE, NULL);
+    HANDLE done = CreateEventA(NULL, FALSE, FALSE, NULL); LONG vol_shown = music_vol;
     for (;;) {
+        if (music_vol != vol_shown) { vol_shown = music_vol; MusicShow(cur, playing, paused); if (getenv("FSR4TIME_LYRICLOG")) { printf("[volume] %ld%%\n", vol_shown); fflush(stdout); } }      // Up / Down: the header row shows the new volume (test log: each change)
         LONG r = InterlockedExchange(&music_req, 0);
         if (r == 9) break;
         int jump = 0;
@@ -113,6 +118,8 @@ static DWORD WINAPI MusicMain(LPVOID unused) {
                 if (eof) continue;
                 int got = stb_vorbis_get_samples_short_interleaved(v, ch, pcm[b], MUSIC_FRAMES * ch);
                 if (got <= 0) { eof = true; continue; }
+                const int vol = (int)music_vol;      // the volume: each sample scaled before it is queued (100% leaves the song as it is)
+                if (vol < 100) for (int i = 0; i < got * ch; ++i) pcm[b][i] = (short)((int)pcm[b][i] * vol / 100);
                 hdr[b].dwBufferLength = (DWORD)(got * ch * 2); hdr[b].dwFlags = 0;
                 waveOutPrepareHeader(wo, &hdr[b], sizeof(WAVEHDR)); waveOutWrite(wo, &hdr[b], sizeof(WAVEHDR));
             }
@@ -141,6 +148,10 @@ static DWORD WINAPI MusicKeys(LPVOID in_) {
             const WORD k = ev[i].Event.KeyEvent.wVirtualKeyCode; const WCHAR ch = ev[i].Event.KeyEvent.uChar.UnicodeChar;
             LONG r = (k == VK_SPACE || ch == L' ') ? 1 : k == VK_RIGHT ? 2 : k == VK_LEFT ? 3 : 0;
             if (r) { InterlockedExchange(&music_req, r); SetEvent(music_wake); }
+            if (k == VK_UP || k == VK_DOWN) {      // volume in 5% steps, 0-100%
+                LONG v = music_vol + (k == VK_UP ? 5 : -5); if (v > 100) v = 100; if (v < 0) v = 0;
+                InterlockedExchange(&music_vol, v); SetEvent(music_wake);
+            }
         }
     }
     return 0;
@@ -160,7 +171,7 @@ static void MusicBegin(bool no_music) {
     music_thread = CreateThread(NULL, 0, MusicMain, NULL, 0, NULL); SetThreadPriority(music_thread, THREAD_PRIORITY_BELOW_NORMAL);
     music_keys_thread = CreateThread(NULL, 0, MusicKeys, in, 0, NULL);
     MusicShow(-1, false, false);      // the header row shows it from now on
-    printf("Music while it runs (%d songs, off until you press a key): Space plays / pauses, Left / Right arrows skip.\n\n", music_n); fflush(stdout);
+    printf("Music while it runs (%d songs, off until you press a key): Space plays / pauses, Left / Right arrows skip, Up / Down arrows change the volume (75%% to start).\n\n", music_n); fflush(stdout);
     if (getenv("FSR4TIME_MUSICTEST")) { InterlockedExchange(&music_req, 1); SetEvent(music_wake); }      // test: start playing at once
 }
 static void MusicEnd(void) {

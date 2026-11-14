@@ -39,6 +39,7 @@ Music while it runs (optional)
   The kit has a small music player, off until you press a key. While the timing runs go:
   - Space: start the music (a random song first), Space again to pause, again to resume.
   - Left / Right arrow: the previous / next song. Songs play on in order and start over after the last.
+  - Up / Down arrow: louder / quieter in 5% steps. The music starts at 75% volume.
   The header at the top shows the song playing and these keys. The keys only work during the runs,
   never at the kit's questions. The songs are the .ogg files in the music folder; music.txt there
   says what each one is and who made it. Playing music costs a little processor time but did not

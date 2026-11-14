@@ -29,4 +29,4 @@ du-e-notstore, du-e-norecloop, du-e-noq4b, du-e-noring, du-e-nocsan2, du-e-nopde
 
 The other DLLs are described in README.txt, which also lists some that this kit leaves out (their questions are answered): lt17-19, lt22, lt31, lt35, lt36, lt41, lt53, lt57, lt58, lt87-98 and the n-exact-*-prev builds.
 
-Music (optional): while the runs go, Space plays / pauses and the Left / Right arrows skip songs. The terminal window must have focus.
+Music (optional): while the runs go, Space plays / pauses, the Left / Right arrows skip songs and the Up / Down arrows change the volume (75% to start, 5% steps). The terminal window must have focus.
