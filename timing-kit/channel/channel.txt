@@ -1,30 +1,32 @@
 fsr4-kit-channel 1
-serial 21
-pack.windows.serial 20
-pack.windows.version 2026-11-14w
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-14w.pack
-pack.windows.size 53733779
-pack.windows.sha256 6ddc561475a8a78b0565bf1106e9a8bb8b0e8bc61c5b6be74f04ad96dac8560a
+serial 23
+pack.windows.serial 23
+pack.windows.version 2026-11-14cw
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-14cw.pack
+pack.windows.size 73959855
+pack.windows.sha256 baf09bbef43c7d327bd4136d3c6210e144aa9a42fd17911c70e8d9a67b47e4be
+pack.windows.min_build 4
 pack.windows.busy none
-pack.linux.serial 21
-pack.linux.version 2026-11-14l
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/dlls-2026-11-14l.pack
-pack.linux.size 50699395
-pack.linux.sha256 69a316744e1a10ae18a39fa5ff05cd89509738e0940d16e9a6c023f906961924
+pack.linux.serial 23
+pack.linux.version 2026-11-14cl
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-14cl.pack
+pack.linux.size 66393484
+pack.linux.sha256 5df8bd379f55ecaa5170f48fce671ad644afc2a3435f91299709924bc95c4686
+pack.linux.min_build 4
 pack.linux.busy none
-pack.windows.note rdna2-grid-pass11-test (RX 6000 cards only): this release's RX 6000 exact DLL with the same picture byte for byte, its network's last pass launched in the group layout AMD's own FSR SDK uses; the kit compares its speed with n-exact-r2. Other tests as before.
-pack.linux.note rdna2-grid-pass11-test (RX 6000 cards only): this release's RX 6000 exact DLL with the same picture byte for byte, its network's last pass launched in the group layout AMD's own FSR SDK uses; the kit compares its speed with n-exact-r2. Also since 2026-11-13: r4-amd-412-reference / r4-exact-412-test (RX 9000 owners: AMD's FSR 4.1.2 and a faster exact build contributed by rolandinus, issue #56), nv-b1 to nv-b5 (GeForce GTX 16 owners: AMD's FSR 4.1.1 with one part of our exact build each; a slot that hangs is stopped after 3 minutes), lt142-test (lt141 for older Radeon cards: Vega, RX 400 / 500).
-music.serial 3
-music.version 2026-11-11
-music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/music-2026-11-11.zip
-music.size 10030965
-music.sha256 ff43ada328a4ab12c8d8ef132e4701cf56f718a3ca27b43961553d43b198ac87
+pack.windows.note vk-amd-412-reference / vk-exact-r3-test: FSR 4 for Vulkan games, timed through Vulkan on RX 6000 / RX 7000 cards and their built-in relatives (also under Proton): AMD's FSR 4.1.2 Vulkan DLL and a faster exact build of it (same picture). lt143-test / lt144-test: this release's 4.1.2l-lossy (lt143 = the RX 7000 archive's, lt144 = the other archives') with one memory location moved so it no longer overlaps the network's output; same picture on our test machine; compared with lt131 / lt129. n-lossy-<flavor>-n16: this release's lossy with one more rule for skipped frames (bright moving lights); compared with n-lossy-<flavor>. The RX 6000 pass 11 layout test is gone (answered: same speed). Needs kit program build 4. Other tests as before.
+pack.linux.note vk-amd-412-reference / vk-exact-r3-test: FSR 4 for Vulkan games, timed through Vulkan on RX 6000 / RX 7000 cards and their built-in relatives (also under Proton): AMD's FSR 4.1.2 Vulkan DLL and a faster exact build of it (same picture). lt143-test / lt144-test: this release's 4.1.2l-lossy (lt143 = the RX 7000 archive's, lt144 = the other archives') with one memory location moved so it no longer overlaps the network's output; same picture on our test machine; compared with lt131 / lt129. n-lossy-<flavor>-n16: this release's lossy with one more rule for skipped frames (bright moving lights); compared with n-lossy-<flavor>. The RX 6000 pass 11 layout test is gone (answered: same speed). Needs kit program build 4. Other tests as before.
+music.serial 4
+music.version 2026-11-14
+music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/music-2026-11-14.zip
+music.size 16049245
+music.sha256 caf93fc59cc591d060f47a01be26b8694042f4508c96051ce63435847b41604a
 music.min_build 3
-program.windows.build 3
-program.windows.version 2026-11-11
-program.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-windows-2026-11-11.zip
-program.linux.build 3
-program.linux.version 2026-11-11
-program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-11/fsr4-timing-kit-linux-2026-11-11.tar.gz
-program.note This version shows the line being sung while music plays, how steady each build's frame times are, and what a new test pack measures.
-sig 77a6c1d6a08adbab3b16a669998bf2e9b0e981f255a33d715936ca86800f22a574166434a1b6f27da46c2e6cb6794baf06ea5746a4a21f182d9a4702df2ddd06
+program.windows.build 4
+program.windows.version 2026-11-14
+program.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-windows-2026-11-14.zip
+program.linux.build 4
+program.linux.version 2026-11-14
+program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz
+program.note This version can also time FSR 4 for Vulkan games (on RX 6000 and RX 7000 cards), shows a progress bar with the time left, and brings three new songs.
+sig bfa87001d1d9f3c3c5ac7b5aa62ab76d6039b88e0099c420dac595b701463df429b82a54eca7563b8fea44ea934233b24128b0624a436ca5e6657ccbe7716c0d
