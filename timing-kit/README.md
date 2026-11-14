@@ -353,7 +353,7 @@ on the same inputs on every machine, so results from different GPUs can be compa
 
 ## Linux and Steam Deck (experimental)
 
-[`fsr4-timing-kit-linux-2026-11-14.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz) (about 54 MB, plus about 93 MB of tests it downloads on the first start; version 2026-11-14): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
+[`fsr4-timing-kit-linux-2026-11-14.tar.gz`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz) (about 54 MB, plus about 66 MB of tests it downloads on the first start; version 2026-11-14): unpack it, and in a terminal in that folder run `bash run.sh`. On a Steam Deck use Desktop Mode, plugged in. It takes about 15 minutes; `bash run.sh --quick` is a short run.
 
 It runs the Windows kit's program and test DLLs under Proton, and sends the same kind of report, marked as Wine/Proton. It lists the Protons it finds and asks which to use, and the report names the one used. CachyOS Proton builds did not start the kit in testing, so use another for now. It needs Proton from Steam (Proton Experimental works), a system-installed Proton or `umu-run`, and installs nothing: its Wine prefix and results stay in the folder. Figures under Proton are not Windows figures: the drivers differ.
 
@@ -367,7 +367,7 @@ The kit has an optional music player: during the timing runs, Space starts the m
 
 ## Windows (experimental)
 
-[`fsr4-timing-kit-windows-2026-11-14.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-windows-2026-11-14.zip) (about 16 MB, plus about 98 MB of tests it downloads on the first start; version 2026-11-14; it takes each DLL out of its pack only while it times it, so at most one, about 40 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
+[`fsr4-timing-kit-windows-2026-11-14.zip`](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-windows-2026-11-14.zip) (about 16 MB, plus about 74 MB of tests it downloads on the first start; version 2026-11-14; it takes each DLL out of its pack only while it times it, so at most one, up to about 70 MB, is on disk) is a different program for the same purpose. Unpack it, close games and
 browsers, and double-click `fsr4time.exe`. It takes about 15 minutes: it times in rounds until then (on an RX 7800 XT under Proton, six
 rounds in 14.6 minutes). A chip that needs more than ten minutes for one round stops after it; one that needs between 7.5 and
 ten does two, up to about 20 minutes. A Steam Deck needs about an hour or more for its one round (reports so far: 58 to 82 minutes).
