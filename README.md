@@ -1,13 +1,21 @@
-# fsr4-shader-performance-overrides
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/banner-dark.svg">
+  <img src="docs/img/banner-light.svg" width="100%" alt="cyboman, FSR4 Performance Overrides: faster AMD FSR 4 upscaling on Windows and Linux">
+</picture>
+</p>
+
+<div align="center">
 
 Makes AMD FSR 4.1.2 upscaling faster on Radeon graphics cards, on Windows and Linux, by replacing
 FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the game changes.
 
-> [!TIP]
-> **New in `dll-2026-11-05`: faster Lite builds, same pictures, most of all at 1440p and on the Steam Deck.** `4.1.2l-exact` is about 9% faster at 1440p and 800p
-> (1 to 3% at 1080p and 4K), `4.1.2l-lossy` about 5% (0 to 3%), on every kind of Radeon reported, in timing-kit reports against `dll-2026-11-01`.
-> Lite is AMD's smaller FSR 4 network; `4.1.2l-lossy` changes the picture. [What's new](#new-in-this-release) · [eight upscalers compared](docs/upscaler-comparison.md) ·
-> [recorded game clips, side by side](https://zgauthier2000.github.io/fsr4-upscaler-compare/) · [the Lite builds](docs/lite-builds.md).
+<a href="https://www.buymeacoffee.com/cyboman"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me a Coffee" height="36"></a>
+
+**[Download](#quick-start)** · [What to expect](#what-to-expect) · [New in this release](#new-in-this-release) · [Timing kit](#help-test-it-the-timing-kit) ·
+[Recorded game clips, side by side](https://zgauthier2000.github.io/fsr4-upscaler-compare/) · [All pages](#more)
+
+</div>
 
 ## Quick start
 
@@ -66,96 +74,18 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   <img src="docs/img/quickstart-light.svg" width="760" alt="What to expect at 4K: how much less time FSR 4 takes per frame with this project's builds than with AMD's own, card by card, moving scene, Balanced. RX 7800 XT, Linux (this project): exact 37%, lossy 55% less time than AMD's FSR 4.1.2; 4.1.2l-exact 2%, 4.1.2l-lossy 18% less than AMD's Lite. RX 7900 XTX, Windows (1 report): exact 31%, lossy 44% less time than AMD's FSR 4.1.2; 4.1.2l-exact 7%, 4.1.2l-lossy 16% less than AMD's Lite. RX 7900 XT, Windows (1 report): exact 18%, lossy 34% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 5% less than AMD's Lite. RX 7800 XT, Windows (2 reports): exact 9%, lossy 27% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 14% less than AMD's Lite. RX 7600, Windows (3 reports): exact 31%, lossy 41% less time than AMD's FSR 4.1.2; 4.1.2l-exact 4%, 4.1.2l-lossy 10% less than AMD's Lite. RX 6900 XT, Windows (1 report): exact 4%, lossy 19% less time than AMD's FSR 4.1.2; 4.1.2l-exact 2%, 4.1.2l-lossy 13% less than AMD's Lite. RX 6800 XT, Windows (1 report): exact 5%, lossy 19% less time than AMD's FSR 4.1.2; 4.1.2l-exact 4%, 4.1.2l-lossy 13% less than AMD's Lite. RX 6800, Windows (2 reports): exact 2%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 7%, 4.1.2l-lossy 11% less than AMD's Lite. RX 6750 XT, Windows (4 reports): exact 2%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 7%, 4.1.2l-lossy 11% less than AMD's Lite. RX 6700 XT, Windows (6 reports): exact 2%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 8%, 4.1.2l-lossy 11% less than AMD's Lite. RX 6700, Windows (2 reports): exact 3%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 7%, 4.1.2l-lossy 12% less than AMD's Lite. RX 6650 XT, Windows (1 report): exact 4%, lossy 18% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 12% less than AMD's Lite. RX 6600 XT, Windows (1 report): exact 4%, lossy 18% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 12% less than AMD's Lite. RX 6600, Windows (1 report): exact 4%, lossy 18% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 12% less than AMD's Lite. RX 6600M, Windows (1 report): exact 3%, lossy 17% less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy 11% less than AMD's Lite. The Windows rows come from testers' timing-kit reports of test builds with this release's shaders. Other resolutions give other numbers.">
 </picture>
 
-- **What the chart compares.** Exact and lossy against AMD's own FSR 4.1.2 on the same card (the model AMD's driver picks there: on RX 7000
-  it gives FSR 4.1.1's picture, on RX 6000 a picture that differs only in rounding), and the Lite builds against AMD's FSR 4.1.2 Lite. The
-  right column shows how much less time AMD's Lite itself takes than AMD's FSR 4.1.2: Lite is a smaller network with a different picture
+- **What the chart compares.** Exact and lossy against AMD's own FSR 4.1.2 on the same card, and the Lite builds against AMD's FSR 4.1.2 Lite.
+  The right column shows how much less time AMD's Lite itself takes than AMD's FSR 4.1.2: Lite is a smaller network with a different picture
   ([how it compares](docs/upscaler-comparison.md)).
-- **It depends on your graphics chip, and on Windows or Linux.** Less time per frame than AMD's, moving scene, 1080p / 1440p / 4K
-  (exact and lossy against AMD's FSR 4.1.2, the Lite builds against AMD's Lite, the last column Lite against FSR 4.1.2):
-
-  | Graphics card | Source | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
-  |---|---|---|---|---|---|---|
-  | Radeon RX 7800 XT | Linux, this project (release builds) | 15% / 35% / 37% | 35% / 52% / 55% | 10% / 11% / 9% | 19% / 20% / 21% | 40% / 56% / 60% |
-  | Radeon RX 7900 XTX | Windows, 1 report | 7% / 29% / 34% | 28% / 44% / 48% | 12% / 13% / 10% | 21% / 21% / 18% | 46% / 55% / 58% |
-  | Radeon RX 7900 XT | Windows, 1 report | 4% / 16% / 17% | 25% / 33% / 34% | 15% / 13% / 11% | 20% / 21% / 19% | 42% / 46% / 46% |
-  | Radeon RX 7800 XT | Windows, 1 report | 7% / 8% / 9% | 26% / 26% / 27% | 12% / 14% / 12% | 21% / 22% / 20% | 41% / 40% / 41% |
-  | Radeon RX 7600 | Windows, 1 report | 24% / 25% / 31% | 37% / 37% / 40% | 18% / 17% / 16% | 23% / 22% / 21% | 50% / 48% / 52% |
-  | Radeon RX 6800 XT | Windows, 1 report | 2% / 3% / 6% | 20% / 18% / 20% | 15% / 14% / 10% | 18% / 18% / 17% | 40% / 36% / 34% |
-  | Radeon RX 6750 XT | Windows, 3 reports | 1% / 2% / 2% | 18% / 17% / 16% | 14% / 14% / 12% | 16% / 17% / 15% | 38% / 34% / 34% |
-  | Radeon RX 6700 XT | Windows, 1 report | 0% / 2% / 2% | 17% / 17% / 16% | 14% / 14% / 13% | 16% / 16% / 14% | 37% / 34% / 34% |
-  | Radeon RX 6650 XT | Windows, 3 reports | 3% / 4% / 4% | 18% / 18% / 18% | 10% / 11% / 10% | 14% / 15% / 15% | 36% / 34% / 35% |
-
-  The Windows rows are testers' timing-kit reports (test packs 2026-11-04 and 2026-11-04.2 of the self-updating kit, median per card). Exact and lossy are the DLLs of
-  `dll-2026-10-29`, unchanged in this release; the two Lite columns are this release's 4.1.2l-exact and 4.1.2l-lossy (in the Windows rows: the RX 6000 form; the RX 7000 archive's own 4.1.2l-lossy has one Windows report so far, RX 7600: 0.3 to 0.7% faster). Results much slower than the median for the same card model are left out (more than 3 scaled median deviations and more than 3 points; cards with at least 3 reports), because other work on a desktop PC can slow a run; faster ones are kept. One
-  report per card is one run. At 1440p, AMD's Lite is the kit's Lite reference less the time one of its passes spends on a whole size class there, which AMD's own
-  Lite DLL does not do: taken from each report's own figures, and measured on this project's RX 7800 XT (1.025 → 0.962 ms); 1080p and 4K are as measured.
-  The Linux row is this project's own RX 7800 XT with the release's builds (AMD's FSR 4.1.2 there = its FSR SDK 2.4.0
-  game DLL, Lite in this project's local test harness; two runs each). The same DLL saves much more under Linux on most Radeon cards, most likely
-  because Linux's driver runs two of AMD's shaders (the last pass and network pass 11) in a slower mode than Windows does. We do not yet know
-  what decides where a card falls in its range.
-
-  Other graphics chips are not in those kits' reports yet. Earlier builds (`dll-2026-10-15` to `dll-2026-10-19`) against AMD's FSR 4.1.1, 4K,
-  reports up to October 17, 2026:
-
-  | Graphics chip | Exact DLL, Windows | Exact DLL, Linux | Lossy DLL, Windows | Lossy DLL, Linux |
-  |---|---|---|---|---|
-  | Integrated graphics and handhelds (Steam Deck, Radeon 890M) | from 8% faster to 4% slower | 5% (Steam Deck) | 23 to 32% | about 29 to 36% |
-  | Intel Arc (B580; integrated Arc in one report) | 6 to 10% | not measured | 30 to 33% | not measured |
-  | GeForce (GTX 1650, RTX 3060 Ti, 3090, 5070) | none | not measured | 24 to 37% | not measured |
-  | Radeon RX 5000 (RDNA 1, e.g. RX 5700 XT) | not supported: does not work | not supported | not supported: does not work | not supported |
-  | RX Vega, Radeon Pro VII | does not work: no picture (RX Vega) | 6% (Pro VII, shaders only) | does not work: no picture (RX Vega) | about 35% (Pro VII, shaders only) |
-
-  Newer, one report (Windows, kit 2026-10-28.2, test builds with this release's shaders): **the built-in graphics of a Ryzen Z1 Extreme (RDNA 3)**,
-  1080p / 1440p / 4K. The `igpu-r3` exact DLL takes 5% / 6% / 8% and the lossy DLL 21% / 20% / 21% less time than AMD's FSR 4.1.1 (AMD's FSR 4.1.2
-  RX 7000 and RX 6000 models run there at 4.1.1's speed; which model AMD's driver picks on such chips, most likely Lite, is not confirmed).
-  4.1.2l-exact takes 5% / 1% / 0% and 4.1.2l-lossy 11% / 11% / 8% less than AMD's Lite, which itself takes 36% / 32% / 36% less than FSR 4.1.1.
-
-  **None of this project's DLLs work on Radeon RX 5000 (RDNA 1) cards,** on Windows or Linux: FSR 4 gives only a black picture there
-  ([issue #43](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/43)). On RX Vega cards under Windows it is the same.
-  The timing kit's reports from those cards show the same picture for every build, the lossy ones included, which a working FSR 4
-  cannot do, so the figures this table used to show for them timed no real upscaling. The Linux figures for the Radeon Pro VII
-  come from the Linux kit, which times
-  the shaders alone; whether games show a picture on it is not known.
-  Most Linux cells rest on one or two runs per card. The Linux lossy figures are derived: the Linux kit times a frame
-  that runs the network and a frame that skips it, and the lossy DLL alternates them, so the table gives their average.
-  [Results by graphics chip](docs/results.md#by-gpu-type), [timing kit results](timing-kit/RESULTS.md).
-- **It only shows when the graphics card is the limit.** If the processor limits your frame rate,
-  the frame rate does not change.
-- **The exact DLL cannot change the picture.** Its output was compared with AMD's byte for byte at
-  720p, 1080p, 1440p, 4K and 5K, in still and moving scenes. On RX 6000 cards it gives the picture of AMD's own
-  FSR 4.1.2 for RX 6000 (the model AMD's driver uses there), which differs from 4.1.1's only in rounding: in recorded
-  game clips no difference could be measured ([AMD's 4.1.1 and 4.1.2](docs/amd-411-vs-412.md)). Under Windows, AMD's
-  4.1.1 file shows ghosting on RX 6000 cards; the exact DLL does not.
-- **The lossy DLL trades a little accuracy for speed.** It runs FSR 4's neural network on every
-  other frame and carries its result along with the picture's motion in between. Measured
-  differences and comparison crops: [exact and lossy compared](docs/exact-vs-lossy.md). What the
-  alternating cost means for frame caps and V-Sync: [frame pacing](docs/frame-pacing.md).
-
-One card, one game, as an example: a Radeon RX 7800 XT under Linux, Shadow of the Tomb Raider's benchmark, 4K output, FSR 4.1.1 Balanced,
-with earlier builds (this release's builds have not been run through it yet). Your card and your game will give other numbers:
-
-| | FSR 4 time per frame | Frame rate | Picture |
-|---|---|---|---|
-| AMD's shaders | 4.16 ms | 97 FPS | the reference |
-| Exact | 2.96 ms (−29%) | 109 FPS (+12%) | identical (RX 7000 build, one run, `dll-2026-10-22`) |
-| Lossy2 of `dll-2026-10-19` (this release's lossy is it trained further) | 2.09 ms (−50%) | 121 FPS (+25%) | still picture within 0.5 dB of AMD's (one run) |
-| The old untrained lossy (last in `dll-2026-10-22`) | 2.06 ms (−50%) | 122 FPS (+26%) | still picture within 0.2 dB of AMD's |
-
-More games and resolutions: [all results](docs/results.md).
-
-> [!NOTE]
-> **One setting where you will see little or no gain: FSR's debug view (the debug panels FSR can draw over the
-> picture).** The faster shaders do not cover the debug versions of FSR's last pass, so AMD's own slow one runs and most
-> of the gain is gone. Switch the debug view off to measure or to play. FSR's version watermark (the white text in the
-> top left corner, switched on with the `MLSR-WATERMARK` environment variable) is not the debug view: with it on, every
-> DLL keeps its full gain and frame skip works as usual (measured under Proton on an RX 7800 XT). It shows the DLL's
-> version name, such as `4.1.2-EXACT-R3-CYBOMAN`, so it also tells you which build is running.
-
-> [!NOTE]
-> **Ultra Performance mode (since `dll-2026-10-15`).** The lossy DLL skips frames there too (with the older lossy build's untrained weights), and runs the network
-> all the same on one in three of the frames it would skip. **Ultra Performance only, not representative of other
-> modes:** at 4K about 3.2 to 2.5 ms per frame on an RX 7800 XT, and its picture costs there are larger than in other
-> modes ([details](docs/releases/dll-2026-10-15.md)).
+- **It depends on your graphics chip, and on Windows or Linux.** The same DLL saves much more under Linux on most Radeon cards. Full tables per
+  card and size, other graphics chips and older builds: **[What to expect in detail](docs/what-to-expect.md)**.
+- **It only shows when the graphics card is the limit.** If the processor limits your frame rate, the frame rate does not change.
+- **The exact DLL cannot change the picture.** Its output was compared with AMD's byte for byte at 720p, 1080p, 1440p, 4K and 5K, in still and
+  moving scenes ([AMD's 4.1.1 and 4.1.2](docs/amd-411-vs-412.md) for RX 6000 cards).
+- **The lossy DLLs trade a little accuracy for speed.** They run FSR 4's neural network on every other frame and carry its result along with
+  the picture's motion in between: [exact and lossy compared](docs/exact-vs-lossy.md), [frame pacing](docs/frame-pacing.md).
+- **None of this project's DLLs work on Radeon RX 5000 (RDNA 1) cards,** on Windows or Linux, nor on RX Vega cards under Windows: FSR 4 gives
+  only a black picture there ([issue #43](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/43)).
 
 ## New in this release
 
@@ -175,41 +105,22 @@ More games and resolutions: [all results](docs/results.md).
 >
 > Against AMD's Lite: `4.1.2l-exact` saves 11 to 16% and `4.1.2l-lossy` 13 to 22% at the sizes reported. [Everything that changed](docs/releases/dll-2026-11-05.md).
 
-**Earlier: [`dll-2026-11-01`](docs/releases/dll-2026-11-01.md)** made `4.1.2l-lossy` and `4.1.2l-exact` faster on Windows (most on RX 7000), with the same pictures.
+Earlier releases: [release pages](docs/releases/README.md), each against the one before it, and the [changelog](docs/changelog.md).
 
-**Earlier: [`dll-2026-10-29`](docs/releases/dll-2026-10-29.md)** brought `4.1.2l-lossy` and `4.1.2l-exact`, a retrained `lossy` (far fewer dark specks in foliage; brightening is slower) and faster exact builds.
+## Help test it: the timing kit
 
-**Earlier: [`dll-2026-10-22`](docs/releases/dll-2026-10-22.md)** split the builds into four, one per kind of graphics card (up to
-about 3% faster than the release before, same pictures), and gave each build a version name that says which one runs.
+### Windows timing kit
+**[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-windows-2026-11-14.zip)** (experimental, version 2026-11-14; about 16 MB, and it downloads its tests, about 74 MB, on the first start): unpack, double-click
+`fsr4time.exe`, wait about 15 minutes on a desktop graphics card (a Steam Deck: about 30 to 40 minutes; a Radeon 780M handheld: about 15 to 20 minutes). It times FSR 4 with AMD's shaders and with this project's
+builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
+than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc.
 
-> ### Help test it: the timing kit
-> **[Download the Windows timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-windows-2026-11-14.zip)** (experimental, version 2026-11-14; about 16 MB, and it downloads its tests, about 74 MB, on the first start): unpack, double-click
-> `fsr4time.exe`, wait about 15 minutes on a desktop graphics card (a Steam Deck: about 30 to 40 minutes; a Radeon 780M handheld: about 15 to 20 minutes). It times FSR 4 with AMD's shaders and with this project's
-> builds on your graphics card, checks that each gives the picture it should, and offers to send the result. Reports are in from more
-> than twenty graphics chips so far; every further card helps, including GeForce and Intel Arc.
->
-> ### Linux timing kit
-> **[Download the Linux and Steam Deck timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz)** (experimental, version 2026-11-14; about 54 MB, plus about 66 MB of tests it downloads on the first start): unpack, and in a terminal in that folder run
-> `bash run.sh`, choose a Proton if it asks, then wait about 15 minutes (on a Steam Deck about 30 to 40 minutes: one round of tests takes that long there). It runs the same tests as the Windows kit under Proton, with Proton from Steam or `umu-run`. On a Steam Deck, use Desktop Mode, plugged in.
->
-> - New in the kits (2026-11-11): while music plays, **the line being sung** shows at the top; **how steady each build's frame times are** (how much the upscaler time changes from one frame to the next, so builds that skip work on some frames show it); **a short note on what a new test pack measures** before it downloads; on Linux the kit asks the desktop not to blank the screen or sleep while it runs, and reports name the Mesa driver. Kits from 2026-11-03 keep working and get new tests by themselves. Two new test builds, `n-exact-r3-hlx11` and `n-exact-r3-hlx11w32`: the RX 7000 exact build with a pass 11 ported from [HelixSR](https://github.com/lonewolf0622/hlx-fsr4-int8)'s source (GPL-2.0-or-later), same picture, wanted from RX 7000 / RX 6000 cards on Windows.
-> - New in the kits (2026-11-03): **they fetch new tests by themselves** (signed downloads, asked first; `--no-update` turns it off), an optional **all-nighter** mode that keeps measuring while the PC is idle, **seven test builds with faster code** (`lt121-test` to `lt127-test`), and **1280x800 output** (the Steam Deck's screen) on built-in graphics.
-> - New in the kits (2026-11-02.13): **four test builds with faster code** (`lt115-test` to `lt118-test`).
-> - New in the Windows kit (2026-11-02.12): **two more measuring builds** (`lt113-test`, `lt114-test`).
-> - New in the Windows kit (2026-11-02.11): **more measuring builds** (`lt105-test` to `lt112-test`).
-> - New in the kits (2026-11-02.8): **six test builds** (`lt99-test` to `lt104-test`), **more measuring builds** (`lt87-test` to `lt98-test`).
-> - New in the Windows kit (2026-11-02.3): **four test builds of 4.1.2l-lossy** (`lt83-test` to `lt86-test`), **more measuring builds** (`lt50-test` to `lt82-test`), **eight test builds of 4.1.2l-exact** (`lt17-test` to `lt20-test`, `lt22-test`, `lt30-test`, `lt31-test`, `lt36-test`), **five of 4.1.2l-lossy** (`lt32-test` to `lt35-test`, `lt37-test`) and fifteen measuring builds (`lt25-test` to `lt29-test`, deliberately slower; `lt38-test` to `lt47-test`), not in any release; reports from RX 6000 cards are the ones most wanted.
-> - New in the Windows kit (2026-10-29.2): **this release's own DLLs** for your kind of graphics (exact, lossy, 4.1.2l-exact, 4.1.2l-lossy), timed
->   against AMD's own FSR 4.1.2 for your graphics and FSR 4.1.2 Lite, with fewer DLLs so each gets more rounds. It is best run with the
->   processor and graphics in performance mode (a laptop plugged in, not on battery or a power-saving mode). [Details](timing-kit/README.md#in-short)
-> - Version 2026-10-29: **three test builds for RX 7000 cards**, to find which part of AMD's own FSR 4.1.2 model for RX 6000
->   made it faster than this project's RX 7000 exact build on the one RX 7000 card reported then. [Details](timing-kit/README.md#in-short)
-> - Version 2026-10-28 (fixed in 2026-10-28.2 so that all its reference DLLs run on every card): **how much faster AMD's own FSR 4.1.2 is than its 4.1.1 on your graphics card** (AMD's FSR 4.1.2
->   shaders for RX 6000 and RX 7000 and FSR 4.1.2 Lite, timed on every PC), test builds of the next release, timed only for your kind of
->   graphics, and a run with the graphics card's caches emptied before every frame, as in a game. [Details](timing-kit/README.md#in-short)
-> - Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
->
-> [What the kits do](timing-kit/README.md#windows-experimental)
+### Linux timing kit
+**[Download the Linux and Steam Deck timing kit](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz)** (experimental, version 2026-11-14; about 54 MB, plus about 66 MB of tests it downloads on the first start): unpack, and in a terminal in that folder run
+`bash run.sh`, choose a Proton if it asks, then wait about 15 minutes (on a Steam Deck about 30 to 40 minutes: one round of tests takes that long there). It runs the same tests as the Windows kit under Proton, with Proton from Steam or `umu-run`. On a Steam Deck, use Desktop Mode, plugged in.
+
+Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
+[What the kits do](timing-kit/README.md#windows-experimental) · [what each kit version added](timing-kit/README.md#what-each-kit-version-added)
 
 ## Will it work for me?
 
@@ -261,20 +172,6 @@ On Linux you can leave AMD's DLL in place and give the game the replacement shad
 
 If it does not get faster: [Linux guide](docs/linux.md).
 
-## More about the files
-
-Each DLL is AMD's own file with the rewritten shaders swapped in and the version name changed.
-How that is done, and how to build it yourself: [`dll/`](dll); the lossy build's trained weights (it was called lossy2) and the tools that rebuild it
-from them: [`research/lossy2`](research/lossy2/README.md). There is also a ReShade add-on
-that does the same without touching the DLL: [`windows/`](windows).
-
-The scripts that rewrite the Linux shaders and build the files in `prebuilt/` are in [`tools/`](tools)
-(they were in the top folder until release `dll-2026-10-11.3`; commands in older posts need `tools/` in front).
-
-**In some games OptiScaler's upscaler time is only reliable with the frame rate uncapped.** If
-nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL version
-4.1.1.2740; other versions have different shaders. See [shader variants](docs/variants.md).
-
 ## Good to know
 
 - **Nothing else changes.** No game files are edited, and the output was compared byte for byte
@@ -286,6 +183,25 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 - **Never in online games or games with anti-cheat.** This changes the shaders the game renders with, and anti-cheat
   software can treat that as tampering. Single-player games only.
 - **Linux:** do not set `RADV_PERFTEST=cswave32` for a game that runs FSR 4; it adds about 1.1 ms.
+- **Each DLL is AMD's own file** with the rewritten shaders swapped in and the version name changed. How that is done, and how to build it
+  yourself: [`dll/`](dll); the lossy build's trained weights and the tools that rebuild it: [`research/lossy2`](research/lossy2/README.md).
+  A ReShade add-on does the same without touching the DLL: [`windows/`](windows). The Linux scripts are in [`tools/`](tools).
+- **In some games OptiScaler's upscaler time is only reliable with the frame rate uncapped.** If nothing changes at all, check that the game
+  really runs FSR 4.1.1 with AMD's DLL version 4.1.1.2740; other versions have different shaders. See [shader variants](docs/variants.md).
+
+> [!NOTE]
+> **One setting where you will see little or no gain: FSR's debug view (the debug panels FSR can draw over the
+> picture).** The faster shaders do not cover the debug versions of FSR's last pass, so AMD's own slow one runs and most
+> of the gain is gone. Switch the debug view off to measure or to play. FSR's version watermark (the white text in the
+> top left corner, switched on with the `MLSR-WATERMARK` environment variable) is not the debug view: with it on, every
+> DLL keeps its full gain and frame skip works as usual (measured under Proton on an RX 7800 XT). It shows the DLL's
+> version name, such as `4.1.2-EXACT-R3-CYBOMAN`, so it also tells you which build is running.
+
+> [!NOTE]
+> **Ultra Performance mode (since `dll-2026-10-15`).** The lossy DLL skips frames there too (with the older lossy build's untrained weights), and runs the network
+> all the same on one in three of the frames it would skip. **Ultra Performance only, not representative of other
+> modes:** at 4K about 3.2 to 2.5 ms per frame on an RX 7800 XT, and its picture costs there are larger than in other
+> modes ([details](docs/releases/dll-2026-10-15.md)).
 
 ## More
 
@@ -294,6 +210,7 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 | [What's moving](docs/whats-moving.md) | what the project is working on now, and which cards are most wanted in the timing kit |
 | [Vote for games](https://zgauthier2000.github.io/fsr4-shader-performance-overrides/vote/) | which games the project should record and test with next |
 | [Which GPUs use the project](https://zgauthier2000.github.io/fsr4-shader-performance-overrides/gpus/) | which cards send timing kit reports, and which GPU families download the builds |
+| [What to expect in detail](docs/what-to-expect.md) | speed per card and size, other graphics chips, older builds, one game as an example |
 | [All results](docs/results.md) | every game measured, benchmark pages with screenshots |
 | [Linux guide](docs/linux.md) | requirements, building your own files, troubleshooting |
 | [Making a shader dump](docs/shader-dump.md) | step by step, for reporting a wrong image or a missing speedup on Linux |
@@ -310,17 +227,6 @@ nothing changes at all, check that the game really runs FSR 4.1.1 with AMD's DLL
 | [The lossy DLL's rules](docs/lossy-rules.md) | what the last shader does on a skipped frame, and which fault each rule answers |
 | [Earlier releases](docs/changelog.md) | what each release changed, newest first |
 | [Research](research) | the probes, data and scripts behind all of it |
-
-
-## Star History
-
-<a href="https://www.star-history.com/?repos=zgauthier2000%2Ffsr4-shader-performance-overrides&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=zgauthier2000/fsr4-shader-performance-overrides&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=zgauthier2000/fsr4-shader-performance-overrides&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=zgauthier2000/fsr4-shader-performance-overrides&type=date&legend=top-left" />
- </picture>
-</a>
 
 ## Credits and license
 
@@ -339,6 +245,12 @@ with or endorsed by AMD.
 
 Testers who have asked to be named are listed on the [thank-you page](docs/thanks.md).
 
-This repository is maintained independently. If this project has provided value to you, and you want to help support the author, consider formalizing your support with a voluntary micro-donation:
+## Star History
 
-<a href="https://www.buymeacoffee.com/cyboman" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=zgauthier2000/fsr4-shader-performance-overrides&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=zgauthier2000/fsr4-shader-performance-overrides&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=zgauthier2000/fsr4-shader-performance-overrides&type=date&legend=top-left" />
+ </picture>
+
+[Star history on star-history.com](https://www.star-history.com/?repos=zgauthier2000%2Ffsr4-shader-performance-overrides&type=date&legend=top-left)

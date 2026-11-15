@@ -725,3 +725,25 @@ The shaders are not in the repository. AMD's are what vkd3d-proton writes with
 matching files of [`prebuilt/`](../prebuilt). The prepass and postpass files need `prep.py` (it moves their input images to the slot the benchmark binds; without it they run on blank inputs); the lossy ones come from
 [`research/lossy`](../research/lossy); the pass 11 versions from `zconst.py` and
 `pass11_stores.py`.
+
+## What each kit version added
+
+Moved here from the front page (2026-11-12). Newest first.
+
+- New in the kits (2026-11-14): **FSR 4 for Vulkan games** (`vk-amd-412-reference`, `vk-exact-r3-test`, on RX 6000 / RX 7000 and their built-in relatives, also under Proton), **a progress bar** with the time left, music volume on the Up / Down arrows, the rest of a group skipped after a time-out, lighter Vulkan picture checks, test builds `lt143-test` / `lt144-test` and `n-lossy-<flavor>-n16`, three new songs.
+- New in the kits (2026-11-11): while music plays, **the line being sung** shows at the top; **how steady each build's frame times are** (how much the upscaler time changes from one frame to the next, so builds that skip work on some frames show it); **a short note on what a new test pack measures** before it downloads; on Linux the kit asks the desktop not to blank the screen or sleep while it runs, and reports name the Mesa driver. Kits from 2026-11-03 keep working and get new tests by themselves. Two new test builds, `n-exact-r3-hlx11` and `n-exact-r3-hlx11w32`: the RX 7000 exact build with a pass 11 ported from [HelixSR](https://github.com/lonewolf0622/hlx-fsr4-int8)'s source (GPL-2.0-or-later), same picture, wanted from RX 7000 / RX 6000 cards on Windows.
+- New in the kits (2026-11-03): **they fetch new tests by themselves** (signed downloads, asked first; `--no-update` turns it off), an optional **all-nighter** mode that keeps measuring while the PC is idle, **seven test builds with faster code** (`lt121-test` to `lt127-test`), and **1280x800 output** (the Steam Deck's screen) on built-in graphics.
+- New in the kits (2026-11-02.13): **four test builds with faster code** (`lt115-test` to `lt118-test`).
+- New in the Windows kit (2026-11-02.12): **two more measuring builds** (`lt113-test`, `lt114-test`).
+- New in the Windows kit (2026-11-02.11): **more measuring builds** (`lt105-test` to `lt112-test`).
+- New in the kits (2026-11-02.8): **six test builds** (`lt99-test` to `lt104-test`), **more measuring builds** (`lt87-test` to `lt98-test`).
+- New in the Windows kit (2026-11-02.3): **four test builds of 4.1.2l-lossy** (`lt83-test` to `lt86-test`), **more measuring builds** (`lt50-test` to `lt82-test`), **eight test builds of 4.1.2l-exact** (`lt17-test` to `lt20-test`, `lt22-test`, `lt30-test`, `lt31-test`, `lt36-test`), **five of 4.1.2l-lossy** (`lt32-test` to `lt35-test`, `lt37-test`) and fifteen measuring builds (`lt25-test` to `lt29-test`, deliberately slower; `lt38-test` to `lt47-test`), not in any release; reports from RX 6000 cards are the ones most wanted.
+- New in the Windows kit (2026-10-29.2): **this release's own DLLs** for your kind of graphics (exact, lossy, 4.1.2l-exact, 4.1.2l-lossy), timed
+  against AMD's own FSR 4.1.2 for your graphics and FSR 4.1.2 Lite, with fewer DLLs so each gets more rounds. It is best run with the
+  processor and graphics in performance mode (a laptop plugged in, not on battery or a power-saving mode). [Details](#in-short)
+- Version 2026-10-29: **three test builds for RX 7000 cards**, to find which part of AMD's own FSR 4.1.2 model for RX 6000
+  made it faster than this project's RX 7000 exact build on the one RX 7000 card reported then. [Details](#in-short)
+- Version 2026-10-28 (fixed in 2026-10-28.2 so that all its reference DLLs run on every card): **how much faster AMD's own FSR 4.1.2 is than its 4.1.1 on your graphics card** (AMD's FSR 4.1.2
+  shaders for RX 6000 and RX 7000 and FSR 4.1.2 Lite, timed on every PC), test builds of the next release, timed only for your kind of
+  graphics, and a run with the graphics card's caches emptied before every frame, as in a game. [Details](#in-short)
+- Optional: the kit asks for a name or nickname for the [thank-you page](../docs/thanks.md).
