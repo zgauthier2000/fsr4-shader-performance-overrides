@@ -1,21 +1,21 @@
 fsr4-kit-channel 1
-serial 25
-pack.windows.serial 24
-pack.windows.version 2026-11-14dw
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-14dw.pack
-pack.windows.size 73960800
-pack.windows.sha256 9452cbc85accd7cdc321f5e526c7142a39313cb09634ee2e5deb21fce3599089
+serial 26
+pack.windows.serial 26
+pack.windows.version 2026-11-15aw
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-15aw.pack
+pack.windows.size 81945953
+pack.windows.sha256 abab70fc922275512c2162ab0f302d46a9fd77e08d3555ce8d623827d81f5295
 pack.windows.min_build 4
 pack.windows.busy none
-pack.linux.serial 24
-pack.linux.version 2026-11-14dl
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-14dl.pack
-pack.linux.size 66393317
-pack.linux.sha256 43b7afa87ad8829f8ea2a2aed53c566e5f6f9ae99a22dfbd3daf380846d4d396
+pack.linux.serial 26
+pack.linux.version 2026-11-15al
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-15al.pack
+pack.linux.size 78697103
+pack.linux.sha256 b29fc1835a0f39a27111ed41aeaab9beb7e7922ea94f4ae32f9b95fd861ac3f7
 pack.linux.min_build 4
 pack.linux.busy none
-pack.windows.note lt145-test / lt146-test: this release's 4.1.2l-lossy (lt145 = the RX 7000 archive's, lt146 = the other archives') with one memory location moved so it no longer overlaps the network's output, now placed inside the working memory (the earlier lt143 / lt144 put it outside and were slower: answered, gone); same picture on our test machine; compared with lt131 / lt129. Other tests as before.
-pack.linux.note lt145-test / lt146-test: this release's 4.1.2l-lossy (lt145 = the RX 7000 archive's, lt146 = the other archives') with one memory location moved so it no longer overlaps the network's output, now placed inside the working memory (the earlier lt143 / lt144 put it outside and were slower: answered, gone); same picture on our test machine; compared with lt131 / lt129. Other tests as before.
+pack.windows.note New: n-lossy-<card>-n16hl (the light-rim rule in a faster form: same picture as n-lossy-<card>-n16, compared with it) and lt147-test / lt148-test (4.1.2l-lossy with the light-rim rule in that form, the launch change and the memory move of lt145 / lt146; lt147 = the RX 7000 archive's, compared with lt137; lt148 = the other archives', compared with lt136). Other tests as before.
+pack.linux.note New: n-lossy-<card>-n16hl (the light-rim rule in a faster form: same picture as n-lossy-<card>-n16, compared with it) and lt147-test / lt148-test (4.1.2l-lossy with the light-rim rule in that form, the launch change and the memory move of lt145 / lt146; lt147 = the RX 7000 archive's, compared with lt137; lt148 = the other archives', compared with lt136). Other tests as before.
 music.serial 4
 music.version 2026-11-14
 music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/music-2026-11-14.zip
@@ -30,4 +30,4 @@ program.linux.version 2026-11-14
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz
 program.note This version can also time FSR 4 for Vulkan games (on RX 6000 and RX 7000 cards), shows a progress bar with the time left, and brings three new songs.
 message Kit 2026-11-14 is the newest version. If yours is older, the new tests (Vulkan and more) need it: https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-11-14
-sig 9371f960c848cfb0f0f3b907635b0a8dc5efb8de9ad91919b7573df3c883aa1e862fe140efff53a0d9a1982e61f9e08932908fa77312738d4c81b3c71a179000
+sig 69ba44641b647d1a913233ca6f2bac761539266134d543120693a41ec8fb871c357db7c3440a5bccdd05fe4ac4aca387a089875260407ab21fac0c01e54f590d

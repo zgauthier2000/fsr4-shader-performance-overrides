@@ -8,7 +8,8 @@ src, out = sys.argv[1], sys.argv[2]
 names = sorted(d for d in os.listdir(src) if os.path.isfile(os.path.join(src, d, 'amd_fidelityfx_upscaler_dx12.dll')))
 order = sorted(names, key=lambda n: (3 if n.startswith('rdna') else 0 if n.startswith('1') else 1 if 'exact' in n else 2, 'igpu' in n, n))      # AMD's, the exact ones, the lossy ones, the study sets
 AFTER = {'vk-exact-r3-test': 'vk-amd-412-reference', 'r4-exact-412-test': 'r4-amd-412-reference', 'lt143-test': 'lt131-test', 'lt144-test': 'lt129-test',
-         'lt145-test': 'lt131-test', 'lt146-test': 'lt129-test'}      # (2026-11-14) a test DLL right after
+         'lt145-test': 'lt131-test', 'lt146-test': 'lt129-test',
+         'lt147-test': 'lt137-test', 'lt148-test': 'lt136-test'}      # (2026-11-14) a test DLL right after
 # the DLL it was made from: the decoder's window is 128 MB (fsr4time.c), so relatives further apart share nothing (vk-exact 33 DLLs from vk-amd cost ~25 MB of the Windows pack)
 for c, par in AFTER.items():
     if c in order and par in order: order.remove(c); order.insert(order.index(par) + 1, c)
