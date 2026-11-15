@@ -50,13 +50,11 @@ removed completely with one command (see [Removing it](#removing-it)). The same 
    ```
    then, in a Windows terminal, `wsl --shutdown`, and open Ubuntu again. Linux then no longer sees your Windows drives
    and cannot start Windows programs.
-5. **Join the private network.** In Ubuntu, install Tailscale (a private network between invited PCs; nothing opens
-   on your router) and sign in with the invitation you received:
-   ```
-   curl -fsSL https://tailscale.com/install.sh | sh
-   sudo tailscale up
-   ```
-   Open the link it prints and sign in. Installing it inside Ubuntu keeps the setup the same when you move to Linux.
+5. **Join the private network.** Install [Tailscale for Windows](https://tailscale.com/download/windows) (a private
+   network between invited PCs; nothing opens on your router) and sign in with the invitation you received. Do not install
+   it again inside Ubuntu: Ubuntu reaches the network through Windows, and a second install would show up as a second
+   device that the network owner has to set up again. On Linux, install Tailscale on the system itself
+   ([instructions](https://tailscale.com/download/linux)) and run `sudo tailscale up`.
 6. **Run the setup script.** *(Coming soon: this step is added here once the runner is ready.)* One command builds the
    Python environment for your card (NVIDIA or Radeon), downloads the training code and data (about 100 GB) and shows a key to send to the project. The
    key lets the runner reach one folder on the project's machine, nothing else.
@@ -64,8 +62,8 @@ removed completely with one command (see [Removing it](#removing-it)). The same 
 ## Setting up on Linux
 
 NVIDIA: install the driver from your distribution and check the card with `nvidia-smi`. Radeon: install ROCm following
-[AMD's Linux guide](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/index.html) and check with `rocminfo`. Then follow
-steps 5 and 6 above. Radeon RX 6000 cards work only on Linux and have not been tested with this project's training yet.
+[AMD's Linux guide](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/index.html) and check with `rocminfo`. Then install
+Tailscale on the system (step 5's Linux note) and follow step 6 above. Radeon RX 6000 cards work only on Linux and have not been tested with this project's training yet.
 
 ## Running it
 
