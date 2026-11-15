@@ -32,7 +32,7 @@ def wrap(body, H, label, t):
 
 NOW = (('Faster lossy builds', 'Fewer GPU instructions, same picture', 'faster on Radeon cards', 'Timing kit reports: Radeon on Windows, GeForce'),
        ("Speed from AMD's SDK", "Lite and full FSR 4 builds", 'small gains measured', 'Timing kit reports: handhelds, built-in Radeon'),
-       ('A Vulkan version (early)', 'For games that use FSR 4 through Vulkan', 'same picture, faster here', 'Names of Vulkan games with FSR 4'),
+       ('A Vulkan version (in the kit)', 'For games that use FSR 4 through Vulkan', 'RX 7700 XT: 16% faster', 'Kit reports: RX 7000 on Windows'),
        ('A cleaner Lite (early)', "Fixing weak spots of AMD's own FSR 4 Lite", 'cause of softer trees found', "Games and scenes where AMD's Lite looks wrong"),
        ('Tiled lossy (experiment only)', 'Not how released lossy builds work', 'helped on a GTX 1660 only', 'Timing kit reports: GeForce GTX 16 / RTX 20'))
 
