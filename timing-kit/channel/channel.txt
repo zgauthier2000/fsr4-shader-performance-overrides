@@ -1,5 +1,5 @@
 fsr4-kit-channel 1
-serial 24
+serial 25
 pack.windows.serial 24
 pack.windows.version 2026-11-14dw
 pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-14dw.pack
@@ -29,4 +29,5 @@ program.linux.build 4
 program.linux.version 2026-11-14
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz
 program.note This version can also time FSR 4 for Vulkan games (on RX 6000 and RX 7000 cards), shows a progress bar with the time left, and brings three new songs.
-sig 90631f0230632b2094f59f7f0fbe8472231573ff5aa52bc5dd5d5a72919e98a192697b937e082978d48fbeef2a5c5db8e38df427042c9a4ec2187ef6634dfa05
+message Kit 2026-11-14 is the newest version. If yours is older, the new tests (Vulkan and more) need it: https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-11-14
+sig 9371f960c848cfb0f0f3b907635b0a8dc5efb8de9ad91919b7573df3c883aa1e862fe140efff53a0d9a1982e61f9e08932908fa77312738d4c81b3c71a179000
