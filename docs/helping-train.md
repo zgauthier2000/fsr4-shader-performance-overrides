@@ -85,6 +85,44 @@ steps 5 and 6 above. Radeon RX 6000 cards work only on Linux and have not been t
 - It collects nothing about you or your PC. Tailscale shows your device name to the network's owner, as any Tailscale
   network does.
 
+## Security
+
+What protects your PC, and what does not. The runner is not released yet (step 6); the points marked *(runner)* describe
+how it is being built, and this page will be updated if anything changes.
+
+**Separation from Windows**
+- Everything runs inside WSL, which Windows runs as a separate lightweight virtual machine with its own Linux system and
+  files. It is not your Windows account.
+- Step 4 removes the two usual bridges: Ubuntu then cannot open your Windows drives (`automount`) and cannot start
+  Windows programs (`interop`).
+- Ubuntu runs the training as your ordinary Linux user. Administrator rights (`sudo`) are only needed during setup.
+
+**The connection**
+- The two PCs talk only through Tailscale, a private network that you joined by invitation. Its traffic is encrypted end
+  to end (WireGuard), and nothing is opened on your router.
+- *(runner)* The runner only makes outgoing connections. It starts no server and listens on no port, so there is nothing
+  on your PC for the project's machine, or anyone else on the network, to connect to.
+- *(runner)* The key the runner uses to reach the project's machine is locked, on the project's side, to one folder: it
+  can fetch jobs and data and drop results there, and nothing else. It is not a login to that machine.
+- *(runner)* While running, it talks only to the project's machine. The setup script (once) also downloads from Ubuntu's
+  and PyTorch's official servers.
+
+**Your control**
+- The runner only runs while you start it. Ctrl+C stops it; a `pause` file pauses it; it waits while you game.
+- *(runner)* Trained results are deleted from your PC after each run.
+- Everything can be removed with one command ([Removing it](#removing-it)).
+
+**What this does not protect against**
+- The runner runs the project's training code, and that code is updated from the project's machine. You are trusting
+  that code, as with any program you install. It is limited to your Linux user inside Ubuntu, but it has network access
+  and can use the graphics card.
+- WSL separates Linux from Windows well for everyday use, but it is not a sandbox built to contain hostile software.
+- If the project's machine were ever compromised, so could be the code it hands out. The runner's limited key keeps that
+  from reaching further into the project's machine; it does not protect your Ubuntu system from such code.
+- Tailscale's own security, the NVIDIA or AMD driver, and Windows itself are outside this project's control.
+
+If any of that is a concern, run it on a PC (or a separate Linux install) that holds nothing personal.
+
 ## Removing it
 
 In a Windows terminal:
