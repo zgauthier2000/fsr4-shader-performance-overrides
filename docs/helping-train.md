@@ -3,7 +3,7 @@
 [Back to the front page](../README.md#readme)
 
 Some of this project's builds use small neural networks that are trained here, run after run. Invited helpers can lend
-an NVIDIA graphics card to that training. A small program on your PC, the **runner**, fetches a training job, trains,
+a graphics card to that training. A small program on your PC, the **runner**, fetches a training job, trains,
 and sends the results back. Every result is then checked on the project's own machine; nothing from your PC is published.
 
 This page explains how to set it up, as simply as possible. It takes about half an hour, plus a large download.
@@ -15,7 +15,7 @@ This page explains how to set it up, as simply as possible. It takes about half 
 
 | | |
 |---|---|
-| Graphics card | NVIDIA GeForce RTX 30 series or newer, **12 GB of memory or more** |
+| Graphics card | **12 GB of memory or more**, and either an NVIDIA GeForce RTX 30 series or newer, or an AMD Radeon RX 7000 or RX 9000 series card |
 | System memory | 32 GB or more (64 GB is better) |
 | Free disk space | about 150 GB on an SSD |
 | System | Windows 10 (22H2) or Windows 11, or Linux |
@@ -26,22 +26,24 @@ the runner runs.
 
 ## Setting up on Windows
 
+> **Radeon cards on Windows:** AMD supports this through WSL for Radeon RX 7000 series cards and some newer ones (see
+> [AMD's WSL support list](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/docs/compatibility/compatibilityrad/wsl/wsl_compatibility.html)).
+> Radeon RX 6000 cards are not on that list; on those, use Linux instead.
+
 The runner works inside **WSL**, the Linux system built into Windows. Everything it does stays inside it, and it can be
 removed completely with one command (see [Removing it](#removing-it)). The same setup works later on a Linux PC.
 
-1. **Update the NVIDIA driver.** Install the newest Game Ready or Studio driver from NVIDIA. That is all WSL needs to
-   use the graphics card; do not install a driver inside Linux.
+1. **Update the graphics driver.** NVIDIA: install the newest Game Ready or Studio driver; that is all WSL needs, so do
+   not install a driver inside Linux. Radeon: install the newest Adrenalin driver, then, after step 2, AMD's ROCm for
+   WSL by following [AMD's WSL guide](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/index.html).
 2. **Install Ubuntu in WSL.** Open **Terminal** or **PowerShell** as administrator and run:
    ```
    wsl --install -d Ubuntu-24.04
    ```
    Restart when asked. Ubuntu then opens and asks for a user name and a password for Linux (they do not need to match
    your Windows account).
-3. **Check the graphics card.** In the Ubuntu window, run:
-   ```
-   nvidia-smi
-   ```
-   It should list your card. If it says the command is not found, update the NVIDIA driver (step 1) and restart.
+3. **Check the graphics card.** In the Ubuntu window, run `nvidia-smi` (NVIDIA) or `rocminfo` (Radeon, after AMD's
+   ROCm for WSL is installed). It should list your card. If it does not, update the driver (step 1) and restart.
 4. **Keep the runner away from Windows (recommended).** In Ubuntu, run:
    ```
    printf '[boot]\nsystemd = true\n[automount]\nenabled = false\n[interop]\nenabled = false\nappendWindowsPath = false\n' | sudo tee /etc/wsl.conf
@@ -56,12 +58,14 @@ removed completely with one command (see [Removing it](#removing-it)). The same 
    ```
    Open the link it prints and sign in. Installing it inside Ubuntu keeps the setup the same when you move to Linux.
 6. **Run the setup script.** *(Coming soon: this step is added here once the runner is ready.)* One command builds the
-   Python environment, downloads the training code and data (about 100 GB) and shows a key to send to the project. The
+   Python environment for your card (NVIDIA or Radeon), downloads the training code and data (about 100 GB) and shows a key to send to the project. The
    key lets the runner reach one folder on the project's machine, nothing else.
 
 ## Setting up on Linux
 
-Install the NVIDIA driver from your distribution, check the card with `nvidia-smi`, then follow steps 5 and 6 above.
+NVIDIA: install the driver from your distribution and check the card with `nvidia-smi`. Radeon: install ROCm following
+[AMD's Linux guide](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/index.html) and check with `rocminfo`. Then follow
+steps 5 and 6 above. Radeon RX 6000 cards work only on Linux and have not been tested with this project's training yet.
 
 ## Running it
 
