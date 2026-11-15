@@ -1,7 +1,9 @@
 <p align="center">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/banner-dark.svg">
-  <img src="docs/img/banner-light.svg" width="100%" alt="cyboman, FSR4 Performance Overrides: faster AMD FSR 4 upscaling on Windows and Linux">
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="docs/img/boot-dark-m.svg">
+  <source media="(max-width: 600px)" srcset="docs/img/boot-light-m.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/boot-dark.svg">
+  <img src="docs/img/boot-light.svg" width="100%" alt="cyboman, FSR4 Performance Overrides: faster AMD FSR 4 upscaling on Windows and Linux">
 </picture>
 </p>
 
