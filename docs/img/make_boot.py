@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """make_boot.py: the front page's banner in a CRT boot-log style.
 
-Writes boot-{dark,light}.svg (wide banner) and boot-{dark,light}-m.svg (phone layout, used below 600 px) beside this file.
+Writes boot-{dark,light}.svg (wide banner), boot-{dark,light}-m.svg (phone layout, used below 600 px) and btn-*.svg\n(the link buttons under the summary) beside this file.
 The README picks one with <picture> sources (prefers-color-scheme, max-width: 600px).
 
 The text is drawn with a small condensed stroke font defined below (no font files, looks the same everywhere).
@@ -95,7 +95,7 @@ def text_w(s, k):
     return (len(s) * ADV - (ADV - 4)) * k
 
 
-# ---------- the emblem (same geometry as docs/img/make_banner.py), and CYBOMAN in 9x15 bold pixels
+# ---------- the emblem (a broken hexagon around a triangle with a bar; drawn here, no font or image files), and CYBOMAN in 9x15 bold pixels
 EC, PX = 150, 10
 R_IN, R_OUT, TRIM = 102, 126, 0.12
 TRI = [(EC, 52), (EC - 82, 196), (EC + 82, 196)]
@@ -486,7 +486,7 @@ def button(key, label):
          f'<path d="{d}" fill="none" stroke="#8affc1" stroke-width="{SW * k:.2f}" stroke-linecap="square"/>'
          f'<rect x="2" y="2" width="{w - 4}" height="{h - 4}" rx="5" fill="url(#sc)"/>'
          '</svg>')
-    open(os.path.join(G, f'bbtn-{key}.svg'), 'w').write(s + '\n')
+    open(os.path.join(G, f'btn-{key}.svg'), 'w').write(s + '\n')
     return w
 
 
@@ -511,6 +511,8 @@ def divider(n):
 
 for n, t in TH.items():
     banner(n, t)
+for k_, l_ in BTNS:
+    button(k_, l_)
 
 
 

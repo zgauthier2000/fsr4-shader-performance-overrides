@@ -14,10 +14,15 @@ FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the 
 
 <a href="https://www.buymeacoffee.com/cyboman"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me a Coffee" height="36"></a>
 
-**[Download](#quick-start)** · [What to expect](#what-to-expect) · [New in this release](#new-in-this-release) · [Timing kit](#help-test-it-the-timing-kit) ·
-[Recorded game clips, side by side](https://zgauthier2000.github.io/fsr4-upscaler-compare/) · [All pages](#more)
+<a href="#quick-start"><img src="docs/img/btn-download.svg" height="32" alt="Download"></a> <a href="#what-to-expect"><img src="docs/img/btn-expect.svg" height="32" alt="What to expect"></a> <a href="#new-in-this-release"><img src="docs/img/btn-new.svg" height="32" alt="What's new"></a> <a href="#help-test-it-the-timing-kit"><img src="docs/img/btn-kit.svg" height="32" alt="Timing kit"></a>
+<a href="https://zgauthier2000.github.io/fsr4-upscaler-compare/"><img src="docs/img/btn-clips.svg" height="32" alt="Recorded game clips, side by side"></a> <a href="#more"><img src="docs/img/btn-pages.svg" height="32" alt="All pages"></a>
 
 </div>
+
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
 
 ## Quick start
 
@@ -69,6 +74,11 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 **To undo it,** delete the file and rename the `.orig` file back.
 
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
+
 ## What to expect
 
 <picture>
@@ -88,6 +98,11 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
   the picture's motion in between: [exact and lossy compared](docs/exact-vs-lossy.md), [frame pacing](docs/frame-pacing.md).
 - **None of this project's DLLs work on Radeon RX 5000 (RDNA 1) cards,** on Windows or Linux, nor on RX Vega cards under Windows: FSR 4 gives
   only a black picture there ([issue #43](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/43)).
+
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
 
 ## New in this release
 
@@ -109,6 +124,11 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 Earlier releases: [release pages](docs/releases/README.md), each against the one before it, and the [changelog](docs/changelog.md).
 
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
+
 ## Help test it: the timing kit
 
 ### Windows timing kit
@@ -123,6 +143,11 @@ than twenty graphics chips so far; every further card helps, including GeForce a
 
 Optional: the kit asks for a name or nickname for the [thank-you page](docs/thanks.md).
 [What the kits do](timing-kit/README.md#windows-experimental) · [what each kit version added](timing-kit/README.md#what-each-kit-version-added)
+
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
 
 ## Will it work for me?
 
@@ -145,6 +170,11 @@ then start as well.
 
 If the archive for your card is slower than AMD's file, or a game crashes with it, try another archive: they differ only in how
 a few shaders are built (the integrated-graphics ones build network pass 11 smaller). Details: [GPU support](docs/gpu-support.md).
+
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
 
 ## Linux: a launch option instead of the DLL
 
@@ -173,6 +203,11 @@ On Linux you can leave AMD's DLL in place and give the game the replacement shad
   whether the prebuilt files fit.
 
 If it does not get faster: [Linux guide](docs/linux.md).
+
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
 
 ## Good to know
 
@@ -205,6 +240,11 @@ If it does not get faster: [Linux guide](docs/linux.md).
 > modes:** at 4K about 3.2 to 2.5 ms per frame on an RX 7800 XT, and its picture costs there are larger than in other
 > modes ([details](docs/releases/dll-2026-10-15.md)).
 
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
+
 ## More
 
 | Page | What is in it |
@@ -230,6 +270,11 @@ If it does not get faster: [Linux guide](docs/linux.md).
 | [Earlier releases](docs/changelog.md) | what each release changed, newest first |
 | [Research](research) | the probes, data and scripts behind all of it |
 
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
+
 ## Credits and license
 
 The postpass rewrite is adapted from `tools/fsr4cap/postpass_lds.py` in
@@ -246,6 +291,11 @@ with or endorsed by AMD.
 [DeckyUpscaler](https://github.com/doodlum/DeckyUpscaler), by doodlum, runs FSR 4 Lite on the Steam Deck. Its author invited this project to learn from it, fixed a fault this project reported, and allowed its builds in the Linux timing kit; see [what we found](docs/deckyupscaler.md).
 
 Testers who have asked to be named are listed on the [thank-you page](docs/thanks.md).
+
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/divider-dark.svg">
+  <img src="docs/img/divider-light.svg" width="100%" alt="">
+</picture></p>
 
 ## Star History
 
