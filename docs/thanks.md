@@ -11,6 +11,7 @@ Every report is a valued part of this project, including the many sent without a
 
 - **[DeckyUpscaler](https://github.com/doodlum/DeckyUpscaler), by doodlum.** Its author invited this project to look at the work and use what helps, published the shaders and notes behind it, and allowed its builds in the Linux timing kit. See [what we found](deckyupscaler.md).
 - **[HelixSR](https://github.com/lonewolf0622/HelixSR), by lonewolf0622.** It publishes its source under GPL-2.0-or-later, which let this project time a form of its pass 11 in the timing kit (`n-exact-r3-hlx11`, credited in the kit's NOTICE), and its published results and ideas have been useful to compare against and learn from.
+- **[OptiScaler](https://github.com/optiscaler/OptiScaler), by the OptiScaler team.** It is how this project's DLLs reach games: it puts FSR 4 into games that ship with other upscalers and loads the DLL a player picks. The way it reads FSR 4 version names also shaped how this project's builds are named.
 
 ## Testers who asked to be named
 
