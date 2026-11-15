@@ -12,7 +12,7 @@
 Makes AMD FSR 4.1.2 upscaling faster on Radeon graphics cards, on Windows and Linux, by replacing
 FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the game changes.
 
-<a href="https://www.buymeacoffee.com/cyboman"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me a Coffee" height="36"></a>
+<a href="https://www.buymeacoffee.com/cyboman"><img src="docs/img/btn-coffee.svg" height="32" alt="Buy Me a Coffee"></a>
 
 <a href="#quick-start"><img src="docs/img/btn-download.svg" height="32" alt="Download"></a> <a href="#what-to-expect"><img src="docs/img/btn-expect.svg" height="32" alt="What to expect"></a> <a href="#new-in-this-release"><img src="docs/img/btn-new.svg" height="32" alt="What's new"></a> <a href="#help-test-it-the-timing-kit"><img src="docs/img/btn-kit.svg" height="32" alt="Timing kit"></a>
 <a href="https://zgauthier2000.github.io/fsr4-upscaler-compare/"><img src="docs/img/btn-clips.svg" height="32" alt="Recorded game clips, side by side"></a> <a href="#more"><img src="docs/img/btn-pages.svg" height="32" alt="All pages"></a>

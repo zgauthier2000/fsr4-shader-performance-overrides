@@ -18,6 +18,8 @@ G = HERE
 O_ = [(1, 0), (3, 0), (4, 1), (4, 7), (3, 8), (1, 8), (0, 7), (0, 1), (1, 0)]
 P_ = [(0, 8), (0, 0), (3, 0), (4, 1), (4, 3), (3, 4), (0, 4)]
 F = {
+    '\u2615': [[(1.2, 0), (1.7, 0.8), (1.2, 1.6), (1.7, 2.3)], [(2.8, 0), (3.3, 0.8), (2.8, 1.6), (3.3, 2.3)],
+               [(0, 3.4), (0, 7), (1, 8), (3, 8), (4, 7), (4, 3.4), (0, 3.4)], [(4, 4.3), (5.3, 4.3), (5.3, 6.1), (4, 6.1)]],      # coffee cup (the Buy Me a Coffee button)
     'A': [[(0, 8), (0, 1), (1, 0), (3, 0), (4, 1), (4, 8)], [(0, 4.5), (4, 4.5)]],
     'B': [[(0, 4), (3, 4), (4, 3), (4, 1), (3, 0), (0, 0), (0, 8), (3, 8), (4, 7), (4, 5), (3, 4)]],
     'C': [[(4, 0), (1, 0), (0, 1), (0, 7), (1, 8), (4, 8)]],
@@ -468,7 +470,7 @@ def banner(n, t, suffix=''):
 
 # ---------- buttons: same frame as before, label in the stroke font
 BTNS = [('download', 'DOWNLOAD'), ('expect', 'WHAT TO EXPECT'), ('new', "WHAT'S NEW"), ('kit', 'TIMING KIT'),
-        ('clips', 'GAME CLIPS'), ('pages', 'MORE PAGES')]
+        ('clips', 'GAME CLIPS'), ('pages', 'MORE PAGES'), ('coffee', 'BUY ME A COFFEE \u2615')]
 
 
 def button(key, label):
@@ -476,7 +478,7 @@ def button(key, label):
     tw = text_w('> ' + label, k)
     w = int(tw + 30); h = 32
     d = text_d('> ' + label, 15, (h - 8 * k) / 2, k)
-    s = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label.title()}">'
+    s = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label.replace(chr(0x2615), '').strip().title()}">'
          '<defs><filter id="g" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="1.6"/></filter>'
          f'<pattern id="sc" width="4" height="4" patternUnits="userSpaceOnUse"><rect y="2.6" width="4" height="1.4" fill="#000" opacity="0.35"/></pattern></defs>'
          f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="6" fill="#040806" stroke="#3dff8f" stroke-width="1.5"/>'
