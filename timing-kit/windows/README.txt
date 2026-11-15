@@ -6,7 +6,7 @@ fails or shows something odd on your PC, that is exactly the report the project 
 
 Times FSR 4.1.1 the way a game runs it, with AMD's own shaders and with this project's DLLs, on
 your graphics card. No game and no OptiScaler are needed, and nothing is installed or changed.
-https://github.com/zgauthier2000/fsr4-shader-performance-overrides
+https://github.com/zgauthier2000/fsr4-shader-performance-overrides#readme
 
 The DLLs in this kit are for timing in this kit only, not for use in games: they are not checked
 or supported there, and the test builds can show a wrong picture in a game. For games, use the
