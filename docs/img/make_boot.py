@@ -470,7 +470,7 @@ def banner(n, t, suffix=''):
 BTNS = [('download', 'DOWNLOAD'), ('expect', 'WHAT TO EXPECT'), ('new', "WHAT'S NEW"), ('kit', 'TIMING KIT'),
         ('clips', 'GAME CLIPS'), ('pages', 'MORE PAGES'), ('coffee', 'BUY ME A COFFEE')]
 
-# icons: (scale, (width, height) in icon units, stroke lines); the cup: two wavy steam lines, the cup, its handle
+# icons: (scale, (width, height) in icon units, stroke lines), drawn in amber (#ffb000 glow, #ffd27a core); the cup: two wavy steam lines, the cup, its handle
 ICONS = {'coffee': (2.0, (5.6, 9.4), [[(1.3, 0), (1.9, 0.9), (1.3, 1.8), (1.9, 2.6)], [(3.0, 0), (3.6, 0.9), (3.0, 1.8), (3.6, 2.6)],
                                       [(0, 3.8), (0, 8.2), (1.2, 9.4), (3.4, 9.4), (4.6, 8.2), (4.6, 3.8), (0, 3.8)],
                                       [(4.6, 5.0), (5.6, 5.0), (5.6, 7.2), (4.6, 7.2)]])}
@@ -481,11 +481,11 @@ def button(key, label):
     tw = text_w('> ' + label, k)
     h = 32
     d = text_d('> ' + label, 15, (h - 8 * k) / 2, k)
-    w = int(tw + 30)
+    w = int(tw + 30); di = None
     if key in ICONS:      # an icon after the label, drawn at its own scale (taller than the letters), same strokes
         ki, (iw, ih), lines = ICONS[key]
         x0, y0 = 15 + tw + 2.2 * ADV * k / 2, (h - ih * ki) / 2
-        d += ' ' + ' '.join('M' + 'L'.join(f'{x0 + x * ki:.2f} {y0 + y * ki:.2f}' for x, y in ln) for ln in lines)
+        di = ' '.join('M' + 'L'.join(f'{x0 + x * ki:.2f} {y0 + y * ki:.2f}' for x, y in ln) for ln in lines)
         w = int(x0 + iw * ki + 15)
     s = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label.title()}">'
          '<defs><filter id="g" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="1.6"/></filter>'
@@ -495,6 +495,9 @@ def button(key, label):
          f'<path d="{d}" fill="none" stroke="#ff2e63" stroke-width="{SW * k:.2f}" stroke-linecap="square" opacity="0.3" transform="translate(-1 0)"/>'
          f'<path d="{d}" fill="none" stroke="#2ee6ff" stroke-width="{SW * k:.2f}" stroke-linecap="square" opacity="0.3" transform="translate(1 0)"/>'
          f'<path d="{d}" fill="none" stroke="#8affc1" stroke-width="{SW * k:.2f}" stroke-linecap="square"/>'
+         + (f'<path d="{di}" fill="none" stroke="#ffb000" stroke-width="{SW * k:.2f}" stroke-linecap="square" stroke-linejoin="bevel" filter="url(#g)" opacity="0.75"/>'
+            f'<path d="{di}" fill="none" stroke="#ff2e63" stroke-width="{SW * k:.2f}" stroke-linecap="square" stroke-linejoin="bevel" opacity="0.3" transform="translate(-1 0)"/>'
+            f'<path d="{di}" fill="none" stroke="#ffd27a" stroke-width="{SW * k:.2f}" stroke-linecap="square" stroke-linejoin="bevel"/>' if di else '') +
          f'<rect x="2" y="2" width="{w - 4}" height="{h - 4}" rx="5" fill="url(#sc)"/>'
          '</svg>')
     open(os.path.join(G, f'btn-{key}.svg'), 'w').write(s + '\n')
