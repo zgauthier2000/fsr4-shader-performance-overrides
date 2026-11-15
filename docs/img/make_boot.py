@@ -286,7 +286,7 @@ def logo_dims():
 
 def banner(n, t, suffix=''):
     css = f"""
-.ln{{animation:on .01s steps(1) both}}
+.ln{{animation:on .4s steps(1,start) both}}
 @keyframes on{{from{{opacity:0}}to{{opacity:1}}}}
 .gh{{opacity:0;animation:gh .7s linear both}}
 @keyframes gh{{0%{{opacity:0}}15%{{opacity:.28}}45%{{opacity:.12}}60%{{opacity:.22}}100%{{opacity:0}}}}
