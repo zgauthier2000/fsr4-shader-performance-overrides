@@ -468,12 +468,16 @@ def banner(n, t, suffix=''):
 
 # ---------- buttons: same frame as before, label in the stroke font
 BTNS = [('download', 'DOWNLOAD'), ('expect', 'WHAT TO EXPECT'), ('new', "WHAT'S NEW"), ('kit', 'TIMING KIT'),
-        ('clips', 'GAME CLIPS'), ('pages', 'MORE PAGES'), ('coffee', 'BUY ME A COFFEE')]
+        ('clips', 'GAME CLIPS'), ('pages', 'MORE PAGES'), ('coffee', 'BUY ME A COFFEE'), ('sponsor', 'SPONSOR')]
 
 # icons: (scale, (width, height) in icon units, stroke lines), drawn in amber (#ffb000 glow, #ffd27a core); the cup: two wavy steam lines, the cup, its handle
 ICONS = {'coffee': (2.0, (5.6, 9.4), [[(1.3, 0), (1.9, 0.9), (1.3, 1.8), (1.9, 2.6)], [(3.0, 0), (3.6, 0.9), (3.0, 1.8), (3.6, 2.6)],
                                       [(0, 3.8), (0, 8.2), (1.2, 9.4), (3.4, 9.4), (4.6, 8.2), (4.6, 3.8), (0, 3.8)],
-                                      [(4.6, 5.0), (5.6, 5.0), (5.6, 7.2), (4.6, 7.2)]])}
+                                      [(4.6, 5.0), (5.6, 5.0), (5.6, 7.2), (4.6, 7.2)]]),
+         # the heart (GitHub Sponsors): one closed outline
+         'sponsor': (2.4, (6.0, 6.0), [[(3.0, 1.3), (2.2, 0.3), (1.0, 0.3), (0, 1.5), (0, 2.8), (3.0, 6.0), (6.0, 2.8), (6.0, 1.5), (5.0, 0.3), (3.8, 0.3), (3.0, 1.3)]])}
+# icon colors (glow, core): amber for the cup, pink for the heart
+ICOL = {'coffee': ('#ffb000', '#ffd27a'), 'sponsor': ('#ff4fa3', '#ffa3cf')}
 
 
 def button(key, label):
@@ -483,7 +487,7 @@ def button(key, label):
     d = text_d('> ' + label, 15, (h - 8 * k) / 2, k)
     w = int(tw + 30); di = None
     if key in ICONS:      # an icon after the label, drawn at its own scale (taller than the letters), same strokes
-        ki, (iw, ih), lines = ICONS[key]
+        ki, (iw, ih), lines = ICONS[key]; glow, core = ICOL[key]
         x0, y0 = 15 + tw + 2.2 * ADV * k / 2, (h - ih * ki) / 2
         di = ' '.join('M' + 'L'.join(f'{x0 + x * ki:.2f} {y0 + y * ki:.2f}' for x, y in ln) for ln in lines)
         w = int(x0 + iw * ki + 15)
@@ -495,9 +499,9 @@ def button(key, label):
          f'<path d="{d}" fill="none" stroke="#ff2e63" stroke-width="{SW * k:.2f}" stroke-linecap="square" opacity="0.3" transform="translate(-1 0)"/>'
          f'<path d="{d}" fill="none" stroke="#2ee6ff" stroke-width="{SW * k:.2f}" stroke-linecap="square" opacity="0.3" transform="translate(1 0)"/>'
          f'<path d="{d}" fill="none" stroke="#8affc1" stroke-width="{SW * k:.2f}" stroke-linecap="square"/>'
-         + (f'<path d="{di}" fill="none" stroke="#ffb000" stroke-width="{SW * k:.2f}" stroke-linecap="square" stroke-linejoin="bevel" filter="url(#g)" opacity="0.75"/>'
+         + (f'<path d="{di}" fill="none" stroke="{glow}" stroke-width="{SW * k:.2f}" stroke-linecap="square" stroke-linejoin="bevel" filter="url(#g)" opacity="0.75"/>'
             f'<path d="{di}" fill="none" stroke="#ff2e63" stroke-width="{SW * k:.2f}" stroke-linecap="square" stroke-linejoin="bevel" opacity="0.3" transform="translate(-1 0)"/>'
-            f'<path d="{di}" fill="none" stroke="#ffd27a" stroke-width="{SW * k:.2f}" stroke-linecap="square" stroke-linejoin="bevel"/>' if di else '') +
+            f'<path d="{di}" fill="none" stroke="{core}" stroke-width="{SW * k:.2f}" stroke-linecap="square" stroke-linejoin="bevel"/>' if di else '') +
          f'<rect x="2" y="2" width="{w - 4}" height="{h - 4}" rx="5" fill="url(#sc)"/>'
          '</svg>')
     open(os.path.join(G, f'btn-{key}.svg'), 'w').write(s + '\n')
