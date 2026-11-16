@@ -91,12 +91,25 @@ li { margin-bottom: 6px; }
 details.lyr { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; margin-bottom: 8px; }
 details.lyr summary { cursor: pointer; font-family: var(--display); font-weight: 500; }
 details.lyr p { margin: 10px 0 4px; line-height: 1.6; }
+.get { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.get a.btn { display: block; text-decoration: none; color: var(--ink); background: var(--panel); border: 2px solid var(--accent); border-radius: 10px; padding: 14px 18px; }
+.get a.btn:hover { background: var(--bg); } .get a.btn b { font-family: var(--display); font-size: 1.1rem; display: block; color: var(--accent); }
+.get a.btn span { color: var(--muted); font-size: 0.92rem; } .get a.btn.alt { border-color: var(--cool); } .get a.btn.alt b { color: var(--cool); }
 .hero { border-left: 4px solid var(--accent); padding-left: 16px; }
 </style></head><body><main>
 <header class="prose hero">
 <h1>Cyboman Computer Music</h1>
 <p class="lede">The songs of the FSR 4 timing kit: fourteen tracks, about 25 minutes in all, about the project itself. They are written as code. Every note, drum hit and instrument comes from a Python script, and the singing comes from a text-to-speech voice taught to hold a tune.</p>
 </header>
+
+<section id="get"><h2>Hear them</h2>
+<div class="get">
+<a class="btn" href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/timing-kit/README.md#windows-experimental"><b>Timing kit for Windows &rarr;</b><span>Where the songs play: run the kit, press Space for music, and help measure FSR 4 on your card.</span></a>
+<a class="btn" href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/timing-kit/README.md#linux-and-steam-deck-experimental"><b>Timing kit for Linux and Steam Deck &rarr;</b><span>The same kit and the same music player, under Proton.</span></a>
+<a class="btn alt" href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/music-2026-11-14/cyboman-computer-music-2026-11-14.zip"><b>Download the music only &darr;</b><span>All 14 songs as Ogg files, with credits and lyrics (zip, 16 MB).</span></a>
+</div>
+<p class="about">The music-only zip is on its own <a href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/music-2026-11-14">release page</a>, with a SHA256SUMS file.</p>
+</section>
 
 <section class="prose">
 <h2>What it is</h2>
@@ -315,6 +328,6 @@ details.lyr p { margin: 10px 0 4px; line-height: 1.6; }
 <p>Songs 01 to 11: music and lyrics by the FSR 4 performance overrides project. Singing voice: <a href="https://github.com/rhasspy/piper">Piper</a> text-to-speech with the "alba" voice, trained on the Edinburgh "alba" speech corpus (CC BY 4.0).</p>
 <p>Songs 12 and 14: words, music and arrangement written as code by cyboman with Claude (an AI assistant); instruments synthesized in numpy. Voice: <a href="https://github.com/QwenLM/Qwen3-TTS">Qwen3-TTS</a> (Apache 2.0), sung onto the melody with WORLD / Praat and <a href="https://github.com/Plachtaa/seed-vc">Seed-VC</a> (GPL-3.0).</p>
 <p>Song 13: words written as code by cyboman with Claude (an AI assistant); no music: wind, rain and thunder synthesized in numpy. Voice: Qwen3-TTS (Apache 2.0).</p>
-<p>All songs are free to share with the kit.</p>
+<p>All songs are free to share. Get them with the <a href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/timing-kit/README.md">timing kit</a> or as <a href="https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/music-2026-11-14/cyboman-computer-music-2026-11-14.zip">a music-only zip</a>.</p>
 </section>
 </main></body></html>

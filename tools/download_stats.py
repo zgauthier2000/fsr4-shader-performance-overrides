@@ -53,6 +53,8 @@ with open(out + '/runs.csv', 'a', newline='') as f:
 def kind(r):
     if r['tag'].startswith('timing-kit'):
         return 'Timing kit: Windows' if 'windows' in r['file'] else 'Timing kit: Linux' if r['file'].endswith('.tar.gz') else None
+    if r['tag'].startswith('music-'):      # the songs alone (Cyboman Computer Music archives), since music-2026-11-14 (2026-11-16)
+        return 'Music' if r['file'].endswith('.zip') else None
     if r['tag'].startswith('reference-scenes'):      # reference frames for other implementations (pictures and inputs, no DLLs), since reference-scenes-1 (2026-11-13)
         return 'Reference frames' if r['file'].endswith('.7z') else None
     if not r['file'].endswith(('.zip', '.7z', '.dll')):      # .7z twins since dll-2026-10-19 (they were left out of the kinds until 2026-10-22)
@@ -66,7 +68,7 @@ for r in last.values():
 order = [r['tag_name'] for r in rel] + sorted((t for t in tags if t not in {r['tag_name'] for r in rel}), reverse=True)
 since = min((r['date'] for r in first.values()), default=now)
 # ---- per day: the last reading of every day (UTC), and what was added since the last reading of the day before, split by kind from downloads.csv
-KINDS = ['DLLs: desktop cards and other', 'DLLs: integrated graphics', 'Timing kit: Windows', 'Timing kit: Linux', 'Reference frames']
+KINDS = ['DLLs: desktop cards and other', 'DLLs: integrated graphics', 'Timing kit: Windows', 'Timing kit: Linux', 'Reference frames', 'Music']
 runs = [(r[0], int(r[3])) for r in list(csv.reader(open(out + '/runs.csv', newline='')))[1:] if len(r) > 3]
 rows = list(csv.DictReader(open(path, newline='')))
 days = []      # (day, time of the reading, total, {kind: total})
