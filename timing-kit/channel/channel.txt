@@ -1,21 +1,21 @@
 fsr4-kit-channel 1
-serial 27
-pack.windows.serial 27
-pack.windows.version 2026-11-16aw
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-16aw.pack
-pack.windows.size 85111394
-pack.windows.sha256 04a4c23dc4f29518f41393a5b6f5fa153d30a366d9da4629a2ed3c2ed0f90352
+serial 28
+pack.windows.serial 28
+pack.windows.version 2026-11-17aw
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-17aw.pack
+pack.windows.size 93464568
+pack.windows.sha256 4e239c30eb3ad5da575fd20fa838a4aae68bb40300a9f28e30a2d93a44af4cad
 pack.windows.min_build 4
 pack.windows.busy none
-pack.linux.serial 27
-pack.linux.version 2026-11-16al
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-16al.pack
-pack.linux.size 83169417
-pack.linux.sha256 fb20d7725d818bab718f4483ee3197a22a28c26d659721466a843014b874a539
+pack.linux.serial 28
+pack.linux.version 2026-11-17al
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-17al.pack
+pack.linux.size 90487392
+pack.linux.sha256 1218c22b1f4dc0d81c939c47d546f95cf0fcf01e369fa24600a824635aea150f
 pack.linux.min_build 4
 pack.linux.busy none
-pack.windows.note New: n-lossy-<card>-n16hl-rq and lt149-test / lt150-test: n-lossy-<card>-n16hl and lt147-test / lt148-test with a cheaper rounding step inside the network (the picture changes very slightly); each is compared with the build it was made from. Other tests as before.
-pack.linux.note New: n-lossy-<card>-n16hl-rq and lt149-test / lt150-test: n-lossy-<card>-n16hl and lt147-test / lt148-test with a cheaper rounding step inside the network (the picture changes very slightly); each is compared with the build it was made from. Other tests as before.
+pack.windows.note New: n-lossy-<card>-next and lt151-test / lt152-test: speed tests of the next lossy and 4.1.2l-lossy builds. They run with test weights, so their picture is not the final one; each is compared with n-lossy-<card>-n16hl-rq or lt149-test / lt150-test for speed only. Other tests as before.
+pack.linux.note New: n-lossy-<card>-next and lt151-test / lt152-test: speed tests of the next lossy and 4.1.2l-lossy builds. They run with test weights, so their picture is not the final one; each is compared with n-lossy-<card>-n16hl-rq or lt149-test / lt150-test for speed only. Other tests as before.
 music.serial 4
 music.version 2026-11-14
 music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/music-2026-11-14.zip
@@ -30,4 +30,4 @@ program.linux.version 2026-11-14
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz
 program.note This version can also time FSR 4 for Vulkan games (on RX 6000 and RX 7000 cards), shows a progress bar with the time left, and brings three new songs.
 message Kit 2026-11-14 is the newest version. If yours is older, the new tests (Vulkan and more) need it: https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-11-14
-sig e7b18d925275a861b724375113cf89719e2aff42f48c0c7b79221fbaac0deaa65bd6b02a9610a8feb95ee91ab4dc826df280fe224fc1290b3f7c19da755a1708
+sig fabd70b530b995eb4a698e8e73e28188d1f00bc5c23dde9a23b108d1d8b8827bf56d3010222e42cf6c81c36ca80bae2fcc2dc3a51df128a2b4e216d4fab9c103
