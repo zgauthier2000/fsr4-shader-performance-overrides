@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" width="760" height="440" role="img" aria-label="Two charts of the downloads of the release files. Total at each day's reading: 2026-11-03 27,008, 2026-11-04 27,381, 2026-11-05 27,672, 2026-11-06 28,393, 2026-11-07 29,176, 2026-11-08 29,665, 2026-11-09 30,435, 2026-11-10 30,792, 2026-11-11 31,079, 2026-11-12 31,468, 2026-11-13 31,714, 2026-11-14 32,018, 2026-11-15 32,352, 2026-11-16 32,694. Downloads added per day: 2026-11-03 481, 2026-11-04 373, 2026-11-05 291, 2026-11-06 721, 2026-11-07 783, 2026-11-08 489, 2026-11-09 770, 2026-11-10 357, 2026-11-11 287, 2026-11-12 389, 2026-11-13 246, 2026-11-14 304, 2026-11-15 334, 2026-11-16 342.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" width="760" height="440" role="img" aria-label="Two charts of the downloads of the release files. Total at each day's reading: 2026-11-04 27,381, 2026-11-05 27,672, 2026-11-06 28,393, 2026-11-07 29,176, 2026-11-08 29,665, 2026-11-09 30,435, 2026-11-10 30,792, 2026-11-11 31,079, 2026-11-12 31,468, 2026-11-13 31,714, 2026-11-14 32,018, 2026-11-15 32,352, 2026-11-16 32,694, 2026-11-17 32,924. Downloads added per day: 2026-11-04 373, 2026-11-05 291, 2026-11-06 721, 2026-11-07 783, 2026-11-08 489, 2026-11-09 770, 2026-11-10 357, 2026-11-11 287, 2026-11-12 389, 2026-11-13 246, 2026-11-14 304, 2026-11-15 334, 2026-11-16 342, 2026-11-17 230.">
 <rect width="760" height="440" fill="#fcfcfb"/>
 <text x="24.0" y="30.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">Downloads of the release files</text>
-<text x="24.0" y="48.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">All files of all releases, at each day's reading (UTC). Total now: 32,694.</text>
+<text x="24.0" y="48.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">All files of all releases, at each day's reading (UTC). Total now: 32,924.</text>
 <text x="24.0" y="80.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">Total downloads</text>
 <line x1="64" y1="212.0" x2="736" y2="212.0" stroke="#e1e0d9" stroke-width="1"/>
 <text x="56.0" y="216.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">10,000</text>
@@ -15,9 +15,9 @@
 <text x="56.0" y="120.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">30,000</text>
 <line x1="64" y1="92.0" x2="736" y2="92.0" stroke="#e1e0d9" stroke-width="1"/>
 <text x="56.0" y="96.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">35,000</text>
-<polyline points="94.0,196.3 111.0,193.3 128.0,188.4 145.0,183.9 162.0,180.3 179.0,176.6 196.0,173.7 213.0,170.8 230.0,167.9 247.0,165.1 264.0,161.5 281.0,158.5 298.0,155.8 315.0,152.4 332.0,150.4 349.0,148.6 366.0,147.5 383.0,146.6 400.0,145.5 417.0,140.5 434.0,137.6 451.0,135.6 468.0,132.7 485.0,130.4 502.0,128.6 519.0,127.2 536.0,123.7 553.0,120.0 570.0,117.6 587.0,113.9 604.0,112.2 621.0,110.8 638.0,109.0 655.0,107.8 672.0,106.3 689.0,104.7 706.0,103.1" fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="94.0,196.3 110.5,193.3 127.1,188.4 143.6,183.9 160.2,180.3 176.7,176.6 193.2,173.7 209.8,170.8 226.3,167.9 242.9,165.1 259.4,161.5 275.9,158.5 292.5,155.8 309.0,152.4 325.6,150.4 342.1,148.6 358.6,147.5 375.2,146.6 391.7,145.5 408.3,140.5 424.8,137.6 441.4,135.6 457.9,132.7 474.4,130.4 491.0,128.6 507.5,127.2 524.1,123.7 540.6,120.0 557.1,117.6 573.7,113.9 590.2,112.2 606.8,110.8 623.3,109.0 639.8,107.8 656.4,106.3 672.9,104.7 689.5,103.1 706.0,102.0" fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round"/>
 <text x="94.0" y="186.3" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#0b0b0b">13,267</text>
-<text x="706.0" y="93.1" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#0b0b0b">32,694</text>
+<text x="706.0" y="92.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#0b0b0b">32,924</text>
 <text x="24.0" y="260.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">Downloads added since the reading of the day before</text>
 <line x1="64" y1="392.0" x2="736" y2="392.0" stroke="#e1e0d9" stroke-width="1"/>
 <text x="56.0" y="396.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">0</text>
@@ -27,62 +27,63 @@
 <text x="56.0" y="316.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">1,000</text>
 <line x1="64" y1="272.0" x2="736" y2="272.0" stroke="#e1e0d9" stroke-width="1"/>
 <text x="56.0" y="276.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="end" fill="#898781">1,500</text>
-<path d="M105.0,392 v-47.1 q0,-4 4,-4 h3.9 q4,0 4,4 v47.1 z" fill="#2a78d6"/>
-<path d="M122.0,392 v-76.6 q0,-4 4,-4 h3.9 q4,0 4,4 v76.6 z" fill="#2a78d6"/>
-<path d="M139.1,392 v-70.5 q0,-4 4,-4 h3.9 q4,0 4,4 v70.5 z" fill="#2a78d6"/>
-<path d="M156.1,392 v-57.1 q0,-4 4,-4 h3.9 q4,0 4,4 v57.1 z" fill="#2a78d6"/>
-<path d="M173.1,392 v-57.9 q0,-4 4,-4 h3.9 q4,0 4,4 v57.9 z" fill="#2a78d6"/>
-<path d="M190.1,392 v-43.9 q0,-4 4,-4 h3.9 q4,0 4,4 v43.9 z" fill="#2a78d6"/>
-<path d="M207.1,392 v-44.9 q0,-4 4,-4 h3.9 q4,0 4,4 v44.9 z" fill="#2a78d6"/>
-<path d="M224.1,392 v-43.9 q0,-4 4,-4 h3.9 q4,0 4,4 v43.9 z" fill="#2a78d6"/>
-<path d="M241.1,392 v-41.9 q0,-4 4,-4 h3.9 q4,0 4,4 v41.9 z" fill="#2a78d6"/>
-<path d="M258.1,392 v-56.6 q0,-4 4,-4 h3.9 q4,0 4,4 v56.6 z" fill="#2a78d6"/>
-<path d="M275.1,392 v-45.9 q0,-4 4,-4 h3.9 q4,0 4,4 v45.9 z" fill="#2a78d6"/>
-<path d="M292.1,392 v-40.2 q0,-4 4,-4 h3.9 q4,0 4,4 v40.2 z" fill="#2a78d6"/>
-<path d="M309.1,392 v-52.9 q0,-4 4,-4 h3.9 q4,0 4,4 v52.9 z" fill="#2a78d6"/>
-<path d="M326.1,392 v-29.8 q0,-4 4,-4 h3.9 q4,0 4,4 v29.8 z" fill="#2a78d6"/>
-<path d="M343.1,392 v-25.0 q0,-4 4,-4 h3.9 q4,0 4,4 v25.0 z" fill="#2a78d6"/>
-<path d="M360.1,392 v-15.9 q0,-4 4,-4 h3.9 q4,0 4,4 v15.9 z" fill="#2a78d6"/>
-<path d="M377.1,392 v-10.4 q0,-4 4,-4 h3.9 q4,0 4,4 v10.4 z" fill="#2a78d6"/>
-<path d="M394.1,392 v-13.4 q0,-4 4,-4 h3.9 q4,0 4,4 v13.4 z" fill="#2a78d6"/>
-<path d="M411.1,392 v-79.3 q0,-4 4,-4 h3.9 q4,0 4,4 v79.3 z" fill="#2a78d6"/>
-<text x="417.0" y="302.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#0b0b0b">1,041</text>
-<path d="M428.1,392 v-45.7 q0,-4 4,-4 h3.9 q4,0 4,4 v45.7 z" fill="#2a78d6"/>
-<path d="M445.1,392 v-28.2 q0,-4 4,-4 h3.9 q4,0 4,4 v28.2 z" fill="#2a78d6"/>
-<path d="M462.1,392 v-45.4 q0,-4 4,-4 h3.9 q4,0 4,4 v45.4 z" fill="#2a78d6"/>
-<path d="M479.0,392 v-34.5 q0,-4 4,-4 h3.9 q4,0 4,4 v34.5 z" fill="#2a78d6"/>
-<path d="M496.1,392 v-25.8 q0,-4 4,-4 h3.9 q4,0 4,4 v25.8 z" fill="#2a78d6"/>
-<path d="M513.0,392 v-19.3 q0,-4 4,-4 h3.9 q4,0 4,4 v19.3 z" fill="#2a78d6"/>
-<path d="M530.0,392 v-53.7 q0,-4 4,-4 h3.9 q4,0 4,4 v53.7 z" fill="#2a78d6"/>
-<path d="M547.0,392 v-58.6 q0,-4 4,-4 h3.9 q4,0 4,4 v58.6 z" fill="#2a78d6"/>
-<path d="M564.0,392 v-35.1 q0,-4 4,-4 h3.9 q4,0 4,4 v35.1 z" fill="#2a78d6"/>
-<path d="M581.0,392 v-57.6 q0,-4 4,-4 h3.9 q4,0 4,4 v57.6 z" fill="#2a78d6"/>
-<path d="M598.0,392 v-24.6 q0,-4 4,-4 h3.9 q4,0 4,4 v24.6 z" fill="#2a78d6"/>
-<path d="M615.0,392 v-19.0 q0,-4 4,-4 h3.9 q4,0 4,4 v19.0 z" fill="#2a78d6"/>
-<path d="M632.0,392 v-27.1 q0,-4 4,-4 h3.9 q4,0 4,4 v27.1 z" fill="#2a78d6"/>
-<path d="M649.0,392 v-15.7 q0,-4 4,-4 h3.9 q4,0 4,4 v15.7 z" fill="#2a78d6"/>
-<path d="M666.0,392 v-20.3 q0,-4 4,-4 h3.9 q4,0 4,4 v20.3 z" fill="#2a78d6"/>
-<path d="M683.0,392 v-22.7 q0,-4 4,-4 h3.9 q4,0 4,4 v22.7 z" fill="#2a78d6"/>
-<path d="M700.0,392 v-23.4 q0,-4 4,-4 h3.9 q4,0 4,4 v23.4 z" fill="#2a78d6"/>
-<text x="94.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-11</text>
-<text x="94.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-11</text>
-<text x="162.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-15</text>
-<text x="162.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-15</text>
-<text x="230.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-19</text>
-<text x="230.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-19</text>
-<text x="298.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-23</text>
-<text x="298.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-23</text>
-<text x="366.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-27</text>
-<text x="366.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-27</text>
-<text x="434.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-31</text>
-<text x="434.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-31</text>
-<text x="502.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-04</text>
-<text x="502.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-04</text>
-<text x="570.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-08</text>
-<text x="570.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-08</text>
-<text x="638.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-12</text>
-<text x="638.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-12</text>
-<text x="706.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-16</text>
-<text x="706.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-16</text>
+<path d="M104.8,392 v-47.1 q0,-4 4,-4 h3.6 q4,0 4,4 v47.1 z" fill="#2a78d6"/>
+<path d="M121.3,392 v-76.6 q0,-4 4,-4 h3.6 q4,0 4,4 v76.6 z" fill="#2a78d6"/>
+<path d="M137.8,392 v-70.5 q0,-4 4,-4 h3.6 q4,0 4,4 v70.5 z" fill="#2a78d6"/>
+<path d="M154.4,392 v-57.1 q0,-4 4,-4 h3.6 q4,0 4,4 v57.1 z" fill="#2a78d6"/>
+<path d="M170.9,392 v-57.9 q0,-4 4,-4 h3.6 q4,0 4,4 v57.9 z" fill="#2a78d6"/>
+<path d="M187.5,392 v-43.9 q0,-4 4,-4 h3.6 q4,0 4,4 v43.9 z" fill="#2a78d6"/>
+<path d="M204.0,392 v-44.9 q0,-4 4,-4 h3.6 q4,0 4,4 v44.9 z" fill="#2a78d6"/>
+<path d="M220.5,392 v-43.9 q0,-4 4,-4 h3.6 q4,0 4,4 v43.9 z" fill="#2a78d6"/>
+<path d="M237.1,392 v-41.9 q0,-4 4,-4 h3.6 q4,0 4,4 v41.9 z" fill="#2a78d6"/>
+<path d="M253.6,392 v-56.6 q0,-4 4,-4 h3.6 q4,0 4,4 v56.6 z" fill="#2a78d6"/>
+<path d="M270.2,392 v-45.9 q0,-4 4,-4 h3.6 q4,0 4,4 v45.9 z" fill="#2a78d6"/>
+<path d="M286.7,392 v-40.2 q0,-4 4,-4 h3.6 q4,0 4,4 v40.2 z" fill="#2a78d6"/>
+<path d="M303.2,392 v-52.9 q0,-4 4,-4 h3.6 q4,0 4,4 v52.9 z" fill="#2a78d6"/>
+<path d="M319.8,392 v-29.8 q0,-4 4,-4 h3.6 q4,0 4,4 v29.8 z" fill="#2a78d6"/>
+<path d="M336.3,392 v-25.0 q0,-4 4,-4 h3.6 q4,0 4,4 v25.0 z" fill="#2a78d6"/>
+<path d="M352.9,392 v-15.9 q0,-4 4,-4 h3.6 q4,0 4,4 v15.9 z" fill="#2a78d6"/>
+<path d="M369.4,392 v-10.4 q0,-4 4,-4 h3.6 q4,0 4,4 v10.4 z" fill="#2a78d6"/>
+<path d="M385.9,392 v-13.4 q0,-4 4,-4 h3.6 q4,0 4,4 v13.4 z" fill="#2a78d6"/>
+<path d="M402.5,392 v-79.3 q0,-4 4,-4 h3.6 q4,0 4,4 v79.3 z" fill="#2a78d6"/>
+<text x="408.3" y="302.7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="middle" fill="#0b0b0b">1,041</text>
+<path d="M419.0,392 v-45.7 q0,-4 4,-4 h3.6 q4,0 4,4 v45.7 z" fill="#2a78d6"/>
+<path d="M435.6,392 v-28.2 q0,-4 4,-4 h3.6 q4,0 4,4 v28.2 z" fill="#2a78d6"/>
+<path d="M452.1,392 v-45.4 q0,-4 4,-4 h3.6 q4,0 4,4 v45.4 z" fill="#2a78d6"/>
+<path d="M468.6,392 v-34.5 q0,-4 4,-4 h3.6 q4,0 4,4 v34.5 z" fill="#2a78d6"/>
+<path d="M485.2,392 v-25.8 q0,-4 4,-4 h3.6 q4,0 4,4 v25.8 z" fill="#2a78d6"/>
+<path d="M501.7,392 v-19.3 q0,-4 4,-4 h3.6 q4,0 4,4 v19.3 z" fill="#2a78d6"/>
+<path d="M518.3,392 v-53.7 q0,-4 4,-4 h3.6 q4,0 4,4 v53.7 z" fill="#2a78d6"/>
+<path d="M534.8,392 v-58.6 q0,-4 4,-4 h3.6 q4,0 4,4 v58.6 z" fill="#2a78d6"/>
+<path d="M551.3,392 v-35.1 q0,-4 4,-4 h3.6 q4,0 4,4 v35.1 z" fill="#2a78d6"/>
+<path d="M567.9,392 v-57.6 q0,-4 4,-4 h3.6 q4,0 4,4 v57.6 z" fill="#2a78d6"/>
+<path d="M584.4,392 v-24.6 q0,-4 4,-4 h3.6 q4,0 4,4 v24.6 z" fill="#2a78d6"/>
+<path d="M601.0,392 v-19.0 q0,-4 4,-4 h3.6 q4,0 4,4 v19.0 z" fill="#2a78d6"/>
+<path d="M617.5,392 v-27.1 q0,-4 4,-4 h3.6 q4,0 4,4 v27.1 z" fill="#2a78d6"/>
+<path d="M634.0,392 v-15.7 q0,-4 4,-4 h3.6 q4,0 4,4 v15.7 z" fill="#2a78d6"/>
+<path d="M650.6,392 v-20.3 q0,-4 4,-4 h3.6 q4,0 4,4 v20.3 z" fill="#2a78d6"/>
+<path d="M667.1,392 v-22.7 q0,-4 4,-4 h3.6 q4,0 4,4 v22.7 z" fill="#2a78d6"/>
+<path d="M683.7,392 v-23.4 q0,-4 4,-4 h3.6 q4,0 4,4 v23.4 z" fill="#2a78d6"/>
+<path d="M700.2,392 v-14.4 q0,-4 4,-4 h3.6 q4,0 4,4 v14.4 z" fill="#2a78d6"/>
+<text x="110.5" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-12</text>
+<text x="110.5" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-12</text>
+<text x="176.7" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-16</text>
+<text x="176.7" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-16</text>
+<text x="242.9" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-20</text>
+<text x="242.9" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-20</text>
+<text x="309.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-24</text>
+<text x="309.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-24</text>
+<text x="375.2" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-28</text>
+<text x="375.2" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10-28</text>
+<text x="441.4" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-01</text>
+<text x="441.4" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-01</text>
+<text x="507.5" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-05</text>
+<text x="507.5" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-05</text>
+<text x="573.7" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-09</text>
+<text x="573.7" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-09</text>
+<text x="639.8" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-13</text>
+<text x="639.8" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-13</text>
+<text x="706.0" y="228.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-17</text>
+<text x="706.0" y="408.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">11-17</text>
 <text x="24.0" y="428.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">Readings are not exactly 24 hours apart: the table below gives the hours each one covers.</text>
 </svg>
