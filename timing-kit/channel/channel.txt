@@ -1,21 +1,23 @@
 fsr4-kit-channel 1
-serial 34
-pack.windows.serial 34
-pack.windows.version 2026-11-19aw
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-19aw.pack
-pack.windows.size 100605431
-pack.windows.sha256 4a1657e76880a3f4438359e4cccca8e85343e2e0d127ce878c226b94fc6e53ff
+serial 35
+pack.windows.serial 35
+pack.windows.version 2026-11-19bw
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-19bw.pack
+pack.windows.size 115314117
+pack.windows.sha256 64f5cec3c89f4a1adfa0aab34f6ae25de92f3dab70c10d7b9eafb822b7ebefae
 pack.windows.min_build 4
 pack.windows.busy none
-pack.linux.serial 34
-pack.linux.version 2026-11-19al
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-19al.pack
-pack.linux.size 99393941
-pack.linux.sha256 2484f30a2199aeddce2647d389316034c1742457cc7c667934f3ae4fa59e903b
+pack.windows.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt165-test,lt166-test
+pack.linux.serial 35
+pack.linux.version 2026-11-19bl
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-19bl.pack
+pack.linux.size 112342885
+pack.linux.sha256 5a23008abb5e936628ae69f33892db5b3a5974b8f06ade3f20d354b1c1a1c496
 pack.linux.min_build 4
 pack.linux.busy none
-pack.windows.note New: lt159-test / lt160-test and n-lossy-<card>-next4: speed tests of the next 4.1.2l-lossy and lossy test builds with one more skipped-frame rule (n-lossy-<card>-next4 also adds up the network's sums in a different order); test weights, so their picture is not the final one; compare with lt157-test / lt158-test and n-lossy-<card>-next3. lt161-test / lt162-test: timing probes with part of the finishing pass removed (picture not meaningful); compare with lt159-test / lt160-test. Other tests as before.
-pack.linux.note New: lt159-test / lt160-test and n-lossy-<card>-next4: speed tests of the next 4.1.2l-lossy and lossy test builds with one more skipped-frame rule (n-lossy-<card>-next4 also adds up the network's sums in a different order); test weights, so their picture is not the final one; compare with lt157-test / lt158-test and n-lossy-<card>-next3. lt161-test / lt162-test: timing probes with part of the finishing pass removed (picture not meaningful); compare with lt159-test / lt160-test. Other tests as before.
+pack.linux.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt165-test,lt166-test
+pack.windows.note New: lt163-test, lt164-test, lt165-test and lt166-test: timing probes for the skipped frames of the Lite lossy test build on RX 7000 cards (picture not meaningful); compare lt163-test, lt165-test and lt166-test with lt159-test, and lt164-test with lt160-test. Other tests as before.
+pack.linux.note New: lt163-test, lt164-test, lt165-test and lt166-test: timing probes for the skipped frames of the Lite lossy test build on RX 7000 cards (picture not meaningful); compare lt163-test, lt165-test and lt166-test with lt159-test, and lt164-test with lt160-test. Other tests as before.
 music.serial 4
 music.version 2026-11-14
 music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/music-2026-11-14.zip
@@ -30,4 +32,4 @@ program.linux.version 2026-11-14
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz
 program.note This version can also time FSR 4 for Vulkan games (on RX 6000 and RX 7000 cards), shows a progress bar with the time left, and brings three new songs.
 message Kit 2026-11-14 is the newest version. If yours is older, the new tests (Vulkan and more) need it: https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-11-14
-sig fff5dc029f9fceac3e97234d7cb4746748c764c66812d58b34b8294c42bc8a374bdf94cf180ed5fd0ef33d5aca8490f0917f007a6c33d61b4d69349ee1b8980f
+sig 167862959204c7e4fe47d1ac2ae7fd7baadc95ecfa9f9cf25f7aec57fe5867f1a5ce4ea3b6d040a960c35815c603594addd8d563f6b1b2d8003e741ce6bc4f0a
