@@ -1,8 +1,8 @@
 # Downloads of the release files
 
-**Total downloads: 33,589**
+**Total downloads: 33,905**
 
-Updated 2026-11-19 14:24 UTC; counted since 2026-10-11 22:32 UTC. Files that were replaced before then are not in it. Since counting began: 20,322 downloads in 38.7 days, 526 per 24 hours on average.
+Updated 2026-11-20 13:58 UTC; counted since 2026-10-11 22:32 UTC. Files that were replaced before then are not in it. Since counting began: 20,638 downloads in 39.6 days, 521 per 24 hours on average.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="downloads-dark.svg">
@@ -15,6 +15,7 @@ One line per day (UTC), from that day's last reading. "Added" is what came in si
 
 | Day | Read at | Total | Added | Hours covered | Added: DLLs, desktop | Added: DLLs, integrated | Added: Windows kit | Added: Linux kit | Added: reference frames |
 |---|---|---|---|---|---|---|---|---|---|
+| 2026-11-20 | 13:58 | 33,905 | 316 | 23.6 | 179 | 62 | 4 | 3 | 0 | 3 |
 | 2026-11-19 | 14:24 | 33,589 | 429 | 24.5 | 270 | 59 | 9 | 10 | 0 | 3 |
 | 2026-11-18 | 13:55 | 33,160 | 236 | 23.6 | 103 | 60 | 8 | 10 | 1 | 3 |
 | 2026-11-17 | 14:21 | 32,924 | 230 | 24.8 | 84 | 59 | 6 | 11 | 0 | 12 |
@@ -62,28 +63,28 @@ The five columns on the right do not add up to "Added": checksum files and other
 
 | Kind of download | Downloads | Of these, in files since replaced |
 |---|---|---|
-| DLLs: desktop cards and other | 22,408 | 0 |
-| DLLs: integrated graphics | 6,408 | 0 |
-| Music | 18 | 0 |
+| DLLs: desktop cards and other | 22,587 | 0 |
+| DLLs: integrated graphics | 6,470 | 0 |
+| Music | 21 | 0 |
 | Reference frames | 11 | 0 |
-| Timing kit: Linux | 339 | 0 |
-| Timing kit: Windows | 1,942 | 0 |
+| Timing kit: Linux | 342 | 0 |
+| Timing kit: Windows | 1,946 | 0 |
 
 | Archive, by graphics (since `dll-2026-10-22`, .zip and .7z together) | Downloads |
 |---|---|
-| RX 7000 (rx7000) | 2,080 |
-| RX 6000 (rx6000) | 2,725 |
-| Integrated RDNA 3, GeForce, Arc, others (igpu rdna3) | 1,802 |
-| Steam Deck, 680M, older integrated (igpu rdna2) | 1,582 |
+| RX 7000 (rx7000) | 2,222 |
+| RX 6000 (rx6000) | 2,762 |
+| Integrated RDNA 3, GeForce, Arc, others (igpu rdna3) | 1,828 |
+| Steam Deck, 680M, older integrated (igpu rdna2) | 1,618 |
 
 | Release | Downloads | Of these, in files since replaced |
 |---|---|---|
-| `music-2026-11-14` | 51 | 0 |
-| `timing-kit-2026-11-14` | 319 | 0 |
+| `music-2026-11-14` | 66 | 0 |
+| `timing-kit-2026-11-14` | 359 | 0 |
 | `reference-scenes-1` | 16 | 0 |
 | `timing-kit-2026-11-11` | 237 | 0 |
 | `timing-kit-2026-11-06` | 265 | 0 |
-| `dll-2026-11-05` | 3,529 | 0 |
+| `dll-2026-11-05` | 3,689 | 0 |
 | `timing-kit-2026-11-03` | 305 | 0 |
 | `timing-kit-2026-11-02.14` | 80 | 0 |
 | `timing-kit-2026-11-02.9` | 16 | 0 |
@@ -119,14 +120,14 @@ The five columns on the right do not add up to "Added": checksum files and other
 | `timing-kit-2026-10-30` | 17 | 0 |
 | `timing-kit-2026-10-29.2` | 60 | 0 |
 | `timing-kit-2026-10-29` | 38 | 0 |
-| `dll-2026-10-29` | 1,469 | 0 |
+| `dll-2026-10-29` | 1,470 | 0 |
 | `timing-kit-2026-10-28.2` | 58 | 0 |
 | `timing-kit-2026-10-28` | 22 | 0 |
 | `timing-kit-2026-10-25.2` | 85 | 0 |
 | `timing-kit-2026-10-25` | 14 | 0 |
 | `timing-kit-2026-10-24` | 73 | 0 |
 | `timing-kit-2026-10-22` | 77 | 0 |
-| `dll-2026-10-22` | 2,600 | 0 |
+| `dll-2026-10-22` | 2,700 | 0 |
 | `timing-kit-2026-10-19` | 149 | 0 |
 | `dll-2026-10-19` | 1,795 | 0 |
 | `timing-kit-2026-10-18.3` | 88 | 0 |
@@ -176,4 +177,4 @@ The five columns on the right do not add up to "Added": checksum files and other
 | `dll-2026-10-04` | 50 | 0 |
 | `dll-2026-10-03` | 162 | 0 |
 
-All files: 33,589. `downloads.csv` has a line for every day a file's count changed; `runs.csv` has the totals of every run.
+All files: 33,905. `downloads.csv` has a line for every day a file's count changed; `runs.csv` has the totals of every run.
