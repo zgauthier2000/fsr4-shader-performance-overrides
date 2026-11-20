@@ -1,23 +1,23 @@
 fsr4-kit-channel 1
-serial 35
-pack.windows.serial 35
-pack.windows.version 2026-11-19bw
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-19bw.pack
-pack.windows.size 115314117
-pack.windows.sha256 64f5cec3c89f4a1adfa0aab34f6ae25de92f3dab70c10d7b9eafb822b7ebefae
+serial 36
+pack.windows.serial 36
+pack.windows.version 2026-11-19cw
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-19cw.pack
+pack.windows.size 68275254
+pack.windows.sha256 e1625180edeebad14c25720ecd269dd76f494a045551362f7fb1fc0cbc22e3e8
 pack.windows.min_build 4
 pack.windows.busy none
-pack.windows.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt165-test,lt166-test
-pack.linux.serial 35
-pack.linux.version 2026-11-19bl
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-19bl.pack
-pack.linux.size 112342885
-pack.linux.sha256 5a23008abb5e936628ae69f33892db5b3a5974b8f06ade3f20d354b1c1a1c496
+pack.windows.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt167-test,lt168-test
+pack.linux.serial 36
+pack.linux.version 2026-11-19cl
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-19cl.pack
+pack.linux.size 68275254
+pack.linux.sha256 54ac2f9ad753080d7f6bb01ec9977819e3769a5c1e86e488059c39ba6f8001a7
 pack.linux.min_build 4
 pack.linux.busy none
-pack.linux.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt165-test,lt166-test
-pack.windows.note New: lt163-test, lt164-test, lt165-test and lt166-test: timing probes for the skipped frames of the Lite lossy test build on RX 7000 cards (picture not meaningful); compare lt163-test, lt165-test and lt166-test with lt159-test, and lt164-test with lt160-test. Other tests as before.
-pack.linux.note New: lt163-test, lt164-test, lt165-test and lt166-test: timing probes for the skipped frames of the Lite lossy test build on RX 7000 cards (picture not meaningful); compare lt163-test, lt165-test and lt166-test with lt159-test, and lt164-test with lt160-test. Other tests as before.
+pack.linux.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt167-test,lt168-test
+pack.windows.note New: lt167-test and lt168-test: timing probes for the skipped frames of the Lite lossy test build on RX 7000 cards, picking a faster shader per frame (picture not meaningful); compare lt167-test with lt159-test and lt163-test, and lt168-test with lt160-test and lt164-test. Removed, their questions are answered: lt138, lt139, lt142, lt151, lt152, lt157, lt158, lt161, lt162, lt165 and lt166, n-exact-r2-sdkpre, and the n-lossy -acc, -n16hl-rq, -next2 and -next3 tests. lt159-test now compares with lt131-test, lt160-test with lt129-test, and each n-lossy-<flavor>-next4 with n-lossy-<flavor>. Other tests as before.
+pack.linux.note New: lt167-test and lt168-test: timing probes for the skipped frames of the Lite lossy test build on RX 7000 cards, picking a faster shader per frame (picture not meaningful); compare lt167-test with lt159-test and lt163-test, and lt168-test with lt160-test and lt164-test. Removed, their questions are answered: lt138, lt139, lt142, lt151, lt152, lt157, lt158, lt161, lt162, lt165 and lt166, n-exact-r2-sdkpre, and the n-lossy -n16hl-rq, -next2 and -next3 tests. lt159-test now compares with lt131-test, lt160-test with lt129-test, and each n-lossy-<flavor>-next4 with n-lossy-<flavor>. Other tests as before.
 music.serial 4
 music.version 2026-11-14
 music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/music-2026-11-14.zip
@@ -32,4 +32,4 @@ program.linux.version 2026-11-14
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz
 program.note This version can also time FSR 4 for Vulkan games (on RX 6000 and RX 7000 cards), shows a progress bar with the time left, and brings three new songs.
 message Kit 2026-11-14 is the newest version. If yours is older, the new tests (Vulkan and more) need it: https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-11-14
-sig 167862959204c7e4fe47d1ac2ae7fd7baadc95ecfa9f9cf25f7aec57fe5867f1a5ce4ea3b6d040a960c35815c603594addd8d563f6b1b2d8003e741ce6bc4f0a
+sig cb09211f26a8f964bf70cab52ec2474e3ce5c1326afd582507d6f09b206dd865d4ff57d1fa6acf99aa173da845d1247854c9c3c860f7bcd2b194992143bdc20e
