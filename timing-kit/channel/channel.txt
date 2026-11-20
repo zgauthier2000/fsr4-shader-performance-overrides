@@ -1,23 +1,23 @@
 fsr4-kit-channel 1
-serial 37
-pack.windows.serial 37
-pack.windows.version 2026-11-20aw
-pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-20aw.pack
-pack.windows.size 70289771
-pack.windows.sha256 8ebdff7ddbe9c46ef749119c73acc92cc3f82ff50297df4f8c41b7bdd098cf6e
+serial 38
+pack.windows.serial 38
+pack.windows.version 2026-11-20bw
+pack.windows.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-20bw.pack
+pack.windows.size 72279941
+pack.windows.sha256 b8449d7cfb87d82d6e35b2e2fb25238ae6ad8b624e107a5694a77f034be146ce
 pack.windows.min_build 4
 pack.windows.busy none
-pack.windows.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt167-test,lt168-test,lt169-test,lt170-test
-pack.linux.serial 37
-pack.linux.version 2026-11-20al
-pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-20al.pack
-pack.linux.size 70289771
-pack.linux.sha256 1bda26b8ae177d30c74057fd5ec5ac0c04c89ec9dd9e5cc51def851d973b46fa
+pack.windows.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt167-test,lt168-test,lt169-test,lt170-test,lt171-test
+pack.linux.serial 38
+pack.linux.version 2026-11-20bl
+pack.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/dlls-2026-11-20bl.pack
+pack.linux.size 72279941
+pack.linux.sha256 e7a28174b61e0d7e281b50830e9e7787f0b9be51b0c8bb2923e6860c53c622ca
 pack.linux.min_build 4
 pack.linux.busy none
-pack.linux.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt167-test,lt168-test,lt169-test,lt170-test
-pack.windows.note New: lt169-test and lt170-test: timing probes for the skipped frames of the Lite lossy test build on RX 7000 cards: the per-frame shader choice of lt167-test and lt168-test, switched on automatically on Windows only (picture not meaningful); compare lt169-test with lt167-test and lt159-test, and lt170-test with lt168-test and lt160-test. Other tests as before.
-pack.linux.note New: lt169-test and lt170-test: timing probes for the skipped frames of the Lite lossy test build on RX 7000 cards: the per-frame shader choice of lt167-test and lt168-test, switched on automatically on Windows only (picture not meaningful); compare lt169-test with lt167-test and lt159-test, and lt170-test with lt168-test and lt160-test. Other tests as before.
+pack.linux.passes lt131-test,lt159-test,lt160-test,lt163-test,lt164-test,lt167-test,lt168-test,lt169-test,lt170-test,lt171-test
+pack.windows.note New: lt171-test: timing probe of the Lite lossy test build that picks its fastest shader form per system (Windows / Linux) and the skipped-frame shader choice on Windows (picture not meaningful); compare lt171-test with lt170-test on Windows and with lt169-test on Linux. Other tests as before.
+pack.linux.note New: lt171-test: timing probe of the Lite lossy test build that picks its fastest shader form per system (Windows / Linux) and the skipped-frame shader choice on Windows (picture not meaningful); compare lt171-test with lt170-test on Windows and with lt169-test on Linux. Other tests as before.
 music.serial 4
 music.version 2026-11-14
 music.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/music-2026-11-14.zip
@@ -32,4 +32,4 @@ program.linux.version 2026-11-14
 program.linux.url https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/timing-kit-2026-11-14/fsr4-timing-kit-linux-2026-11-14.tar.gz
 program.note This version can also time FSR 4 for Vulkan games (on RX 6000 and RX 7000 cards), shows a progress bar with the time left, and brings three new songs.
 message Kit 2026-11-14 is the newest version. If yours is older, the new tests (Vulkan and more) need it: https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/timing-kit-2026-11-14
-sig 6d2a4c3481a1cd517ee3f3a28c7b04c5779dbef362e9476a3637625a9302d950b3ef34c17cc69071d1ffd6f07bbc7bde9ecfacdc89d6c225a9a905434027c908
+sig 9cb38a6fb6aa13d681f8b2277a11071e407d726e353bb32b2ba6d4ac7cf0b4579f0b35d7588a41895a0d6c1ed42c6f201d2394da5820b8c8221cda01fdd05509
