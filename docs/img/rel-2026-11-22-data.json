@@ -1,0 +1,796 @@
+{
+ "speed": {
+  "lossy": [
+   {
+    "label": "RX 7900 XTX, Windows",
+    "reports": 1,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 8.9,
+     "2560x1440": 8.9,
+     "3840x2160": 10.3
+    }
+   },
+   {
+    "label": "RX 7900 XT, Windows",
+    "reports": 2,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 8.3,
+     "2560x1440": 9.2,
+     "3840x2160": 9.8
+    }
+   },
+   {
+    "label": "RX 7700 XT, Windows",
+    "reports": 6,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 8.5,
+     "2560x1440": 9.2,
+     "3840x2160": 10.0
+    }
+   },
+   {
+    "label": "RX 7600, Windows",
+    "reports": 5,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 6.8,
+     "2560x1440": 7.9,
+     "3840x2160": 8.1
+    }
+   },
+   {
+    "label": "RX 6000, Windows",
+    "reports": 20,
+    "models": 6,
+    "sizes": {
+     "1920x1080": 8.6,
+     "2560x1440": 7.7,
+     "3840x2160": 8.1
+    }
+   },
+   {
+    "label": "Radeon 880M, Windows",
+    "reports": 2,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 7.1,
+     "2560x1440": 6.8,
+     "3840x2160": 6.7
+    }
+   },
+   {
+    "label": "Radeon 780M, Windows",
+    "reports": 1,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 5.4,
+     "2560x1440": 4.8,
+     "3840x2160": 5.3
+    }
+   },
+   {
+    "label": "RX 6700 XT, Linux",
+    "reports": 3,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 0.5,
+     "2560x1440": 0.1,
+     "3840x2160": 0.5
+    }
+   },
+   {
+    "label": "Steam Deck, Linux",
+    "reports": 6,
+    "models": 1,
+    "sizes": {
+     "1280x800": 0.7,
+     "1920x1080": 0.1,
+     "2560x1440": 0.4
+    }
+   },
+   {
+    "label": "Radeon 780M, Linux",
+    "reports": 1,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 0.5,
+     "2560x1440": 1.9,
+     "3840x2160": 0.6
+    }
+   },
+   {
+    "label": "Intel graphics, Linux",
+    "reports": 1,
+    "models": 1,
+    "sizes": {
+     "1920x1080": -0.5,
+     "2560x1440": -1.4,
+     "3840x2160": -1.2
+    }
+   }
+  ],
+  "llossy": [
+   {
+    "label": "RX 7700 XT, Windows",
+    "reports": 4,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 6.8,
+     "2560x1440": 5.8,
+     "3840x2160": 5.6
+    }
+   },
+   {
+    "label": "RX 7600, Windows",
+    "reports": 1,
+    "models": 1,
+    "sizes": {
+     "1920x1080": -0.2,
+     "2560x1440": -0.2,
+     "3840x2160": 0.1
+    }
+   },
+   {
+    "label": "RX 7900 XT, Windows",
+    "reports": 1,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 0.0,
+     "2560x1440": -2.4,
+     "3840x2160": -0.6
+    }
+   },
+   {
+    "label": "RX 6000, Windows",
+    "reports": 20,
+    "models": 6,
+    "sizes": {
+     "1920x1080": 1.4,
+     "2560x1440": 0.5,
+     "3840x2160": 1.6
+    }
+   },
+   {
+    "label": "RX 6700 XT, Linux",
+    "reports": 3,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 2.4,
+     "2560x1440": 1.9,
+     "3840x2160": 3.2
+    }
+   },
+   {
+    "label": "Steam Deck, Linux",
+    "reports": 6,
+    "models": 1,
+    "sizes": {
+     "1280x800": 0.8,
+     "1920x1080": 0.1,
+     "2560x1440": -0.1
+    }
+   },
+   {
+    "label": "Radeon 780M, Windows",
+    "reports": 1,
+    "models": 1,
+    "sizes": {
+     "1920x1080": -1.7,
+     "2560x1440": -1.9,
+     "3840x2160": -0.8
+    }
+   },
+   {
+    "label": "Radeon 880M, Windows",
+    "reports": 2,
+    "models": 1,
+    "sizes": {
+     "1920x1080": -1.6,
+     "2560x1440": -3.8,
+     "3840x2160": -2.5
+    }
+   },
+   {
+    "label": "780M, Z1 Extreme, Linux",
+    "reports": 2,
+    "models": 2,
+    "sizes": {
+     "1920x1080": 0.4,
+     "2560x1440": 0.4,
+     "3840x2160": 0.9
+    }
+   },
+   {
+    "label": "GTX 1660 SUPER, Windows",
+    "reports": 1,
+    "models": 1,
+    "sizes": {
+     "1920x1080": 2.3,
+     "2560x1440": 2.4,
+     "3840x2160": 3.3
+    }
+   }
+  ],
+  "lexact": [
+   {
+    "label": "RX 7000, Windows",
+    "reports": 39,
+    "models": 5,
+    "sizes": {
+     "1920x1080": 1.2,
+     "2560x1440": 1.2,
+     "3840x2160": 0.8
+    }
+   },
+   {
+    "label": "RX 6000, Windows",
+    "reports": 130,
+    "models": 12,
+    "sizes": {
+     "1920x1080": 2.0,
+     "2560x1440": 0.7,
+     "3840x2160": 0.2
+    }
+   },
+   {
+    "label": "Steam Deck, Linux",
+    "reports": 23,
+    "models": 1,
+    "sizes": {
+     "1280x800": -0.1,
+     "1920x1080": -0.2,
+     "2560x1440": 0.2
+    }
+   },
+   {
+    "label": "Radeon 780M / 880M, Windows",
+    "reports": 5,
+    "models": 2,
+    "sizes": {
+     "1920x1080": -0.1,
+     "2560x1440": -0.4,
+     "3840x2160": 0.4
+    }
+   },
+   {
+    "label": "GeForce, Windows",
+    "reports": 24,
+    "models": 6,
+    "sizes": {
+     "1920x1080": 1.6,
+     "2560x1440": 1.8,
+     "3840x2160": 1.2
+    }
+   }
+  ],
+  "exact_deck": [
+   {
+    "label": "Steam Deck, SteamOS",
+    "reports": 19,
+    "models": 1,
+    "sizes": {
+     "1280x800": 1.1,
+     "1920x1080": 2.2,
+     "2560x1440": 2.4
+    }
+   },
+   {
+    "label": "Steam Deck, Windows",
+    "reports": 6,
+    "models": 1,
+    "sizes": {
+     "1280x800": 0.4,
+     "1920x1080": 0.2,
+     "2560x1440": 0.1
+    }
+   }
+  ]
+ },
+ "clips": [
+  {
+   "clip": "Black Myth: Wukong 3",
+   "lossy": {
+    "dark": [
+     459.0,
+     394.0
+    ],
+    "white": [
+     134.0,
+     127.0
+    ],
+    "db": [
+     37.09,
+     36.99
+    ]
+   },
+   "llossy": {
+    "dark": [
+     491.0,
+     476.0
+    ],
+    "white": [
+     231.0,
+     239.0
+    ],
+    "db": [
+     36.62,
+     36.82
+    ]
+   }
+  },
+  {
+   "clip": "Black Myth: Wukong 1",
+   "lossy": {
+    "dark": [
+     381.0,
+     328.0
+    ],
+    "white": [
+     224.0,
+     191.0
+    ],
+    "db": [
+     39.41,
+     39.53
+    ]
+   },
+   "llossy": {
+    "dark": [
+     329.0,
+     299.0
+    ],
+    "white": [
+     236.0,
+     214.0
+    ],
+    "db": [
+     39.22,
+     39.17
+    ]
+   }
+  },
+  {
+   "clip": "Black Myth: Wukong 5",
+   "lossy": {
+    "dark": [
+     1032.0,
+     955.0
+    ],
+    "white": [
+     609.0,
+     557.0
+    ],
+    "db": [
+     37.85,
+     37.82
+    ]
+   },
+   "llossy": {
+    "dark": [
+     1140.0,
+     1086.0
+    ],
+    "white": [
+     752.0,
+     747.0
+    ],
+    "db": [
+     36.88,
+     36.89
+    ]
+   }
+  },
+  {
+   "clip": "Shadow of the Tomb Raider foliage",
+   "lossy": {
+    "dark": [
+     202.0,
+     191.0
+    ],
+    "white": [
+     86.0,
+     94.0
+    ],
+    "db": [
+     42.57,
+     42.55
+    ]
+   },
+   "llossy": {
+    "dark": [
+     199.0,
+     188.0
+    ],
+    "white": [
+     181.0,
+     178.0
+    ],
+    "db": [
+     42.16,
+     42.15
+    ]
+   }
+  },
+  {
+   "clip": "Shadow of the Tomb Raider 60",
+   "lossy": {
+    "dark": [
+     9.0,
+     8.0
+    ],
+    "white": [
+     20.0,
+     20.0
+    ],
+    "db": [
+     49.69,
+     49.51
+    ]
+   },
+   "llossy": {
+    "dark": [
+     17.0,
+     16.0
+    ],
+    "white": [
+     40.0,
+     39.0
+    ],
+    "db": [
+     48.94,
+     48.78
+    ]
+   }
+  },
+  {
+   "clip": "Stellar Blade armor",
+   "lossy": {
+    "dark": [
+     79.0,
+     76.0
+    ],
+    "white": [
+     161.0,
+     151.0
+    ],
+    "db": [
+     44.83,
+     45.31
+    ]
+   },
+   "llossy": {
+    "dark": [
+     103.0,
+     96.0
+    ],
+    "white": [
+     273.0,
+     274.0
+    ],
+    "db": [
+     43.82,
+     43.8
+    ]
+   }
+  },
+  {
+   "clip": "Shadow of the Tomb Raider stairs",
+   "lossy": {
+    "dark": [
+     3.0,
+     1.0
+    ],
+    "white": [
+     1.0,
+     1.0
+    ],
+    "db": [
+     43.82,
+     43.61
+    ]
+   },
+   "llossy": {
+    "dark": [
+     3.0,
+     3.0
+    ],
+    "white": [
+     3.0,
+     3.0
+    ],
+    "db": [
+     43.7,
+     43.62
+    ]
+   }
+  },
+  {
+   "clip": "Cyberpunk 2077 bar",
+   "lossy": {
+    "dark": [
+     703.0,
+     478.0
+    ],
+    "white": [
+     152.0,
+     170.0
+    ],
+    "db": [
+     41.47,
+     41.57
+    ]
+   },
+   "llossy": {
+    "dark": [
+     810.0,
+     539.0
+    ],
+    "white": [
+     488.0,
+     472.0
+    ],
+    "db": [
+     41.14,
+     41.27
+    ]
+   }
+  },
+  {
+   "clip": "Cyberpunk 2077 alley",
+   "lossy": {
+    "dark": [
+     86.0,
+     33.0
+    ],
+    "white": [
+     11.0,
+     10.0
+    ],
+    "db": [
+     44.29,
+     44.31
+    ]
+   },
+   "llossy": {
+    "dark": [
+     109.0,
+     43.0
+    ],
+    "white": [
+     42.0,
+     44.0
+    ],
+    "db": [
+     44.33,
+     44.27
+    ]
+   }
+  },
+  {
+   "clip": "Cyberpunk 2077 court",
+   "lossy": {
+    "dark": [
+     893.0,
+     516.0
+    ],
+    "white": [
+     385.0,
+     388.0
+    ],
+    "db": [
+     39.83,
+     39.93
+    ]
+   },
+   "llossy": {
+    "dark": [
+     1125.0,
+     707.0
+    ],
+    "white": [
+     616.0,
+     631.0
+    ],
+    "db": [
+     38.97,
+     39.09
+    ]
+   }
+  }
+ ],
+ "synthetic": [
+  {
+   "row": "Brightening, frames to catch up",
+   "lossy_old": [
+    3.66,
+    2.67
+   ],
+   "lossy_new": [
+    1.51,
+    1.42
+   ],
+   "llossy_old": [
+    1.01,
+    1.03
+   ],
+   "llossy_new": [
+    0.94,
+    1.03
+   ]
+  },
+  {
+   "row": "First frame after a sudden change, missed",
+   "lossy_old": [
+    0.41,
+    0.3
+   ],
+   "lossy_new": [
+    0.17,
+    0.24
+   ],
+   "llossy_old": [
+    0.0,
+    0.0
+   ],
+   "llossy_new": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "row": "Old image beside a thin moving object (B)",
+   "lossy_old": [
+    4.26,
+    6.58
+   ],
+   "lossy_new": [
+    4.04,
+    4.57
+   ],
+   "llossy_old": [
+    2.85,
+    2.5
+   ],
+   "llossy_new": [
+    2.52,
+    2.56
+   ]
+  },
+  {
+   "row": "Heavy film grain, change per frame",
+   "lossy_old": [
+    2.0,
+    0.92
+   ],
+   "lossy_new": [
+    1.69,
+    0.87
+   ],
+   "llossy_old": [
+    1.23,
+    0.75
+   ],
+   "llossy_new": [
+    0.85,
+    0.76
+   ]
+  },
+  {
+   "row": "Thin wires in a pan, change per frame",
+   "lossy_old": [
+    4.71,
+    4.68
+   ],
+   "lossy_new": [
+    4.45,
+    4.48
+   ],
+   "llossy_old": [
+    7.49,
+    4.56
+   ],
+   "llossy_new": [
+    6.99,
+    4.33
+   ]
+  },
+  {
+   "row": "Flat areas at rest, change per frame",
+   "lossy_old": [
+    0.045,
+    0.085
+   ],
+   "lossy_new": [
+    0.084,
+    0.119
+   ],
+   "llossy_old": [
+    0.078,
+    0.119
+   ],
+   "llossy_new": [
+    0.076,
+    0.118
+   ]
+  },
+  {
+   "row": "Bright rain specks",
+   "lossy_old": [
+    505.0,
+    475.0
+   ],
+   "lossy_new": [
+    629.0,
+    509.0
+   ],
+   "llossy_old": [
+    303.0,
+    361.0
+   ],
+   "llossy_new": [
+    300.0,
+    387.0
+   ]
+  },
+  {
+   "row": "Stairs crawl in motion",
+   "lossy_old": [
+    32.3,
+    29.8
+   ],
+   "lossy_new": [
+    35.8,
+    30.9
+   ],
+   "llossy_old": [
+    38.6,
+    40.8
+   ],
+   "llossy_new": [
+    37.1,
+    38.9
+   ]
+  },
+  {
+   "row": "Dark flecks on thin branches, per frame",
+   "lossy_old": [
+    1999.0,
+    1074.0
+   ],
+   "lossy_new": [
+    1225.0,
+    28.0
+   ],
+   "llossy_old": [
+    2639.0,
+    1410.0
+   ],
+   "llossy_new": [
+    1435.0,
+    57.0
+   ]
+  },
+  {
+   "row": "Fades, frames to catch up",
+   "lossy_old": [
+    1.01,
+    0.94
+   ],
+   "lossy_new": [
+    0.87,
+    0.91
+   ],
+   "llossy_old": [
+    1.29,
+    1.11
+   ],
+   "llossy_new": [
+    1.37,
+    1.18
+   ]
+  }
+ ]
+}
