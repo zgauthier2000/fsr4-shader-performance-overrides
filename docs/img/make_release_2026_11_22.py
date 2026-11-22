@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Writes rel-2026-11-22-specks.webp (lossless): dark specks on one frame of a recorded game clip (Cyberpunk 2077, the court clip, frame 114;
-# 4K Balanced output from the game's own 2259x1271 frames), run through AMD's FSR 4.1.1 file, dll-2026-11-05's `lossy` and this release's
-# `lossy` (RX 7000 files). A 240x340 area (a concrete post under a ledge) at 2x (nearest neighbor, so single pixels stay single pixels), twice:
+# 4K Balanced output from the game's own 2259x1271 frames), run through AMD's FSR 4.1.1 file, dll-2026-11-05's `4.1.2l-lossy` and this release's
+# `4.1.2l-lossy` (RX 7000 files; under Linux the new one takes its Linux form). A 240x340 area (a concrete post under a ledge) at 2x (nearest neighbor, so single pixels stay single pixels), twice:
 # as it is, and with every dark speck circled. A dark speck: a pixel at least 0.15 darker than AMD 4.1.1's output (display units, 0..1) and at
 # least 0.08 darker than the mean of its own 5x5 neighborhood (the release screen's rule); the count under each picture is for this area.
-# The area was picked by eye from the frame where the two builds differ most (lossy 418 -> 134 dark specks in the 1280x720 crop around it).
+# The area was picked by eye from the frame where the two builds differ most (4.1.2l-lossy 485 -> 133 dark specks in the 1280x720 crop around it).
 # Display mapping x / (1 + x), gamma 1/2.2: this project's, not the game's tone mapping (no game effects or UI).
-# Usage: make_release_2026_11_22.py <folder with amd_NN.png rl_NN.png nl_NN.png display PNGs of the 1280x720 crop at 792,1440> [NN] [x,y]
+# Usage: make_release_2026_11_22.py <folder with amd_NN.png rt_NN.png nt_NN.png display PNGs of the 1280x720 crop at 792,1440> [NN] [x,y]
 # (the PNGs come from this project's local game-clip runs; the recorded clip itself is not published).
 import sys
 import numpy as np
@@ -17,7 +17,7 @@ SRC = sys.argv[1]
 K = sys.argv[2] if len(sys.argv) > 2 else '03'
 X, Y = (int(v) for v in (sys.argv[3] if len(sys.argv) > 3 else '120,380').split(','))
 W, H, Z, GAP, TOP, ROWGAP = 240, 340, 2, 12, 46, 40
-LABELS = [('amd', 'AMD FSR 4.1.1'), ('rl', 'lossy, dll-2026-11-05'), ('nl', 'lossy, this release')]
+LABELS = [('amd', 'AMD FSR 4.1.1'), ('rt', '4.1.2l-lossy, dll-2026-11-05'), ('nt', '4.1.2l-lossy, this release')]
 FONT = '/usr/share/fonts/TTF/DejaVuSans.ttf'
 
 
