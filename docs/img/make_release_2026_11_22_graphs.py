@@ -70,7 +70,7 @@ def gains(t):
         r = next(r for r in D['speed'][b] if r['label'] == lab)
         rows.append((b, r, r['sizes']['2560x1440']))
     rows.sort(key=lambda x: -x[2])
-    X0, SC, RH = 300, 38, 26
+    X0, SC, RH = 340, 34, 26
     y0 = 104; H = y0 + RH * len(rows) + 64
     aria = 'Biggest speed gains over dll-2026-11-05 at 1440p: ' + '; '.join(f"{name[b]} on {r['label']} {v:.1f}% less time ({r['reports']} reports)" for b, r, v in rows) + '.'
     o = frame('Biggest speed gains over dll-2026-11-05, 1440p', 'How much less time FSR 4 takes per frame than with the same build of the last release. Longer is faster.', H, t, aria)
@@ -84,7 +84,7 @@ def gains(t):
         y = y0 + i * RH
         rep = f"{r['reports']} report{'s' if r['reports'] != 1 else ''}"
         o += [text(24, y + 13, f"{name[b]}", t, 12, 'ink', weight=600), text(120, y + 13, f"{r['label']}", t, 12, 'ink2'),
-              text(X0 - 8, y + 13, rep, t, 10, 'muted', 'end')]
+              text(X0 - 10, y + 13, rep, t, 10, 'muted', 'end')]
         o += rbar(X0, y + 3, v, SC, 13, col[b], t, f'{v:.1f}%', 'slower')
     notes(o, ["Testers' timing-kit reports with both builds in the same report, moving scene, Balanced, median per card (RX 6000: six models pooled).",
               "Linux (Proton) speeds of lossy are about the same as before. Every card and size: the Speed section."], y0 + RH * len(rows) + 30, t)
