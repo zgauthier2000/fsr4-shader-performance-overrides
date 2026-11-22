@@ -123,7 +123,7 @@ def clips(t):
     y0, RH = 120, 30; H = y0 + RH * len(C) + 74
     aria = 'Dark specks per frame in recorded game clips, dll-2026-11-05 to this release: ' + '; '.join(
         f"{c['clip']}: lossy {c['lossy']['dark'][0]:.0f} to {c['lossy']['dark'][1]:.0f}, 4.1.2l-lossy {c['llossy']['dark'][0]:.0f} to {c['llossy']['dark'][1]:.0f}" for c in C) + '.'
-    o = frame('Dark specks in recorded game clips', 'Pixels per frame much darker than in AMD FSR 4.1.1\'s picture: dll-2026-11-05 (ring) to this release (dot). Lower is better.', H, t, aria)
+    o = frame('Dark specks in recorded game clips', 'Pixels per frame much darker than in AMD FSR 4.1.2\'s picture: dll-2026-11-05 (ring) to this release (dot). Lower is better.', H, t, aria)
     for x0, lab, hue in ((PA, 'lossy', 'lossy'), (PB, '4.1.2l-lossy', 'llossy')):
         o.append(text(x0, 86, lab, t, 13, 'ink', weight=600))
         for g in range(0, top + 1, 200 if top > 600 else 100):

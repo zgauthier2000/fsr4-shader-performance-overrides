@@ -128,9 +128,9 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 > on an RTX 4090, and this version has no GeForce reports yet; `4.1.2l-lossy` is not affected and is usually the faster choice on GeForce cards. Both lossy builds are a little
 > further from AMD's picture in Shadow of the Tomb Raider clips (0.1 to 0.2 dB). [Everything that changed](docs/releases/dll-2026-11-22.md).
 
-<p align="center"><img src="docs/img/rel-2026-11-22-specks.webp" width="732" alt="Dark specks on a concrete post in a recorded Cyberpunk 2077 clip: AMD FSR 4.1.1 has none, dll-2026-11-05's 4.1.2l-lossy 163, this release's 4.1.2l-lossy none."></p>
+<p align="center"><img src="docs/img/rel-2026-11-22-specks.webp" width="732" alt="Dark specks on a concrete post in a recorded Cyberpunk 2077 clip: AMD FSR 4.1.2 Lite has none, dll-2026-11-05's 4.1.2l-lossy 124, this release's 4.1.2l-lossy none."></p>
 
-Cyberpunk 2077, recorded clip (the court), frame 114, 4K Balanced, one run: a concrete post under a ledge at 2x. Top: as it is; bottom: every dark speck circled (a pixel clearly darker than both AMD 4.1.1's picture and its own surroundings). Shown: `4.1.2l-lossy`. Over the whole clip it leaves 1,125 → 707 dark specks per frame, and `lossy` 893 → 516. Display mapping is this project's, not the game's tone mapping (no game effects or UI).
+Cyberpunk 2077, recorded clip (the court), frame 114, 4K Balanced, one run: a concrete post under a ledge at 2x. Top: as it is; bottom: every dark speck circled (a pixel clearly darker than both AMD FSR 4.1.2 Lite's picture and its own surroundings). Shown: `4.1.2l-lossy`, against AMD's Lite. Over the whole clip it leaves 925 → 537 dark specks per frame against AMD's Lite, and `lossy` 893 → 516 against AMD's full FSR 4.1.2. Display mapping is this project's, not the game's tone mapping (no game effects or UI).
 
 Earlier releases: [release pages](docs/releases/README.md), each against the one before it, and the [changelog](docs/changelog.md).
 
