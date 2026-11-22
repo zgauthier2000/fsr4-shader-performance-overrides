@@ -191,17 +191,18 @@ def synthetic(t):
 
 # ---- one game: SOTTR benchmark, average FPS per build
 def game(t):
-    G = D['game']; X0, SC, RH = 250, 2.6, 30; y0 = 104; H = y0 + RH * len(G) + 20 + 64
+    G = D['game']; X0, SC, RH = 210, 2.4, 30; y0 = 104; H = y0 + RH * len(G) + 20 + 78
     ref = {g['build']: g for g in G if g.get('ref')}
     col = {'exact': t['exact'][1], 'lossy': t['lossy'][1], '4.1.2l-exact': t['exact'][1], '4.1.2l-lossy': t['llossy'][1]}
     aria = ("Shadow of the Tomb Raider benchmark, 4K Balanced, this project's RX 7800 XT under Linux, one run each: " + '; '.join(
-        f"{g['build']} {g['fps']} FPS" + ('' if g.get('ref') else f" ({100 * (g['frames'] / ref[g['vs']]['frames'] - 1):+.1f}% frames against {g['vs']})") for g in G) + '.')
+        f"{g['build']} {g['fps']} FPS, FSR {g['ms']:.2f} ms" + ('' if g.get('ref') else f" ({100 * (g['frames'] / ref[g['vs']]['frames'] - 1):+.1f}% frames against {g['vs']})") for g in G) + '.')
     o = frame("One game: Shadow of the Tomb Raider's benchmark", "This project's RX 7800 XT under Linux (Proton), 4K Balanced, average FPS. Longer is faster.", H, t, aria)
     lx = 24
     for c, lab in ((t['amd'] if 'amd' in t else t['muted'], "AMD's own (reference)"), (t['exact'][1], 'exact builds'), (t['lossy'][1], 'lossy'), (t['llossy'][1], '4.1.2l-lossy')):
         o += [f'<rect x="{lx}" y="68" width="12" height="11" rx="3" fill="{c}"/>', text(lx + 18, 78, lab, t, 11.5, 'ink2')]
         lx += 18 + 6.6 * len(lab) + 22
     o += axis(X0, SC, 0, 140, 20, y0 - 6, y0 + RH * len(G) + 14, t, '', False)
+    o += [text(W - 24, y0 - 12, 'FSR time per frame', t, 10.5, 'muted', 'end')]
     y = y0
     for i, g in enumerate(G):
         if i == 3: y += 20
@@ -209,9 +210,11 @@ def game(t):
         o.append(text(24, y + 13, g['build'], t, 12, 'ink', weight=600))
         lab = f"{g['fps']} FPS" + ('' if g.get('ref') else f" ({100 * (g['frames'] / ref[g['vs']]['frames'] - 1):+.0f}%)")
         o += rbar(X0, y + 3, g['fps'], SC, 14, c, t, lab, '')
+        o.append(text(W - 24, y + 14, f"{g['ms']:.2f} ms" + ('' if g.get('ref') else f" ({100 * (g['ms'] / ref[g['vs']]['ms'] - 1):+.0f}%)").replace('-', '−'), t, 11.5, 'ink2', 'end'))
         y += RH
-    notes(o, ["One run each, DLSS 5 plugin off. % = frames rendered against AMD's own: exact and lossy against AMD's FSR 4.1.2 (SDK 2.4.0 DLL), the Lite builds",
-              "against AMD's FSR 4.1.2 Lite (the same DLL set to Lite in OptiScaler). Windows not measured in this game; Linux gains do not carry over to Windows."], y + 30, t)
+    notes(o, ["One run each, DLSS 5 plugin off. FSR time per frame as the overlay shows it on the result screen (a still menu).",
+              "% = frames rendered against AMD's own: exact and lossy against AMD's FSR 4.1.2 (SDK 2.4.0 DLL), the Lite builds against AMD's",
+              "FSR 4.1.2 Lite (the same DLL set to Lite in OptiScaler). Windows not measured in this game; Linux gains do not carry over to Windows."], y + 30, t)
     return o, H
 
 
