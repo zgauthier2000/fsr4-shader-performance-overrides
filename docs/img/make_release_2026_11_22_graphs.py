@@ -92,10 +92,10 @@ def gains(t):
 
 
 # ---- speed per build: rows of up to three bars (one per size), zero line in the middle
-def speed(key, title, hue, t, lo, hi):
-    rows = D['speed'][key]
+def speed(key, title, hue, t, lo, hi, drop=(), dropnote=None):
+    rows = [r for r in D['speed'][key] if r['label'] not in drop]
     SC = 300 / (hi - lo); X0 = 230 + (-lo) * SC
-    y0 = 104; heights = [len(r['sizes']) * 13 + 12 for r in rows]; H = y0 + sum(heights) + 70
+    y0 = 104; heights = [len(r['sizes']) * 13 + 12 for r in rows]; H = y0 + sum(heights) + 70 + (14 if dropnote else 0)
     aria = f'{title}: ' + '; '.join(f"{r['label']} ({r['reports']} reports): " + ', '.join(f"{SZ[s]} {'no report' if v is None else (f'{v:.1f}% less time' if v >= 0 else f'{-v:.1f}% more time')}" for s, v in r['sizes'].items()) for r in rows) + '.'
     o = frame(title, 'Time per frame against the same build of dll-2026-11-05. Right of the line: faster; left: slower.', H, t, aria)
     o.append(text(24, 78, 'One bar per output size, smallest first; each bar names its size.', t, 11, 'muted'))
@@ -112,7 +112,7 @@ def speed(key, title, hue, t, lo, hi):
                 o += rbar(X0, y + 4 + i * 13, v, SC, 10, shade, t, f'{SZ[s]} {abs(v):.1f}%', 'slower')
         y += h
     notes(o, ["Testers' timing-kit reports with both builds in the same report, moving scene, Balanced, median per row. Windows unless the row says Linux (Proton).",
-              "The kit's test builds carry other weights than the release (same shaders, same speed). One report is one run."], y + 24, t)
+              "The kit's test builds carry other weights than the release (same shaders, same speed). One report is one run."] + ([dropnote] if dropnote else []), y + 24, t)
     return o, H
 
 
@@ -192,8 +192,8 @@ def synthetic(t):
 GRAPHS = {
     'gains': gains,
     'lossy': lambda t: speed('lossy', 'lossy: speed against dll-2026-11-05', 'lossy', t, -4, 12),
-    'llossy': lambda t: speed('llossy', '4.1.2l-lossy: speed against dll-2026-11-05', 'llossy', t, -6, 10),
-    'lexact': lambda t: speed('lexact', '4.1.2l-exact: speed against dll-2026-11-05', 'exact', t, -4, 4),
+    'llossy': lambda t: speed('llossy', '4.1.2l-lossy: speed against dll-2026-11-05', 'llossy', t, -6, 10, ('RX 7600, Windows',), 'Not shown: RX 7600, Windows (1 report), within 0.2% at every size: about the same.'),
+    'lexact': lambda t: speed('lexact', '4.1.2l-exact: speed against dll-2026-11-05', 'exact', t, -4, 4, ('Steam Deck, Linux', 'Radeon 780M / 880M, Windows'), 'Not shown: Steam Deck, Linux (23 reports) and Radeon 780M / 880M, Windows (5 reports), within 0.4% at every size: about the same.'),
     'exactdeck': lambda t: speed('exact_deck', 'exact, Steam Deck archive: speed against dll-2026-11-05', 'exact', t, -4, 4),
     'clips': clips,
     'synthetic': synthetic,

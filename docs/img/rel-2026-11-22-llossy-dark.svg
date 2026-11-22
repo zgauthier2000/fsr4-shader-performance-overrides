@@ -1,26 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="684" viewBox="0 0 760 684" role="img" aria-label="4.1.2l-lossy: speed against dll-2026-11-05: RX 7700 XT, Windows (4 reports): 1080p 6.8% less time, 1440p 5.8% less time, 4K 5.6% less time; RX 7600, Windows (1 reports): 1080p 0.2% more time, 1440p 0.2% more time, 4K 0.1% less time; RX 7900 XT, Windows (1 reports): 1080p 0.0% less time, 1440p 2.4% more time, 4K 0.6% more time; RX 6000, Windows (20 reports): 1080p 1.4% less time, 1440p 0.5% less time, 4K 1.6% less time; RX 6700 XT, Linux (3 reports): 1080p 2.4% less time, 1440p 1.9% less time, 4K 3.2% less time; Steam Deck, Linux (6 reports): 800p 0.8% less time, 1080p 0.1% less time, 1440p 0.1% more time; Radeon 780M, Windows (1 reports): 1080p 1.7% more time, 1440p 1.9% more time, 4K 0.8% more time; Radeon 880M, Windows (2 reports): 1080p 1.6% more time, 1440p 3.8% more time, 4K 2.5% more time; 780M, Z1 Extreme, Linux (2 reports): 1080p 0.4% less time, 1440p 0.4% less time, 4K 0.9% less time; GTX 1660 SUPER, Windows (1 reports): 1080p 2.3% less time, 1440p 2.4% less time, 4K 3.3% less time.">
-<rect width="760" height="684" rx="8" fill="#1a1a19"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="647" viewBox="0 0 760 647" role="img" aria-label="4.1.2l-lossy: speed against dll-2026-11-05: RX 7700 XT, Windows (4 reports): 1080p 6.8% less time, 1440p 5.8% less time, 4K 5.6% less time; RX 7900 XT, Windows (1 reports): 1080p 0.0% less time, 1440p 2.4% more time, 4K 0.6% more time; RX 6000, Windows (20 reports): 1080p 1.4% less time, 1440p 0.5% less time, 4K 1.6% less time; RX 6700 XT, Linux (3 reports): 1080p 2.4% less time, 1440p 1.9% less time, 4K 3.2% less time; Steam Deck, Linux (6 reports): 800p 0.8% less time, 1080p 0.1% less time, 1440p 0.1% more time; Radeon 780M, Windows (1 reports): 1080p 1.7% more time, 1440p 1.9% more time, 4K 0.8% more time; Radeon 880M, Windows (2 reports): 1080p 1.6% more time, 1440p 3.8% more time, 4K 2.5% more time; 780M, Z1 Extreme, Linux (2 reports): 1080p 0.4% less time, 1440p 0.4% less time, 4K 0.9% less time; GTX 1660 SUPER, Windows (1 reports): 1080p 2.3% less time, 1440p 2.4% less time, 4K 3.3% less time.">
+<rect width="760" height="647" rx="8" fill="#1a1a19"/>
 <text x="24.0" y="32.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">4.1.2l-lossy: speed against dll-2026-11-05</text>
 <text x="24.0" y="52.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">Time per frame against the same build of dll-2026-11-05. Right of the line: faster; left: slower.</text>
 <text x="24.0" y="78.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">One bar per output size, smallest first; each bar names its size.</text>
-<line x1="230.0" y1="98" x2="230.0" y2="608" stroke="#2c2c2a" stroke-width="1"/>
-<text x="230.0" y="622.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">-6%</text>
-<line x1="267.5" y1="98" x2="267.5" y2="608" stroke="#2c2c2a" stroke-width="1"/>
-<text x="267.5" y="622.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">-4%</text>
-<line x1="305.0" y1="98" x2="305.0" y2="608" stroke="#2c2c2a" stroke-width="1"/>
-<text x="305.0" y="622.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">-2%</text>
-<line x1="342.5" y1="98" x2="342.5" y2="608" stroke="#898781" stroke-width="1"/>
-<text x="342.5" y="622.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
-<line x1="380.0" y1="98" x2="380.0" y2="608" stroke="#2c2c2a" stroke-width="1"/>
-<text x="380.0" y="622.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+2%</text>
-<line x1="417.5" y1="98" x2="417.5" y2="608" stroke="#2c2c2a" stroke-width="1"/>
-<text x="417.5" y="622.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+4%</text>
-<line x1="455.0" y1="98" x2="455.0" y2="608" stroke="#2c2c2a" stroke-width="1"/>
-<text x="455.0" y="622.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+6%</text>
-<line x1="492.5" y1="98" x2="492.5" y2="608" stroke="#2c2c2a" stroke-width="1"/>
-<text x="492.5" y="622.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+8%</text>
-<line x1="530.0" y1="98" x2="530.0" y2="608" stroke="#2c2c2a" stroke-width="1"/>
-<text x="530.0" y="622.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+10%</text>
+<line x1="230.0" y1="98" x2="230.0" y2="557" stroke="#2c2c2a" stroke-width="1"/>
+<text x="230.0" y="571.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">-6%</text>
+<line x1="267.5" y1="98" x2="267.5" y2="557" stroke="#2c2c2a" stroke-width="1"/>
+<text x="267.5" y="571.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">-4%</text>
+<line x1="305.0" y1="98" x2="305.0" y2="557" stroke="#2c2c2a" stroke-width="1"/>
+<text x="305.0" y="571.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">-2%</text>
+<line x1="342.5" y1="98" x2="342.5" y2="557" stroke="#898781" stroke-width="1"/>
+<text x="342.5" y="571.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
+<line x1="380.0" y1="98" x2="380.0" y2="557" stroke="#2c2c2a" stroke-width="1"/>
+<text x="380.0" y="571.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+2%</text>
+<line x1="417.5" y1="98" x2="417.5" y2="557" stroke="#2c2c2a" stroke-width="1"/>
+<text x="417.5" y="571.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+4%</text>
+<line x1="455.0" y1="98" x2="455.0" y2="557" stroke="#2c2c2a" stroke-width="1"/>
+<text x="455.0" y="571.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+6%</text>
+<line x1="492.5" y1="98" x2="492.5" y2="557" stroke="#2c2c2a" stroke-width="1"/>
+<text x="492.5" y="571.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+8%</text>
+<line x1="530.0" y1="98" x2="530.0" y2="557" stroke="#2c2c2a" stroke-width="1"/>
+<text x="530.0" y="571.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">+10%</text>
 <text x="24.0" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">RX 7700 XT, Windows</text>
 <text x="24.0" y="131.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">4 reports</text>
 <rect x="342.5" y="108" width="127.5" height="10" rx="3.0" fill="#4a2c80"/>
@@ -29,78 +29,71 @@
 <text x="456.2" y="129.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1440p 5.8%</text>
 <rect x="342.5" y="134" width="105.0" height="10" rx="3.0" fill="#cdb6f4"/>
 <text x="452.5" y="142.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 5.6%</text>
-<text x="24.0" y="168.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">RX 7600, Windows</text>
+<text x="24.0" y="168.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">RX 7900 XT, Windows</text>
 <text x="24.0" y="182.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">1 report</text>
-<rect x="338.8" y="159" width="3.8" height="10" rx="1.9" fill="#4a2c80"/>
-<text x="333.8" y="167.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1080p 0.2% slower</text>
-<rect x="338.8" y="172" width="3.8" height="10" rx="1.9" fill="#9a6fe0"/>
-<text x="333.8" y="180.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1440p 0.2% slower</text>
-<rect x="342.5" y="185" width="1.9" height="10" rx="0.9" fill="#cdb6f4"/>
-<text x="349.4" y="193.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 0.1%</text>
-<text x="24.0" y="219.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">RX 7900 XT, Windows</text>
-<text x="24.0" y="233.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">1 report</text>
-<rect x="342.5" y="210" width="1.5" height="10" rx="0.8" fill="#4a2c80"/>
-<text x="349.0" y="218.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 0.0%</text>
-<rect x="297.5" y="223" width="45.0" height="10" rx="3.0" fill="#9a6fe0"/>
-<text x="292.5" y="231.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1440p 2.4% slower</text>
-<rect x="331.2" y="236" width="11.2" height="10" rx="3.0" fill="#cdb6f4"/>
-<text x="326.2" y="244.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">4K 0.6% slower</text>
-<text x="24.0" y="270.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">RX 6000, Windows</text>
-<text x="24.0" y="284.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">20 reports, 6 models</text>
-<rect x="342.5" y="261" width="26.2" height="10" rx="3.0" fill="#4a2c80"/>
-<text x="373.8" y="269.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 1.4%</text>
-<rect x="342.5" y="274" width="9.4" height="10" rx="3.0" fill="#9a6fe0"/>
-<text x="356.9" y="282.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1440p 0.5%</text>
-<rect x="342.5" y="287" width="30.0" height="10" rx="3.0" fill="#cdb6f4"/>
-<text x="377.5" y="295.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 1.6%</text>
-<text x="24.0" y="321.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">RX 6700 XT, Linux</text>
-<text x="24.0" y="335.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">3 reports</text>
-<rect x="342.5" y="312" width="45.0" height="10" rx="3.0" fill="#4a2c80"/>
-<text x="392.5" y="320.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 2.4%</text>
-<rect x="342.5" y="325" width="35.6" height="10" rx="3.0" fill="#9a6fe0"/>
-<text x="383.1" y="333.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1440p 1.9%</text>
-<rect x="342.5" y="338" width="60.0" height="10" rx="3.0" fill="#cdb6f4"/>
-<text x="407.5" y="346.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 3.2%</text>
-<text x="24.0" y="372.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">Steam Deck, Linux</text>
-<text x="24.0" y="386.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">6 reports</text>
-<rect x="342.5" y="363" width="15.0" height="10" rx="3.0" fill="#4a2c80"/>
-<text x="362.5" y="371.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">800p 0.8%</text>
-<rect x="342.5" y="376" width="1.9" height="10" rx="0.9" fill="#9a6fe0"/>
-<text x="349.4" y="384.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 0.1%</text>
-<rect x="340.6" y="389" width="1.9" height="10" rx="0.9" fill="#cdb6f4"/>
-<text x="335.6" y="397.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1440p 0.1% slower</text>
-<text x="24.0" y="423.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">Radeon 780M, Windows</text>
-<text x="24.0" y="437.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">1 report</text>
-<rect x="310.6" y="414" width="31.9" height="10" rx="3.0" fill="#4a2c80"/>
-<text x="305.6" y="422.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1080p 1.7% slower</text>
-<rect x="306.9" y="427" width="35.6" height="10" rx="3.0" fill="#9a6fe0"/>
-<text x="301.9" y="435.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1440p 1.9% slower</text>
-<rect x="327.5" y="440" width="15.0" height="10" rx="3.0" fill="#cdb6f4"/>
-<text x="322.5" y="448.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">4K 0.8% slower</text>
-<text x="24.0" y="474.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">Radeon 880M, Windows</text>
-<text x="24.0" y="488.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">2 reports</text>
-<rect x="312.5" y="465" width="30.0" height="10" rx="3.0" fill="#4a2c80"/>
-<text x="307.5" y="473.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1080p 1.6% slower</text>
-<rect x="271.2" y="478" width="71.2" height="10" rx="3.0" fill="#9a6fe0"/>
-<text x="266.2" y="486.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1440p 3.8% slower</text>
-<rect x="295.6" y="491" width="46.9" height="10" rx="3.0" fill="#cdb6f4"/>
-<text x="290.6" y="499.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">4K 2.5% slower</text>
-<text x="24.0" y="525.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">780M, Z1 Extreme, Linux</text>
-<text x="24.0" y="539.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">2 reports, 2 models</text>
-<rect x="342.5" y="516" width="7.5" height="10" rx="3.0" fill="#4a2c80"/>
-<text x="355.0" y="524.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 0.4%</text>
-<rect x="342.5" y="529" width="7.5" height="10" rx="3.0" fill="#9a6fe0"/>
-<text x="355.0" y="537.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1440p 0.4%</text>
-<rect x="342.5" y="542" width="16.9" height="10" rx="3.0" fill="#cdb6f4"/>
-<text x="364.4" y="550.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 0.9%</text>
-<text x="24.0" y="576.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">GTX 1660 SUPER, Windows</text>
-<text x="24.0" y="590.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">1 report</text>
-<rect x="342.5" y="567" width="43.1" height="10" rx="3.0" fill="#4a2c80"/>
-<text x="390.6" y="575.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 2.3%</text>
-<rect x="342.5" y="580" width="45.0" height="10" rx="3.0" fill="#9a6fe0"/>
-<text x="392.5" y="588.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1440p 2.4%</text>
-<rect x="342.5" y="593" width="61.9" height="10" rx="3.0" fill="#cdb6f4"/>
-<text x="409.4" y="601.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 3.3%</text>
-<text x="24.0" y="638.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Testers' timing-kit reports with both builds in the same report, moving scene, Balanced, median per row. Windows unless the row says Linux (Proton).</text>
-<text x="24.0" y="652.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">The kit's test builds carry other weights than the release (same shaders, same speed). One report is one run.</text>
+<rect x="342.5" y="159" width="1.5" height="10" rx="0.8" fill="#4a2c80"/>
+<text x="349.0" y="167.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 0.0%</text>
+<rect x="297.5" y="172" width="45.0" height="10" rx="3.0" fill="#9a6fe0"/>
+<text x="292.5" y="180.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1440p 2.4% slower</text>
+<rect x="331.2" y="185" width="11.2" height="10" rx="3.0" fill="#cdb6f4"/>
+<text x="326.2" y="193.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">4K 0.6% slower</text>
+<text x="24.0" y="219.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">RX 6000, Windows</text>
+<text x="24.0" y="233.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">20 reports, 6 models</text>
+<rect x="342.5" y="210" width="26.2" height="10" rx="3.0" fill="#4a2c80"/>
+<text x="373.8" y="218.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 1.4%</text>
+<rect x="342.5" y="223" width="9.4" height="10" rx="3.0" fill="#9a6fe0"/>
+<text x="356.9" y="231.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1440p 0.5%</text>
+<rect x="342.5" y="236" width="30.0" height="10" rx="3.0" fill="#cdb6f4"/>
+<text x="377.5" y="244.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 1.6%</text>
+<text x="24.0" y="270.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">RX 6700 XT, Linux</text>
+<text x="24.0" y="284.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">3 reports</text>
+<rect x="342.5" y="261" width="45.0" height="10" rx="3.0" fill="#4a2c80"/>
+<text x="392.5" y="269.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 2.4%</text>
+<rect x="342.5" y="274" width="35.6" height="10" rx="3.0" fill="#9a6fe0"/>
+<text x="383.1" y="282.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1440p 1.9%</text>
+<rect x="342.5" y="287" width="60.0" height="10" rx="3.0" fill="#cdb6f4"/>
+<text x="407.5" y="295.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 3.2%</text>
+<text x="24.0" y="321.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">Steam Deck, Linux</text>
+<text x="24.0" y="335.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">6 reports</text>
+<rect x="342.5" y="312" width="15.0" height="10" rx="3.0" fill="#4a2c80"/>
+<text x="362.5" y="320.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">800p 0.8%</text>
+<rect x="342.5" y="325" width="1.9" height="10" rx="0.9" fill="#9a6fe0"/>
+<text x="349.4" y="333.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 0.1%</text>
+<rect x="340.6" y="338" width="1.9" height="10" rx="0.9" fill="#cdb6f4"/>
+<text x="335.6" y="346.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1440p 0.1% slower</text>
+<text x="24.0" y="372.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">Radeon 780M, Windows</text>
+<text x="24.0" y="386.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">1 report</text>
+<rect x="310.6" y="363" width="31.9" height="10" rx="3.0" fill="#4a2c80"/>
+<text x="305.6" y="371.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1080p 1.7% slower</text>
+<rect x="306.9" y="376" width="35.6" height="10" rx="3.0" fill="#9a6fe0"/>
+<text x="301.9" y="384.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1440p 1.9% slower</text>
+<rect x="327.5" y="389" width="15.0" height="10" rx="3.0" fill="#cdb6f4"/>
+<text x="322.5" y="397.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">4K 0.8% slower</text>
+<text x="24.0" y="423.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">Radeon 880M, Windows</text>
+<text x="24.0" y="437.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">2 reports</text>
+<rect x="312.5" y="414" width="30.0" height="10" rx="3.0" fill="#4a2c80"/>
+<text x="307.5" y="422.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1080p 1.6% slower</text>
+<rect x="271.2" y="427" width="71.2" height="10" rx="3.0" fill="#9a6fe0"/>
+<text x="266.2" y="435.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">1440p 3.8% slower</text>
+<rect x="295.6" y="440" width="46.9" height="10" rx="3.0" fill="#cdb6f4"/>
+<text x="290.6" y="448.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="end" fill="#c3c2b7">4K 2.5% slower</text>
+<text x="24.0" y="474.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">780M, Z1 Extreme, Linux</text>
+<text x="24.0" y="488.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">2 reports, 2 models</text>
+<rect x="342.5" y="465" width="7.5" height="10" rx="3.0" fill="#4a2c80"/>
+<text x="355.0" y="473.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 0.4%</text>
+<rect x="342.5" y="478" width="7.5" height="10" rx="3.0" fill="#9a6fe0"/>
+<text x="355.0" y="486.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1440p 0.4%</text>
+<rect x="342.5" y="491" width="16.9" height="10" rx="3.0" fill="#cdb6f4"/>
+<text x="364.4" y="499.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 0.9%</text>
+<text x="24.0" y="525.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#ffffff">GTX 1660 SUPER, Windows</text>
+<text x="24.0" y="539.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">1 report</text>
+<rect x="342.5" y="516" width="43.1" height="10" rx="3.0" fill="#4a2c80"/>
+<text x="390.6" y="524.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1080p 2.3%</text>
+<rect x="342.5" y="529" width="45.0" height="10" rx="3.0" fill="#9a6fe0"/>
+<text x="392.5" y="537.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">1440p 2.4%</text>
+<rect x="342.5" y="542" width="61.9" height="10" rx="3.0" fill="#cdb6f4"/>
+<text x="409.4" y="550.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#c3c2b7">4K 3.3%</text>
+<text x="24.0" y="587.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Testers' timing-kit reports with both builds in the same report, moving scene, Balanced, median per row. Windows unless the row says Linux (Proton).</text>
+<text x="24.0" y="601.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">The kit's test builds carry other weights than the release (same shaders, same speed). One report is one run.</text>
+<text x="24.0" y="615.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Not shown: RX 7600, Windows (1 report), within 0.2% at every size: about the same.</text>
 </svg>
