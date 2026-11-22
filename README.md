@@ -35,10 +35,10 @@ FSR 4's slowest shaders with faster ones. One file to swap, nothing else in the 
 
 | Your graphics card | Download |
 |---|---|
-| A Radeon **RX 7000** graphics card: "RX 7" and three more digits, such as RX 7800 XT or RX 7600, including laptops with their own RX 7000 chip (RX 7700S, RX 7600M and the like), and the **Steam Machine** | **[fsr4.1.2-cyboman-rx7000-2026-11-05.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-cyboman-rx7000-2026-11-05.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-cyboman-rx7000-2026-11-05.zip) (100 MB) |
-| A Radeon **RX 6000** graphics card: "RX 6" and three more digits, such as RX 6700 XT or RX 6600, including laptops with their own RX 6000 chip (RX 6700M and the like) | **[fsr4.1.2-cyboman-rx6000-2026-11-05.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-cyboman-rx6000-2026-11-05.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-cyboman-rx6000-2026-11-05.zip) (100 MB) |
-| **Newer graphics built into the processor** (Radeon 780M, 760M, 880M, 890M and other RDNA 3 and 3.5 chips), and **any other card**: Nvidia GeForce, Intel Arc, older Radeon | **[fsr4.1.2-igpu-cyboman-rdna3-2026-11-05.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-igpu-cyboman-rdna3-2026-11-05.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-igpu-cyboman-rdna3-2026-11-05.zip) (100 MB) |
-| **Steam Deck** and **older graphics built into the processor** (Radeon 680M, 660M, 610M, the graphics of Ryzen 7000 and 9000 desktop processors) | **[fsr4.1.2-igpu-cyboman-rdna2-2026-11-05.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-igpu-cyboman-rdna2-2026-11-05.7z)** (8.9 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-05/fsr4.1.2-igpu-cyboman-rdna2-2026-11-05.zip) (100 MB) |
+| A Radeon **RX 7000** graphics card: "RX 7" and three more digits, such as RX 7800 XT or RX 7600, including laptops with their own RX 7000 chip (RX 7700S, RX 7600M and the like), and the **Steam Machine** | **[fsr4.1.2-cyboman-rx7000-2026-11-22.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-22/fsr4.1.2-cyboman-rx7000-2026-11-22.7z)** (12.7 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-22/fsr4.1.2-cyboman-rx7000-2026-11-22.zip) (112 MB) |
+| A Radeon **RX 6000** graphics card: "RX 6" and three more digits, such as RX 6700 XT or RX 6600, including laptops with their own RX 6000 chip (RX 6700M and the like) | **[fsr4.1.2-cyboman-rx6000-2026-11-22.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-22/fsr4.1.2-cyboman-rx6000-2026-11-22.7z)** (9.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-22/fsr4.1.2-cyboman-rx6000-2026-11-22.zip) (100 MB) |
+| **Newer graphics built into the processor** (Radeon 780M, 760M, 880M, 890M and other RDNA 3 and 3.5 chips), and **any other card**: Nvidia GeForce, Intel Arc, older Radeon | **[fsr4.1.2-igpu-cyboman-rdna3-2026-11-22.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-22/fsr4.1.2-igpu-cyboman-rdna3-2026-11-22.7z)** (9.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-22/fsr4.1.2-igpu-cyboman-rdna3-2026-11-22.zip) (100 MB) |
+| **Steam Deck** and **older graphics built into the processor** (Radeon 680M, 660M, 610M, the graphics of Ryzen 7000 and 9000 desktop processors) | **[fsr4.1.2-igpu-cyboman-rdna2-2026-11-22.7z](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-22/fsr4.1.2-igpu-cyboman-rdna2-2026-11-22.7z)** (9.4 MB) or [.zip](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/download/dll-2026-11-22/fsr4.1.2-igpu-cyboman-rdna2-2026-11-22.zip) (100 MB) |
 | Radeon RX 9000 | not for these cards: they run a different FSR 4. Do not install it there. |
 
 The `.7z` and the `.zip` hold the same files. Windows 11 (version 23H2 or later) opens a `.7z` itself; on Windows 10 use
@@ -106,21 +106,27 @@ This works on Windows and, under Proton, on Linux. Linux users can instead use
 
 ## New in this release
 
-**[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-11-05.md)**
+**[See what this release changes against the previous one, in figures →](docs/releases/dll-2026-11-22.md)**
 
 > [!TIP]
-> **Faster Lite builds, most of all at 1440p and on the Steam Deck; the pictures stay as they were.** Only `4.1.2l-exact` and `4.1.2l-lossy` change; `exact` and `lossy` are the files of `dll-2026-11-01`.
+> **Faster `lossy` on Windows Radeon cards, fewer dark specks in both lossy builds, and fixes for `4.1.2l-lossy`.**
 >
-> | Timing-kit reports, median, moving scene, less time per frame than the same build in `dll-2026-11-01` | `4.1.2l-exact` | `4.1.2l-lossy` |
+> | Timing-kit reports, Windows, median, moving scene, Balanced, 1080p / 1440p / 4K, against the same build in `dll-2026-11-05` | `lossy` | `4.1.2l-lossy` |
 > |---|---|---|
-> | RX 7000, Windows (4 reports), 1080p / 1440p / 4K | 1% / 9% / 1% | 0% / 5% / 0% |
-> | RX 6000, Windows (9 reports), 1080p / 1440p / 4K | 2% / 9% / 2% | 2% / 5% / 2% |
-> | Steam Deck (2 reports), 800p / 1080p | 10% / 2% | 6% / 3% |
-> | Steam Machine (1 report), 1080p / 1440p / 4K | 2% / 11% / 3% | 1% / 7% / 2% |
+> | RX 7000 (RX 7600, 7700 XT, 7900 XT / XTX; 14 reports) | 7 to 10% faster | RX 7700 XT about 6% faster (4 reports); RX 7600, RX 7900 XT about the same (one report each) |
+> | RX 6000 (six models, 20 reports) | 7 to 9% faster | 0 to 2% faster |
+> | Radeon 780M / 880M (3 reports) | 5 to 7% faster | **1 to 4% slower** |
 >
-> **What got worse:** nothing slower beyond the spread of single runs (one: `4.1.2l-exact` on a Radeon 780M / Ryzen Z1 at 1080p, 1.7% slower, two reports). **Not measured:** GeForce and Intel Arc.
+> - **Both lossy builds:** new trained weights, a rule for bright particles that move without motion vectors (sparks, small lights), and a rule against
+>   dark specks in thin bright detail on frames that skip the network: in recorded Cyberpunk 2077 clips 30 to 60% fewer dark specks than before.
+> - **`4.1.2l-lossy`:** fixes a flicker at the top of the picture on Windows ([issue #45](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/issues/45)) and uses its trained weights in every mode.
+>   In the RX 7000 archive it picks its last pass by system (Windows or Linux), so the four archives' `4.1.2l-lossy` are no longer one file.
+> - **`4.1.2l-exact`:** up to 3% faster, and now AMD's own Lite picture at 800p and 1440p too. **`exact`:** about 2% faster on the Steam Deck (AMD's own prepass
+>   from its FSR SDK 2.4.0); the other three archives' `exact` are the files of `dll-2026-11-05`.
 >
-> Against AMD's Lite: `4.1.2l-exact` saves 11 to 16% and `4.1.2l-lossy` 13 to 22% at the sizes reported. [Everything that changed](docs/releases/dll-2026-11-05.md).
+> **What got worse:** `4.1.2l-lossy` on Windows Radeon 780M / 880M (table above). `lossy` on GeForce: an earlier version of its faster network sums was 6 to 10% slower
+> on an RTX 4090, and this version has no GeForce reports yet; `4.1.2l-lossy` is not affected and is usually the faster choice on GeForce cards. Both lossy builds are a little
+> further from AMD's picture in Shadow of the Tomb Raider clips (0.1 to 0.2 dB). [Everything that changed](docs/releases/dll-2026-11-22.md).
 
 Earlier releases: [release pages](docs/releases/README.md), each against the one before it, and the [changelog](docs/changelog.md).
 

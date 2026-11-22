@@ -12,7 +12,9 @@ driver most likely uses for graphics built into the processor ([what AMD's 4.1.2
 on every kind of graphics reported, the Steam Deck and older chips included: it shares color samples between pixels. 4.1.2l-lossy keeps color samples
 and some finished results in the chip's shared memory, so that RX 6000 chips under Windows can run 8 groups of work at once instead of 7 ([below](#rx-6000-8-groups-of-work-instead-of-7)),
 in every archive but RX 7000's: there that form needs too many registers under Linux (Proton), so the RX 7000 build keeps only the finished results (same picture, byte for byte;
-one Windows RX 7000 report so far: RX 7600, 0.3 to 0.7% faster).
+one Windows RX 7000 report so far: RX 7600, 0.3 to 0.7% faster). Since `dll-2026-11-22` the RX 7000 archive's 4.1.2l-lossy carries both forms and picks one when the game creates its shaders:
+on Windows the other archives' form, with a 32-wide copy of its last pass for the frames that skip the network (Windows RX 7700 XT, 4 reports: about 6% faster than
+`dll-2026-11-05`'s), under Linux (Proton) the RX 7000 form. Both gave the same picture on this project's test rig. The other three archives carry the other form without the 32-wide copy.
 
 > [!WARNING]
 > **4.1.2l-lossy changes the picture.** It is neither AMD's FSR 4.1.1 nor AMD's FSR 4.1.2 Lite. Never use any of these builds in
