@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Writes wte-<section>-light.svg / -dark.svg, the charts of docs/what-to-expect.md: per graphics chip, how much less time FSR 4 takes per frame with
 # this project's builds than with AMD's own (moving scene, Balanced), at one size per row (the page's collapsed tables hold all sizes).
-# Left panel: exact, lossy and AMD's Lite itself against AMD's FSR 4.1.2 on the same chip; right panel: 4.1.2l-exact and 4.1.2l-lossy against AMD's Lite.
+# Left panel: exact and lossy against AMD's FSR 4.1.2 on the same chip; right panel: 4.1.2l-exact and 4.1.2l-lossy against AMD's Lite.
 # Data: what-to-expect-data.json (testers' timing-kit reports, each build against AMD's in the same report, median per chip; this project's RX 7800 XT
 # under Linux). A build no report has timed on a chip says "no report"; a build that takes more time than AMD's says "slower".
 import json, os, math
@@ -14,7 +14,7 @@ FONT = "font-family=\"-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif\""
 HERE = os.path.dirname(os.path.abspath(__file__))
 DAT = json.load(open(os.path.join(HERE, 'what-to-expect-data.json')))
 W, PA, PB, PW = 760, 190, 486, 230
-BH, RH, HEAD = 11, 50, 34          # bar height, row height (three bars), group heading height
+BH, RH, HEAD = 11, 40, 34          # bar height, row height (three bars), group heading height
 
 
 def text(x, y, s, t, size=12, fill='ink2', anchor='start', weight=None):
@@ -35,14 +35,14 @@ def bar(x, y, v, smax, col, t):
 def chart(sec, t):
     rows = sec['rows']
     vals = [r['saved'][k] for r in rows if 'saved' in r for k in r['saved'] if r['saved'][k] is not None]
-    left = [r['saved'][k] for r in rows if 'saved' in r for k in ('exact', 'lossy', 'lite') if r['saved'][k] is not None]
+    left = [r['saved'][k] for r in rows if 'saved' in r for k in ('exact', 'lossy') if r['saved'][k] is not None]
     right = [r['saved'][k] for r in rows if 'saved' in r for k in ('lexact', 'llossy') if r['saved'][k] is not None]
     SA = max(20, 10 * math.ceil(max(left) / 10)); SB = max(10, 5 * math.ceil(max(right) / 5))
     y = 128 if 'heading' not in sec['rows'][0] else 120; pos = []
     for r in rows:
         pos.append(y); y += HEAD if 'heading' in r else RH
     H = y + 34 + 14 * (len(sec['notes']) + 1)
-    desc = ' '.join(f"{r['card']} ({r['sub']}): exact {fmt(r['saved']['exact'])}, lossy {fmt(r['saved']['lossy'])}, AMD's Lite itself {fmt(r['saved']['lite'])} "
+    desc = ' '.join(f"{r['card']} ({r['sub']}): exact {fmt(r['saved']['exact'])}, lossy {fmt(r['saved']['lossy'])}, "
                     f"less time than AMD's FSR 4.1.2; 4.1.2l-exact {fmt(r['saved']['lexact'])}, 4.1.2l-lossy {fmt(r['saved']['llossy'])} less than AMD's Lite."
                     for r in rows if 'saved' in r)
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{sec["title"]}: how much less time FSR 4 takes per frame '
@@ -50,7 +50,7 @@ def chart(sec, t):
          f'<rect width="{W}" height="{H}" rx="8" fill="{t["surface"]}"/>',
          text(24, 32, sec['title'], t, 16, 'ink', weight=600),
          text(24, 52, sec['subtitle'], t, 12)]
-    for x0, title, keys in ((PA, "Against AMD's FSR 4.1.2", (('exact', 'exact'), ('lossy', 'lossy'), ('amd', "AMD's Lite"))),
+    for x0, title, keys in ((PA, "Against AMD's FSR 4.1.2", (('exact', 'exact'), ('lossy', 'lossy'))),
                             (PB, "Against AMD's FSR 4.1.2 Lite", (('exact', '4.1.2l-exact'), ('lossy', '4.1.2l-lossy')))):
         o.append(text(x0, 86, title, t, 13, 'ink', weight=600)); kx = x0
         for col, lab in keys:
@@ -68,7 +68,7 @@ def chart(sec, t):
             continue
         s = r['saved']
         o += [text(24, yy + 16, r['card'], t, 12.5, 'ink', weight=600), text(24, yy + 31, r['sub'], t, 10.5, 'muted')]
-        for i, (k, col) in enumerate((('exact', 'exact'), ('lossy', 'lossy'), ('lite', 'amd'))):
+        for i, (k, col) in enumerate((('exact', 'exact'), ('lossy', 'lossy'))):
             o += bar(PA, yy + 4 + i * (BH + 3), s[k], SA, col, t)
         for i, (k, col) in enumerate((('lexact', 'exact'), ('llossy', 'lossy'))):
             o += bar(PB, yy + 4 + i * (BH + 3), s[k], SB, col, t)

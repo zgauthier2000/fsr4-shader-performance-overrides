@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="354" viewBox="0 0 760 354" role="img" aria-label="Valve hardware: Steam Deck and Steam Machine: how much less time FSR 4 takes per frame with this project's builds than with AMD's own, moving scene, Balanced. Steam Deck OLED (SteamOS, 800p, 23 reports): exact 3%, lossy 13%, AMD's Lite itself 25% less time than AMD's FSR 4.1.2; 4.1.2l-exact 5%, 4.1.2l-lossy 12% less than AMD's Lite. Steam Deck LCD (Windows, 800p, 7 reports): exact 2% more, lossy no report, AMD's Lite itself 36% less time than AMD's FSR 4.1.2; 4.1.2l-exact 13%, 4.1.2l-lossy no report less than AMD's Lite. Steam Machine (SteamOS, 1440p, 3 reports): exact 5%, lossy no report, AMD's Lite itself no report less time than AMD's FSR 4.1.2; 4.1.2l-exact no report, 4.1.2l-lossy no report less than AMD's Lite.">
-<rect width="760" height="354" rx="8" fill="#fcfcfb"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="324" viewBox="0 0 760 324" role="img" aria-label="Valve hardware: Steam Deck and Steam Machine: how much less time FSR 4 takes per frame with this project's builds than with AMD's own, moving scene, Balanced. Steam Deck OLED (SteamOS, 800p, 23 reports): exact 3%, lossy 13%, less time than AMD's FSR 4.1.2; 4.1.2l-exact 5%, 4.1.2l-lossy 12% less than AMD's Lite. Steam Deck LCD (Windows, 800p, 7 reports): exact 2% more, lossy no report, less time than AMD's FSR 4.1.2; 4.1.2l-exact 13%, 4.1.2l-lossy no report less than AMD's Lite. Steam Machine (SteamOS, 1440p, 3 reports): exact 5%, lossy no report, less time than AMD's FSR 4.1.2; 4.1.2l-exact no report, 4.1.2l-lossy no report less than AMD's Lite.">
+<rect width="760" height="324" rx="8" fill="#fcfcfb"/>
 <text x="24.0" y="32.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">Valve hardware: Steam Deck and Steam Machine</text>
 <text x="24.0" y="52.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">How much less time FSR 4 takes per frame than with AMD's own. Longer is faster.</text>
 <text x="190.0" y="86.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Against AMD's FSR 4.1.2</text>
@@ -7,62 +7,51 @@
 <text x="206.0" y="106.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#0b0b0b">exact</text>
 <rect x="257.0" y="96" width="11" height="11" rx="3" fill="#eb6834"/>
 <text x="273.0" y="106.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#0b0b0b">lossy</text>
-<rect x="324.0" y="96" width="11" height="11" rx="3" fill="#a09f98"/>
-<text x="340.0" y="106.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#0b0b0b">AMD's Lite</text>
 <text x="486.0" y="86.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#0b0b0b">Against AMD's FSR 4.1.2 Lite</text>
 <rect x="486" y="96" width="11" height="11" rx="3" fill="#2a78d6"/>
 <text x="502.0" y="106.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#0b0b0b">4.1.2l-exact</text>
 <rect x="602.0" y="96" width="11" height="11" rx="3" fill="#eb6834"/>
 <text x="618.0" y="106.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#0b0b0b">4.1.2l-lossy</text>
-<line x1="190.0" y1="120" x2="190.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
-<text x="190.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
-<line x1="247.5" y1="120" x2="247.5" y2="272" stroke="#e1e0d9" stroke-width="1"/>
-<text x="247.5" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10%</text>
-<line x1="305.0" y1="120" x2="305.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
-<text x="305.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">20%</text>
-<line x1="362.5" y1="120" x2="362.5" y2="272" stroke="#e1e0d9" stroke-width="1"/>
-<text x="362.5" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">30%</text>
-<line x1="420.0" y1="120" x2="420.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
-<text x="420.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">40%</text>
-<line x1="486.0" y1="120" x2="486.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
-<text x="486.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
-<line x1="562.7" y1="120" x2="562.7" y2="272" stroke="#e1e0d9" stroke-width="1"/>
-<text x="562.7" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">5%</text>
-<line x1="639.3" y1="120" x2="639.3" y2="272" stroke="#e1e0d9" stroke-width="1"/>
-<text x="639.3" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10%</text>
-<line x1="716.0" y1="120" x2="716.0" y2="272" stroke="#e1e0d9" stroke-width="1"/>
-<text x="716.0" y="286.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">15%</text>
+<line x1="190.0" y1="120" x2="190.0" y2="242" stroke="#e1e0d9" stroke-width="1"/>
+<text x="190.0" y="256.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
+<line x1="305.0" y1="120" x2="305.0" y2="242" stroke="#e1e0d9" stroke-width="1"/>
+<text x="305.0" y="256.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10%</text>
+<line x1="420.0" y1="120" x2="420.0" y2="242" stroke="#e1e0d9" stroke-width="1"/>
+<text x="420.0" y="256.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">20%</text>
+<line x1="486.0" y1="120" x2="486.0" y2="242" stroke="#e1e0d9" stroke-width="1"/>
+<text x="486.0" y="256.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
+<line x1="562.7" y1="120" x2="562.7" y2="242" stroke="#e1e0d9" stroke-width="1"/>
+<text x="562.7" y="256.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">5%</text>
+<line x1="639.3" y1="120" x2="639.3" y2="242" stroke="#e1e0d9" stroke-width="1"/>
+<text x="639.3" y="256.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10%</text>
+<line x1="716.0" y1="120" x2="716.0" y2="242" stroke="#e1e0d9" stroke-width="1"/>
+<text x="716.0" y="256.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">15%</text>
 <text x="24.0" y="144.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#0b0b0b">Steam Deck OLED</text>
 <text x="24.0" y="159.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">SteamOS, 800p, 23 reports</text>
-<path d="M190,132 H201.9 Q204.9,132 204.9,135 V140 Q204.9,143 201.9,143 H190 Z" fill="#2a78d6"/>
-<text x="209.9" y="141.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">3%</text>
-<path d="M190,146 H263.5 Q266.5,146 266.5,149 V154 Q266.5,157 263.5,157 H190 Z" fill="#eb6834"/>
-<text x="271.5" y="155.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">13%</text>
-<path d="M190,160 H330.2 Q333.2,160 333.2,163 V168 Q333.2,171 330.2,171 H190 Z" fill="#a09f98"/>
-<text x="338.2" y="169.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">25%</text>
+<path d="M190,132 H216.9 Q219.9,132 219.9,135 V140 Q219.9,143 216.9,143 H190 Z" fill="#2a78d6"/>
+<text x="224.9" y="141.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">3%</text>
+<path d="M190,146 H339.9 Q342.9,146 342.9,149 V154 Q342.9,157 339.9,157 H190 Z" fill="#eb6834"/>
+<text x="347.9" y="155.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">13%</text>
 <path d="M486,132 H564.3 Q567.3,132 567.3,135 V140 Q567.3,143 564.3,143 H486 Z" fill="#2a78d6"/>
 <text x="572.3" y="141.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">5%</text>
 <path d="M486,146 H662.4 Q665.4,146 665.4,149 V154 Q665.4,157 662.4,157 H486 Z" fill="#eb6834"/>
 <text x="670.4" y="155.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">12%</text>
-<text x="24.0" y="194.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#0b0b0b">Steam Deck LCD</text>
-<text x="24.0" y="209.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">Windows, 800p, 7 reports</text>
-<rect x="190" y="182" width="1.5" height="11" fill="#2a78d6"/>
-<text x="197.0" y="191.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">2% slower</text>
-<text x="192.0" y="205.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
-<path d="M190,210 H392.3 Q395.3,210 395.3,213 V218 Q395.3,221 392.3,221 H190 Z" fill="#a09f98"/>
-<text x="400.3" y="219.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">36%</text>
-<path d="M486,182 H677.7 Q680.7,182 680.7,185 V190 Q680.7,193 677.7,193 H486 Z" fill="#2a78d6"/>
-<text x="685.7" y="191.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">13%</text>
-<text x="488.0" y="205.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
-<text x="24.0" y="244.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#0b0b0b">Steam Machine</text>
-<text x="24.0" y="259.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">SteamOS, 1440p, 3 reports</text>
-<path d="M190,232 H214.0 Q217.0,232 217.0,235 V240 Q217.0,243 214.0,243 H190 Z" fill="#2a78d6"/>
-<text x="222.0" y="241.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">5%</text>
-<text x="192.0" y="255.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
-<text x="192.0" y="269.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
-<text x="488.0" y="241.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
-<text x="488.0" y="255.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
-<text x="24.0" y="306.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Testers' timing-kit reports, each build against AMD's in the same report, median per device. The Steam Machine's reports predate this release's</text>
-<text x="24.0" y="320.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">lossy and Lite builds: only exact is shown, against AMD's FSR 4.1.2 RX 7000 model as AMD's driver ships it. Other sizes: the table below.</text>
-<text x="24.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">The two panels have different scales: 0 to 40% on the left, 0 to 15% on the right.</text>
+<text x="24.0" y="184.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#0b0b0b">Steam Deck LCD</text>
+<text x="24.0" y="199.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">Windows, 800p, 7 reports</text>
+<rect x="190" y="172" width="1.5" height="11" fill="#2a78d6"/>
+<text x="197.0" y="181.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">2% slower</text>
+<text x="192.0" y="195.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
+<path d="M486,172 H677.7 Q680.7,172 680.7,175 V180 Q680.7,183 677.7,183 H486 Z" fill="#2a78d6"/>
+<text x="685.7" y="181.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">13%</text>
+<text x="488.0" y="195.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
+<text x="24.0" y="224.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="start" fill="#0b0b0b">Steam Machine</text>
+<text x="24.0" y="239.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">SteamOS, 1440p, 3 reports</text>
+<path d="M190,212 H241.1 Q244.1,212 244.1,215 V220 Q244.1,223 241.1,223 H190 Z" fill="#2a78d6"/>
+<text x="249.1" y="221.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">5%</text>
+<text x="192.0" y="235.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
+<text x="488.0" y="221.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
+<text x="488.0" y="235.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">no report</text>
+<text x="24.0" y="276.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Testers' timing-kit reports, each build against AMD's in the same report, median per device. The Steam Machine's reports predate this release's</text>
+<text x="24.0" y="290.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">lossy and Lite builds: only exact is shown, against AMD's FSR 4.1.2 RX 7000 model as AMD's driver ships it. Other sizes: the table below.</text>
+<text x="24.0" y="304.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">The two panels have different scales: 0 to 20% on the left, 0 to 15% on the right.</text>
 </svg>
