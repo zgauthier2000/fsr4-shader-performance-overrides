@@ -101,6 +101,12 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **Ian Tiso** (GeForce RTX 3080 Ti, Windows)
 - **qbaj3d11** (graphics of a Ryzen Z1 Extreme, Linux)
 - **UbaBuba** (Radeon RX 7700 XT, Windows)
+- **FranTesla** (GeForce GTX 1080 Ti, Windows)
+- **NALDERA BY SANTOCRISTO** (Radeon RX 7600, Windows)
+- **Hunter** (Radeon RX 7900 XT, Windows)
+- **drmuto** (Radeon RX 7900 XTX, Windows)
+- **KestiriX** (Radeon RX 7700 XT, Windows)
+- **korudosensei** (Radeon 880M, Windows)
 
 ## How to be listed, or taken off
 
