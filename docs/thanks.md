@@ -99,6 +99,7 @@ you would like to be named here. It is optional. Names are added by hand in the 
 - **ashlynn** (Radeon RX 6750 XT, Windows)
 - **sincerity** (Radeon RX 6600 XT, Linux)
 - **Ian Tiso** (GeForce RTX 3080 Ti, Windows)
+- **qbaj3d11** (graphics of a Ryzen Z1 Extreme, Linux)
 
 ## How to be listed, or taken off
 
