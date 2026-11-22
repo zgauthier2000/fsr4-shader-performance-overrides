@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="368" viewBox="0 0 760 368" role="img" aria-label="Shadow of the Tomb Raider benchmark, 4K Balanced, this project's RX 7800 XT under Linux, one run each: AMD FSR 4.1.2 97 FPS; exact 109 FPS (+12.3% frames against AMD FSR 4.1.2); lossy 122 FPS (+25.1% frames against AMD FSR 4.1.2); AMD FSR 4.1.2 Lite 126 FPS; 4.1.2l-exact 129 FPS (+1.7% frames against AMD FSR 4.1.2 Lite); 4.1.2l-lossy 130 FPS (+2.7% frames against AMD FSR 4.1.2 Lite).">
+<rect width="760" height="368" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="32.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">One game: Shadow of the Tomb Raider's benchmark</text>
+<text x="24.0" y="52.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#52514e">This project's RX 7800 XT under Linux (Proton), 4K Balanced, average FPS. Longer is faster.</text>
+<rect x="24" y="68" width="12" height="11" rx="3" fill="#898781"/>
+<text x="42.0" y="78.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#52514e">AMD's own (reference)</text>
+<rect x="202.6" y="68" width="12" height="11" rx="3" fill="#2a78d6"/>
+<text x="220.6" y="78.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#52514e">exact builds</text>
+<rect x="321.79999999999995" y="68" width="12" height="11" rx="3" fill="#eb6834"/>
+<text x="339.8" y="78.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#52514e">lossy</text>
+<rect x="394.79999999999995" y="68" width="12" height="11" rx="3" fill="#8a5cd6"/>
+<text x="412.8" y="78.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#52514e">4.1.2l-lossy</text>
+<line x1="250.0" y1="98" x2="250.0" y2="298" stroke="#898781" stroke-width="1"/>
+<text x="250.0" y="312.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0</text>
+<line x1="302.0" y1="98" x2="302.0" y2="298" stroke="#e1e0d9" stroke-width="1"/>
+<text x="302.0" y="312.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">20</text>
+<line x1="354.0" y1="98" x2="354.0" y2="298" stroke="#e1e0d9" stroke-width="1"/>
+<text x="354.0" y="312.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">40</text>
+<line x1="406.0" y1="98" x2="406.0" y2="298" stroke="#e1e0d9" stroke-width="1"/>
+<text x="406.0" y="312.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">60</text>
+<line x1="458.0" y1="98" x2="458.0" y2="298" stroke="#e1e0d9" stroke-width="1"/>
+<text x="458.0" y="312.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">80</text>
+<line x1="510.0" y1="98" x2="510.0" y2="298" stroke="#e1e0d9" stroke-width="1"/>
+<text x="510.0" y="312.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">100</text>
+<line x1="562.0" y1="98" x2="562.0" y2="298" stroke="#e1e0d9" stroke-width="1"/>
+<text x="562.0" y="312.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">120</text>
+<line x1="614.0" y1="98" x2="614.0" y2="298" stroke="#e1e0d9" stroke-width="1"/>
+<text x="614.0" y="312.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">140</text>
+<text x="24.0" y="117.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">AMD FSR 4.1.2</text>
+<rect x="250.0" y="107" width="252.2" height="14" rx="3.0" fill="#898781"/>
+<text x="507.2" y="119.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">97 FPS</text>
+<text x="24.0" y="147.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">exact</text>
+<rect x="250.0" y="137" width="283.4" height="14" rx="3.0" fill="#2a78d6"/>
+<text x="538.4" y="149.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">109 FPS (+12%)</text>
+<text x="24.0" y="177.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">lossy</text>
+<rect x="250.0" y="167" width="317.2" height="14" rx="3.0" fill="#eb6834"/>
+<text x="572.2" y="179.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">122 FPS (+25%)</text>
+<text x="24.0" y="227.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">AMD FSR 4.1.2 Lite</text>
+<rect x="250.0" y="217" width="327.6" height="14" rx="3.0" fill="#898781"/>
+<text x="582.6" y="229.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">126 FPS</text>
+<text x="24.0" y="257.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">4.1.2l-exact</text>
+<rect x="250.0" y="247" width="335.4" height="14" rx="3.0" fill="#2a78d6"/>
+<text x="590.4" y="259.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">129 FPS (+2%)</text>
+<text x="24.0" y="287.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" text-anchor="start" fill="#0b0b0b">4.1.2l-lossy</text>
+<rect x="250.0" y="277" width="338.0" height="14" rx="3.0" fill="#8a5cd6"/>
+<text x="593.0" y="289.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#52514e">130 FPS (+3%)</text>
+<text x="24.0" y="334.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">One run each, DLSS 5 plugin off. % = frames rendered against AMD's own: exact and lossy against AMD's FSR 4.1.2 (SDK 2.4.0 DLL), the Lite builds</text>
+<text x="24.0" y="348.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">against AMD's FSR 4.1.2 Lite (the same DLL set to Lite in OptiScaler). Windows not measured in this game; Linux gains do not carry over to Windows.</text>
+</svg>

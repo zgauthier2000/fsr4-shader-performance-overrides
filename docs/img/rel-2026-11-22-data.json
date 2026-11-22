@@ -792,5 +792,49 @@
     1.18
    ]
   }
+ ],
+ "game": [
+  {
+   "build": "AMD FSR 4.1.2",
+   "ref": true,
+   "fps": 97,
+   "frames": 15111,
+   "ms": 4.23
+  },
+  {
+   "build": "exact",
+   "vs": "AMD FSR 4.1.2",
+   "fps": 109,
+   "frames": 16975,
+   "ms": 2.98
+  },
+  {
+   "build": "lossy",
+   "vs": "AMD FSR 4.1.2",
+   "fps": 122,
+   "frames": 18898,
+   "ms": 2.07
+  },
+  {
+   "build": "AMD FSR 4.1.2 Lite",
+   "ref": true,
+   "fps": 126,
+   "frames": 19627,
+   "ms": 1.83
+  },
+  {
+   "build": "4.1.2l-exact",
+   "vs": "AMD FSR 4.1.2 Lite",
+   "fps": 129,
+   "frames": 19954,
+   "ms": 1.7
+  },
+  {
+   "build": "4.1.2l-lossy",
+   "vs": "AMD FSR 4.1.2 Lite",
+   "fps": 130,
+   "frames": 20158,
+   "ms": 1.47
+  }
  ]
 }
