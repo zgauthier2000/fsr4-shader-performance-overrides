@@ -3,7 +3,7 @@
 [Back to the README](../README.md)
 
 How much faster this project's builds are depends on the graphics chip, on Windows or Linux, and on the size and mode. The front page shows a
-chart per card at 4K; this page has the full tables for release `dll-2026-11-22`: [Windows desktop cards](#windows-radeon-rx-7000-and-rx-6000),
+chart per card at 4K; this page has charts per section, with every size in collapsed tables, for release `dll-2026-11-22`: [Windows desktop cards](#windows-radeon-rx-7000-and-rx-6000),
 [Linux](#linux), [Valve hardware](#valve-hardware-steam-deck-and-steam-machine), [built-in graphics on Windows](#built-in-graphics-on-windows),
 and an example in one game.
 
@@ -25,8 +25,15 @@ A report whose AMD reference ran far slower than the same AMD model in another s
 
 ## Windows: Radeon RX 7000 and RX 6000
 
-1080p / 1440p / 4K. Test packs 2026-11-18 to 2026-11-20. Results much slower than the median for the same card model are left out (more than 3 scaled
+Test packs 2026-11-18 to 2026-11-20; the table: 1080p / 1440p / 4K. Results much slower than the median for the same card model are left out (more than 3 scaled
 median deviations and more than 3 points; cards with at least 3 reports), because other work on a desktop PC can slow a run; faster ones are kept.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/wte-windows-dark.svg">
+  <img src="img/wte-windows-light.svg" width="760" alt="Windows, Radeon RX 7000 and RX 6000, 1440p: per card, how much less time FSR 4 takes per frame than with AMD's own. The figures are in the table below.">
+</picture>
+
+<details><summary>All sizes, as a table</summary>
 
 | Graphics card | Reports | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
 |---|---|---|---|---|---|---|
@@ -42,6 +49,8 @@ median deviations and more than 3 points; cards with at least 3 reports), becaus
 | Radeon RX 6600 XT | 1 | 4% / 6% / 4% | no report | 8% / 8% / 6% | no report | 38% / 36% / 36% |
 | Radeon RX 6600 | 2 | 2% / 3% / 4% | 24% / 23% / 24% | 9% / 9% / 9% | 14% / 14% / 15% | 36% / 35% / 36% |
 
+</details>
+
 The RX 7000 rows time the RX 7000 archive's `4.1.2l-lossy` in its Windows form; the RX 6000 rows the RX 6000 archive's.
 
 ## Linux
@@ -49,58 +58,72 @@ The RX 7000 rows time the RX 7000 archive's `4.1.2l-lossy` in its Windows form; 
 Under Linux (Proton), the same DLLs save much more on most Radeon cards than under Windows, most likely because Linux's driver runs two of AMD's
 shaders (the last pass and network pass 11) in a slower mode than Windows does. Under Linux, the RX 7000 archive's `4.1.2l-lossy` runs its Linux form.
 
-This project's RX 7800 XT, the release's builds, two runs each (AMD's FSR 4.1.2 = its FSR SDK 2.4.0 game DLL; Lite in this project's local test
-harness), 1080p / 1440p / 4K:
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/wte-linux-dark.svg">
+  <img src="img/wte-linux-light.svg" width="760" alt="Linux (Proton): this project's RX 7800 XT and testers' cards, how much less time FSR 4 takes per frame than with AMD's own. The figures are in the table below.">
+</picture>
 
-| Graphics card | Source | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
+<details><summary>All sizes, as a table</summary>
+
+Desktop cards 1080p / 1440p / 4K (testers: test packs from 2026-11-06; the lossy builds only from 2026-11-19), built-in graphics 800p / 1080p / 1440p (the archive for RDNA 3 built-in graphics):
+
+| Graphics chip | Reports | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
 |---|---|---|---|---|---|---|
 | Radeon RX 7800 XT | this project, two runs each | 13% / 34% / 37% | 35% / 51% / 55% | 14% / 11% / 9% | 24% / 21% / 21% | 37% / 55% / 59% |
-
-Testers' reports under Proton, desktop cards, 1080p / 1440p / 4K (test packs from 2026-11-06; the lossy builds only from 2026-11-19):
-
-| Graphics card | Reports | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
-|---|---|---|---|---|---|---|
 | Radeon RX 6800 / 6800 XT / 6900 XT | 13 | 4% / 4% / 6% | no report | 7% / 9% / 8% | no report | 38% / 38% / 36% |
 | Radeon RX 6700 XT | 28 (3 with the lossy builds) | 3% / 4% / 5% | 28% / 28% / 28% | 7% / 7% / 8% | 15% / 12% / 13% | 38% / 37% / 36% |
 | Radeon RX 6650 XT | 1 | 4% / 6% / 6% | no report | 7% / 8% / 2% | no report | 36% / 34% / 36% |
 | Radeon RX 6600 XT | 19 | 7% / 7% / 7% | no report | 8% / 8% / 5% | no report | 38% / 36% / 37% |
-
-Built-in graphics under Proton, 800p / 1080p / 1440p (the built-in graphics archive for RDNA 3):
-
-| Graphics chip | Reports | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
-|---|---|---|---|---|---|---|
 | Radeon 780M | 5 (1 with the lossy builds) | 4% / 4% / 4% | 26% / 27% / 26% | 10% / 10% / 10% | 9% / 12% / 11% | 42% / 40% / 39% |
 | Ryzen Z1 Extreme | 1 | 6% / 5% / 6% | 29% / 29% / 28% | 10% / 11% / 10% | 15% / 18% / 17% | 41% / 40% / 39% |
+
+</details>
 
 ## Valve hardware: Steam Deck and Steam Machine
 
 The Steam Deck takes the Steam Deck / older built-in graphics archive (`igpu-rdna2`), whose `exact` uses AMD's own prepass from AMD's FSR SDK 2.4.0;
 the Steam Machine takes the RX 7000 archive. AMD's FSR 4.1.2 here is the RX 6000 model on the Steam Deck and the RX 7000 model on the Steam Machine.
 
-Steam Deck, 800p / 1080p / 1440p (test packs from 2026-11-06; the lossy builds only from 2026-11-19):
+The Steam Machine's three reports all predate this release's lossy and Lite builds, so only `exact` (unchanged since then) can be shown.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/wte-valve-dark.svg">
+  <img src="img/wte-valve-light.svg" width="760" alt="Valve hardware: Steam Deck OLED and LCD at 800p, Steam Machine at 1440p, how much less time FSR 4 takes per frame than with AMD's own. The figures are in the table below.">
+</picture>
+
+<details><summary>All sizes, as a table</summary>
+
+Steam Deck 800p / 1080p / 1440p (test packs from 2026-11-06; the lossy builds only from 2026-11-19); Steam Machine 1080p / 1440p / 4K (packs of 2026-11-02 to 2026-11-04, reference AMD's FSR 4.1.2 RX 7000 model as AMD's driver ships it):
 
 | Device | Reports | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
 |---|---|---|---|---|---|---|
 | Steam Deck OLED, SteamOS | 23 (6 with the lossy builds) | 3% / 5% / 5% | 13% / 25% / 27% | 5% / 6% / 9% | 12% / 11% / 16% | 25% / 34% / 35% |
 | Steam Deck LCD, Windows | 7 | 2% slower / 0% / 2% | no report | 13% / 8% / 12% | no report | 36% / 32% / 36% |
-
-Steam Machine, SteamOS, 1080p / 1440p / 4K: three reports, all from before this release's lossy and Lite builds existed, so only `exact` (unchanged
-since then) can be shown; its reference there is AMD's FSR 4.1.2 RX 7000 model as AMD's driver ships it, not the SDK DLL:
-
-| Device | Reports | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
-|---|---|---|---|---|---|---|
 | Steam Machine, SteamOS | 3 | 4% / 5% / 10% | no report | no report | no report | no report |
+
+</details>
 
 ## Built-in graphics on Windows
 
 800p / 1080p / 1440p, the built-in graphics archive for RDNA 3 (test packs from 2026-11-06; the lossy builds only from 2026-11-19). On the Radeon
-780M / 880M this release's `4.1.2l-lossy` is 1 to 4% slower than `dll-2026-11-05`'s (three reports), still faster than AMD's Lite:
+780M / 880M this release's `4.1.2l-lossy` is 1 to 4% slower than `dll-2026-11-05`'s (three reports), still faster than AMD's Lite.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/wte-igpu-dark.svg">
+  <img src="img/wte-igpu-light.svg" width="760" alt="Built-in graphics on Windows, 1080p: per chip, how much less time FSR 4 takes per frame than with AMD's own. The figures are in the table below.">
+</picture>
+
+<details><summary>All sizes, as a table</summary>
+
+800p / 1080p / 1440p:
 
 | Graphics chip | Reports | Exact | Lossy | 4.1.2l-exact | 4.1.2l-lossy | AMD's Lite itself |
 |---|---|---|---|---|---|---|
 | Radeon 890M | 2 | 8% / 12% / 12% | no report | 13% / 16% / 14% | no report | 62% / 44% / 43% |
 | Radeon 880M | 2 | 8% / 9% / 12% | 32% / 29% / 30% | 12% / 11% / 14% | 14% / 10% / 15% | 40% / 40% / 39% |
 | Radeon 780M | 3 (1 with the lossy builds) | 5% / 5% / 5% | 28% / 27% / 25% | 6% / 4% / 2% | 8% / 9% / 8% | 38% / 38% / 38% |
+
+</details>
 
 GeForce, Intel Arc and older Radeon cards have not been timed with this release's builds. Figures of earlier builds:
 [results by graphics chip](results.md#by-gpu-type), [timing kit results](../timing-kit/RESULTS.md).

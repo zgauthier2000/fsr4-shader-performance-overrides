@@ -1,0 +1,319 @@
+{
+ "sections": [
+  {
+   "id": "windows",
+   "title": "Windows: Radeon RX 7000 and RX 6000 at 1440p",
+   "subtitle": "How much less time FSR 4 takes per frame than with AMD's own. Longer is faster.",
+   "notes": [
+    "Testers' timing-kit reports (test packs 2026-11-18 to 2026-11-20), each build against AMD's in the same report, median per card. 1080p and 4K: the table below."
+   ],
+   "rows": [
+    {
+     "card": "Radeon RX 7900 XTX",
+     "sub": "1440p, 1 report",
+     "saved": {
+      "exact": 28.0,
+      "lossy": 48.0,
+      "lexact": 12.1,
+      "llossy": null,
+      "lite": 56.2
+     }
+    },
+    {
+     "card": "Radeon RX 7900 XT",
+     "sub": "1440p, 2 reports",
+     "saved": {
+      "exact": 21.4,
+      "lossy": 43.4,
+      "lexact": 12.0,
+      "llossy": 16.9,
+      "lite": 51.8
+     }
+    },
+    {
+     "card": "Radeon RX 7700 XT",
+     "sub": "1440p, 6 reports",
+     "saved": {
+      "exact": 33.4,
+      "lossy": 51.1,
+      "lexact": 2.3,
+      "llossy": 13.7,
+      "lite": 58.2
+     }
+    },
+    {
+     "card": "Radeon RX 7600",
+     "sub": "1440p, 8 reports",
+     "saved": {
+      "exact": 24.8,
+      "lossy": 41.9,
+      "lexact": 16.1,
+      "llossy": 20.9,
+      "lite": 49.5
+     }
+    },
+    {
+     "card": "Radeon RX 6800 XT",
+     "sub": "1440p, 4 reports",
+     "saved": {
+      "exact": 3.6,
+      "lossy": 25.4,
+      "lexact": 11.6,
+      "llossy": 15.1,
+      "lite": 38.8
+     }
+    },
+    {
+     "card": "Radeon RX 6800",
+     "sub": "1440p, 6 reports",
+     "saved": {
+      "exact": 2.5,
+      "lossy": 25.0,
+      "lexact": 13.0,
+      "llossy": 15.7,
+      "lite": 38.0
+     }
+    },
+    {
+     "card": "Radeon RX 6750 XT",
+     "sub": "1440p, 14 reports",
+     "saved": {
+      "exact": 1.9,
+      "lossy": 23.6,
+      "lexact": 11.2,
+      "llossy": 13.9,
+      "lite": 36.4
+     }
+    },
+    {
+     "card": "Radeon RX 6700 XT",
+     "sub": "1440p, 1 report",
+     "saved": {
+      "exact": 2.3,
+      "lossy": 24.4,
+      "lexact": 11.8,
+      "llossy": 14.3,
+      "lite": 37.0
+     }
+    },
+    {
+     "card": "Radeon RX 6650 XT",
+     "sub": "1440p, 2 reports",
+     "saved": {
+      "exact": 3.7,
+      "lossy": 23.3,
+      "lexact": 8.1,
+      "llossy": 12.3,
+      "lite": 35.6
+     }
+    },
+    {
+     "card": "Radeon RX 6600 XT",
+     "sub": "1440p, 1 report",
+     "saved": {
+      "exact": 6.2,
+      "lossy": null,
+      "lexact": 7.8,
+      "llossy": null,
+      "lite": 36.0
+     }
+    },
+    {
+     "card": "Radeon RX 6600",
+     "sub": "1440p, 2 reports",
+     "saved": {
+      "exact": 3.2,
+      "lossy": 23.2,
+      "lexact": 9.0,
+      "llossy": 14.0,
+      "lite": 35.1
+     }
+    }
+   ]
+  },
+  {
+   "id": "linux",
+   "title": "Linux (Proton)",
+   "subtitle": "How much less time FSR 4 takes per frame than with AMD's own. Longer is faster.",
+   "notes": [
+    "This project's card: AMD's FSR 4.1.2 = its FSR SDK 2.4.0 game DLL, Lite in this project's local test harness. Testers' rows: timing-kit reports,",
+    "each build against AMD's in the same report, median per chip. Other sizes: the table below."
+   ],
+   "rows": [
+    {
+     "heading": "This project's card, the release's builds, two runs each"
+    },
+    {
+     "card": "Radeon RX 7800 XT",
+     "sub": "1440p",
+     "saved": {
+      "exact": 33.6,
+      "lossy": 50.8,
+      "lexact": 11.3,
+      "llossy": 20.7,
+      "lite": 55.0
+     }
+    },
+    {
+     "heading": "Testers' reports, desktop cards"
+    },
+    {
+     "card": "RX 6800 to 6900 XT",
+     "sub": "1440p, 13 reports",
+     "saved": {
+      "exact": 4.0,
+      "lossy": null,
+      "lexact": 8.7,
+      "llossy": null,
+      "lite": 38.1
+     }
+    },
+    {
+     "card": "Radeon RX 6700 XT",
+     "sub": "1440p, 28 reports",
+     "saved": {
+      "exact": 4.2,
+      "lossy": 27.8,
+      "lexact": 7.2,
+      "llossy": 12.2,
+      "lite": 36.8
+     }
+    },
+    {
+     "card": "Radeon RX 6650 XT",
+     "sub": "1440p, 1 report",
+     "saved": {
+      "exact": 5.9,
+      "lossy": null,
+      "lexact": 7.5,
+      "llossy": null,
+      "lite": 34.0
+     }
+    },
+    {
+     "card": "Radeon RX 6600 XT",
+     "sub": "1440p, 19 reports",
+     "saved": {
+      "exact": 7.1,
+      "lossy": null,
+      "lexact": 8.4,
+      "llossy": null,
+      "lite": 36.2
+     }
+    },
+    {
+     "heading": "Testers' reports, built-in graphics"
+    },
+    {
+     "card": "Radeon 780M",
+     "sub": "1080p, 5 reports",
+     "saved": {
+      "exact": 4.4,
+      "lossy": 27.3,
+      "lexact": 10.4,
+      "llossy": 12.5,
+      "lite": 39.5
+     }
+    },
+    {
+     "card": "Ryzen Z1 Extreme",
+     "sub": "1080p, 1 report",
+     "saved": {
+      "exact": 4.8,
+      "lossy": 29.1,
+      "lexact": 10.6,
+      "llossy": 17.8,
+      "lite": 39.8
+     }
+    }
+   ]
+  },
+  {
+   "id": "valve",
+   "title": "Valve hardware: Steam Deck and Steam Machine",
+   "subtitle": "How much less time FSR 4 takes per frame than with AMD's own. Longer is faster.",
+   "notes": [
+    "Testers' timing-kit reports, each build against AMD's in the same report, median per device. The Steam Machine's reports predate this release's",
+    "lossy and Lite builds: only exact is shown, against AMD's FSR 4.1.2 RX 7000 model as AMD's driver ships it. Other sizes: the table below."
+   ],
+   "rows": [
+    {
+     "card": "Steam Deck OLED",
+     "sub": "SteamOS, 800p, 23 reports",
+     "saved": {
+      "exact": 2.6,
+      "lossy": 13.3,
+      "lexact": 5.3,
+      "llossy": 11.7,
+      "lite": 24.9
+     }
+    },
+    {
+     "card": "Steam Deck LCD",
+     "sub": "Windows, 800p, 7 reports",
+     "saved": {
+      "exact": -1.8,
+      "lossy": null,
+      "lexact": 12.7,
+      "llossy": null,
+      "lite": 35.7
+     }
+    },
+    {
+     "card": "Steam Machine",
+     "sub": "SteamOS, 1440p, 3 reports",
+     "saved": {
+      "exact": 4.7,
+      "lossy": null,
+      "lexact": null,
+      "llossy": null,
+      "lite": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "igpu",
+   "title": "Built-in graphics on Windows at 1080p",
+   "subtitle": "How much less time FSR 4 takes per frame than with AMD's own. Longer is faster.",
+   "notes": [
+    "Testers' timing-kit reports, each build against AMD's in the same report, median per chip. 800p and 1440p: the table below."
+   ],
+   "rows": [
+    {
+     "card": "Radeon 890M",
+     "sub": "1080p, 2 reports",
+     "saved": {
+      "exact": 12.5,
+      "lossy": null,
+      "lexact": 16.0,
+      "llossy": null,
+      "lite": 44.3
+     }
+    },
+    {
+     "card": "Radeon 880M",
+     "sub": "1080p, 2 reports",
+     "saved": {
+      "exact": 9.2,
+      "lossy": 29.1,
+      "lexact": 11.4,
+      "llossy": 9.7,
+      "lite": 39.8
+     }
+    },
+    {
+     "card": "Radeon 780M",
+     "sub": "1080p, 3 reports",
+     "saved": {
+      "exact": 4.9,
+      "lossy": 26.7,
+      "lexact": 4.5,
+      "llossy": 9.2,
+      "lite": 38.5
+     }
+    }
+   ]
+  }
+ ]
+}
