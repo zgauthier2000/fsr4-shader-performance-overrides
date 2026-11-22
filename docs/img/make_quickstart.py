@@ -5,9 +5,10 @@
 # 4.1.2l-lossy). Data: quickstart-data.json (moving scene, 4K Balanced):
 #   - the first row: this project's Radeon RX 7800 XT under Linux (Proton), this release's builds, AMD's FSR 4.1.2 = the FSR SDK 2.4.0 game DLL
 #     (RX 7000 model), two runs each in mirrored order;
-#   - the others: Windows timing-kit reports (test packs 2026-11-04 / .2 of the self-updating kit), median per card, each card's own AMD FSR 4.1.2 model
-#     (RX 7000 / RX 6000) and AMD's Lite in the same report; exact and lossy = the DLLs of dll-2026-10-29, unchanged in this release; the Lite builds = the kits' test slots with the shaders
-#     and weights of this release (lt30, lt32 on RX 7000, lt34 on RX 6000).
+#   - the others: Windows timing-kit reports (test packs 2026-11-18 to 2026-11-20 of the self-updating kit), median per card; references in the same report:
+#     AMD's FSR SDK 2.4.0 DLL with the card's own FSR 4.1.2 model (RX 7000 / RX 6000) and the same DLL running FSR 4.1.2 Lite; the builds = the kits' test
+#     slots with this release's shaders (exact = this release's exact; the lossy builds' weights are stand-ins of the same size and speed). The Lite builds
+#     are taken as % of AMD's Lite report by report, then the median. A build no report has timed on a card says "no report".
 # Until release dll-2026-10-22 this figure showed Shadow of the Tomb Raider's benchmark on the RX 7800 XT (AMD's shaders, exact, lossy).
 import json, os
 THEMES = {
@@ -29,9 +30,11 @@ def text(x, y, s, t, size=12, fill='ink2', anchor='start', weight=None):
 
 
 def bar(x, y, v, smax, col, t):
+    if v is None:
+        return [text(x + 2, y + BH - 3, 'no report', t, 11, 'muted')]
     w = max(1.0, PW * max(v, 0) / smax); r = min(4, w / 2)
     return [f'<path d="M{x},{y} H{x + w - r:.1f} Q{x + w:.1f},{y} {x + w:.1f},{y + r} V{y + BH - r} Q{x + w:.1f},{y + BH} {x + w - r:.1f},{y + BH} H{x} Z" fill="{t[col]}"/>',
-            text(x + w + 6, y + BH - 3, f'{v:.0f}%', t, 11.5, 'ink2')]
+            text(x + w + 6, y + BH - 3, f'{v:.0f}%' if v >= 0 else f'{-v:.0f}% slower', t, 11.5, 'ink2')]
 
 
 def ypos(i):
@@ -40,9 +43,10 @@ def ypos(i):
 
 def figure(t):
     n = len(ROWS); H = ypos(n - 1) + RH + 132
+    pc = lambda v: 'no report' if v is None else f'{v:.0f}%' if v >= 0 else f'{-v:.0f}% more'
     desc = ' '.join(f"{r['card']}, {r['os']}" + (f" ({r['reports']} report{'s' if r['reports'] > 1 else ''})" if r['reports'] else ' (this project)') + ': '
-                    + f"exact {r['saved']['3840x2160']['exact']:.0f}%, lossy {r['saved']['3840x2160']['lossy']:.0f}% less time than AMD's FSR 4.1.2; "
-                    + f"4.1.2l-exact {r['saved']['3840x2160']['lexact']:.0f}%, 4.1.2l-lossy {r['saved']['3840x2160']['llossy']:.0f}% less than AMD's Lite." for r in ROWS)
+                    + f"exact {pc(r['saved']['3840x2160']['exact'])}, lossy {pc(r['saved']['3840x2160']['lossy'])} less time than AMD's FSR 4.1.2; "
+                    + f"4.1.2l-exact {pc(r['saved']['3840x2160']['lexact'])}, 4.1.2l-lossy {pc(r['saved']['3840x2160']['llossy'])} less than AMD's Lite." for r in ROWS)
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" '
          f'aria-label="What to expect at 4K: how much less time FSR 4 takes per frame with this project\'s builds than with AMD\'s own, card by card, moving scene, Balanced. {desc} '
          'The Windows rows come from testers\' timing-kit reports with this release\'s shaders. Other resolutions give other numbers.">',
@@ -81,8 +85,8 @@ def figure(t):
     for k, line_ in enumerate((
             "Moving scene, 4K output, Balanced. AMD's FSR 4.1.2 is the card's own model: on RX 7000 it gives FSR 4.1.1's picture, on RX 6000 a picture that",
             "differs only in rounding. Linux row: AMD's FSR 4.1.2 = its FSR SDK 2.4.0 game DLL; Lite in this project's local test harness; two runs each.",
-            "Windows rows: exact and lossy are this release's DLLs; the Lite builds are kit test slots with this release's shaders and weights. 1080p, 1440p and",
-            "other cards: the tables below. Linux gains do not carry over to Windows.",
+            "Windows rows: timing-kit test builds with this release's shaders, against AMD's FSR SDK 2.4.0 DLL in the same report. 1080p, 1440p and other",
+            "cards: the tables below. Linux gains do not carry over to Windows.",
             "The two panels have different scales: 0 to 60% on the left, 0 to 25% on the right.")):
         o.append(text(24, yf + 15 * k, line_, t, 10, 'muted'))
     return o, H

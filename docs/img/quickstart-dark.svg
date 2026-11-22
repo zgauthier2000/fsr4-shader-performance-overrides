@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="768" viewBox="0 0 760 768" role="img" aria-label="What to expect at 4K: how much less time FSR 4 takes per frame with this project's builds than with AMD's own, card by card, moving scene, Balanced. RX 7800 XT, Linux (this project): exact 37%, lossy 55% less time than AMD's FSR 4.1.2; 4.1.2l-exact 9%, 4.1.2l-lossy 21% less than AMD's Lite. RX 7900 XTX, Windows (1 report): exact 34%, lossy 48% less time than AMD's FSR 4.1.2; 4.1.2l-exact 10%, 4.1.2l-lossy 18% less than AMD's Lite. RX 7900 XT, Windows (1 report): exact 17%, lossy 34% less time than AMD's FSR 4.1.2; 4.1.2l-exact 11%, 4.1.2l-lossy 19% less than AMD's Lite. RX 7800 XT, Windows (1 report): exact 9%, lossy 27% less time than AMD's FSR 4.1.2; 4.1.2l-exact 12%, 4.1.2l-lossy 20% less than AMD's Lite. RX 7600, Windows (1 report): exact 31%, lossy 40% less time than AMD's FSR 4.1.2; 4.1.2l-exact 16%, 4.1.2l-lossy 21% less than AMD's Lite. RX 6800 XT, Windows (1 report): exact 6%, lossy 20% less time than AMD's FSR 4.1.2; 4.1.2l-exact 10%, 4.1.2l-lossy 17% less than AMD's Lite. RX 6750 XT, Windows (3 reports): exact 2%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 12%, 4.1.2l-lossy 15% less than AMD's Lite. RX 6700 XT, Windows (1 report): exact 2%, lossy 16% less time than AMD's FSR 4.1.2; 4.1.2l-exact 13%, 4.1.2l-lossy 14% less than AMD's Lite. RX 6650 XT, Windows (3 reports): exact 4%, lossy 18% less time than AMD's FSR 4.1.2; 4.1.2l-exact 10%, 4.1.2l-lossy 15% less than AMD's Lite. The Windows rows come from testers' timing-kit reports with this release's shaders. Other resolutions give other numbers.">
-<rect width="760" height="768" rx="8" fill="#1a1a19"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="900" viewBox="0 0 760 900" role="img" aria-label="What to expect at 4K: how much less time FSR 4 takes per frame with this project's builds than with AMD's own, card by card, moving scene, Balanced. RX 7800 XT, Linux (this project): exact 37%, lossy 55% less time than AMD's FSR 4.1.2; 4.1.2l-exact 9%, 4.1.2l-lossy 21% less than AMD's Lite. RX 7900 XTX, Windows (1 report): exact 34%, lossy 53% less time than AMD's FSR 4.1.2; 4.1.2l-exact 11%, 4.1.2l-lossy no report less than AMD's Lite. RX 7900 XT, Windows (2 reports): exact 23%, lossy 45% less time than AMD's FSR 4.1.2; 4.1.2l-exact 12%, 4.1.2l-lossy 19% less than AMD's Lite. RX 7700 XT, Windows (6 reports): exact 34%, lossy 52% less time than AMD's FSR 4.1.2; 4.1.2l-exact 2% more, 4.1.2l-lossy 14% less than AMD's Lite. RX 7600, Windows (8 reports): exact 31%, lossy 45% less time than AMD's FSR 4.1.2; 4.1.2l-exact 15%, 4.1.2l-lossy 20% less than AMD's Lite. RX 6800 XT, Windows (4 reports): exact 5%, lossy 26% less time than AMD's FSR 4.1.2; 4.1.2l-exact 7%, 4.1.2l-lossy 15% less than AMD's Lite. RX 6800, Windows (6 reports): exact 3%, lossy 24% less time than AMD's FSR 4.1.2; 4.1.2l-exact 12%, 4.1.2l-lossy 15% less than AMD's Lite. RX 6750 XT, Windows (14 reports): exact 2%, lossy 23% less time than AMD's FSR 4.1.2; 4.1.2l-exact 11%, 4.1.2l-lossy 15% less than AMD's Lite. RX 6700 XT, Windows (1 report): exact 1%, lossy 23% less time than AMD's FSR 4.1.2; 4.1.2l-exact 11%, 4.1.2l-lossy 14% less than AMD's Lite. RX 6650 XT, Windows (2 reports): exact 4%, lossy 24% less time than AMD's FSR 4.1.2; 4.1.2l-exact 9%, 4.1.2l-lossy 14% less than AMD's Lite. RX 6600 XT, Windows (1 report): exact 4%, lossy no report less time than AMD's FSR 4.1.2; 4.1.2l-exact 6%, 4.1.2l-lossy no report less than AMD's Lite. RX 6600, Windows (2 reports): exact 4%, lossy 24% less time than AMD's FSR 4.1.2; 4.1.2l-exact 9%, 4.1.2l-lossy 15% less than AMD's Lite. The Windows rows come from testers' timing-kit reports with this release's shaders. Other resolutions give other numbers.">
+<rect width="760" height="900" rx="8" fill="#1a1a19"/>
 <text x="24.0" y="34.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" fill="#ffffff">What to expect at 4K</text>
 <text x="24.0" y="54.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" text-anchor="start" fill="#c3c2b7">How much less time FSR 4 takes per frame than with AMD's own. Longer is faster.</text>
 <rect x="24" y="68" width="12" height="11" rx="3" fill="#3987e5"/>
@@ -18,130 +18,157 @@
 <text x="604.4" y="132.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" text-anchor="start" fill="#ffffff">4.1.2l-lossy</text>
 <text x="24.0" y="164.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#898781">This project's RX 7800 XT, Linux (Proton): the release's builds</text>
 <line x1="168.0" y1="172" x2="168.0" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="168.0" y1="280" x2="168.0" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="168.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
+<line x1="168.0" y1="280" x2="168.0" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="168.0" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
 <line x1="252.0" y1="172" x2="252.0" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="252.0" y1="280" x2="252.0" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="252.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">20%</text>
+<line x1="252.0" y1="280" x2="252.0" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="252.0" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">20%</text>
 <line x1="336.0" y1="172" x2="336.0" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="336.0" y1="280" x2="336.0" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="336.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">40%</text>
+<line x1="336.0" y1="280" x2="336.0" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="336.0" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">40%</text>
 <line x1="420.0" y1="172" x2="420.0" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="420.0" y1="280" x2="420.0" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="420.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">60%</text>
+<line x1="420.0" y1="280" x2="420.0" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="420.0" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">60%</text>
 <line x1="468.0" y1="172" x2="468.0" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="468.0" y1="280" x2="468.0" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="468.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
+<line x1="468.0" y1="280" x2="468.0" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="468.0" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">0%</text>
 <line x1="518.4" y1="172" x2="518.4" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="518.4" y1="280" x2="518.4" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="518.4" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">5%</text>
+<line x1="518.4" y1="280" x2="518.4" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="518.4" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">5%</text>
 <line x1="568.8" y1="172" x2="568.8" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="568.8" y1="280" x2="568.8" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="568.8" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10%</text>
+<line x1="568.8" y1="280" x2="568.8" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="568.8" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">10%</text>
 <line x1="619.2" y1="172" x2="619.2" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="619.2" y1="280" x2="619.2" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="619.2" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">15%</text>
+<line x1="619.2" y1="280" x2="619.2" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="619.2" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">15%</text>
 <line x1="669.6" y1="172" x2="669.6" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="669.6" y1="280" x2="669.6" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="669.6" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">20%</text>
+<line x1="669.6" y1="280" x2="669.6" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="669.6" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">20%</text>
 <line x1="720.0" y1="172" x2="720.0" y2="214" stroke="#2c2c2a" stroke-width="1"/>
-<line x1="720.0" y1="280" x2="720.0" y2="630" stroke="#2c2c2a" stroke-width="1"/>
-<text x="720.0" y="644.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">25%</text>
+<line x1="720.0" y1="280" x2="720.0" y2="762" stroke="#2c2c2a" stroke-width="1"/>
+<text x="720.0" y="776.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="middle" fill="#898781">25%</text>
 <line x1="24" y1="239" x2="736" y2="239" stroke="#898781" stroke-width="1"/>
 <text x="24.0" y="272.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" text-anchor="start" fill="#898781">Windows, testers' timing-kit reports (this release's shaders; median per card)</text>
 <text x="24.0" y="193.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 7800 XT</text>
 <text x="24.0" y="208.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">two runs each</text>
-<path d="M168,180 H320.7 Q324.7,180 324.7,184 V191 Q324.7,195 320.7,195 H168 Z" fill="#3987e5"/>
-<text x="330.7" y="192.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">37%</text>
-<path d="M168,198 H395.8 Q399.8,198 399.8,202 V209 Q399.8,213 395.8,213 H168 Z" fill="#d95926"/>
-<text x="405.8" y="210.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">55%</text>
-<path d="M468,180 H553.7 Q557.7,180 557.7,184 V191 Q557.7,195 553.7,195 H468 Z" fill="#3987e5"/>
-<text x="563.7" y="192.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">9%</text>
-<path d="M468,198 H677.7 Q681.7,198 681.7,202 V209 Q681.7,213 677.7,213 H468 Z" fill="#d95926"/>
-<text x="687.7" y="210.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">21%</text>
+<path d="M168,180 H319.4 Q323.4,180 323.4,184 V191 Q323.4,195 319.4,195 H168 Z" fill="#3987e5"/>
+<text x="329.4" y="192.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">37%</text>
+<path d="M168,198 H396.7 Q400.7,198 400.7,202 V209 Q400.7,213 396.7,213 H168 Z" fill="#d95926"/>
+<text x="406.7" y="210.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">55%</text>
+<path d="M468,180 H558.8 Q562.8,180 562.8,184 V191 Q562.8,195 558.8,195 H468 Z" fill="#3987e5"/>
+<text x="568.8" y="192.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">9%</text>
+<path d="M468,198 H675.7 Q679.7,198 679.7,202 V209 Q679.7,213 675.7,213 H468 Z" fill="#d95926"/>
+<text x="685.7" y="210.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">21%</text>
 <text x="24.0" y="301.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 7900 XTX</text>
 <text x="24.0" y="316.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">1 report</text>
-<path d="M168,288 H308.9 Q312.9,288 312.9,292 V299 Q312.9,303 308.9,303 H168 Z" fill="#3987e5"/>
-<text x="318.9" y="300.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">34%</text>
-<path d="M168,306 H366.0 Q370.0,306 370.0,310 V317 Q370.0,321 366.0,321 H168 Z" fill="#d95926"/>
-<text x="376.0" y="318.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">48%</text>
-<path d="M468,288 H569.8 Q573.8,288 573.8,292 V299 Q573.8,303 569.8,303 H468 Z" fill="#3987e5"/>
-<text x="579.8" y="300.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">10%</text>
-<path d="M468,306 H647.5 Q651.5,306 651.5,310 V317 Q651.5,321 647.5,321 H468 Z" fill="#d95926"/>
-<text x="657.5" y="318.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">18%</text>
+<path d="M168,288 H307.2 Q311.2,288 311.2,292 V299 Q311.2,303 307.2,303 H168 Z" fill="#3987e5"/>
+<text x="317.2" y="300.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">34%</text>
+<path d="M168,306 H384.9 Q388.9,306 388.9,310 V317 Q388.9,321 384.9,321 H168 Z" fill="#d95926"/>
+<text x="394.9" y="318.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">53%</text>
+<path d="M468,288 H575.9 Q579.9,288 579.9,292 V299 Q579.9,303 575.9,303 H468 Z" fill="#3987e5"/>
+<text x="585.9" y="300.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">11%</text>
+<text x="470.0" y="318.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">no report</text>
 <text x="24.0" y="345.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 7900 XT</text>
-<text x="24.0" y="360.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">1 report</text>
-<path d="M168,332 H235.4 Q239.4,332 239.4,336 V343 Q239.4,347 235.4,347 H168 Z" fill="#3987e5"/>
-<text x="245.4" y="344.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">17%</text>
-<path d="M168,350 H305.5 Q309.5,350 309.5,354 V361 Q309.5,365 305.5,365 H168 Z" fill="#d95926"/>
-<text x="315.5" y="362.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">34%</text>
-<path d="M468,332 H578.9 Q582.9,332 582.9,336 V343 Q582.9,347 578.9,347 H468 Z" fill="#3987e5"/>
-<text x="588.9" y="344.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">11%</text>
-<path d="M468,350 H652.5 Q656.5,350 656.5,354 V361 Q656.5,365 652.5,365 H468 Z" fill="#d95926"/>
-<text x="662.5" y="362.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">19%</text>
-<text x="24.0" y="389.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 7800 XT</text>
-<text x="24.0" y="404.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">1 report</text>
-<path d="M168,376 H200.5 Q204.5,376 204.5,380 V387 Q204.5,391 200.5,391 H168 Z" fill="#3987e5"/>
-<text x="210.5" y="388.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">9%</text>
-<path d="M168,394 H277.8 Q281.8,394 281.8,398 V405 Q281.8,409 277.8,409 H168 Z" fill="#d95926"/>
-<text x="287.8" y="406.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">27%</text>
-<path d="M468,376 H588.0 Q592.0,376 592.0,380 V387 Q592.0,391 588.0,391 H468 Z" fill="#3987e5"/>
-<text x="598.0" y="388.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">12%</text>
-<path d="M468,394 H664.6 Q668.6,394 668.6,398 V405 Q668.6,409 664.6,409 H468 Z" fill="#d95926"/>
-<text x="674.6" y="406.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">20%</text>
+<text x="24.0" y="360.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">2 reports</text>
+<path d="M168,332 H261.0 Q265.0,332 265.0,336 V343 Q265.0,347 261.0,347 H168 Z" fill="#3987e5"/>
+<text x="271.0" y="344.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">23%</text>
+<path d="M168,350 H351.3 Q355.3,350 355.3,354 V361 Q355.3,365 351.3,365 H168 Z" fill="#d95926"/>
+<text x="361.3" y="362.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">45%</text>
+<path d="M468,332 H581.9 Q585.9,332 585.9,336 V343 Q585.9,347 581.9,347 H468 Z" fill="#3987e5"/>
+<text x="591.9" y="344.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">12%</text>
+<path d="M468,350 H654.5 Q658.5,350 658.5,354 V361 Q658.5,365 654.5,365 H468 Z" fill="#d95926"/>
+<text x="664.5" y="362.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">19%</text>
+<text x="24.0" y="389.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 7700 XT</text>
+<text x="24.0" y="404.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">6 reports</text>
+<path d="M168,376 H306.0 Q310.0,376 310.0,380 V387 Q310.0,391 306.0,391 H168 Z" fill="#3987e5"/>
+<text x="316.0" y="388.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">34%</text>
+<path d="M168,394 H383.2 Q387.2,394 387.2,398 V405 Q387.2,409 383.2,409 H168 Z" fill="#d95926"/>
+<text x="393.2" y="406.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">52%</text>
+<path d="M468,376 H468.5 Q469.0,376 469.0,376.5 V390.5 Q469.0,391 468.5,391 H468 Z" fill="#3987e5"/>
+<text x="475.0" y="388.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">2% slower</text>
+<path d="M468,394 H602.1 Q606.1,394 606.1,398 V405 Q606.1,409 602.1,409 H468 Z" fill="#d95926"/>
+<text x="612.1" y="406.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">14%</text>
 <text x="24.0" y="433.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 7600</text>
-<text x="24.0" y="448.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">1 report</text>
-<path d="M168,420 H293.8 Q297.8,420 297.8,424 V431 Q297.8,435 293.8,435 H168 Z" fill="#3987e5"/>
-<text x="303.8" y="432.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">31%</text>
-<path d="M168,438 H334.1 Q338.1,438 338.1,442 V449 Q338.1,453 334.1,453 H168 Z" fill="#d95926"/>
-<text x="344.1" y="450.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">40%</text>
-<path d="M468,420 H624.3 Q628.3,420 628.3,424 V431 Q628.3,435 624.3,435 H468 Z" fill="#3987e5"/>
-<text x="634.3" y="432.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">16%</text>
-<path d="M468,438 H672.7 Q676.7,438 676.7,442 V449 Q676.7,453 672.7,453 H468 Z" fill="#d95926"/>
-<text x="682.7" y="450.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">21%</text>
+<text x="24.0" y="448.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">8 reports</text>
+<path d="M168,420 H293.4 Q297.4,420 297.4,424 V431 Q297.4,435 293.4,435 H168 Z" fill="#3987e5"/>
+<text x="303.4" y="432.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">31%</text>
+<path d="M168,438 H354.7 Q358.7,438 358.7,442 V449 Q358.7,453 354.7,453 H168 Z" fill="#d95926"/>
+<text x="364.7" y="450.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">45%</text>
+<path d="M468,420 H614.2 Q618.2,420 618.2,424 V431 Q618.2,435 614.2,435 H468 Z" fill="#3987e5"/>
+<text x="624.2" y="432.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">15%</text>
+<path d="M468,438 H664.6 Q668.6,438 668.6,442 V449 Q668.6,453 664.6,453 H468 Z" fill="#d95926"/>
+<text x="674.6" y="450.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">20%</text>
 <text x="24.0" y="477.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6800 XT</text>
-<text x="24.0" y="492.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">1 report</text>
-<path d="M168,464 H187.9 Q191.9,464 191.9,468 V475 Q191.9,479 187.9,479 H168 Z" fill="#3987e5"/>
-<text x="197.9" y="476.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">6%</text>
-<path d="M168,482 H247.2 Q251.2,482 251.2,486 V493 Q251.2,497 247.2,497 H168 Z" fill="#d95926"/>
-<text x="257.2" y="494.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">20%</text>
-<path d="M468,464 H559.8 Q563.8,464 563.8,468 V475 Q563.8,479 559.8,479 H468 Z" fill="#3987e5"/>
-<text x="569.8" y="476.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">10%</text>
-<path d="M468,482 H637.4 Q641.4,482 641.4,486 V493 Q641.4,497 637.4,497 H468 Z" fill="#d95926"/>
-<text x="647.4" y="494.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">17%</text>
-<text x="24.0" y="521.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6750 XT</text>
-<text x="24.0" y="536.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">3 reports</text>
-<path d="M168,508 H172.0 Q176.0,508 176.0,511.99 V519.01 Q176.0,523 172.0,523 H168 Z" fill="#3987e5"/>
-<text x="182.0" y="520.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">2%</text>
-<path d="M168,526 H232.9 Q236.9,526 236.9,530 V537 Q236.9,541 232.9,541 H168 Z" fill="#d95926"/>
-<text x="242.9" y="538.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">16%</text>
-<path d="M468,508 H588.0 Q592.0,508 592.0,512 V519 Q592.0,523 588.0,523 H468 Z" fill="#3987e5"/>
-<text x="598.0" y="520.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">12%</text>
+<text x="24.0" y="492.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">4 reports</text>
+<path d="M168,464 H185.8 Q189.8,464 189.8,468 V475 Q189.8,479 185.8,479 H168 Z" fill="#3987e5"/>
+<text x="195.8" y="476.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">5%</text>
+<path d="M168,482 H273.6 Q277.6,482 277.6,486 V493 Q277.6,497 273.6,497 H168 Z" fill="#d95926"/>
+<text x="283.6" y="494.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">26%</text>
+<path d="M468,464 H537.6 Q541.6,464 541.6,468 V475 Q541.6,479 537.6,479 H468 Z" fill="#3987e5"/>
+<text x="547.6" y="476.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">7%</text>
+<path d="M468,482 H617.2 Q621.2,482 621.2,486 V493 Q621.2,497 617.2,497 H468 Z" fill="#d95926"/>
+<text x="627.2" y="494.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">15%</text>
+<text x="24.0" y="521.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6800</text>
+<text x="24.0" y="536.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">6 reports</text>
+<path d="M168,508 H176.2 Q180.2,508 180.2,512 V519 Q180.2,523 176.2,523 H168 Z" fill="#3987e5"/>
+<text x="186.2" y="520.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">3%</text>
+<path d="M168,526 H265.2 Q269.2,526 269.2,530 V537 Q269.2,541 265.2,541 H168 Z" fill="#d95926"/>
+<text x="275.2" y="538.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">24%</text>
+<path d="M468,508 H579.9 Q583.9,508 583.9,512 V519 Q583.9,523 579.9,523 H468 Z" fill="#3987e5"/>
+<text x="589.9" y="520.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">12%</text>
 <path d="M468,526 H616.2 Q620.2,526 620.2,530 V537 Q620.2,541 616.2,541 H468 Z" fill="#d95926"/>
 <text x="626.2" y="538.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">15%</text>
-<text x="24.0" y="565.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6700 XT</text>
-<text x="24.0" y="580.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">1 report</text>
-<path d="M168,552 H171.4 Q174.7,552 174.7,555.36 V563.64 Q174.7,567 171.4,567 H168 Z" fill="#3987e5"/>
-<text x="180.7" y="564.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">2%</text>
-<path d="M168,570 H229.1 Q233.1,570 233.1,574 V581 Q233.1,585 229.1,585 H168 Z" fill="#d95926"/>
-<text x="239.1" y="582.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">16%</text>
-<path d="M468,552 H598.1 Q602.1,552 602.1,556 V563 Q602.1,567 598.1,567 H468 Z" fill="#3987e5"/>
-<text x="608.1" y="564.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">13%</text>
-<path d="M468,570 H603.1 Q607.1,570 607.1,574 V581 Q607.1,585 603.1,585 H468 Z" fill="#d95926"/>
-<text x="613.1" y="582.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">14%</text>
-<text x="24.0" y="609.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6650 XT</text>
-<text x="24.0" y="624.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">3 reports</text>
-<path d="M168,596 H182.1 Q186.1,596 186.1,600 V607 Q186.1,611 182.1,611 H168 Z" fill="#3987e5"/>
-<text x="192.1" y="608.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">4%</text>
-<path d="M168,614 H240.9 Q244.9,614 244.9,618 V625 Q244.9,629 240.9,629 H168 Z" fill="#d95926"/>
-<text x="250.9" y="626.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">18%</text>
-<path d="M468,596 H569.8 Q573.8,596 573.8,600 V607 Q573.8,611 569.8,611 H468 Z" fill="#3987e5"/>
-<text x="579.8" y="608.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">10%</text>
-<path d="M468,614 H612.2 Q616.2,614 616.2,618 V625 Q616.2,629 612.2,629 H468 Z" fill="#d95926"/>
-<text x="622.2" y="626.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">15%</text>
-<text x="24.0" y="666.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Moving scene, 4K output, Balanced. AMD's FSR 4.1.2 is the card's own model: on RX 7000 it gives FSR 4.1.1's picture, on RX 6000 a picture that</text>
-<text x="24.0" y="681.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">differs only in rounding. Linux row: AMD's FSR 4.1.2 = its FSR SDK 2.4.0 game DLL; Lite in this project's local test harness; two runs each.</text>
-<text x="24.0" y="696.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Windows rows: exact and lossy are this release's DLLs; the Lite builds are kit test slots with this release's shaders and weights. 1080p, 1440p and</text>
-<text x="24.0" y="711.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">other cards: the tables below. Linux gains do not carry over to Windows.</text>
-<text x="24.0" y="726.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">The two panels have different scales: 0 to 60% on the left, 0 to 25% on the right.</text>
+<text x="24.0" y="565.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6750 XT</text>
+<text x="24.0" y="580.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">14 reports</text>
+<path d="M168,552 H172.4 Q176.4,552 176.4,556 V563 Q176.4,567 172.4,567 H168 Z" fill="#3987e5"/>
+<text x="182.4" y="564.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">2%</text>
+<path d="M168,570 H261.4 Q265.4,570 265.4,574 V581 Q265.4,585 261.4,585 H168 Z" fill="#d95926"/>
+<text x="271.4" y="582.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">23%</text>
+<path d="M468,552 H572.9 Q576.9,552 576.9,556 V563 Q576.9,567 572.9,567 H468 Z" fill="#3987e5"/>
+<text x="582.9" y="564.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">11%</text>
+<path d="M468,570 H611.2 Q615.2,570 615.2,574 V581 Q615.2,585 611.2,585 H468 Z" fill="#d95926"/>
+<text x="621.2" y="582.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">15%</text>
+<text x="24.0" y="609.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6700 XT</text>
+<text x="24.0" y="624.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">1 report</text>
+<path d="M168,596 H170.9 Q173.9,596 173.9,598.94 V608.06 Q173.9,611 170.9,611 H168 Z" fill="#3987e5"/>
+<text x="179.9" y="608.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">1%</text>
+<path d="M168,614 H259.8 Q263.8,614 263.8,618 V625 Q263.8,629 259.8,629 H168 Z" fill="#d95926"/>
+<text x="269.8" y="626.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">23%</text>
+<path d="M468,596 H576.9 Q580.9,596 580.9,600 V607 Q580.9,611 576.9,611 H468 Z" fill="#3987e5"/>
+<text x="586.9" y="608.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">11%</text>
+<path d="M468,614 H605.1 Q609.1,614 609.1,618 V625 Q609.1,629 605.1,629 H468 Z" fill="#d95926"/>
+<text x="615.1" y="626.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">14%</text>
+<text x="24.0" y="653.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6650 XT</text>
+<text x="24.0" y="668.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">2 reports</text>
+<path d="M168,640 H180.4 Q184.4,640 184.4,644 V651 Q184.4,655 180.4,655 H168 Z" fill="#3987e5"/>
+<text x="190.4" y="652.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">4%</text>
+<path d="M168,658 H264.8 Q268.8,658 268.8,662 V669 Q268.8,673 264.8,673 H168 Z" fill="#d95926"/>
+<text x="274.8" y="670.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">24%</text>
+<path d="M468,640 H550.7 Q554.7,640 554.7,644 V651 Q554.7,655 550.7,655 H468 Z" fill="#3987e5"/>
+<text x="560.7" y="652.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">9%</text>
+<path d="M468,658 H606.1 Q610.1,658 610.1,662 V669 Q610.1,673 606.1,673 H468 Z" fill="#d95926"/>
+<text x="616.1" y="670.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">14%</text>
+<text x="24.0" y="697.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6600 XT</text>
+<text x="24.0" y="712.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">1 report</text>
+<path d="M168,684 H182.5 Q186.5,684 186.5,688 V695 Q186.5,699 182.5,699 H168 Z" fill="#3987e5"/>
+<text x="192.5" y="696.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">4%</text>
+<text x="170.0" y="714.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">no report</text>
+<path d="M468,684 H526.5 Q530.5,684 530.5,688 V695 Q530.5,699 526.5,699 H468 Z" fill="#3987e5"/>
+<text x="536.5" y="696.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">6%</text>
+<text x="470.0" y="714.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" text-anchor="start" fill="#898781">no report</text>
+<text x="24.0" y="741.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" text-anchor="start" fill="#ffffff">RX 6600</text>
+<text x="24.0" y="756.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10.5" text-anchor="start" fill="#898781">2 reports</text>
+<path d="M168,728 H179.5 Q183.5,728 183.5,732 V739 Q183.5,743 179.5,743 H168 Z" fill="#3987e5"/>
+<text x="189.5" y="740.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">4%</text>
+<path d="M168,746 H266.1 Q270.1,746 270.1,750 V757 Q270.1,761 266.1,761 H168 Z" fill="#d95926"/>
+<text x="276.1" y="758.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">24%</text>
+<path d="M468,728 H557.7 Q561.7,728 561.7,732 V739 Q561.7,743 557.7,743 H468 Z" fill="#3987e5"/>
+<text x="567.7" y="740.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">9%</text>
+<path d="M468,746 H616.2 Q620.2,746 620.2,750 V757 Q620.2,761 616.2,761 H468 Z" fill="#d95926"/>
+<text x="626.2" y="758.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" text-anchor="start" fill="#c3c2b7">15%</text>
+<text x="24.0" y="798.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Moving scene, 4K output, Balanced. AMD's FSR 4.1.2 is the card's own model: on RX 7000 it gives FSR 4.1.1's picture, on RX 6000 a picture that</text>
+<text x="24.0" y="813.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">differs only in rounding. Linux row: AMD's FSR 4.1.2 = its FSR SDK 2.4.0 game DLL; Lite in this project's local test harness; two runs each.</text>
+<text x="24.0" y="828.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">Windows rows: timing-kit test builds with this release's shaders, against AMD's FSR SDK 2.4.0 DLL in the same report. 1080p, 1440p and other</text>
+<text x="24.0" y="843.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">cards: the tables below. Linux gains do not carry over to Windows.</text>
+<text x="24.0" y="858.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" text-anchor="start" fill="#898781">The two panels have different scales: 0 to 60% on the left, 0 to 25% on the right.</text>
 </svg>
