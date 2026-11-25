@@ -14,5 +14,6 @@ A summary of each is in [How it works, and what was tried](../docs/how-it-works.
 | [`frame-skip/`](frame-skip) | running the model on every other frame and reusing its last output in between: half of AMD's upscaler time at 4K with the lossy set; what it costs in motion and in frame pacing (changes the image; in the lossy test builds) |
 | [`lossy/`](lossy) | an experiment that gives up bit-exactness: folding away part of the model's weights, tuned against the motion test. The heavy form left the lossy builds in `dll-2026-10-09`; a light form in the first layer is back since `dll-2026-10-10`, for steadiness |
 | [`history-clamp/`](history-clamp) | a lower bound on the postpass's history weight, requested against shimmering (changes the image; test builds only) |
+| [`rdna4/`](rdna4) | RX 9000: the ISA scan that found the serialized FP8 operand loads, offline RGA checks, and the A/B and picture-check scripts behind [`../windows/rdna4/`](../windows/rdna4) |
 
 Game measurements are in [`../results/`](../results).
